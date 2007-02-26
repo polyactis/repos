@@ -137,6 +137,8 @@ class dbSNP2data:
 		2007-02-19
 			if strain_id2acc is available, translate strain_id into strain_acc,
 			if strain_id2category is available, add 'category'
+		2007-02-25
+			if one strain's SNP row is all NA, it'll be skipped
 		"""
 		sys.stderr.write("Writing data_matrix ...")
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
@@ -154,11 +156,12 @@ class dbSNP2data:
 				new_row = [strain_id_list[i]]
 			if strain_id2category:
 				new_row.append(strain_id2category[strain_id_list[i]])
-			for j in data_matrix[i]:
-				if nt_alphabet:
-					j = number2nt[j]
-				new_row.append(j)
-			writer.writerow(new_row)
+			if data_matrix[i]!=0:	#rows with all NAs(after heterozygous calles are removed) skipped
+				for j in data_matrix[i]:
+					if nt_alphabet:
+						j = number2nt[j]
+					new_row.append(j)
+				writer.writerow(new_row)
 		del writer
 		sys.stderr.write("Done.\n")
 	
