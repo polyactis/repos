@@ -10,6 +10,7 @@ Option:
 	-o ...,	output file
 	-s ...,	strain_info table, 'strain_info'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
+	-t,	toss out rows to make distance matrix NA free
 	-y,	need heterozygous call
 	-w,	with header line
 	-a,	use alphabet to represent nucleotide, not number
@@ -19,6 +20,8 @@ Option:
 
 Examples:
 	dbSNP2data.py -i justin_data -o justin_data.csv -r
+	
+	dbSNP2data.py -i justin_data -o justin_data.csv -r -w -t
 
 Description:
 	output SNP data from database schema
@@ -36,6 +39,7 @@ import psycopg, sys, getopt, csv, re
 from codense.common import db_connect, org_short2long, org2tax_id
 from common import nt2number, number2nt
 import Numeric as num
+from sets import Set
 
 class dbSNP2data:
 	"""
@@ -43,7 +47,11 @@ class dbSNP2data:
 	"""
 	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_table=None, \
 		output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus', \
-		organism='hs', need_heterozygous_call=0, with_header_line=0, nt_alphabet=0, debug=0, report=0):
+		organism='hs', toss_out_rows=0, need_heterozygous_call=0, with_header_line=0, nt_alphabet=0, debug=0, report=0):
+		"""
+		2007-02-25
+			add toss_out_rows
+		"""
 		self.hostname = hostname
 		self.dbname = dbname
 		self.schema = schema
@@ -52,6 +60,7 @@ class dbSNP2data:
 		self.strain_info_table = strain_info_table
 		self.snp_locus_table = snp_locus_table
 		#self.tax_id = org2tax_id(org_short2long(organism))
+		self.toss_out_rows = int(toss_out_rows)
 		self.need_heterozygous_call = int(need_heterozygous_call)
 		self.with_header_line = int(with_header_line)
 		self.nt_alphabet = int(nt_alphabet)
@@ -132,13 +141,15 @@ class dbSNP2data:
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
-	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None):
+	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None, rows_to_be_tossed_out=Set()):
 		"""
 		2007-02-19
 			if strain_id2acc is available, translate strain_id into strain_acc,
 			if strain_id2category is available, add 'category'
 		2007-02-25
 			if one strain's SNP row is all NA, it'll be skipped
+		2007-02-25
+			add argument rows_to_be_tossed_out
 		"""
 		sys.stderr.write("Writing data_matrix ...")
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
@@ -156,7 +167,7 @@ class dbSNP2data:
 				new_row = [strain_id_list[i]]
 			if strain_id2category:
 				new_row.append(strain_id2category[strain_id_list[i]])
-			if data_matrix[i]!=0:	#rows with all NAs(after heterozygous calles are removed) skipped
+			if data_matrix[i]!=0 and (i not in rows_to_be_tossed_out):	#2007-02-25
 				for j in data_matrix[i]:
 					if nt_alphabet:
 						j = number2nt[j]
@@ -177,7 +188,56 @@ class dbSNP2data:
 		commandline = 'mv %s.post %s'%(ofname, ofname)
 		exit_code = system_call(commandline)
 		sys.stderr.write(".\n")
+	
+	def toss_rows_to_make_distance_matrix_NA_free(self, data_matrix):
+		"""
+		2007-02-25
+		"""
+		sys.stderr.write("Removing rows to make distance matrix NA free ...")
+		NA_pair_list = []
+		no_of_rows, no_of_columns = data_matrix.shape
+		for i in range(no_of_rows):
+			for j in range(i+1, no_of_rows):
+				no_of_NA_pairs = 0
+				for k in range(no_of_columns):
+					if data_matrix[i,k]!=0 and data_matrix[j,k]!=0:
+						break
+					else:
+						no_of_NA_pairs += 1
+				if no_of_NA_pairs==no_of_columns:
+					NA_pair_list.append([i,j])
 		
+		import networkx as nx
+		g = nx.Graph()
+		g.add_edges_from(NA_pair_list)
+		vertex_list_to_be_deleted = self.find_smallest_vertex_set_to_remove_all_edges(g)
+		if self.debug:
+			print
+			print "NA_pair_list:"
+			print NA_pair_list
+			print "vertex_list_to_be_deleted:"
+			print vertex_list_to_be_deleted
+		sys.stderr.write(" %s removed, done.\n"%(len(vertex_list_to_be_deleted)))
+		return vertex_list_to_be_deleted
+	
+	def find_smallest_vertex_set_to_remove_all_edges(self, g):
+		"""
+		2007-02-25
+		"""
+		vertex_with_max_degree = -1
+		max_degree = 0
+		for v in g:
+			degree_of_v = g.degree(v)
+			if degree_of_v > max_degree:
+				max_degree = degree_of_v
+				vertex_with_max_degree = v
+		vertex_list_to_be_deleted = []
+		if max_degree>0:	#to avoid empty-edge graph
+			g.delete_node(vertex_with_max_degree)
+			vertex_list_to_be_deleted.append(vertex_with_max_degree)
+			vertex_list_to_be_deleted += self.find_smallest_vertex_set_to_remove_all_edges(g)
+		return vertex_list_to_be_deleted
+	
 	def run(self):
 		"""
 		2007-02-19
@@ -187,6 +247,7 @@ class dbSNP2data:
 			--get_strain_id_info()
 			--get_snp_id_info()
 			--get_data_matrix()
+			
 			--write_data_matrix()
 			#--sort_file()
 		"""
@@ -197,8 +258,14 @@ class dbSNP2data:
 		strain_id2acc, strain_id2category = self.get_strain_id_info(curs, strain_id_list, self.strain_info_table)
 		snp_id2acc = self.get_snp_id_info(curs, snp_id_list, self.snp_locus_table)
 		data_matrix = self.get_data_matrix(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
+		
+		if self.toss_out_rows:
+			rows_to_be_tossed_out = self.toss_rows_to_make_distance_matrix_NA_free(data_matrix)
+			rows_to_be_tossed_out = Set(rows_to_be_tossed_out)
+		else:
+			rows_to_be_tossed_out = Set()
 		self.write_data_matrix(data_matrix, self.output_fname, strain_id_list, snp_id_list, snp_id2acc, self.with_header_line,\
-			self.nt_alphabet, strain_id2acc, strain_id2category)
+			self.nt_alphabet, strain_id2acc, strain_id2category, rows_to_be_tossed_out)
 		#self.sort_file(self.output_fname)
 
 if __name__ == '__main__':
@@ -208,7 +275,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:g:ywabrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:g:tywabrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -221,6 +288,7 @@ if __name__ == '__main__':
 	strain_info_table = 'strain_info'
 	snp_locus_table = 'snp_locus'
 	organism = 'at'
+	toss_out_rows = 0
 	need_heterozygous_call = 0
 	with_header_line = 0
 	nt_alphabet = 0
@@ -247,6 +315,8 @@ if __name__ == '__main__':
 			snp_locus_table = arg
 		elif opt in ("-g",):
 			organism = arg
+		elif opt in ("-t",):
+			toss_out_rows = 1
 		elif opt in ("-y",):
 			need_heterozygous_call = 1
 		elif opt in ("-w",):
@@ -260,7 +330,8 @@ if __name__ == '__main__':
 
 	if input_table and output_fname and hostname and dbname and schema:
 		instance = dbSNP2data(hostname, dbname, schema, input_table, output_fname, \
-			strain_info_table, snp_locus_table, organism, need_heterozygous_call, with_header_line, nt_alphabet, debug, report)
+			strain_info_table, snp_locus_table, organism, toss_out_rows, need_heterozygous_call, \
+			with_header_line, nt_alphabet, debug, report)
 		instance.run()
 	else:
 		print __doc__
