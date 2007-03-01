@@ -14,8 +14,8 @@ Option:
 	-y,	need heterozygous call
 	-w,	with header line
 	-a,	use alphabet to represent nucleotide, not number
-	-b, --debug	just test running the program, no daytime restriction
-	-r, --report	report the progress (time before each query)
+	-b, --debug	enable debug
+	-r, --report	enable more progress-related output
 	-h, --help	show this help
 
 Examples:
@@ -50,7 +50,7 @@ class dbSNP2data:
 		organism='hs', toss_out_rows=0, need_heterozygous_call=0, with_header_line=0, nt_alphabet=0, debug=0, report=0):
 		"""
 		2007-02-25
-			add toss_out_rows
+			add argument toss_out_rows
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -247,7 +247,9 @@ class dbSNP2data:
 			--get_strain_id_info()
 			--get_snp_id_info()
 			--get_data_matrix()
-			
+			if self.toss_out_rows:
+				--toss_rows_to_make_distance_matrix_NA_free()
+					--find_smallest_vertex_set_to_remove_all_edges()
 			--write_data_matrix()
 			#--sort_file()
 		"""
