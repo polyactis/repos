@@ -67,11 +67,15 @@ class dbSNP2data:
 		self.debug = int(debug)
 		self.report = int(report)
 	
-	def get_snp_id2index(self, curs, input_table):
+	def get_snp_id2index(self, curs, input_table, snp_locus_table):
+		"""
+		2007-03-05
+			add snp_locus_table to sort snp based on chromosome and position
+		"""
 		sys.stderr.write("Getting snp_id2index ...")
 		snp_id2index = {}
 		snp_id_list = []
-		curs.execute("select distinct snp_id from %s order by snp_id"%(input_table))
+		curs.execute("select distinct i.snp_id, s.chromosome, s.position from %s i, %s s where i.snp_id=s.id order by chromosome, position"%(input_table, snp_locus_table))
 		rows = curs.fetchall()
 		for row in rows:
 			snp_id = row[0]
@@ -254,7 +258,7 @@ class dbSNP2data:
 			#--sort_file()
 		"""
 		(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
-		snp_id2index, snp_id_list = self.get_snp_id2index(curs, self.input_table)
+		snp_id2index, snp_id_list = self.get_snp_id2index(curs, self.input_table, self.snp_locus_table)
 		strain_id2index, strain_id_list = self.get_strain_id2index(curs, self.input_table)
 		
 		strain_id2acc, strain_id2category = self.get_strain_id_info(curs, strain_id_list, self.strain_info_table)
