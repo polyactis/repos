@@ -1,0 +1,15 @@
+src/
+	dbSNP.sql: database schema
+	variation.R: some R code
+	misc.py: short code, like small function
+	
+	==pipeline
+	
+	data2dbSNP.py
+	dbSNP2data.py
+	SelectStrains.py
+
+
+doc/
+	BorevitzNIH2005.pdf: Borevitz's proposal for NIH Grant
+	BorevitzProgressReport07.pdf: Year 1 end report
