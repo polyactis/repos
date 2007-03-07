@@ -104,6 +104,10 @@ class data2dbSNP:
 		return snp_counter
 	
 	def parse_file(self, input_fname, curs, output_table, tax_id, snp_acc_category_pattern, strain_acc2id, snp_acc2id, snp_locus_table):
+		"""
+		2007-03-06
+			if category extraction using 're' fails, just use the 1st 3 character of strain_acc
+		"""
 		sys.stderr.write("Starting to parse %s ...\n"%input_fname)
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		snp_acc_list = reader.next()[1:]
@@ -119,9 +123,11 @@ class data2dbSNP:
 				try:
 					category = snp_acc_category_pattern.match(strain_acc).groups()[0]
 				except:
+					print 'category extraction error'
 					print row
 					print counter
 					print strain_acc
+					category = strain_acc[:3]
 				self.submit_to_strain_info_table(curs, strain_acc, category, new_id, tax_id, strain_info_table)
 				strain_acc2id[strain_acc] = new_id
 			snp_counter += self.submit_to_snp_table(curs, new_id, snp_index2acc, snp_acc2id, call_list, output_table)
