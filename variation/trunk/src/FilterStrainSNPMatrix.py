@@ -62,7 +62,7 @@ class FilterStrainSNPMatrix:
 			print
 			print 'rows_with_too_many_NAs_set'
 			print rows_with_too_many_NAs_set
-		sys.stderr.write("done.\n")
+		sys.stderr.write("%s strains removed, done.\n"%len(rows_with_too_many_NAs_set))
 		return rows_with_too_many_NAs_set, strain_index2no_of_NAs
 	
 	def remove_cols_with_too_many_NAs(self, data_matrix, col_cutoff, rows_with_too_many_NAs_set):
@@ -83,7 +83,7 @@ class FilterStrainSNPMatrix:
 			print
 			print 'cols_with_too_many_NAs_set'
 			print cols_with_too_many_NAs_set
-		sys.stderr.write("done.\n")
+		sys.stderr.write("%s cols removed, done.\n"%(len(cols_with_too_many_NAs_set)))
 		return cols_with_too_many_NAs_set
 	
 	def remove_identity_strains(self, data_matrix, rows_to_be_checked, cols_to_be_checked, strain_index2no_of_NAs):
@@ -135,7 +135,7 @@ class FilterStrainSNPMatrix:
 			print
 			print 'identity_strains_to_be_removed'
 			print identity_strains_to_be_removed
-		sys.stderr.write("done.\n")
+		sys.stderr.write("%s identity strains, done.\n"%(len(identity_strains_to_be_removed)))
 		return identity_strains_to_be_removed
 	
 	def write_data_matrix(self, data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=Set(), cols_to_be_tossed_out=Set()):
