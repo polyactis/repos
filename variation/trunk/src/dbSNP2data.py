@@ -122,6 +122,10 @@ class dbSNP2data:
 		return snp_id2acc
 	
 	def get_data_matrix(self, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call):
+		"""
+		2007-03-20
+			check whether strain_id and snp_id are in strain_id2index, snp_id2index
+		"""
 		sys.stderr.write("Getting data_matrix ...\n")
 		data_matrix = num.zeros([len(strain_id2index), len(snp_id2index)])
 		curs.execute("DECLARE crs CURSOR FOR select strain_id, snp_id, call from %s"%(input_table))
@@ -131,11 +135,12 @@ class dbSNP2data:
 		while rows:
 			for row in rows:
 				strain_id, snp_id, call = row
-				call_number = nt2number[call]
-				if need_heterozygous_call:
-					data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
-				elif call_number<=4:	#single letter or NA
-					data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
+				if strain_id in  strain_id2index and snp_id in snp_id2index:	#2007-03-20
+					call_number = nt2number[call]
+					if need_heterozygous_call:
+						data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
+					elif call_number<=4:	#single letter or NA
+						data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
 				counter += 1
 			curs.execute("fetch 5000 from crs")
 			rows = curs.fetchall()
