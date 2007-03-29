@@ -1,0 +1,102 @@
+Population samples  	 	 	 	
+			plate pos. 	stock center
+accession 	region 	population 	col 	row 	number
+RRS-7 	Midwest (Indiana) 	RRS 	1 	A 	CS22564
+RRS-10 			1 	B 	CS22565
+Knox-10 		Knox 	1 	C 	CS22566
+Knox-18 			1 	D 	CS22567
+Rmx-A02 	Midwest (Michigan) 	Remax 	1 	E 	CS22568
+Rmx-A180 			1 	F 	CS22569
+Pna-17 		Park/Napier 	1 	G 	CS22570
+Pna-10 			1 	H 	CS22571
+Eden-1 	Northern Sweden 	Eden 	2 	A 	CS22572
+Eden-2 			2 	B 	CS22573
+Lov-1 		Lövvik 	2 	C 	CS22574
+Lov-5 			2 	D 	CS22575
+Fab-2 		Fäberget 	2 	E 	CS22576
+Fab-4 			2 	F 	CS22577
+Bil-5 		Billaberget 	2 	G 	CS22578
+Bil-7 			2 	H 	CS22579
+Var2-1 	Southern Sweden 	Vårhallarna 	3 	A 	CS22580
+Var2-6 			3 	B 	CS22581
+Spr1-2 		Sprattleboda 	3 	C 	CS22582
+Spr1-6 			3 	D 	CS22583
+Omo2-1 		Östra Möcklö-2 	3 	E 	CS22584
+Omo2-3 			3 	F 	CS22585
+Ull2-5 		Ullstorp-2 	3 	G 	CS22586
+Ull2-3 			3 	H 	CS22587
+Zdr-1 	Czech Republic 	Zdr 	4 	A 	CS22588
+Zdr-6 			4 	B 	CS22589
+Bor-1 		Bor 	4 	C 	CS22590
+Bor-4 			4 	D 	CS22591
+Pu2-7 		Pu2 	4 	E 	CS22592
+Pu2-23 			4 	F 	CS22593
+Lp2-2 		LP2 	4 	G 	CS22594
+Lp2-6 			4 	H 	CS22595
+HR-5 	England 	HR 	5 	A 	CS22596
+HR-10 			5 	B 	CS22597
+NFA-8 		NFA 	5 	C 	CS22598
+NFA-10 			5 	D 	CS22599
+Sq-1 		SQ 	5 	E 	CS22600
+Sq-8 			5 	F 	CS22601
+CIBC-5 		CIBC 	5 	G 	CS22602
+CIBC-17 			5 	H 	CS22603
+Tamm-2 	Finland 	Tammisari 	6 	A 	CS22604
+Tamm-27 			6 	B 	CS22605
+Kz-1 	Kazakhstan 	KZ 	6 	C 	CS22606
+Kz-9 			6 	D 	CS22607
+Got-7 	Germany 	Göttingen 	6 	E 	CS22608
+Got-22 			6 	F 	CS22609
+Ren-1 	France 	Rennes 	6 	G 	CS22610
+Ren-11 			6 	H 	CS22611
+Uod-1 	Austria 	Uod 	7 	A 	CS22612
+Uod-7 			7 	B 	CS22613
+					
+MPI lines, RI parents, etc. 				
+					
+Cvi-0 	Cape Verde Islands 	Cape Verde Islands 	7 	C 	CS22614
+Lz-0 	France 	Puy-de-Dome 	7 	D 	CS22615
+Ei-2 	Germany 	Eifel 	7 	E 	CS22616
+Gu-0 	Germany 	Guckingen 	7 	F 	CS22617
+Ler-1 	Germany 	Landsberg 	7 	G 	CS22618
+Nd-1 	Germany 	Niederzenz 	7 	H 	CS22619
+C24 	Portugal 	Coimbra 	8 	A 	CS22620
+CS22491 	Russia 	Konchezero 	8 	B 	CS22621
+Wei-0 	Switzerland 	Weiningen 	8 	C 	CS22622
+Ws-0 	Ukraine 	(Wassilewskija)/Djnepr 	8 	D 	CS22623
+Yo-0 	USA 	Yosemite Nat. Park 	8 	E 	CS22624
+Col-0 	USA (Germany?) 	Columbia 	8 	F 	CS22625
+An-1 	Belgium 	Antwerpen 	8 	G 	CS22626
+Van-0 	Canada 	UBC, British Columbia 	8 	H 	CS22627
+Br-0 	Czech Republic 	Brno (Brunn) 	9 	A 	CS22628
+Est-1 	Estland 	Estland 	9 	B 	CS22629
+Ag-0 	France 	Argentat 	9 	C 	CS22630
+Gy-0 	France 	La Miniere 	9 	D 	CS22631
+Ra-0 	France 	Randan, Puy-de-Dome 	9 	E 	CS22632
+Bay-0 	Germany 	Bayreuth 	9 	F 	CS22633
+Ga-0 	Germany 	Gabelstein 	9 	G 	CS22634
+Mrk-0 	Germany 	Markt/Baden 	9 	H 	CS22635
+Mz-0 	Germany 	Merzhausen/Ts. 	10 	A 	CS22636
+Wt-5 	Germany 	Wietze 	10 	B 	CS22637
+Kas-1 	India 	Kashmir 	10 	C 	CS22638
+Ct-1 	Italy 	Catania 	10 	D 	CS22639
+Mr-0 	Italy 	Monte/Tosso 	10 	E 	CS22640
+Tsu-1 	Japan 	Tsushima 	10 	F 	CS22641
+Mt-0 	Libya 	Martubad/Cyrenaika 	10 	G 	CS22642
+Nok-3 	Netherlands 	Noordwijk 	10 	H 	CS22643
+Wa-1 	Poland 	Warzaw 	11 	A 	CS22644
+Fei-0 	Portugal 	St. Maria d. Feiria 	11 	B 	CS22645
+Se-0 	Spain 	San Eleno 	11 	C 	CS22646
+Ts-1 	Spain 	Tossa de Mar 	11 	D 	CS22647
+Ts-5 	Spain 	Tossa de Mar 	11 	E 	CS22648
+Pro-0 	Spain 	Proaza, Asturios 	11 	F 	CS22649
+LL-0 	Spain 	Llagostera 	11 	G 	CS22650
+Kondara 	Tajikistan 	Pamiro-Alay 	11 	H 	CS22651
+Shahdara 	Tajikistan 	Pamiro-Alay 	12 	A 	CS22652
+Sorbo 	Tajikistan 	Pamiro-Alay 	12 	B 	CS22653
+Kin-0 	USA 	Kindalville, MI 	12 	C 	CS22654
+Ms-0 	Russia 	Moscow 	12 	D 	CS22655
+Bur-0 	Ireland 	Burren 	12 	E 	CS22656
+Edi-0 	Scotland 	Edinburgh 	12 	F 	CS22657
+Oy-0 	Norway 	Oystese 	12 	G 	CS22658
+Ws-2 	Ukraine 	(Wassilewskija)/Djnepr 	12 	H 	CS22659
