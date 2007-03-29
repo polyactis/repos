@@ -1,0 +1,808 @@
+Population Location	Pop	Line	Barcode	distance along 20m transect	Location Latitude	Longutude	comments
+Browntown	Brn	1	Brn-1	0.0	41.9	-86.58	rr site
+Browntown	Brn	2	Brn-2	0.25			
+Browntown	Brn	3	Brn-3	0.55			
+Browntown	Brn	4	Brn-4	0.8			
+Browntown	Brn	6	Brn-6	1.6			
+Browntown	Brn	9	Brn-9	2.5			
+Browntown	Brn	10	Brn-10	2.9			
+Browntown	Brn	11	Brn-11	3.15			
+Browntown	Brn	12	Brn-12	3.6			
+Browntown	Brn	16	Brn-16	5.0			
+Browntown	Brn	17	Brn-17	5.9			
+Browntown	Brn	19	Brn-19	6.5			
+Browntown	Brn	20	Brn-20	7.0			
+Browntown	Brn	21	Brn-21	8.0			
+Browntown	Brn	22	Brn-22	8.5			
+Browntown	Brn	23	Brn-23	9.0			
+Browntown	Brn	24	Brn-24	9.5			
+Browntown	Brn	27	Brn-27	10.2			
+Browntown	Brn	28	Brn-28	11.0			
+Browntown	Brn	29	Brn-29	12.4			
+Browntown	Brn	32	Brn-32	14.1			
+Browntown	Brn	35	Brn-35	17.0			
+Browntown	Brn	36	Brn-36	17.5			
+Browntown	Brn	37	Brn-37	17.9			
+Browntown	Brn	38	Brn-38	18.3			
+Duck Lake St Pk	DuckLkSP	1	DuckLkSP1	0.15	43.34	-86.4	some shade in picnic grounds
+Duck Lake St Pk	DuckLkSP	2	DuckLkSP2	0.2			
+Duck Lake St Pk	DuckLkSP	3	DuckLkSP3	0.7			
+Duck Lake St Pk	DuckLkSP	6	DuckLkSP6	1.8			
+Duck Lake St Pk	DuckLkSP	7	DuckLkSP7	1.85			
+Duck Lake St Pk	DuckLkSP	9	DuckLkSP9	2.25			
+Duck Lake St Pk	DuckLkSP	12	DuckLkSP12	3			
+Duck Lake St Pk	DuckLkSP	14	DuckLkSP14	3.35			
+Duck Lake St Pk	DuckLkSP	15	DuckLkSP15	3.9			
+Duck Lake St Pk	DuckLkSP	18	DuckLkSP18	4.45			
+Duck Lake St Pk	DuckLkSP	19	DuckLkSP19	5.15			
+Duck Lake St Pk	DuckLkSP	22	DuckLkSP22	5.9			
+Duck Lake St Pk	DuckLkSP	23	DuckLkSP23	6.1			
+Duck Lake St Pk	DuckLkSP	24	DuckLkSP24	6.4			
+Duck Lake St Pk	DuckLkSP	25	DuckLkSP25	6.45			
+Duck Lake St Pk	DuckLkSP	27	DuckLkSP27	6.9			
+Duck Lake St Pk	DuckLkSP	28	DuckLkSP28	7.1			
+Duck Lake St Pk	DuckLkSP	30	DuckLkSP30	7.3			
+Duck Lake St Pk	DuckLkSP	32	DuckLkSP32	7.75			
+Duck Lake St Pk	DuckLkSP	37	DuckLkSP37	10.1			
+Duck Lake St Pk	DuckLkSP	38	DuckLkSP38	11.2			
+Duck Lake St Pk	DuckLkSP	40	DuckLkSP40	11.4			
+Duck Lake St Pk	DuckLkSP	41	DuckLkSP41	11.5			
+Duck Lake St Pk	DuckLkSP	42	DuckLkSP42	11.8			
+Duck Lake St Pk	DuckLkSP	43	DuckLkSP43	12.42			
+Duck Lake St Pk	DuckLkSP	46	DuckLkSP46	13.1			
+Duck Lake St Pk	DuckLkSP	48	DuckLkSP48	13.7			
+Duck Lake St Pk	DuckLkSP	49	DuckLkSP49	13.8			
+Duck Lake St Pk	DuckLkSP	51	DuckLkSP51	14			
+Duck Lake St Pk	DuckLkSP	52	DuckLkSP52	14.4			
+Duck Lake St Pk	DuckLkSP	53	DuckLkSP53	14.7			
+Duck Lake St Pk	DuckLkSP	54	DuckLkSP54	14.8			
+Duck Lake St Pk	DuckLkSP	55	DuckLkSP55	15.3			
+Duck Lake St Pk	DuckLkSP	56	DuckLkSP56	15.35			
+Duck Lake St Pk	DuckLkSP	57	DuckLkSP57	15.4			
+Duck Lake St Pk	DuckLkSP	59	DuckLkSP59	16			
+Duck Lake St Pk	DuckLkSP	60	DuckLkSP60	16.4			
+Duck Lake St Pk	DuckLkSP	61	DuckLkSP61	17			
+Duck Lake St Pk	DuckLkSP	63	DuckLkSP63	17.4			
+Duck Lake St Pk	DuckLkSP	64	DuckLkSP64	17.9			
+Duck Lake St Pk	DuckLkSP	67	DuckLkSP67	18.8			
+Duck Lake St Pk	DuckLkSP	69	DuckLkSP69	19			
+Duck Lake St Pk	DuckLkSP	71	DuckLkSP71	19.75			
+Duck Lake St Pk	DuckLkSP	73	DuckLkSP73	20			
+Hazelhurst	Haz	1	Haz-1	0.0	41.88	-86.61	rr site
+Hazelhurst	Haz	2	Haz-2	0.3			
+Hazelhurst	Haz	3	Haz-3	0.6			
+Hazelhurst	Haz	4	Haz-4	1.0			
+Hazelhurst	Haz	5	Haz-5	1.3			
+Hazelhurst	Haz	6	Haz-6	1.9			
+Hazelhurst	Haz	7	Haz-7	2.35			
+Hazelhurst	Haz	8	Haz-8	4.0			
+Hazelhurst	Haz	9	Haz-9	6.45			
+Hazelhurst	Haz	10	Haz-10	6.5			
+Hazelhurst	Haz	12	Haz-12	8.1			
+Hazelhurst	Haz	13	Haz-13	8.2			
+Hazelhurst	Haz	14	Haz-14	8.8			
+Hazelhurst	Haz	15	Haz-15	9.0			
+Hazelhurst	Haz	16	Haz-16	9.35			
+Hazelhurst	Haz	17	Haz-17	9.5			
+Hazelhurst	Haz	18	Haz-18	9.75			
+Hazelhurst	Haz	19	Haz-19	9.8			
+Hazelhurst	Haz	20	Haz-20	10.0			
+Hazelhurst	Haz	21	Haz-21	11.3			
+Hazelhurst	Haz	22	Haz-22	11.31			
+Hazelhurst	Haz	23	Haz-23	11.5			
+Hazelhurst	Haz	24	Haz-24	11.8			
+Hazelhurst	Haz	25	Haz-25	12.0			
+Hazelhurst	Haz	26	Haz-26	12.7			
+Hazelhurst	Haz	27	Haz-27	13.2			
+Hazelhurst	Haz	28	Haz-28	13.7			
+Hazelhurst	Haz	29	Haz-29	14.6			
+Hazelhurst	Haz	30	Haz-30	15.1			
+Hazelhurst	Haz	31	Haz-31	15.3			
+Hazelhurst	Haz	32	Haz-32	15.45			
+Hazelhurst	Haz	33	Haz-33	15.7			
+Hazelhurst	Haz	35	Haz-35	16.05			
+Hazelhurst	Haz	36	Haz-36	16.5			
+Hazelhurst	Haz	37	Haz-37	16.8			
+Hazelhurst	Haz	39	Haz-39	17.0			
+Hazelhurst	Haz	40	Haz-40	17.05			
+Hazelhurst	Haz	41	Haz-41	17.1			
+KBS-Mackay	KBS-Mackay	1	KBS-Mac-1	0.4	42.41	-85.4	old field - not plowed 
+KBS-Mackay	KBS-Mackay	3	KBS-Mac-3	0.45			
+KBS-Mackay	KBS-Mackay	6	KBS-Mac-6	0.8			
+KBS-Mackay	KBS-Mackay	8	KBS-Mac-8	0.95			
+KBS-Mackay	KBS-Mackay	13	KBS-Mac-13	2.05			
+KBS-Mackay	KBS-Mackay	15	KBS-Mac-15	2.7			
+KBS-Mackay	KBS-Mackay	16	KBS-Mac-16	2.9			
+KBS-Mackay	KBS-Mackay	17	KBS-Mac-17	3.1			
+KBS-Mackay	KBS-Mackay	22	KBS-Mac-22	4			
+KBS-Mackay	KBS-Mackay	23	KBS-Mac-23	5.7			
+KBS-Mackay	KBS-Mackay	26	KBS-Mac-26	6			
+KBS-Mackay	KBS-Mackay	28	KBS-Mac-28	6.15			
+KBS-Mackay	KBS-Mackay	30	KBS-Mac-30	7.3			
+KBS-Mackay	KBS-Mackay	33	KBS-Mac-33	8.1			
+KBS-Mackay	KBS-Mackay	34	KBS-Mac-34	8.65			
+KBS-Mackay	KBS-Mackay	36	KBS-Mac-36	8.95			
+KBS-Mackay	KBS-Mackay	41	KBS-Mac-41	10.3			
+KBS-Mackay	KBS-Mackay	43	KBS-Mac-43	10.7			
+KBS-Mackay	KBS-Mackay	48	KBS-Mac-48	13.25			
+KBS-Mackay	KBS-Mackay	51	KBS-Mac-51	13.5			
+KBS-Mackay	KBS-Mackay	53	KBS-Mac-53	13.65			
+KBS-Mackay	KBS-Mackay	54	KBS-Mac-54	13.85			
+KBS-Mackay	KBS-Mackay	56	KBS-Mac-56	13.9			
+KBS-Mackay	KBS-Mackay	58	KBS-Mac-58	14.25			
+KBS-Mackay	KBS-Mackay	62	KBS-Mac-62	14.7			
+KBS-Mackay	KBS-Mackay	64	KBS-Mac-64	14.9			
+KBS-Mackay	KBS-Mackay	68	KBS-Mac-68	15.1			
+KBS-Mackay	KBS-Mackay	72	KBS-Mac-72	15.35			
+KBS-Mackay	KBS-Mackay	73	KBS-Mac-73	15.5			
+KBS-Mackay	KBS-Mackay	74	KBS-Mac-74	15.5			
+KBS-Mackay	KBS-Mackay	75	KBS-Mac-75	15.9			
+KBS-Mackay	KBS-Mackay	76	KBS-Mac-76	16.05			
+KBS-Mackay	KBS-Mackay	78	KBS-Mac-78	16.55			
+KBS-Mackay	KBS-Mackay	79	KBS-Mac-79	17.05			
+KBS-Mackay	KBS-Mackay	80	KBS-Mac-80	17.1			
+KBS-Mackay	KBS-Mackay	86	KBS-Mac-86	17.9			
+KBS-Mackay	KBS-Mackay	88	KBS-Mac-88	18.1			
+KBS-Mackay	KBS-Mackay	89	KBS-Mac-89	19.1			
+KBS-Mackay	KBS-Mackay	91	KBS-Mac-91	19.5			
+KBS-Mackay	KBS-Mackay	95	KBS-Mac-95	19.9			
+KBS-Mackay	KBS-Mackay	96	KBS-Mac-96	20.05			
+Kerlikowski	Ker	1	Ker-1	-0.1	42.18	-86.36	rr site
+Kerlikowski	Ker	3	Ker-3	0.1			
+Kerlikowski	Ker	4	Ker-4	0.15			
+Kerlikowski	Ker	5	Ker-5	0.25			
+Kerlikowski	Ker	6	Ker-6	0.6			
+Kerlikowski	Ker	7	Ker-7	0.7			
+Kerlikowski	Ker	8	Ker-8	1.3			
+Kerlikowski	Ker	9	Ker-9	1.35			
+Kerlikowski	Ker	10	Ker-10	2.0			
+Kerlikowski	Ker	11	Ker-11	2.4			
+Kerlikowski	Ker	13	Ker-13	3.15			
+Kerlikowski	Ker	14	Ker-14	3.5			
+Kerlikowski	Ker	17	Ker-17	5.1			
+Kerlikowski	Ker	18	Ker-18	5.15			
+Kerlikowski	Ker	21	Ker-21	6.1			
+Kerlikowski	Ker	23	Ker-23	6.6			
+Kerlikowski	Ker	24	Ker-24	6.85			
+Kerlikowski	Ker	25	Ker-25	7.0			
+Kerlikowski	Ker	26	Ker-26	7.3			
+Kerlikowski	Ker	27	Ker-27	7.5			
+Kerlikowski	Ker	28	Ker-28	7.9			
+Kerlikowski	Ker	29	Ker-29	8.0			
+Kerlikowski	Ker	30	Ker-30	8.5			
+Kerlikowski	Ker	31	Ker-31	8.8			
+Kerlikowski	Ker	32	Ker-32	9.0			
+Kerlikowski	Ker	33	Ker-33	9.2			
+Kerlikowski	Ker	35	Ker-35	10.1			
+Kerlikowski	Ker	36	Ker-36	10.6			
+Kerlikowski	Ker	38	Ker-38	11.25			
+Kerlikowski	Ker	39	Ker-39	11.6			
+Kerlikowski	Ker	40	Ker-40	11.9			
+Kerlikowski	Ker	41	Ker-41	12.9			
+Kerlikowski	Ker	42	Ker-42	14.1			
+Kerlikowski	Ker	43	Ker-43	18.0			
+Kerlikowski	Ker	44	Ker-44	19.1			
+Lake-Red	L-R	1	L-R-1	A 0.0	41.85	-86.67	rr site
+Lake-Red	L-R	2	L-R-2	A 0.9			
+Lake-Red	L-R	3	L-R-3	A 1.5			
+Lake-Red	L-R	4	L-R-4	A 3.7			
+Lake-Red	L-R	5	L-R-5	A 5.3			
+Lake-Red	L-R	7	L-R-7	A 6.45			
+Lake-Red	L-R	8	L-R-8	A 6.46			
+Lake-Red	L-R	9	L-R-9	A 6.5			
+Lake-Red	L-R	10	L-R-10	A 6.9			
+Lake-Red	L-R	11	L-R-11	B 0.2			
+Lake-Red	L-R	12	L-R-12	B 0.3			
+Lake-Red	L-R	13	L-R-13	B 0.6			
+Lake-Red	L-R	14	L-R-14	B 0.65			
+Lake-Red	L-R	15	L-R-15	B 0.7			
+Lake-Red	L-R	16	L-R-16	B 0.9			
+Lake-Red	L-R	17	L-R-17	B 1.1			
+Lake-Red	L-R	18	L-R-18	B 1.2			
+Lake-Red	L-R	19	L-R-19	B 4.5			
+Lake-Red	L-R	20	L-R-20	B 5.0			
+Lake-Red	L-R	21	L-R-21	B 5.7			
+Lakeside	Lak	1	Lak-1	0.2	41.8	-86.67	rr
+Lakeside	Lak	2	Lak-2	5.65			
+Lakeside	Lak	4	Lak-4	11.9			
+Lakeside	Lak	5	Lak-5	12.2			
+Lakeside	Lak	6	Lak-6	12.4			
+Lakeside	Lak	7	Lak-7	12.41			
+Lakeside	Lak	8	Lak-8	12.45			
+Lakeside	Lak	9	Lak-9	12.71			
+Lakeside	Lak	10	Lak-10	12.75			
+Lakeside	Lak	11	Lak-11	12.8			
+Lakeside	Lak	12	Lak-12	12.89			
+Lakeside	Lak	13	Lak-13	12.9			
+Lakeside	Lak	14	Lak-14	12.95			
+Lakeside	Lak	15	Lak-15	13.3			
+Lakeside	Lak	16	Lak-16	13.81			
+Lakeside	Lak	17	Lak-17	13.85			
+Lakeside	Lak	18	Lak-18	13.9			
+Lakeside	Lak	20	Lak-20	15.9			
+Lakeside	Lak	21	Lak-21	16.5			
+Lakeside	Lak	22	Lak-22	16.74			
+Maiden	Mdn	1	Mdn-1	0.3	42.05	-86.51	rr site
+Maiden	Mdn	3	Mdn-3	1.7			
+Maiden	Mdn	4	Mdn-4	1.85			
+Maiden	Mdn	5	Mdn-5	2.1			
+Maiden	Mdn	7	Mdn-7	3			
+Maiden	Mdn	8	Mdn-8	3.3			
+Maiden	Mdn	10	Mdn-10	4			
+Maiden	Mdn	11	Mdn-11	4.6			
+Maiden	Mdn	13	Mdn-13	5.2			
+Maiden	Mdn	14	Mdn-14	5.6			
+Maiden	Mdn	15	Mdn-15	6			
+Maiden	Mdn	17	Mdn-17	6.7			
+Maiden	Mdn	21	Mdn-21	8.6			
+Maiden	Mdn	23	Mdn-23	11.8			
+Maiden	Mdn	24	Mdn-24	12.7			
+Maiden	Mdn	25	Mdn-25	13.5			
+Maiden	Mdn	26	Mdn-26	13.8			
+Maiden	Mdn	27	Mdn-27	14.1			
+Maiden	Mdn	28	Mdn-28	14.3			
+Maiden	Mdn	29	Mdn-29	15.1			
+Maiden	Mdn	31	Mdn-31	16			
+Manistee Nat'l For - Potter's	MNF-Potter	8	MNF-Pot-8	0.2	43.59	-86.27	open area of national forest -large pop
+Manistee Nat'l For - Potter's	MNF-Potter	10	MNF-Pot-10	0.31			
+Manistee Nat'l For - Potter's	MNF-Potter	15	MNF-Pot-15	0.87			
+Manistee Nat'l For - Potter's	MNF-Potter	21	MNF-Pot-21	1.2			
+Manistee Nat'l For - Potter's	MNF-Potter	23	MNF-Pot-23	1.6			
+Manistee Nat'l For - Potter's	MNF-Potter	37	MNF-Pot-37	3.8			
+Manistee Nat'l For - Potter's	MNF-Potter	41	MNF-Pot-41	4.58			
+Manistee Nat'l For - Potter's	MNF-Potter	46	MNF-Pot-46	5			
+Manistee Nat'l For - Potter's	MNF-Potter	47	MNF-Pot-47	5.25			
+Manistee Nat'l For - Potter's	MNF-Potter	48	MNF-Pot-48	5.45			
+Manistee Nat'l For - Potter's	MNF-Potter	54	MNF-Pot-54	6.45			
+Manistee Nat'l For - Potter's	MNF-Potter	55	MNF-Pot-55	6.75			
+Manistee Nat'l For - Potter's	MNF-Potter	56	MNF-Pot-56	7			
+Manistee Nat'l For - Potter's	MNF-Potter	59	MNF-Pot-59	7.65			
+Manistee Nat'l For - Potter's	MNF-Potter	60	MNF-Pot-60	7.8			
+Manistee Nat'l For - Potter's	MNF-Potter	61	MNF-Pot-61	8			
+Manistee Nat'l For - Potter's	MNF-Potter	66	MNF-Pot-66	9.05			
+Manistee Nat'l For - Potter's	MNF-Potter	68	MNF-Pot-68	9.35			
+Manistee Nat'l For - Potter's	MNF-Potter	69	MNF-Pot-69	9.55			
+Manistee Nat'l For - Potter's	MNF-Potter	70	MNF-Pot-70	9.7			
+Manistee Nat'l For - Potter's	MNF-Potter	73	MNF-Pot-73	10.65			
+Manistee Nat'l For - Potter's	MNF-Potter	75	MNF-Pot-75	10.85			
+Manistee Nat'l For - Potter's	MNF-Potter	76	MNF-Pot-76	10.85			
+Manistee Nat'l For - Potter's	MNF-Potter	79	MNF-Pot-79	11.15			
+Manistee Nat'l For - Potter's	MNF-Potter	80	MNF-Pot-80	11.15			
+Manistee Nat'l For - Potter's	MNF-Potter	81	MNF-Pot-81	11.2			
+Manistee Nat'l For - Potter's	MNF-Potter	82	MNF-Pot-82	11.25			
+Manistee Nat'l For - River	MNF River	1	MNF-Riv-1	2.7	43.51	-86.19	patch - mostly open - on river bluff
+Manistee Nat'l For - River	MNF River	2	MNF-Riv-2	2.9			
+Manistee Nat'l For - River	MNF River	5	MNF-Riv-5	3.07			
+Manistee Nat'l For - River	MNF River	6	MNF-Riv-6	3.1			
+Manistee Nat'l For - River	MNF River	7	MNF-Riv-7	3.15			
+Manistee Nat'l For - River	MNF River	8	MNF-Riv-8	3.15			
+Manistee Nat'l For - River	MNF River	10	MNF-Riv-10	3.3			
+Manistee Nat'l For - River	MNF River	11	MNF-Riv-11	3.4			
+Manistee Nat'l For - River	MNF River	12	MNF-Riv-12	3.5			
+Manistee Nat'l For - River	MNF River	13	MNF-Riv-13	3.8			
+Manistee Nat'l For - River	MNF River	16	MNF-Riv-16	4.9			
+Manistee Nat'l For - River	MNF River	17	MNF-Riv-17	5			
+Manistee Nat'l For - River	MNF River	19	MNF-Riv-19	5.4			
+Manistee Nat'l For - River	MNF River	21	MNF-Riv-21	6.1			
+Manistee Nat'l For - River	MNF River	22	MNF-Riv-22	6.4			
+Manistee Nat'l For - River	MNF River	23	MNF-Riv-23	6.42			
+Manistee Nat'l For - River	MNF River	24	MNF-Riv-24	7			
+Manistee Nat'l For - River	MNF River	26	MNF-Riv-26	7.3			
+Manistee Nat'l For - River	MNF River	27	MNF-Riv-27	7.5			
+Manistee Nat'l For - River	MNF River	29	MNF-Riv-29	7.8			
+Manistee Nat'l For - River	MNF River	30	MNF-Riv-30	8			
+Manistee Nat'l For - River	MNF River	33	MNF-Riv-33	8.7			
+Manistee Nat'l For - River	MNF River	34	MNF-Riv-34	8.9			
+Manistee Nat'l For - River	MNF River	35	MNF-Riv-35	9			
+Manistee Nat'l For - River	MNF River	36	MNF-Riv-36	9.2			
+Manistee Nat'l For - River	MNF River	38	MNF-Riv-38	9.4			
+Manistee Nat'l For - River	MNF River	39	MNF-Riv-39	9.4			
+Manistee Nat'l For - River	MNF River	40	MNF-Riv-40	9.6			
+Manistee Nat'l For - River	MNF River	41	MNF-Riv-41	9.6			
+Manistee Nat'l For - River	MNF River	42	MNF-Riv-42	10			
+Manistee Nat'l For - River	MNF River	45	MNF-Riv-45	10.4			
+Manistee Nat'l For - River	MNF River	46	MNF-Riv-46	10.6			
+Manistee Nat'l For - River	MNF River	47	MNF-Riv-47	10.85			
+Manistee Nat'l For - River	MNF River	49	MNF-Riv-49	11.05			
+Manistee Nat'l For - River	MNF River	50	MNF-Riv-50	11.1			
+Manistee Nat'l For - River	MNF River	53	MNF-Riv-53	11.4			
+Manistee Nat'l For - River	MNF River	54	MNF-Riv-54	11.4			
+Manistee Nat'l For - River	MNF River	55	MNF-Riv-55	12			
+Manistee Nat'l For - River	MNF River	56	MNF-Riv-56	12.1			
+Manistee Nat'l For - River	MNF River	57	MNF-Riv-57	12.2			
+Manistee Nat'l For - River	MNF River	60	MNF-Riv-60	12.8			
+Manistee Nat'l For - River	MNF River	66	MNF-Riv-66	13.8			
+Manistee Nat'l For - River	MNF River	67	MNF-Riv-67	13.8			
+Manistee Nat'l For - River	MNF River	68	MNF-Riv-68	13.85			
+Manistee Nat'l For - River	MNF River	69	MNF-Riv-69	13.95			
+Manistee Nat'l For - River	MNF River	70	MNF-Riv-70	14			
+Manistee Nat'l For - River	MNF River	71	MNF-Riv-71	14.15			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	1	MNF-Che-1	4.2	43.53	-86.18	mostly open with small cherry trees
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	2	MNF-Che-2	4.3			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	3	MNF-Che-3	4.65			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	5	MNF-Che-5	4.95			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	7	MNF-Che-7	5.1			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	9	MNF-Che-9	5.35			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	10	MNF-Che-10	5.42			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	11	MNF-Che-11	5.5			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	15	MNF-Che-15	6.3			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	23	MNF-Che-23	8.5			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	28	MNF-Che-28	9.3			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	34	MNF-Che-34	10.1			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	36	MNF-Che-36	10.5			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	39	MNF-Che-39	10.9			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	41	MNF-Che-41	11			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	42	MNF-Che-42	11.15			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	44	MNF-Che-44	11.3			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	45	MNF-Che-45	11.5			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	47	MNF-Che-47	11.8			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	49	MNF-Che-49	12.1			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	50	MNF-Che-50	12.25			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	51	MNF-Che-51	12.5			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	52	MNF-Che-52	12.6			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	53	MNF-Che-53	12.9			
+Manistee Nat'l Forest - Cherry Savanna	MNF-Cherry	58	MNF-Che-58	16.95			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	2	MNF-Jac-2	0.32	43.52	-86.17	mostly open area of national forest with Jack Pines+G2
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	6	MNF-Jac-6	1.05			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	7	MNF-Jac-7	1.35			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	9	MNF-Jac-9	2			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	10	MNF-Jac-10	2.4			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	12	MNF-Jac-12	2.8			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	14	MNF-Jac-14	3.2			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	15	MNF-Jac-15	3.6			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	18	MNF-Jac-18	3.95			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	20	MNF-Jac-20	4.2			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	21	MNF-Jac-21	4.5			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	22	MNF-Jac-22	4.7			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	24	MNF-Jac-24	5			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	25	MNF-Jac-25	5.2			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	26	MNF-Jac-26	5.5			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	28	MNF-Jac-28	5.9			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	30	MNF-Jac-30	6.1			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	31	MNF-Jac-31	6.5			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	32	MNF-Jac-32	6.8			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	34	MNF-Jac-34	7.1			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	38	MNF-Jac-38	7.9			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	39	MNF-Jac-39	8			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	42	MNF-Jac-42	8.6			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	45	MNF-Jac-45	9.5			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	46	MNF-Jac-46	9.7			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	49	MNF-Jac-49	10.7			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	50	MNF-Jac-50	10.9			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	51	MNF-Jac-51	11.25			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	52	MNF-Jac-52	11.6			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	61	MNF-Jac-61	13.7			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	63	MNF-Jac-63	14.05			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	64	MNF-Jac-64	14.45			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	68	MNF-Jac-68	15.25			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	71	MNF-Jac-71	16			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	73	MNF-Jac-73	16.35			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	74	MNF-Jac-74	16.5			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	75	MNF-Jac-75	16.85			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	76	MNF-Jac-76	17.05			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	79	MNF-Jac-79	18.05			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	81	MNF-Jac-81	18.5			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	82	MNF-Jac-82	18.7			
+Manistee Nat'l Forest - Jack Pine	MNF-Jack	85	MNF-Jac-85	19.9			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	1	MNF-Pin-1	0.1	43.54	-86.18	open area of national forest -nearby a pine plantation
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	2	MNF-Pin-2	0.2			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	4	MNF-Pin-4	1.2			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	6	MNF-Pin-6	1.9			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	7	MNF-Pin-7	2.1			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	9	MNF-Pin-9	2.7			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	10	MNF-Pin-10	3			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	11	MNF-Pin-11	3.3			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	12	MNF-Pin-12	3.6			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	14	MNF-Pin-14	4.6			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	15	MNF-Pin-15	4.79			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	16	MNF-Pin-16	5			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	17	MNF-Pin-17	5.4			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	20	MNF-Pin-20	6.5			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	21	MNF-Pin-21	6.6			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	23	MNF-Pin-23	7.1			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	24	MNF-Pin-24	7.3			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	28	MNF-Pin-28	8.7			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	29	MNF-Pin-29	9			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	30	MNF-Pin-30	9.6			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	31	MNF-Pin-31	9.7			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	32	MNF-Pin-32	9.95			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	33	MNF-Pin-33	10			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	35	MNF-Pin-35	10.7			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	38	MNF-Pin-38	11.85			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	39	MNF-Pin-39	12			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	40	MNF-Pin-40	12.2			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	41	MNF-Pin-41	12.65			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	43	MNF-Pin-43	13.45			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	44	MNF-Pin-44	13.85			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	51	MNF-Pin-51	16.3			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	52	MNF-Pin-52	16.35			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	53	MNF-Pin-53	16.65			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	55	MNF-Pin-55	17.5			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	56	MNF-Pin-56	17.85			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	58	MNF-Pin-58	18.4			
+Manistee Nat'l Forest - Pine Plantation	MNF-Pine	60	MNF-Pin-60	19.25			
+Maple	Map	3	Map-3	1.2	42.17	-86.41	rr site
+Maple	Map	5	Map-5	1.7			
+Maple	Map	6	Map-6	2.6			
+Maple	Map	8	Map-8	4.4			
+Maple	Map	9	Map-9	4.7			
+Maple	Map	10	Map-10	5.6			
+Maple	Map	11	Map-11	6.1			
+Maple	Map	12	Map-12	6.2			
+Maple	Map	13	Map-13	8.0			
+Maple	Map	14	Map-14	8.1			
+Maple	Map	15	Map-15	9.1			
+Maple	Map	17	Map-17	11.5			
+Maple	Map	18	Map-18	11.6			
+Maple	Map	19	Map-19	11.8			
+Maple	Map	21	Map-21	12.1			
+Maple	Map	22	Map-22	12.15			
+Maple	Map	23	Map-23	12.5			
+Maple	Map	25	Map-25	13.0			
+Maple	Map	26	Map-26	14.1			
+Maple	Map	28	Map-28	14.8			
+Maple	Map	29	Map-29	14.85			
+Maple	Map	30	Map-30	14.9			
+Maple	Map	31	Map-31	14.95			
+Maple	Map	33	Map-33	15.5			
+Maple	Map	34	Map-34	15.55			
+Maple	Map	35	Map-35	15.57			
+Maple	Map	36	Map-36	15.7			
+Maple	Map	39	Map-39	16.05			
+Maple	Map	41	Map-41	16.45			
+Maple	Map	42	Map-42	16.6			
+Maple	Map	43	Map-43	16.7			
+Maple	Map	44	Map-44	17.05			
+Maple	Map	45	Map-45	17.06			
+Muskegon St Pk	MuskSP	1	MuskSP-1	A 0	43.25	-86.34	open grassy area
+Muskegon St Pk	MuskSP	3	MuskSP-3	A 0.3			
+Muskegon St Pk	MuskSP	4	MuskSP-4	A 0.5			
+Muskegon St Pk	MuskSP	7	MuskSP-7	A 0.95			
+Muskegon St Pk	MuskSP	8	MuskSP-8	A 1			
+Muskegon St Pk	MuskSP	9	MuskSP-9	A 1.1			
+Muskegon St Pk	MuskSP	10	MuskSP-10	A 1.3			
+Muskegon St Pk	MuskSP	11	MuskSP-11	A 1.35			
+Muskegon St Pk	MuskSP	18	MuskSP-18	A 2.03			
+Muskegon St Pk	MuskSP	20	MuskSP-20	A 2.08			
+Muskegon St Pk	MuskSP	21	MuskSP-21	A 2.09			
+Muskegon St Pk	MuskSP	26	MuskSP-26	A 2.43			
+Muskegon St Pk	MuskSP	27	MuskSP-27	A 2.5			
+Muskegon St Pk	MuskSP	30	MuskSP-30	A 3.2			
+Muskegon St Pk	MuskSP	33	MuskSP-33	B 0.3			
+Muskegon St Pk	MuskSP	35	MuskSP-35	B 0.9			
+Muskegon St Pk	MuskSP	36	MuskSP-36	B 1.4			
+Muskegon St Pk	MuskSP	38	MuskSP-38	B 1.6			
+Muskegon St Pk	MuskSP	52	MuskSP-52	B 7.4			
+Muskegon St Pk	MuskSP	57	MuskSP-57	B 8.3			
+Muskegon St Pk	MuskSP	59	MuskSP-59	B 8.4			
+Muskegon St Pk	MuskSP	62	MuskSP-62	B 9			
+Muskegon St Pk	MuskSP	63	MuskSP-63	B 9.3			
+Muskegon St Pk	MuskSP	64	MuskSP-64	B 9.8			
+Muskegon St Pk	MuskSP	65	MuskSP-65	B 10			
+Muskegon St Pk	MuskSP	67	MuskSP-67	B 10.3			
+Muskegon St Pk	MuskSP	68	MuskSP-68	B 11			
+Muskegon St Pk	MuskSP	70	MuskSP-70	B 11.9			
+Muskegon St Pk	MuskSP	72	MuskSP-72	B 12.5			
+Muskegon St Pk	MuskSP	74	MuskSP-74	B 13.7			
+Muskegon St Pk	MuskSP	76	MuskSP-76	B 14.62			
+Muskegon St Pk	MuskSP	77	MuskSP-77	B 14.9			
+Muskegon St Pk	MuskSP	78	MuskSP-78	B 15			
+Muskegon St Pk	MuskSP	79	MuskSP-79	B 15.3			
+Muskegon St Pk	MuskSP	80	MuskSP-80	B 15.55			
+Muskegon St Pk	MuskSP	82	MuskSP-82	B 16.05			
+Muskegon St Pk	MuskSP	83	MuskSP-83	B 16.2			
+Muskegon St Pk	MuskSP	85	MuskSP-85	B 17.2			
+Muskegon St Pk	MuskSP	86	MuskSP-86	B 17.2			
+Muskegon State Game Area	MSGA	1	MSGA-1	0.1	43.27	-86.09	mostly open along trail - next to woods
+Muskegon State Game Area	MSGA	3	MSGA-3	0.4			
+Muskegon State Game Area	MSGA	4	MSGA-4	0.75			
+Muskegon State Game Area	MSGA	5	MSGA-5	0.9			
+Muskegon State Game Area	MSGA	7	MSGA-7	1.65			
+Muskegon State Game Area	MSGA	8	MSGA-8	1.85			
+Muskegon State Game Area	MSGA	10	MSGA-10	2.5			
+Muskegon State Game Area	MSGA	11	MSGA-11	3.9			
+Muskegon State Game Area	MSGA	12	MSGA-12	4.6			
+Muskegon State Game Area	MSGA	14	MSGA-14	6.95			
+Muskegon State Game Area	MSGA	15	MSGA-15	7			
+Muskegon State Game Area	MSGA	18	MSGA-18	8.05			
+Muskegon State Game Area	MSGA	19	MSGA-19	8.3			
+Muskegon State Game Area	MSGA	21	MSGA-21	8.6			
+Muskegon State Game Area	MSGA	22	MSGA-22	9.75			
+Muskegon State Game Area	MSGA	23	MSGA-23	10			
+Muskegon State Game Area	MSGA	24	MSGA-24	10.3			
+Muskegon State Game Area	MSGA	26	MSGA-26	10.35			
+Muskegon State Game Area	MSGA	28	MSGA-28	10.7			
+Muskegon State Game Area	MSGA	30	MSGA-30	11.45			
+Muskegon State Game Area	MSGA	31	MSGA-31	11.8			
+Muskegon State Game Area	MSGA	32	MSGA-32	11.9			
+Muskegon State Game Area	MSGA	34	MSGA-34	12.2			
+Muskegon State Game Area	MSGA	36	MSGA-36	12.35			
+Muskegon State Game Area	MSGA	38	MSGA-38	12.5			
+Muskegon State Game Area	MSGA	40	MSGA-40	14.05			
+Muskegon State Game Area	MSGA	42	MSGA-42	14.45			
+Muskegon State Game Area	MSGA	43	MSGA-43	14.75			
+Muskegon State Game Area	MSGA	44	MSGA-44	14.9			
+Muskegon State Game Area	MSGA	46	MSGA-46	15.4			
+Muskegon State Game Area	MSGA	47	MSGA-47	15.45			
+Muskegon State Game Area	MSGA	49	MSGA-49	17.2			
+Muskegon State Game Area	MSGA	50	MSGA-50	17.5			
+Muskegon State Game Area	MSGA	52	MSGA-52	17.6			
+Muskegon State Game Area	MSGA	53	MSGA-53	17.62			
+Muskegon State Game Area	MSGA	54	MSGA-54	17.8			
+Muskegon State Game Area	MSGA	55	MSGA-55	17.85			
+Muskegon State Game Area	MSGA	56	MSGA-56	17.9			
+Muskegon State Game Area	MSGA	58	MSGA-57	18.1			
+Muskegon State Game Area	MSGA	59	MSGA-59	18.35			
+Muskegon State Game Area	MSGA	60	MSGA-60	18.7			
+Muskegon State Game Area	MSGA	61	MSGA-61	18.85			
+Muskegon State Game Area	MSGA	63	MSGA-63	18.95			
+Muskegon State Game Area	MSGA	64	MSGA-64	19.1			
+Muskegon State Game Area	MSGA	65	MSGA-65	19.2			
+Muskegon State Game Area	MSGA	66	MSGA-66	19.35			
+Muskegon State Game Area	MSGA	67	MSGA-67	19.6			
+Muskegon State Game Area	MSGA	69	MSGA-69	19.85			
+Pawpaw	Paw	1	Paw-1	0.0	42.15	-86.43	rr site
+Pawpaw	Paw	2	Paw-2	0.1			
+Pawpaw	Paw	3	Paw-3	0.5			
+Pawpaw	Paw	4	Paw-4	1.4			
+Pawpaw	Paw	5	Paw-5	1.6			
+Pawpaw	Paw	7	Paw-7	2.5			
+Pawpaw	Paw	8	Paw-8	2.6			
+Pawpaw	Paw	9	Paw-9	2.8			
+Pawpaw	Paw	10	Paw-10	3.7			
+Pawpaw	Paw	11	Paw-11	3.8			
+Pawpaw	Paw	12	Paw-12	4.05			
+Pawpaw	Paw	13	Paw-13	4.55			
+Pawpaw	Paw	14	Paw-14	4.9			
+Pawpaw	Paw	15	Paw-15	5.1			
+Pawpaw	Paw	16	Paw-16	5.6			
+Pawpaw	Paw	17	Paw-17	5.8			
+Pawpaw	Paw	18	Paw-18	6.5			
+Pawpaw	Paw	19	Paw-19	6.6			
+Pawpaw	Paw	20	Paw-20	7.0			
+Pawpaw	Paw	21	Paw-21	8.0			
+Pawpaw	Paw	23	Paw-23	9.0			
+Pawpaw	Paw	24	Paw-24	9.2			
+Pawpaw	Paw	25	Paw-25	9.4			
+Pawpaw	Paw	26	Paw-26	9.41			
+Pawpaw	Paw	27	Paw-27	9.6			
+Pawpaw	Paw	29	Paw-29	10.2			
+Pawpaw	Paw	30	Paw-30	10.5			
+Pawpaw	Paw	31	Paw-31	10.8			
+Pawpaw	Paw	32	Paw-32	11.0			
+Pawpaw	Paw	33	Paw-33	11.5			
+Pawpaw	Paw	36	Paw-36	12.8			
+Pawpaw	Paw	39	Paw-39	14.0			
+Pawpaw	Paw	40	Paw-40	14.6			
+Pawpaw	Paw	42	Paw-42	15.4			
+Pawpaw	Paw	43	Paw-43	15.45			
+Pawpaw	Paw	44	Paw-44	15.8			
+Pawpaw	Paw	45	Paw-45	16.2			
+Pawpaw	Paw	48	Paw-48	17.2			
+Pawpaw	Paw	51	Paw-51	18.0			
+Pentwater State Game Area	Pent	1	Pent-1	0.2	43.76	-86.39	open grassy area - on hillside
+Pentwater State Game Area	Pent	2	Pent-2	0.25			
+Pentwater State Game Area	Pent	4	Pent-4	0.4			
+Pentwater State Game Area	Pent	5	Pent-5	0.63			
+Pentwater State Game Area	Pent	7	Pent-7	0.8			
+Pentwater State Game Area	Pent	8	Pent-8	0.9			
+Pentwater State Game Area	Pent	9	Pent-9	1.1			
+Pentwater State Game Area	Pent	10	Pent-10	1.24			
+Pentwater State Game Area	Pent	11	Pent-11	1.37			
+Pentwater State Game Area	Pent	12	Pent-12	1.4			
+Pentwater State Game Area	Pent	13	Pent-13	1.55			
+Pentwater State Game Area	Pent	15	Pent-15	2			
+Pentwater State Game Area	Pent	16	Pent-16	3			
+Pentwater State Game Area	Pent	20	Pent-20	4.65			
+Pentwater State Game Area	Pent	22	Pent-22	5.28			
+Pentwater State Game Area	Pent	23	Pent-23	5.6			
+Pentwater State Game Area	Pent	24	Pent-24	5.71			
+Pentwater State Game Area	Pent	30	Pent-30	6.65			
+Pentwater State Game Area	Pent	32	Pent-32	7.1			
+Pentwater State Game Area	Pent	35	Pent-35	8.05			
+Pentwater State Game Area	Pent	37	Pent-37	8.4			
+Pentwater State Game Area	Pent	38	Pent-38	8.95			
+Pentwater State Game Area	Pent	39	Pent-39	9			
+Pentwater State Game Area	Pent	43	Pent-43	10.4			
+Pentwater State Game Area	Pent	45	Pent-45	10.85			
+Pentwater State Game Area	Pent	46	Pent-46	11.15			
+Pentwater State Game Area	Pent	47	Pent-47	11.6			
+Pentwater State Game Area	Pent	49	Pent-49	12.35			
+Pentwater State Game Area	Pent	51	Pent-51	13.8			
+Pentwater State Game Area	Pent	53	Pent-53	14.45			
+Pentwater State Game Area	Pent	55	Pent-55	14.9			
+Pentwater State Game Area	Pent	56	Pent-56	15.25			
+Pentwater State Game Area	Pent	57	Pent-57	16.15			
+Pentwater State Game Area	Pent	58	Pent-58	16.5			
+Pentwater State Game Area	Pent	59	Pent-59	16.8			
+Pentwater State Game Area	Pent	60	Pent-60	17.05			
+Pentwater State Game Area	Pent	61	Pent-61	17.3			
+Pentwater State Game Area	Pent	63	Pent-63	18.8			
+Pentwater State Game Area	Pent	65	Pent-65	19.45			
+Pentwater State Game Area	Pent	66	Pent-66	19.65			
+Pentwater State Game Area	Pent	67	Pent-67	19.85			
+Riverside	Riv	1	Riv-1	0.0	42.18	-86.38	rr site
+Riverside	Riv	2	Riv-2	0.2			
+Riverside	Riv	6	Riv-6	0.85			
+Riverside	Riv	8	Riv-8	1.0			
+Riverside	Riv	9	Riv-9	1.1			
+Riverside	Riv	12	Riv-12	2.0			
+Riverside	Riv	16	Riv-16	2.95			
+Riverside	Riv	19	Riv-19	4.3			
+Riverside	Riv	20	Riv-20	4.35			
+Riverside	Riv	22	Riv-22	4.75			
+Riverside	Riv	24	Riv-24	8.0			
+Riverside	Riv	25	Riv-25	8.8			
+Riverside	Riv	26	Riv-26	9.0			
+Riverside	Riv	27	Riv-27	9.1			
+Riverside	Riv	28	Riv-28	9.5			
+Riverside	Riv	30	Riv-30	10.3			
+Riverside	Riv	31	Riv-31	11.1			
+Riverside	Riv	32	Riv-32	11.4			
+Riverside	Riv	33	Riv-33	11.8			
+Riverside	Riv	34	Riv-34	11.9			
+Riverside	Riv	35	Riv-35	12.0			
+Riverside	Riv	36	Riv-36	12.1			
+Riverside	Riv	37	Riv-37	12.6			
+Riverside	Riv	38	Riv-38	13.05			
+Riverside	Riv	39	Riv-39	13.1			
+Riverside	Riv	40	Riv-40	13.55			
+Riverside	Riv	41	Riv-41	13.9			
+Riverside	Riv	42	Riv-42	14.3			
+Riverside	Riv	43	Riv-43	14.35			
+Riverside	Riv	44	Riv-44	14.4			
+Riverside	Riv	45	Riv-45	14.5			
+Riverside	Riv	46	Riv-46	14.8			
+Riverside	Riv	47	Riv-47	15.1			
+Riverside	Riv	48	Riv-48	15.4			
+Riverside	Riv	49	Riv-49	15.5			
+Riverside	Riv	50	Riv-50	15.6			
+Riverside	Riv	51	Riv-51	15.7			
+Riverside	Riv	52	Riv-52	15.8			
+Riverside	Riv	53	Riv-53	16			
+Riverside	Riv	54	Riv-54	16.05			
+Riverside	Riv	55	Riv-55	16.3			
+Riverside	Riv	56	Riv-56	17.3			
+Riverside	Riv	58	Riv-58	17.85			
+Riverside	Riv	59	Riv-59	17.9			
+Riverside	Riv	60	Riv-60	18.1			
+Silver Lake State Park	SLSP	27	SLSP-27	B3	43.67	-86.5	picnic area of state park, some shade
+Silver Lake State Park	SLSP	28	SLSP-28	B4			scattered population - therefore unusual distrances
+Silver Lake State Park	SLSP	30	SLSP-30	B4			
+Silver Lake State Park	SLSP	31	SLSP-31	B4			
+Silver Lake State Park	SLSP	34	SLSP-34	C1			
+Silver Lake State Park	SLSP	35	SLSP-35	C1			
+Silver Lake State Park	SLSP	49	SLSP-49	C2			
+Silver Lake State Park	SLSP	58	SLSP-58	C4			
+Silver Lake State Park	SLSP	60	SLSP-60	D1			
+Silver Lake State Park	SLSP	67	SLSP-67	D3			
+Silver Lake State Park	SLSP	69	SLSP-69	D3			
+Silver Lake State Park	SLSP	71	SLSP-71	D3			
+Silver Lake State Park	SLSP	72	SLSP-72	D3			
+Silver Lake State Park	SLSP	74	SLSP-74	D3			
+Silver Lake State Park	SLSP	77	SLSP-77	D4			
+Stevensville	Ste	1	Ste-1	0.0	42.03	-86.51	rr site
+Stevensville	Ste	2	Ste-2	2.6			
+Stevensville	Ste	3	Ste-3	2.61			
+Stevensville	Ste	5	Ste-5	3.25			
+Stevensville	Ste	6	Ste-6	3.3			
+Stevensville	Ste	7	Ste-7	3.4			
+Stevensville	Ste	9	Ste-9	3.5			
+Stevensville	Ste	10	Ste-10	4.8			
+Stevensville	Ste	11	Ste-11	5.3			
+Stevensville	Ste	12	Ste-12	5.4			
+Stevensville	Ste	13	Ste-13	5.6			
+Stevensville	Ste	14	Ste-14	6.9			
+Stevensville	Ste	15	Ste-15	7.4			
+Stevensville	Ste	16	Ste-16	7.9			
+Stevensville	Ste	17	Ste-17	8.4			
+Stevensville	Ste	18	Ste-18	8.5			
+Stevensville	Ste	19	Ste-19	8.7			
+Stevensville	Ste	20	Ste-20	8.9			
+Stevensville	Ste	25	Ste-25	10.45			
+Stevensville	Ste	26	Ste-26	10.7			
+Stevensville	Ste	29	Ste-29	11.2			
+Stevensville	Ste	30	Ste-30	11.21			
+Stevensville	Ste	31	Ste-31	11.3			
+Stevensville	Ste	32	Ste-32	11.35			
+Stevensville	Ste	33	Ste-33	11.5			
+Stevensville	Ste	34	Ste-34	12.0			
+Stevensville	Ste	35	Ste-35	13.05			
+Stevensville	Ste	36	Ste-36	13.5			
+Stevensville	Ste	37	Ste-37	14.0			
+Stevensville	Ste	40	Ste-40	17.3			
+Wilcox Garden	Wilcox	2	Wilcox-2	0.1			former vegetable garden, WI near Portage
+Wilcox Garden	Wilcox	3	Wilcox-3	0.15			
+Wilcox Garden	Wilcox	4	Wilcox-4	0.2			
+Wilcox Garden	Wilcox	7	Wilcox-7	0.3			
+Wilcox Garden	Wilcox	8	Wilcox-8	0.35			
+Wilcox Garden	Wilcox	11	Wilcox-11	0.6			
+Wilcox Garden	Wilcox	12	Wilcox-12	0.8			
+Wilcox Garden	Wilcox	13	Wilcox-13	0.9			
+Wilcox Garden	Wilcox	15	Wilcox-15	1.1			
+Wilcox Garden	Wilcox	16	Wilcox-16	1.2			
+Wilcox Garden	Wilcox	17	Wilcox-17	1.25			
+Wilcox Garden	Wilcox	19	Wilcox-19	1.5			
+Wilcox Garden	Wilcox	20	Wilcox-20	1.62			
+Wilcox Garden	Wilcox	23	Wilcox-23	2			
+Wilcox Garden	Wilcox	27	Wilcox-26	2.4			
+Wilcox Garden	Wilcox	28	Wilcox-27	2.5			
+Wilcox Garden	Wilcox	31	Wilcox-31	2.8			
+Wilcox Garden	Wilcox	32	Wilcox-32	3			
+Wilcox Garden	Wilcox	35	Wilcox-35	3.2			
+Wilcox Garden	Wilcox	39	Wilcox-39	3.35			
+Wilcox Garden	Wilcox	41	Wilcox-41	3.44			
+Wilcox Garden	Wilcox	42	Wilcox-42	3.5			
+Wilcox Garden	Wilcox	43	Wilcox-43	3.6			
+Wilcox Garden	Wilcox	44	Wilcox-44	3.62			
+Wilcox Garden	Wilcox	47	Wilcox-47	3.8			
+Wilcox Garden	Wilcox	48	Wilcox-48	3.8			
+Wilcox Garden	Wilcox	50	Wilcox-50	4			
+Wilcox Garden	Wilcox	51	Wilcox-51	4.05			
+Wilcox Garden	Wilcox	55	Wilcox-55	4.6			
+Wilcox Garden	Wilcox	57	Wilcox-57	4.85			
+Wilcox Garden	Wilcox	58	Wilcox-58	4.9			
+Wilcox Garden	Wilcox	59	Wilcox-59	5			
+Wilcox Garden	Wilcox	61	Wilcox-61	5.1			
+Wilcox Garden	Wilcox	64	Wilcox-64	5.4			
+Wilcox Garden	Wilcox	67	Wilcox-67	5.45			
+Wilcox Garden	Wilcox	69	Wilcox-69	5.65			
+Wilcox Garden	Wilcox	75	Wilcox-75	6.1			
+Wilcox Garden	Wilcox	78	Wilcox-78	6.3			
+Wilcox Garden	Wilcox	79	Wilcox-79	6.35			
+Wilcox Garden	Wilcox	80	Wilcox-80	6.9			
+Wilcox Garden	Wilcox	81	Wilcox-81	6.9			
+Wilcox Garden	Wilcox	82	Wilcox-82	7			
+Wilcox Garden	Wilcox	84	Wilcox-84	7.2			
+Wilcox Garden	Wilcox	86	Wilcox-86	7.3			
+Wilcox Garden	Wilcox	87	Wilcox-87	7.4			
+Wilcox Garden	Wilcox	89	Wilcox-89	8			
+Wilcox Garden	Wilcox	91	Wilcox-91	8.25			
+Wilcox Garden	Wilcox	95	Wilcox-95	9.4			
+Wilcox Garden	Wilcox	96	Wilcox-96	9.55			
+Youngren	Yng	1	Yng-1	0.0	41.87	-86.65	rr site
+Youngren	Yng	2	Yng-2	0.1			
+Youngren	Yng	3	Yng-3	0.55			
+Youngren	Yng	4	Yng-4	0.8			
+Youngren	Yng	6	Yng-6	1.2			
+Youngren	Yng	7	Yng-7	1.25			
+Youngren	Yng	8	Yng-8	1.55			
+Youngren	Yng	9	Yng-9	1.75			
+Youngren	Yng	10	Yng-10	2.0			
+Youngren	Yng	11	Yng-11	2.2			
+Youngren	Yng	12	Yng-12	2.5			
+Youngren	Yng	13	Yng-13	2.65			
+Youngren	Yng	15	Yng-15	3.05			
+Youngren	Yng	16	Yng-16	3.25			
+Youngren	Yng	17	Yng-17	3.4			
+Youngren	Yng	18	Yng-18	3.7			
+Youngren	Yng	19	Yng-19	4.2			
+Youngren	Yng	20	Yng-20	4.6			
+Youngren	Yng	22	Yng-22	5.4			
+Youngren	Yng	23	Yng-23	5.5			
+Youngren	Yng	24	Yng-24	5.55			
+Youngren	Yng	25	Yng-25	5.7			
+Youngren	Yng	26	Yng-26	6.0			
+Youngren	Yng	27	Yng-27	6.2			
+Youngren	Yng	28	Yng-28	7.1			
+Youngren	Yng	29	Yng-29	7.6			
+Youngren	Yng	31	Yng-31	8.9			
+Youngren	Yng	32	Yng-32	9.3			
+Youngren	Yng	33	Yng-33	9.7			
+Youngren	Yng	34	Yng-34	10.0			
+Youngren	Yng	35	Yng-35	10.4			
+Youngren	Yng	36	Yng-36	11.0			
+Youngren	Yng	37	Yng-37	11.5			
+Youngren	Yng	38	Yng-38	12.0			
+Youngren	Yng	39	Yng-39	12.4			
+Youngren	Yng	40	Yng-40	12.95			
+Youngren	Yng	41	Yng-41	13.5			
+Youngren	Yng	42	Yng-42	14.9			
+Youngren	Yng	43	Yng-43	15.1			
+Youngren	Yng	44	Yng-44	15.6			
+Youngren	Yng	46	Yng-46	16.2			
+Youngren	Yng	47	Yng-47	16.3			
+Youngren	Yng	48	Yng-48	16.5			
+Youngren	Yng	49	Yng-49	17.0			
+Youngren	Yng	50	Yng-50	17.3			
+Youngren	Yng	53	Yng-53	17.9			

@@ -1,0 +1,851 @@
+ABRC Stock#	Parental Stock#	Abbreviated name	Full name	Country of origin	# days to flower (no # indicates >75 days)
+CS28001	CS22468	9354		Kazakhstan	25
+CS28002	CS22458	9481		Kazakhstan	30
+CS28003	CS22459	9481A		Kazakhstan	32
+CS28004	CS22460	9481B		Kazakhstan	43
+CS28005	CS22461	9481C		Kazakhstan	42
+CS28006	CS22462	9481D		Kazakhstan	32
+CS28007	CS6600	Aa-0	Aua/Rhon 	Germany	43
+CS28008	CS932	Abd-0	Aberdeen 	United Kingdom	47
+CS28009	CS6601	Ag-0	Argentat 	France	
+CS28010	CS22630	Ag-0	Argentat 	France	56
+CS28011	CS6602	Ak-1	Achkarren	Germany	31
+CS28012	CS1656	Alc-0	Alcala de Henares	Spain	
+CS28013	CS22550	Alst-1	Alston	United Kingdom	36
+CS28014	CS22526	Amel-1	Ameland	Netherlands	53
+CS28015	CS6603	An-1	Antwerpen 	Belgium	28
+CS28016	CS22626	An-1	Antwerpen 	Belgium	29
+CS28017	CS6604	An-2	Antwerpen 	Belgium	31
+CS28018	CS6605	Ang-0	Angleur	Belgium	41
+CS28019	CS6606	Ang-1	Angleur	Belgium	36
+CS28020	CS22519	Ange-1	Angers	France	28
+CS28021	CS22313	ANH-1	Anholt 	Germany	53
+CS28022	CS22314	ANH-2	Anholt 	Germany	53
+CS28023	CS22315	ANH-3	Anholt 	Germany	55
+CS28024	CS22316	ANH-4	Anholt 	Germany	53
+CS28025	CS22317	ANH-5	Anholt 	Germany	60
+CS28026	CS22318	ANH-6	Anholt 	Germany	63
+CS28027	CS22319	ANH-7	Anholt 	Germany	60
+CS28028	CS22320	ANH-8	Anholt 	Germany	61
+CS28029	CS22321	ANH-9	Anholt 	Germany	63
+CS28030	CS22322	ANH-10	Anholt 	Germany	60
+CS28031	CS22323	ANH-11	Anholt 	Germany	60
+CS28032	CS22324	ANH-12	Anholt 	Germany	55
+CS28033	CS22325	ANH-13	Anholt 	Germany	55
+CS28034	CS22326	ANH-14	Anholt 	Germany	55
+CS28035	CS22327	ANH-15	Anholt 	Germany	55
+CS28036	CS22328	ANH-16	Anholt 	Germany	55
+CS28037	CS22329	ANH-17	Anholt 	Germany	55
+CS28038	CS22330	ANH-18	Anholt 	Germany	55
+CS28039	CS22331	ANH-19	Anholt 	Germany	53
+CS28040	CS22332	ANH-20	Anholt 	Germany	50
+CS28041	CS22333	ANH-21	Anholt 	Germany	53
+CS28042	CS22334	ANH-22	Anholt 	Germany	55
+CS28043	CS22335	ANH-23	Anholt 	Germany	53
+CS28044	CS22336	ANH-24	Anholt 	Germany	60
+CS28045	CS22337	ANH-25	Anholt 	Germany	60
+CS28046	CS22338	ANH-26	Anholt 	Germany	60
+CS28047	CS22339	ANH-27	Anholt 	Germany	61
+CS28048	CS22340	ANH-28	Anholt 	Germany	61
+CS28049	CS22520	Ann-1	Annecy	France	67
+CS28050	CS22528	Appt-1	Appeltern	Netherlands	56
+CS28051	CS22547	Arby-1	Arby	Sweden	
+CS28052	CS22671	Aur-0	Aurora	USA	34
+CS28053	CS6607	Ba-1	Blackmount 	United Kingdom	
+CS28054	CS22529	Baa-1	Baarlo	Netherlands	53
+CS28055	CS6608	Bay-0	Bayreuth 	Germany	24
+CS28056	CS22633	Bay-0	Bayreuth 	Germany	24
+CS28057	CS57923	Bay-0	Bayreuth 	Germany	28
+CS28058	CS6609	Bch-1	Buchen	Germany	28
+CS28059	CS6610	Bch-3	Buchen	Germany	31
+CS28060	CS6611	Bch-4	Buchen	Germany	24
+CS28061	CS6612	Bd-0	Berlin/Dahlem 	Germany	28
+CS28062	CS6613	Be-0	Bensheim	Germany	31
+CS28063	CS6614	Be-1	Bensheim	Germany	28
+CS28064	CS22530	Benk-1	Bennekom	Netherlands	
+CS28065	CS22531	Benk-2	Bennekom	Netherlands	42
+CS28066	CS3109	Ber		Denmark	41
+CS28067	CS8068	Berkeley	Berkeley	USA	24
+CS28068	CS22341	BG-1		USA	44
+CS28069	CS22342	BG-2		USA	35
+CS28070	CS22343	BG-3		USA	28
+CS28071	CS22344	BG-4		USA	33
+CS28072	CS22345	BG-5		USA	42
+CS28073	CS22346	BG-6		USA	42
+CS28074	CS22347	BG-7		USA	25
+CS28075	CS22349	BG-9		USA	43
+CS28076	CS22578	Bil-5	Billaberget	Sweden	
+CS28077	CS22579	Bil-7	Billaberget	Sweden	
+CS28078	CS6615	Bl-1	Bologna 	Italy	50
+CS28079	CS6616	Bla-1	Blanes	Spain	53
+CS28080	CS6617	Bla-2	Blanes	Spain	60
+CS28081	CS6618	Bla-3	Blanes	Spain	56
+CS28082	CS6619	Bla-4	Blanes	Spain	41
+CS28083	CS6620	Bla-5	Blanes	Spain	
+CS28084	CS6621	Bla-6	Blanes	Spain	53
+CS28085	CS6622	Bla-10	Blanes	Spain	70
+CS28086	CS6623	Bla-11	Blanes	Spain	56
+CS28087	CS6624	Bla-12	Blanes	Spain	24
+CS28088	CS6625	Bla-14	Blanes	Spain	28
+CS28089	CS6645	Blh-1	Bulhary	Czechoslovakia	53
+CS28090	CS6657	Blh-2	Bulhary 	Czechoslovakia	68
+CS28091	CS22551	Boot-1	Boot, Eskdale	United Kingdom	31
+CS28092	CS22590	Bor-1	Borky	Czech Republic	37
+CS28093	CS22591	Bor-4	Borky	Czech Republic	38
+CS28094	CS6626	Br-0	Brunn 	Czechoslovakia	
+CS28095	CS22628	Br-0	Brunn 	Czechoslovakia	55
+CS28096	CS6627	Bs-1	Basel 	Switzerland	28
+CS28097	CS6628	Bs-2	Basel 	Switzerland	28
+CS28098	CS6629	Bs-5	Basel 	Switzerland	29
+CS28099	CS6630	Bsch-0	Buchschlag	Germany	28
+CS28100	CS6631	Bsch-2	Buchschlag	Germany	24
+CS28101	CS6632	Bu-0	Burghaun	Germany	31
+CS28102	CS6633	Bu-2	Burghaun	Germany	28
+CS28103	CS6634	Bu-3	Burghaun	Germany	38
+CS28104	CS6635	Bu-4	Burghaun	Germany	28
+CS28105	CS6636	Bu-5	Burghaun	Germany	29
+CS28106	CS6637	Bu-6	Burghaun	Germany	24
+CS28107	CS6638	Bu-7	Burghaun	Germany	24
+CS28108	CS6639	Bu-8	Burghaun	Germany	24
+CS28109	CS6640	Bu-9	Burghaun	Germany	28
+CS28110	CS6641	Bu-11	Burghaun	Germany	28
+CS28111	CS6642	Bu-13	Burghaun	Germany	28
+CS28112	CS6646	Bu-14	Burghaun	Germany	28
+CS28113	CS6647	Bu-15	Burghaun	Germany	24
+CS28114	CS6648	Bu-17	Burghaun	Germany	24
+CS28115	CS6649	Bu-18	Burghaun	Germany	24
+CS28116	CS6650	Bu-19	Burghaun	Germany	28
+CS28117	CS6651	Bu-20	Burghaun	Germany	24
+CS28118	CS6652	Bu-21	Burghaun	Germany	25
+CS28119	CS6653	Bu-22	Burghaun	Germany	24
+CS28120	CS6654	Bu-23	Burghaun	Germany	24
+CS28121	CS6655	Bu-24	Burghaun	Germany	28
+CS28122	CS6656	Bu-25	Burghaun	Germany	28
+CS28123	CS8067	Buckhorn Pass	Buckhorn Pass	USA	
+CS28124	CS6643	Bur-0	Burren 	Ireland	36
+CS28125	CS22656	Bur-0	Burren 	Ireland	36
+CS28126	CS906	C24	C24		36
+CS28127	CS22620	C24	C24		36
+CS28128	CS6658	Ca-0	Camberg	Germany	28
+CS28129	CS6659	Cal-0	Calver 	United Kingdom	31
+CS28130	CS6660	Can-0	Canary Islands	Spain	67
+CS28131	CS6661	Cen-0	Caen 	France	38
+CS28132	CS22523	Cerv-1	Cerveteri	Italy	
+CS28133	CS6662	Cha-0	Champex 	Switzerland	53
+CS28134	CS1070	Cha-1	Champex 	Switzerland	
+CS28135	CS22521	Chat-1	Chateaudun	France	28
+CS28136	CS6664	Chi-0	Chisdra 	Russia	38
+CS28137	CS6665	Chi-1	Chisdra 	Russia	28
+CS28138	CS6666	Chi-2	Chisdra 	Russia	28
+CS28139	CS22220	CIBC-1		United Kingdom	42
+CS28140	CS22221	CIBC-2		United Kingdom	55
+CS28141	CS22223	CIBC-4		United Kingdom	43
+CS28142	CS22224	CIBC-5		United Kingdom	60
+CS28143	CS22602	CIBC-5		United Kingdom	34
+CS28144	CS22225	CIBC-6		United Kingdom	60
+CS28145	CS22226	CIBC-7		United Kingdom	60
+CS28146	CS22229	CIBC-10		United Kingdom	53
+CS28147	CS22230	CIBC-11		United Kingdom	
+CS28148	CS22231	CIBC-12		United Kingdom	60
+CS28149	CS22232	CIBC-13		United Kingdom	56
+CS28150	CS22233	CIBC-14		United Kingdom	
+CS28151	CS22234	CIBC-15		United Kingdom	63
+CS28152	CS22235	CIBC-16		United Kingdom	49
+CS28153	CS22236	CIBC-17		United Kingdom	36
+CS28154	CS22603	CIBC-17		United Kingdom	32
+CS28155	CS22237	CIBC-18		United Kingdom	49
+CS28156	CS22238	CIBC-19		United Kingdom	60
+CS28157	CS22239	CIBC-20		United Kingdom	49
+CS28158	CS1080	Cit-0	Citou	France	
+CS28159	CS6668	Cl-0	Cl		28
+CS28160	CS6921	Cnt-1	Canterbury 	United Kingdom	32
+CS28161	CS3180	Co	Coimbra 	Portugal	40
+CS28162	CS6669	Co-1	Coimbra 	Portugal	28
+CS28163	CS6670	Co-2	Coimbra 	Portugal	37
+CS28164	CS6671	Co-3	Coimbra 	Portugal	48
+CS28165	CS6672	Co-4	Coimbra 	Portugal	49
+CS28166	CS6673	Col-0	Columbia	USA	24
+CS28167	CS22625	Col-0	Columbia	USA	24
+CS28168	CS60000	Col-0	Columbia	USA	24
+CS28169	CS3176	Col-1	Columbia	USA	24
+CS28170	CS907	Col-2	Columbia	USA	24
+CS28171	CS908	Col-3	Columbia	USA	24
+CS28172	CS933	Col-4	Columbia	USA	24
+CS28173	CS3731	Col-7	Columbia	USA	28
+CS28174	CS3879	Col(gl1)	Columbia	USA	24
+CS28175	CS6930	Col-5(gl1)	Columbia	USA	24
+CS28176	CS8155	Col-6(gl1)	Columbia	USA	24
+CS28177	CS22419	CSHL-1	Cold Spring Harbor Lab	USA	53
+CS28178	CS22420	CSHL-2	Cold Spring Harbor Lab	USA	50
+CS28179	CS22421	CSHL-3	Cold Spring Harbor Lab	USA	53
+CS28180	CS22422	CSHL-4	Cold Spring Harbor Lab	USA	39
+CS28181	CS22423	CSHL-5	Cold Spring Harbor Lab	USA	31
+CS28182	CS22424	CSHL-6	Cold Spring Harbor Lab	USA	67
+CS28183	CS22425	CSHL-7	Cold Spring Harbor Lab	USA	53
+CS28184	CS22426	CSHL-8	Cold Spring Harbor Lab	USA	53
+CS28185	CS22427	CSHL-9	Cold Spring Harbor Lab	USA	
+CS28186	CS22428	CSHL-10	Cold Spring Harbor Lab	USA	32
+CS28187	CS22429	CSHL-11	Cold Spring Harbor Lab	USA	46
+CS28188	CS22430	CSHL-12	Cold Spring Harbor Lab	USA	
+CS28189	CS22431	CSHL-13	Cold Spring Harbor Lab	USA	64
+CS28190	CS22432	CSHL-14	Cold Spring Harbor Lab	USA	55
+CS28191	CS22433	CSHL-15	Cold Spring Harbor Lab	USA	
+CS28192	CS22434	CSHL-17	Cold Spring Harbor Lab	USA	
+CS28193	CS22522	Com-1	Compiegne	France	34
+CS28194	CS6175	Condara	Condara	Tadjikistan	31
+CS28195	CS6674	Ct-1	Catania 	Italy	28
+CS28196	CS22639	Ct-1	Catania 	Italy	31
+CS28197	CS6675	Cvi-0	Cape Verdi Islands	Cape Verdi Islands	28
+CS28198	CS22614	Cvi-0	Cape Verdi Islands	Cape Verdi Islands	41
+CS28199	CS8580	Cvi-1	Cape Verdi Islands	Cape Verdi Islands	41
+CS28200	CS6676	Da-0	Darmstadt 	Germany	28
+CS28201	CS917	Da(1)-12		Czechoslovakia	24
+CS28202	CS6677	Db-0	Dombachtal	Germany	28
+CS28203	CS6678	Db-1		Germany	24
+CS28204	CS6679	Db-2	Dombachtal	Germany	29
+CS28205	CS910	Di-G	Dijon	France	28
+CS28206	CS919	Di-M	Dijon	Russia	28
+CS28207	CS6680	Di-0	Dijon 	France	28
+CS28208	CS6681	Di-1	Dijon 	France	26
+CS28209	CS6682	Di-2	Dijon 	France	26
+CS28210	CS6683	Do-0	Donsbach	Germany	
+CS28211	CS6684	Dr-0	Dresden 	Germany	26
+CS28212	CS6685	Dra-0	Drahonin 	Czechoslovakia	26
+CS28213	CS6686	Dra-1	Drahonin 	Czechoslovakia	29
+CS28214	CS6687	Dra-2	Drahonin 	Czechoslovakia	30
+CS28215	CS22552	Durh-1	Durham	United Kingdom	35
+CS28216	CS22553	Durh-2	Durham	United Kingdom	30
+CS28217	CS22532	Ede-1	Ede-Station	Netherlands	33
+CS28218	CS22572	Eden-1	Eden	Sweden	
+CS28219	CS22573	Eden-2	Eden	Sweden	
+CS28220	CS6688	Edi-0	Edinburgh 	United Kingdom	
+CS28221	CS22657	Edi-0	Edinburgh 	United Kingdom	
+CS28222	CS6689	Ei-2	Eifel 	Germany	40
+CS28223	CS22616	Ei-2	Eifel 	Germany	40
+CS28224	CS6690	Ei-4	Eifel 	Germany	40
+CS28225	CS6691	Ei-5	Eifel 	Germany	46
+CS28226	CS6692	Ei-6	Eifel 	Germany	26
+CS28227	CS6693	Eil-0	Eilenburg 	Germany	26
+CS28228	CS6694	El-0	Ellershausen 	Germany	26
+CS28229	CS6923	Ema-1	East Malling 	United Kingdom	33
+CS28230	CS920	En-D	Enkheim	Ukraine	26
+CS28231	CS6176	En-T	Enkheim	Tadjikistan	26
+CS28232	CS6177	En-T	Enkheim	Tadjikistan	26
+CS28233	CS6695	En-1	Enkheim	Germany	26
+CS28234	CS6696	En-2	Enkheim	Germany	28
+CS28235	CS8141	ENF		USA	35
+CS28236	CS6697	Ep-0	Eppenheim	Germany	26
+CS28237	CS163	ER			26
+CS28238	CS3177	ER			26
+CS28239	CS6698	Er-0	Erlangen 	Germany	40
+CS28240	CS22548	Eri-1	Eriengsboda	Sweden	26
+CS28241	CS6699	Es-0	Espoo 	Finland	60
+CS28242	CS6173	Est	Estland	Germany	26
+CS28243	CS6700	Est-0	Estland 	Russia	26
+CS28244	CS6701	Est-1	Estland 	Russia	26
+CS28245	CS22629	Est-1	Estland 	Russia	26
+CS28246	CS6702	Et-0	Etraygues 	France	53
+CS28247	CS22576	Fab-2	Faberget	Sweden	
+CS28248	CS22577	Fab-4	Faberget	Sweden	
+CS28249	CS6703	Fe-1	Freiburg 	Germany	33
+CS28250	CS22645	Fei-0	St. Maria d. Feiria	Portugal	29
+CS28251	CS6704	Fi-0	Frickhofen 	Germany	
+CS28252	CS6705	Fi-1	Frickhofen 	Germany	26
+CS28253	CS6706	Fl-1		Finland	
+CS28254	CS22385	FM-3		USA	
+CS28255	CS22389	FM-8		USA	63
+CS28256	CS22390	FM-9		USA	60
+CS28257	CS22391	FM-10		USA	60
+CS28258	CS22392	FM-11		USA	60
+CS28259	CS22393	FM-12		USA	60
+CS28260	CS22394	FM-13		USA	69
+CS28261	CS22395	FM-14		USA	
+CS28262	CS22396	FM-15		USA	63
+CS28263	CS22398	FM-18		USA	
+CS28264	CS22399	FM-19		USA	63
+CS28265	CS22400	FM-20		USA	
+CS28266	CS6708	Fr-2	Frankfurt 	Germany	26
+CS28267	CS6709	Fr-3	Frankfurt 	Germany	26
+CS28268	CS6710	Fr-4	Frankfurt 	Germany	26
+CS28269	CS6711	Fr-5	Frankfurt	Germany	28
+CS28270	CS6712	Fr-6	Frankfurt	Germany	28
+CS28271	CS6713	Fr-7	Frankfurt 	Germany	26
+CS28272	CS6714	Ga-0	Gabelstein 	Germany	30
+CS28273	CS22634	Ga-0	Gabelstein 	Germany	33
+CS28274	CS6715	Ga-2	Gabelstein 	Germany	26
+CS28275	CS6716	Gd-1	Gudow 	Germany	26
+CS28276	CS6717	Ge-0	Geneva	Switzerland	
+CS28277	CS6718	Ge-1	Geneva 	Switzerland	42
+CS28278	CS6719	Ge-2	Geneva 	Switzerland	
+CS28279	CS22533	Gel-1	Geleen	Netherlands	26
+CS28280	CS6720	Gie-0	Gieben 	Germany	26
+CS28281	CS3963	Gifu-2	Gifu	Japan	55
+CS28282	CS6721	Go-0	Goettingen 	Germany	26
+CS28283	CS6722	Go-2	Goettingen 	Germany	26
+CS28284	CS22277	GOT-1	Goettingen 	Germany	
+CS28285	CS22278	GOT-2	Goettingen 	Germany	
+CS28286	CS22279	GOT-3	Goettingen 	Germany	
+CS28287	CS22280	GOT-4	Goettingen 	Germany	
+CS28288	CS22281	GOT-5	Goettingen 	Germany	
+CS28289	CS22282	GOT-6	Goettingen 	Germany	
+CS28290	CS22283	GO-T7	Goettingen 	Germany	
+CS28291	CS22608	GO-T7	Goettingen 	Germany	
+CS28292	CS22284	GOT-8	Goettingen 	Germany	
+CS28293	CS22285	GOT-9	Goettingen 	Germany	
+CS28294	CS22286	GOT-10	Goettingen 	Germany	
+CS28295	CS22287	GOT-11	Goettingen 	Germany	
+CS28296	CS22288	GOT-12	Goettingen 	Germany	
+CS28297	CS22289	GOT-13	Goettingen 	Germany	
+CS28298	CS22290	GOT-14	Goettingen 	Germany	
+CS28299	CS22291	GOT-15	Goettingen 	Germany	
+CS28300	CS22292	GOT-16	Goettingen 	Germany	
+CS28301	CS22293	GOT-17	Goettingen 	Germany	
+CS28302	CS22294	GOT-18	Goettingen 	Germany	
+CS28303	CS22295	GOT-19	Goettingen 	Germany	
+CS28304	CS22296	GOT-20	Goettingen 	Germany	
+CS28305	CS22297	GOT-21	Goettingen 	Germany	
+CS28306	CS22298	GOT-22	Goettingen 	Germany	
+CS28307	CS22609	GOT-22	Goettingen 	Germany	
+CS28308	CS22299	GOT-23	Goettingen 	Germany	
+CS28309	CS22300	GOT-24	Goettingen 	Germany	
+CS28310	CS22301	GOT-25	Goettingen 	Germany	
+CS28311	CS22302	GOT-26	Goettingen 	Germany	
+CS28312	CS22303	GOT-27	Goettingen 	Germany	
+CS28313	CS22304	GOT-28	Goettingen 	Germany	
+CS28314	CS22305	GOT-29	Goettingen 	Germany	
+CS28315	CS22306	GOT-30	Goettingen 	Germany	
+CS28316	CS22307	GOT-31	Goettingen 	Germany	66
+CS28317	CS22308	GOT-32	Goettingen 	Germany	
+CS28318	CS22309	GOT-33	Goettingen 	Germany	
+CS28319	CS22310	GOT-34	Goettingen 	Germany	
+CS28320	CS22311	GOT-35	Goettingen 	Germany	
+CS28321	CS22312	GOT-36	Goettingen 	Germany	
+CS28322	CS6723	Gr-1	Graz 	Austria	33
+CS28323	CS6724	Gr-2	Graz 	Austria	47
+CS28324	CS6725	Gr-3	Graz	Austria	29
+CS28325	CS6726	Gr-4	Graz 	Austria	28
+CS28326	CS6727	Gr-5	Graz 	Austria	40
+CS28327	CS6728	Gr-6	Graz 	Austria	44
+CS28328	CS3179	Gr3	Graz	Austria	28
+CS28329	CS6729	Gre-0	Greenville	USA	
+CS28330	CS6730	Gu-0	Glueckingen 	Germany	26
+CS28331	CS22617	Gu-0	Glueckingen 	Germany	26
+CS28332	CS6731	Gu-1	Glueckingen 	Germany	26
+CS28333	CS6732	Gy-0		France	33
+CS28334	CS22631	Gy-0		France	33
+CS28335	CS923	H55		Czechoslovakia	35
+CS28336	CS6733	Ha-0	Hannover 	Germany	26
+CS28337	CS22351	HS-1	Harvard Square	USA	
+CS28338	CS22353	HS-7	Harvard Square	USA	55
+CS28339	CS22354	HS-10	Harvard Square	USA	
+CS28340	CS22355	HS-11	Harvard Square	USA	
+CS28341	CS22356	HS-12	Harvard Square	USA	52
+CS28342	CS22359	HS-17	Harvard Square	USA	47
+CS28343	CS6734	Hau-0	Hauniensis 	Denmark	
+CS28344	CS22534	Hey-1	Heythuysen	Netherlands	35
+CS28345	CS6735	Hh-0	Hohenlieth 	Germany	
+CS28346	CS6736	Hi-0	Hilversum 	Netherlands	26
+CS28347	CS6737	Hl-0	Holtensen 	Germany	29
+CS28348	CS6738	Hl-2	Holtensen 	Germany	33
+CS28349	CS6904	Hl-3	Holtensen 	Germany	26
+CS28350	CS6739	Hn-0	Hennetalsperre 	Germany	28
+CS28351	CS6178	Hodja-Obi-Garm	Hodja-Obi-Garm	Tadjikistan	40
+CS28352	CS22205	HR-5		United Kingdom	28
+CS28353	CS22596	HR-5		United Kingdom	28
+CS28354	CS22208	HR-8		United Kingdom	32
+CS28355	CS22597	HR-10		United Kingdom	26
+CS28356	CS22213	HR-14		United Kingdom	29
+CS28357	CS22214	HR-15		United Kingdom	32
+CS28358	CS22216	HR-17		United Kingdom	36
+CS28359	CS6905	Hs-0	Hannover	Germany	32
+CS28360	CS6740	In-0	Innsbruck 	Austria	
+CS28361	CS6741	Is-0	Isenburg	Germany	30
+CS28362	CS6906	Is-1	Isenburg 	Germany	35
+CS28363	CS1244	Ita-0	Ibel Tazekka 	Morocco	
+CS28364	CS6742	Je-0	Jena 	Germany	47
+CS28365	CS924	Je54		Czechoslovakia	30
+CS28366	CS22554	Jedb-1	Jedburgh	United Kingdom	26
+CS28367	CS6743	Jl-1		Czechoslovakia	27
+CS28368	CS6744	Jl-2		Czechoslovakia	28
+CS28369	CS6745	Jl-3		Czechoslovakia	26
+CS28370	CS6746	Jl-4		Czechoslovakia	30
+CS28371	CS6747	Jl-5		Czechoslovakia	40
+CS28372	CS6748	Jm-0	Jamolice 	Czechoslovakia	26
+CS28373	CS6749	Jm-1	Jamolice 	Czechoslovakia	26
+CS28374	CS6750	Jm-2	Jamolice 	Czechoslovakia	26
+CS28375	CS6752	Ka-0	Karnten 	Austria	26
+CS28376	CS903	Kas-1	Kashmir 	India	
+CS28377	CS3880	Kas-1	Kashmir 	India	48
+CS28378	CS6751	Kas-2	Kashmir 	India	34
+CS28379	CS22638	Kas-2	Kashmir 	India	43
+CS28380	CS6753	Kb-0	Kronberg	Germany	26
+CS28381	CS6100	Kelsterbach-1	Kelsterbach	Germany	27
+CS28382	CS6102	Kelsterbach-2	Kelsterbach	Germany	26
+CS28383	CS6103	Kelsterbach-3	Kelsterbach	Germany	26
+CS28384	CS6105	Kelsterbach-4	Kelsterbach	Germany	26
+CS28385	CS8142	KEN		USA	
+CS28386	CS6754	Kil-0	Killean 	United Kingdom	26
+CS28387	CS6755	Kin-0	Kindalville	USA	35
+CS28388	CS22654	Kin-0	Kindalville	USA	35
+CS28389	CS6756	Kl-0	Koeln 	Germany	26
+CS28390	CS6757	Kl-1	Koeln 	Germany	26
+CS28391	CS1278	Kl-2	Koeln 	Germany	54
+CS28392	CS6759	Kl-3	Koeln 	Germany	33
+CS28393	CS6760	Kl-4	Koeln 	Germany	30
+CS28394	CS6761	Kl-5	Koeln 	Germany	26
+CS28395	CS6762	Kn-0	Kaunas 	Lithuania	26
+CS28396	CS22401	KNO-1	Knox	USA	
+CS28397	CS22402	KNO-2	Knox	USA	
+CS28398	CS22403	KNO-3	Knox	USA	41
+CS28399	CS22404	KNO-4	Knox	USA	39
+CS28400	CS22405	KNO-5	Knox	USA	39
+CS28401	CS22406	KNO-6	Knox	USA	55
+CS28402	CS22407	KNO-7	Knox	USA	40
+CS28403	CS22408	KNO-8	Knox	USA	46
+CS28404	CS22409	KNO-9	Knox	USA	47
+CS28405	CS22410	KNO-10	Knox	USA	56
+CS28406	CS22566	KNO-10	Knox	USA	55
+CS28407	CS22411	KNO-11	Knox	USA	49
+CS28408	CS22412	KNO-12	Knox	USA	
+CS28409	CS22413	KNO-13	Knox	USA	55
+CS28410	CS22414	KNO-14	Knox	USA	
+CS28411	CS22415	KNO-15	Knox	USA	47
+CS28412	CS22416	KNO-16	Knox	USA	66
+CS28413	CS22417	KNO-17	Knox	USA	56
+CS28414	CS22418	KNO-18	Knox	USA	34
+CS28415	CS22567	KNO-18	Knox	USA	34
+CS28416	CS6763	Ko-2		Denmark	59
+CS28417	CS916	Kondara	KONDARA	Tadjikistan	43
+CS28418	CS22651	Kondara	KONDARA	Tadjikistan	36
+CS28419	CS6764	Kr-0	Krefeld 	Germany	26
+CS28420	CS6766	Kro-0	Krotzenburg 	Germany	26
+CS28421	CS3886	Krot-0	Krottensee	Germany	33
+CS28422	CS3887	Krot-1	Krottensee	Germany	30
+CS28423	CS3888	Krot-2	Krottensee	Germany	33
+CS28424	CS1634	Ksk-1	Keswick	United Kingdom	33
+CS28425	CS3964	Kyoto	Kyoto	Japan	40
+CS28426	CS22435	KZ-1	Kazakhstan	Kazakhstan	34
+CS28427	CS22606	KZ-1	Kazakhstan	Kazakhstan	25
+CS28428	CS22436	KZ-2	Kazakhstan	Kazakhstan	25
+CS28429	CS22437	KZ-4	Kazakhstan	Kazakhstan	28
+CS28430	CS22438	KZ-6	Kazakhstan	Kazakhstan	32
+CS28431	CS22439	KZ-7	Kazakhstan	Kazakhstan	32
+CS28432	CS22440	KZ-8	Kazakhstan	Kazakhstan	32
+CS28433	CS22441	KZ-9	Kazakhstan	Kazakhstan	32
+CS28434	CS22607	KZ-9	Kazakhstan	Kazakhstan	32
+CS28435	CS22442	KZ-10	Kazakhstan	Kazakhstan	28
+CS28436	CS22443	KZ-11	Kazakhstan	Kazakhstan	28
+CS28437	CS22444	KZ-12	Kazakhstan	Kazakhstan	25
+CS28438	CS22445	KZ-13	Kazakhstan	Kazakhstan	28
+CS28439	CS6765	La-0	Landsberg	Germany	26
+CS28440	CS6767	La-1	Landsberg	Germany	36
+CS28441	CS6768	Lan-0	Lanark 	United Kingdom	26
+CS28442	CS22555	Laud-1	Lauder	United Kingdom	26
+CS28443	CS6769	Lc-0	Loch Ness 	United Kingdom	26
+CS28444	CS6770	Le-0	Leiden 	Netherlands	35
+CS28445	CS20	Ler-0	Landsberg erecta	Germany	26
+CS28446	CS24238	Ler-0	Landsberg erecta	Germany	26
+CS28447	CS24596	Ler-0	Landsberg erecta	Germany	26
+CS28448	CS6928	Ler-1	Landsberg erecta	Germany	27
+CS28449	CS22618	Ler-1	Landsberg erecta	Germany	27
+CS28450	CS8581	Ler-2	Landsberg erecta	Germany	26
+CS28451	CS6771	Li-1	Limburg 	Germany	28
+CS28452	CS6908	Li-2	Limburg 	Germany	
+CS28453	CS6772	Li-2:1	Limburg 	Germany	36
+CS28454	CS1316	Li-3	Limburg 	Germany	26
+CS28455	CS6774	Li-3:3	Limburg 	Germany	
+CS28456	CS6775	Li-5	Limburg 	Germany	26
+CS28457	CS6909	Li-5:2	Limburg 	Germany	
+CS28458	CS6776	Li-5:3	Limburg 	Germany	56
+CS28459	CS6777	Li-6	Limburg 	Germany	55
+CS28460	CS1328	Li-6:1	Limburg 	Germany	
+CS28461	CS6778	Li-7	Limburg 	Germany	27
+CS28462	CS6779	Li-8	Limburg 	Germany	28
+CS28463	CS6911	Li-10	Limburg 	Germany	41
+CS28464	CS8070	Limeport	Limeport	USA	26
+CS28465	CS8144	LIN		USA	30
+CS28466	CS22556	Lind-1	Lindisfarne	United Kingdom	26
+CS28467	CS6780	Lip-0	Lipowiec	Poland	33
+CS28468	CS925	Litva	Litva	Lithuania	29
+CS28469	CS6781	Ll-0	Llagostera 	Spain	49
+CS28470	CS22650	LL-0	Llagostera 	Spain	43
+CS28471	CS6782	Ll-1	Llagostera 	Spain	47
+CS28472	CS6783	Ll-2	Llagostera 	Spain	26
+CS28473	CS6784	Lm-2	Le Mans 	France	26
+CS28474	CS6785	Lo-1	Lorrach 	Germany	33
+CS28475	CS6786	Lo-2	Lorrach 	Germany	33
+CS28476	CS6787	Loh-0		Germany	33
+CS28477	CS22574	Lov-1	Lovvik	Sweden	
+CS28478	CS22575	Lov-5	Lovvik	Sweden	
+CS28479	CS22594	Lp2-2	Lipovec	Czech Republic	33
+CS28480	CS22595	Lp2-6	Lipovec	Czech Republic	35
+CS28481	CS1352	Lu-1	Lund 	Sweden	45
+CS28482	CS6788	Lz-0	Lezoux 	France	35
+CS28483	CS22615	Lz-0	Lezoux 	France	41
+CS28484	CS6183	M3385S		Sweden	
+CS28485	CS6184	M7323S			33
+CS28486	CS6185	M7884S			48
+CS28487	CS6186	M7943S		Sweden	
+CS28488	CS6789	Ma-0	Marburg	Germany	26
+CS28489	CS6790	Ma-2	Marburg	Germany	26
+CS28490	CS1362	Mc-0	Mickles Fell 	United Kingdom	
+CS28491	CS1364	Me-0	Mechtshausen	Germany	26
+CS28492	CS6792	Mh-0	Muhlen 	Poland	26
+CS28493	CS6793	Mh-1	Muhlen 	Poland	26
+CS28494	CS6798	Mir-0	Miramare	Italy	
+CS28495	CS6794	Mnz-0	Mainz 	Germany	28
+CS28496	CS6795	Mr-0		Italy	
+CS28497	CS22640	Mr-0		Italy	
+CS28498	CS6796	Mrk-0	Markt	Germany	36
+CS28499	CS22635	Mrk-0	Markt	Germany	36
+CS28500	CS6797	Ms-0	Moscow	Russia	28
+CS28501	CS22655	Ms-0	Moscow	Russia	53
+CS28502	CS6799	Mt-0	Martuba/Cyrenaika 	Libya	26
+CS28503	CS22642	Mt-0	Martuba/Cyrenaika 	Libya	26
+CS28504	CS6914	Mv-0	Martha's Vineyard	USA	47
+CS28505	CS6800	Mz-0	Merzhausen	Germany	26
+CS28506	CS22636	Mz-0	Merzhausen	Germany	26
+CS28507	CS22479	N1		Russia	
+CS28508	CS22480	N2		Russia	46
+CS28509	CS22481	N3		Russia	40
+CS28510	CS22482	N4		Russia	52
+CS28511	CS22483	N5		Russia	45
+CS28512	CS22484	N6		Russia	47
+CS28513	CS22485	N7		Russia	32
+CS28514	CS22486	N8		Russia	40
+CS28515	CS22487	N9		Russia	38
+CS28516	CS22488	N10		Russia	39
+CS28517	CS22489	N11		Russia	33
+CS28518	CS22490	N12		Russia	44
+CS28519	CS22491	N13		Russia	39
+CS28520	CS22621	N13		Russia	34
+CS28521	CS22492	N14		Russia	
+CS28522	CS22493	N15		Russia	39
+CS28523	CS22494	N16		Russia	40
+CS28524	CS22495	N17		Russia	45
+CS28525	CS22496	N18		Russia	45
+CS28526	CS6801	Na-1	Nantes 	France	33
+CS28527	CS6802	Nc-1		France	29
+CS28528	CS6803	Nd-0	Niederzenz 	Germany	26
+CS28529	CS1636	Nd-1	Niederzenz 	Germany	26
+CS28530	CS6922	Nd-1	Niederzenz 	Germany	26
+CS28531	CS22619	Nd-1	Niederzenz 	Germany	26
+CS28532	CS22598	NFA-8		United Kingdom	26
+CS28533	CS22599	NFA-10		United Kingdom	26
+CS28534	CS22182	NFC-1		United Kingdom	
+CS28535	CS22183	NFC-2		United Kingdom	59
+CS28536	CS22184	NFC-3		United Kingdom	55
+CS28537	CS22185	NFC-4		United Kingdom	55
+CS28538	CS22186	NFC-5		United Kingdom	60
+CS28539	CS22187	NFC-6		United Kingdom	52
+CS28540	CS22189	NFC-8		United Kingdom	59
+CS28541	CS22190	NFC-9		United Kingdom	52
+CS28542	CS22191	NFC-10		United Kingdom	60
+CS28543	CS22192	NFC-11		United Kingdom	59
+CS28544	CS22194	NFC-13		United Kingdom	56
+CS28545	CS22195	NFC-14		United Kingdom	55
+CS28546	CS22196	NFC-15		United Kingdom	55
+CS28547	CS22197	NFC-16		United Kingdom	55
+CS28548	CS22198	NFC-17		United Kingdom	55
+CS28549	CS22199	NFC-18		United Kingdom	52
+CS28550	CS22201	NFC-20		United Kingdom	59
+CS28551	CS22163	NFE-1		United Kingdom	56
+CS28552	CS22167	NFE-5		United Kingdom	52
+CS28553	CS22168	NFE-6		United Kingdom	
+CS28554	CS22169	NFE-7		United Kingdom	56
+CS28555	CS22170	NFE-8		United Kingdom	54
+CS28556	CS22171	NFE-9		United Kingdom	56
+CS28557	CS22172	NFE-10		United Kingdom	59
+CS28558	CS22177	NFE-15		United Kingdom	52
+CS28559	CS22178	NFE-16		United Kingdom	54
+CS28560	CS22179	NFE-17		United Kingdom	66
+CS28561	CS22180	NFE-18		United Kingdom	59
+CS28562	CS22181	NFE-19		United Kingdom	61
+CS28563	CS6804	Nie-0	Niederlauken	Germany	38
+CS28564	CS3081	No-0	Nossen	Germany	24
+CS28565	CS6805	No-0	Nossen	Germany	24
+CS28566	CS24239	No-0	Nossen	Germany	24
+CS28567	CS6807	Nok-0	Noordwijk 	Netherlands	39
+CS28568	CS6808	Nok-1	Noordwijk 	Netherlands	42
+CS28569	CS6809	Nok-2	Noordwijk 	Netherlands	38
+CS28570	CS6810	Nok-3	Noordwijk 	Netherlands	45
+CS28571	CS22643	Nok-3	Noordwijk 	Netherlands	42
+CS28572	CS6806	Np-0	Nieps	Germany	28
+CS28573	CS6811	Nw-0	Neuweilnau 	Germany	24
+CS28574	CS6812	Nw-1	Neuweilnau 	Germany	26
+CS28575	CS6813	Nw-2	Neuweilnau 	Germany	24
+CS28576	CS6814	Nw-3	Neuweilnau 	Germany	24
+CS28577	CS6815	Nw-4	Neuweilnau 	Germany	24
+CS28578	CS22661	Nz1	New Zealand	New Zealand	24
+CS28579	CS6816	Ob-0	Oberursel	Germany	31
+CS28580	CS6817	Ob-1	Oberursel	Germany	24
+CS28581	CS6818	Ob-2	Oberursel	Germany	31
+CS28582	CS6819	Ob-3	Oberursel	Germany	38
+CS28583	CS6820	Old-1	Oldenburg 	Germany	27
+CS28584	CS6821	Old-2	Oldenburg 	Germany	28
+CS28585	CS22584	Omo-2-1	Ostra Mocklo	Sweden	
+CS28586	CS22585	Omo-2-3	Ostra Mocklo	Sweden	56
+CS28587	CS6822	Or-0	Oranienstein 	Germany	24
+CS28588	CS1430	Ost-0	Osthammar 	Sweden	73
+CS28589	CS22557	Ottb-1	Otterburn	United Kingdom	34
+CS28590	CS6823	Ove-0	Ovelgoenne 	Germany	34
+CS28591	CS6824	Oy-0	Oystese 	Norway	38
+CS28592	CS22658	Oy-0	Oystese 	Norway	31
+CS28593	CS6929	Oy-1	Oystese 	Norway	31
+CS28594	CS6825	Pa-1	Palermo 	Italy	31
+CS28595	CS6826	Pa-2	Palermo 	Italy	24
+CS28596	CS6827	Pa-3	Palermo 	Italy	27
+CS28597	CS6828	Per-1	Perm 	Russia	46
+CS28598	CS6829	Per-2	Perm 	Russia	56
+CS28599	CS6830	Per-3	Perm 	Russia	52
+CS28600	CS926	Petergof	Petergof	Russia	33
+CS28601	CS6831	Pf-0	Pfrondorf 	Germany	28
+CS28602	CS6042	PHW-1		Italy	60
+CS28603	CS6044	PHW-2		Italy	69
+CS28604	CS6045	PHW-3		Germany	38
+CS28605	CS6047	PHW-4		United Kingdom	38
+CS28606	CS6048	PHW-5		United Kingdom	46
+CS28607	CS6049	PHW-6		United Kingdom	46
+CS28608	CS6051	PHW-7		United Kingdom	52
+CS28609	CS6053	PHW-9		United Kingdom	56
+CS28610	CS6055	PHW-10		United Kingdom	
+CS28611	CS6057	PHW-11		United Kingdom	38
+CS28612	CS6059	PHW-12		United Kingdom	33
+CS28613	CS6060	PHW-13		United Kingdom	33
+CS28614	CS6061	PHW-14		United Kingdom	54
+CS28615	CS6062	PHW-15		United Kingdom	46
+CS28616	CS6064	PHW-16		United Kingdom	31
+CS28617	CS6066	PHW-17		United Kingdom	33
+CS28618	CS6068	PHW-18		United Kingdom	33
+CS28619	CS6070	PHW-19		United Kingdom	42
+CS28620	CS6071	PHW-20		United Kingdom	38
+CS28621	CS6073	PHW-21		United Kingdom	39
+CS28622	CS6075	PHW-22		United Kingdom	54
+CS28623	CS6077	PHW-23		United Kingdom	28
+CS28624	CS6078	PHW-24		United Kingdom	60
+CS28625	CS6079	PHW-25		United Kingdom	34
+CS28626	CS6081	PHW-26		United Kingdom	52
+CS28627	CS6082	PHW-27		United Kingdom	54
+CS28628	CS6083	PHW-28		United Kingdom	
+CS28629	CS6085	PHW-29		United Kingdom	
+CS28630	CS6086	PHW-30		United Kingdom	
+CS28631	CS6088	PHW-31		United Kingdom	
+CS28632	CS6090	PHW-32		Netherlands	
+CS28633	CS6092	PHW-33		Netherlands	67
+CS28634	CS6094	PHW-34		France	33
+CS28635	CS6096	PHW-35		France	
+CS28636	CS6098	PHW-36		France	31
+CS28637	CS6099	PHW-37		France	67
+CS28638	CS6832	Pi-0	Pitztal	Austria	52
+CS28639	CS6833	Pi-2	Pitztal	Austria	26
+CS28640	CS6834	Pla-0	Playa de Aro 	Spain	52
+CS28641	CS6835	Pla-1	Playa de Aro 	Spain	42
+CS28642	CS6916	Pla-2	Playa de Aro 	Spain	67
+CS28643	CS6836	Pla-3	Playa de Aro 	Spain	52
+CS28644	CS6837	Pla-4	Playa de Aro 	Spain	52
+CS28645	CS6838	Pn-0	Pontivy 	France	24
+CS28646	CS22571	Pna-10	Park/Napier	USA	70
+CS28647	CS22570	Pna-17	Park/Napier	USA	
+CS28648	CS6839	Po-0	Poppelsdorf 	Germany	34
+CS28649	CS6840	Po-1	Poppelsdorf 	Germany	52
+CS28650	CS6842	Pog-0	Point Grey	Canada	42
+CS28651	CS6841	Pr-0	Praunheim 	Germany	38
+CS28652	CS22649	Pro-0	Proaza, Asturios	Spain	31
+CS28653	CS6843	Pt-0	Poetrau	Germany	42
+CS28654	CS22592	Pu-2-7	Prudka	Czech Republic	66
+CS28655	CS22593	Pu-2-23	Prudka	Czech Republic	42
+CS28656	CS22446	PUZ-2		Czechoslovakia	
+CS28657	CS22448	PUZ-5		Czechoslovakia	38
+CS28658	CS22449	PUZ-8		Czechoslovakia	45
+CS28659	CS22450	PUZ-10		Czechoslovakia	
+CS28660	CS22451	PUZ-16		Czechoslovakia	39
+CS28661	CS22452	PUZ-22		Czechoslovakia	54
+CS28662	CS22453	PUZ-23		Czechoslovakia	39
+CS28663	CS22454	PUZ-24		Czechoslovakia	47
+CS28664	CS22455	PUZ-32		Czechoslovakia	39
+CS28665	CS6844	Ra-0	Randan	France	24
+CS28666	CS22632	Ra-0	Randan	France	52
+CS28667	CS22558	Ragl-1	Ravensglas	United Kingdom	33
+CS28668	CS6846	Rak-2	Raksice	Czechoslovakia	46
+CS28669	CS22559	Rasc-1	Ravenscar	United Kingdom	31
+CS28670	CS22465	RC1058A		Kazakhstan	21
+CS28671	CS6845	Rd-0	Rodenbach	Germany	24
+CS28672	CS22535	Renk-1	Renkum	Netherlands	33
+CS28673	CS22253	REN-1	Rennes 	France	34
+CS28674	CS22610	REN-1	Rennes 	France	28
+CS28675	CS22255	REN-3	Rennes 	France	25
+CS28676	CS22257	REN-5	Rennes 	France	21
+CS28677	CS22263	REN-11	Rennes 	France	24
+CS28678	CS22611	REN-11	Rennes 	France	34
+CS28679	CS22269	REN-17	Rennes 	France	52
+CS28680	CS22271	REN-19	Rennes 	France	21
+CS28681	CS22272	REN-20	Rennes 	France	28
+CS28682	CS22273	REN-21	Rennes 	France	38
+CS28683	CS22275	REN-23	Rennes 	France	34
+CS28684	CS22276	REN-24	Rennes 	France	24
+CS28685	CS22536	Rhen-1	Rhenen	Netherlands	
+CS28686	CS6849	Ri-0	Richmond	Canada	33
+CS28687	CS913	RLD-1			24
+CS28688	CS6927	RLD-2		Russia	24
+CS28689	CS22568	Rmx-A02	Remax	USA	60
+CS28690	CS22569	Rmx-A180	Remax	USA	38
+CS28691	CS22524	Rome-1	Rome	Italy	47
+CS28692	CS6847	Rou-0	Rouen 	France	33
+CS28693	CS22362	RP-1		USA	
+CS28694	CS22363	RP-2		USA	
+CS28695	CS22364	RP-3		USA	
+CS28696	CS22365	RP-4		USA	
+CS28697	CS22366	RP-5		USA	
+CS28698	CS22367	RP-6		USA	
+CS28699	CS22368	RP-7		USA	
+CS28700	CS22369	RP-8		USA	
+CS28701	CS22370	RP-9		USA	
+CS28702	CS22371	RP-10		USA	
+CS28703	CS22372	RP-11		USA	
+CS28704	CS22375	RP-14		USA	
+CS28705	CS22376	RP-15		USA	
+CS28706	CS22377	RP-16		USA	
+CS28707	CS22378	RP-17		USA	
+CS28708	CS22379	RP-18		USA	
+CS28709	CS22380	RP-19		USA	
+CS28710	CS22381	RP-20		USA	
+CS28711	CS22382	RP-21		USA	
+CS28712	CS22383	RP-22		USA	
+CS28713	CS22564	RRS-7		 USA	45
+CS28714	CS22565	RRS-10		 USA	56
+CS28715	CS6848	Rsch-0	Rschew	Russia	38
+CS28716	CS6850	Rsch-4	Rschew	Russia	26
+CS28717	CS6851	Ru-0	Ruppachtal	Germany	27
+CS28718	CS927	Rubezhnoe-1	Rubezhnoe	Ukraine	54
+CS28719	CS928	Rubezhnoe-2	Rubezhnoe	Ukraine	61
+CS28720	CS914	S96		Netherlands	46
+CS28721	CS6917	Sah-0	Sierra Alhambra 	Spain	
+CS28722	CS8069	Santa Clara	Santa Clara	USA	31
+CS28723	CS6854	Sap-0	Slapy 	Czechoslovakia	38
+CS28724	CS22456	Sapporo-0	Sapporo	Japan	26
+CS28725	CS6856	Sav-0	Slavice 	Czechoslovakia	24
+CS28726	CS6852	Se-0	San Eleno 	Spain	54
+CS28727	CS22646	Se-0	San Eleno 	Spain	52
+CS28728	CS6188	Seattle-0	Seattle	USA	33
+CS28729	CS6853	Sei-0	Seis am Schlern 	Italy	24
+CS28730	CS6855	Sf-1	San Feliu 	Spain	54
+CS28731	CS6857	Sf-2	San Feliu 	Spain	52
+CS28732	CS6858	Sg-1	St.Georgen 	Germany	38
+CS28733	CS6859	Sg-2	St.Georgen 	Germany	32
+CS28734	CS6860	Sh-0	Schwiegershausen 	Germany	38
+CS28735	CS6180	Sha	Shakdara	Tadjikistan	36
+CS28736	CS22652	Sha	Shakdara	Tadjikistan	36
+CS28737	CS24597	Sha	Shakdara	Tadjikistan	32
+CS28738	CS57924	Sha	Shakdara	Tadjikistan	36
+CS28739	CS6861	Si-0	Siegen 	Germany	42
+CS28740	CS6181	Sn(5)-1		Czechoslovakia	32
+CS28741	CS931	Sorbo	Sorbo	Tadjikistan	40
+CS28742	CS22653	Sorbo	Sorbo	Tadjikistan	39
+CS28743	CS6862	Sp-0	Spandau 	Germany	52
+CS28744	CS22582	Spr1-2	Spratteboda	Sweden	
+CS28745	CS22583	Spr1-6	Spratteboda	Sweden	
+CS28746	CS22600	Sq-1		United Kingdom	49
+CS28747	CS22243	Sq-4		United Kingdom	32
+CS28748	CS22601	Sq-8		United Kingdom	32
+CS28749	CS6863	St-0	Stockholm 	Sweden	52
+CS28750	CS6864	Ste-0	Stendal 	Germany	33
+CS28751	CS6865	Stw-0	Stobowa	Russia	40
+CS28752	CS1540	Su-0	Southport 	United Kingdom	
+CS28753	CS6867	Ta-0	Tabor 	Czechoslovakia	46
+CS28754	CS3885	Tac-0	Tacoma	USA	46
+CS28755	CS22604	Tamm-2	Tammisari	Finland	
+CS28756	CS22605	Tamm-27	Tammisari	Finland	
+CS28757	CS6918	Te-0	Tenela 	Finland	60
+CS28758	CS22537	Tha-1	The Hague	Netherlands	52
+CS28759	CS22549	Ting-1	Tingsryd	Sweden	
+CS28760	CS22525	Tiv-1	Tivoli	Italy	
+CS28761	CS8020	Tol-0	Toledo	USA	52
+CS28762	CS8021	Tol-1	Toledo	USA	
+CS28763	CS8022	Tol-2	Toledo	USA	
+CS28764	CS8023	Tol-3	Toledo	USA	70
+CS28765	CS8024	Tol-4	Toledo	USA	66
+CS28766	CS8025	Tol-5	Toledo	USA	66
+CS28767	CS8026	Tol-6	Toledo	USA	73
+CS28768	CS8027	Tol-7	Toledo	USA	63
+CS28769	CS8028	Tol-8	Toledo	USA	74
+CS28770	CS8029	Tol-9	Toledo	USA	63
+CS28771	CS6868	Ts-1	Tossa del Mar 	Spain	52
+CS28772	CS22647	Ts-1	Tossa del Mar 	Spain	52
+CS28773	CS6869	Ts-2	Tossa del Mar 	Spain	34
+CS28774	CS6870	Ts-3	Tossa del Mar 	Spain	38
+CS28775	CS6871	Ts-5	Tossa del Mar 	Spain	67
+CS28776	CS22648	Ts-5	Tossa del Mar 	Spain	67
+CS28777	CS6872	Ts-6	Tossa del Mar 	Spain	61
+CS28778	CS6873	Ts-7	Tossa del Mar 	Spain	24
+CS28779	CS22518	Tscha-1	Tsagguns	Austria	46
+CS28780	CS6874	Tsu-0	Tsu 	Japan	31
+CS28781	CS6926	Tsu-1	Tsu 	Japan	46
+CS28782	CS22641	Tsu-1	Tsu 	Japan	46
+CS28783	CS6875	Tu-0	Turin 	Italy	46
+CS28784	CS6876	Tu-1	Turin 	Italy	46
+CS28785	CS6877	Tul-0	Turk Lake	USA	73
+CS28786	CS6878	Ty-0	Taynuilt 	United Kingdom	54
+CS28787	CS6879	Uk-1	Umkirch 	Germany	54
+CS28788	CS6881	Uk-2	Umkirch 	Germany	38
+CS28789	CS6880	Uk-3	Umkirch 	Germany	52
+CS28790	CS6882	Uk-4	Umkirch 	Germany	38
+CS28791	CS22587	Ull-2-3	Ullstorp	Sweden	33
+CS28792	CS22586	Ull-2-5	Ullstorp	Sweden	
+CS28793	CS22612	Uod-1		Austria	46
+CS28794	CS22613	Uod-7		Austria	59
+CS28795	CS6150	Utrecht	Utrecht	Netherlands	38
+CS28796	CS6884	Van-0	Vancouver	Canada	29
+CS28797	CS22627	Van-0	Vancouver	Canada	42
+CS28798	CS22580	Var-2-1	Varhallarna	Sweden	
+CS28799	CS22581	Var-2-6	Varhallarna	Sweden	
+CS28800	CS22538	Ven-1	Veenendaal	Netherlands	
+CS28801	CS22539	Ven-2	Veenendaal	Netherlands	47
+CS28802	CS6883	Vi-0	Vilbel	Germany	31
+CS28803	CS22560	Vind-1	Vindolanda	United Kingdom	31
+CS28804	CS6885	Wa-1	Warsaw 	Poland	31
+CS28805	CS22644	Wa-1	Warsaw 	Poland	38
+CS28806	CS22540	Wag-1	Wageningen	Netherlands	31
+CS28807	CS22541	Wag-2	Wageningen	Netherlands	59
+CS28808	CS22542	Wag-3	Wageningen	Netherlands	
+CS28809	CS22543	Wag-4	Wageningen	Netherlands	
+CS28810	CS22544	Wag-5	Wageningen	Netherlands	27
+CS28811	CS22545	Wag-6	Wageningen	Netherlands	
+CS28812	CS8143	WAR		USA	31
+CS28813	CS6886	Wc-1	Westercelle 	Germany	27
+CS28814	CS6887	Wc-2	Westercelle 	Germany	38
+CS28815	CS6182	Wei-0	Weiningen 	Switzerland	24
+CS28816	CS22622	Wei-0	Weiningen 	Switzerland	24
+CS28817	CS6925	Wei-1	Weiningen 	Switzerland	24
+CS28818	CS22546	Werl-1	Weerseloo	Netherlands	46
+CS28819	CS6888	Wil-1	Wilna	Russia	26
+CS28820	CS6889	Wil-2	Wilna	Russia	24
+CS28821	CS6890	Wil-3	Wilna	Russia	24
+CS28822	CS6920	Wl-0	Wildbad 	Germany	31
+CS28823	CS915	Ws	Wassilewskija 	Russia	29
+CS28824	CS6891	Ws-0	Wassilewskija 	Russia	
+CS28825	CS22623	Ws-0	Wassilewskija 	Russia	
+CS28826	CS2223	Ws-1	Wassilewskija 	Russia	29
+CS28827	CS2360	Ws-2	Wassilewskija 	Russia	29
+CS28828	CS22659	Ws-2	Wassilewskija 	Russia	29
+CS28829	CS6924	Ws-3	Wassilewskija	Russia	29
+CS28830	CS5390	Ws-4	Wassilewskija 	Russia	29
+CS28831	CS6892	Wt-1	Wietze 	Germany	49
+CS28832	CS6893	Wt-2	Wietze 	Germany	52
+CS28833	CS6894	Wt-3	Wietze 	Germany	38
+CS28834	CS6895	Wt-4	Wietze 	Germany	38
+CS28835	CS6896	Wt-5	Wietze 	Germany	33
+CS28836	CS22637	Wt-5	Wietze 	Germany	38
+CS28837	CS6195	Wu			34
+CS28838	CS6897	Wu-0	Wu	Germany	38
+CS28839	CS6898	X-0			52
+CS28840	CS6899	XX-0			52
+CS28841	CS6900	XXX-0			33
+CS28842	CS6901	Yo-0	Yosemite Nat. Park 	USA	
+CS28843	CS22624	Yo-0	Yosemite Nat. Park 	USA	
+CS28844	CS22588	Zdr-1	Zdarec	Czech Republic	33
+CS28845	CS22589	Zdr-6	Zdarec	Czech Republic	33
+CS28846	CS6902	Zu-0	Zurich	Switzerland	
+CS28847	CS6903	Zu-1	Zurich	Switzerland	27
+CS28848	CS22672	Ors-1	Orsova	Rumania	60
+CS28849	CS22673	Ors-2	Orsova	Romania	62
+CS28850	CS22674	Gdn-0	Gara de Nord	Romania	42
