@@ -9,7 +9,21 @@ create table strain_info(
 	name	varchar,
 	category	varchar,
 	description	varchar,
-	date_created	timestamp default current_timestamp
+	date_created	timestamp default current_timestamp,
+	pop_location	varchar,	--below until -- is from Diane.xls
+	pop	varchar,
+	line	integer,
+	barcode	varchar,
+	distance	float,
+	latitude	float,
+	longitude	float,
+	comments	varchar,
+	abrc_stock_acc	varchar,	--below is from 850 Natural Accessions.csv
+	parental_stock_acc	varchar,
+	abbr_name	varchar,
+	full_name	varchar,
+	days_to_flower	integer,	--negative means truncated >75 => -75
+	country	varchar
 	);
 
 create table snp_locus(
