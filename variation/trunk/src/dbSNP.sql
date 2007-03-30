@@ -50,3 +50,19 @@ create table justin_data(
 create or replace view view_justin_data as SELECT s1.acc as strain_acc, s1.category as strain_category,
 	s2.acc as snp_acc, j.call from strain_info s1, snp_locus s2, justin_data j  
 	where s1.id = j.strain_id and s2.id=j.snp_id order by strain_category, strain_acc, snp_acc;
+
+create table readme(
+	id	serial primary key,
+	name	varchar,
+	description	varchar,
+	date_created	timestamp default current_timestamp
+	);
+
+create table strain_info_2010(
+	acc	varchar primary key,
+	region	varchar,
+	population	varchar,
+	plate_pos_col	varchar,
+	plate_pos_row	varchar,
+	stock_center_number	varchar
+	);
