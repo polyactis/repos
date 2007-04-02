@@ -193,6 +193,62 @@ class Identify2010SNPsGivenSNPset:
 		sys.stderr.write("Done.\n")
 		return SNP_matrix_new
 	
+	def extract_sub_data_matrix(self, src_strain_acc_list, data_matrix, tg_strain_acc_list):
+		"""
+		2007-04-01
+		"""
+		sys.stderr.write("Extracting sub data_matrix ...")
+		sub_data_matrix = Numeric.zeros([len(tg_strain_acc_list), data_matrix.shape[1]], Numeric.Int)
+		src_strain_acc2index = dict(zip(src_strain_acc_list, range(len(src_strain_acc_list))))
+		for i in range(len(tg_strain_acc_list)):
+			sub_data_matrix[i,:] = data_matrix[src_strain_acc2index[tg_strain_acc_list[i]],:]
+		sys.stderr.write("Done.\n")
+		return sub_data_matrix
+	
+	def compare_two_SNP_matrix(self, SNP_matrix_1, SNP_matrix_2):
+		"""
+		2007-04-01
+			SNP_matrix_1 is 2010 matrix, containing -1(deletion)
+			SNP_matrix_2 is justin_data, >=0 (no deletion)
+		"""
+		sys.stderr.write("Comparing two SNP-matrix ...\n")
+		no_of_rows, no_of_cols = SNP_matrix_1.shape
+		diff_matrix = Numeric.zeros([no_of_rows, no_of_cols], Numeric.Int)
+		diff_tag2counter = {}
+		diff_tag_dict = {
+			'del_vs_NA':0,
+			'del_vs_call':1,
+			'NA_vs_NA':2,
+			'NA_vs_call':3,
+			'call_vs_NA':4,
+			'call_ineq_call':5,
+			'call_eq_call':6}
+		for tag in diff_tag_dict:
+			diff_tag2counter[tag] = 0
+		for i in range(no_of_rows):
+			for j in range(no_of_cols):
+				if SNP_matrix_1[i,j]==-1:
+					if SNP_matrix_2[i,j]==0:
+						tag='del_vs_NA'
+					else:
+						tag='del_vs_call'
+				elif SNP_matrix_1[i,j]==0:
+					if SNP_matrix_2[i,j]==0:
+						tag='NA_vs_NA'
+					else:
+						tag='NA_vs_call'
+				else:
+					if SNP_matrix_2[i,j]==0:
+						tag='call_vs_NA'
+					elif SNP_matrix_1[i,j] != SNP_matrix_2[i,j]:
+						tag='call_ineq_call'
+					elif SNP_matrix_1[i,j] == SNP_matrix_2[i,j]:
+						tag='call_eq_call'
+				diff_matrix[i,j] = diff_tag_dict[tag]
+				diff_tag2counter[tag] += 1
+		sys.stderr.write("Done.\n")
+		return diff_matrix, diff_tag_dict, diff_tag2counter
+	
 	def run(self):
 		"""
 		2007-03-29
@@ -208,11 +264,14 @@ class Identify2010SNPsGivenSNPset:
 			--shuffle_data_matrix_according_to_strain_acc_ls()
 			--FilterStrainSNPMatrix_instance.write_data_matrix()
 			
+			--extract_sub_data_matrix()
+			--compare_two_SNP_matrix()
+			
 		"""
 		(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
+		header, src_strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
 		snp_acc_ls = header[2:]
 		SNPpos2index = self.get_SNPpos2index(curs, snp_acc_ls, self.snp_locus_table)
 		abbr_name_ls, SNP_matrix_2010 = self.create_SNP_matrix_2010(SNPpos2index, self.data_dir_2010)
@@ -222,7 +281,24 @@ class Identify2010SNPsGivenSNPset:
 		for strain_acc in strain_acc_ls:
 			abbr_name_ls_sorted.append(strain_acc2abbr_name[strain_acc])
 		FilterStrainSNPMatrix_instance.write_data_matrix(SNP_matrix_2010_sorted, self.output_fname, header, strain_acc_ls, abbr_name_ls_sorted)
-
+		
+		data_matrix = Numeric.array(data_matrix)
+		sub_data_matrix = self.extract_sub_data_matrix(src_strain_acc_list, data_matrix, strain_acc_ls)
+		diff_matrix, diff_tag_dict, diff_tag2counter= self.compare_two_SNP_matrix(SNP_matrix_2010_sorted, sub_data_matrix)
+		
+		summary_result_ls = []
+		for tag, counter in diff_tag2counter.iteritems():
+			summary_result_ls.append('%s(%s):%s'%(tag, diff_tag_dict[tag], counter))
+			print '\t%s(%s)\t%s'%(tag, diff_tag_dict[tag], counter)
+		import pylab
+		pylab.clf()
+		diff_matrix_reverse = list(diff_matrix)
+		diff_matrix_reverse.reverse()
+		diff_matrix_reverse = Numeric.array(diff_matrix_reverse)
+		pylab.imshow(diff_matrix_reverse, interpolation='nearest')
+		pylab.title(' '.join(summary_result_ls))
+		pylab.colorbar()
+		pylab.show()
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
