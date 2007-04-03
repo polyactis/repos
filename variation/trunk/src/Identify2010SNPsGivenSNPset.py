@@ -12,12 +12,17 @@ Option:
 	-s ...,	strain_info table, 'strain_info'(default)
 	-t ..., strain_info_2010_table, 'strain_info_2010'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
+	-j ...,	sub_justin_output_fname, (output the sub_data_matrix extracted from input_fname
+	-c,	comparison_only, output_fname already contains the data. no extraction
+		of SNP_matrix_2010.
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
 
 Examples:
 	Identify2010SNPsGivenSNPset.py -i ../data/justin_data.csv -a ../data/2010/alignments_042006/ -o /tmp/snp_matrix_2010
+	
+	./src/Identify2010SNPsGivenSNPset.py -i data/justin_data_y.csv -a data/2010/alignments_042006/ -o data/snp_matrix_2010.justin.149snps -c -j data/justin_data_y.2010.96strains.149snp.csv
 	
 Description:
 	Based on the SNPs given by input_fname, check the alignment data from 2010 project
@@ -44,9 +49,12 @@ from transfacdb import fasta_block_iterator
 class Identify2010SNPsGivenSNPset:
 	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', \
 		input_fname=None, data_dir_2010=None, output_fname=None, strain_info_table='strain_info', \
-		strain_info_2010_table='strain_info_2010', snp_locus_table='snp_locus', debug=0, report=0):
+		strain_info_2010_table='strain_info_2010', snp_locus_table='snp_locus', sub_justin_output_fname=None,\
+		comparison_only=0, debug=0, report=0):
 		"""
 		2007-03-29
+		2007-04-03
+			add sub_justin_output_fname and comparison_only
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -57,6 +65,8 @@ class Identify2010SNPsGivenSNPset:
 		self.strain_info_table = strain_info_table
 		self.strain_info_2010_table = strain_info_2010_table
 		self.snp_locus_table = snp_locus_table
+		self.sub_justin_output_fname = sub_justin_output_fname
+		self.comparison_only = int(comparison_only)
 		self.debug = int(debug)
 		self.report = int(report)
 	
@@ -252,19 +262,25 @@ class Identify2010SNPsGivenSNPset:
 	def run(self):
 		"""
 		2007-03-29
+		2007-04-03
 			--db_connect()
 			--FilterStrainSNPMatrix_instance.read_data()
-			--get_SNPpos2index()
-			--create_SNP_matrix_2010()
-				--get_align_length_from_fname()
-					--get_positions_to_be_checked_ls()
-				--get_align_matrix_from_fname()
-					--get_positions_to_be_checked_ls()
-			--get_mapping_info_regarding_strain_acc()
-			--shuffle_data_matrix_according_to_strain_acc_ls()
-			--FilterStrainSNPMatrix_instance.write_data_matrix()
+			if self.comparison_only:
+				--FilterStrainSNPMatrix_instance.read_data()
+			else:
+				--get_SNPpos2index()
+				--create_SNP_matrix_2010()
+					--get_align_length_from_fname()
+						--get_positions_to_be_checked_ls()
+					--get_align_matrix_from_fname()
+						--get_positions_to_be_checked_ls()
+				--get_mapping_info_regarding_strain_acc()
+				--shuffle_data_matrix_according_to_strain_acc_ls()
+				--FilterStrainSNPMatrix_instance.write_data_matrix()
 			
 			--extract_sub_data_matrix()
+			if self.sub_justin_output_fname:
+				--FilterStrainSNPMatrix_instance.write_data_matrix()
 			--compare_two_SNP_matrix()
 			
 		"""
@@ -272,18 +288,27 @@ class Identify2010SNPsGivenSNPset:
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header, src_strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
-		snp_acc_ls = header[2:]
-		SNPpos2index = self.get_SNPpos2index(curs, snp_acc_ls, self.snp_locus_table)
-		abbr_name_ls, SNP_matrix_2010 = self.create_SNP_matrix_2010(SNPpos2index, self.data_dir_2010)
-		strain_acc_ls, strain_acc2abbr_name, strain_acc2index = self.get_mapping_info_regarding_strain_acc(curs, self.strain_info_table, self.strain_info_2010_table, abbr_name_ls)
-		SNP_matrix_2010_sorted = self.shuffle_data_matrix_according_to_strain_acc_ls(SNP_matrix_2010, strain_acc_ls, strain_acc2index)
-		abbr_name_ls_sorted = []
-		for strain_acc in strain_acc_ls:
-			abbr_name_ls_sorted.append(strain_acc2abbr_name[strain_acc])
-		FilterStrainSNPMatrix_instance.write_data_matrix(SNP_matrix_2010_sorted, self.output_fname, header, strain_acc_ls, abbr_name_ls_sorted)
+		if self.comparison_only:
+			header, strain_acc_ls, abbr_name_ls_sorted, SNP_matrix_2010_sorted = FilterStrainSNPMatrix_instance.read_data(self.output_fname)
+			SNP_matrix_2010_sorted = Numeric.array(SNP_matrix_2010_sorted)
+		else:
+			#extract data from alignment
+			snp_acc_ls = header[2:]
+			SNPpos2index = self.get_SNPpos2index(curs, snp_acc_ls, self.snp_locus_table)
+			abbr_name_ls, SNP_matrix_2010 = self.create_SNP_matrix_2010(SNPpos2index, self.data_dir_2010)
+			strain_acc_ls, strain_acc2abbr_name, strain_acc2index = self.get_mapping_info_regarding_strain_acc(curs, self.strain_info_table, self.strain_info_2010_table, abbr_name_ls)
+			SNP_matrix_2010_sorted = self.shuffle_data_matrix_according_to_strain_acc_ls(SNP_matrix_2010, strain_acc_ls, strain_acc2index)
+			abbr_name_ls_sorted = []
+			for strain_acc in strain_acc_ls:
+				abbr_name_ls_sorted.append(strain_acc2abbr_name[strain_acc])
+			FilterStrainSNPMatrix_instance.write_data_matrix(SNP_matrix_2010_sorted, self.output_fname, header, strain_acc_ls, abbr_name_ls_sorted)
 		
+		
+		#comparison
 		data_matrix = Numeric.array(data_matrix)
 		sub_data_matrix = self.extract_sub_data_matrix(src_strain_acc_list, data_matrix, strain_acc_ls)
+		if self.sub_justin_output_fname:
+			FilterStrainSNPMatrix_instance.write_data_matrix(sub_data_matrix, self.sub_justin_output_fname, header, strain_acc_ls, abbr_name_ls_sorted)
 		diff_matrix, diff_tag_dict, diff_tag2counter= self.compare_two_SNP_matrix(SNP_matrix_2010_sorted, sub_data_matrix)
 		
 		summary_result_ls = []
@@ -307,7 +332,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "commit", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:a:o:s:t:n:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:a:o:s:t:n:j:cbrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -321,6 +346,8 @@ if __name__ == '__main__':
 	strain_info_table = 'strain_info'
 	strain_info_2010_table = 'strain_info_2010'
 	snp_locus_table = 'snp_locus'
+	sub_justin_output_fname = None
+	comparison_only = 0
 	debug = 0
 	report = 0
 	
@@ -346,6 +373,10 @@ if __name__ == '__main__':
 			strain_info_table = arg
 		elif opt in ("-n",):
 			snp_locus_table = arg
+		elif opt in ("-j",):
+			sub_justin_output_fname = arg
+		elif opt in ("-c",):
+			comparison_only = 1
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -353,7 +384,7 @@ if __name__ == '__main__':
 
 	if input_fname and data_dir_2010 and output_fname and hostname and dbname and schema:
 		instance = Identify2010SNPsGivenSNPset(hostname, dbname, schema, input_fname, data_dir_2010, output_fname,\
-			strain_info_table, strain_info_2010_table, snp_locus_table, debug, report)
+			strain_info_table, strain_info_2010_table, snp_locus_table, sub_justin_output_fname, comparison_only, debug, report)
 		instance.run()
 	else:
 		print __doc__
