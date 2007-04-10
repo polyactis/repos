@@ -11,6 +11,7 @@ Option:
 	-t ...,	data_table, 'justin_data'(default)
 	-s ...,	strain_info table, 'strain_info'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
+	-w,	draw_only, output_fname contains data already
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -37,9 +38,11 @@ from common import nt2number
 
 class RestoreHeterozygousCalls:
 	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', \
-		input_fname=None, output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus', debug=0, report=0):
+		input_fname=None, output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus',\
+		draw_only=0, debug=0, report=0):
 		"""
 		2007-03-20
+		2007-04-03
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -49,6 +52,7 @@ class RestoreHeterozygousCalls:
 		self.data_table = data_table
 		self.strain_info_table = strain_info_table
 		self.snp_locus_table = snp_locus_table
+		self.draw_only = int(draw_only)
 		self.debug = int(debug)
 		self.report = int(report)
 	
@@ -101,22 +105,27 @@ class RestoreHeterozygousCalls:
 	def run(self):
 		"""
 		2007-03-20
+		2007-04-03
 		"""
 		(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 		
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
-		
-		snp_acc_ls = header[2:]
-		strain_id2index = self.get_id2index(curs, self.strain_info_table, strain_acc_list)
-		snp_id2index = self.get_id2index(curs, self.snp_locus_table, snp_acc_ls)
-		
-		from dbSNP2data import dbSNP2data
-		dbSNP2data_instance = dbSNP2data(report=self.report)
-		data_matrix = dbSNP2data_instance.get_data_matrix(curs, strain_id2index, snp_id2index, nt2number, self.data_table, need_heterozygous_call=1)
-		
-		FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list)
+		if self.draw_only:
+			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.output_fname)
+			data_matrix = Numeric.array(data_matrix)
+		else:
+			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
+			
+			snp_acc_ls = header[2:]
+			strain_id2index = self.get_id2index(curs, self.strain_info_table, strain_acc_list)
+			snp_id2index = self.get_id2index(curs, self.snp_locus_table, snp_acc_ls)
+			
+			from dbSNP2data import dbSNP2data
+			dbSNP2data_instance = dbSNP2data(report=self.report)
+			data_matrix = dbSNP2data_instance.get_data_matrix(curs, strain_id2index, snp_id2index, nt2number, self.data_table, need_heterozygous_call=1)
+			
+			FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list)
 		
 		heterozygous_data_matrix, coarse_data_matrix = self.get_heterozygous_and_coarse_data_matrix(data_matrix)
 		self.displayDataMatrix(heterozygous_data_matrix, title='heterozygous_data_matrix, 5-10=hetero, else=0')
@@ -130,7 +139,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "commit", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:t:s:n:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:t:s:n:wbrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -143,6 +152,7 @@ if __name__ == '__main__':
 	data_table = 'justin_data'
 	strain_info_table = 'strain_info'
 	snp_locus_table = 'snp_locus'
+	draw_only = 0
 	debug = 0
 	report = 0
 	
@@ -166,6 +176,8 @@ if __name__ == '__main__':
 			strain_info_table = arg
 		elif opt in ("-n",):
 			snp_locus_table = arg
+		elif opt in ("-w"):
+			draw_only = 1
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -173,7 +185,7 @@ if __name__ == '__main__':
 
 	if input_fname and output_fname and hostname and dbname and schema:
 		instance = RestoreHeterozygousCalls(hostname, dbname, schema, input_fname, output_fname,\
-			strain_info_table, snp_locus_table, debug, report)
+			strain_info_table, snp_locus_table, draw_only, debug, report)
 		instance.run()
 	else:
 		print __doc__
