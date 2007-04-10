@@ -32,11 +32,15 @@ create table snp_locus(
 	tax_id	integer,
 	chromosome	varchar,
 	strand	varchar(1),
-	position	integer,
+	align_2010_start_pos	integer,	--2007-04-01
 	freq	float,
 	name	varchar,
 	description	varchar,
-	date_created	timestamp default current_timestamp
+	date_created	timestamp default current_timestamp,
+	--2007-04-01	add UEP_DIR, adjacent_sequence
+	position	integer,
+	UEP_DIR	varchar,
+	adjacent_sequence	varchar
 	);
 
 create table justin_data(
