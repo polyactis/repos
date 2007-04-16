@@ -335,6 +335,53 @@ def cal_trio_stat(trio_ances_fname, distance_matrix, output_fname, need_savefig=
 
 triplet2trio_stat = cal_trio_stat('./script/variation/data/justin_data_filtered.trio_ances', distance_matrix, './script/variation/data/justin_data_filtered.trio_ances', need_savefig=1, report=1)
 
+"""
+2007-03-28
+"""
+def strip_2010_strain_info(input_fname, output_fname):
+	import csv
+	reader = csv.reader(open(input_fname), delimiter='\t')
+	#skip the 1st two sentences
+	reader.next()
+	reader.next()
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	for row in reader:
+		for i in range(len(row)):
+			row[i] = row[i].strip()
+		writer.writerow(row)
+	del reader, writer
+
+strip_2010_strain_info('./script/variation/data/2010/2010_strain_info.csv', './script/variation/data/2010/2010_strain_info_stripped.csv')
+
+"""
+2007-04-09
+"""
+def draw_SNP_gap_histogram(curs, snp_locus_table, output_fname, need_savefig=0):
+	SNP_gap_ls = []
+	prev_chromosome = None
+	prev_position = None
+	curs.execute("select chromosome, position from %s order by chromosome, position"%snp_locus_table)
+	rows = curs.fetchall()
+	for row in rows:
+		chromosome, position = row
+		if prev_chromosome==None or prev_position==None:
+			prev_chromosome = chromosome
+			prev_position = position
+		elif chromosome==prev_chromosome:
+			SNP_gap_ls.append(position-prev_position)
+		prev_chromosome = chromosome
+		prev_position = position
+	import pylab
+	pylab.clf()
+	pylab.hist(SNP_gap_ls, 20)
+	pylab.title("hist of SNP gap")
+	if need_savefig:
+		pylab.savefig('%s.eps'%output_fname, dpi=300)
+		pylab.savefig('%s.svg'%output_fname, dpi=300)
+		pylab.savefig('%s.png'%output_fname, dpi=300)
+	pylab.show()
+	return SNP_gap_ls
+
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -350,5 +397,8 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
 from codense.common import db_connect, form_schema_tables
 hostname='dl324b-1'
 dbname='yhdb'
+schema = 'dbsnp'
+hostname='zhoudb'
+dbname='graphdb'
 schema = 'dbsnp'
 conn, curs = db_connect(hostname, dbname, schema)
