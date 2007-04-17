@@ -232,6 +232,9 @@ class dbSNP2data:
 	def find_smallest_vertex_set_to_remove_all_edges(self, g):
 		"""
 		2007-02-25
+		2007-04-17
+			no recursive function, cuz it could reach the maximum recursion depth (whatever that is)
+			
 		"""
 		vertex_with_max_degree = -1
 		max_degree = 0
@@ -241,10 +244,15 @@ class dbSNP2data:
 				max_degree = degree_of_v
 				vertex_with_max_degree = v
 		vertex_list_to_be_deleted = []
-		if max_degree>0:	#to avoid empty-edge graph
+		while max_degree>0:	#to avoid empty-edge graph
 			g.delete_node(vertex_with_max_degree)
 			vertex_list_to_be_deleted.append(vertex_with_max_degree)
-			vertex_list_to_be_deleted += self.find_smallest_vertex_set_to_remove_all_edges(g)
+			max_degree = 0
+			for v in g:
+				degree_of_v = g.degree(v)
+				if degree_of_v > max_degree:
+					max_degree = degree_of_v
+					vertex_with_max_degree = v
 		return vertex_list_to_be_deleted
 	
 	def run(self):
