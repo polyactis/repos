@@ -149,7 +149,8 @@ draw_histogram_of_data_from_specified_column('./script/variation/data/justin_dat
 2007-03-19
 """
 def get_one_ancestry_line(trio_ances_fname, triplet):
-	import csv
+	import csv, sys
+	sys.stderr.write("Getting one ancestry line...")
 	reader = csv.reader(open(trio_ances_fname), delimiter='\t')
 	ancestry_ls = None
 	for row in reader:
@@ -158,9 +159,14 @@ def get_one_ancestry_line(trio_ances_fname, triplet):
 		if this_triplet[0] == triplet[0] and this_triplet[1]==triplet[1] and this_triplet[2] == triplet[2]:
 			ancestry_ls = row[3:-2]	#-2 to discard the last chromosome separator and no_of_jumps
 			break
+	sys.stderr.write("Done.\n")
+	del reader
 	return ancestry_ls
 
 def DrawTrioAncestry(data_matrix_fname, trio_ances_fname, triplet=[]):
+	"""
+	2007-04-17 double the layers to accomodate the heterozygotes
+	"""
 	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
@@ -169,18 +175,33 @@ def DrawTrioAncestry(data_matrix_fname, trio_ances_fname, triplet=[]):
 		return
 	ancestry_ls = get_one_ancestry_line(trio_ances_fname, triplet)
 	import Numeric
-	sub_data_matrix = Numeric.zeros([6, len(ancestry_ls)])
+	sub_data_matrix = Numeric.zeros([12, len(ancestry_ls)])
+	from common import nt2number, number2nt
 	no_of_chrs = 0
 	for i in range(len(ancestry_ls)):
 		if ancestry_ls[i]=='||':
 			no_of_chrs += 1
 		else:
-			#first fill up the last 3 encoding lines
-			sub_data_matrix[3,i] = 1
-			sub_data_matrix[4,i] = 2
-			sub_data_matrix[5,i] = int(ancestry_ls[i])+1	#the original coding is 0 or 1, but 0 is reserved for NA
+			#first fill up the last 6 encoding lines
+			sub_data_matrix[6,i] = 1
+			sub_data_matrix[7,i] = 1
+			sub_data_matrix[8,i] = 2
+			sub_data_matrix[9,i] = 2
+			ancestry_bit = int(ancestry_ls[i])
+			if ancestry_bit == 2:
+				sub_data_matrix[10,i] = 1
+				sub_data_matrix[11,i] = 2
+			else:
+				sub_data_matrix[10,i] = sub_data_matrix[11,i] = ancestry_bit+1	#the original coding is 0 or 1, but 0 is reserved for NA
 			for j in range(len(triplet)):	#second deal with the 1st 3 lines with real data
-				sub_data_matrix[j,i] = data_matrix[triplet[j]][i-no_of_chrs]
+				SNP_call = data_matrix[triplet[j]][i-no_of_chrs]
+				if SNP_call>4:
+					SNP_call_1 = nt2number[number2nt[SNP_call][0]]
+					sub_data_matrix[2*j,i] = SNP_call_1
+					SNP_call_2 = nt2number[number2nt[SNP_call][1]]
+					sub_data_matrix[2*j+1,i] = SNP_call_2
+				else:
+					sub_data_matrix[2*j,i] = sub_data_matrix[2*j+1,i] = SNP_call
 	import pylab
 	pylab.clf()
 	pylab.imshow(sub_data_matrix, interpolation='nearest')
@@ -188,8 +209,9 @@ def DrawTrioAncestry(data_matrix_fname, trio_ances_fname, triplet=[]):
 	ytick_label_ls = []
 	for i in range(2):	#repeat the labels
 		for j in range(len(triplet)):
+			ytick_label_ls.append(strain_acc_list[triplet[j]])	#2007-04-17 double it
 			ytick_label_ls.append(strain_acc_list[triplet[j]])
-	ytick_loc_ls = range(6)
+	ytick_loc_ls = range(12)
 	ytick_loc_ls.reverse()
 	pylab.yticks(ytick_loc_ls, ytick_label_ls)
 	pylab.show()
