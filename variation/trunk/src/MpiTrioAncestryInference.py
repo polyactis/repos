@@ -21,8 +21,12 @@ Examples:
 	
 
 Description:
-	The input StrainSNP matrix is in integer format. Program to seek whether one strain
-	is a recombinant of the other two.
+	The input StrainSNP matrix is in integer format (either homozygous or heterozygous).
+	Program to seek whether one strain is a recombinant of the other two (use dynamic
+	programming to determine the minimum number of jumps=recombinations).
+	
+	Note: if it happens to be two consecutive heterozygous SNPs in the child, no jump is counted
+	between them as it's not easy to decide whether recombination occurs or not.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -39,6 +43,8 @@ from codense.common import mpi_synchronize, db_connect, output_node, computing_n
 from FilterStrainSNPMatrix import FilterStrainSNPMatrix	#for read_data()
 from Queue import Queue
 from threading import Thread
+from common import nt2number,number2nt, nt_number_matching_matrix
+nt_number_matching_matrix = Numeric.array(nt_number_matching_matrix)
 
 class trio_generation_thread(Thread):
 	"""
@@ -178,23 +184,65 @@ class MpiTrioAncestryInference:
 		sys.stderr.write("Node no.%s done with %s successes out of %s trials.\n"%(node_rank, no_of_successes, no_of_trials))
 		return result
 	
-	def initialize__score_trace_matrix(self, row1, row2, row3, chr_start_ls):
+	def is_child_heterozygous_SNP_compatible_with_parents(self, SNP_parent_1, SNP_parent_2, SNP_child):
+		"""
+		2007-04-16
+			SNP_child>4
+		"""
+		if SNP_child<5:	#homo or NA
+			return -1
+		SNP_child_1 = nt2number[number2nt[SNP_child][0]]
+		SNP_child_2 = nt2number[number2nt[SNP_child][1]]
+		if (nt_number_matching_matrix[SNP_child_1, SNP_parent_1] and nt_number_matching_matrix[SNP_child_2, SNP_parent_2]) or\
+			(nt_number_matching_matrix[SNP_child_1, SNP_parent_2] and nt_number_matching_matrix[SNP_child_2, SNP_parent_1]):
+			return 1
+		else:
+			return 0
+	
+	def initialize_score_trace_matrix(self, row1, row2, row3, chr_start_ls):
+		"""
+		2007-04-16
+			score_matrix(i,j) records the number of minimum jumps(recombination events) from the chromosome starting or the last heterozygous call of the child while the ancestry of j-th child SNP is parent i(0 or 1).
+				-1 means incompatible
+			trace_matrix(i,j) records the ancestry of the (j-1)-th child SNP assuming the ancestry of j-th child SNP is parent i.
+				-2 means the starting position
+				-1 means incompatible
+				0, 1 means the parent index
+				2 means the child SNP is heterozygous and comes from either parent
+		2007-04-16
+			deal with heterozygous calls
+		"""
 		score_matrix = Numeric.zeros([2, len(row1)])
 		trace_matrix = Numeric.zeros([2, len(row1)])
 		for l in chr_start_ls[:-1]:
 			no_of_incompatibles = 0
-			if row1[l]==row3[l] or row1[l]==0 or row3[l]==0:
-				score_matrix[0,l] = 0
+			if row3[l]>4:	#heterozygous
+				if self.is_child_heterozygous_SNP_compatible_with_parents(row1[l], row2[l], row3[l])==1:
+					score_matrix[0,l] = 0
+					score_matrix[1,l] = 0
+					trace_matrix[0, l] = 2
+					trace_matrix[1, l] = 2
+				else:
+					score_matrix[0,l] = -1
+					score_matrix[1,l] = -1
+					trace_matrix[0, l] = -1
+					trace_matrix[1, l] = -1
+					no_of_incompatibles += 2
 			else:
-				score_matrix[0,l] = -1
-				no_of_incompatibles += 1
-			if row2[l]==row3[l] or row2[l]==0 or row3[l]==0:
-				score_matrix[1,l] = 0
-			else:
-				score_matrix[1,l] = -1
-				no_of_incompatibles += 1
-			trace_matrix[0,l] = -1
-			trace_matrix[1,l] = -1
+				if nt_number_matching_matrix[row1[l], row3[l]]:
+					score_matrix[0,l] = 0
+					trace_matrix[0,l] = -2
+				else:
+					score_matrix[0,l] = l+2	#maximum possible # of jumps +1
+					trace_matrix[0,l] = -1
+					no_of_incompatibles += 1
+				if nt_number_matching_matrix[row2[l], row3[l]]:
+					score_matrix[1,l] = 0
+					trace_matrix[1,l] = -2
+				else:
+					score_matrix[1,l] = l+2	#maximum possible # of jumps +1
+					trace_matrix[1,l] = -1
+					no_of_incompatibles += 1
 			if no_of_incompatibles == 2:	#this is a bad spot, the whole alignment breaks down
 				score_matrix = [-1]
 				trace_matrix = [-1]
@@ -204,44 +252,65 @@ class MpiTrioAncestryInference:
 	def identify_ancestry_of_one_chr_with_DP(self, row1, row2, row3, score_matrix, trace_matrix, chr_start, next_chr_start):
 		"""
 		2007-03-07
+		2007-04-16
+			modify to deal with heterozygous SNPs
 		"""
 		is_identified = 1
+		fake_chr_start_ls = []
 		no_of_rows, no_of_cols = score_matrix.shape
 		if self.debug:
 			import pdb
 			pdb.set_trace()
 		for col_index in range(chr_start+1, next_chr_start):	#the index goes from chr_start+1 to next_chr_start-1
 			valid_cells = []
-			if row1[col_index]==row3[col_index] or row1[col_index]==0 or row3[col_index]==0:
-				valid_cells.append(0)
-			else:
-				score_matrix[0, col_index] = col_index + 2	#set it maximum no of jumps
-				trace_matrix[0, col_index] = -1	#-1 means incompatible
-			if row2[col_index]==row3[col_index] or row2[col_index]==0 or row3[col_index]==0:
-				valid_cells.append(1)
-			else:
-				score_matrix[1, col_index] = col_index + 2
-				trace_matrix[1, col_index] = -1
-			if valid_cells:	#this position has compatible snp type
-				for row_index in valid_cells:
-					min_no_of_jumps = col_index + 2	#this is like the maximum no of jumps + 1
-					for prev_row_index in range(no_of_rows):	#check previous spot
-						if score_matrix[prev_row_index, col_index-1]!=-1:
-							candidate_min_no_of_jumps = score_matrix[prev_row_index, col_index-1] + 1 - int(row_index==prev_row_index)
-							if candidate_min_no_of_jumps < min_no_of_jumps:
-								min_no_of_jumps = candidate_min_no_of_jumps
-								jump_src = prev_row_index
-					score_matrix[row_index, col_index] = min_no_of_jumps
-					trace_matrix[row_index, col_index] = jump_src
-			else:
-				is_identified = 0
-				break
-		return is_identified
+			if row3[col_index]>4:	#2007-04-16 the child SNP is heterozygous
+				if self.is_child_heterozygous_SNP_compatible_with_parents(row1[col_index], row2[col_index], row3[col_index])==1:
+					score_matrix[0, col_index] = 0
+					score_matrix[1, col_index] = 0
+					trace_matrix[0, col_index] = 2
+					trace_matrix[1, col_index] = 2
+					fake_chr_start_ls.append(col_index)
+				else:
+					is_identified = 0
+					break
+			else:	#the child is homozygous
+				if nt_number_matching_matrix[row1[col_index], row3[col_index]]:
+					valid_cells.append(0)
+				else:
+					score_matrix[0, col_index] = col_index+2	#maximum possible # of jumps +1
+					trace_matrix[0, col_index] = -1	#-1 means incompatible
+				if nt_number_matching_matrix[row2[col_index], row3[col_index]]:
+					valid_cells.append(1)
+				else:
+					score_matrix[1, col_index] = col_index+2	#maximum possible # of jumps +1
+					trace_matrix[1, col_index] = -1
+				if valid_cells:	#this position has compatible snp type
+					for row_index in valid_cells:
+						min_no_of_jumps = col_index + 2	#this is like the maximum no of jumps + 1
+						for prev_row_index in range(no_of_rows):	#check previous spot
+							if trace_matrix[prev_row_index, col_index-1]!=-1:	#the previous position is compatible
+								if trace_matrix[0, col_index-1]==2 and trace_matrix[1, col_index-1]==2:
+									#the previous position is heterozygous
+									candidate_min_no_of_jumps = 1	#homozygous after heterozygous is always 1 jump
+								else:
+									candidate_min_no_of_jumps = score_matrix[prev_row_index, col_index-1] + 1 - int(row_index==prev_row_index)
+								if candidate_min_no_of_jumps < min_no_of_jumps:
+									min_no_of_jumps = candidate_min_no_of_jumps
+									jump_src = prev_row_index
+						score_matrix[row_index, col_index] = min_no_of_jumps
+						trace_matrix[row_index, col_index] = jump_src
+				else:
+					is_identified = 0
+					break
+		return is_identified, fake_chr_start_ls
 	
-	def trace(self, score_matrix, trace_matrix, chr_start_ls):
+	def trace(self, score_matrix, trace_matrix, chr_start_ls, flag_of_real_chr_start_ls):
 		"""
 		2007-03-07
 			do it chromosome by chromosome
+		2007-04-16
+			deal with heterozygous (fake chromosome starting)
+			add flag_of_real_chr_start_ls
 		"""
 		no_of_jumps = 0
 		ancestry_ls = []
@@ -249,15 +318,34 @@ class MpiTrioAncestryInference:
 			import pdb
 			pdb.set_trace()
 		for i in range(len(chr_start_ls)-1):
+			chr_start = chr_start_ls[i]
 			chr_stop = chr_start_ls[i+1] - 1
-			if score_matrix[0, chr_stop]<score_matrix[1, chr_stop]:
-				end_chr_ancestry = 0
+			if chr_start==chr_stop:
+				if trace_matrix[0, chr_start]==trace_matrix[1, chr_start]==2:
+					ancestry_ls.append(2)
+					if trace_matrix[0, chr_start-1]!=2 and trace_matrix[1, chr_start-1]!=2 and flag_of_real_chr_start_ls[i]==0:	#the previous position is not heterozygous and this is fake chromosome starting
+						no_of_jumps += 1
+				elif score_matrix[0, chr_stop]<score_matrix[1, chr_stop]:	#this is real chromosome start
+					ancestry_ls.append(0)
+				else:
+					ancestry_ls.append(1)
 			else:
-				end_chr_ancestry = 1
-			no_of_jumps += score_matrix[end_chr_ancestry, chr_stop]
-			ancestry_ls += self.recursive_trace(trace_matrix, end_chr_ancestry, chr_stop, chr_start_ls[i])
-			ancestry_ls.append(end_chr_ancestry)	#the last chr ancestry
-			ancestry_ls.append('||')	#the separator
+				if score_matrix[0, chr_stop]<score_matrix[1, chr_stop]:
+					end_chr_ancestry = 0
+				else:
+					end_chr_ancestry = 1
+				no_of_jumps += score_matrix[end_chr_ancestry, chr_stop]
+				chr_ancestry_ls = self.recursive_trace(trace_matrix, end_chr_ancestry, chr_stop, chr_start)
+				if trace_matrix[0, chr_start]==trace_matrix[1, chr_start]==2:	#it's heterozygous
+					ancestry_ls.append(2)
+					ancestry_ls += chr_ancestry_ls[1:]
+					if trace_matrix[0, chr_start-1]!=2 and trace_matrix[1, chr_start-1]!=2 and flag_of_real_chr_start_ls[i]==0:	#the previous position is not heterozygous and this is fake chromosome starting
+						no_of_jumps += 1
+				else:
+					ancestry_ls += chr_ancestry_ls
+				ancestry_ls.append(end_chr_ancestry)	#the last chr ancestry
+			if flag_of_real_chr_start_ls[i+1]==1:	#if the next chromosome starting position is real chromosome starting
+				ancestry_ls.append('||')	#the separator
 		return ancestry_ls, no_of_jumps
 	
 	def recursive_trace(self, trace_matrix, i, j, chr_start):
@@ -272,18 +360,31 @@ class MpiTrioAncestryInference:
 		return chr_ancestry_ls
 	
 	def identify_ancestry_with_min_jumps(self, row1, row2, row3, chr_start_ls):
+		"""
+		2007-04-16
+			regard heterozygous SNPs as fake chromosome starting position
+		"""
 		ancestry_ls = []
 		no_of_jumps = 0
-		score_matrix, trace_matrix = self.initialize__score_trace_matrix(row1, row2, row3, chr_start_ls)
+		score_matrix, trace_matrix = self.initialize_score_trace_matrix(row1, row2, row3, chr_start_ls)
 		if len(score_matrix) == 1:
 			return ancestry_ls, no_of_jumps
-		
+		fake_chr_start_ls = []
+		flag_of_real_chr_start_ls = []	#flag corresponding to each position in fake_chr_start_ls
 		for i in range(len(chr_start_ls)-1):
-			is_identified = self.identify_ancestry_of_one_chr_with_DP(row1, row2, row3, score_matrix, trace_matrix, chr_start_ls[i], chr_start_ls[i+1])
-			if not is_identified:
+			is_identified, fake_chr_start_ls_of_this_chr = self.identify_ancestry_of_one_chr_with_DP(row1, row2, row3, score_matrix, trace_matrix, chr_start_ls[i], chr_start_ls[i+1])
+			if is_identified:	#2007-04-16
+				fake_chr_start_ls.append(chr_start_ls[i])
+				flag_of_real_chr_start_ls.append(1)	#this is real
+				for fake_chr_start in fake_chr_start_ls_of_this_chr:
+					fake_chr_start_ls.append(fake_chr_start)
+					flag_of_real_chr_start_ls.append(0)
+			else:
 				break
 		if is_identified:
-			ancestry_ls, no_of_jumps = self.trace(score_matrix, trace_matrix, chr_start_ls)
+			fake_chr_start_ls.append(chr_start_ls[-1])	#2007-04-16 append the last chromosome starting position
+			flag_of_real_chr_start_ls.append(0)	#the last one is placeholder, not real chromosome start
+			ancestry_ls, no_of_jumps = self.trace(score_matrix, trace_matrix, fake_chr_start_ls, flag_of_real_chr_start_ls)
 		return ancestry_ls, no_of_jumps
 	
 	def output_node_handler(self, communicator, parameter_list, data):
@@ -297,7 +398,7 @@ class MpiTrioAncestryInference:
 	
 	def run(self):
 		"""
-		2007-03-08
+		2007-04-16
 			(rank==0)
 				--get_chr_start_ls()
 			elif free_computing_nodes:
@@ -312,9 +413,11 @@ class MpiTrioAncestryInference:
 				--computing_node()
 					--computing_node_handler()
 						--identify_ancestry_with_min_jumps()
-							--initialize__score_trace_matrix()
+							--initialize_score_trace_matrix()
+								--is_child_heterozygous_SNP_compatible_with_parents()
 							(for loop)
 								--identify_ancestry_of_one_chr_with_DP()
+									--is_child_heterozygous_SNP_compatible_with_parents()
 							--trace()
 								--recursive_trace()
 			else:
