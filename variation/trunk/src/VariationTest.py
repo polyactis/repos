@@ -9,7 +9,8 @@ Option:
 Examples:
 	VariationTest.py -y 2
 
-2007-03-08 1: TestTrioInference
+2007-03-08 1:TestTrioInference
+2007-04-17 2:Test_find_smallest_vertex_set_to_remove_all_edges
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -44,6 +45,30 @@ class TestTrioInference(unittest.TestCase):
 			print ancestry_ls
 			print no_of_jumps
 
+
+class Test_find_smallest_vertex_set_to_remove_all_edges(unittest.TestCase):
+	"""
+	2007-04-17
+	"""
+	def setUp(self):
+		print
+	
+	def test_find_smallest_vertex_set_to_remove_all_edges(self):
+		from dbSNP2data import dbSNP2data
+		identity_pair_ls = [[1,2],[2,3],[2,4],[4,5]]
+		import networkx as nx
+		g = nx.Graph()
+		g.add_edges_from(identity_pair_ls)
+		from dbSNP2data import dbSNP2data
+		dbSNP2data_instance = dbSNP2data()
+		#import pdb
+		#pdb.set_trace()
+		vertex_list_to_be_deleted = dbSNP2data_instance.find_smallest_vertex_set_to_remove_all_edges(g)
+		print 'graph'
+		print identity_pair_ls
+		print 'vertex_list_to_be_deleted'
+		print vertex_list_to_be_deleted
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -56,7 +81,8 @@ if __name__ == '__main__':
 		print __doc__
 		sys.exit(2)
 	
-	TestCaseDict = {1:TestTrioInference}
+	TestCaseDict = {1:TestTrioInference,
+		2:Test_find_smallest_vertex_set_to_remove_all_edges}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
