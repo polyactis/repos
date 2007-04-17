@@ -5,7 +5,7 @@ Usage: FilterStrainSNPMatrix.py [OPTIONS] -i INPUT_FILE -o OUTPUT_FILE
 Option:
 	-i ...,	input file
 	-o ...,	output file
-	-r ...,	row NA ratio cutoff, 0.4(default)
+	-n ...,	row NA ratio cutoff, 0.4(default)
 	-c ...,	column NA ratio cutoff, 0.4(default)
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -87,39 +87,43 @@ class FilterStrainSNPMatrix:
 		return cols_with_too_many_NAs_set
 	
 	def remove_identity_strains(self, data_matrix, rows_to_be_checked, cols_to_be_checked, strain_index2no_of_NAs):
+		"""
+		2007-04-16
+			the similarity graph structure complicated the issue
+			bug found by Chris Toomajian
+			Now use the greedy graph algorithm to remove identity strains.
+		"""
 		sys.stderr.write("Searching for identity strains ...")
-		src2tg_list = {}
-		tg2src = {}
 		rows_to_be_checked_ls = list(rows_to_be_checked)
 		rows_to_be_checked_ls.sort()	#from small to big
 		if self.debug:
 			import pdb
 			pdb.set_trace()
 		no_of_total_cols_to_be_checked = len(cols_to_be_checked)
+		identity_pair_ls = []	#2007-04-16
 		for i in range(len(rows_to_be_checked_ls)):
 			row1_index = rows_to_be_checked_ls[i]	#watch this
-			if row1_index in tg2src:	#already an identity to some other strain
-				continue
 			for j in rows_to_be_checked_ls[i+1:]:
-				if j in tg2src:	#already an identity to some other strain
-					continue
 				no_of_same_cols = 0
 				for k in cols_to_be_checked:
 					if data_matrix[row1_index][k] == data_matrix[j][k] or data_matrix[row1_index][k]==0 or data_matrix[j][k]==0:
 						no_of_same_cols += 1
 				if no_of_same_cols == no_of_total_cols_to_be_checked:
-					if row1_index not in src2tg_list:
-						src2tg_list[row1_index] = []
-					src2tg_list[row1_index].append(j)
-					tg2src[j] = row1_index
+					identity_pair_ls.append([row1_index, j])
 		if self.debug:
-			print
-			print 'src2tg_list'
-			print src2tg_list
-			print 'tg2src'
-			print tg2src
+			import pdb
+			pdb.set_trace()
 		sys.stderr.write("done.\n")
 		sys.stderr.write("Removing identity strains ...")
+		import networkx as nx
+		g = nx.Graph()
+		g.add_edges_from(identity_pair_ls)
+		from dbSNP2data import dbSNP2data
+		dbSNP2data_instance = dbSNP2data()
+		vertex_list_to_be_deleted = dbSNP2data_instance.find_smallest_vertex_set_to_remove_all_edges(g)
+		identity_strains_to_be_removed = Set(vertex_list_to_be_deleted)
+		"""
+		#2007-04-16 useless
 		identity_strains_to_be_removed = Set()
 		for src, tg_list in src2tg_list.iteritems():
 			strain_with_least_NA = src
@@ -131,6 +135,7 @@ class FilterStrainSNPMatrix:
 					strain_with_least_NA = tg
 					least_no_of_NAs = strain_index2no_of_NAs[tg]
 			identity_strains_to_be_removed.remove(strain_with_least_NA)	#remove the one with least NAs
+		"""
 		if self.debug:
 			print
 			print 'identity_strains_to_be_removed'
@@ -216,7 +221,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "i:o:r:c:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "i:o:n:c:brh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -236,7 +241,7 @@ if __name__ == '__main__':
 			input_fname = arg
 		elif opt in ("-o",):
 			output_fname = arg
-		elif opt in ("-r",):
+		elif opt in ("-n",):
 			row_cutoff = float(arg)
 		elif opt in ("-c",):
 			col_cutoff = float(arg)
