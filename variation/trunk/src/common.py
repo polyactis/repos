@@ -47,3 +47,16 @@ number2nt = {0: 'NA',
 	9:'CT',
 	10:'GT'
 	}
+
+#2007-04-16 entry[i,j] means whether nucleotide i and j matches. 0(NA) matches everything. singleton(1-4) matches itself and the doublet containing it. doublet(5-10) matches only itself.
+nt_number_matching_matrix = [[1, 1,1,1,1,1, 1,1,1,1,1],
+	[1, 1,0,0,0,1, 1,1,0,0,0],
+	[1, 0,1,0,0,1, 0,0,1,1,0],
+	[1, 0,0,1,0,0, 1,0,1,0,1],
+	[1, 0,0,0,1,0, 0,1,0,1,1],
+	[1, 1,1,0,0,1, 0,0,0,0,0],
+	[1, 1,0,1,0,0, 1,0,0,0,0],
+	[1, 1,0,0,1,0, 0,1,0,0,0],
+	[1, 0,1,1,0,0, 0,0,1,0,0],
+	[1, 0,1,0,1,0, 0,0,0,1,0],
+	[1, 0,0,1,1,0, 0,0,0,0,1]]
