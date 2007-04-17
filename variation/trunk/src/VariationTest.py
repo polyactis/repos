@@ -22,12 +22,19 @@ else:   #32bit
 import unittest, os, sys, getopt, csv
 
 class TestTrioInference(unittest.TestCase):
+	"""
+	2007-03-08
+	"""
 	def test_trio_ancestry_inference_by_DP(self):
+		"""
+		2007-04-16
+			add a heterozygous call to test
+		"""
 		from MpiTrioAncestryInference import MpiTrioAncestryInference
 		import Numeric
 		data_matrix = Numeric.array([   [0,1,3,1,2,2,2,1,1,1],
-						[1,2,4,3,2,2,1,4,1,4],
-						[2,1,4,3,2,2,1,1,1,4]])
+						[1,2,4,3,2,2,1,4,2,4],
+						[2,1,4,3,2,2,1,1,5,4]])
 		chr_start_ls = [0,4,10]
 		trio_arrangement_ls = [[0,1,2], [1,2,0], [2,0,1]]
 		MpiTrioAncestryInference_instance = MpiTrioAncestryInference(debug=1)
