@@ -7,6 +7,8 @@ Option:
 	-o ...,	output file
 	-n ...,	row NA ratio cutoff, 0.4(default)
 	-c ...,	column NA ratio cutoff, 0.4(default)
+	-d,	need to remove identity strains
+	-a,	use alphabet to represent nucleotide, not number
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -14,6 +16,7 @@ Option:
 Examples:
 	FilterStrainSNPMatrix.py -i justin_data.csv -o justin_data_filtered.csv -r
 	
+	./src/FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
 
 Description:
 	The input StrainSNP matrix is in integer format.
@@ -30,17 +33,23 @@ else:   #32bit
 import getopt, csv, math
 import Numeric as num
 from sets import Set
+from common import number2nt
 
 class FilterStrainSNPMatrix:
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
-		debug=0, report=0):
+		need_to_remove_identity=0, nt_alphabet=0, debug=0, report=0):
 		"""
 		2007-02-27
+		2007-04-27
+			add need_to_remove_identity
+			add nt_alphabet
 		"""
 		self.input_fname = input_fname
 		self.output_fname = output_fname
 		self.row_cutoff = float(row_cutoff)
 		self.col_cutoff = float(col_cutoff)
+		self.need_to_remove_identity = int(need_to_remove_identity)
+		self.nt_alphabet = int(nt_alphabet)
 		self.debug = int(debug)
 		self.report = int(report)
 	
@@ -143,9 +152,11 @@ class FilterStrainSNPMatrix:
 		sys.stderr.write("%s identity strains, done.\n"%(len(identity_strains_to_be_removed)))
 		return identity_strains_to_be_removed
 	
-	def write_data_matrix(self, data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=Set(), cols_to_be_tossed_out=Set()):
+	def write_data_matrix(self, data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=Set(), cols_to_be_tossed_out=Set(), nt_alphabet=0):
 		"""
 		2007-03-06
+		2007-04-27
+			add nt_alphabet
 		"""
 		sys.stderr.write("Writing data_matrix ...")
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
@@ -162,7 +173,10 @@ class FilterStrainSNPMatrix:
 				new_row = [strain_acc_list[i], category_list[i]]
 				for j in range(no_of_cols):
 					if j not in cols_to_be_tossed_out:
-						new_row.append(data_matrix[i][j])
+						if nt_alphabet:
+							new_row.append(number2nt[data_matrix[i][j]])
+						else:
+							new_row.append(data_matrix[i][j])
 				writer.writerow(new_row)
 		del writer
 		sys.stderr.write("Done.\n")
@@ -208,10 +222,13 @@ class FilterStrainSNPMatrix:
 		rows_to_be_checked = total_rows_set - rows_with_too_many_NAs_set
 		total_cols_set = Set(range(no_of_cols))
 		cols_to_be_checked = total_cols_set - cols_with_too_many_NAs_set
-		identity_strains_to_be_removed = self.remove_identity_strains(data_matrix, rows_to_be_checked, cols_to_be_checked, strain_index2no_of_NAs)
+		if self.need_to_remove_identity:
+			identity_strains_to_be_removed = self.remove_identity_strains(data_matrix, rows_to_be_checked, cols_to_be_checked, strain_index2no_of_NAs)
+		else:
+			identity_strains_to_be_removed = Set()
 		
 		rows_to_be_tossed_out = rows_with_too_many_NAs_set | identity_strains_to_be_removed
-		self.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set)
+		self.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set, self.nt_alphabet)
 
 
 if __name__ == '__main__':
@@ -221,7 +238,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "i:o:n:c:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "i:o:n:c:dabrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -230,8 +247,10 @@ if __name__ == '__main__':
 	output_fname = None
 	row_cutoff = 0.4
 	col_cutoff = 0.4
+	need_to_remove_identity = 0
 	debug = 0
 	report = 0
+	nt_alphabet = 0
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -245,13 +264,18 @@ if __name__ == '__main__':
 			row_cutoff = float(arg)
 		elif opt in ("-c",):
 			col_cutoff = float(arg)
+		elif opt in ("-d",):
+			need_to_remove_identity = 1
+		elif opt in ("-a",):
+			nt_alphabet = 1
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
 			report = 1
 
 	if input_fname and output_fname:
-		instance = FilterStrainSNPMatrix(input_fname, output_fname, row_cutoff, col_cutoff, debug, report)
+		instance = FilterStrainSNPMatrix(input_fname, output_fname, row_cutoff, col_cutoff,\
+			need_to_remove_identity, nt_alphabet, debug, report)
 		instance.run()
 	else:
 		print __doc__
