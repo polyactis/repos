@@ -1,0 +1,44 @@
+\documentclass[a4paper,10pt]{article}
+
+
+%opening
+\title{Paper}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{model for snp locus}
+\begin{equation}
+P({SNP}_j|Strain heterozygous info) = \prod_{i=1}^{N} p_i^{a_i^j} (1-p_i)^{1-a_i^j}
+\end{equation}
+
+
+$p_i$ is probability that one strain has heterozygous call.
+
+
+$a_i^j$ is indicator whether ${SNP}_j$ is homozygous($=1$) or not($=0$) for ${Strain}_i$.
+
+
+\section{model to estimate the number of selfing generations since last outcrossing event}
+\begin{equation}
+D_i = 1 - \sum_{j=1}^k p_{ij}^2
+\end{equation}
+
+
+$p_{ij}$ is probability of allele j of SNP i. k is the number of alleles.
+
+$D_i$ is probability of SNP i being heterozygous.
+
+
+\begin{equation}
+likelihood(S_n) = \prod_{i=1}^L {(\frac{D_i}{2^n})}^{a_i} {(1-\frac{D_i}{2^n})}^{1-a_i}
+\end{equation}
+
+
+\end{document}
