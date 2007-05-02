@@ -13,6 +13,8 @@ Option:
 	-t ..., strain_info_2010_table, 'strain_info_2010'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
 	-j ...,	sub_justin_output_fname, (output the sub_data_matrix extracted from input_fname
+	-e ...,	what type of difference should be outputted, 5(default, call_ineq_call)
+	-f ...,	output_fname which stores the strain and snp where difference happens
 	-c,	comparison_only, output_fname already contains the data. no extraction
 		of SNP_matrix_2010.
 	-b, --debug	enable debug
@@ -27,7 +29,13 @@ Examples:
 Description:
 	Based on the SNPs given by input_fname, check the alignment data from 2010 project
 	and figure out the SNP matrix for the 96 strains in 2010 project.
-	
+	'del_vs_NA':0,
+	'del_vs_call':1,
+	'NA_vs_NA':2,
+	'NA_vs_call':3,
+	'call_vs_NA':4,
+	'call_ineq_call':5,
+	'call_eq_call':6
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -50,11 +58,13 @@ class Identify2010SNPsGivenSNPset:
 	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', \
 		input_fname=None, data_dir_2010=None, output_fname=None, strain_info_table='strain_info', \
 		strain_info_2010_table='strain_info_2010', snp_locus_table='snp_locus', sub_justin_output_fname=None,\
-		comparison_only=0, debug=0, report=0):
+		diff_type_to_be_outputted=5, diff_output_fname=None, comparison_only=0, debug=0, report=0):
 		"""
 		2007-03-29
 		2007-04-03
 			add sub_justin_output_fname and comparison_only
+		2007-05-01
+			add diff_type_to_be_outputted, diff_output_fname
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -66,6 +76,8 @@ class Identify2010SNPsGivenSNPset:
 		self.strain_info_2010_table = strain_info_2010_table
 		self.snp_locus_table = snp_locus_table
 		self.sub_justin_output_fname = sub_justin_output_fname
+		self.diff_type_to_be_outputted = int(diff_type_to_be_outputted)
+		self.diff_output_fname = diff_output_fname
 		self.comparison_only = int(comparison_only)
 		self.debug = int(debug)
 		self.report = int(report)
@@ -237,6 +249,8 @@ class Identify2010SNPsGivenSNPset:
 			diff_tag2counter[tag] = 0
 		for i in range(no_of_rows):
 			for j in range(no_of_cols):
+				if SNP_matrix_1[i,j]>4:	#2007-05-01
+					SNP_matrix_1[i,j]=0
 				if SNP_matrix_1[i,j]==-1:
 					if SNP_matrix_2[i,j]==0:
 						tag='del_vs_NA'
@@ -259,10 +273,30 @@ class Identify2010SNPsGivenSNPset:
 		sys.stderr.write("Done.\n")
 		return diff_matrix, diff_tag_dict, diff_tag2counter
 	
+	def outputDiffType(self, diff_matrix, SNP_matrix_1, SNP_matrix_2, diff_tag_dict, diff_type_to_be_outputted, strain_name_ls, snp_name_ls, output_fname):
+		"""
+		2007-05-01
+		"""
+		sys.stderr.write("Outputting diff_matrix where diff code=%s ... "%(diff_type_to_be_outputted))
+		for tag, diff_code in diff_tag_dict.iteritems():
+			if diff_code==diff_type_to_be_outputted:
+				tag_to_be_outputted = tag
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		writer.writerow(['diff tag = %s'%tag_to_be_outputted])
+		writer.writerow(['strain', 'snp', '2010_call', 'justin_call'])
+		no_of_rows, no_of_cols = diff_matrix.shape
+		for i in range(no_of_rows):
+			for j in range(no_of_cols):
+				if diff_matrix[i,j] == diff_type_to_be_outputted:
+					writer.writerow([strain_name_ls[i], snp_name_ls[j], number2nt[SNP_matrix_1[i,j]], number2nt[SNP_matrix_2[i,j]]])
+		del writer
+		sys.stderr.write("Done.\n")
+	
 	def run(self):
 		"""
 		2007-03-29
 		2007-04-03
+		2007-05-01
 			--db_connect()
 			--FilterStrainSNPMatrix_instance.read_data()
 			if self.comparison_only:
@@ -282,6 +316,7 @@ class Identify2010SNPsGivenSNPset:
 			if self.sub_justin_output_fname:
 				--FilterStrainSNPMatrix_instance.write_data_matrix()
 			--compare_two_SNP_matrix()
+			--outputDiffType()
 			
 		"""
 		(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
@@ -310,6 +345,8 @@ class Identify2010SNPsGivenSNPset:
 		if self.sub_justin_output_fname:
 			FilterStrainSNPMatrix_instance.write_data_matrix(sub_data_matrix, self.sub_justin_output_fname, header, strain_acc_ls, abbr_name_ls_sorted)
 		diff_matrix, diff_tag_dict, diff_tag2counter= self.compare_two_SNP_matrix(SNP_matrix_2010_sorted, sub_data_matrix)
+		if self.diff_output_fname:
+			self.outputDiffType(diff_matrix, SNP_matrix_2010_sorted, sub_data_matrix, diff_tag_dict, self.diff_type_to_be_outputted, abbr_name_ls_sorted, header[2:], self.diff_output_fname)
 		
 		summary_result_ls = []
 		for tag, counter in diff_tag2counter.iteritems():
@@ -332,7 +369,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "commit", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:a:o:s:t:n:j:cbrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:a:o:s:t:n:j:e:f:cbrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -347,6 +384,8 @@ if __name__ == '__main__':
 	strain_info_2010_table = 'strain_info_2010'
 	snp_locus_table = 'snp_locus'
 	sub_justin_output_fname = None
+	diff_type_to_be_outputted = 5
+	diff_output_fname = None
 	comparison_only = 0
 	debug = 0
 	report = 0
@@ -375,6 +414,10 @@ if __name__ == '__main__':
 			snp_locus_table = arg
 		elif opt in ("-j",):
 			sub_justin_output_fname = arg
+		elif opt in ("-e",):
+			diff_type_to_be_outputted = int(arg)
+		elif opt in ("-f",):
+			diff_output_fname = arg
 		elif opt in ("-c",):
 			comparison_only = 1
 		elif opt in ("-b", "--debug"):
@@ -384,7 +427,8 @@ if __name__ == '__main__':
 
 	if input_fname and data_dir_2010 and output_fname and hostname and dbname and schema:
 		instance = Identify2010SNPsGivenSNPset(hostname, dbname, schema, input_fname, data_dir_2010, output_fname,\
-			strain_info_table, strain_info_2010_table, snp_locus_table, sub_justin_output_fname, comparison_only, debug, report)
+			strain_info_table, strain_info_2010_table, snp_locus_table, sub_justin_output_fname, \
+			diff_type_to_be_outputted, diff_output_fname, comparison_only, debug, report)
 		instance.run()
 	else:
 		print __doc__
