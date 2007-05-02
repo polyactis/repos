@@ -249,8 +249,6 @@ class Identify2010SNPsGivenSNPset:
 			diff_tag2counter[tag] = 0
 		for i in range(no_of_rows):
 			for j in range(no_of_cols):
-				if SNP_matrix_1[i,j]>4:	#2007-05-01
-					SNP_matrix_1[i,j]=0
 				if SNP_matrix_1[i,j]==-1:
 					if SNP_matrix_2[i,j]==0:
 						tag='del_vs_NA'
