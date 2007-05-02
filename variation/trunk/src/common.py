@@ -35,7 +35,8 @@ nt2number = {'-': -1,	#deletion
 	'K':10
 	}
 
-number2nt = {0: 'NA',
+number2nt = {-1: '-',
+	0: 'NA',
 	1:'A',
 	2:'C',
 	3:'G',
