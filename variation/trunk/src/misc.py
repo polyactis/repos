@@ -323,7 +323,7 @@ distance_matrix = DrawDistanceHistogram('./script/variation/data/justin_data_fil
 	The stat is d(i,j)-|d(i,k)-d(j,k)| for k is a child of i and j
 	the bigger this value is, the more divergent between two parents and child is in equal distance to two parents
 """
-def cal_trio_stat(trio_ances_fname, distance_matrix, output_fname, need_savefig=0, report=0):
+def cal_trio_stat(trio_ances_fname, distance_matrix, output_fname, pic_fname_prefix, need_savefig=0, report=0):
 	import csv
 	import Numeric
 	no_of_strains = distance_matrix.shape[0]
@@ -344,18 +344,24 @@ def cal_trio_stat(trio_ances_fname, distance_matrix, output_fname, need_savefig=
 	if report:
 		sys.stderr.write("%s%s\n"%('\x08'*20, counter))
 	del reader
+	sys.stderr.write("outputting trio_stat...")
+	writer = csv.writer(open(output_fname,'w'), delimiter='\t')
+	for triplet, trio_stat in triplet2trio_stat.iteritems():
+		writer.writerow(list(triplet)+[trio_stat])
+	del writer
+	sys.stderr.write("Done\n")
 	import pylab
 	pylab.clf()
 	pylab.hist(trio_stat_ls, 20)
 	pylab.title("hist of d(i,j)-|d(i,k)-d(j,k)|")
 	if need_savefig:
-		pylab.savefig('%s_trio_stat_his.eps'%output_fname, dpi=300)
-		pylab.savefig('%s_trio_stat_hist.svg'%output_fname, dpi=300)
-		pylab.savefig('%s_trio_stat_hist.png'%output_fname, dpi=300)
+		pylab.savefig('%s_trio_stat_his.eps'%pic_fname_prefix, dpi=300)
+		pylab.savefig('%s_trio_stat_hist.svg'%pic_fname_prefix, dpi=300)
+		pylab.savefig('%s_trio_stat_hist.png'%pic_fname_prefix, dpi=300)
 	pylab.show()
 	return triplet2trio_stat
 
-triplet2trio_stat = cal_trio_stat('./script/variation/data/justin_data_filtered.trio_ances', distance_matrix, './script/variation/data/justin_data_filtered.trio_ances', need_savefig=1, report=1)
+triplet2trio_stat = cal_trio_stat('./script/variation/data/justin_data_filtered.trio_ances', distance_matrix, './script/variation/data/justin_data_filtered.trio_ances.trio_stat', './script/variation/data/justin_data_filtered.trio_ances', need_savefig=1, report=1)
 
 """
 2007-03-28
@@ -403,6 +409,130 @@ def draw_SNP_gap_histogram(curs, snp_locus_table, output_fname, need_savefig=0):
 		pylab.savefig('%s.png'%output_fname, dpi=300)
 	pylab.show()
 	return SNP_gap_ls
+
+"""
+2007-04-29
+	to determine which SNP is in coding or non-coding region
+"""
+def find_SNP_context(curs, snp_locus_table, snp_locus_context_table, entrezgene_mapping_table='sequence.entrezgene_mapping',\
+	annot_assembly_table='sequence.annot_assembly', tax_id=3702, need_commit=0):
+	import os,sys
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/transfac/src')))
+	from TFBindingSiteParse import TFBindingSiteParse
+	TFBindingSiteParse_instance =TFBindingSiteParse()
+	from codense.common import get_entrezgene_annotated_anchor
+	chromosome2anchor_gene_tuple_ls, gene_id2coord = get_entrezgene_annotated_anchor(curs, tax_id, entrezgene_mapping_table,\
+		annot_assembly_table)
+	curs.execute("select id, chromosome, position from %s"%(snp_locus_table))
+	rows = curs.fetchall()
+	counter = 0
+	for row in rows:
+		snp_locus_id, chromosome, position = row
+		regulatory_coord = (chromosome, position, position)
+		target_gene_ls, target_gene_ls_type = TFBindingSiteParse_instance.return_target_gene_ls(regulatory_coord, \
+			chromosome2anchor_gene_tuple_ls, gene_id2coord)
+		for gene_id, gene_start, gene_stop, gene_strand, gene_genomic_gi in target_gene_ls:
+			if gene_strand == '+':
+				disp_pos = position - gene_start
+			else:
+				disp_pos = gene_stop - position
+			curs.execute("insert into %s(snp_locus_id, disp_pos, gene_id, gene_strand, disp_pos_comment) values (%s, %s, %s, '%s', '%s')"%\
+				(snp_locus_context_table, snp_locus_id, disp_pos, gene_id, gene_strand, target_gene_ls_type))
+		sys.stderr.write("%s%s"%('\x08'*10, counter))
+		counter += 1
+	if need_commit:
+		curs.execute("end")
+
+
+conn, curs = db_connect(hostname, dbname, schema)
+find_SNP_context(curs, 'snp_locus', 'snp_locus_context', need_commit=1)
+
+"""
+2007-04-30
+"""
+def blast_snp_segment(curs, snp_locus_table, output_fname, database_fname, flanking_seq_length=12, max_no_of_hits_to_be_outputted=3, blast_bin_path=os.path.expanduser('~/bin/blast/bin/blastall'), annot_assembly_table='sequence.annot_assembly', \
+	raw_sequence_table='sequence.raw_sequence', tmp_blast_infname='/tmp/blast_input'):
+	import sys
+	from Bio.Blast import NCBIXML, NCBIStandalone
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
+	from codense.common import get_sequence_segment
+	curs.execute("select s.id, s.acc, s.chromosome, s.position, a.gi from %s s, %s a\
+		where a.tax_id=s.tax_id and a.chromosome=s.chromosome"%(snp_locus_table, annot_assembly_table))
+	rows = curs.fetchall()
+	counter = 0
+	outf = open(output_fname, 'w')
+	for row in rows:
+		snp_locus_id, acc, chromosome, position, genomic_gi = row
+		genomic_start = position-flanking_seq_length
+		genomic_stop = position + flanking_seq_length
+		seq = get_sequence_segment(curs, genomic_gi, genomic_start, genomic_stop, annot_assembly_table, raw_sequence_table)
+		if seq:
+			for candidate_snp in ['A', 'C', 'G', 'T']:
+				seq = seq[:flanking_seq_length] + candidate_snp + seq[flanking_seq_length+1:]	#str doesn't support item assignment
+				inf = open(tmp_blast_infname, 'w')
+				inf.write('>%s(snp_locus_id=%s) candidate_snp=%s\n'%(acc, snp_locus_id, candidate_snp))
+				inf.write('%s\n'%seq)
+				del inf
+				result_handle, error_info = NCBIStandalone.blastall(blast_bin_path, "blastn", database_fname, tmp_blast_infname, align_view=7)	#align_view=7 toggles the xml output
+				blast_parser = NCBIXML.BlastParser()	#the parser has to be re-instanced every time otherwise the blast records parsed in the previous round stay in the parser
+				blast_records = blast_parser.parse(result_handle)
+				del blast_parser
+				no_of_hits = min(max_no_of_hits_to_be_outputted, len(blast_records.alignments))
+				outf.write("%s (id=%s) candidate_snp=%s\n"%(acc, snp_locus_id, candidate_snp))
+				outf.write("query sequence = %s\n"%seq)
+				for i in range(no_of_hits):
+					outf.write("\t%s\n"%(blast_records.alignments[i].title))
+					for hsp in blast_records.alignments[i].hsps:
+						outf.write("\t\tquery_start=%s, sbjct_start=%s, frame=%s, identities=%s/%s E=%s\n"%(hsp.query_start, hsp.sbjct_start, hsp.frame, hsp.identities, 2*flanking_seq_length+1, hsp.expect))
+						outf.write("\t\t%s\n"%hsp.query)
+						outf.write("\t\t%s\n"%hsp.match)
+						outf.write("\t\t%s\n"%hsp.sbjct)
+						outf.write("\n")
+					outf.write("\n")
+				outf.write("\n")
+		sys.stderr.write("%s%s"%('\x08'*10, counter))
+		counter += 1
+	del outf
+
+
+my_blast_db = os.path.expanduser("~/bin/blast/db/Arabidopsis_thaliana.main_genome.fasta")
+blast_snp_segment(curs, 'snp_locus', './blast_149snps_vs_thaliana_len_25.txt', my_blast_db)
+
+
+my_blast_db = os.path.expanduser("~/bin/blast/db/Arabidopsis_lyrata.main_genome.scaffolds.fasta")
+blast_snp_segment(curs, 'snp_locus', './blast_149snps_vs_lyrata_len_51.txt', my_blast_db, flanking_seq_length=25)
+
+
+"""
+2007-04-30
+"""
+def fill_snp_locus_table_with_25mer_thaliana_call(curs, snp_locus_table, annot_assembly_table='sequence.annot_assembly', \
+	raw_sequence_table='sequence.raw_sequence', need_commit=0):
+	import sys
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
+	from codense.common import get_sequence_segment
+	curs.execute("select s.id, s.acc, s.chromosome, s.position, a.gi from %s s, %s a\
+		where a.tax_id=s.tax_id and a.chromosome=s.chromosome"%(snp_locus_table, annot_assembly_table))
+	rows = curs.fetchall()
+	counter = 0
+	for row in rows:
+		snp_locus_id, acc, chromosome, position, genomic_gi = row
+		genomic_start = position - 12
+		genomic_stop = position + 12
+		seq = get_sequence_segment(curs, genomic_gi, genomic_start, genomic_stop, annot_assembly_table, raw_sequence_table)
+		if seq:
+			thaliana_call = seq[12]
+			curs.execute("update %s set thaliana_call='%s', flanking_25mer='%s' where id=%s"%(snp_locus_table, thaliana_call, seq, snp_locus_id))
+		sys.stderr.write("%s%s"%('\x08'*10, counter))
+		counter += 1
+	if need_commit:
+		curs.execute("end")
+
+fill_snp_locus_table_with_25mer_thaliana_call(curs, 'dbsnp.snp_locus', need_commit=1)
+
+
+
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
