@@ -40,7 +40,10 @@ create table snp_locus(
 	--2007-04-01	add UEP_DIR, adjacent_sequence
 	position	integer,
 	UEP_DIR	varchar,
-	adjacent_sequence	varchar
+	adjacent_sequence	varchar,
+	lyrata_call	varchar,	--2007-04-30
+	thaliana_call	varchar,
+	flanking_25mer	varchar
 	);
 
 create table justin_data(
@@ -69,4 +72,14 @@ create table strain_info_2010(
 	plate_pos_col	varchar,
 	plate_pos_row	varchar,
 	stock_center_number	varchar
+	);
+
+--2007-04-30
+create table snp_locus_context(
+	id	serial primary key,
+	snp_locus_id	integer,
+	disp_pos	integer,
+	gene_id	integer,
+	gene_strand	varchar(1),
+	disp_pos_comment	varchar
 	);
