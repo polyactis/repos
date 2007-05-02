@@ -7,15 +7,17 @@ Option:
 	-o ...,	output file
 	-n ...,	row NA ratio cutoff, 0.4(default)
 	-c ...,	column NA ratio cutoff, 0.4(default)
-	-d,	need to remove identity strains
+	-d,	need to do filtering
 	-a,	use alphabet to represent nucleotide, not number
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
 
 Examples:
-	FilterStrainSNPMatrix.py -i justin_data.csv -o justin_data_filtered.csv -r
+	#filter out snps and strains with too many NAs and identity strains
+	FilterStrainSNPMatrix.py -i justin_data.csv -o justin_data_filtered.csv -r -d
 	
+	#translate integer nucleotide into english letter (no filtering)
 	./src/FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
 
 Description:
@@ -37,18 +39,18 @@ from common import number2nt
 
 class FilterStrainSNPMatrix:
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
-		need_to_remove_identity=0, nt_alphabet=0, debug=0, report=0):
+		need_to_filter=0, nt_alphabet=0, debug=0, report=0):
 		"""
 		2007-02-27
 		2007-04-27
-			add need_to_remove_identity
+			add need_to_filter
 			add nt_alphabet
 		"""
 		self.input_fname = input_fname
 		self.output_fname = output_fname
 		self.row_cutoff = float(row_cutoff)
 		self.col_cutoff = float(col_cutoff)
-		self.need_to_remove_identity = int(need_to_remove_identity)
+		self.need_to_filter = int(need_to_filter)
 		self.nt_alphabet = int(nt_alphabet)
 		self.debug = int(debug)
 		self.report = int(report)
@@ -214,17 +216,19 @@ class FilterStrainSNPMatrix:
 		"""
 		header, strain_acc_list, category_list, data_matrix = self.read_data(self.input_fname)
 		data_matrix = num.array(data_matrix)
-		rows_with_too_many_NAs_set, strain_index2no_of_NAs = self.remove_rows_with_too_many_NAs(data_matrix, self.row_cutoff)
-		cols_with_too_many_NAs_set = self.remove_cols_with_too_many_NAs(data_matrix, col_cutoff, rows_with_too_many_NAs_set)
-		
-		no_of_rows, no_of_cols = data_matrix.shape
-		total_rows_set = Set(range(no_of_rows))
-		rows_to_be_checked = total_rows_set - rows_with_too_many_NAs_set
-		total_cols_set = Set(range(no_of_cols))
-		cols_to_be_checked = total_cols_set - cols_with_too_many_NAs_set
-		if self.need_to_remove_identity:
+		if self.need_to_filter:
+			rows_with_too_many_NAs_set, strain_index2no_of_NAs = self.remove_rows_with_too_many_NAs(data_matrix, self.row_cutoff)
+			cols_with_too_many_NAs_set = self.remove_cols_with_too_many_NAs(data_matrix, col_cutoff, rows_with_too_many_NAs_set)
+			
+			no_of_rows, no_of_cols = data_matrix.shape
+			total_rows_set = Set(range(no_of_rows))
+			rows_to_be_checked = total_rows_set - rows_with_too_many_NAs_set
+			total_cols_set = Set(range(no_of_cols))
+			cols_to_be_checked = total_cols_set - cols_with_too_many_NAs_set
 			identity_strains_to_be_removed = self.remove_identity_strains(data_matrix, rows_to_be_checked, cols_to_be_checked, strain_index2no_of_NAs)
 		else:
+			rows_with_too_many_NAs_set = Set()
+			cols_with_too_many_NAs_set = Set()
 			identity_strains_to_be_removed = Set()
 		
 		rows_to_be_tossed_out = rows_with_too_many_NAs_set | identity_strains_to_be_removed
@@ -247,7 +251,7 @@ if __name__ == '__main__':
 	output_fname = None
 	row_cutoff = 0.4
 	col_cutoff = 0.4
-	need_to_remove_identity = 0
+	need_to_filter = 0
 	debug = 0
 	report = 0
 	nt_alphabet = 0
@@ -265,7 +269,7 @@ if __name__ == '__main__':
 		elif opt in ("-c",):
 			col_cutoff = float(arg)
 		elif opt in ("-d",):
-			need_to_remove_identity = 1
+			need_to_filter = 1
 		elif opt in ("-a",):
 			nt_alphabet = 1
 		elif opt in ("-b", "--debug"):
@@ -275,7 +279,7 @@ if __name__ == '__main__':
 
 	if input_fname and output_fname:
 		instance = FilterStrainSNPMatrix(input_fname, output_fname, row_cutoff, col_cutoff,\
-			need_to_remove_identity, nt_alphabet, debug, report)
+			need_to_filter, nt_alphabet, debug, report)
 		instance.run()
 	else:
 		print __doc__
