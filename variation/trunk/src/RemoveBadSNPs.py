@@ -6,6 +6,8 @@ Option:
 	-i ...,	input file
 	-o ...,	output file
 	-c ...,	log probability cutoff, -0.5(default)
+	-a ...,	bits to toggle input/output StrainSNP matrix format, 0 is integer.
+		1 is alphabet. 1st digit is for input. 2nd is for output. 00 (default)
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -32,13 +34,16 @@ import getopt, math
 import Numeric
 
 class RemoveBadSNPs:
-	def __init__(self, input_fname=None, output_fname=None, min_log_prob=-0.5, debug=0, report=0):
+	def __init__(self, input_fname=None, output_fname=None, min_log_prob=-0.5, nt_alphabet_bits='00', debug=0, report=0):
 		"""
 		2007-04-10
+		2007-05-14
+			add nt_alphabet_bits
 		"""
 		self.input_fname = input_fname
 		self.output_fname = output_fname
 		self.min_log_prob = float(min_log_prob)
+		self.nt_alphabet_bits = nt_alphabet_bits
 		self.debug = int(debug)
 		self.report = int(report)
 	
@@ -76,10 +81,12 @@ class RemoveBadSNPs:
 	def run(self):
 		"""
 		2007-04-30
+		2007-05-14
+			add nt_alphabet_bits
 		"""
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
+		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
 		data_matrix = Numeric.array(data_matrix)
 		strain_homo_perc_vector = self.cal_strain_homo_perc_vector(data_matrix)
 		snp_locus_log_prob = self.cal_snp_locus_log_prob(data_matrix, strain_homo_perc_vector)
@@ -88,8 +95,10 @@ class RemoveBadSNPs:
 		for i in range(len(snp_locus_log_prob)):
 			if snp_locus_log_prob[i]<=min_log_prob:
 				cols_to_be_tossed_out_set.add(i)
-		print "%s SNPs removed"%(len(cols_to_be_tossed_out_set))
-		FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, cols_to_be_tossed_out=cols_to_be_tossed_out_set)
+		print "%sSNPs removed:"%(len(cols_to_be_tossed_out_set))
+		for col_index in cols_to_be_tossed_out_set:
+			print '\t%s\t%s'%(col_index, header[2+col_index])
+		FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, cols_to_be_tossed_out=cols_to_be_tossed_out_set, nt_alphabet=int(self.nt_alphabet_bits[1]))
 		import pylab
 		pylab.title("histogram of snp locus log probability")
 		pylab.hist(snp_locus_log_prob, 20)
@@ -102,7 +111,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "i:o:c:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "i:o:c:a:brh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -110,6 +119,7 @@ if __name__ == '__main__':
 	input_fname = None
 	output_fname = None
 	min_log_prob = -0.5
+	nt_alphabet_bits = '00'
 	debug = 0
 	report = 0
 	
@@ -123,13 +133,15 @@ if __name__ == '__main__':
 			output_fname = arg
 		elif opt in ("-c",):
 			min_log_prob = float(arg)
+		elif opt in ("-a",):
+			nt_alphabet_bits = arg
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
 			report = 1
 
 	if input_fname and output_fname:
-		instance = RemoveBadSNPs(input_fname, output_fname, min_log_prob,\
+		instance = RemoveBadSNPs(input_fname, output_fname, min_log_prob, nt_alphabet_bits,\
 			debug, report)
 		instance.run()
 	else:

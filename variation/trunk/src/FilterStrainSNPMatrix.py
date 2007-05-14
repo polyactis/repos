@@ -8,7 +8,8 @@ Option:
 	-n ...,	row NA ratio cutoff, 0.4(default)
 	-c ...,	column NA ratio cutoff, 0.4(default)
 	-d,	need to do filtering
-	-a,	use alphabet to represent nucleotide, not number
+	-a ...,	bits to toggle input/output StrainSNP matrix format, 0 is integer.
+		1 is alphabet. 1st digit is for input. 2nd is for output. 00 (default)
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -21,7 +22,6 @@ Examples:
 	./src/FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
 
 Description:
-	The input StrainSNP matrix is in integer format.
 	Filter out strains with too many NAs, SNPs with too many NAs (after strains removed), identity strains
 """
 import sys, os, math
@@ -35,23 +35,26 @@ else:   #32bit
 import getopt, csv, math
 import Numeric as num
 from sets import Set
-from common import number2nt
+from common import number2nt, nt2number
+from codense.common import dict_map
 
 class FilterStrainSNPMatrix:
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
-		need_to_filter=0, nt_alphabet=0, debug=0, report=0):
+		need_to_filter=0, nt_alphabet_bits='00', debug=0, report=0):
 		"""
 		2007-02-27
 		2007-04-27
 			add need_to_filter
 			add nt_alphabet
+		2007-05-14
+			use nt_alphabet_bits to replace nt_alphabet and input_alphabet
 		"""
 		self.input_fname = input_fname
 		self.output_fname = output_fname
 		self.row_cutoff = float(row_cutoff)
 		self.col_cutoff = float(col_cutoff)
 		self.need_to_filter = int(need_to_filter)
-		self.nt_alphabet = int(nt_alphabet)
+		self.nt_alphabet_bits = nt_alphabet_bits
 		self.debug = int(debug)
 		self.report = int(report)
 	
@@ -183,10 +186,12 @@ class FilterStrainSNPMatrix:
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def read_data(self, input_fname):
+	def read_data(self, input_fname, input_alphabet=0):
 		"""
 		2007-03-06
 			different from the one from SelectStrains.py is map(int, data_row)
+		2007-05-14
+			add input_alphabet
 		"""
 		sys.stderr.write("Reading data ...")
 		reader = csv.reader(open(input_fname), delimiter='\t')
@@ -198,7 +203,13 @@ class FilterStrainSNPMatrix:
 			strain_acc_list.append(row[0])
 			category_list.append(row[1])
 			data_row = row[2:]
-			data_row = map(int, data_row)
+			no_of_snps = len(data_row)
+			if input_alphabet:
+				data_row = dict_map(nt2number, data_row)
+				if no_of_snps!=len(data_row):
+					print row
+			else:
+				data_row = map(int, data_row)
 			data_matrix.append(data_row)
 		del reader
 		sys.stderr.write("Done.\n")
@@ -214,7 +225,7 @@ class FilterStrainSNPMatrix:
 		-remove_identity_strains()
 		-write_data_matrix()
 		"""
-		header, strain_acc_list, category_list, data_matrix = self.read_data(self.input_fname)
+		header, strain_acc_list, category_list, data_matrix = self.read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
 		data_matrix = num.array(data_matrix)
 		if self.need_to_filter:
 			rows_with_too_many_NAs_set, strain_index2no_of_NAs = self.remove_rows_with_too_many_NAs(data_matrix, self.row_cutoff)
@@ -232,7 +243,7 @@ class FilterStrainSNPMatrix:
 			identity_strains_to_be_removed = Set()
 		
 		rows_to_be_tossed_out = rows_with_too_many_NAs_set | identity_strains_to_be_removed
-		self.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set, self.nt_alphabet)
+		self.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set, int(self.nt_alphabet_bits[1]))
 
 
 if __name__ == '__main__':
@@ -242,7 +253,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "i:o:n:c:dabrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "i:o:n:c:da:brh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -252,9 +263,9 @@ if __name__ == '__main__':
 	row_cutoff = 0.4
 	col_cutoff = 0.4
 	need_to_filter = 0
+	nt_alphabet_bits = '00'
 	debug = 0
 	report = 0
-	nt_alphabet = 0
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -271,7 +282,7 @@ if __name__ == '__main__':
 		elif opt in ("-d",):
 			need_to_filter = 1
 		elif opt in ("-a",):
-			nt_alphabet = 1
+			nt_alphabet_bits = arg
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -279,7 +290,7 @@ if __name__ == '__main__':
 
 	if input_fname and output_fname:
 		instance = FilterStrainSNPMatrix(input_fname, output_fname, row_cutoff, col_cutoff,\
-			need_to_filter, nt_alphabet, debug, report)
+			need_to_filter, nt_alphabet_bits, debug, report)
 		instance.run()
 	else:
 		print __doc__
