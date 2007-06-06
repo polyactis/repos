@@ -13,6 +13,23 @@
 
 \end{abstract}
 
+\section{Introduction}
+Arabidopsis thaliana is a highly selfing species, with a very small portion resulting from outcrossing. Hartl et al\cite{Hartl2007} put the outcrossing rate to be around 1\%.
+
+Given the polymorphism data of 149 SNPs in 4664 strains, we are able to estimate the outcrossing rate.
+
+\section{Data}
+The polymorphism data is collected by Justin Borevitz lab from University of Chicago. The affymetrix genotyping array is used. The 149 SNPs were picked according to the de-novo sequencing data\cite{Nordborg2005}. Figure~ shows the spacing of 149 SNPs. The probes are 25-mers with the changing middle base to detect two alleles. The 4664 strains were collected from around the world (Figure~ ).
+
+\section{Genotyping Error Rate}
+The 96 strains from \cite{Nordborg2005} were genotyped again, which offered an opportunity to have a rough estimate of genotyping error rate by comparing the data from two different experiments. Figure~ is an overview of all the differences.
+
+The optimistic error rate (not counting the NAs) is 121/(12408+121) = 0.96\%. Taking the NAs into account, the error rate would be (121+893+804)/( 12408.0+121+893+804) = 12.78\%.
+
+
+\section{Bogus Heterozygous Calls(column-wise)}
+
+
 \section{model for snp locus}
 \begin{equation}
 P({SNP}_j|Strain heterozygous info) = \prod_{i=1}^{N} p_i^{a_i^j} (1-p_i)^{1-a_i^j}
@@ -40,5 +57,7 @@ $D_i$ is probability of SNP i being heterozygous.
 likelihood(S_n) = \prod_{i=1}^L {(\frac{D_i}{2^n})}^{a_i} {(1-\frac{D_i}{2^n})}^{1-a_i}
 \end{equation}
 
+\bibliography{outcrossing}
+\bibliographystyle{plain}
 
 \end{document}
