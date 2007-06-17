@@ -83,3 +83,54 @@ create table snp_locus_context(
 	gene_strand	varchar(1),
 	disp_pos_comment	varchar
 	);
+
+--2007-05-15
+create table longlat_192(
+	name	varchar,
+	accession	integer,
+	original_name	varchar,
+	longgrads	float,
+	latgrads	float,
+	rlonggrads	float,
+	rlatgrads	float,
+	longmins	integer,
+	latmins	integer,
+	colorcoller	integer,
+	starplus	integer,
+	shapecoller	integer,
+	fricoller	integer,
+	daysLDnoV	float,
+	LeavesLDnoV	float,
+	LeavesLDwithV	float,
+	FLNnoV	float,
+	FLNwithV	float,
+	accessionmaria	varchar,
+	longit	varchar,	
+	lat	varchar,
+	id	integer,
+	accname	varchar,
+	popname	varchar,
+	regionDB	varchar,
+	longitude	float,
+	latitude	float,
+	difflong	float,
+	difflat	float,
+	location	varchar,
+	misc1	varchar,
+	misc2	float,
+	misc3	varchar,
+	misc4	float
+	);
+
+--2007-06-09 table accession of database at from walnut
+create table at_accession(
+	id	integer,
+	population	integer,
+	region	integer,
+	description	varchar,
+	name	varchar,
+	origin	varchar,
+	date_created	timestamp,
+	date_modified	timestamp,
+	number	varchar
+	);
