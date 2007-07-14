@@ -13,16 +13,18 @@ Option:
 	-p ...,	population table
 	-f ...,	snpacc_fname, the header of this data matrix file specifies which snps are needed.
 	-m ...,	min_no_of_strains_per_pop, 5(default)
-	-y,	need heterozygous call
-	-w,	with header line
+	-t ...,	output type, 1(each population is a matrix file, default), 2(RMES)
+	-w,	with header line (for output type=1)
 	-a,	use alphabet to represent nucleotide, not number
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
 
 Examples:
-	OutputPopulation.py  -o /tmp/pop.txt -p populations_50 -f /tmp/chicago.data
-
+	OutputPopulation.py  -o /tmp/pop.txt -p populations_50 -f /tmp/chicago.data -t 2
+	
+	OutputPopulation.py  -o /tmp/pop.txt -p populations_50 -f /tmp/chicago.data.y.filtered.bad  -t 1 -w
+	
 Description:
 	output SNP data in units of population
 	
@@ -47,11 +49,13 @@ class OutputPopulation:
 	"""
 	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_table='calls', \
 		output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus', \
-		population_table=None, snpacc_fname='', min_no_of_strains_per_pop=5, \
-		need_heterozygous_call=0, with_header_line=0, nt_alphabet=0,\
+		population_table=None, snpacc_fname='', min_no_of_strains_per_pop=5, output_type=1, \
+		with_header_line=0, nt_alphabet=0,\
 		debug=0, report=0):
 		"""
 		2007-07-12
+		2007-07-13
+			add output_type, need_heterozygous_call, with_header_line, nt_alphabet
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -63,11 +67,14 @@ class OutputPopulation:
 		self.population_table = population_table
 		self.snpacc_fname = snpacc_fname
 		self.min_no_of_strains_per_pop = int(min_no_of_strains_per_pop)
-		self.need_heterozygous_call = int(need_heterozygous_call)
+		self.output_type = int(output_type)
 		self.with_header_line = int(with_header_line)
 		self.nt_alphabet = int(nt_alphabet)
 		self.debug = int(debug)
 		self.report = int(report)
+		
+		self.OutputPop_dict = {1: self.OutputPopMatrixFormat,
+			2: self.OutputPopRMES}
 	
 	def get_snp_struc(self, curs, snpacc_fname, snp_locus_table):
 		"""
@@ -122,7 +129,35 @@ class OutputPopulation:
 		sys.stderr.write("Done.\n")
 		return strain_id2index, strain_id_list
 	
-	def OutputPopRMES(self, data_matrix, popid2ecotypeid_ls, strain_id2index, output_fname):
+	def OutputPopMatrixFormat(self, data_matrix, popid2ecotypeid_ls, strain_id2index, output_fname_prefix, strain_id2acc, strain_id2category, snp_acc_list, with_header_line, nt_alphabet):
+		"""
+		2007-07-13
+		"""
+		sys.stderr.write("Outputting population data in Matrix format (lots of files)...\n")
+		header = ['strain', 'category'] + snp_acc_list
+		no_of_rows, no_of_cols = data_matrix.shape
+		for popid, ecotypeid_ls in popid2ecotypeid_ls.iteritems():
+			sys.stderr.write("\tPopulation %s"%popid)
+			writer = csv.writer(open('%s.%s'%(output_fname, popid), 'w'), delimiter='\t')
+			if with_header_line:
+				writer.writerow(header)
+			for ecotypeid in ecotypeid_ls:
+				strain_acc = strain_id2acc[ecotypeid]
+				strain_category = strain_id2category[ecotypeid]
+				row = [strain_acc, strain_category]
+				i = strain_id2index[ecotypeid]
+				for j in range(no_of_cols):
+					if nt_alphabet:
+						row.append(number2nt[data_matrix[i][j]])
+					else:
+						row.append(data_matrix[i][j])
+				writer.writerow(row)
+			del writer
+			sys.stderr.write(".\n")
+		sys.stderr.write("Done.\n")
+		
+	
+	def OutputPopRMES(self, data_matrix, popid2ecotypeid_ls, strain_id2index, output_fname, strain_id2acc=None, strain_id2category=None, snp_acc_list=None, with_header_line=0, nt_alphabet=0):
 		"""
 		2007-07-12
 			format for RMES
@@ -175,7 +210,9 @@ class OutputPopulation:
 		
 		strain_id2acc, strain_id2category = dbSNP2data_instance.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 		data_matrix = dbSNP2data_instance.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, need_heterozygous_call=1)
-		self.OutputPop(data_matrix, popid2ecotypeid_ls, strain_id2index, self.output_fname)
+		
+		self.OutputPop_dict[self.output_type](data_matrix, popid2ecotypeid_ls, strain_id2index, self.output_fname, strain_id2acc,\
+			 strain_id2category, snp_acc_list, self.with_header_line, self.nt_alphabet)
 	
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
@@ -184,7 +221,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:p:f:m:ywabrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:p:f:m:t:wabrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -199,7 +236,7 @@ if __name__ == '__main__':
 	population_table = ''
 	snpacc_fname = ''
 	min_no_of_strains_per_pop = 5
-	need_heterozygous_call = 0
+	output_type = 1
 	with_header_line = 0
 	nt_alphabet = 0
 	debug = 0
@@ -229,6 +266,12 @@ if __name__ == '__main__':
 			snpacc_fname = arg
 		elif opt in ("-m",):
 			min_no_of_strains_per_pop = int(arg)
+		elif opt in ("-t",):
+			output_type = int(arg)
+		elif opt in ("-w",):
+			with_header_line = 1
+		elif opt in ("-a",):
+			nt_alphabet = 1
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -237,7 +280,7 @@ if __name__ == '__main__':
 	if input_table and output_fname and hostname and dbname and schema and population_table and snpacc_fname:
 		instance = OutputPopulation(hostname, dbname, schema, input_table, output_fname, \
 			strain_info_table, snp_locus_table, population_table, snpacc_fname, \
-			min_no_of_strains_per_pop, debug, report)
+			min_no_of_strains_per_pop, output_type, with_header_line, nt_alphabet, debug, report)
 		instance.run()
 	else:
 		print __doc__
