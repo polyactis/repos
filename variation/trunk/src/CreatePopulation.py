@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """
-Usage: CreatePopulation.py [OPTIONS] -i  -o 
+Usage: CreatePopulation.py [OPTIONS] -o 
 
 Option:
 	-z ..., --hostname=...	the hostname, localhost(default)
 	-d ..., --dbname=...	the database name, stock(default)
 	-k ..., --schema=...	which schema in the database, dbsnp(default)IGNORE
-	-i ...,	input fname
 	-o ...,	output table
 	-s ...,	strain_info table, 'ecotype'(default)
 	-g ...,	max_dist to connect 2 sites, '100'(km) (default)
@@ -16,7 +15,7 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	CreatePopulation.py -i /tmp/chicago.data -o populations_50 -g 50
+	CreatePopulation.py -o popid2ecotypeid_50 -g 50
 	
 Description:
 	Divide strains into populations based on geographical distance. Two sites are connected
@@ -45,6 +44,8 @@ class CreatePopulation:
 		output_table=None, strain_info_table='ecotype', max_dist=100, commit=0, debug=0, report=0):
 		"""
 		2007-07-11
+		2007-07-13
+			input_fname is useless
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -75,23 +76,25 @@ class CreatePopulation:
 		spheric_angular_diff = math.atan2(math.sqrt(math.pow(cos_lat2*math.sin(long_diff),2) + math.pow(cos_lat1*sin_lat2-sin_lat1*cos_lat2*math.cos(long_diff),2)), sin_lat1*sin_lat2+cos_lat1*cos_lat2*math.cos(long_diff))
 		return earth_radius*spheric_angular_diff
 	
-	def get_pos2ecotypeid_ls(self, curs, strain_info_table, strain_acc_list):
+	def get_pos2ecotypeid_ls(self, curs, strain_info_table):
 		"""
 		2007-07-11
+		2007-07-13
+			not restricted by strain_acc_list
+			select all strains with latitude and longitude
 		"""
 		sys.stderr.write("Fetching ecotype, latitude, longitude ...")
 		lat_lon_ls = []
 		pos2ecotypeid_ls = {}
-		for strain_acc in strain_acc_list:
-			curs.execute("select id, latitude, longitude from %s where latitude is not null and longitude is not null and name='%s'"%(strain_info_table, strain_acc))
-			rows = curs.fetchall()
-			if rows:
-				ecotypeid, latitude, longitude = rows[0]
-				pos = (latitude, longitude)
-				if pos not in pos2ecotypeid_ls:
-					pos2ecotypeid_ls[pos] = []
-				pos2ecotypeid_ls[pos].append(ecotypeid)
-				lat_lon_ls.append(pos)
+		curs.execute("select id, latitude, longitude from %s where latitude is not null and longitude is not null"%(strain_info_table))
+		rows = curs.fetchall()
+		for row in rows:
+			ecotypeid, latitude, longitude = row
+			pos = (latitude, longitude)
+			if pos not in pos2ecotypeid_ls:
+				pos2ecotypeid_ls[pos] = []
+			pos2ecotypeid_ls[pos].append(ecotypeid)
+			lat_lon_ls.append(pos)
 		sys.stderr.write("Done.\n")
 		return lat_lon_ls, pos2ecotypeid_ls
 	
@@ -135,6 +138,7 @@ class CreatePopulation:
 		pop_id2center_pos_ecotypeid_ls = {}
 		weighted_pos_ls = []
 		count_sum_ls = []
+		popid_ls = []
 		no_of_populations = 0
 		c_components = nx.connected_components(g)
 		for component in c_components:
@@ -152,18 +156,21 @@ class CreatePopulation:
 			pop_center_pos = (lat_sum/count_sum, lon_sum/count_sum)
 			no_of_populations += 1
 			pop_id2center_pos_ecotypeid_ls[no_of_populations] = [pop_center_pos, ecotypeid_ls]
+			popid_ls.append(no_of_populations)
 			weighted_pos_ls.append(pop_center_pos)
 			count_sum_ls.append(count_sum)
 		sys.stderr.write("%s populations. Done.\n"%(len(weighted_pos_ls)))
-		return pop_id2center_pos_ecotypeid_ls, weighted_pos_ls, count_sum_ls
+		return pop_id2center_pos_ecotypeid_ls, weighted_pos_ls, count_sum_ls, popid_ls
 		
 
-	def draw_clustered_strain_location(self, weighted_pos_ls, count_sum_ls, pic_area=[-180,-90,180,90], output_fname_prefix=None):
+	def draw_clustered_strain_location(self, popid_ls, weighted_pos_ls, count_sum_ls, pic_area=[-180,-90,180,90], output_fname_prefix=None):
 		"""
 		2007-07-11
 		draw populations derived from connected_components of the strain network
 		#each pie denotes a population, with diameter proportional to the size of the population
 		#each pie labeled with the number of strains in that population
+		2007-07-13
+			use popid as label
 		"""
 		sys.stderr.write("Drawing population map...")
 		import pylab
@@ -187,9 +194,9 @@ class CreatePopulation:
 			euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
 			euc_coord1_ls.append(euc_coord1)
 			euc_coord2_ls.append(euc_coord2)
-			ax.text(euc_coord1, euc_coord2, str(count_sum_ls[i]), size=6, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
-		m.scatter(euc_coord1_ls, euc_coord2_ls, 5*count_sum_ls, marker='o', color='r', alpha=0.3, zorder=10)
-		pylab.title("worldwide distribution of %s locations"%(len(weighted_pos_ls)))
+			ax.text(euc_coord1, euc_coord2, str(popid_ls[i]), size=3, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
+		m.scatter(euc_coord1_ls, euc_coord2_ls, 5*count_sum_ls, marker='o', color='r', alpha=0.3, zorder=10, faceted=False)
+		pylab.title("worldwide distribution of %s populations, labeled by popid"%(len(weighted_pos_ls)))
 		if output_fname_prefix:
 			pylab.savefig('%s_pop_map.eps'%output_fname_prefix, dpi=300)
 			pylab.savefig('%s_pop_map.svg'%output_fname_prefix, dpi=300)
@@ -229,13 +236,18 @@ class CreatePopulation:
 		sys.stderr.write("Done.\n")
 	
 	def create_population_table(self, curs, output_table):
+		"""
+		2007-07-13
+			add selected to the output_table
+		"""
 		sys.stderr.write("Creating table %s ..."%(output_table))
 		curs.execute("create table %s(\
 			id	integer primary key auto_increment,\
 			popid	integer not null,\
 			latitude	float,\
 			longitude	float,\
-			ecotypeid	integer not null)"%output_table)
+			ecotypeid	integer not null,\
+			selected	integer default 0)"%output_table)
 		sys.stderr.write("Done.\n")
 	
 	def submit_pop_id2center_pos_ecotypeid_ls(self, curs, output_table, pop_id2center_pos_ecotypeid_ls):
@@ -253,26 +265,24 @@ class CreatePopulation:
 	def run(self):
 		"""
 		2007-07-11
+		2007-07-13
+			input_fname is useless
 		"""
 		import MySQLdb
 		conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
 		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 		curs = conn.cursor()
 		
-		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
-		
-		lat_lon_ls, pos2ecotypeid_ls = self.get_pos2ecotypeid_ls(curs, self.strain_info_table, strain_acc_list)
+		lat_lon_ls, pos2ecotypeid_ls = self.get_pos2ecotypeid_ls(curs, self.strain_info_table)
 		g, node_label2pos_counts = self.divide_data_by_geography(lat_lon_ls, self.max_dist)
-		pop_id2center_pos_ecotypeid_ls, weighted_pos_ls, count_sum_ls = self.get_pop_center_pos2ecotypeid_ls(g, node_label2pos_counts, pos2ecotypeid_ls)
+		pop_id2center_pos_ecotypeid_ls, weighted_pos_ls, count_sum_ls, popid_ls = self.get_pop_center_pos2ecotypeid_ls(g, node_label2pos_counts, pos2ecotypeid_ls)
 		
 		if self.commit:
 			self.create_population_table(curs, self.output_table)
 			self.submit_pop_id2center_pos_ecotypeid_ls(curs, self.output_table, pop_id2center_pos_ecotypeid_ls)
 			#conn.commit()
 		pic_area=[-120,10,100,80]
-		#self.draw_clustered_strain_location(weighted_pos_ls, count_sum_ls, pic_area, self.output_table)
+		self.draw_clustered_strain_location(popid_ls, weighted_pos_ls, count_sum_ls, pic_area, self.output_table)
 		self.DrawStrainNetwork(g, node_label2pos_counts, pic_area, self.output_table)
 		
 if __name__ == '__main__':
@@ -323,7 +333,7 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 	
-	if input_fname and output_table and hostname and dbname and schema:
+	if output_table and hostname and dbname and schema:
 		instance = CreatePopulation(hostname, dbname, schema, input_fname, output_table, \
 			strain_info_table, max_dist, commit, debug, report)
 		instance.run()
