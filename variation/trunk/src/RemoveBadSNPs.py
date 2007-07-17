@@ -64,6 +64,12 @@ class RemoveBadSNPs:
 		return strain_homo_perc_vector
 	
 	def cal_snp_locus_log_prob(self, data_matrix, strain_homo_perc_vector):
+		"""
+		2007-07-16
+			add an exception handler when no_of_valid_calls=0
+			if no_of_valid_calls==0, then all snp calls of each strain within the population are homozygous.
+			or all are heterozygous. (for arabidopsis, the former mostly)
+		"""
 		sys.stderr.write("Calculating snp_locus_log_prob ...")
 		no_of_strains, no_of_snps = data_matrix.shape
 		snp_locus_log_prob = Numeric.zeros(no_of_snps, Numeric.Float)
@@ -74,7 +80,8 @@ class RemoveBadSNPs:
 					no_of_valid_calls += 1
 					is_call_homo = int(data_matrix[i,j]<=4)
 					snp_locus_log_prob[j] += is_call_homo*math.log(strain_homo_perc_vector[i])+(1-is_call_homo)*math.log(1-strain_homo_perc_vector[i])
-			snp_locus_log_prob[j] /= no_of_valid_calls
+			if no_of_valid_calls!=0:
+				snp_locus_log_prob[j] /= no_of_valid_calls
 		sys.stderr.write("Done\n")
 		return snp_locus_log_prob
 	
