@@ -8,12 +8,13 @@ Option:
 	-k ..., --schema=...	which schema in the database, dbsnp(default)
 	-i ...,	input table
 	-o ...,	output file
-	-s ...,	strain_info table, 'strain_info'(default)
-	-n ...,	snp_locus_table, 'snp_locus'(default)
+	-s ...,	strain_info table, 'strain_info'(default), 'ecotype'
+	-n ...,	snp_locus_table, 'snp_locus'(default), 'snps'
 	-t,	toss out rows to make distance matrix NA free
 	-y,	need heterozygous call
 	-w,	with header line
 	-a,	use alphabet to represent nucleotide, not number
+	-m,	mysql connection from natural.uchicago.edu
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -22,7 +23,8 @@ Examples:
 	dbSNP2data.py -i justin_data -o justin_data.csv -r
 	
 	dbSNP2data.py -i justin_data -o justin_data.csv -r -w -t
-
+	
+	dbSNP2data.py -i calls -o /tmp/chicago.data.y -y -s ecotype -n snps -w -m
 Description:
 	output SNP data from database schema
 	
@@ -47,10 +49,13 @@ class dbSNP2data:
 	"""
 	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_table=None, \
 		output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus', \
-		organism='hs', toss_out_rows=0, need_heterozygous_call=0, with_header_line=0, nt_alphabet=0, debug=0, report=0):
+		organism='hs', toss_out_rows=0, need_heterozygous_call=0, with_header_line=0, nt_alphabet=0, \
+		mysql_connection=0, debug=0, report=0):
 		"""
 		2007-02-25
 			add argument toss_out_rows
+		2007-07-11
+			add mysql_connection
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -64,6 +69,7 @@ class dbSNP2data:
 		self.need_heterozygous_call = int(need_heterozygous_call)
 		self.with_header_line = int(with_header_line)
 		self.nt_alphabet = int(nt_alphabet)
+		self.mysql_connection = int(mysql_connection)
 		self.debug = int(debug)
 		self.report = int(report)
 	
@@ -76,6 +82,23 @@ class dbSNP2data:
 		snp_id2index = {}
 		snp_id_list = []
 		curs.execute("select distinct i.snp_id, s.chromosome, s.position from %s i, %s s where i.snp_id=s.id order by chromosome, position"%(input_table, snp_locus_table))
+		rows = curs.fetchall()
+		for row in rows:
+			snp_id = row[0]
+			snp_id_list.append(snp_id)
+			snp_id2index[snp_id] = len(snp_id2index)
+		sys.stderr.write("Done.\n")
+		return snp_id2index, snp_id_list
+	
+	def get_snp_id2index_m(self, curs, input_table, snp_locus_table):
+		"""
+		2007-07-11
+			mysql version of get_snp_id2index
+		"""
+		sys.stderr.write("Getting snp_id2index ..m.")
+		snp_id2index = {}
+		snp_id_list = []
+		curs.execute("select distinct i.snpid, s.chromosome, s.position from %s i, %s s where i.snpid=s.id order by chromosome, position"%(input_table, snp_locus_table))
 		rows = curs.fetchall()
 		for row in rows:
 			snp_id = row[0]
@@ -97,6 +120,23 @@ class dbSNP2data:
 		sys.stderr.write("Done.\n")
 		return strain_id2index, strain_id_list
 	
+	def get_strain_id2index_m(self, curs, input_table):
+		"""
+		2007-07-11
+			mysql version of get_strain_id2index
+		"""
+		sys.stderr.write("Getting strain_id2index ..m.")
+		strain_id2index = {}
+		strain_id_list = []
+		curs.execute("select distinct ecotypeid from %s order by ecotypeid"%(input_table))
+		rows = curs.fetchall()
+		for row in rows:
+			strain_id = row[0]
+			strain_id_list.append(strain_id)
+			strain_id2index[strain_id] = len(strain_id2index)
+		sys.stderr.write("Done.\n")
+		return strain_id2index, strain_id_list
+	
 	def get_strain_id_info(self, curs, strain_id_list, strain_info_table):
 		sys.stderr.write("Getting strain_id_info ...")
 		strain_id2acc = {}
@@ -110,11 +150,43 @@ class dbSNP2data:
 		sys.stderr.write("Done.\n")
 		return strain_id2acc, strain_id2category
 	
+	def get_strain_id_info_m(self, curs, strain_id_list, strain_info_table):
+		"""
+		2007-07-11
+			mysql version of get_strain_id_info
+		"""
+		sys.stderr.write("Getting strain_id_info ..m.")
+		strain_id2acc = {}
+		strain_id2category = {}
+		for strain_id in strain_id_list:
+			curs.execute("select name, nativename from %s where id=%s"%(strain_info_table, strain_id))
+			rows = curs.fetchall()
+			acc, category = rows[0]
+			strain_id2acc[strain_id] = acc
+			strain_id2category[strain_id] = category
+		sys.stderr.write("Done.\n")
+		return strain_id2acc, strain_id2category
+	
 	def get_snp_id_info(self, curs, snp_id_list, snp_locus_table):
 		sys.stderr.write("Getting snp_id_info ...")
 		snp_id2acc = {}
 		for snp_id in snp_id_list:
 			curs.execute("select acc from %s where id=%s"%(snp_locus_table, snp_id))
+			rows = curs.fetchall()
+			acc = rows[0][0]
+			snp_id2acc[snp_id] = acc
+		sys.stderr.write("Done.\n")
+		return snp_id2acc
+	
+	def get_snp_id_info_m(self, curs, snp_id_list, snp_locus_table):
+		"""
+		2007-07-11
+			mysql version of get_snp_id_info
+		"""
+		sys.stderr.write("Getting snp_id_info ..m.")
+		snp_id2acc = {}
+		for snp_id in snp_id_list:
+			curs.execute("select snpid from %s where id=%s"%(snp_locus_table, snp_id))
 			rows = curs.fetchall()
 			acc = rows[0][0]
 			snp_id2acc[snp_id] = acc
@@ -147,6 +219,37 @@ class dbSNP2data:
 			if self.report:
 				sys.stderr.write('%s%s'%('\x08'*20, counter))
 		curs.execute("close crs")
+		sys.stderr.write("Done.\n")
+		return data_matrix
+	
+	def get_data_matrix_m(self, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call):
+		"""
+		2007-07-11
+			mysql version of get_data_matrix
+			
+			callhet tells whether it's heterozygous or not.
+		"""
+		sys.stderr.write("Getting data_matrix ..m.\n")
+		data_matrix = num.zeros([len(strain_id2index), len(snp_id2index)])
+		curs.execute("select ecotypeid, snpid, call1, callhet from %s"%(input_table))
+		rows = curs.fetchmany(5000)
+		counter = 0
+		while rows:
+			for row in rows:
+				strain_id, snp_id, call, callhet = row
+				call = call.upper()
+				if callhet:
+					call = call+callhet
+				if strain_id in  strain_id2index and snp_id in snp_id2index:	#2007-03-20
+					call_number = nt2number[call]
+					if need_heterozygous_call:
+						data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
+					elif call_number<=4:	#single letter or NA
+						data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
+				counter += 1
+			rows = curs.fetchmany(5000)
+			if self.report:
+				sys.stderr.write('%s%s'%('\x08'*20, counter))
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
@@ -270,13 +373,25 @@ class dbSNP2data:
 			--write_data_matrix()
 			#--sort_file()
 		"""
-		(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
-		snp_id2index, snp_id_list = self.get_snp_id2index(curs, self.input_table, self.snp_locus_table)
-		strain_id2index, strain_id_list = self.get_strain_id2index(curs, self.input_table)
-		
-		strain_id2acc, strain_id2category = self.get_strain_id_info(curs, strain_id_list, self.strain_info_table)
-		snp_id2acc = self.get_snp_id_info(curs, snp_id_list, self.snp_locus_table)
-		data_matrix = self.get_data_matrix(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
+		if self.mysql_connection:
+			import MySQLdb
+			conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
+			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+			curs = conn.cursor()
+			snp_id2index, snp_id_list = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
+			strain_id2index, strain_id_list = self.get_strain_id2index_m(curs, self.input_table)
+			
+			strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
+			snp_id2acc = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
+			data_matrix = self.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
+		else:
+			(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
+			snp_id2index, snp_id_list = self.get_snp_id2index(curs, self.input_table, self.snp_locus_table)
+			strain_id2index, strain_id_list = self.get_strain_id2index(curs, self.input_table)
+			
+			strain_id2acc, strain_id2category = self.get_strain_id_info(curs, strain_id_list, self.strain_info_table)
+			snp_id2acc = self.get_snp_id_info(curs, snp_id_list, self.snp_locus_table)
+			data_matrix = self.get_data_matrix(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
 		
 		if self.toss_out_rows:
 			rows_to_be_tossed_out = self.toss_rows_to_make_distance_matrix_NA_free(data_matrix)
@@ -294,7 +409,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:g:tywabrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:g:tywambrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -311,6 +426,7 @@ if __name__ == '__main__':
 	need_heterozygous_call = 0
 	with_header_line = 0
 	nt_alphabet = 0
+	mysql_connection = 0
 	debug = 0
 	report = 0
 	
@@ -342,6 +458,8 @@ if __name__ == '__main__':
 			with_header_line = 1
 		elif opt in ("-a",):
 			nt_alphabet = 1
+		elif opt in ("-m",):
+			mysql_connection = 1
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -350,7 +468,7 @@ if __name__ == '__main__':
 	if input_table and output_fname and hostname and dbname and schema:
 		instance = dbSNP2data(hostname, dbname, schema, input_table, output_fname, \
 			strain_info_table, snp_locus_table, organism, toss_out_rows, need_heterozygous_call, \
-			with_header_line, nt_alphabet, debug, report)
+			with_header_line, nt_alphabet, mysql_connection, debug, report)
 		instance.run()
 	else:
 		print __doc__
