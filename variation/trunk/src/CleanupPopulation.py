@@ -138,12 +138,14 @@ class CleanupPopulation:
 	def mark_strain_id_selected(self, curs, popid2strain_id_snp_id_ls, population_table):
 		"""
 		2007-07-16
+		2007-07-16
+			add popid=%s one more condition to database update command
 		"""
 		sys.stderr.write("Marking strain_id selected ...")
 		for popid, strain_id_snp_id_list in popid2strain_id_snp_id_ls.iteritems():
 			strain_id_list = strain_id_snp_id_list[0]
 			for ecotypeid in strain_id_list:
-				curs.execute("update %s set selected=1 where ecotypeid=%s"%(population_table, ecotypeid))
+				curs.execute("update %s set selected=1 where ecotypeid=%s and popid=%s"%(population_table, ecotypeid, popid))
 		sys.stderr.write("Done.\n")
 	
 	def submit_popid2snpid_list(self, curs, popid2strain_id_snp_id_ls, population_table, output_table):
