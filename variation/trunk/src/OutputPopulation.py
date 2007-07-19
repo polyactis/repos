@@ -13,7 +13,7 @@ Option:
 	-p ...,	population table
 	-f ...,	popid2snpid_table
 	-m ...,	min_no_of_strains_per_pop, 5(default)
-	-t ...,	output type, 1(each population is a matrix file, default), 2(RMES)
+	-t ...,	output type, 1(each population is a matrix file, default), 2(RMES), 3(MIH)
 	-w,	with header line (for output type=1)
 	-a,	use alphabet to represent nucleotide, not number
 	-b, --debug	enable debug
@@ -76,7 +76,8 @@ class OutputPopulation:
 		self.report = int(report)
 		
 		self.OutputPop_dict = {1: self.OutputPopMatrixFormat,
-			2: self.OutputPopRMES}
+			2: self.OutputPopRMES,
+			3: self.OutputPopMIH}
 	
 	def get_snp_struc(self, curs, snpacc_fname, snp_locus_table):
 		"""
@@ -247,6 +248,43 @@ class OutputPopulation:
 		"""
 		sys.stderr.write("Done.\n")
 	
+	def OutputPopMIH(self, data_matrix, popid2strain_id_snp_id_ls, strain_id2index, output_fname, snp_id2index, strain_id2acc=None, strain_id2category=None, snp_acc_list=None, with_header_line=0, nt_alphabet=0):
+		"""
+		2007-07-18
+		"""
+		sys.stderr.write("Outputting population data in MIH format ...\n")
+		no_of_strains, no_of_snps = data_matrix.shape
+		popid_ls = []
+		for popid, strain_id_snp_id_ls in popid2strain_id_snp_id_ls.iteritems():
+			sys.stderr.write("\tPopulation %s"%popid)
+			ecotypeid_ls, snpid_ls = strain_id_snp_id_ls
+			writer = csv.writer(open('%s.%s'%(output_fname, popid), 'w'), delimiter=' ')
+			writer.writerow([0.01])
+			writer.writerow([0.01])
+			writer.writerow([1, len(snpid_ls)])
+			writer.writerow(['population%s'%popid])
+			writer.writerow([len(ecotypeid_ls)])
+			for snpid in snpid_ls:
+				writer.writerow(['%4d'%snpid, 4])	#plus the " brackets, it's 6 characters for snpid
+			snp_index_selected = dict_map(snp_id2index, snpid_ls)
+			snp_index_selected.sort()
+			sub_col_data_matrix = num.take(data_matrix, snp_index_selected, 1)
+			for ecotypeid in ecotypeid_ls:
+				data_row = sub_col_data_matrix[strain_id2index[ecotypeid],]
+				new_data_row = []
+				for data_point in data_row:
+					if data_point>4:
+						nucleotide_pair = number2nt[data_point]
+						new_data_row.append(nt2number[nucleotide_pair[0]])
+						new_data_row.append(nt2number[nucleotide_pair[1]])
+					else:
+						new_data_row.append(data_point)
+						new_data_row.append(data_point)
+				writer.writerow(new_data_row)
+			del writer
+			sys.stderr.write(".\n")
+			popid_ls.append(popid)
+		sys.stderr.write("Done.\n")
 	
 	def run(self):
 		"""
