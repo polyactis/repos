@@ -22,6 +22,8 @@ fill_snp_locus_table_with_position_info(curs, './script/variation/data/snp_posit
 """
 2007-03-05
 	show an image visualizing SNP data
+2007-06-05
+	set aspect='auto' in imshow(), the default (pylab.image.rcParams['image.aspect'])='equal', which is bad
 """
 def display_snp_matrix(input_fname, output_fname=None, need_sort=0, need_savefig=0):
 	import csv, Numeric, pylab
@@ -39,7 +41,7 @@ def display_snp_matrix(input_fname, output_fname=None, need_sort=0, need_savefig
 	data_matrix = Numeric.array(data_matrix)
 	
 	pylab.clf()
-	pylab.imshow(data_matrix, interpolation='nearest')
+	pylab.imshow(data_matrix, aspect='auto', interpolation='nearest')	#2007-06-05
 	pylab.colorbar()
 	if need_savefig:
 		pylab.savefig('%s.eps'%output_fname, dpi=300)
@@ -531,8 +533,184 @@ def fill_snp_locus_table_with_25mer_thaliana_call(curs, snp_locus_table, annot_a
 
 fill_snp_locus_table_with_25mer_thaliana_call(curs, 'dbsnp.snp_locus', need_commit=1)
 
+#2007-06-17 function to calculate the great circle distance of a sphere given latitude and longitude
+# http://en.wikipedia.org/wiki/Great-circle_distance
+def cal_great_circle_distance(lat1, lon1, lat2, lon2, earth_radius=6372.795):
+	import math
+	lat1_rad = lat1*math.pi/180
+	lon1_rad = lon1*math.pi/180
+	lat2_rad = lat2*math.pi/180
+	lon2_rad = lon2*math.pi/180
+	long_diff = abs(lon1_rad-lon2_rad)
+	sin_lat1 = math.sin(lat1_rad)
+	cos_lat1 = math.cos(lat1_rad)
+	sin_lat2 = math.sin(lat2_rad)
+	cos_lat2 = math.cos(lat2_rad)
+	spheric_angular_diff = math.atan2(math.sqrt(math.pow(cos_lat2*math.sin(long_diff),2) + math.pow(cos_lat1*sin_lat2-sin_lat1*cos_lat2*math.cos(long_diff),2)), sin_lat1*sin_lat2+cos_lat1*cos_lat2*math.cos(long_diff))
+	return earth_radius*spheric_angular_diff
 
+#2007-06-17 draw location of all strains onto a map
+def test_draw_strain_location(pic_area=[-180,-90,180,90]):
+	import pylab
+	from matplotlib.toolkits.basemap import Basemap
+	pylab.clf()
+	fig = pylab.figure()
+	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
+            resolution='l',projection='mill')
+	#m.drawcoastlines()
+	m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,1,1])
+	m.drawmeridians(pylab.arange(-180,180,60), labels=[1,1,1,1])
+	m.fillcontinents()
+	m.drawcountries()
+	m.drawstates()
+	
+	import MySQLdb
+	db = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
+	c = db.cursor()
+	c.execute("""select latitude, longitude from ecotype where latitude is not null and longitude is not null""")
+	lat_lon_ls = c.fetchall()
+	euc_coord1_ls = []
+	euc_coord2_ls = []
+	for lat, lon in lat_lon_ls:
+		euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
+		euc_coord1_ls.append(euc_coord1)
+		euc_coord2_ls.append(euc_coord2)
+	m.scatter(euc_coord1_ls, euc_coord2_ls, 25, marker='o', zorder=10)
+	pylab.title("worldwide distribution of %s strains"%(len(lat_lon_ls)))
+	pylab.show()
 
+#2007-06-17 calculate pairwise distance among strains by calling cal_great_circle_distance()
+def cal_pairwise_distance_of_strains():
+	import MySQLdb, pylab
+	db = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
+	c = db.cursor()
+	c.execute("""select latitude, longitude from ecotype where latitude is not null and longitude is not null""")
+	lat_lon_ls = c.fetchall()
+	distance_ls = []
+	no_of_sites = len(lat_lon_ls)
+	for i in range(no_of_sites):
+		for j in range(i+1, no_of_sites):
+			distance_ls.append(cal_great_circle_distance(lat_lon_ls[i][0], lat_lon_ls[i][1], lat_lon_ls[j][0], lat_lon_ls[j][1]))
+	pylab.clf()
+	pylab.hist(distance_ls, 20)
+	pylab.title("histogram of distances between %s strains(km)"%no_of_sites)
+	pylab.show()
+
+#2007-06-18, calll cal_great_circle_distance()
+import MySQLdb
+conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
+cursor = conn.cursor()
+cursor.execute("""select latitude, longitude from ecotype where latitude is not null and longitude is not null""")
+lat_lon_ls = cursor.fetchall()
+
+def divide_data_by_geography(cursor, lat_lon_ls, max_dist=100):
+	import sys, os
+	sys.stderr.write("Constructing data structure on lat_lon_ls ...")
+	#each distinctive position (lat,lon) gets a unique label (an integer starting from 0)
+	pos2node_label = {}
+	node_label2pos_counts = {}	#records how many strains are from the same position
+	for lat, lon in lat_lon_ls:
+		pos = (lat, lon)
+		if pos not in pos2node_label:
+			pos2node_label[pos] = len(pos2node_label)
+		node_label = pos2node_label[pos]
+		if node_label not in node_label2pos_counts:
+			node_label2pos_counts[node_label] = [pos, 0]
+		node_label2pos_counts[node_label][1] += 1
+	sys.stderr.write("Done.\n")
+	sys.stderr.write("Constructing graph ...")
+	import networkx as nx
+	g = nx.Graph()
+	pos_ls = pos2node_label.keys()
+	no_of_sites = len(pos_ls)
+	for i in range(no_of_sites):
+		g.add_node(pos2node_label[pos_ls[i]])
+	
+	for i in range(no_of_sites):
+		for j in range(i+1, no_of_sites):
+			dist = cal_great_circle_distance(pos_ls[i][0], pos_ls[i][1], pos_ls[j][0], pos_ls[j][1])
+			if dist<=max_dist:
+				g.add_edge(pos2node_label[pos_ls[i]], pos2node_label[pos_ls[j]])
+	c_components = nx.connected_components(g)
+	sys.stderr.write("Done.\n")
+	return g, c_components, node_label2pos_counts
+
+#2007-06-18
+#draw populations derived from connected_components of the strain network
+#each pie denotes a population, with diameter proportional to the size of the population
+#each pie labeled with the number of strains in that population
+def draw_clustered_strain_location(c_components, node_label2pos_counts, pic_area=[-180,-90,180,90]):
+	import sys, os
+	sys.stderr.write("Computing weighted centers...")
+	weighted_pos_ls = []
+	count_sum_ls = []
+	for component in c_components:
+		#weighted average
+		count_sum = 0
+		lat_sum = 0.0
+		lon_sum = 0.0
+		for node_label in component:
+			count_sum += node_label2pos_counts[node_label][1]
+			lat_sum += node_label2pos_counts[node_label][0][0]*node_label2pos_counts[node_label][1]
+			lon_sum += node_label2pos_counts[node_label][0][1]*node_label2pos_counts[node_label][1]
+		weighted_pos_ls.append((lat_sum/count_sum, lon_sum/count_sum))
+		count_sum_ls.append(count_sum)
+	sys.stderr.write("Done.\n")
+	sys.stderr.write("Drawing on map...")
+	import pylab
+	from matplotlib.toolkits.basemap import Basemap
+	pylab.clf()
+	fig = pylab.figure()
+	fig.add_axes([0.1,0.1,0.9,0.9])
+	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
+            resolution='l',projection='mill')
+	#m.drawcoastlines()
+	m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,1,1])
+	m.drawmeridians(pylab.arange(-180,180,60), labels=[1,1,1,1])
+	m.fillcontinents()
+	m.drawcountries()
+	m.drawstates()
+	euc_coord1_ls = []
+	euc_coord2_ls = []
+	ax=pylab.gca()
+	for i in range(len(weighted_pos_ls)):
+		lat, lon = weighted_pos_ls[i]
+		euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
+		euc_coord1_ls.append(euc_coord1)
+		euc_coord2_ls.append(euc_coord2)
+		ax.text(euc_coord1, euc_coord2, str(count_sum_ls[i]), size=6, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
+	m.scatter(euc_coord1_ls, euc_coord2_ls, 5*count_sum_ls, marker='o', color='r', alpha=0.3, zorder=10)
+	pylab.title("worldwide distribution of %s locations"%(len(weighted_pos_ls)))
+	pylab.show()
+	sys.stderr.write("Done.\n")
+
+#2007-07-09
+def DrawStrainNetwork(g, node_label2pos_counts,pic_area=[-180,-90,180,90]):
+	import sys, os
+	sys.stderr.write("Drawing Strain Network...")
+	import pylab
+	from matplotlib.toolkits.basemap import Basemap
+	pylab.clf()
+	#fig = pylab.figure()
+	#fig.add_axes([0.1,0.1,0.9,0.9])
+	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
+            resolution='l',projection='mill')
+	#m.drawcoastlines()
+	m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,1,1])
+	m.drawmeridians(pylab.arange(-180,180,60), labels=[1,1,1,1])
+	m.fillcontinents()
+	m.drawcountries()
+	m.drawstates()
+	ax=pylab.gca()
+	for e in g.edges():
+		lat1, lon1 = node_label2pos_counts[e[0]][0]
+		lat2, lon2 = node_label2pos_counts[e[1]][0]
+		x1, y1 = m(lon1, lat1)
+		x2, y2 = m(lon2, lat2)
+		ax.plot([x1,x2],[y1,y2], alpha=0.5, zorder=12)
+	pylab.title("Network of strains")
+	pylab.show()
+	sys.stderr.write("Done.\n")
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
