@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Usage: EstimateSelfingRate.py [OPTIONS] -i INPUT_FILE
+Usage: EstimateSelfingRate.py [OPTIONS] -i INPUT_FILE -o OUTPUT_FILE
 
 Option:
 	-i ...,	input file
@@ -13,11 +13,13 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	EstimateSelfingRate.py -i /tmp/pop_25.t1.14 -y2 -b
+	EstimateSelfingRate.py -i /tmp/pop_25.t1.14 -o /tmp/pop_25.t1.14.y2 -y2 -b
 
 Description:
 	Program to estimate selfing rate. estimating method includes
-	Jarne2006, Robertson2004
+	Jarne2006(method 1), Robertson1984(2), Weir1984(3), Nordborg1997(4)
+	
+	NA-filtering has to be carried out on the data beforehand.
 
 """
 import sys, os, math
@@ -30,14 +32,19 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
 import getopt, csv, math
 import Numeric, pylab, rpy
+from common import nt2number, number2nt
 
 class s_estimate_result:
 	def __init__(self):
-		self.FIS_vector = None
-		self.selfing_rate_vector = None
+		self.FIS_vector = []
+		self.selfing_rate_vector = []
 		self.FIS_std = None
 		self.s_std = None
 		self.s_of_avg_FIS = None
+		self.weir1984_multi_loci_s = None	#for Weir1984
+		self.s_M_ls = []	#for Nordborg1997
+		self.theta_ls = []
+		self.theta_M_ls = []
 
 class EstimateSelfingRate:
 	def __init__(self, input_fname=None, output_fname=None, which_method=1,\
@@ -52,14 +59,16 @@ class EstimateSelfingRate:
 		self.debug = int(debug)
 		self.report = int(report)
 		self.estimate_method = {1: self.estimate_Jarne2006,
-			2: self.estimate_Robertson2004}
+			2: self.estimate_Robertson2004,
+			3: self.estimate_Weir1984,
+			4: self.estimate_Nordborg1997}
 	
 	def cal_observed_heterozygosity_vector(self, data_matrix):
 		sys.stderr.write("Calculating observed heterozygosity ...")
 		no_of_strains, no_of_snps = data_matrix.shape
 		observed_heterozygosity_vector = Numeric.zeros(no_of_snps, Numeric.Float)
 		for i in range(no_of_snps):
-			observed_heterozygosity_vector[i] = float(sum(data_matrix[:,i]>4))/sum(data_matrix[:,i]>0)
+			observed_heterozygosity_vector[i] = float(sum(data_matrix[:,i]>4))/sum(data_matrix[:,i]>0) #2007-08-14 data filtered, no n=0
 		sys.stderr.write("Done.\n")
 		return observed_heterozygosity_vector
 	
@@ -85,7 +94,7 @@ class EstimateSelfingRate:
 		2007-08-14
 			method based on Jarne2006
 		"""
-		sys.stderr.write("Jarne2006 metod ...\n")
+		sys.stderr.write("Jarne2006 method ...\n")
 		s_estimate_result_instance = s_estimate_result()
 		
 		from EstimateSelfingGeneration import EstimateSelfingGeneration
@@ -151,15 +160,148 @@ class EstimateSelfingRate:
 	def estimate_Robertson2004(self, data_matrix):
 		"""
 		2007-08-14
-			method based on Robertson2004
+			method based on Robertson1984
 		"""
-		sys.stderr.write("Robertson2004 metod ...\n")
+		sys.stderr.write("Robertson1984 method ...\n")
 		s_estimate_result_instance = s_estimate_result()
 		locus_allele_count_vector = self.cal_locus_allele_count_vector(data_matrix)
 		FIS_vector, selfing_rate_vector = self.cal_Haldane_FIS_estimator(locus_allele_count_vector)
 		s_estimate_result_instance.FIS_vector = FIS_vector
 		s_estimate_result_instance.selfing_rate_vector = selfing_rate_vector
 		return s_estimate_result_instance
+	
+	def cal_Weir1984_b_c_vector(self, data_matrix):
+		"""
+		2007-08-14
+			regard r=1 in formula 3 and 4
+			
+		"""
+		sys.stderr.write("Calculating Weir1984 b-c vector ...")
+		no_of_strains, no_of_snps = data_matrix.shape
+		b_c_vector = []
+		FIS_vector = []
+		for i in range(no_of_snps):
+			nt2counter = {}
+			no_of_valid_calls = 0.0
+			no_of_heterozygous_calls = 0.0
+			for j in range(no_of_strains):
+				nt_number = data_matrix[j,i]
+				if nt_number!=0:	#not NA
+					no_of_valid_calls += 2
+					nt_string = number2nt[data_matrix[j,i]]
+					if len(nt_string)==1:	#double the nt if it's homozygous
+						nt_string += nt_string
+					else:
+						no_of_heterozygous_calls += 1
+					for k in range(len(nt_string)):
+						nt = nt_string[k]
+						if nt not in nt2counter:
+							nt2counter[nt] = 0
+						nt2counter[nt] += 1
+			nt_key_1 = nt2counter.keys()[0]
+			p = nt2counter[nt_key_1]/no_of_valid_calls
+			n = no_of_valid_calls/2
+			h = no_of_heterozygous_calls/n
+			b = n/(n-1)*(p*(1-p)-(2*n-1)/(4*n)*h)	#2007-08-14 data filtered, no n=0
+			c = h/2
+			b_c_vector.append((b,c))
+			if (b+c)!=0:
+				FIS_vector.append(b/(b+c))
+		sys.stderr.write("Done.\n")
+		return b_c_vector, FIS_vector
+	
+	def cal_weir1984_multi_loci_s(self, b_c_vector):
+		"""
+		2007-08-14
+		"""
+		sys.stderr.write("Calculating weir1984_multi_loci_s ...")
+		numerator = 0.0
+		denominator = 0.0
+		for b,c in b_c_vector:
+			numerator += b
+			denominator += (b+c)
+		weir1984_multi_loci_s = numerator/denominator
+		sys.stderr.write("Done.\n")
+		return weir1984_multi_loci_s
+	
+	def estimate_Weir1984(self, data_matrix):
+		"""
+		2007-08-14
+		"""
+		sys.stderr.write("Weir1984 method ...\n")
+		s_estimate_result_instance = s_estimate_result()
+		b_c_vector, FIS_vector = self.cal_Weir1984_b_c_vector(data_matrix)
+		s_estimate_result_instance.FIS_vector = FIS_vector
+		self_func = lambda x: 2*x/(1+x)
+		s_estimate_result_instance.selfing_rate_vector = map(self_func, FIS_vector)
+		s_estimate_result_instance.weir1984_multi_loci_s = self.cal_weir1984_multi_loci_s(b_c_vector)
+		return s_estimate_result_instance
+	
+	def estimate_Nordborg1997(self, data_matrix):
+		"""
+		2007-08-14
+		"""
+		sys.stderr.write("Nordborg1997 method ...\n")
+		no_of_strains, no_of_snps = data_matrix.shape
+		s_estimate_result_instance = s_estimate_result()
+		from Nordborg1997.Simulate import Estimate
+		Estimate_instance = Estimate()
+		for i in range(no_of_snps):
+			individual_ls = []
+			for j in range(no_of_strains):
+				nt_number = data_matrix[j,i]
+				if nt_number!=0:	#not NA
+					nt_string = number2nt[nt_number]
+					if len(nt_string)==1:	#double the nt if it's homozygous
+						nt_number1 = nt_number2 = nt_number
+					else:
+						nt_number1 = nt2number[nt_string[0]]
+						nt_number2 = nt2number[nt_string[1]]
+					individual_ls.append((nt_number1, nt_number2))
+			if individual_ls:
+				Hw = Estimate_instance.estimate_Hw(individual_ls)
+				Hb = Estimate_instance.estimate_Hb(individual_ls)
+				if (2*Hb-Hw)!=1.0:
+					s = Estimate_instance.estimate_s(Hw, Hb)
+					theta = Estimate_instance.estimate_theta(Hw, Hb)
+					s_M = Estimate_instance.estimate_s_Milligan1996(Hw, Hb)
+					theta_M = Estimate_instance.estimate_theta_Milligan1996(Hw, Hb)
+					s_estimate_result_instance.selfing_rate_vector.append(s)
+					s_estimate_result_instance.theta_ls.append(theta)
+					s_estimate_result_instance.s_M_ls.append(s_M)
+					s_estimate_result_instance.theta_M_ls.append(theta_M)
+		sys.stderr.write("Done.\n")
+		return s_estimate_result_instance
+	
+	def spruce_a_list(self, writer, ls, variable_name):
+		avg = sum(ls)/float(len(ls))
+		std = rpy.r.sd(ls)
+		writer.writerow(['list of %s:'%variable_name, ls])
+		writer.writerow(['avg_%s:'%variable_name, avg])
+		writer.writerow(['std_%s:'%variable_name, std])
+	
+	def write_result(self, output_fname, s_estimate_result_instance):
+		"""
+		2007-08-13
+			
+		"""
+		sys.stderr.write("Writing result to output file ...")
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		self.spruce_a_list(writer, s_estimate_result_instance.selfing_rate_vector, 's')
+		
+		if s_estimate_result_instance.FIS_vector:
+			self.spruce_a_list(writer, s_estimate_result_instance.FIS_vector, 'FIS')
+			avg_FIS = sum(s_estimate_result_instance.FIS_vector)/len(s_estimate_result_instance.FIS_vector)
+			s_of_avg_FIS = 2*avg_FIS/(1+avg_FIS)
+			writer.writerow(['s_of_avg_FIS:', s_of_avg_FIS])
+		if s_estimate_result_instance.weir1984_multi_loci_s:
+			writer.writerow(['weir1984_multi_loci_s:', s_estimate_result_instance.weir1984_multi_loci_s])
+		if s_estimate_result_instance.theta_ls:
+			self.spruce_a_list(writer, s_estimate_result_instance.theta_ls, 'theta')
+		if s_estimate_result_instance.theta_M_ls:
+			self.spruce_a_list(writer, s_estimate_result_instance.theta_M_ls, 'theta_M')
+		del writer
+		sys.stderr.write("Done.\n")
 	
 	def run(self):
 		"""
@@ -175,16 +317,8 @@ class EstimateSelfingRate:
 			pdb.set_trace()
 		
 		s_estimate_result_instance = self.estimate_method[self.which_method](data_matrix)
-
-		avg_s = sum(s_estimate_result_instance.selfing_rate_vector)/len( s_estimate_result_instance.selfing_rate_vector)
-		s_std = rpy.r.sd(s_estimate_result_instance.selfing_rate_vector)
-		avg_FIS = sum(s_estimate_result_instance.FIS_vector)/len(s_estimate_result_instance.FIS_vector)
-		s_of_avg_FIS = 2*avg_FIS/(1+avg_FIS)
-		print 'selfing_rate_vector:', s_estimate_result_instance.selfing_rate_vector
-		print 'avg_s:', avg_s
-		print 'std of s:', s_std
-		print 'avg_FIS:', avg_FIS
-		print 's_of_avg_FIS:', s_of_avg_FIS
+		self.write_result(self.output_fname, s_estimate_result_instance)
+		
 		pylab.hist(s_estimate_result_instance.selfing_rate_vector, 20)
 		pylab.show()
 
@@ -224,7 +358,7 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 
-	if input_fname:
+	if input_fname and output_fname:
 		instance = EstimateSelfingRate(input_fname, output_fname, which_method,\
 			nt_alphabet_bits, debug, report)
 		instance.run()
