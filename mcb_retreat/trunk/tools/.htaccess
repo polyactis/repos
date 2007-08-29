@@ -1,0 +1,4 @@
+AuthUserFile /srv/www/passw/.htpasswd
+AuthName "Administration"
+AuthType Basic
+Require valid-user john badri
