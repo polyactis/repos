@@ -2,11 +2,8 @@
 
 if ($_POST['_submit_check']) 
 {
-	$username="root";
-	$password="";
-	$database="retreat";
-	$link=mysqli_connect(localhost,$username,$password,$database);
-	if(!$link){ echo " mysql connection not working";}
+	$link = pg_connect("host=localhost dbname=yhdb user=yh password=123456")
+		or die('Could not connect: ' . pg_last_error());
 	$name=$_POST['name'];
 	echo  "<script  type='text/javascript'>
            alert('$name : Your abstract has been submited. Thank you');
@@ -17,14 +14,12 @@ if ($_POST['_submit_check'])
 	$title=$_POST['title'];
 	$author=$_POST['author_list'];
 	$abs=$_POST['abs'];
-	$query=" insert INTO abstract (name,email,pi,pref,title,author_list,abstract) VALUES('$name','$email','$pi','$Pref','$title','$author','$abs')";  
-	$result=mysqli_query($link,$query);
-	if(!result){ echo "error in query";}
-	
+	$query=" insert INTO retreat.abstract (name,email,pi,pref,title,author_list,abstract) VALUES('$name','$email','$pi','$Pref','$title','$author','$abs')";  
+	$result=pg_query($link,$query) or die('Query failed: ' . pg_last_error());	
 	
 	$strLocation = "./retreat.html";
 	header("location:".$strLocation);
-	mysql_close(); 
+	pg_close($link);
 }
 ?>
 

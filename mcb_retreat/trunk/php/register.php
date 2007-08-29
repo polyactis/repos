@@ -2,14 +2,11 @@
 
 if ($_POST['_submit_check']) 
 {
-	$username="root";
-	$password="";
-	$database="retreat";
-	$link=mysqli_connect(localhost,$username,$password,$database);
-	if(!$link){ echo " mysql connection not working";}
+	$link = pg_connect("host=localhost dbname=yhdb user=yh password=123456")
+		or die('Could not connect: ' . pg_last_error());
 	$name=$_POST['name'];
 	echo  "<script  type='text/javascript'>
-           alert('$name : Your abstract has been submited. Thank you');
+           alert('$name : Your are registered. Thank you!');
           </script>"; 
 	$email=$_POST['email'];
 	$pi=$_POST['pi'];
@@ -18,12 +15,9 @@ if ($_POST['_submit_check'])
 	$roommate2=$_POST['roommate2'];
 	$roommate3=$_POST['roommate3'];
 	$roommate4=$_POST['roommate4'];
-	$query=" insert INTO register (name,email,pi,tshirt,roommate1,roommate2,roommate3,roommate4) VALUES('$name','$email','$pi','$tshirt','$roommate1','$roommate2','$roommate3','$roommate4')";  
-	$result=mysqli_query($link,$query);
-	if(!result){ echo "error in query";}
-	$strLocation = "./retreat.html";
-	header("location:".$strLocation);
-	mysql_close(); 
+	$query=" insert INTO retreat.register (name,email,pi,tshirt,roommate1,roommate2,roommate3,roommate4) VALUES('$name','$email','$pi','$tshirt','$roommate1','$roommate2','$roommate3','$roommate4')";  
+	$result=pg_query($link,$query) or die('Query failed: ' . pg_last_error());
+	pg_close($link);
 }
 ?>
 
@@ -65,7 +59,7 @@ if ($_POST['_submit_check'])
         <td width="86">&nbsp;</td>
       </tr>
       <tr>
-        <td height="39" colspan="5" align="center" valign="middle"><h1><span class="style3">MCB Retreat 2006</span> </h1></td>
+        <td height="39" colspan="5" align="center" valign="middle"><h1><span class="style3">MCB Retreat 2007</span> </h1></td>
         </tr>
       
       <tr>
