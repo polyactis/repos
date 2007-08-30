@@ -161,92 +161,6 @@ class CreatePopulation:
 			count_sum_ls.append(count_sum)
 		sys.stderr.write("%s populations. Done.\n"%(len(weighted_pos_ls)))
 		return pop_id2center_pos_ecotypeid_ls, weighted_pos_ls, count_sum_ls, popid_ls
-		
-
-	def draw_clustered_strain_location(self, popid_ls, weighted_pos_ls, count_sum_ls, pic_area=[-180,-90,180,90], output_fname_prefix=None):
-		"""
-		2007-07-11
-		draw populations derived from connected_components of the strain network
-		#each pie denotes a population, with diameter proportional to the size of the population
-		#each pie labeled with the number of strains in that population
-		2007-07-13
-			use popid as label
-		2007-07-17
-			no parallels, no meridians
-		"""
-		sys.stderr.write("Drawing population map...")
-		import pylab
-		from matplotlib.toolkits.basemap import Basemap
-		pylab.clf()
-		fig = pylab.figure()
-		fig.add_axes([0.05,0.05,0.9,0.9])	#[left, bottom, width, height]
-		m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
-		resolution='l',projection='mill')
-		
-		euc_coord1_ls = []
-		euc_coord2_ls = []
-		ax=pylab.gca()
-		for i in range(len(weighted_pos_ls)):
-			lat, lon = weighted_pos_ls[i]
-			euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
-			euc_coord1_ls.append(euc_coord1)
-			euc_coord2_ls.append(euc_coord2)
-			ax.text(euc_coord1, euc_coord2, str(popid_ls[i]), size=3, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
-		m.scatter(euc_coord1_ls, euc_coord2_ls, 5*count_sum_ls, marker='o', color='r', alpha=0.3, zorder=10, faceted=False)
-		
-		#m.drawcoastlines()
-		#m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,1,1])
-		#m.drawmeridians(pylab.arange(-180,180,60), labels=[1,1,1,1])
-		m.fillcontinents()
-		m.drawcountries()
-		m.drawstates()
-		pylab.title("worldwide distribution of %s populations, labeled by popid"%(len(weighted_pos_ls)))
-		if output_fname_prefix:
-			pylab.savefig('%s_pop_map.eps'%output_fname_prefix, dpi=300)
-			pylab.savefig('%s_pop_map.svg'%output_fname_prefix, dpi=300)
-			pylab.savefig('%s_pop_map.png'%output_fname_prefix, dpi=300)
-		del m, pylab, Basemap
-		sys.stderr.write("Done.\n")
-	
-	#2007-07-09
-	def DrawStrainNetwork(self, g, node_label2pos_counts,pic_area=[-180,-90,180,90], output_fname_prefix=None):
-		"""
-		2007-07-17
-			put ax.plot() right after Basemap() but after m.xxx() so that it'll zoom in
-			use 'g' in ax.plot(), otherwise, ax.plot() alternates all colors.
-			no parallels, no meridians
-		"""
-		sys.stderr.write("Drawing Strain Network...")
-		import pylab
-		from matplotlib.toolkits.basemap import Basemap
-		pylab.clf()
-		fig = pylab.figure()
-		fig.add_axes([0.05,0.05,0.9,0.9])	#[left, bottom, width, height]
-		m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
-		resolution='l',projection='mill')
-		
-		ax=pylab.gca()
-		for e in g.edges():
-			lat1, lon1 = node_label2pos_counts[e[0]][0]
-			lat2, lon2 = node_label2pos_counts[e[1]][0]
-			x1, y1 = m(lon1, lat1)
-			x2, y2 = m(lon2, lat2)
-			ax.plot([x1,x2],[y1,y2], 'g', alpha=0.5, zorder=12)
-		
-		#m.drawcoastlines()
-		#m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,1,1])
-		#m.drawmeridians(pylab.arange(-180,180,60), labels=[1,1,1,1])
-		m.fillcontinents()
-		m.drawcountries()
-		m.drawstates()
-
-		pylab.title("Network of strains")
-		if output_fname_prefix:
-			pylab.savefig('%s_strain_network.eps'%output_fname_prefix, dpi=300)
-			pylab.savefig('%s_strain_network.svg'%output_fname_prefix, dpi=300)
-			pylab.savefig('%s_strain_network.png'%output_fname_prefix, dpi=300)
-		del m, pylab, Basemap
-		sys.stderr.write("Done.\n")
 	
 	def create_population_table(self, curs, output_table):
 		"""
@@ -282,7 +196,7 @@ class CreatePopulation:
 			input_fname is useless
 		"""
 		import MySQLdb
-		conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
+		#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
 		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 		curs = conn.cursor()
 		
@@ -294,9 +208,6 @@ class CreatePopulation:
 			self.create_population_table(curs, self.output_table)
 			self.submit_pop_id2center_pos_ecotypeid_ls(curs, self.output_table, pop_id2center_pos_ecotypeid_ls)
 			#conn.commit()
-		pic_area=[-100,20,30,70]
-		self.draw_clustered_strain_location(popid_ls, weighted_pos_ls, count_sum_ls, pic_area, self.output_table)
-		self.DrawStrainNetwork(g, node_label2pos_counts, pic_area, self.output_table)
 		
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
