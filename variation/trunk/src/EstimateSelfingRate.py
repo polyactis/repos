@@ -17,7 +17,8 @@ Examples:
 
 Description:
 	Program to estimate selfing rate. estimating method includes
-	Jarne2006(method 1), Robertson1984(2), Weir1984(3), Nordborg1997(4)
+	Jarne2006(method 1), Robertson1984(2), Weir1984(3), Nordborg1997(4),
+	David2007(by g2, 5)
 	
 	NA-filtering has to be carried out on the data beforehand.
 
@@ -45,6 +46,9 @@ class s_estimate_result:
 		self.s_M_ls = []	#for Nordborg1997
 		self.theta_ls = []
 		self.theta_M_ls = []
+		self.g2_David2007 = None	#for David2007
+		self.s_g2_David2007 = None
+		self.genotyping_error_rate_vector = None
 
 class EstimateSelfingRate:
 	def __init__(self, input_fname=None, output_fname=None, which_method=1,\
@@ -61,7 +65,8 @@ class EstimateSelfingRate:
 		self.estimate_method = {1: self.estimate_Jarne2006,
 			2: self.estimate_Robertson2004,
 			3: self.estimate_Weir1984,
-			4: self.estimate_Nordborg1997}
+			4: self.estimate_Nordborg1997,
+			5: self.estimate_David2007_g2}
 	
 	def cal_observed_heterozygosity_vector(self, data_matrix):
 		sys.stderr.write("Calculating observed heterozygosity ...")
@@ -273,6 +278,70 @@ class EstimateSelfingRate:
 		sys.stderr.write("Done.\n")
 		return s_estimate_result_instance
 	
+	def estimate_David2007_g2(self, data_matrix):
+		"""
+		2007-08-15
+			David2007
+		"""
+		sys.stderr.write("David2007 g2 method ...\n")
+		no_of_strains, no_of_snps = data_matrix.shape
+		s_estimate_result_instance = s_estimate_result()
+		Hijk = Numeric.zeros([no_of_snps, no_of_snps], Numeric.Float)	#each entry is \sum_k Hik*Hjk
+		Hijkl = Numeric.zeros([no_of_snps, no_of_snps], Numeric.Float)	#each entry is \sum_k \sum_{l!=k} Hik*Hjl
+		Mij = Numeric.zeros([no_of_snps, no_of_snps], Numeric.Float)	#number of individuals with NA at locus both i an j
+		Mi = Numeric.zeros(no_of_snps, Numeric.Float)	#number of individuals with NA at locus i
+		for i in range(no_of_snps):
+			for j in range(no_of_snps):
+				if j==i:
+					continue
+				for k in range(no_of_strains):
+					if data_matrix[k,i]==0:
+						Mi[i] += 1	#this one is inflated no_of_snps-1 times due to the inner j loop
+						if data_matrix[k,j]==0:
+							Mij[i,j] += 1
+					Hik = int(data_matrix[k,i]>4)	#NA=0 is treated as homozygous
+					Hjk = int(data_matrix[k,j]>4)
+					Hijk[i,j] += (Hik*Hjk)
+					for l in range(no_of_strains):
+						if l==k:
+							continue
+						Hik = int(data_matrix[k,i]>4)	#NA=0 is treated as homozygous
+						Hjl = int(data_matrix[l,j]>4)
+						Hijkl[i,j] += (Hik*Hjl)
+		Mi = Mi/(no_of_snps-1)
+		
+		numerator = 0.0
+		denominator = 0.0
+		for i in range(no_of_snps):
+			for j in range(no_of_snps):
+				if j==i:
+					continue
+				numerator += 1.0/(no_of_strains-Mij[i,j])*Hijk[i,j]
+				denominator += 1.0/(no_of_strains*(no_of_strains-1)-Mi[i]*Mi[j] + Mij[i,j])*Hijkl[i,j]
+		if denominator>0.0:
+			g2 = numerator/denominator
+			s_estimate_result_instance.g2_David2007 = g2
+		else:
+			g2=None
+		if g2:	#g2=0 causes ZeroDivisionError: float division in calculating s
+			s = (1+5*g2-math.sqrt(1+10*g2+9*g2*g2))/(2*g2)
+			FIS = s/(2-s)
+			
+			from EstimateSelfingGeneration import EstimateSelfingGeneration
+			EstimateSelfingGeneration_instance = EstimateSelfingGeneration()
+			locus_allele_prob_vector = EstimateSelfingGeneration_instance.cal_locus_allele_prob_vector(data_matrix)
+			observed_heterozygosity_vector = self.cal_observed_heterozygosity_vector(data_matrix)
+			FIS_vector = self.cal_FIS_vector(locus_allele_prob_vector, observed_heterozygosity_vector)
+			
+			genotyping_error_func = lambda x: (x-FIS)/(1-FIS)
+			genotyping_error_rate_vector = map(genotyping_error_func, FIS_vector)
+			
+			s_estimate_result_instance.s_g2_David2007 = s
+			s_estimate_result_instance.FIS_vector = FIS_vector
+			s_estimate_result_instance.genotyping_error_rate_vector = genotyping_error_rate_vector
+		
+		return s_estimate_result_instance
+	
 	def spruce_a_list(self, writer, ls, variable_name):
 		avg = sum(ls)/float(len(ls))
 		std = rpy.r.sd(ls)
@@ -287,8 +356,8 @@ class EstimateSelfingRate:
 		"""
 		sys.stderr.write("Writing result to output file ...")
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-		self.spruce_a_list(writer, s_estimate_result_instance.selfing_rate_vector, 's')
-		
+		if s_estimate_result_instance.selfing_rate_vector:
+			self.spruce_a_list(writer, s_estimate_result_instance.selfing_rate_vector, 's')
 		if s_estimate_result_instance.FIS_vector:
 			self.spruce_a_list(writer, s_estimate_result_instance.FIS_vector, 'FIS')
 			avg_FIS = sum(s_estimate_result_instance.FIS_vector)/len(s_estimate_result_instance.FIS_vector)
@@ -300,6 +369,12 @@ class EstimateSelfingRate:
 			self.spruce_a_list(writer, s_estimate_result_instance.theta_ls, 'theta')
 		if s_estimate_result_instance.theta_M_ls:
 			self.spruce_a_list(writer, s_estimate_result_instance.theta_M_ls, 'theta_M')
+		if s_estimate_result_instance.g2_David2007:
+			writer.writerow(['g2:', s_estimate_result_instance.g2_David2007])
+		if s_estimate_result_instance.s_g2_David2007:
+			writer.writerow(['s_g2:', s_estimate_result_instance.s_g2_David2007])
+		if s_estimate_result_instance.genotyping_error_rate_vector:
+			self.spruce_a_list(writer, s_estimate_result_instance.genotyping_error_rate_vector, 'genotyping error rate vector')
 		del writer
 		sys.stderr.write("Done.\n")
 	
@@ -319,8 +394,16 @@ class EstimateSelfingRate:
 		s_estimate_result_instance = self.estimate_method[self.which_method](data_matrix)
 		self.write_result(self.output_fname, s_estimate_result_instance)
 		
-		pylab.hist(s_estimate_result_instance.selfing_rate_vector, 20)
-		pylab.show()
+		import re
+		pop_number_pattern = re.compile('\d+$')
+		if pop_number_pattern.search(self.input_fname):
+			pop_number = pop_number_pattern.search(self.input_fname).group()
+		else:
+			pop_number = '00'
+		if s_estimate_result_instance.selfing_rate_vector:
+			pylab.title("histogram of selfing rate. pop %s"%pop_number)
+			pylab.hist(s_estimate_result_instance.selfing_rate_vector, 20)
+			pylab.savefig('%s.png'%self.output_fname)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
