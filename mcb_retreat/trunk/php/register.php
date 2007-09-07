@@ -63,7 +63,7 @@ if ($_POST['_submit_check'])
   <tr>
     <td height="747" align="center" valign="top" background="scroll_back.jpg"><table width="800" height="535" border="0" align="center" cellpadding="0" cellspacing="0">
       <tr>
-        <td width="161" height="80">&nbsp;</td>
+        <td width="161" height="10">&nbsp;</td>
         <td width="117">&nbsp;</td>
         <td width="93">&nbsp;</td>
         <td width="343">&nbsp;</td>
@@ -110,8 +110,6 @@ if ($_POST['_submit_check'])
         <td colspan="2" align="left"><strong>Pick the nights you stay over:</strong></td>
 	<td align="left"><select name="nights">
           <option>both</option>
-          <option>only Fri night</option>
-          <option>only Sat night</option>
           <option>None</option>
         </select></td>
 	<td>&nbsp;</td>
@@ -165,7 +163,7 @@ if ($_POST['_submit_check'])
       </tr>
 
 	<tr>
-        <td height="30" colspan="5" align="center"><div class="style3" style="margin:10px 40px 10px 60px">After registration, if you don't show up, your PI will have to cover the <strong>entire cost</strong>. Any emergency, notify the committee member one week ahead.</div></td>
+        <td height="30" colspan="5" align="center"><div class="style7" style="margin:10px 40px 10px 60px">After registration, if you don't show up, your PI will have to cover the <strong>entire cost</strong>. Any emergency, notify the committee member one week ahead.</div></td>
         </tr>
 
       <tr>

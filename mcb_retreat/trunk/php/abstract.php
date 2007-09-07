@@ -61,7 +61,7 @@ if ($_POST['_submit_check'])
   <tr>
     <td height="747" align="center" valign="top" background="scroll_back.jpg"><table width="800" height="572" border="0" align="center" cellpadding="0" cellspacing="0">
       <tr>
-        <td width="162" height="96">&nbsp;</td>
+        <td width="162" height="80">&nbsp;</td>
         <td width="116">&nbsp;</td>
         <td width="93">&nbsp;</td>
         <td width="343">&nbsp;</td>
