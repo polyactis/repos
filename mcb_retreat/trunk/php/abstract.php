@@ -5,19 +5,28 @@ if ($_POST['_submit_check'])
 	$link = pg_connect("host=localhost dbname=yhdb user=yh password=123456")
 		or die('Could not connect: ' . pg_last_error());
 	$name=$_POST['name'];
-	echo  "<script  type='text/javascript'>
-           alert('$name : Your abstract has been submited. Thank you!');
-          </script>"; 
 	$email=$_POST['email'];
 	$pi=$_POST['pi'];
 	$Pref=$_POST['Pref'];
 	$title=$_POST['title'];
 	$author=$_POST['author_list'];
 	$abs=$_POST['abs'];
+	if ($pi=='' || $email=='' || $name=='' || $title=='' || $author=='' || $abs=='' )
+	{
+		echo  "<script  type='text/javascript'> 
+           alert('$name : Please fill in ALL fields.');
+           </script>";
+	}
+	else
+	{
 	$query=" insert INTO retreat.abstract (name,email,pi,pref,title,author_list,abstract) VALUES('$name','$email','$pi','$Pref','$title','$author','$abs')";
 	$result=pg_query($link,$query) or die('Query failed: ' . pg_last_error());
 	
 	pg_close($link);
+	echo  "<script  type='text/javascript'>
+           alert('$name : Your abstract has been submited. Thank you!');
+          </script>";
+	}
 }
 ?>
 
@@ -84,7 +93,7 @@ if ($_POST['_submit_check'])
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td height="63" colspan="5"><div class="style7" style="margin:10px 40px 10px 60px">We have a limited number  of presentation times, so not all presentations can be accommodated.&nbsp;  Therefore some submitted presentations will have to be posters.&nbsp; We  will confirm with you by e-mail. </div></td>
+        <td height="63" colspan="5"><div class="style7" style="margin:10px 40px 10px 60px">All presentations must be approved by your advisor. We have a limited number of presentation times. Our policy is one presentation per lab (Please coordinate with your advisor and fellow lab members). If there're vacancy left by some labs, priority will be given to new labs.&nbsp; Some submitted presentations will have to be posters.&nbsp; We  will confirm with you by e-mail. </div></td>
         </tr>
      
 	  <tr>

@@ -7,11 +7,14 @@ create table register(
 	name	varchar,
 	email	varchar,
 	pi	varchar,
+	special_treat	varchar,
+	nights	varchar,
 	tshirt	varchar,
 	roommate1	varchar,
 	roommate2	varchar,
 	roommate3	varchar,
-	roommate4	varchar);
+	roommate4	varchar,
+	date_created	timestamp default current_timestamp);
 
 create table abstract(
 	id	serial primary key,
@@ -21,4 +24,5 @@ create table abstract(
 	pref	varchar,
 	title	varchar,
 	author_list	varchar,
-	abstract	varchar);
+	abstract	varchar,
+	date_created	timestamp default current_timestamp);
