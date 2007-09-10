@@ -51,16 +51,21 @@ for (i in 1:length(cel.files))
 #######################################################################
 ## function for reading in cel files and performing spatial correction
 ## 2007-09-06 copied from natural.uchicago.edu's /n1/naturalsystems/array/part2/atsnptile1/readcel2.R
-readcel2 <- function(cel.files, array.size = 712, filter.size = 51, imageType="jpg", probe.OK=""){
+readcel2 <- function(cel_file_directory, array.size = 712, filter.size = 51, imageType="jpg", probe.OK=""){
 # read .cel files
+cel.files <- list.celfiles(cel_file_directory, full.names=TRUE)
 
 if (array.size > 720){ # for tiling arrays
 filter.size <- 81
 mprobe.mean <- matrix(ncol = length(cel.files),nrow = length(chrom.order))
 for (i in 1:length(cel.files))
+{
+   cat(cel.files[i])
    ## turn image in by rotate right 90 so xy coords match probe.OK
    mprobe.mean[,i] <- log( matrix( intensity( read.affybatch(filenames = cel.files[i])),
               nc = array.size, byrow = T)[array.size:1,][probe.OK])
+   cat(".\n")
+}
 }
 
 #if (array.size != 2560){ 
@@ -75,7 +80,9 @@ fe <- (filter.size-1)/2 # filter edge
 mprobe.bg <- mprobe.resid
 # do spatial correction
 if(imageType == "pdf") pdf(file = "spatialCorrected.pdf")
+cat("spatial correction\n")
 for (i in 1:length(cel.files)){
+    cat("\t", cel.files[i])
     sp.mat <- matrix(0,nr= array.size,nc=array.size)
     sp.mat[probe.OK] <- mprobe.resid[,i]
     sp.mat.sum <- apply(sp.mat,2,filter,rep(1,filter.size))	#column-wise filter
@@ -100,19 +107,43 @@ for (i in 1:length(cel.files)){
     if (imageType=="pdf") image(1:array.size, 1:array.size, spatial.corrected, col = terrain.colors(2^8),
                   main = paste(cel.files[i], "spatialResid", filter.size,sp.range,sep="") )
     mprobe.bg[,i] <- spatial.corrected[probe.OK]
-    }
-if(imageType == "pdf") dev.off()
-(mprobe.mean - mprobe.bg)[chrom.order,]
+    cat(".\n")
 }
 
-## 2007-09-06 copied form Xu Zhang's email
+if(imageType == "pdf") dev.off()
+
+#(mprobe.mean - mprobe.bg)[chrom.order,]
+mprobe.mean[chrom.order,]
+}
+##2007-09-06 read raw data, no log
+readcel_raw <- function(cel_file_directory, array.size = 712, probe.OK="", chrom.order=""){
+# read .cel files
+cel.files <- list.celfiles(cel_file_directory, full.names=TRUE)
+
+mprobe.mean <- matrix(ncol = length(cel.files),nrow = length(chrom.order))
+for (i in 1:length(cel.files))
+{
+   cat(cel.files[i])
+   ## turn image in by rotate right 90 so xy coords match probe.OK
+   mprobe.mean[,i] <- matrix( intensity( read.affybatch(filenames = cel.files[i])),
+              nc = array.size, byrow = T)[array.size:1,][probe.OK]
+   cat(".\n")
+}
+mprobe.mean[chrom.order,]
+}
+
+## 2007-09-06 based on snippets copied form Xu Zhang's email
 load ("snp.RData")
 library(affy)
-cel.files <- list.celfiles()
-
 
 ord <- rep( c(1,2,3,4), nrow(snp)/4 )
 snp <- cbind( snp, ord)
+
+##2007-09-07 convert some columns into integer class
+write.table(snp, '/tmp/snp', sep='\t')
+snp=read.table('/tmp/snp',as.is=c(1:4,7:9))	#column 1,2,3,4,7,8,9 is snpid, seq, chr, bp, xpos, ypos, ord
+
+
 array.size <- 1612
 probe.ok <- matrix(FALSE, nr=array.size, nc=array.size)
 probe.ok.chrom <- matrix(NA, nr=array.size, nc=array.size)
@@ -120,7 +151,7 @@ probe.ok.position <- matrix(NA, nr=array.size, nc=array.size)
 probe.ok.ord <- matrix(NA, nr=array.size, nc=array.size)
 probe.ok[cbind(snp$xpos+1, snp$ypos+1)] <- TRUE
 probe.ok.chrom[cbind(snp$xpos + 1, snp$ypos+1)] <-snp$chr
-probe.ok.position [cbind(snp$xpos + 1, snp$ypos+1)] <- snp$bp
+probe.ok.position [cbind(snp$xpos + 1, snp$ypos+1)] <- snp$bp	#when factor is converted into integer, it messed up. 657 => 202179
 probe.ok.ord [cbind(snp$xpos + 1, snp$ypos+1)] <- snp$ord
 
 probe.ok.chrom.valid <- probe.ok.chrom[probe.ok]
@@ -128,7 +159,85 @@ probe.ok.position.valid <- probe.ok.position [probe.ok]
 probe.ok.ord.valid <- probe.ok.ord [probe.ok]
 chrom.order <- order(probe.ok.chrom.valid, probe.ok.position.valid, probe.ok.ord.valid)
 
+#show how it looks like in chrom.order
+snp_chr_order_data = rbind(probe.ok.chrom.valid[chrom.order], probe.ok.position.valid[chrom.order], probe.ok.ord.valid[chrom.order])
+snp_chr_order_data[,1:20]
 
-mprobe.mean <- readcel (cel.files=cel.files, probe.number=nrow(snp), array.size=1612, filter.size=81)
-
+cel_file_directory = 'yanli_8-8-07'
+mprobe.mean <- readcel2('yanli_8-8-07', array.size=1612, filter.size=81, imageType="jpg", probe.OK=probe.ok)
 mprobe.mean <- normalize.quantiles(mprobe.mean)
+
+mprobe.raw = readcel_raw(cel_file_directory, array.size = 1612, probe.OK=probe.ok, chrom.order=chrom.order)
+
+##2007-09-09 show where each chromsome's probes are
+xls=1:array.size
+image(xls, 1:array.size, (probe.ok.chrom==3), col=topo.colors(2^8))
+
+##check sign of mprobe.raw data, 1 means pairs of two sense strains and two anti-sense are in same order (either > or <). -1 means in discordant order. 0 means one of the pairs show equal intensity count.
+check_sign <- function(data)
+{
+no_of_snps=dim(data)[1]/4
+no_of_arrays=dim(data)[2]
+for (j in 1:no_of_arrays)
+{
+  sign_ls = matrix(0, nrow=1, ncol=no_of_snps)
+  d1_ls = matrix(0, nrow=1, ncol=no_of_snps)
+  d2_ls = matrix(0, nrow=1, ncol=no_of_snps)
+  for (i in 1:no_of_snps)
+  {
+    i = i-1	#then i starts from 0
+    d1 = data[i*4+1,j]-data[i*4+3,j]
+    d2 = data[i*4+2,j]-data[i*4+4,j]
+    d3 = log(data[i*4+1,j]/data[i*4+2,j],2)
+    d4 = log(data[i*4+3,j]/data[i*4+4,j],2)
+    d5 = 1/4*(log(data[i*4+1,j])+log(data[i*4+2,j])+log(data[i*4+3,j])+log(data[i*4+4,j]))
+    d1_ls[i+1] = (d3+d4)/2
+    d2_ls[i+1] = d5
+    sign_ls[i+1] = sign(d1*d2)
+  }
+  sign_count=table(sign_ls)
+  print(sign_count)
+  print(sign_count[1]/no_of_snps)
+  plot(d2_ls, d1_ls)
+}
+}
+check_sign(mprobe.raw)
+
+##for 6 arrays from 'yanli_8-8-07', each strain got two copies. so a simple MA-plot which compares two arrays' intensity
+ma_p <- function(data)
+{
+no_of_snps=dim(data)[1]
+no_of_arrays=dim(data)[2]
+for (j in 1:as.integer(no_of_arrays/2))
+{
+  sign_ls = matrix(0, nrow=1, ncol=no_of_snps)
+  d1_ls = matrix(0, nrow=1, ncol=no_of_snps)
+  d2_ls = matrix(0, nrow=1, ncol=no_of_snps)
+  j = j-1
+  for (i in 1:no_of_snps)
+  {
+    d1 = log2(data[i,j*2+1]/data[i,j*2+2])
+    d2 = 1/2*log2(data[i,j*2+1]*data[i,j*2+2])
+    d1_ls[i] = d1
+    d2_ls[i] = d2
+    sign_ls[i] = sign(d1*d2)
+  }
+  sign_count=table(sign_ls)
+  print(sign_count)
+  print(sign_count[1]/no_of_snps)
+  plot(d2_ls, d1_ls)
+}
+}
+ma_p(mprobe.raw)
+
+##2007-09-07 test
+for (i in 1:dim(probe.ok.position)[1])
+   for (j in 1:dim(probe.ok.position)[2])
+     if (!is.na(probe.ok.position[i,j]))
+     {
+	if(probe.ok.position[i,j]==202179)
+        {
+          print(probe.ok.chrom[i,j])
+          print(probe.ok.ord[i,j])
+        }
+      }
