@@ -107,7 +107,7 @@ if ($_POST['_submit_check'])
 	<td>&nbsp;</td>
         <td colspan="2" align="left"><strong>Pick the nights you stay over:</strong></td>
 	<td align="left"><select name="nights">
-          <option>both</option>
+          <option>Both</option>
           <option>None</option>
         </select></td>
 	<td>&nbsp;</td>
