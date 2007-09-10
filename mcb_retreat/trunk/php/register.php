@@ -95,14 +95,12 @@ if ($_POST['_submit_check'])
       </tr>
 
         <tr>
-        <td height="30" colspan="5" align="center"><div class="style7" style="margin:10px 40px 10px 60px">People who plan to stay outside Aliso Creek Inn, please check box below.</div></td>
+        <td height="30" colspan="5" align="center"><div class="style7" style="margin:10px 40px 10px 60px">People who need some special treatment of lodging, please describe below.</div></td>
         </tr>
 
 	<tr>
         <td height="33">&nbsp;</td>
-        <td colspan="2" align="left"><strong>Special Treatment</strong></td>
-        <td align="left"><INPUT TYPE="checkbox" NAME="special_treat"></td>
-	<td>&nbsp;</td>
+        <td colspan="5" align="left"><textarea name="special_treat" cols="52" rows="2"></textarea></td>
 	</tr>
 
 	<tr>
