@@ -11,8 +11,10 @@ Option:
 	-o ...,	output_fname_prefix
 	-a ...,	picture area, lower left corner longitude, latitude,
 		upper right corner longitude, latitude default: "-130,10,140,70"
-	-l,	type of label, 1(popid), 2(pop size), 3(selfing rate)
-	-g ...,	max_dist to connect 2 sites, '50'(km) (default)
+	-l ...,	type of label, 1(popid), 2(pop size), 3(selfing rate)
+	-g ...,	max_dist to connect 2 sites, for -w, '50'(km) (default)
+	-y ...,	which method estimates selfing rate, 1(default)
+	-f ...,	selfing_rate_table (needed for label type 3)
 	-w	draw site network showing how nearby sites give rise to population
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -22,6 +24,12 @@ Examples:
 	DrawPopulation.py -d stock20070829 -o s0829popid2ecotypeid_25 -p popid2ecotypeid_25
 	
 	DrawPopulation.py -d stock20070829 -o s0829popid2ecotypeid_25_Eur -p popid2ecotypeid_25 -a "-10,30,30,70" -w -g 25
+	
+	DrawPopulation.py -d stock20070829 -o s0829popid2ecotypeid_10_Eng__7_48_3_57_l3y1 -p popid2ecotypeid_10 -a "-7,48,3,57" -l3 -fpopid2s_10
+	
+	DrawPopulation.py -d stock20070829 -o s0829popid2ecotypeid_10_NorAm__95_35__65_52_l3y1 -p popid2ecotypeid_10 -a "-95,35,-65,52"  -l3 -fpopid2s_10
+	
+	DrawPopulation.py -d stock20070829 -o s0829popid2ecotypeid_10_Eur__10_30_30_70_l3y1 -p popid2ecotypeid_10 -a "-10,30,30,70" -l3 -fpopid2s_10
 	
 Description:
 	Divide strains into populations based on geographical distance. Two sites are connected
@@ -49,9 +57,12 @@ class DrawPopulation:
 	def __init__(self, hostname='localhost', dbname='stock', schema='dbsnp', \
 		popid2ecotypeid_table=None, strain_info_table='ecotype', output_fname_prefix=None,\
 		pic_area=[-130,10,140,70],\
-		label_type=1, max_dist=100, draw_site_network=0, debug=0, report=0):
+		label_type=1, max_dist=100, which_method=1, selfing_rate_table=None,\
+		draw_site_network=0, debug=0, report=0):
 		"""
 		2007-08-29
+		2007-08-30
+			add which_method and selfing_rate_table
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -62,6 +73,8 @@ class DrawPopulation:
 		self.pic_area = pic_area
 		self.label_type = int(label_type)
 		self.max_dist = int(max_dist)
+		self.which_method = int(which_method)
+		self.selfing_rate_table = selfing_rate_table
 		self.draw_site_network = int(draw_site_network)
 		self.debug = int(debug)
 		self.report = int(report)
@@ -80,6 +93,22 @@ class DrawPopulation:
 			popid2pos_size[popid][1] += 1
 		sys.stderr.write("Done.\n")
 		return popid2pos_size
+	
+	def get_popid2selfing_rate(self, curs, selfing_rate_table, which_method):
+		"""
+		2007-08-30
+		"""
+		sys.stderr.write("Getting popid2selfing_rate ...")
+		popid2selfing_rate = {}
+		from EstimateSelfingRate import EstimateSelfingRate
+		EstimateSelfingRate_i = EstimateSelfingRate()
+		curs.execute("select popid, %s from %s"%(EstimateSelfingRate_i.method2table_entry[which_method][0], selfing_rate_table))
+		rows = curs.fetchall()
+		for row in rows:
+			popid, avg_s = row
+			popid2selfing_rate[popid] = avg_s
+		sys.stderr.write("Done.\n")
+		return popid2selfing_rate
 	
 	def draw_clustered_strain_location(self, label_ls, weighted_pos_ls, diameter_ls, pic_area=[-180,-90,180,90], output_fname_prefix=None):
 		"""
@@ -170,6 +199,10 @@ class DrawPopulation:
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
+		"""
+		2007-08-30
+			add label_type 3
+		"""
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 		curs = conn.cursor()
@@ -182,6 +215,18 @@ class DrawPopulation:
 			label_ls = popid_ls
 		elif self.label_type == 2:
 			label_ls = diameter_ls
+		elif self.label_type == 3:
+			if self.selfing_rate_table is None:
+				sys.stderr.write("Label type is 3(selfing rate), but no selfing_rate_table specified\n")
+				sys.exit(3)
+			popid2selfing_rate = self.get_popid2selfing_rate(curs, self.selfing_rate_table, self.which_method)
+			label_ls = []
+			for popid in popid_ls:
+				avg_s = '00'
+				if popid in popid2selfing_rate:
+					if popid2selfing_rate[popid]:	#not NULL
+						avg_s = int(round(popid2selfing_rate[popid]*1000))
+				label_ls.append(avg_s)
 		self.draw_clustered_strain_location(label_ls, weighted_pos_ls, diameter_ls, pic_area=self.pic_area, output_fname_prefix=self.output_fname_prefix)
 		if self.draw_site_network:
 			from CreatePopulation import CreatePopulation
@@ -197,7 +242,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:p:s:o:a:l:g:wbrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:p:s:o:a:l:g:y:f:wbrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -211,6 +256,8 @@ if __name__ == '__main__':
 	pic_area = [-130,10,140,70]
 	label_type = 1
 	max_dist = 100
+	which_method = 1
+	selfing_rate_table = None
 	draw_site_network = 0
 	debug = 0
 	report = 0
@@ -238,6 +285,10 @@ if __name__ == '__main__':
 			label_type = int(arg)
 		elif opt in ("-g",):
 			max_dist = int(arg)
+		elif opt in ("-y",):
+			which_method = int(arg)
+		elif opt in ("-f",):
+			selfing_rate_table = arg
 		elif opt in ("-w",):
 			draw_site_network = 1
 		elif opt in ("-b", "--debug"):
@@ -248,7 +299,7 @@ if __name__ == '__main__':
 	if popid2ecotypeid_table and output_fname_prefix and hostname and dbname and schema:
 		instance = DrawPopulation(hostname, dbname, schema, popid2ecotypeid_table,\
 			strain_info_table, output_fname_prefix, pic_area, label_type, max_dist, \
-			draw_site_network, debug, report)
+			which_method, selfing_rate_table, draw_site_network, debug, report)
 		instance.run()
 	else:
 		print __doc__
