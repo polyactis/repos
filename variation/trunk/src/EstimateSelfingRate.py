@@ -3,11 +3,16 @@
 Usage: EstimateSelfingRate.py [OPTIONS] -i INPUT_FILE -o OUTPUT_FILE
 
 Option:
+	-z ..., --hostname=...	the hostname, localhost(default)
+	-d ..., --dbname=...	the database name, stock(default)
+	-k ..., --schema=...	which schema in the database, dbsnp(default)
 	-i ...,	input file
-	-o ...,	output file (place holder right now)
+	-o ...,	output file
 	-y ...,	which estimating method, 1(default)
 	-a ...,	bits to toggle input/output StrainSNP matrix format, 0 is integer.
 		1 is alphabet. 1st digit is for input. 2nd is for output. 00 (default)
+	-s ...,	selfing rate table (need to specify if commit is toggled. to store selfing rate in db)
+	-c,	commit
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -40,7 +45,8 @@ class s_estimate_result:
 		self.FIS_vector = []
 		self.selfing_rate_vector = []
 		self.FIS_std = None
-		self.s_std = None
+		self.avg_s = None
+		self.std_s = None
 		self.s_of_avg_FIS = None
 		self.weir1984_multi_loci_s = None	#for Weir1984
 		self.s_M_ls = []	#for Nordborg1997
@@ -51,15 +57,22 @@ class s_estimate_result:
 		self.genotyping_error_rate_vector = None
 
 class EstimateSelfingRate:
-	def __init__(self, input_fname=None, output_fname=None, which_method=1,\
-		nt_alphabet_bits='00', debug=0, report=0):
+	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_fname=None, \
+		output_fname=None, which_method=1, nt_alphabet_bits='00', selfing_rate_table=None,\
+		commit=0, debug=0, report=0):
 		"""
 		2007-08-13
+		2007-08-30 add database options
 		"""
+		self.hostname = hostname
+		self.dbname = dbname
+		self.schema = schema
 		self.input_fname = input_fname
 		self.output_fname = output_fname
 		self.which_method = int(which_method)
 		self.nt_alphabet_bits = nt_alphabet_bits
+		self.selfing_rate_table = selfing_rate_table
+		self.commit = int(commit)
 		self.debug = int(debug)
 		self.report = int(report)
 		self.estimate_method = {1: self.estimate_Jarne2006,
@@ -67,6 +80,10 @@ class EstimateSelfingRate:
 			3: self.estimate_Weir1984,
 			4: self.estimate_Nordborg1997,
 			5: self.estimate_David2007_g2}
+		self.method2table_entry = {1: ['avg_s_Jarne2006', 'std_s_Jarne2006'],
+			2: ['avg_s_Robertson1984', 'std_s_Robertson1984'],
+			3: ['avg_s_Weir1984', 'std_s_Weir1984'],
+			4: ['avg_s_Nordborg1997', 'std_s_Nordborg1997']}
 	
 	def cal_observed_heterozygosity_vector(self, data_matrix):
 		sys.stderr.write("Calculating observed heterozygosity ...")
@@ -343,21 +360,29 @@ class EstimateSelfingRate:
 		return s_estimate_result_instance
 	
 	def spruce_a_list(self, writer, ls, variable_name):
+		"""
+		2007-08-30
+			return avg, std
+		"""
 		avg = sum(ls)/float(len(ls))
 		std = rpy.r.sd(ls)
 		writer.writerow(['list of %s:'%variable_name, ls])
 		writer.writerow(['avg_%s:'%variable_name, avg])
 		writer.writerow(['std_%s:'%variable_name, std])
+		return avg, std
 	
 	def write_result(self, output_fname, s_estimate_result_instance):
 		"""
 		2007-08-13
-			
+		2007-08-30
+			assign value to s_estimate_result_instance.avg_s and std_s
 		"""
 		sys.stderr.write("Writing result to output file ...")
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
 		if s_estimate_result_instance.selfing_rate_vector:
-			self.spruce_a_list(writer, s_estimate_result_instance.selfing_rate_vector, 's')
+			avg_s, std_s = self.spruce_a_list(writer, s_estimate_result_instance.selfing_rate_vector, 's')
+			s_estimate_result_instance.avg_s = avg_s
+			s_estimate_result_instance.std_s = std_s
 		if s_estimate_result_instance.FIS_vector:
 			self.spruce_a_list(writer, s_estimate_result_instance.FIS_vector, 'FIS')
 			avg_FIS = sum(s_estimate_result_instance.FIS_vector)/len(s_estimate_result_instance.FIS_vector)
@@ -378,6 +403,61 @@ class EstimateSelfingRate:
 		del writer
 		sys.stderr.write("Done.\n")
 	
+	def create_selfing_rate_table(self, curs, selfing_rate_table):
+		"""
+		2007-08-30
+		"""
+		sys.stderr.write("Creating selfing rate table ...")
+		curs.execute("create table %s(\
+			id	integer primary key auto_increment,\
+			popid	integer not null,\
+			avg_s_Jarne2006	float,\
+			std_s_Jarne2006	float,\
+			avg_s_Robertson1984	float,\
+			std_s_Robertson1984	float,\
+			avg_s_Weir1984	float,\
+			std_s_Weir1984	float,\
+			weir1984_multi_loci_s	float,\
+			avg_s_Nordborg1997	float,\
+			std_s_Nordborg1997	float,\
+			s_g2_David2007	float)"%selfing_rate_table)
+		sys.stderr.write("Done.\n")
+	
+	def check_table_existent(self, curs, selfing_rate_table):
+		"""
+		2007-08-30
+			check if table exists or not. mysql-specific command is used.
+		"""
+		curs.execute("show tables")
+		rows = curs.fetchall()
+		for row in rows:
+			if row[0]==selfing_rate_table:
+				return 1
+		return 0
+	
+	def submit_to_table(self, curs, selfing_rate_table, s_estimate_result_instance, popid, method2table_entry, which_method):
+		"""
+		2007-08-30
+		"""
+		sys.stderr.write("Submitting selfing rate ...")
+		if not self.check_table_existent(curs, selfing_rate_table):
+			self.create_selfing_rate_table(curs, selfing_rate_table)
+		#check whether popid has data recorded in the table already
+		curs.execute("select * from %s where popid=%s"%(selfing_rate_table, popid))
+		rows = curs.fetchall()
+		if not rows:
+			curs.execute("insert %s(popid) values(%s)"%(selfing_rate_table, popid))
+		if s_estimate_result_instance.avg_s and s_estimate_result_instance.std_s:
+			curs.execute("update %s set %s=%s, %s=%s where popid=%s"%(selfing_rate_table,\
+				method2table_entry[which_method][0], s_estimate_result_instance.avg_s,\
+				method2table_entry[which_method][1], s_estimate_result_instance.std_s,\
+				popid))
+		if s_estimate_result_instance.weir1984_multi_loci_s:
+			curs.execute("update %s set weir1984_multi_loci_s=%s where popid=%s"%(selfing_rate_table,s_estimate_result_instance.weir1984_multi_loci_s, popid))
+		if s_estimate_result_instance.s_g2_David2007:
+			curs.execute("update %s set s_g2_David2007=%s where popid=%s"%(selfing_rate_table,s_estimate_result_instance.s_g2_David2007, popid))
+		sys.stderr.write("Done.\n")
+	
 	def run(self):
 		"""
 		2007-08-13
@@ -395,7 +475,7 @@ class EstimateSelfingRate:
 		self.write_result(self.output_fname, s_estimate_result_instance)
 		
 		import re
-		pop_number_pattern = re.compile('\d+$')
+		pop_number_pattern = re.compile('\d+$')	#the trailing number in the input_fname is population number
 		if pop_number_pattern.search(self.input_fname):
 			pop_number = pop_number_pattern.search(self.input_fname).group()
 		else:
@@ -404,7 +484,19 @@ class EstimateSelfingRate:
 			pylab.title("histogram of selfing rate. pop %s"%pop_number)
 			pylab.hist(s_estimate_result_instance.selfing_rate_vector, 20)
 			pylab.savefig('%s.png'%self.output_fname)
-
+		if self.commit:
+			if pop_number=='00':
+				sys.stderr.write("Can't infer pop_number from input_fname. Exit!\n")
+				sys.exit(1)
+			if not self.selfing_rate_table:
+				sys.stderr.write("Need to specify selfing_rate_table. Exit!\n")
+				sys.exit(1)
+			import MySQLdb
+			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+			curs = conn.cursor()
+			self.submit_to_table(curs, self.selfing_rate_table, s_estimate_result_instance, pop_number, self.method2table_entry, self.which_method)
+			
+			
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -412,15 +504,20 @@ if __name__ == '__main__':
 	
 	long_options_list = ["debug", "report", "commit", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "i:o:y:a:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:y:a:s:cbrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
 	
+	hostname = 'localhost'
+	dbname = 'stock'
+	schema = 'dbsnp'
 	input_fname = None
 	output_fname = None
 	which_method = 1
 	nt_alphabet_bits = '00'
+	selfing_rate_table = None
+	commit = 0
 	debug = 0
 	report = 0
 	
@@ -428,6 +525,12 @@ if __name__ == '__main__':
 		if opt in ("-h", "--help"):
 			print __doc__
 			sys.exit(2)
+		elif opt in ("-z", "--hostname"):
+			hostname = arg
+		elif opt in ("-d", "--dbname"):
+			dbname = arg
+		elif opt in ("-k", "--schema"):
+			schema = arg
 		elif opt in ("-i",):
 			input_fname = arg
 		elif opt in ("-o",):
@@ -436,14 +539,18 @@ if __name__ == '__main__':
 			which_method = int(arg)
 		elif opt in ("-a",):
 			nt_alphabet_bits = arg
+		elif opt in ("-s",):
+			selfing_rate_table = arg
+		elif opt in ("-c",):
+			commit = 1
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
 			report = 1
 
 	if input_fname and output_fname:
-		instance = EstimateSelfingRate(input_fname, output_fname, which_method,\
-			nt_alphabet_bits, debug, report)
+		instance = EstimateSelfingRate(hostname, dbname, schema, input_fname, output_fname,\
+			which_method, nt_alphabet_bits, selfing_rate_table, commit, debug, report)
 		instance.run()
 	else:
 		print __doc__
