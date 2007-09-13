@@ -78,6 +78,10 @@ class DrawPopulation:
 		self.draw_site_network = int(draw_site_network)
 		self.debug = int(debug)
 		self.report = int(report)
+		
+		self.label_type2label_name = {1:'popid',
+			2: 'pop size',
+			3: 'selfing rate'}
 	
 	def get_popid2pos_size(self, curs, popid2ecotypeid_table):
 		sys.stderr.write("Getting popid2pos_size ...")
@@ -110,7 +114,7 @@ class DrawPopulation:
 		sys.stderr.write("Done.\n")
 		return popid2selfing_rate
 	
-	def draw_clustered_strain_location(self, label_ls, weighted_pos_ls, diameter_ls, pic_area=[-180,-90,180,90], output_fname_prefix=None):
+	def draw_clustered_strain_location(self, label_ls, weighted_pos_ls, diameter_ls, label_type, label_type2label_name, pic_area=[-180,-90,180,90], output_fname_prefix=None, label_name=None):
 		"""
 		2007-07-11
 		draw populations derived from connected_components of the strain network
@@ -122,6 +126,8 @@ class DrawPopulation:
 			no parallels, no meridians
 		2007-08-29
 			copied from CreatePopulation.py
+		2007-09-11
+			add label name
 		"""
 		sys.stderr.write("Drawing population map...")
 		import pylab
@@ -140,7 +146,7 @@ class DrawPopulation:
 			euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
 			euc_coord1_ls.append(euc_coord1)
 			euc_coord2_ls.append(euc_coord2)
-			ax.text(euc_coord1, euc_coord2, str(label_ls[i]), size=3, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
+			ax.text(euc_coord1, euc_coord2, str(label_ls[i]), size=5, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
 		m.scatter(euc_coord1_ls, euc_coord2_ls, 5*diameter_ls, marker='o', color='r', alpha=0.3, zorder=10, faceted=False)
 		
 		#m.drawcoastlines()
@@ -149,7 +155,7 @@ class DrawPopulation:
 		m.fillcontinents()
 		m.drawcountries()
 		m.drawstates()
-		pylab.title("worldwide distribution of %s populations, labeled by popid"%(len(weighted_pos_ls)))
+		pylab.title("worldwide distribution of %s populations, labeled by %s"%(len(weighted_pos_ls), label_type2label_name[label_type]))
 		if output_fname_prefix:
 			pylab.savefig('%s_pop_map.eps'%output_fname_prefix, dpi=300)
 			pylab.savefig('%s_pop_map.svg'%output_fname_prefix, dpi=300)
@@ -222,12 +228,12 @@ class DrawPopulation:
 			popid2selfing_rate = self.get_popid2selfing_rate(curs, self.selfing_rate_table, self.which_method)
 			label_ls = []
 			for popid in popid_ls:
-				avg_s = '00'
+				avg_s = '0'
 				if popid in popid2selfing_rate:
 					if popid2selfing_rate[popid]:	#not NULL
 						avg_s = int(round(popid2selfing_rate[popid]*1000))
 				label_ls.append(avg_s)
-		self.draw_clustered_strain_location(label_ls, weighted_pos_ls, diameter_ls, pic_area=self.pic_area, output_fname_prefix=self.output_fname_prefix)
+		self.draw_clustered_strain_location(label_ls, weighted_pos_ls, diameter_ls, self.label_type, self.label_type2label_name, pic_area=self.pic_area, output_fname_prefix=self.output_fname_prefix)
 		if self.draw_site_network:
 			from CreatePopulation import CreatePopulation
 			CreatePopulation_instance = CreatePopulation()
