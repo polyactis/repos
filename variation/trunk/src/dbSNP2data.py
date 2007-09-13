@@ -14,7 +14,7 @@ Option:
 	-y,	need heterozygous call
 	-w,	with header line
 	-a,	use alphabet to represent nucleotide, not number
-	-m,	mysql connection from natural.uchicago.edu
+	-m,	mysql connection, change dbname and hostname
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -25,6 +25,8 @@ Examples:
 	dbSNP2data.py -i justin_data -o justin_data.csv -r -w -t
 	
 	dbSNP2data.py -i calls -o /tmp/chicago.data.y -y -s ecotype -n snps -w -m
+	
+	dbSNP2data.py -z localhost -d stock20070829 -i calls -o stock20070829/data.tsv -s ecotype -n snps -y -w -m
 Description:
 	output SNP data from database schema
 	
@@ -120,15 +122,18 @@ class dbSNP2data:
 		sys.stderr.write("Done.\n")
 		return strain_id2index, strain_id_list
 	
-	def get_strain_id2index_m(self, curs, input_table):
+	def get_strain_id2index_m(self, curs, input_table, strain_info_table):
 		"""
 		2007-07-11
 			mysql version of get_strain_id2index
+		2007-09-12
+			strain_info_table
+			only strains whose latitude and longitude not null
 		"""
 		sys.stderr.write("Getting strain_id2index ..m.")
 		strain_id2index = {}
 		strain_id_list = []
-		curs.execute("select distinct ecotypeid from %s order by ecotypeid"%(input_table))
+		curs.execute("select distinct d.ecotypeid from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null order by ecotypeid"%(input_table, strain_info_table))
 		rows = curs.fetchall()
 		for row in rows:
 			strain_id = row[0]
@@ -375,11 +380,11 @@ class dbSNP2data:
 		"""
 		if self.mysql_connection:
 			import MySQLdb
-			conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
+			#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
 			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 			curs = conn.cursor()
 			snp_id2index, snp_id_list = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
-			strain_id2index, strain_id_list = self.get_strain_id2index_m(curs, self.input_table)
+			strain_id2index, strain_id_list = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table)
 			
 			strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 			snp_id2acc = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
