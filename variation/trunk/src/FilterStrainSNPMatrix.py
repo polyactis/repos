@@ -7,7 +7,7 @@ Option:
 	-o ...,	output file
 	-n ...,	row NA ratio cutoff, 0.4(default)
 	-c ...,	column NA ratio cutoff, 0.4(default)
-	-d,	need to do filtering
+	-d ...,	bits to toggle filtering, '111'(default)
 	-a ...,	bits to toggle input/output StrainSNP matrix format, 0 is integer.
 		1 is alphabet. 1st digit is for input. 2nd is for output. 00 (default)
 	-b, --debug	enable debug
@@ -22,7 +22,11 @@ Examples:
 	./src/FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
 
 Description:
-	Filter out strains with too many NAs, SNPs with too many NAs (after strains removed), identity strains
+	Filtering procedures:
+	 1. strains with too many NAs (-n specifies the cutoff)
+	 2. SNPs with too many NAs (-c specifies the cutoff)
+	 3. identity strains
+	
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -40,7 +44,7 @@ from codense.common import dict_map
 
 class FilterStrainSNPMatrix:
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
-		need_to_filter=0, nt_alphabet_bits='00', debug=0, report=0):
+		filtering_bits='111', nt_alphabet_bits='00', debug=0, report=0):
 		"""
 		2007-02-27
 		2007-04-27
@@ -48,12 +52,14 @@ class FilterStrainSNPMatrix:
 			add nt_alphabet
 		2007-05-14
 			use nt_alphabet_bits to replace nt_alphabet and input_alphabet
+		2007-09-13
+			change need_to_filter to filtering_bits
 		"""
 		self.input_fname = input_fname
 		self.output_fname = output_fname
 		self.row_cutoff = float(row_cutoff)
 		self.col_cutoff = float(col_cutoff)
-		self.need_to_filter = int(need_to_filter)
+		self.filtering_bits = filtering_bits
 		self.nt_alphabet_bits = nt_alphabet_bits
 		self.debug = int(debug)
 		self.report = int(report)
@@ -100,12 +106,14 @@ class FilterStrainSNPMatrix:
 		sys.stderr.write("%s cols removed, done.\n"%(len(cols_with_too_many_NAs_set)))
 		return cols_with_too_many_NAs_set
 	
-	def remove_identity_strains(self, data_matrix, rows_to_be_checked, cols_to_be_checked, strain_index2no_of_NAs):
+	def remove_identity_strains(self, data_matrix, rows_to_be_checked, cols_to_be_checked):
 		"""
 		2007-04-16
 			the similarity graph structure complicated the issue
 			bug found by Chris Toomajian
 			Now use the greedy graph algorithm to remove identity strains.
+		2007-09-13
+			remove parameter strain_index2no_of_NAs
 		"""
 		sys.stderr.write("Searching for identity strains ...")
 		rows_to_be_checked_ls = list(rows_to_be_checked)
@@ -218,7 +226,8 @@ class FilterStrainSNPMatrix:
 	def run(self):
 		"""
 		2007-02-27
-		
+		2007-09-14
+			filtering_bits
 		-read_data()
 		-remove_rows_with_too_many_NAs()
 		-remove_cols_with_too_many_NAs()
@@ -227,21 +236,23 @@ class FilterStrainSNPMatrix:
 		"""
 		header, strain_acc_list, category_list, data_matrix = self.read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
 		data_matrix = num.array(data_matrix)
-		if self.need_to_filter:
+		if self.filtering_bits[0]=='1':
 			rows_with_too_many_NAs_set, strain_index2no_of_NAs = self.remove_rows_with_too_many_NAs(data_matrix, self.row_cutoff)
+		else:
+			rows_with_too_many_NAs_set = Set()
+		if self.filtering_bits[1]=='1':
 			cols_with_too_many_NAs_set = self.remove_cols_with_too_many_NAs(data_matrix, col_cutoff, rows_with_too_many_NAs_set)
-			
+		else:
+			cols_with_too_many_NAs_set = Set()
+		if self.filtering_bits[2]=='1':
 			no_of_rows, no_of_cols = data_matrix.shape
 			total_rows_set = Set(range(no_of_rows))
 			rows_to_be_checked = total_rows_set - rows_with_too_many_NAs_set
 			total_cols_set = Set(range(no_of_cols))
 			cols_to_be_checked = total_cols_set - cols_with_too_many_NAs_set
-			identity_strains_to_be_removed = self.remove_identity_strains(data_matrix, rows_to_be_checked, cols_to_be_checked, strain_index2no_of_NAs)
+			identity_strains_to_be_removed = self.remove_identity_strains(data_matrix, rows_to_be_checked, cols_to_be_checked)
 		else:
-			rows_with_too_many_NAs_set = Set()
-			cols_with_too_many_NAs_set = Set()
 			identity_strains_to_be_removed = Set()
-		
 		rows_to_be_tossed_out = rows_with_too_many_NAs_set | identity_strains_to_be_removed
 		self.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set, int(self.nt_alphabet_bits[1]))
 
@@ -253,7 +264,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "i:o:n:c:da:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "i:o:n:c:d:a:brh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -262,7 +273,7 @@ if __name__ == '__main__':
 	output_fname = None
 	row_cutoff = 0.4
 	col_cutoff = 0.4
-	need_to_filter = 0
+	filtering_bits = '111'
 	nt_alphabet_bits = '00'
 	debug = 0
 	report = 0
@@ -280,7 +291,7 @@ if __name__ == '__main__':
 		elif opt in ("-c",):
 			col_cutoff = float(arg)
 		elif opt in ("-d",):
-			need_to_filter = 1
+			filtering_bits = arg
 		elif opt in ("-a",):
 			nt_alphabet_bits = arg
 		elif opt in ("-b", "--debug"):
@@ -290,7 +301,7 @@ if __name__ == '__main__':
 
 	if input_fname and output_fname:
 		instance = FilterStrainSNPMatrix(input_fname, output_fname, row_cutoff, col_cutoff,\
-			need_to_filter, nt_alphabet_bits, debug, report)
+			filtering_bits, nt_alphabet_bits, debug, report)
 		instance.run()
 	else:
 		print __doc__
