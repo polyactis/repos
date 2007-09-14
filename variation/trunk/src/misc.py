@@ -843,6 +843,97 @@ def compare_SNPcalls(strain2index, perlegen_call_matrix, justin_call_matrix, int
 		for tag in diff_tag2counter:
 			print tag, ':', float(diff_tag2counter[tag])/total_calls
 
+
+"""
+2007-09-13
+following functions to draw a map of inter-population identity
+"""
+def construct_identity_pair_ls(input_fname):
+	"""
+	2007-09-13
+		input_fname is a data frame file with snps coded in integers. 1st row is the ecotype id in table ecotype
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	no_of_strains = len(strain_acc_list)
+	no_of_snps = len(header)-2
+	identity_pair_ls = []
+	for i in range(no_of_strains):
+		for j in range(i+1, no_of_strains):
+			no_of_same_cols = 0
+			for k in range(no_of_snps):
+				if data_matrix[i][k] == data_matrix[j][k] or data_matrix[i][k]==0 or data_matrix[j][k]==0:
+					no_of_same_cols += 1
+			if no_of_same_cols == no_of_snps:
+				identity_pair_ls.append([strain_acc_list[i], strain_acc_list[j]])
+	return identity_pair_ls
+
+def get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table):
+	sys.stderr.write("Getting popid2pos_size & ecotypeid2pop_id ...")
+	popid2pos_size = {}
+	ecotypeid2pop_id = {}
+	curs.execute("select popid, latitude, longitude, ecotypeid from %s where selected=1"%(popid2ecotypeid_table))
+	rows = curs.fetchall()
+	for row in rows:
+		popid, latitude, longitude, ecotypeid = row
+		if popid not in popid2pos_size:
+			popid2pos_size[popid] = [None, 0]
+		if popid2pos_size[popid][0]==None:
+			popid2pos_size[popid][0] = (latitude, longitude)
+		popid2pos_size[popid][1] += 1
+		ecotypeid2pop_id[ecotypeid] = popid
+	sys.stderr.write("Done.\n")
+	return popid2pos_size, ecotypeid2pop_id
+
+def draw_identity_map(curs, popid2ecotypeid_table, identity_pair_ls, pic_area=[-130,10,140,70], output_fname_prefix=None):
+	"""
+	2007-09-13
+		identity_pair_ls is a list of pairs of strains (ecotype id as in table ecotype)
+	"""
+	import os, sys
+	popid2pos_size, ecotypeid2pop_id = get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table)
+	
+	import pylab
+	from matplotlib.toolkits.basemap import Basemap
+	pylab.clf()
+	fig = pylab.figure()
+	fig.add_axes([0.05,0.05,0.9,0.9])	#[left, bottom, width, height]
+	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
+	resolution='l',projection='mill')
+	
+	ax=pylab.gca()
+	no_of_inter_pop_identities = 0
+	for e in identity_pair_ls:
+		e = map(int, e)
+		popid1 = ecotypeid2pop_id.get(e[0])
+		popid2 = ecotypeid2pop_id.get(e[1])
+		if popid1 and popid2 and popid1!=popid2:
+			lat1, lon1 = popid2pos_size[popid1][0]
+			lat2, lon2 = popid2pos_size[popid2][0]
+			x1, y1 = m(lon1, lat1)
+			x2, y2 = m(lon2, lat2)
+			ax.plot([x1,x2],[y1,y2], 'g', alpha=0.5, zorder=12)
+			no_of_inter_pop_identities += 1
+	
+	#m.drawcoastlines()
+	m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,0,1])
+	m.drawmeridians(pylab.arange(-180,180,30), labels=[1,1,0,1])
+	m.fillcontinents()
+	m.drawcountries()
+	m.drawstates()
+	
+	pylab.title("Inter population identity with %s"%pop2ecotype_table)
+	if output_fname_prefix:
+		pylab.savefig('%s_site_network.eps'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s_site_network.svg'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s_site_network.png'%output_fname_prefix, dpi=300)
+	return no_of_inter_pop_identities
+
+
+identity_pair_ls = construct_identity_pair_ls('stock20070829/data_row_na_col_na_bad_snps.tsv')
+no_of_inter_pop_identities = draw_identity_map(curs, popid2ecotype_table, identity_pair_ls, pic_area=[-130,10,140,70], output_fname_prefix='/tmp/identity.map')
+
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -863,3 +954,9 @@ hostname='zhoudb'
 dbname='graphdb'
 schema = 'dbsnp'
 conn, curs = db_connect(hostname, dbname, schema)
+
+hostname='localhost'
+dbname='stock20070829'
+import MySQLdb
+conn = MySQLdb.connect(db=dbname,host=hostname)
+curs = conn.cursor()
