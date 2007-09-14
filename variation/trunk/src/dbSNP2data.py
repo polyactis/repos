@@ -159,12 +159,14 @@ class dbSNP2data:
 		"""
 		2007-07-11
 			mysql version of get_strain_id_info
+		2007-09-13
+			replace "name, nativename" with "id, name"
 		"""
 		sys.stderr.write("Getting strain_id_info ..m.")
 		strain_id2acc = {}
 		strain_id2category = {}
 		for strain_id in strain_id_list:
-			curs.execute("select name, nativename from %s where id=%s"%(strain_info_table, strain_id))
+			curs.execute("select id, name from %s where id=%s"%(strain_info_table, strain_id))
 			rows = curs.fetchall()
 			acc, category = rows[0]
 			strain_id2acc[strain_id] = acc
