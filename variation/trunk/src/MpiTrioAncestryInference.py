@@ -390,10 +390,14 @@ class MpiTrioAncestryInference:
 	def output_node_handler(self, communicator, parameter_list, data):
 		"""
 		2007-03-08
+		2007-09-17
+			add strain_acc_list into the parameter_list
 		"""
-		writer = parameter_list[0]
+		writer, strain_acc_list = parameter_list
 		prediction_ls = cPickle.loads(data)
 		for row in prediction_ls:
+			for i in range(3):
+				row[i] = strain_acc_list[row[i]]
 			writer.writerow(row)
 	
 	def run(self):
@@ -433,6 +437,11 @@ class MpiTrioAncestryInference:
 			data_matrix = Numeric.array(data_matrix)
 			no_of_strains = data_matrix.shape[0]
 			(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema, password='123456', user='yuhuang')
+			
+			#2007-09-17 send strain_acc_list to the output_node
+			strain_acc_list_pickle = cPickle.dumps(strain_acc_list, -1)
+			self.communicator.send(strain_acc_list_pickle, self.communicator.size-1, 0)
+			
 			chr_start_ls = self.get_chr_start_ls(curs, snp_acc_list, self.snp_locus_table)
 			
 			chr_start_ls_pickle = cPickle.dumps(chr_start_ls, -1)	#-1 means use the highest protocol
@@ -445,6 +454,9 @@ class MpiTrioAncestryInference:
 			chr_start_ls = cPickle.loads(data)	#take the data
 			data, source, tag = self.communicator.receiveString(0, 0)
 			data_matrix = cPickle.loads(data)
+		else:
+			data, source, tag = self.communicator.receiveString(0, 0)
+			strain_acc_list = cPickle.loads(data)
 		
 		mpi_synchronize(self.communicator)
 		
@@ -458,7 +470,7 @@ class MpiTrioAncestryInference:
 			computing_node(self.communicator, parameter_list, self.computing_node_handler, report=self.report)
 		else:
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
-			parameter_list = [writer]
+			parameter_list = [writer, strain_acc_list]
 			output_node(self.communicator, free_computing_nodes, parameter_list, self.output_node_handler, self.report)
 			del writer
 		
