@@ -2,6 +2,12 @@
 \usepackage[dvips]{color,graphicx}
 \usepackage[dvips, bookmarks, colorlinks=false]{hyperref}
 \usepackage[all]{xy}
+\addtolength{\textheight}{7cm}
+\addtolength{\textwidth}{3.5cm}
+\addtolength{\hoffset}{-3cm}
+\addtolength{\voffset}{-3cm}
+
+\setlength{\parskip}{3ex plus 0.5ex minus 0.2ex}
 
 %opening
 \title{Paper}
@@ -150,28 +156,126 @@ Figure~\ref{f9} is an example showing one strain with 0 selfing generations from
 \caption{}\label{f9}
 \end{figure}
 
-\section{Estimate outcrossing rate}
-This part is still pending due to the unresolved issue regarding the geographic information of all strains.
+\section{Estimate selfing rate}
+Here gives a summary of the methods tried so far. the goal is to see whether there're major difference among different methods. the quick answer is no.
 
 \subsection{Jarne2006~\cite{Jarne2006}}
-simplest, single-locus, $F_{IS}$-based.
+simplest, single-locus, $F_{IS}$-based. $F_{IS} = 1-H_{obs}/H_e$, where $H_e$ is the expected heterozygosity, $H_e = 2pq$ and $H_{obs}$ is the observed heterozygosity. $s = 2F_{IS}/(1+F_{IS})$.
 
 \subsection{Robertson1984~\cite{Robertson1984}}
-single-locus, $F_{IS}$-based. not significantly different from Jarne2006. estimate is slightly higher than Jarne2006's.
+single-locus, $F_{IS}$-based. not significantly different from Jarne2006. estimate is slightly higher than Jarne2006's. in several cases, it gives estimate slightly over 1.
 
 \subsection{Weir1984~\cite{Weir1984}}
 single-locus, multi-loci, $F_{IS},F_{ST}$-based. The single locus estimate gives similar result to Jarne2006 or Nordborg1997. But the multi-locus gives significantly lower estimate.
 
 \subsection{Nordborg1997~\cite{Nordborg1997}}
-single-locus, colascent-based. This estimate gives value equal to Weir1984.
+single-locus, colascent-based. This estimate gives value equal to Weir1984's single-locus one.
 
+\subsection{David2007~\cite{David2007}}
+it's based on identity disequilibrium, which is an excess of heterozygotes or homozygotes across multiple loci. this method is most computing intensive and shows greatest difference.
+
+\subsection{todo}
 \begin{enumerate}
  \item Enjalbert2000~\cite{Enjalbert2000} method
- \item David2007~\cite{David2007} method
  \item Simulate data with different selfing rate and apply different algorithms to see how effective different methods are.
 \end{enumerate}
 
-How to define a population remains a question. Gao2007~\cite{Gao2007} appears to be a very interesting pertinent paper.
+How to define a population remains a question. Gao2007~\cite{Gao2007}, Pritchard2000~\cite{Pritchard2000}, Guillot2005~\cite{Guillot2005} and Francois2006~\cite{Francois2006} have interesting solutions. But before figuring out how to define populations, we just tried a simple method.
+
+\subsection{Selfing rates across globe}
+Each population is formed via connecting close sites. There's a distance (great circle distance) threshold to determine how close sites within a population should be. For each population, its data undergoes a few preprocessing procedures. 1. remove strains with $>=40\%$ NA. 2. remove snps with $>=40\%$ NA. 3. remove snps with too many heterozygous inconsistent with the strains' homozygous state (detailed in a previous section).
+
+so far 5km (120 populations), 10km (96 populations), 25km (66 populations) have been tried. The figures below are shown in this order for each particular region (England, Europe Continent, North America, Sweden).
+
+In figures below, selfing rates are estimated by Jarne2006. Other methods (except David2007's) show minor differences most of the time. we'll come to the differing parts later. Each population is labeled by selfing rate X 1000. 0 denotes not enough data to make inference (at least 5 samples/strains). The diameter of the circle corresponds to the size of the population.
+
+\subsubsection{Standard deviation of these selfing rates}
+
+Due to the fact that Jarne2006's estimate is single-locus based, the selfing rate that's put on the map is the average of all loci. For those low average selfing rates, the std (standard deviation) is also bigger, which means for most loci of that population, selfing rate estimate is pretty close to 1 and just a few with a lot of heterozygous calls which pulls down the average. However remember, bad snps with too many heterozygous inconsistent with the strains' homozygous state have already been eliminated. These ones are probably not technical errors.
+
+\subsubsection{Negative selfing rate estimates}
+In short, negative estimates are caused by the excess of heterozygosity compared to the Hardy Weinberg prediction ($2pq$). Supposedly, inbreeding would cause a deficiency of heterozygosity. Possibly due to sampling and extremely minor allele frequency, excess is observed. The identity-disequilibrium-based David2007's method doesn't suffer this problem.
+
+It's hard to see those selfing rates without significantly magnification. I have high-resolution png figures.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_25_Eng__7_49_2_55_l3y1_pop_map.eps}
+\caption{England}\label{f12}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_10_Eng__7_49_2_55_l3y1_pop_map.eps}
+\caption{England}\label{f11}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_5_Eng__7_49_2_55_l3y1_pop_map.eps}
+\caption{England}\label{f10}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_25_EurCont__10_35_20_53_l3y1_pop_map.eps}
+\caption{Europe Continent}\label{f15}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_10_EurCont__10_35_20_53_l3y1_pop_map.eps}
+\caption{Europe Continent}\label{f14}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_5_EurCont__10_35_20_53_l3y1_pop_map.eps}
+\caption{Europe Continent}\label{f13}
+\end{figure}
+
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_25_NorAm__88_38__72_45_l3y1_pop_map.eps}
+\caption{North America}\label{f18}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_10_NorAm__88_38__72_45_l3y1_pop_map.eps}
+\caption{North America}\label{f17}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_5_NorAm__88_38__72_45_l3y1_pop_map.eps}
+\caption{North America}\label{f16}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_25_Swe_10_52_20_65_l3y1_pop_map.eps}
+\caption{Sweden}\label{f21}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_10_Swe_10_52_20_65_l3y1_pop_map.eps}
+\caption{Sweden}\label{f20}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/s0829popid2ecotypeid_5_Swe_10_52_20_65_l3y1_pop_map.eps}
+\caption{Sweden}\label{f19}
+\end{figure}
+
+\subsection{identity strains across globe}
+Here is to see how identity strain pairs are distributed across globe.
+
+5002 strains with latitude and longitude. Same preprocessing procedures (removal for strains and snps with too many NAs and removal of bad highly heterozygous snp loci) applied. 4805 strains left.
+
+In total, there're 426,913 identity pairs. First check how many different kinds of identity pairs (connected components if viewing them as a graph). (will add later).
+
+281207(65.9\%) pairs are across-population for population model defined by 25km. In figure~\ref{f22}, Each population is denoted as a red dot with its diameter proportional to the number of identity pairs within that population. An edge is connected if there's identity relationship between two populations. The thickness of an edge corresponds to the number identity pairs between them.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/popid2ecotypeid_25_identity.map_site_network.eps}
+\caption{Population Identity Map}\label{f22}
+\end{figure}
+
 
 \bibliography{outcrossing}
 \bibliographystyle{plain}
