@@ -95,7 +95,7 @@ if ($_POST['_submit_check'])
       </tr>
 
         <tr>
-        <td height="30" colspan="5" align="center"><div class="style7" style="margin:10px 40px 10px 60px">People who need some special treatment of lodging, please describe below.</div></td>
+        <td height="30" colspan="5" align="center"><div class="style7" style="margin:10px 40px 10px 60px">If you need special treatment(lodging, food, etc.), please describe below.</div></td>
         </tr>
 
 	<tr>
