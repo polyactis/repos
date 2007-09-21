@@ -161,12 +161,14 @@ class dbSNP2data:
 			mysql version of get_strain_id_info
 		2007-09-13
 			replace "name, nativename" with "id, name"
+		2007-09-20
+			replace 'name' with 'nativename'
 		"""
 		sys.stderr.write("Getting strain_id_info ..m.")
 		strain_id2acc = {}
 		strain_id2category = {}
 		for strain_id in strain_id_list:
-			curs.execute("select id, name from %s where id=%s"%(strain_info_table, strain_id))
+			curs.execute("select id, nativename from %s where id=%s"%(strain_info_table, strain_id))
 			rows = curs.fetchall()
 			acc, category = rows[0]
 			strain_id2acc[strain_id] = acc
@@ -235,6 +237,8 @@ class dbSNP2data:
 			mysql version of get_data_matrix
 			
 			callhet tells whether it's heterozygous or not.
+		2007-09-20
+			upper case for callhet
 		"""
 		sys.stderr.write("Getting data_matrix ..m.\n")
 		data_matrix = num.zeros([len(strain_id2index), len(snp_id2index)])
@@ -246,6 +250,7 @@ class dbSNP2data:
 				strain_id, snp_id, call, callhet = row
 				call = call.upper()
 				if callhet:
+					callhet.upper()	#2007-09-20	just in case
 					call = call+callhet
 				if strain_id in  strain_id2index and snp_id in snp_id2index:	#2007-03-20
 					call_number = nt2number[call]
