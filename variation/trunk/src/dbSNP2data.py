@@ -129,18 +129,25 @@ class dbSNP2data:
 		2007-09-12
 			strain_info_table
 			only strains whose latitude and longitude not null
+		2007-09-22
+			solve the call-duplication problem.
 		"""
 		sys.stderr.write("Getting strain_id2index ..m.")
 		strain_id2index = {}
 		strain_id_list = []
-		curs.execute("select distinct d.ecotypeid from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null order by ecotypeid"%(input_table, strain_info_table))
+		nativename2strain_id = {}
+		curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
 		rows = curs.fetchall()
 		for row in rows:
-			strain_id = row[0]
-			strain_id_list.append(strain_id)
-			strain_id2index[strain_id] = len(strain_id2index)
+			strain_id, nativename, stockparent = row
+			nativename = nativename.upper()
+			key_pair = (nativename, stockparent)
+			if key_pair not in nativename2strain_id:
+				nativename2strain_id[key_pair] = strain_id
+				strain_id_list.append(strain_id)
+				strain_id2index[strain_id] = len(strain_id2index)
 		sys.stderr.write("Done.\n")
-		return strain_id2index, strain_id_list
+		return strain_id2index, strain_id_list, nativename2strain_id
 	
 	def get_strain_id_info(self, curs, strain_id_list, strain_info_table):
 		sys.stderr.write("Getting strain_id_info ...")
@@ -265,6 +272,81 @@ class dbSNP2data:
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
+	def get_majority_call_number(self, call_counter_ls):
+		"""
+		2007-09-22
+			return the call with maximum vote or NA
+		"""
+		index_with_max_value = num.argmax(call_counter_ls)
+		if index_with_max_value>0:	#if 0(NA) is maximum or shared-maximum (call_counter_ls=0), no need to pursue
+			for i in range(1, len(call_counter_ls)):
+				if i!=index_with_max_value and call_counter_ls[i]==call_counter_ls[index_with_max_value]:	#a shared-maximum call, can't be resolved. =>NA
+					index_with_max_value = 0
+					break
+		return index_with_max_value
+	
+	def get_nativename_snpid2call_m(self, curs, ecotype_table, calls_table):
+		"""
+		2007-09-22
+			only for ((nativename, stockparent),snpid)s with >1 calls (duplicated calls).
+		"""
+		sys.stderr.write("Checking inconsistent duplicate calls ...")
+		old_strain_snp_pair = None
+		call_counter_ls = [0]*11
+		strain_snp_pair2call_number = {}
+		duplicated_times = 0
+		curs.execute("select e.nativename, e.stockparent, c.snpid, c.call1, c.callhet from %s e, %s c where e.id=c.ecotypeid order by nativename, stockparent, snpid"%(ecotype_table, calls_table))
+		rows = curs.fetchall()
+		no_of_distinct_pairs = 0
+		no_of_duplicated_pairs = 0
+		counter = 0
+		for row in rows:
+			nativename, stockparent, snpid, call, callhet = row
+			nativename = nativename.upper()	#bug here. same name appears in >1 forms differing in cases
+			call = call.upper()
+			if callhet:
+				callhet.upper()
+				call = call+callhet
+			call_number = nt2number[call]
+			strain_snp_pair = ((nativename, stockparent), snpid)
+			if old_strain_snp_pair == None:	#1st time
+				old_strain_snp_pair = strain_snp_pair
+				duplicated_times += 1
+			elif strain_snp_pair != old_strain_snp_pair:
+				if duplicated_times > 1:	#only for duplicated calls
+					no_of_duplicated_pairs += 1
+					majority_call_number = self.get_majority_call_number(call_counter_ls)
+					strain_snp_pair2call_number[old_strain_snp_pair] = majority_call_number
+				no_of_distinct_pairs += 1
+				old_strain_snp_pair = strain_snp_pair
+				call_counter_ls = [0]*11
+				duplicated_times = 1
+			else:
+				duplicated_times += 1
+			counter += 1
+			if call_number !=0:	#dont' need NA
+				call_counter_ls[call_number] += 1	#have to be put last cuz in the 2nd condition, call_counter_ls might need to be cleared up.
+		#don't miss out the last one
+		if duplicated_times>1:	#only for duplicated calls
+			no_of_duplicated_pairs += 1
+			majority_call_number = self.get_majority_call_number(call_counter_ls)
+			strain_snp_pair2call_number[old_strain_snp_pair] = majority_call_number
+		sys.stderr.write("%s total calls. %s/%s(duplicated distinct pairs/distinct pairs). Done.\n"%(counter, no_of_duplicated_pairs, no_of_distinct_pairs))
+		return strain_snp_pair2call_number
+	
+	def fill_in_resolved_duplicated_calls(self, data_matrix, strain_id2index, snp_id2index, nativename2strain_id, nativename_snpid2call):
+		"""
+		2007-09-22
+			replace the calls in data_matrix with resolved duplicated calls
+		"""
+		sys.stderr.write("Filling in resolved duplicated calls ...")
+		for strain_snp_pair, call_number in nativename_snpid2call.iteritems():
+			strain_id = nativename2strain_id[strain_snp_pair[0]]
+			snpid = strain_snp_pair[1]
+			data_matrix[strain_id2index[strain_id]][snp_id2index[snpid]] = call_number
+		return data_matrix
+		
+	
 	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None, rows_to_be_tossed_out=Set()):
 		"""
 		2007-02-19
@@ -384,18 +466,28 @@ class dbSNP2data:
 					--find_smallest_vertex_set_to_remove_all_edges()
 			--write_data_matrix()
 			#--sort_file()
+		2007-09-22
+			for mysql_connection
+				add get_nativename_snpid2call_m()
+				add fill_in_resolved_duplicated_calls()
 		"""
+		if self.debug:
+			import pdb
+			pdb.set_trace()
 		if self.mysql_connection:
 			import MySQLdb
 			#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
 			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 			curs = conn.cursor()
 			snp_id2index, snp_id_list = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
-			strain_id2index, strain_id_list = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table)
+			strain_id2index, strain_id_list, nativename2strain_id = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table)
 			
 			strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 			snp_id2acc = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
 			data_matrix = self.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
+			nativename_snpid2call = self.get_nativename_snpid2call_m(curs, self.strain_info_table, self.input_table)
+			data_matrix = self.fill_in_resolved_duplicated_calls(data_matrix, strain_id2index, snp_id2index, nativename2strain_id, nativename_snpid2call)
+			
 		else:
 			(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 			snp_id2index, snp_id_list = self.get_snp_id2index(curs, self.input_table, self.snp_locus_table)
