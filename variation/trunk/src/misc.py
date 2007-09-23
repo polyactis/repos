@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+import os,sys
+
 """
 2007-03-05
 	add the position info given by Yan Li from Borevitz Lab
@@ -17,7 +21,9 @@ def fill_snp_locus_table_with_position_info(curs, input_fname, output_table, nee
 		curs.execute("end")
 
 
+"""
 fill_snp_locus_table_with_position_info(curs, './script/variation/data/snp_position.csv', 'dbsnp.snp_locus', need_commit=1)
+"""
 
 """
 2007-03-05
@@ -89,11 +95,13 @@ def reformat_data_for_chris(curs, input_fname, output_fname, snp_locus_table):
 		writer.writerow(new_row)
 	del writer
 
+"""
 hostname='zhoudb'
 dbname='graphdb'
 schema = 'dbsnp'
 conn, curs = db_connect(hostname, dbname, schema)
 reformat_data_for_chris(curs, '../data/justin_data_filtered.csv', '../data/justin_data_filtered_for_chris.csv', 'snp_locus')
+"""
 
 """
 2007-03-18
@@ -130,7 +138,9 @@ def TrioAncestrySummary(input_fname, output_fname):
 	del writer
 	sys.stderr.write('done\n')
 
+"""
 TrioAncestrySummary('./script/variation/data/justin_data_filtered.trio_ances', './script/variation/data/justin_data_filtered.trio_ances.summary')
+"""
 
 """
 2007-03-18
@@ -145,7 +155,9 @@ def draw_histogram_of_data_from_specified_column(input_fname, column=-1, no_of_b
 	pylab.hist(data_ls, no_of_bins)
 	pylab.show()
 
+"""
 draw_histogram_of_data_from_specified_column('./script/variation/data/justin_data_filtered.trio_ances.summary', 1)
+"""
 
 """
 2007-03-19
@@ -253,7 +265,9 @@ def DrawStrainSNP_NA_PercHist(data_matrix_fname, output_fname, need_savefig=0):
 		pylab.savefig('%s_SNP_NA_perc.png'%output_fname, dpi=300)
 	pylab.show()
 
+"""
 DrawStrainSNP_NA_PercHist('./script/variation/data/justin_data_y.csv', './script/variation/data/justin_data_y', 1)
+"""
 
 def DrawStrain_Heterozygotes_PercHist(data_matrix_fname, output_fname, need_savefig=0):
 	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
@@ -276,7 +290,9 @@ def DrawStrain_Heterozygotes_PercHist(data_matrix_fname, output_fname, need_save
 		pylab.savefig('%s_strain_hz_perc.png'%output_fname, dpi=300)
 	pylab.show()
 
+"""
 DrawStrain_Heterozygotes_PercHist('./script/variation/data/justin_data_y.csv', './script/variation/data/justin_data_y', 1)
+"""
 
 """
 2007-03-21
@@ -318,7 +334,9 @@ def DrawDistanceHistogram(data_matrix_fname, output_fname, need_savefig=0):
 	pylab.show()
 	return distance_matrix
 
+"""
 distance_matrix = DrawDistanceHistogram('./script/variation/data/justin_data_filtered.csv', './script/variation/data/justin_data_filtered' , 1)
+"""
 
 """
 2007-03-21
@@ -363,7 +381,9 @@ def cal_trio_stat(trio_ances_fname, distance_matrix, output_fname, pic_fname_pre
 	pylab.show()
 	return triplet2trio_stat
 
+"""
 triplet2trio_stat = cal_trio_stat('./script/variation/data/justin_data_filtered.trio_ances', distance_matrix, './script/variation/data/justin_data_filtered.trio_ances.trio_stat', './script/variation/data/justin_data_filtered.trio_ances', need_savefig=1, report=1)
+"""
 
 """
 2007-03-28
@@ -381,7 +401,9 @@ def strip_2010_strain_info(input_fname, output_fname):
 		writer.writerow(row)
 	del reader, writer
 
+"""
 strip_2010_strain_info('./script/variation/data/2010/2010_strain_info.csv', './script/variation/data/2010/2010_strain_info_stripped.csv')
+"""
 
 """
 2007-04-09
@@ -446,9 +468,10 @@ def find_SNP_context(curs, snp_locus_table, snp_locus_context_table, entrezgene_
 	if need_commit:
 		curs.execute("end")
 
-
+"""
 conn, curs = db_connect(hostname, dbname, schema)
 find_SNP_context(curs, 'snp_locus', 'snp_locus_context', need_commit=1)
+"""
 
 """
 2007-04-30
@@ -497,14 +520,14 @@ def blast_snp_segment(curs, snp_locus_table, output_fname, database_fname, flank
 		counter += 1
 	del outf
 
-
+"""
 my_blast_db = os.path.expanduser("~/bin/blast/db/Arabidopsis_thaliana.main_genome.fasta")
 blast_snp_segment(curs, 'snp_locus', './blast_149snps_vs_thaliana_len_25.txt', my_blast_db)
 
 
 my_blast_db = os.path.expanduser("~/bin/blast/db/Arabidopsis_lyrata.main_genome.scaffolds.fasta")
 blast_snp_segment(curs, 'snp_locus', './blast_149snps_vs_lyrata_len_51.txt', my_blast_db, flanking_seq_length=25)
-
+"""
 
 """
 2007-04-30
@@ -531,7 +554,9 @@ def fill_snp_locus_table_with_25mer_thaliana_call(curs, snp_locus_table, annot_a
 	if need_commit:
 		curs.execute("end")
 
+"""
 fill_snp_locus_table_with_25mer_thaliana_call(curs, 'dbsnp.snp_locus', need_commit=1)
+"""
 
 #2007-06-17 function to calculate the great circle distance of a sphere given latitude and longitude
 # http://en.wikipedia.org/wiki/Great-circle_distance
@@ -596,12 +621,14 @@ def cal_pairwise_distance_of_strains():
 	pylab.title("histogram of distances between %s strains(km)"%no_of_sites)
 	pylab.show()
 
+"""
 #2007-06-18, calll cal_great_circle_distance()
 import MySQLdb
 conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
 cursor = conn.cursor()
-cursor.execute("""select latitude, longitude from ecotype where latitude is not null and longitude is not null""")
+cursor.execute("select latitude, longitude from ecotype where latitude is not null and longitude is not null")
 lat_lon_ls = cursor.fetchall()
+"""
 
 def divide_data_by_geography(cursor, lat_lon_ls, max_dist=100):
 	import sys, os
@@ -712,141 +739,10 @@ def DrawStrainNetwork(g, node_label2pos_counts,pic_area=[-180,-90,180,90]):
 	pylab.show()
 	sys.stderr.write("Done.\n")
 
-"""
-2007-09-11 compare calls between justin genotype array and perlegen data
-"""
-def get_SNP_probe_ls(snp_loci_fname):
-	from common import nt2number, number2nt
-	import Numeric
-	import csv, sys, os
-	sys.stderr.write("Reading snp loci data ...")
-	SNP_probe_ls = []
-	SNP_loci2index = {}
-	reader = csv.reader(open(snp_loci_fname), delimiter='\t')
-	reader.next()	#skip header
-	for row in reader:
-		chr, pos, allele = row[3:6]
-		SNP_probe_ls.append([int(chr), int(pos), allele])
-		SNP_loci = (int(chr), int(pos))
-		if SNP_loci not in SNP_loci2index:	#every 4 probes, a new locus
-			SNP_loci2index[SNP_loci] = len(SNP_loci2index)
-	del reader
-	sys.stderr.write("Done.\n")
-	return SNP_probe_ls, SNP_loci2index
-
-def get_strain2index(ordered_20_strain_fname):
-	from common import nt2number, number2nt
-	import Numeric
-	import csv, sys, os
-	sys.stderr.write("Getting strain2index ...")
-	strain2index = {}
-	reader = csv.reader(open(ordered_20_strain_fname), delimiter='\t')
-	for row in reader:
-		strain_name = row[0].strip()[:-1]
-		strain2index[strain_name] = len(strain2index)
-	del reader
-	sys.stderr.write("Done.\n")
-	return strain2index
-
-def get_perlegen_call_matrix(SNP_loci2index, strain2index, perlegen_raw_fname):
-	from common import nt2number, number2nt
-	import Numeric
-	import csv, sys, os
-	sys.stderr.write("Reading perlegen data matrix ...")
-	perlegen_call_matrix = Numeric.zeros([len(SNP_loci2index), len(strain2index)])
-	reader = csv.reader(open(perlegen_raw_fname), delimiter=',')
-	reader.next()	#skip the header
-	for row in reader:
-		chr, pos = row[1:3]
-		calls = row[9]
-		SNP_loci = (int(chr), int(pos))
-		if SNP_loci in SNP_loci2index:
-			index = SNP_loci2index[SNP_loci]
-			for i in range(len(calls)):
-				perlegen_call_matrix[index][i] = nt2number[calls[i]]
-	del reader
-	sys.stderr.write("Done.\n")
-	return perlegen_call_matrix
-
-def make_simple_justin_calls(SNP_loci2index, intensity_col_name_ls, SNP_intensity_matrix_fname, SNP_probe_ls):
-	from common import nt2number, number2nt
-	import Numeric
-	import csv, sys, os
-	sys.stderr.write("Making simple calls on justin data ...")
-	justin_call_matrix = Numeric.zeros([len(SNP_loci2index), len(intensity_col_name_ls)])
-	reader= csv.reader(open(SNP_intensity_matrix_fname), delimiter='\t')
-	probe_count_looper = 0
-	SNP_locus_counter = 0
-	justin_intensity_4probe_matrix = Numeric.zeros([4, len(intensity_col_name_ls)])
-	reader.next()	#skip header
-	for row in reader:
-		row = map(int, row[1:])
-		justin_intensity_4probe_matrix[probe_count_looper] = row
-		probe_count_looper += 1
-		if probe_count_looper==4:	#one SNP locus every 4 probes
-			probe_count_looper = 0
-			for i in range(len(intensity_col_name_ls)):
-				if justin_intensity_4probe_matrix[0][i]>justin_intensity_4probe_matrix[2][i] and justin_intensity_4probe_matrix[1][i]>justin_intensity_4probe_matrix[3][i]:
-					justin_call_matrix[SNP_locus_counter][i] = nt2number[SNP_probe_ls[SNP_locus_counter*4][2]]
-				elif justin_intensity_4probe_matrix[0][i]<justin_intensity_4probe_matrix[2][i] and justin_intensity_4probe_matrix[1][i]<justin_intensity_4probe_matrix[3][i]:
-					justin_call_matrix[SNP_locus_counter][i] = nt2number[SNP_probe_ls[SNP_locus_counter*4+2][2]]
-			SNP_locus_counter += 1
-	del reader
-	sys.stderr.write("Done.\n")
-	return justin_call_matrix
-
-snp_loci_fname = '/tmp/snp'
-ordered_20_strain_fname = '/Network/Servers/oak.usc.edu/Volumes/RAID/Data/Perlegen_data/tmp'
-perlegen_raw_fname = '/Network/Servers/oak.usc.edu/Volumes/RAID/Data/Perlegen_data/all.perlegen.snps'
-intensity_col_name_ls = ['col', 'col', 'ler', 'ler', 'van', 'van']	#for yanli_8-8-07
-SNP_intensity_matrix_fname = '/tmp/yanli_8-8-07.rawdata'	#this is the raw data read by readcel_raw() from readcel.R
-
-SNP_probe_ls, SNP_loci2index = get_SNP_probe_ls(snp_loci_fname)
-strain2index = get_strain2index(ordered_20_strain_fname)
-perlegen_call_matrix = get_perlegen_call_matrix(SNP_loci2index, strain2index, perlegen_raw_fname)
-justin_call_matrix = make_simple_justin_calls(SNP_loci2index, intensity_col_name_ls, SNP_intensity_matrix_fname, SNP_probe_ls)
-
-SNP_intensity_matrix_fname = '/tmp/6atSNPtilxarrays8-29-07.rawdata'	#for 6 at SNPtilx arrays 8-29-07
-intensity_col_name_ls = ['bay', 'bor', 'br', 'bur', 'c24', 'col']
-justin_call_matrix2 = make_simple_justin_calls(SNP_loci2index, intensity_col_name_ls, SNP_intensity_matrix_fname, SNP_probe_ls)
-
-def compare_SNPcalls(strain2index, perlegen_call_matrix, justin_call_matrix, intensity_col_name_ls):
-	from common import nt2number, number2nt
-	import Numeric
-	import csv, sys, os
-	
-	for j in range(len(intensity_col_name_ls)):
-		perlegen_col_index = strain2index[intensity_col_name_ls[j]]
-		diff_tag2counter = {}
-		diff_tag_dict = {
-			'NA_vs_NA':2,
-			'NA_vs_call':3,
-			'call_vs_NA':4,
-			'call_ineq_call':5,
-			'call_eq_call':6}	#the value is not useful here
-		for tag in diff_tag_dict:
-			diff_tag2counter[tag] = 0
-		for i in range(len(SNP_loci2index)):
-			if perlegen_call_matrix[i,perlegen_col_index]==0 and justin_call_matrix[i,j]==0:
-				tag = 'NA_vs_NA'
-			elif perlegen_call_matrix[i,perlegen_col_index]==0 and justin_call_matrix[i,j]!=0:
-				tag = 'NA_vs_call'
-			elif perlegen_call_matrix[i,perlegen_col_index]!=0 and justin_call_matrix[i,j]==0:
-				tag = 'call_vs_NA'
-			elif perlegen_call_matrix[i,perlegen_col_index] != justin_call_matrix[i,j]:
-				tag = 'call_ineq_call'
-			elif perlegen_call_matrix[i,perlegen_col_index] == justin_call_matrix[i,j]:
-				tag = 'call_eq_call'
-			diff_tag2counter[tag] += 1
-		print diff_tag2counter
-		total_calls = len(SNP_loci2index)
-		for tag in diff_tag2counter:
-			print tag, ':', float(diff_tag2counter[tag])/total_calls
-
 
 """
 2007-09-13
-following functions to draw a map of inter-population identity
+following functions to investigate inter/intra-population identity
 """
 def construct_identity_pair_ls(input_fname):
 	"""
@@ -869,7 +765,116 @@ def construct_identity_pair_ls(input_fname):
 				identity_pair_ls.append([strain_acc_list[i], strain_acc_list[j]])
 	return identity_pair_ls
 
+def construct_graph_out_of_identity_pair(identity_pair_ls):
+	"""
+	2007-09-18
+		construct a graph based on identity pairs in identity_pair_ls
+		identity_pair_ls's entries will be converted to integers
+	"""
+	sys.stderr.write("Constructing graph out of identity_pair_ls ...")
+	import networkx as nx
+	g = nx.XGraph()
+	for identity_pair in identity_pair_ls:
+		identity_pair = map(int, identity_pair)
+		g.add_edge(identity_pair[0], identity_pair[1], 1)
+	sys.stderr.write("Done.\n")
+	return g
+
+def construct_site_graph_out_of_strain_graph(g, ecotypeid2pos):
+	"""
+	2007-09-20
+		#reduce the drawing by omitting identical edges (linking same GPS positions), construct a graph whose node is (lat,lon) and then plot this graph.
+	"""
+	sys.stderr.write("Constructing site graph out of strain graph...")
+	site2pos = {}
+	site2weight = {}
+	import networkx as nx
+	site_g = nx.XGraph()
+	for e in g.edges():
+		pos1 = (round(ecotypeid2pos[e[0]][0],2), round(ecotypeid2pos[e[0]][1],2))
+		pos2 = (round(ecotypeid2pos[e[1]][0],2), round(ecotypeid2pos[e[1]][1],2))
+		if pos1 not in site2weight:
+			site2weight[pos1] = 0
+		site2weight[pos1] += 1
+		if pos2 not in site2weight:
+			site2weight[pos2] = 0
+		site2weight[pos2] += 1
+		if pos1==pos2:
+			site_g.add_node(pos1)
+		else:
+			if not site_g.has_edge(pos1, pos2):
+				site_g.add_edge(pos1, pos2, 0)
+			site_g.adj[pos1][pos2] += 1
+			site_g.adj[pos2][pos1] += 1
+	
+	for n in site_g:
+		site2pos[n] = n
+	sys.stderr.write("Done.\n")
+	return site_g, site2weight, site2pos
+
+def display_matrix_of_component(input_fname, ecotypeid_ls, ecotypeid2pos, output_fname=None, need_sort=0, need_savefig=0):
+	"""
+	2007-09-20
+		display the data from that component
+		
+	"""
+	import csv, Numeric, pylab
+	cc_ecotypeid_pos = []
+	for ecotypeid in ecotypeid_ls:
+		cc_ecotypeid_pos.append(ecotypeid2pos[ecotypeid])
+	import numpy
+	argsort_index = numpy.argsort(cc_ecotypeid_pos, 0)	#watch it's two dimensional
+	ecotypeid2row_index = {}
+	ytick_label_ls = []
+	cc_size = len(ecotypeid_ls)
+	for i in range(cc_size):
+		ecotypeid_ls_index = argsort_index[i][1]	#sort based on longitude
+		ecotypeid = ecotypeid_ls[ecotypeid_ls_index]
+		ecotypeid2row_index[ecotypeid] = i
+		ytick_label_ls.append('%s (%.2f, %.2f)'%(ecotypeid, ecotypeid2pos[ecotypeid][0], ecotypeid2pos[ecotypeid][1]))
+	reader = csv.reader(open(input_fname), delimiter='\t')
+	header = reader.next()
+	data_matrix = [0]*cc_size
+	for row in reader:
+		ecotypeid = int(row[0])
+		if ecotypeid in ecotypeid2row_index:
+			data_row = row[2:]
+			data_row = map(int, data_row)
+			data_matrix[ecotypeid2row_index[ecotypeid]] = data_row
+	del reader
+	data_matrix.reverse()	#2007-03-06 reverse() due to the imshow()'s y axis starting from bottom
+	if need_sort:
+		data_matrix.sort()
+	data_matrix = Numeric.array(data_matrix)
+	
+	pylab.clf()
+	pylab.imshow(data_matrix, aspect='auto', interpolation='nearest')	#2007-06-05
+	pylab.colorbar()
+	pylab.yticks(range(cc_size), ytick_label_ls)
+	if need_savefig:
+		pylab.savefig('%s.eps'%output_fname, dpi=300)
+		pylab.savefig('%s.svg'%output_fname, dpi=300)
+		pylab.savefig('%s.png'%output_fname, dpi=300)
+	pylab.show()
+
+def get_ecotypeid2pos(curs, ecotype_table):
+	"""
+	2007-09-18
+	"""
+	sys.stderr.write("Getting ecotypeid2pos from %s ..."%ecotype_table)
+	ecotypeid2pos = {}
+	curs.execute("select id, latitude, longitude from %s where latitude is not null and longitude is not null"%ecotype_table)
+	rows = curs.fetchall()
+	for row in rows:
+		ecotypeid, latitude, longitude = row
+		ecotypeid2pos[ecotypeid] = (latitude, longitude)
+	sys.stderr.write("Done.\n")
+	return ecotypeid2pos
+
 def get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table):
+	"""
+	2007-09-13
+	"""
 	sys.stderr.write("Getting popid2pos_size & ecotypeid2pop_id ...")
 	popid2pos_size = {}
 	ecotypeid2pop_id = {}
@@ -886,15 +891,49 @@ def get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table):
 	sys.stderr.write("Done.\n")
 	return popid2pos_size, ecotypeid2pop_id
 
-def draw_identity_map(curs, popid2ecotypeid_table, identity_pair_ls, pic_area=[-130,10,140,70], output_fname_prefix=None):
+def construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls):
+	"""
+	2007-09-18
+	"""
+	import os, sys
+	popid2pos_size, ecotypeid2pop_id = get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table)
+	
+	no_of_inter_pop_identities = 0
+	no_of_valid_identities = 0	#valid means both strains belong to some population
+	import networkx as nx
+	g = nx.XGraph()
+	popid2intra_pop_connections = {}
+	for e in identity_pair_ls:
+		e = map(int, e)
+		popid1 = ecotypeid2pop_id.get(e[0])
+		popid2 = ecotypeid2pop_id.get(e[1])
+		if popid1 and popid2:	#both are classified into populations
+			no_of_valid_identities += 1
+			if popid1 not in popid2intra_pop_connections:
+				popid2intra_pop_connections[popid1] = 0
+				g.add_node(popid1)
+			if popid2 not in popid2intra_pop_connections:
+				popid2intra_pop_connections[popid2] = 0
+				g.add_node(popid2)
+			if popid1!=popid2:
+				if not g.has_edge(popid1, popid2):
+					g.add_edge(popid1, popid2, 0)
+				g.adj[popid1][popid2] += 1	#increase the edge weight
+				g.adj[popid2][popid1] += 1
+				no_of_inter_pop_identities += 1
+			else:
+				popid2intra_pop_connections[popid1] += 1
+	print '%s/%s=%s inter population identities'%(no_of_inter_pop_identities, no_of_valid_identities, float(no_of_inter_pop_identities)/no_of_valid_identities)
+	return g, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id
+
+def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,140,70], output_fname_prefix=None):
 	"""
 	2007-09-13
 		identity_pair_ls is a list of pairs of strains (ecotype id as in table ecotype)
 	"""
 	import os, sys
-	popid2pos_size, ecotypeid2pop_id = get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table)
-	
-	import pylab
+	sys.stderr.write("Drawing graph on a map ...\n")
+	import pylab, math
 	from matplotlib.toolkits.basemap import Basemap
 	pylab.clf()
 	fig = pylab.figure()
@@ -903,18 +942,28 @@ def draw_identity_map(curs, popid2ecotypeid_table, identity_pair_ls, pic_area=[-
 	resolution='l',projection='mill')
 	
 	ax=pylab.gca()
-	no_of_inter_pop_identities = 0
-	for e in identity_pair_ls:
-		e = map(int, e)
-		popid1 = ecotypeid2pop_id.get(e[0])
-		popid2 = ecotypeid2pop_id.get(e[1])
-		if popid1 and popid2 and popid1!=popid2:
-			lat1, lon1 = popid2pos_size[popid1][0]
-			lat2, lon2 = popid2pos_size[popid2][0]
-			x1, y1 = m(lon1, lat1)
-			x2, y2 = m(lon2, lat2)
-			ax.plot([x1,x2],[y1,y2], 'g', alpha=0.5, zorder=12)
-			no_of_inter_pop_identities += 1
+	
+	sys.stderr.write("\tDrawing nodes ...")
+	euc_coord1_ls = []
+	euc_coord2_ls = []
+	diameter_ls = []
+	for n in g.nodes():
+		lat, lon = node2pos[n]
+		euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
+		euc_coord1_ls.append(euc_coord1)
+		euc_coord2_ls.append(euc_coord2)
+		diameter_ls.append(node2weight[n])
+	m.scatter(euc_coord1_ls, euc_coord2_ls, diameter_ls, marker='o', color='r', alpha=0.4, zorder=12, faceted=False)
+	sys.stderr.write("Done.\n")
+	
+	sys.stderr.write("\tDrawing edges ...")
+	for popid1, popid2, no_of_connections in g.edges():
+		lat1, lon1 = node2pos[popid1]
+		lat2, lon2 = node2pos[popid2]
+		x1, y1 = m(lon1, lat1)
+		x2, y2 = m(lon2, lat2)
+		ax.plot([x1,x2],[y1,y2], 'g', linewidth=math.log(no_of_connections+1)/2, alpha=0.2, zorder=10)
+	sys.stderr.write("Done.\n")
 	
 	#m.drawcoastlines()
 	m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,0,1])
@@ -923,16 +972,154 @@ def draw_identity_map(curs, popid2ecotypeid_table, identity_pair_ls, pic_area=[-
 	m.drawcountries()
 	m.drawstates()
 	
-	pylab.title("Inter population identity with %s"%pop2ecotype_table)
+	pylab.title(pic_title)
 	if output_fname_prefix:
-		pylab.savefig('%s_site_network.eps'%output_fname_prefix, dpi=300)
-		pylab.savefig('%s_site_network.svg'%output_fname_prefix, dpi=300)
-		pylab.savefig('%s_site_network.png'%output_fname_prefix, dpi=300)
-	return no_of_inter_pop_identities
+		pylab.savefig('%s_site_network.eps'%output_fname_prefix, dpi=600)
+		pylab.savefig('%s_site_network.svg'%output_fname_prefix, dpi=600)
+		pylab.savefig('%s_site_network.png'%output_fname_prefix, dpi=600)
+	sys.stderr.write("Done.\n")
+"""
+input_fname = 'script/variation/stock20070829/data_row_na_col_na_bad_snps.tsv'
+identity_pair_ls = construct_identity_pair_ls(input_fname)
+popid2ecotypeid_table = 'popid2ecotypeid_25'
+pop_iden_g, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id = construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls)
+
+popid2pos = {}
+for popid, pos_size in popid2pos_size.iteritems():
+	popid2pos[popid] = pos_size[0]
+
+import math
+popid2weight = {}
+for popid, intra_pop_connections in popid2intra_pop_connections.iteritems():
+	popid2weight[popid] = 8*math.log(intra_pop_connections+1)
+
+draw_graph_on_map(pop_iden_g, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, pic_area=[-130,34,35,65], output_fname_prefix='/tmp/identity.map')
 
 
-identity_pair_ls = construct_identity_pair_ls('stock20070829/data_row_na_col_na_bad_snps.tsv')
-no_of_inter_pop_identities = draw_identity_map(curs, popid2ecotype_table, identity_pair_ls, pic_area=[-130,10,140,70], output_fname_prefix='/tmp/identity.map')
+strain_iden_g = construct_graph_out_of_identity_pair(identity_pair_ls)
+ecotypeid2pos = get_ecotypeid2pos(curs, 'ecotype')
+ecotypeid2weight = {}
+for n in strain_iden_g:
+	ecotypeid2weight[n] = 1
+
+import networkx as nx
+strain_iden_g_cc = nx.connected_components(strain_iden_g)
+
+i=11
+
+
+for i in range(len(strain_iden_g_cc)):
+	gs = strain_iden_g.subgraph(strain_iden_g_cc[i])
+	site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos)
+	for site, weight in site2weight.iteritems():
+		site2weight[site] =  8*math.log(weight+1)
+	display_matrix_of_component(input_fname, strain_iden_g_cc[i], ecotypeid2pos, output_fname='ecotype identity map cc%s'%i, need_sort=0, need_savefig=1)
+	draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s'%i, pic_area=[-130,34,35,65], output_fname_prefix='ecotype_identity_cc%s'%i)
+"""
+
+
+"""
+2007-09-17
+	check allele frequency
+"""
+def cal_maf_vector(input_fname):
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	import Numeric
+	data_matrix = Numeric.array(data_matrix)
+	from EstimateSelfingGeneration import EstimateSelfingGeneration
+	EstimateSelfingGeneration_instance = EstimateSelfingGeneration()
+	locus_allele_prob_vector = EstimateSelfingGeneration_instance.cal_locus_allele_prob_vector(data_matrix)
+	maf_vector = Numeric.zeros(locus_allele_prob_vector.shape[0], Numeric.Float)	#the minor allele frequency vector
+	for i in range(locus_allele_prob_vector.shape[0]):
+		maf_vector[i] = min(locus_allele_prob_vector[i])
+	import pylab
+	pylab.hist(maf_vector, 10)
+	return maf_vector
+"""
+input_fname = 'script/variation/stock20070829/data_row_na_col_na_bad_snps.tsv'
+maf_vector = cal_maf_vector(input_fname)
+import pylab
+pylab.clf()
+pylab.plot(range(len(maf_vector)), maf_vector)
+"""
+
+"""
+2007-09-21
+	check duplicate calls in the database
+"""
+def check_inconsistent_duplicate_calls(curs, ecotype_table, calls_table, debug=0):
+	sys.stderr.write("Checking inconsistent duplicate calls ...\n")
+	from common import nt2number
+	no_of_strain_snp_pairs = 0
+	no_of_inconsistent = 0
+	inconsistency = 0
+	old_call_number = 0
+	old_strain_snp_pair = None
+	curs.execute("select e.nativename, c.snpid, c.call1, c.callhet from %s e, %s c where e.id=c.ecotypeid order by nativename, snpid"%(ecotype_table, calls_table))
+	rows = curs.fetchall()
+	counter = 0
+	from sets import Set
+	strain_snp_pair_set = Set()
+	inconsistent_dup_strain_snp_pair_set = Set()
+	if debug:
+		import pdb
+		pdb.set_trace()
+	for row in rows:
+		nativename, snpid, call, callhet = row
+		nativename = nativename.upper()	#bug here. same name appears in >1 forms differing in cases
+		call = call.upper()
+		if callhet:
+			callhet.upper()
+			call = call+callhet
+		call_number = nt2number[call]
+		strain_snp_pair = (nativename, snpid)
+		if strain_snp_pair != old_strain_snp_pair:
+			no_of_strain_snp_pairs += 1
+			no_of_inconsistent += inconsistency
+			if inconsistency == 1:
+				inconsistent_dup_strain_snp_pair_set.add(old_strain_snp_pair)
+			old_strain_snp_pair = strain_snp_pair
+			inconsistency = 0
+		else:
+			if inconsistency == 0 and old_call_number!=0 and call_number!=0 and old_call_number!=call_number:	#if inconsistency==1, don't change it. comparison only between same pairs
+				inconsistency = 1
+		old_call_number = call_number
+		counter += 1
+		strain_snp_pair_set.add(strain_snp_pair)
+	#don't miss out the last one
+	no_of_inconsistent += inconsistency
+	old_strain_snp_pair = strain_snp_pair
+	sys.stderr.write('%s%s'%('\x08'*20, counter))
+	sys.stderr.write("\nDone.\n")
+	print "%s strain snp pairs"%(len(strain_snp_pair_set))
+	print 'inconsistent ratio: %s/%s=%s'%(no_of_inconsistent, no_of_strain_snp_pairs, float(no_of_inconsistent)/no_of_strain_snp_pairs)
+	return strain_snp_pair_set, inconsistent_dup_strain_snp_pair_set
+
+
+def get_nativename_snp_distinct_set(curs, ecotype_table, calls_table):
+	"""
+	2007-09-22 find out the bug caused by the case-insensitive problem of sql.
+	"""
+	curs.execute("select distinct e.nativename, c.snpid from %s e, %s c where e.id=c.ecotypeid" %(ecotype_table, calls_table))
+	from sets import Set
+	strain_snp_pair_set = Set()
+	rows = curs.fetchall()
+	for row in rows:
+		nativename, snpid = row
+		strain_snp_pair = (nativename, snpid)
+		strain_snp_pair_set.add(strain_snp_pair)
+	return strain_snp_pair_set
+"""
+ecotype_table = 'ecotype'
+calls_table = 'calls'
+strain_snp_pair_set, inconsistent_dup_strain_snp_pair_set = check_inconsistent_duplicate_calls(curs, ecotype_table, calls_table, debug=1)
+
+nativename_snp_distinct_set = get_nativename_snp_distinct_set(curs, ecotype_table, calls_table)
+
+strain_snp_pair_set - nativename_snp_distinct_set gives 1937 different pairs. turns out that sql's "distinct e.nativename, c.snpid" ignores the cases , like Kz-9 and KZ-9 are same. however python doesn't do that.
+"""
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
@@ -953,10 +1140,21 @@ schema = 'dbsnp'
 hostname='zhoudb'
 dbname='graphdb'
 schema = 'dbsnp'
-conn, curs = db_connect(hostname, dbname, schema)
+#conn, curs = db_connect(hostname, dbname, schema)
 
 hostname='localhost'
 dbname='stock20070829'
 import MySQLdb
+conn0 = MySQLdb.connect(db=dbname,host=hostname)
+curs0 = conn0.cursor()
+
+hostname='localhost'
+dbname='stock20070919'
+import MySQLdb
 conn = MySQLdb.connect(db=dbname,host=hostname)
 curs = conn.cursor()
+
+if __name__ == '__main__':
+	ecotype_table = 'ecotype'
+	calls_table = 'calls'
+	strain_snp_pair_set, inconsistent_dup_strain_snp_pair_set = check_inconsistent_duplicate_calls(curs, ecotype_table, calls_table, debug=1)
