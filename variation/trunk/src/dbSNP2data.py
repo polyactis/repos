@@ -10,10 +10,8 @@ Option:
 	-o ...,	output file
 	-s ...,	strain_info table, 'strain_info'(default), 'ecotype'
 	-n ...,	snp_locus_table, 'snp_locus'(default), 'snps'
-	-t,	toss out rows to make distance matrix NA free
-	-y,	need heterozygous call
-	-w,	with header line
-	-a,	use alphabet to represent nucleotide, not number
+	-y ...,	processing bits to control which processing step should be turned on.
+		default is 10101101. for what each bit stands, see Description.
 	-m,	mysql connection, change dbname and hostname
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -22,14 +20,38 @@ Option:
 Examples:
 	dbSNP2data.py -i justin_data -o justin_data.csv -r
 	
-	dbSNP2data.py -i justin_data -o justin_data.csv -r -w -t
+	dbSNP2data.py -i justin_data -o justin_data.csv -r -t
 	
-	dbSNP2data.py -i calls -o /tmp/chicago.data.y -y -s ecotype -n snps -w -m
+	dbSNP2data.py -i calls -o /tmp/chicago.data.y -s ecotype -n snps -m
 	
-	dbSNP2data.py -z localhost -d stock20070829 -i calls -o stock20070829/data.tsv -s ecotype -n snps -y -w -m
+	dbSNP2data.py -z localhost -d stock20070829 -i calls -o stock20070829/data.tsv -s ecotype -n snps -m
+	
+	dbSNP2data.py -z localhost -d stock20070919 -i calls -o /tmp/data.tsv -s ecotype -n snps -m
+	
+	#to see how many all-NA strains were discarded
+	dbSNP2data.py -z localhost -d stock20070919 -i calls -o /tmp/data10101100.tsv -s ecotype -n snps -m -y 10101100
+	
+	#all strains, but resolve duplicated (nativename, stockparent)s
+	dbSNP2data.py -z localhost -d stock20070919 -i calls -o /tmp/data00101100.tsv -s ecotype -n snps -m -y 00101100
+	
+	#output data for all ecotypeid. however duplicated calls with same ecotypeid are imputed randomly
+	dbSNP2data.py -z localhost -d stock20070919 -i calls -o /tmp/data00001100.tsv -s ecotype -n snps -m -y 00001100
+
 Description:
 	output SNP data from database schema
 	
+	definition of each bit in processing_bits (0=off, 1=on)
+	1. only include strains with GPS info
+	2. include columns of other strain info (latitude, longitude, stockparent, site, country)
+	3. resolve duplicated calls (unique constraint on (nativename, stockparent))
+	4. toss out rows to make distance matrix NA free
+	5. need heterozygous call
+	6. with header line
+	7. use alphabet to represent nucleotide, not number
+	8. discard strains with all-NA data
+	
+	you can specify the bits up to the one you want to change and omit the rest. i.e.
+	-y 11
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -51,13 +73,14 @@ class dbSNP2data:
 	"""
 	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_table=None, \
 		output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus', \
-		organism='hs', toss_out_rows=0, need_heterozygous_call=0, with_header_line=0, nt_alphabet=0, \
-		mysql_connection=0, debug=0, report=0):
+		organism='hs', processing_bits='10101101', mysql_connection=0, debug=0, report=0):
 		"""
 		2007-02-25
 			add argument toss_out_rows
 		2007-07-11
 			add mysql_connection
+		2007-09-23
+			use processing_bits to control processing steps
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -67,10 +90,23 @@ class dbSNP2data:
 		self.strain_info_table = strain_info_table
 		self.snp_locus_table = snp_locus_table
 		#self.tax_id = org2tax_id(org_short2long(organism))
-		self.toss_out_rows = int(toss_out_rows)
-		self.need_heterozygous_call = int(need_heterozygous_call)
-		self.with_header_line = int(with_header_line)
-		self.nt_alphabet = int(nt_alphabet)
+		self.processing_bits = processing_bits
+		
+		#below are all default values
+		processing_bits_ls = [1,0,1,0,1,1,0,1]
+		
+		for i in range(len(processing_bits)):
+			processing_bits_ls[i] = int(processing_bits[i])
+		#now pass all values
+		self.only_include_strains_with_GPS,\
+		self.include_other_strain_info,\
+		self.resolve_duplicated_calls,\
+		self.toss_out_rows,\
+		self.need_heterozygous_call,\
+		self.with_header_line,\
+		self.nt_alphabet,\
+		self.discard_all_NA_strain = processing_bits_ls
+		
 		self.mysql_connection = int(mysql_connection)
 		self.debug = int(debug)
 		self.report = int(report)
@@ -122,7 +158,7 @@ class dbSNP2data:
 		sys.stderr.write("Done.\n")
 		return strain_id2index, strain_id_list
 	
-	def get_strain_id2index_m(self, curs, input_table, strain_info_table):
+	def get_strain_id2index_m(self, curs, input_table, strain_info_table, only_include_strains_with_GPS=0, resolve_duplicated_calls=0):
 		"""
 		2007-07-11
 			mysql version of get_strain_id2index
@@ -131,19 +167,28 @@ class dbSNP2data:
 			only strains whose latitude and longitude not null
 		2007-09-22
 			solve the call-duplication problem.
+		2007-09-23
+			add only_include_strains_with_GPS and resolve_duplicated_calls
 		"""
 		sys.stderr.write("Getting strain_id2index ..m.")
 		strain_id2index = {}
 		strain_id_list = []
 		nativename2strain_id = {}
-		curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
+		if only_include_strains_with_GPS:
+			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
+		else:
+			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
 		rows = curs.fetchall()
 		for row in rows:
 			strain_id, nativename, stockparent = row
 			nativename = nativename.upper()
-			key_pair = (nativename, stockparent)
-			if key_pair not in nativename2strain_id:
-				nativename2strain_id[key_pair] = strain_id
+			if resolve_duplicated_calls:
+				key_pair = (nativename, stockparent)
+				if key_pair not in nativename2strain_id:
+					nativename2strain_id[key_pair] = strain_id
+					strain_id_list.append(strain_id)
+					strain_id2index[strain_id] = len(strain_id2index)
+			else:
 				strain_id_list.append(strain_id)
 				strain_id2index[strain_id] = len(strain_id2index)
 		sys.stderr.write("Done.\n")
@@ -344,10 +389,25 @@ class dbSNP2data:
 			strain_id = nativename2strain_id[strain_snp_pair[0]]
 			snpid = strain_snp_pair[1]
 			data_matrix[strain_id2index[strain_id]][snp_id2index[snpid]] = call_number
+		sys.stderr.write("Done.\n")
 		return data_matrix
-		
 	
-	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None, rows_to_be_tossed_out=Set()):
+	def get_strain_id2other_info(self, curs, strain_id_list, strain_info_table):
+		"""
+		2007-09-22
+			
+		"""
+		sys.stderr.write("Getting strain_id2other_info ..m.")
+		strain_id2other_info = {}
+		for strain_id in strain_id_list:
+			curs.execute("select e.id, e.latitude, e.longitude, e.stockparent, s.name, c.abbr from %s e, address a, site s, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=%s"%(strain_info_table, strain_id))
+			rows = curs.fetchall()
+			id, latitude, longitude, stockparent, site_name, abbr = rows[0]
+			strain_id2other_info[id] = [latitude, longitude, stockparent, site_name, abbr]
+		sys.stderr.write("Done.\n")
+		return strain_id2other_info
+	
+	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None, rows_to_be_tossed_out=Set(), strain_id2other_info=None, discard_all_NA_strain=0):
 		"""
 		2007-02-19
 			if strain_id2acc is available, translate strain_id into strain_acc,
@@ -356,13 +416,21 @@ class dbSNP2data:
 			if one strain's SNP row is all NA, it'll be skipped
 		2007-02-25
 			add argument rows_to_be_tossed_out
+		2007-09-23
+			add discard_all_NA_strain
 		"""
 		sys.stderr.write("Writing data_matrix ...")
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
 		if with_header_line:
 			header_row = ['strain']
 			if strain_id2category:
-				header_row.append('category')
+				header_row.append('nativename')
+			if strain_id2other_info:
+				header_row.append('latitude')
+				header_row.append('longitude')
+				header_row.append('stockparent')
+				header_row.append('site')
+				header_row.append('country')
 			for snp_id in snp_id_list:
 				header_row.append(snp_id2acc[snp_id])
 			writer.writerow(header_row)
@@ -373,7 +441,11 @@ class dbSNP2data:
 				new_row = [strain_id_list[i]]
 			if strain_id2category:
 				new_row.append(strain_id2category[strain_id_list[i]])
-			if data_matrix[i]!=0 and (i not in rows_to_be_tossed_out):	#2007-02-25
+			if strain_id2other_info:
+				new_row += strain_id2other_info[strain_id_list[i]]
+			if discard_all_NA_strain and sum(data_matrix[i]==0)==data_matrix.shape[1]:
+				continue
+			elif i not in rows_to_be_tossed_out:	#2007-02-25
 				for j in data_matrix[i]:
 					if nt_alphabet:
 						j = number2nt[j]
@@ -480,14 +552,18 @@ class dbSNP2data:
 			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 			curs = conn.cursor()
 			snp_id2index, snp_id_list = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
-			strain_id2index, strain_id_list, nativename2strain_id = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table)
+			strain_id2index, strain_id_list, nativename2strain_id = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, self.resolve_duplicated_calls)
 			
 			strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 			snp_id2acc = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
 			data_matrix = self.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
-			nativename_snpid2call = self.get_nativename_snpid2call_m(curs, self.strain_info_table, self.input_table)
-			data_matrix = self.fill_in_resolved_duplicated_calls(data_matrix, strain_id2index, snp_id2index, nativename2strain_id, nativename_snpid2call)
-			
+			if self.resolve_duplicated_calls:
+				nativename_snpid2call = self.get_nativename_snpid2call_m(curs, self.strain_info_table, self.input_table)
+				data_matrix = self.fill_in_resolved_duplicated_calls(data_matrix, strain_id2index, snp_id2index, nativename2strain_id, nativename_snpid2call)
+			if self.include_other_strain_info:
+				strain_id2other_info = self.get_strain_id2other_info(curs, strain_id_list, self.strain_info_table)
+			else:
+				strain_id2other_info = None
 		else:
 			(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 			snp_id2index, snp_id_list = self.get_snp_id2index(curs, self.input_table, self.snp_locus_table)
@@ -496,6 +572,7 @@ class dbSNP2data:
 			strain_id2acc, strain_id2category = self.get_strain_id_info(curs, strain_id_list, self.strain_info_table)
 			snp_id2acc = self.get_snp_id_info(curs, snp_id_list, self.snp_locus_table)
 			data_matrix = self.get_data_matrix(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
+			strain_id2other_info = None
 		
 		if self.toss_out_rows:
 			rows_to_be_tossed_out = self.toss_rows_to_make_distance_matrix_NA_free(data_matrix)
@@ -503,7 +580,7 @@ class dbSNP2data:
 		else:
 			rows_to_be_tossed_out = Set()
 		self.write_data_matrix(data_matrix, self.output_fname, strain_id_list, snp_id_list, snp_id2acc, self.with_header_line,\
-			self.nt_alphabet, strain_id2acc, strain_id2category, rows_to_be_tossed_out)
+			self.nt_alphabet, strain_id2acc, strain_id2category, rows_to_be_tossed_out, strain_id2other_info, self.discard_all_NA_strain)
 		#self.sort_file(self.output_fname)
 
 if __name__ == '__main__':
@@ -513,7 +590,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:g:tywambrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:n:g:y:mbrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -526,10 +603,7 @@ if __name__ == '__main__':
 	strain_info_table = 'strain_info'
 	snp_locus_table = 'snp_locus'
 	organism = 'at'
-	toss_out_rows = 0
-	need_heterozygous_call = 0
-	with_header_line = 0
-	nt_alphabet = 0
+	processing_bits = '10101101'
 	mysql_connection = 0
 	debug = 0
 	report = 0
@@ -554,14 +628,8 @@ if __name__ == '__main__':
 			snp_locus_table = arg
 		elif opt in ("-g",):
 			organism = arg
-		elif opt in ("-t",):
-			toss_out_rows = 1
 		elif opt in ("-y",):
-			need_heterozygous_call = 1
-		elif opt in ("-w",):
-			with_header_line = 1
-		elif opt in ("-a",):
-			nt_alphabet = 1
+			processing_bits = arg
 		elif opt in ("-m",):
 			mysql_connection = 1
 		elif opt in ("-b", "--debug"):
@@ -571,8 +639,8 @@ if __name__ == '__main__':
 
 	if input_table and output_fname and hostname and dbname and schema:
 		instance = dbSNP2data(hostname, dbname, schema, input_table, output_fname, \
-			strain_info_table, snp_locus_table, organism, toss_out_rows, need_heterozygous_call, \
-			with_header_line, nt_alphabet, mysql_connection, debug, report)
+			strain_info_table, snp_locus_table, organism, processing_bits, \
+			mysql_connection, debug, report)
 		instance.run()
 	else:
 		print __doc__
