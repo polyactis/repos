@@ -1106,6 +1106,15 @@ def check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strain
 	use_ecotypeid_as_strainname controls whether it's nativename or ecotypeid in strain_snp_pair
 	"""
 	sys.stderr.write("Checking inconsistent duplicate calls ...\n")
+	if strainname_type==1:
+		print 'distinct on (nativename,snpid) pair:'
+	elif strainname_type == 2:
+		print 'distinct on (ecotypeid,snpid) pair:'
+	elif strainname_type == 3:
+		print 'distinct on (nativename, stockparent ,snpid) pair:'
+	else:
+		sys.stderr.write("unsupported strainname_type %s\n"%strainname_type)
+		return None, None
 	from common import nt2number
 	no_of_strain_snp_pairs = 0
 	no_of_inconsistent = 0
@@ -1117,9 +1126,6 @@ def check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strain
 		curs.execute("select e.id, c.snpid, c.call1, c.callhet from %s e, %s c where e.id=c.ecotypeid order by nativename, snpid"%(ecotype_table, calls_table))
 	elif strainname_type == 3:
 		curs.execute("select e.nativename, e.stockparent, c.snpid, c.call1, c.callhet from %s e, %s c where e.id=c.ecotypeid order by nativename, stockparent, snpid"%(ecotype_table, calls_table))
-	else:
-		sys.stderr.write("unsupported strainname_type %s\n"%strainname_type)
-		return None, None
 	rows = curs.fetchall()
 	counter = 0
 	from sets import Set
@@ -1175,10 +1181,10 @@ def check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strain
 		if len(duplicate_call_type2counter)>1:
 			no_of_inconsistent += 1
 	old_strain_snp_pair = strain_snp_pair
-	sys.stderr.write('%s%s'%('\x08'*20, counter))
-	sys.stderr.write("\nDone.\n")
-	print "%s strain snp pairs"%(len(strain_snp_pair_set))
+	print "%s strain snp pairs"%counter
+	print "%s distinct strain snp pairs"%(len(strain_snp_pair_set))
 	print 'inconsistent ratio: %s/%s=%s'%(no_of_inconsistent, no_of_strain_snp_pairs, float(no_of_inconsistent)/no_of_strain_snp_pairs)
+	sys.stderr.write("Done.\n")
 	return strain_snp_pair_set, inconsistent_dup_strain_snp_pair_set
 
 
@@ -1199,17 +1205,33 @@ def get_nativename_snp_distinct_set(curs, ecotype_table, calls_table):
 ecotype_table = 'ecotype'
 calls_table = 'calls'
 strain_snp_pair_set, inconsistent_dup_strain_snp_pair_set = check_inconsistent_duplicate_calls(curs, ecotype_table, calls_table)
-print '(nativename,snpid) pair:'
 strain_snp_pair_set1, inconsistent_dup_strain_snp_pair_set1 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table)
-print '(ecotypeid,snpid) pair:'
 strain_snp_pair_set2, inconsistent_dup_strain_snp_pair_set2 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=2)
-print '(nativename, stockparent ,snpid) pair:'
 strain_snp_pair_set3, inconsistent_dup_strain_snp_pair_set3 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=3)
 
 nativename_snp_distinct_set = get_nativename_snp_distinct_set(curs, ecotype_table, calls_table)
 
 strain_snp_pair_set - nativename_snp_distinct_set gives 1937 different pairs. turns out that sql's "distinct e.nativename, c.snpid" ignores the cases , like Kz-9 and KZ-9 are same. however python doesn't do that.
 """
+
+"""
+2007-09-23
+	calculate the percentage of NAs in a data_matrix
+"""
+def calculate_NA_perc(input_fname):
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	import Numeric
+	data_matrix = Numeric.array(data_matrix)
+	no_of_NAs = 0
+	for i in range(data_matrix.shape[0]):
+		for j in range(data_matrix.shape[1]):
+			if data_matrix[i][j] == 0:
+				no_of_NAs += 1
+	no_of_totals = data_matrix.shape[0]*data_matrix.shape[1]
+	print '%s/%s=%s'%(no_of_NAs, no_of_totals, float(no_of_NAs)/no_of_totals)
+
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
@@ -1247,9 +1269,6 @@ curs = conn.cursor()
 if __name__ == '__main__':
 	ecotype_table = 'ecotype'
 	calls_table = 'calls'
-	print '(nativename,snpid) pair:'
 	strain_snp_pair_set1, inconsistent_dup_strain_snp_pair_set1 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table)
-	print '(ecotypeid,snpid) pair:'
 	strain_snp_pair_set2, inconsistent_dup_strain_snp_pair_set2 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=2)
-	print '(nativename, stockparent ,snpid) pair:'
 	strain_snp_pair_set3, inconsistent_dup_strain_snp_pair_set3 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=3)
