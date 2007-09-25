@@ -297,6 +297,7 @@ strain_Hetero_perc_ls = DrawStrain_Heterozygotes_PercHist('./script/variation/da
 
 """
 2007-03-21
+2007-09-24 increase the #bins of histogram to 40
 """
 def DrawDistanceHistogram(data_matrix_fname, output_fname, need_savefig=0):
 	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
@@ -326,7 +327,7 @@ def DrawDistanceHistogram(data_matrix_fname, output_fname, need_savefig=0):
 	print "out of %s pairs, %s are NA"%((no_of_strains*(no_of_strains-1))/2, no_of_NA_pairs)
 	import pylab
 	pylab.clf()
-	pylab.hist(distance_ls, 10)
+	pylab.hist(distance_ls, 40)
 	pylab.title("Histogram of non-NA distances")
 	if need_savefig:
 		pylab.savefig('%s_distance_hist.eps'%output_fname, dpi=300)
