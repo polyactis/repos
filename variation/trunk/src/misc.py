@@ -289,9 +289,10 @@ def DrawStrain_Heterozygotes_PercHist(data_matrix_fname, output_fname, need_save
 		pylab.savefig('%s_strain_hz_perc.svg'%output_fname, dpi=300)
 		pylab.savefig('%s_strain_hz_perc.png'%output_fname, dpi=300)
 	pylab.show()
+	return strain_Hetero_perc_ls
 
 """
-DrawStrain_Heterozygotes_PercHist('./script/variation/data/justin_data_y.csv', './script/variation/data/justin_data_y', 1)
+strain_Hetero_perc_ls = DrawStrain_Heterozygotes_PercHist('./script/variation/data/justin_data_y.csv', './script/variation/data/justin_data_y', 1)
 """
 
 """
@@ -871,14 +872,16 @@ def get_ecotypeid2pos(curs, ecotype_table):
 	sys.stderr.write("Done.\n")
 	return ecotypeid2pos
 
-def get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table):
+def get_popid2pos_size_and_ecotypeid2pop_id(curs, popid2ecotypeid_table, selected=0):
 	"""
 	2007-09-13
+	2007-09-24
+		doesn't have to be selected
 	"""
 	sys.stderr.write("Getting popid2pos_size & ecotypeid2pop_id ...")
 	popid2pos_size = {}
 	ecotypeid2pop_id = {}
-	curs.execute("select popid, latitude, longitude, ecotypeid from %s where selected=1"%(popid2ecotypeid_table))
+	curs.execute("select popid, latitude, longitude, ecotypeid from %s where selected=%s"%(popid2ecotypeid_table, selected))
 	rows = curs.fetchall()
 	for row in rows:
 		popid, latitude, longitude, ecotypeid = row
@@ -978,9 +981,16 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 		pylab.savefig('%s_site_network.svg'%output_fname_prefix, dpi=600)
 		pylab.savefig('%s_site_network.png'%output_fname_prefix, dpi=600)
 	sys.stderr.write("Done.\n")
+
+
+
 """
 input_fname = 'script/variation/stock20070829/data_row_na_col_na_bad_snps.tsv'
 identity_pair_ls = construct_identity_pair_ls(input_fname)
+import cPickle
+of = open('%s_identity_pair_ls'%os.path.splitext(input_fname)[0], 'w')
+cPickle.dump(identity_pair_ls, of)
+del of
 popid2ecotypeid_table = 'popid2ecotypeid_25'
 pop_iden_g, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id = construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls)
 
@@ -993,7 +1003,7 @@ popid2weight = {}
 for popid, intra_pop_connections in popid2intra_pop_connections.iteritems():
 	popid2weight[popid] = 8*math.log(intra_pop_connections+1)
 
-draw_graph_on_map(pop_iden_g, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, pic_area=[-130,34,35,65], output_fname_prefix='/tmp/identity.map')
+draw_graph_on_map(pop_iden_g, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, output_fname_prefix='identity_map1')
 
 
 strain_iden_g = construct_graph_out_of_identity_pair(identity_pair_ls)
@@ -1013,7 +1023,8 @@ for i in range(len(strain_iden_g_cc)):
 	site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos)
 	for site, weight in site2weight.iteritems():
 		site2weight[site] =  8*math.log(weight+1)
-	display_matrix_of_component(input_fname, strain_iden_g_cc[i], ecotypeid2pos, output_fname='ecotype identity map cc%s'%i, need_sort=0, need_savefig=1)
+	
+	display_matrix_of_component(input_fname, strain_iden_g_cc[i], ecotypeid2pos, output_fname='ecotype_identity_map_cc%s'%i, need_sort=0, need_savefig=1)
 	draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s'%i, pic_area=[-130,34,35,65], output_fname_prefix='ecotype_identity_cc%s'%i)
 """
 
@@ -1232,6 +1243,184 @@ def calculate_NA_perc(input_fname):
 	no_of_totals = data_matrix.shape[0]*data_matrix.shape[1]
 	print '%s/%s=%s'%(no_of_NAs, no_of_totals, float(no_of_NAs)/no_of_totals)
 
+"""
+calculate_NA_perc('.//script/variation/stock20070919/data.tsv')
+"""
+
+
+"""
+2007-09-24
+	magnus's idea to reduce fake identities
+"""
+def get_data_matrix_sorted_by_NA_perc(input_fname):
+	"""
+	2007-09-24
+		input_fname is a data frame file with snps coded in integers. 1st row is the ecotype id in table ecotype
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	no_of_strains = len(strain_acc_list)
+	no_of_snps = len(header)-2
+	data_matrix_sorted_by_NA_perc = []
+	for i in range(no_of_strains):
+		no_of_NAs = 0
+		for j in range(no_of_snps):
+			if data_matrix[i][j] == 0:
+				no_of_NAs += 1
+		data_matrix_sorted_by_NA_perc.append([float(no_of_NAs)/no_of_snps, data_matrix[i], strain_acc_list[i]])
+	data_matrix_sorted_by_NA_perc.sort()
+	return data_matrix_sorted_by_NA_perc
+
+def get_strain_id2index_from_data_matrix_sorted_by_NA_perc(data_matrix_sorted_by_NA_perc):
+	sys.stderr.write("Getting strain_id2index from data_matrix_sorted_by_NA_perc ...")
+	strain_id2index = {}
+	no_of_strains = len(data_matrix_sorted_by_NA_perc)
+	no_of_snps = len(data_matrix_sorted_by_NA_perc[0][1])
+	for i in range(no_of_strains):
+		ecotypeid = data_matrix_sorted_by_NA_perc[i][2]
+		strain_id2index[ecotypeid] = i
+	sys.stderr.write("Done.\n")
+	return strain_id2index
+
+
+def get_unique_haplotype_set(data_matrix_sorted_by_NA_perc):
+	sys.stderr.write("Getting unique haplotype set ...")
+	no_of_strains = len(data_matrix_sorted_by_NA_perc)
+	no_of_snps = len(data_matrix_sorted_by_NA_perc[0][1])
+	from sets import Set
+	unique_haplotype_set = Set()
+	for i in range(no_of_strains):
+		no_of_prev_identity_strains = 0
+		for j in range(i):
+			no_of_same_cols = 0
+			for k in range(no_of_snps):
+				call1 = data_matrix_sorted_by_NA_perc[i][1][k]
+				call2 = data_matrix_sorted_by_NA_perc[j][1][k]
+				if call1 == call2 or call1==0 or call2==0:
+					no_of_same_cols += 1
+			if no_of_same_cols == no_of_snps:
+				no_of_prev_identity_strains += 1
+		if no_of_prev_identity_strains==0:
+			unique_haplotype_set.add(data_matrix_sorted_by_NA_perc[i][2])
+	sys.stderr.write("Done.\n")
+	return unique_haplotype_set
+
+
+def assign_remainder_strains_to_unique_haplotype_set(unique_haplotype_set, data_matrix_sorted_by_NA_perc, strain_id2index):
+	sys.stderr.write("Assigning remainder strains to unique_haplotype_set ...")
+	identity_pair_ls = []
+	no_of_strains = len(data_matrix_sorted_by_NA_perc)
+	no_of_snps = len(data_matrix_sorted_by_NA_perc[0][1])
+	for i in range(no_of_strains):
+		ecotypeid = data_matrix_sorted_by_NA_perc[i][2]
+		if ecotypeid not in unique_haplotype_set:	#skip strains in unique_haplotype_set
+			prev_identity_strains = []
+			for seedid in unique_haplotype_set:
+				seed_data_row = data_matrix_sorted_by_NA_perc[strain_id2index[seedid]][1]
+				no_of_same_cols = 0
+				for k in range(no_of_snps):
+					call1 = data_matrix_sorted_by_NA_perc[i][1][k]
+					call2 = seed_data_row[k]
+					if call1 == call2 or call1==0 or call2==0:
+						no_of_same_cols += 1
+				if no_of_same_cols == no_of_snps:
+					prev_identity_strains.append(seedid)
+			if len(prev_identity_strains)==1:	#uniquely assigned
+				identity_pair_ls.append([ecotypeid, prev_identity_strains[0]])
+	sys.stderr.write("Done.\n")
+	return identity_pair_ls
+
+def construct_identity_pair_ls_given_strain_id_list(strain_id_list, data_matrix_sorted_by_NA_perc, strain_id2index):
+	sys.stderr.write("Constructing identity_pair_ls given strain_id_list ...")
+	identity_pair_ls = []
+	no_of_strains = len(strain_id_list)
+	no_of_snps = len(data_matrix_sorted_by_NA_perc[0][1])
+	for i in range(no_of_strains):
+		ecotypeid1 = repr(strain_id_list[i])	#convert int to char
+		index_of_ecotypeid1 = strain_id2index[ecotypeid1]
+		for j in range(i+1, no_of_strains):
+			ecotypeid2 = repr(strain_id_list[j])
+			index_of_ecotypeid2 = strain_id2index[ecotypeid2]
+			no_of_same_cols = 0
+			for k in range(no_of_snps):
+				call1 = data_matrix_sorted_by_NA_perc[index_of_ecotypeid1][1][k]
+				call2 = data_matrix_sorted_by_NA_perc[index_of_ecotypeid2][1][k]
+				if call1 == call2 or call1==0 or call2==0:
+					no_of_same_cols += 1
+			if no_of_same_cols == no_of_snps:
+				identity_pair_ls.append([ecotypeid1, ecotypeid2])
+	sys.stderr.write("Done.\n")
+	return identity_pair_ls
+
+
+"""
+input_fname = 'script/variation/stock20070919/data_d110_c0_5.tsv'
+data_matrix_sorted_by_NA_perc = get_data_matrix_sorted_by_NA_perc(input_fname)
+
+unique_haplotype_set = get_unique_haplotype_set(data_matrix_sorted_by_NA_perc)
+
+strain_id2index = get_strain_id2index_from_data_matrix_sorted_by_NA_perc(data_matrix_sorted_by_NA_perc)
+
+identity_pair_ls2 = assign_remainder_strains_to_unique_haplotype_set(unique_haplotype_set, data_matrix_sorted_by_NA_perc, strain_id2index)
+
+import cPickle
+of = open('%s_identity_pair_ls2'%os.path.splitext(input_fname)[0], 'w')
+cPickle.dump(identity_pair_ls2, of)
+del of
+popid2ecotypeid_table = 'popid2ecotypeid_25'
+pop_iden_g2, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id = construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls2)
+
+popid2pos = {}
+for popid, pos_size in popid2pos_size.iteritems():
+	popid2pos[popid] = pos_size[0]
+
+import math
+popid2weight = {}
+for popid, intra_pop_connections in popid2intra_pop_connections.iteritems():
+	popid2weight[popid] = 8*math.log(intra_pop_connections+1)
+
+draw_graph_on_map(pop_iden_g2, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, output_fname_prefix='identity_map2')
+
+
+strain_iden_g2 = construct_graph_out_of_identity_pair(identity_pair_ls2)
+
+identity_pair_ls2_complete = construct_identity_pair_ls_given_strain_id_list(strain_iden_g2.nodes(), data_matrix_sorted_by_NA_perc, strain_id2index)
+
+pop_iden_g2_complete, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id = construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls2_complete)
+
+popid2pos = {}
+for popid, pos_size in popid2pos_size.iteritems():
+	popid2pos[popid] = pos_size[0]
+
+import math
+popid2weight = {}
+for popid, intra_pop_connections in popid2intra_pop_connections.iteritems():
+	popid2weight[popid] = 8*math.log(intra_pop_connections+1)
+
+draw_graph_on_map(pop_iden_g2_complete, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, output_fname_prefix='identity_map2_complete')
+
+
+ecotypeid2pos = get_ecotypeid2pos(curs, 'ecotype')
+ecotypeid2weight = {}
+for n in strain_iden_g:
+	ecotypeid2weight[n] = 1
+
+import networkx as nx
+strain_iden_g_cc2 = nx.connected_components(strain_iden_g2)
+
+i=11
+
+
+for i in range(len(strain_iden_g_cc2)):
+	gs = strain_iden_g2.subgraph(strain_iden_g_cc2[i])
+	site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos)
+	for site, weight in site2weight.iteritems():
+		site2weight[site] =  8*math.log(weight+1)
+	
+	display_matrix_of_component(input_fname, strain_iden_g_cc2[i], ecotypeid2pos, output_fname='ecotype_identity_tcc%s'%i, need_sort=0, need_savefig=1)
+	draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s'%i, output_fname_prefix='ecotype_identity_tcc%s'%i)
+"""
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
