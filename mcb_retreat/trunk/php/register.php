@@ -26,7 +26,7 @@ if ($_POST['_submit_check'])
 	$result=pg_query($link,$query) or die('Query failed: ' . pg_last_error());
 	pg_close($link);
 	echo  "<script  type='text/javascript'>
-           alert('$name : Your are registered. Thank you!');
+           alert('$name : You are registered. Thank you!');
           </script>";
 	}
 }
