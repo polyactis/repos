@@ -49,7 +49,7 @@ print "</tr>\n";
 print "</table>\n";
 print "";
 
-$result = pg_query( "select name, pi, title from retreat.abstract" )
+$result = pg_query( "select name, pi, pref, title from retreat.abstract" )
 or die("SELECT Error: ".pg_last_error());
 $num_rows = pg_num_rows($result);
 print '<pre>';
@@ -60,6 +60,7 @@ print "<table width=829  border=2 align=center cellpadding=1 cellspacing=0>\n";
 print " <tr bgcolor=#42C1FF>";
 print "   <td>Name</td>";
 print "    <td>PI</td>";
+print "    <td>pref</td>";
 print     " <td>title </td>";
 print "  </tr>";
 //print "<table width=200 border=1>\n";
