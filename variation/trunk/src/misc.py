@@ -786,6 +786,7 @@ def construct_site_graph_out_of_strain_graph(g, ecotypeid2pos):
 	"""
 	2007-09-20
 		#reduce the drawing by omitting identical edges (linking same GPS positions), construct a graph whose node is (lat,lon) and then plot this graph.
+	2007-10-01
 	"""
 	sys.stderr.write("Constructing site graph out of strain graph...")
 	site2pos = {}
@@ -930,7 +931,7 @@ def construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_t
 	print '%s/%s=%s inter population identities'%(no_of_inter_pop_identities, no_of_valid_identities, float(no_of_inter_pop_identities)/no_of_valid_identities)
 	return g, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id
 
-def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,140,70], output_fname_prefix=None):
+def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,140,70], output_fname_prefix=None, need_draw_edge=0):
 	"""
 	2007-09-13
 		identity_pair_ls is a list of pairs of strains (ecotype id as in table ecotype)
@@ -945,8 +946,6 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
 	resolution='l',projection='mill')
 	
-	ax=pylab.gca()
-	
 	sys.stderr.write("\tDrawing nodes ...")
 	euc_coord1_ls = []
 	euc_coord2_ls = []
@@ -960,14 +959,16 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 	m.scatter(euc_coord1_ls, euc_coord2_ls, diameter_ls, marker='o', color='r', alpha=0.4, zorder=12, faceted=False)
 	sys.stderr.write("Done.\n")
 	
-	sys.stderr.write("\tDrawing edges ...")
-	for popid1, popid2, no_of_connections in g.edges():
-		lat1, lon1 = node2pos[popid1]
-		lat2, lon2 = node2pos[popid2]
-		x1, y1 = m(lon1, lat1)
-		x2, y2 = m(lon2, lat2)
-		ax.plot([x1,x2],[y1,y2], 'g', linewidth=math.log(no_of_connections+1)/2, alpha=0.2, zorder=10)
-	sys.stderr.write("Done.\n")
+	if need_draw_edge:
+		sys.stderr.write("\tDrawing edges ...")
+		ax=pylab.gca()
+		for popid1, popid2, no_of_connections in g.edges():
+			lat1, lon1 = node2pos[popid1]
+			lat2, lon2 = node2pos[popid2]
+			x1, y1 = m(lon1, lat1)
+			x2, y2 = m(lon2, lat2)
+			ax.plot([x1,x2],[y1,y2], 'g', linewidth=math.log(no_of_connections+1)/2, alpha=0.2, zorder=10)
+		sys.stderr.write("Done.\n")
 	
 	#m.drawcoastlines()
 	m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,0,1])
@@ -983,7 +984,18 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 		pylab.savefig('%s_site_network.png'%output_fname_prefix, dpi=600)
 	sys.stderr.write("Done.\n")
 
-
+def check_cross_ocean_components(g, cc, ecotypeid2pos, longi_watershed=-30):
+	from sets import Set
+	cross_ocean_cc_set = Set()
+	for i in range(len(cc)):
+		gs = g.subgraph(cc[i])
+		for e in gs.edges():
+			l1 = ecotypeid2pos[e[0]][1]
+			l2 = ecotypeid2pos[e[1]][1]
+			if (l1<longi_watershed and l2>longi_watershed) or (l1>longi_watershed and l2<longi_watershed):
+				cross_ocean_cc_set.add(i)
+				print i,l1,l2
+	return cross_ocean_cc_set
 
 """
 input_fname = 'script/variation/stock20070829/data_row_na_col_na_bad_snps.tsv'
@@ -1027,6 +1039,24 @@ for i in range(len(strain_iden_g_cc)):
 	
 	display_matrix_of_component(input_fname, strain_iden_g_cc[i], ecotypeid2pos, output_fname='ecotype_identity_map_cc%s'%i, need_sort=0, need_savefig=1)
 	draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s'%i, pic_area=[-130,34,35,65], output_fname_prefix='ecotype_identity_cc%s'%i)
+
+
+#2007-10-01 parition cc into cliques
+
+from PartitionGraphIntoCliques import PartitionGraphIntoCliques
+PartitionGraphIntoCliques_ins = PartitionGraphIntoCliques(0)
+for for i in range(len(strain_iden_g_cc)):
+	g_cc = strain_iden_g.subgraph(strain_iden_g_cc[i])
+	PartitionGraphIntoCliques_ins.partition(g_cc.copy())
+	map(len, PartitionGraphIntoCliques_ins.clique_ls)
+	for j in range(len(PartitionGraphIntoCliques_ins.clique_ls)):
+		gs = g_cc.subgraph(PartitionGraphIntoCliques_ins.clique_ls[j])
+		site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos)
+		#for site, weight in site2weight.iteritems():
+		#	site2weight[site] =  8*math.log(weight+1)
+		
+		display_matrix_of_component(input_fname, PartitionGraphIntoCliques_ins.clique_ls[j], ecotypeid2pos, output_fname='ecotype_identity_map_cc%sc%s'%(i,j), need_sort=0, need_savefig=1)
+		draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s clique%s'%(i,j), pic_area=[-130,34,120,65], output_fname_prefix='ecotype_identity_cc%sc%s'%(i,j))
 """
 
 
@@ -1386,22 +1416,6 @@ draw_graph_on_map(pop_iden_g2, popid2weight, popid2pos, 'inter population identi
 
 strain_iden_g2 = construct_graph_out_of_identity_pair(identity_pair_ls2)
 
-identity_pair_ls2_complete = construct_identity_pair_ls_given_strain_id_list(strain_iden_g2.nodes(), data_matrix_sorted_by_NA_perc, strain_id2index)
-
-pop_iden_g2_complete, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id = construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls2_complete)
-
-popid2pos = {}
-for popid, pos_size in popid2pos_size.iteritems():
-	popid2pos[popid] = pos_size[0]
-
-import math
-popid2weight = {}
-for popid, intra_pop_connections in popid2intra_pop_connections.iteritems():
-	popid2weight[popid] = 8*math.log(intra_pop_connections+1)
-
-draw_graph_on_map(pop_iden_g2_complete, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, output_fname_prefix='identity_map2_complete')
-
-
 ecotypeid2pos = get_ecotypeid2pos(curs, 'ecotype')
 ecotypeid2weight = {}
 for n in strain_iden_g:
@@ -1421,7 +1435,220 @@ for i in range(len(strain_iden_g_cc2)):
 	
 	display_matrix_of_component(input_fname, strain_iden_g_cc2[i], ecotypeid2pos, output_fname='ecotype_identity_tcc%s'%i, need_sort=0, need_savefig=1)
 	draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s'%i, output_fname_prefix='ecotype_identity_tcc%s'%i)
+
+
+#2007-09-25 complete the identity graph
+identity_pair_ls2_complete = construct_identity_pair_ls_given_strain_id_list(strain_iden_g2.nodes(), data_matrix_sorted_by_NA_perc, strain_id2index)
+
+pop_iden_g2_complete, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id = construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls2_complete)
+
+popid2pos = {}
+for popid, pos_size in popid2pos_size.iteritems():
+	popid2pos[popid] = pos_size[0]
+
+import math
+popid2weight = {}
+for popid, intra_pop_connections in popid2intra_pop_connections.iteritems():
+	popid2weight[popid] = 8*math.log(intra_pop_connections+1)
+
+draw_graph_on_map(pop_iden_g2_complete, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, output_fname_prefix='identity_map2_complete')
+
+strain_iden_g2_complete = construct_graph_out_of_identity_pair(identity_pair_ls2_complete)
+strain_iden_g_cc2_complete = nx.connected_components(strain_iden_g2_complete)
+
+for i in range(len(strain_iden_g_cc2_complete)):
+	gs = strain_iden_g2_complete.subgraph(strain_iden_g_cc2_complete[i])
+	site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos)
+	for site, weight in site2weight.iteritems():
+		site2weight[site] =  8*math.log(weight+1)
+	
+	display_matrix_of_component(input_fname, strain_iden_g_cc2_complete[i], ecotypeid2pos, output_fname='ecotype_identity_cc2_complete%s'%i, need_sort=0, need_savefig=1)
+	draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s'%i, output_fname_prefix='ecotype_identity_cc2_complete%s'%i)
+
+
+cross_ocean_cc_set2_atlantic = check_cross_ocean_components(strain_iden_g2_complete, strain_iden_g_cc2_complete, ecotypeid2pos)
+
+cross_ocean_cc_set2_eurasia = check_cross_ocean_components(strain_iden_g2_complete, strain_iden_g_cc2_complete, ecotypeid2pos, 60)
 """
+
+"""
+2007-09-26
+	calculate LD (r^2)
+"""
+def group_ordered_snps_into_chr_snp_2layer_ls(curs, snp_acc_list, snp_locus_table='snps'):
+	"""
+	2007-09-26
+		assume snps are already in chromosome, position order, just need to find out
+		where to stop the chromosome
+	"""
+	old_chromosome = -1
+	chr_snp_2layer_ls = []
+	snp_position_ls = []	#no chromosome, just position.
+	chr_ls = []
+	for i in range(len(snp_acc_list)):
+		curs.execute("select chromosome, position from %s where snpid='%s'"%(snp_locus_table, snp_acc_list[i]))
+		rows = curs.fetchall()
+		chromosome, position = rows[0]
+		snp_position_ls.append(position)
+		if old_chromosome == -1:	#1st encounter
+			old_chromosome = chromosome
+		elif chromosome!=old_chromosome:
+			chr_snp_2layer_ls.append(chr_ls)
+			chr_ls = []
+			old_chromosome = chromosome
+		chr_ls.append(i)
+	chr_snp_2layer_ls.append(chr_ls)
+	return chr_snp_2layer_ls, snp_position_ls
+
+def fill_in_snp_allele2index(diploid_allele, allele2index):
+	from common import number2nt, nt2number
+	if diploid_allele>4:
+		nt = number2nt[diploid_allele]
+		allele1 = nt2number[nt[0]]
+		allele2 = nt2number[nt[1]]
+	else:
+		allele1 = allele2 = diploid_allele
+	if allele1 not in allele2index:
+		allele2index[allele1] = len(allele2index)
+	if allele2 not in allele2index:
+		allele2index[allele2] = len(allele2index)
+	return allele1, allele2
+
+def calculate_LD(input_fname, curs, snp_locus_table='snps', debug=0):
+	"""
+	exclude pairs with one or two NAs
+	exclude pairs both of who are heterozygous calls (can't figure out the phase)
+	(only one of pairs is heterozygous is all right)
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	if debug:
+		import pdb
+		pdb.set_trace()
+	no_of_strains = len(strain_acc_list)
+	snp_acc_list = header[2:]
+	chr_snp_2layer_ls, snp_position_ls = group_ordered_snps_into_chr_snp_2layer_ls(curs, snp_acc_list, snp_locus_table)
+	no_of_chrs = len(chr_snp_2layer_ls)
+	r_square_ls = []
+	distance_ls = []
+	allele_freq_ls = []
+	snp_pair_ls = []
+	D_ls = []
+	D_prime_ls = []
+	import Numeric
+	for c in range(no_of_chrs):
+		no_of_snps = len(chr_snp_2layer_ls[c])
+		for i in range(no_of_snps):
+			for j in range(i+1, no_of_snps):
+				snp1_index = chr_snp_2layer_ls[c][i]
+				snp2_index = chr_snp_2layer_ls[c][j]
+				counter_matrix = Numeric.zeros([2,2])
+				snp1_allele2index = {}
+				snp2_allele2index = {}
+				for k in range(no_of_strains):
+					snp1_allele = data_matrix[k][snp1_index]
+					snp2_allele = data_matrix[k][snp2_index]
+					if snp1_allele!=0 and snp2_allele!=0 and not (snp1_allele>4 and snp2_allele>4):
+						snp1_allele1, snp1_allele2 = fill_in_snp_allele2index(snp1_allele, snp1_allele2index)
+						snp2_allele1, snp2_allele2 = fill_in_snp_allele2index(snp2_allele, snp2_allele2index)
+						counter_matrix[snp1_allele2index[snp1_allele1],snp2_allele2index[snp2_allele1]] += 1
+						counter_matrix[snp1_allele2index[snp1_allele2],snp2_allele2index[snp2_allele2]] += 1
+				PA = sum(counter_matrix[0,:])
+				Pa = sum(counter_matrix[1,:])
+				PB = sum(counter_matrix[:,0])
+				Pb = sum(counter_matrix[:,1])
+				total_num = float(PA+Pa)
+				PA = PA/total_num
+				Pa = Pa/total_num
+				PB = PB/total_num
+				Pb = Pb/total_num
+				PAB = counter_matrix[0,0]/total_num
+				D = PAB-PA*PB
+				PAPB = PA*PB
+				PAPb = PA*Pb
+				PaPB = Pa*PB
+				PaPb = Pa*Pb
+				Dmin = max(-PAPB, -PaPb)
+				Dmax = min(PAPb, PaPB)
+				if D<0:
+					D_prime = D/Dmin
+				else:
+					D_prime = D/Dmax
+				r2 = D*D/(PA*Pa*PB*Pb)
+				distance = abs(snp_position_ls[snp1_index]-snp_position_ls[snp2_index])
+				allele_freq = (min(PA, Pa),min(PB, Pb))
+				D_ls.append(D)
+				D_prime_ls.append(D_prime)
+				r_square_ls.append(r2)
+				distance_ls.append(distance)
+				allele_freq_ls.append(allele_freq)
+				snp_pair_ls.append((snp_acc_list[i], snp_acc_list[j]))
+	return D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls
+
+
+def plot_LD(x_ls, y_ls, title, xlabel, ylabel, max_dist=0, output_fname_prefix=None):
+	import pylab
+	import numpy
+	import scipy.interpolate
+	#x_ls = numpy.array(x_ls)
+	#y_ls = numpy.array(y_ls)
+	x_argsort_ls = numpy.argsort(x_ls)
+	new_x_ls = []
+	new_y_ls = []
+	for i in range(len(x_argsort_ls)):
+		if max_dist>0:
+			if x_ls[x_argsort_ls[i]]<=max_dist:
+				new_x_ls.append(x_ls[x_argsort_ls[i]])
+				new_y_ls.append(y_ls[x_argsort_ls[i]])
+		else:
+			new_x_ls.append(x_ls[x_argsort_ls[i]])
+			new_y_ls.append(y_ls[x_argsort_ls[i]])
+	
+	sp = scipy.interpolate.UnivariateSpline(new_x_ls,new_y_ls)
+	n_y_ls = map(sp, new_x_ls)
+	pylab.clf()
+	pylab.title(title)
+	pylab.xlabel(xlabel)
+	pylab.ylabel(ylabel)
+	pylab.plot(new_x_ls, new_y_ls, '.')
+	pylab.plot(new_x_ls, n_y_ls)
+	if output_fname_prefix:
+		output_fname_prefix = '%s_%s'%(output_fname_prefix, max_dist)
+		pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+
+
+"""
+input_fname = './script/variation/stock20070919/data_d110_c0_5.tsv'
+D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = calculate_LD(input_fname, curs, snp_locus_table='snps')
+
+title = 'LD decay'
+xlabel = 'Distance'
+ylabel = r'$r^2$'
+output_fname_prefix = '%s_LD_r2'%os.path.splitext(input_fname)[0]
+plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 0, output_fname_prefix)
+plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
+plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
+plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
+
+ylabel = 'D'
+output_fname_prefix = '%s_LD_D'%os.path.splitext(input_fname)[0]
+plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 0, output_fname_prefix)
+plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
+plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
+plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
+
+ylabel = "D'"
+output_fname_prefix = '%s_LD_D_prime'%os.path.splitext(input_fname)[0]
+plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 0, output_fname_prefix)
+plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
+plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
+plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
+
+"""
+
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
@@ -1457,8 +1684,12 @@ conn = MySQLdb.connect(db=dbname,host=hostname)
 curs = conn.cursor()
 
 if __name__ == '__main__':
-	ecotype_table = 'ecotype'
-	calls_table = 'calls'
-	strain_snp_pair_set1, inconsistent_dup_strain_snp_pair_set1 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table)
-	strain_snp_pair_set2, inconsistent_dup_strain_snp_pair_set2 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=2)
-	strain_snp_pair_set3, inconsistent_dup_strain_snp_pair_set3 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=3)
+	input_fname = './script/variation/stock20070919/data_d110_c0_5.tsv'
+	input_fname = '/tmp/test'
+	r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = calculate_LD(input_fname, curs, snp_locus_table='snps', debug=1)
+	import numpy
+	from numpy import arange, cos, linspace, pi, sin, random
+	from scipy.interpolate import splprep, splev
+	tckp,u = splprep([numpy.array(distance_ls), numpy.array(r_square_ls)])
+	xnew,ynew,znew = splev(linspace(1000, 1e7, 10000),tckp)
+	
