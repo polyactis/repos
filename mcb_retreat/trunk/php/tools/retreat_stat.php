@@ -5,7 +5,7 @@
 $link = pg_connect("host=localhost dbname=yhdb user=yh password=123456")
 		or die('Could not connect: ' . pg_last_error());
 
-$result = pg_query( "select name, pi from retreat.register order by name, pi" )
+$result = pg_query( "select name, pi from retreat.register order by pi, name" )
 or die("SELECT Error: ".pg_last_error());
 $num_rows = pg_num_rows($result);
 print '<pre>';
