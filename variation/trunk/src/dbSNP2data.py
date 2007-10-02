@@ -175,7 +175,9 @@ class dbSNP2data:
 		strain_id_list = []
 		nativename2strain_id = {}
 		if only_include_strains_with_GPS:
-			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
+			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
+			#2007-10-01 north american samples
+			#curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and s.longitude<-60 and s.longitude>-130 order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
 		else:
 			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
 		rows = curs.fetchall()
@@ -383,12 +385,15 @@ class dbSNP2data:
 		"""
 		2007-09-22
 			replace the calls in data_matrix with resolved duplicated calls
+		2007-10-01
+			to make sure key in nativename_snpid2call appear in nativename2strain_id
 		"""
 		sys.stderr.write("Filling in resolved duplicated calls ...")
 		for strain_snp_pair, call_number in nativename_snpid2call.iteritems():
-			strain_id = nativename2strain_id[strain_snp_pair[0]]
-			snpid = strain_snp_pair[1]
-			data_matrix[strain_id2index[strain_id]][snp_id2index[snpid]] = call_number
+			if strain_snp_pair[0] in nativename2strain_id:
+				strain_id = nativename2strain_id[strain_snp_pair[0]]
+				snpid = strain_snp_pair[1]
+				data_matrix[strain_id2index[strain_id]][snp_id2index[snpid]] = call_number
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
