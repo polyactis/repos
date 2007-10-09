@@ -15,11 +15,11 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	#filter out snps and strains with too many NAs and identity strains
-	FilterStrainSNPMatrix.py -i justin_data.csv -o justin_data_filtered.csv -r -d
+	#filter out snps and strains with too many NAs but not identity strains
+	FilterStrainSNPMatrix.py -i stock20071008/data.tsv -o stock20071008/data_d110.tsv -d 110
 	
 	#translate integer nucleotide into english letter (no filtering)
-	./src/FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
+	FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a 01 -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
 
 Description:
 	Filtering procedures:
