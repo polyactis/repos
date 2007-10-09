@@ -767,6 +767,7 @@ def construct_identity_pair_ls(input_fname):
 				identity_pair_ls.append([strain_acc_list[i], strain_acc_list[j]])
 	return identity_pair_ls
 
+
 def construct_graph_out_of_identity_pair(identity_pair_ls):
 	"""
 	2007-09-18
@@ -782,11 +783,32 @@ def construct_graph_out_of_identity_pair(identity_pair_ls):
 	sys.stderr.write("Done.\n")
 	return g
 
-def construct_site_graph_out_of_strain_graph(g, ecotypeid2pos):
+def get_singleton_strain_id_ls(g, input_fname):
+	"""
+	2007-10-01
+		node in g is in ecotype id format
+		so strain_acc (1st column) in input_fname should be integer (ecotype id)
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	sys.stderr.write("Getting singleton_strain_id_ls ...")
+	from sets import Set
+	graph_node_set = Set(g.nodes())
+	singleton_strain_id_ls = []
+	for strain_acc in strain_acc_list:
+		strain_acc = int(strain_acc)
+		if strain_acc not in graph_node_set:
+			singleton_strain_id_ls.append(strain_acc)
+	sys.stderr.write("Done.\n")
+	return singleton_strain_id_ls
+
+def construct_site_graph_out_of_strain_graph(g, ecotypeid2pos, node_weight_by_no_of_nodes=0):
 	"""
 	2007-09-20
 		#reduce the drawing by omitting identical edges (linking same GPS positions), construct a graph whose node is (lat,lon) and then plot this graph.
 	2007-10-01
+		add node_weight_by_no_of_nodes
 	"""
 	sys.stderr.write("Constructing site graph out of strain graph...")
 	site2pos = {}
@@ -796,12 +818,13 @@ def construct_site_graph_out_of_strain_graph(g, ecotypeid2pos):
 	for e in g.edges():
 		pos1 = (round(ecotypeid2pos[e[0]][0],2), round(ecotypeid2pos[e[0]][1],2))
 		pos2 = (round(ecotypeid2pos[e[1]][0],2), round(ecotypeid2pos[e[1]][1],2))
-		if pos1 not in site2weight:
-			site2weight[pos1] = 0
-		site2weight[pos1] += 1
-		if pos2 not in site2weight:
-			site2weight[pos2] = 0
-		site2weight[pos2] += 1
+		if not node_weight_by_no_of_nodes:	#2007-10-01
+			if pos1 not in site2weight:
+				site2weight[pos1] = 0
+			site2weight[pos1] += 1
+			if pos2 not in site2weight:
+				site2weight[pos2] = 0
+			site2weight[pos2] += 1
 		if pos1==pos2:
 			site_g.add_node(pos1)
 		else:
@@ -809,7 +832,12 @@ def construct_site_graph_out_of_strain_graph(g, ecotypeid2pos):
 				site_g.add_edge(pos1, pos2, 0)
 			site_g.adj[pos1][pos2] += 1
 			site_g.adj[pos2][pos1] += 1
-	
+	if node_weight_by_no_of_nodes:	#2007-10-01
+		for n in g.nodes():
+			pos = (round(ecotypeid2pos[n][0],2), round(ecotypeid2pos[n][1],2))
+			if pos not in site2weight:
+				site2weight[pos] = 0
+			site2weight[pos] += 1
 	for n in site_g:
 		site2pos[n] = n
 	sys.stderr.write("Done.\n")
@@ -931,6 +959,36 @@ def construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_t
 	print '%s/%s=%s inter population identities'%(no_of_inter_pop_identities, no_of_valid_identities, float(no_of_inter_pop_identities)/no_of_valid_identities)
 	return g, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id
 
+def get_pic_area(pos_ls):
+	"""
+	2007-10-02
+		get a good pic_area
+	"""
+	min_lat = pos_ls[0][0]
+	max_lat = pos_ls[0][0]
+	min_lon = pos_ls[0][1]
+	max_lon = pos_ls[0][1]
+	for i in range(1, len(pos_ls)):
+		pos = pos_ls[i]
+		if pos[0]<min_lat:
+			min_lat = pos[0]
+		if pos[0]>max_lat:
+			max_lat = pos[0]
+		if pos[1]<min_lon:
+			min_lon = pos[1]
+		if pos[1]>max_lon:
+			max_lon = pos[1]
+	pic_area = [-180, -90, 180, 90]	#this is the boundary
+	if min_lon-5>pic_area[0]:
+		pic_area[0] = min_lon-5
+	if min_lat-5>pic_area[1]:
+		pic_area[1] = min_lat-5
+	if max_lon+5<pic_area[2]:
+		pic_area[2] = max_lon+5
+	if max_lat+5<pic_area[3]:
+		pic_area[3] = max_lat+5
+	return pic_area
+
 def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,140,70], output_fname_prefix=None, need_draw_edge=0):
 	"""
 	2007-09-13
@@ -955,8 +1013,10 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 		euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
 		euc_coord1_ls.append(euc_coord1)
 		euc_coord2_ls.append(euc_coord2)
-		diameter_ls.append(node2weight[n])
-	m.scatter(euc_coord1_ls, euc_coord2_ls, diameter_ls, marker='o', color='r', alpha=0.4, zorder=12, faceted=False)
+		diameter_ls.append(math.sqrt(node2weight[n]))
+	import numpy
+	diameter_ls = numpy.array(diameter_ls)
+	m.scatter(euc_coord1_ls, euc_coord2_ls, 8*diameter_ls, marker='o', color='r', alpha=0.4, zorder=12, faceted=False)
 	sys.stderr.write("Done.\n")
 	
 	if need_draw_edge:
@@ -985,25 +1045,250 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 	sys.stderr.write("Done.\n")
 
 def check_cross_ocean_components(g, cc, ecotypeid2pos, longi_watershed=-30):
-	from sets import Set
-	cross_ocean_cc_set = Set()
+	from sets  import Set
+	cross_ocean_cc2lon_pair_set = {}
 	for i in range(len(cc)):
 		gs = g.subgraph(cc[i])
 		for e in gs.edges():
 			l1 = ecotypeid2pos[e[0]][1]
 			l2 = ecotypeid2pos[e[1]][1]
 			if (l1<longi_watershed and l2>longi_watershed) or (l1>longi_watershed and l2<longi_watershed):
-				cross_ocean_cc_set.add(i)
-				print i,l1,l2
-	return cross_ocean_cc_set
+				if i not in cross_ocean_cc2lon_pair_set:
+					cross_ocean_cc2lon_pair_set[i] = Set()
+				cross_ocean_cc2lon_pair_set[i].add((l1, l2))
+	return cross_ocean_cc2lon_pair_set
+
+def get_clique_ls_indexed_by_cc_number(g):
+	"""
+	2007-10-01 each component is partitioned into cliques
+		the resulting clique_ls is put in the order of connected components
+		like clique_ls_indexed_by_cc_number[0] is clique_ls from connected component 0
+	"""
+	sys.stderr.write("Getting clique_ls_indexed_by_cc_number ...\n")
+	import networkx as nx
+	from PartitionGraphIntoCliques import PartitionGraphIntoCliques
+	PartitionGraphIntoCliques_ins = PartitionGraphIntoCliques(algorithm_type=2)
+	g_cc_ls = nx.connected_components(g)
+	clique_ls_indexed_by_cc_number = []
+	for i in range(len(g_cc_ls)):
+		sys.stderr.write("%s\t%s"%('\x08'*20, i))
+		cc_g = g.subgraph(g_cc_ls[i])
+		PartitionGraphIntoCliques_ins.partition(cc_g.copy())
+		clique_ls_indexed_by_cc_number.append(PartitionGraphIntoCliques_ins.clique_ls)
+	sys.stderr.write("Done.\n")
+	return g_cc_ls, clique_ls_indexed_by_cc_number
+
+def get_haplotype_size2number(clique_ls_indexed_by_cc_number):
+	"""
+	2007-10-02
+	"""
+	sys.stderr.write("Getting haplotype_size2number ...")
+	haplotype_size2number = {}
+	for i in range(len(clique_ls_indexed_by_cc_number)):
+		for clique in clique_ls_indexed_by_cc_number[i]:
+			haplotype_size = len(clique)
+			if haplotype_size not in haplotype_size2number:
+				haplotype_size2number[haplotype_size] = 0
+			haplotype_size2number[haplotype_size] += 1
+	sys.stderr.write("Done.\n")
+	return haplotype_size2number
+
+def get_ordered_clique_ls(clique_ls_indexed_by_cc_number):
+	"""
+	2007-10-02
+		return cliques with size in descending order.
+	"""
+	sys.stderr.write("Getting ordered_clique_ls ...")
+	clique_ls = []
+	ordered_clique_ls = []
+	import numpy
+	for i in range(len(clique_ls_indexed_by_cc_number)):
+		for clique in clique_ls_indexed_by_cc_number[i]:
+			clique_ls.append(clique)
+	clique_ls_argsort = list(numpy.argsort(map(len, clique_ls)))
+	clique_ls_argsort.reverse()	#from big to small
+	for index in clique_ls_argsort:
+		ordered_clique_ls.append(clique_ls[index])
+	sys.stderr.write("Done.\n")
+	return ordered_clique_ls
+
+def get_strains_within_longitude_span(ecotypeid_ls, ecotypeid2pos, longitude_span=[-12, 50]):
+	"""
+	2007-10-04
+		check the map roughly
+		[-12,50] is europe
+		[-130,-60] is north america
+		[60,90] is central asia
+		[130, 150] is japan
+		
+	"""
+	no_of_strains = 0
+	strain_ls = []
+	for ecotypeid in ecotypeid_ls:
+		pos = ecotypeid2pos[ecotypeid]
+		if pos[1]>=longitude_span[0] and pos[1]<=longitude_span[1]:
+			no_of_strains += 1
+			strain_ls.append(ecotypeid)
+	print "#strains with %s is %s"%(longitude_span, no_of_strains)
+	return strain_ls
+
+def draw_histogram_of_haplotype_size(haplotype_size2number, output_fname_prefix=None):
+	"""
+	2007-10-02
+	"""
+	import pylab
+	pylab.clf()
+	haplotype_size_ls = []
+	count_ls = []
+	for haplotype_size, count in haplotype_size2number.iteritems():
+		haplotype_size_ls.append(haplotype_size)
+		count_ls.append(count)
+	pylab.title("haplotype_size bar chart")
+	pylab.xlabel("haplotype_size")
+	pylab.ylabel("count")
+	pylab.bar(haplotype_size_ls, count_ls)
+	if output_fname_prefix:
+		pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+	pylab.show()
+
+def calGenoDistAndGeoDist(data_matrix_fname, ecotypeid2pos, longitude_span=[-180, 180]):
+	"""
+	2007-10-03
+		plot to see relationship between genotype distance and geographic distance
+		-cal_great_circle_distance()
+	2007-10-04
+		add longitude_span
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
+	import Numeric
+	geno_dist_ls = []
+	geo_dist_ls = []
+	no_of_NA_pairs = 0
+	no_of_strains = len(data_matrix)
+	no_of_snps = len(data_matrix[0])
+	no_of_pairs = 0
+	for i in range(no_of_strains):
+		for j in range(i+1, no_of_strains):
+			pos1 = ecotypeid2pos[int(strain_acc_list[i])]
+			pos2 = ecotypeid2pos[int(strain_acc_list[j])]
+			if pos1[1]>=longitude_span[0] and pos1[1]<=longitude_span[1] and pos2[1]>=longitude_span[0] and pos2[1]<=longitude_span[1]:
+				no_of_pairs += 1
+				no_of_valid_pairs = 0.0
+				no_of_matching_pairs = 0.0
+				for k in range(no_of_snps):
+					if data_matrix[i][k]!=0 and data_matrix[j][k]!=0:
+						no_of_valid_pairs += 1
+						if data_matrix[i][k] == data_matrix[j][k]:
+							no_of_matching_pairs += 1
+				if no_of_valid_pairs!=0:
+					distance = 1 - no_of_matching_pairs/no_of_valid_pairs
+					geno_dist_ls.append(distance)
+					geo_dist = cal_great_circle_distance(pos1[0], pos1[1], pos2[0], pos2[1])
+					geo_dist_ls.append(geo_dist)
+				else:
+					no_of_NA_pairs += 1
+	print "out of %s pairs, %s are NA"%(no_of_pairs, no_of_NA_pairs)
+	return geno_dist_ls, geo_dist_ls
+
+def calGenoDistAndGeoDistBetweenTwoAreas(data_matrix_fname, ecotypeid2pos, longitude_span1=[-180, 180], longitude_span2=[-180, 180]):
+	"""
+	2007-10-05
+		modified from calGenoDistAndGeoDist with two longitude spans
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
+	import Numeric
+	geno_dist_ls = []
+	geo_dist_ls = []
+	no_of_NA_pairs = 0
+	no_of_strains = len(data_matrix)
+	no_of_snps = len(data_matrix[0])
+	no_of_pairs = 0
+	for i in range(no_of_strains):
+		for j in range(i+1, no_of_strains):
+			pos1 = ecotypeid2pos[int(strain_acc_list[i])]
+			pos2 = ecotypeid2pos[int(strain_acc_list[j])]
+			if (pos1[1]>=longitude_span1[0] and pos1[1]<=longitude_span1[1] and pos2[1]>=longitude_span2[0] and pos2[1]<=longitude_span2[1]) or (pos2[1]>=longitude_span1[0] and pos2[1]<=longitude_span1[1] and pos1[1]>=longitude_span2[0] and pos1[1]<=longitude_span2[1]):
+				no_of_pairs += 1
+				no_of_valid_pairs = 0.0
+				no_of_matching_pairs = 0.0
+				for k in range(no_of_snps):
+					if data_matrix[i][k]!=0 and data_matrix[j][k]!=0:
+						no_of_valid_pairs += 1
+						if data_matrix[i][k] == data_matrix[j][k]:
+							no_of_matching_pairs += 1
+				if no_of_valid_pairs!=0:
+					distance = 1 - no_of_matching_pairs/no_of_valid_pairs
+					geno_dist_ls.append(distance)
+					geo_dist = cal_great_circle_distance(pos1[0], pos1[1], pos2[0], pos2[1])
+					geo_dist_ls.append(geo_dist)
+				else:
+					no_of_NA_pairs += 1
+	print "out of %s pairs, %s are NA"%(no_of_pairs, no_of_NA_pairs)
+	return geno_dist_ls, geo_dist_ls
+
+def plotHist(ls, title=None, output_fname_prefix=None):
+	import pylab
+	pylab.clf()
+	pylab.hist(geo_dist_ls, 40)
+	if title:
+		pylab.title(title)
+	if output_fname_prefix:
+		pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+	pylab.show()
+
+def plotXY(xls, yls, title=None, xlabel=None, ylabel=None, output_fname_prefix=None):
+	import pylab
+	pylab.clf()
+	
+	pylab.title(title)
+	pylab.xlabel(xlabel)
+	pylab.ylabel(ylabel)
+	pylab.plot(xls, yls, '.')
+	if output_fname_prefix:
+		pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+	pylab.show()
+
+def outputGraphInCliquerFormat(graph, output_fname):
+	"""
+	2007-10-05
+		to test if cliquer suffers the same problem
+	"""
+	of = open(output_fname, 'w')
+	of.write("p edge %s %s\n"%(graph.number_of_nodes(), graph.number_of_edges()))
+	node_name2index = {}
+	for n in graph.nodes():
+		node_name2index[n] = len(node_name2index)+1
+	for e in graph.edges():
+		of.write("e %s %s\n"%(node_name2index[e[0]], node_name2index[e[1]]))
+	del of
 
 """
-input_fname = 'script/variation/stock20070829/data_row_na_col_na_bad_snps.tsv'
+from misc import *
+
+input_fname = 'script/variation/stock20071008/data_d110_c0_5.tsv'
 identity_pair_ls = construct_identity_pair_ls(input_fname)
+#store it in a file as it takes a long time to generate
 import cPickle
 of = open('%s_identity_pair_ls'%os.path.splitext(input_fname)[0], 'w')
 cPickle.dump(identity_pair_ls, of)
 del of
+
+import cPickle
+inf = open('%s_identity_pair_ls'%os.path.splitext(input_fname)[0], 'r')
+identity_pair_ls = cPickle.load(inf)
+del inf
+
+#codes to group strains into populations
 popid2ecotypeid_table = 'popid2ecotypeid_25'
 pop_iden_g, popid2intra_pop_connections, popid2pos_size, ecotypeid2pop_id = construct_pop_identity_graph_from_strain_identity_ls(curs, popid2ecotypeid_table, identity_pair_ls)
 
@@ -1018,7 +1303,7 @@ for popid, intra_pop_connections in popid2intra_pop_connections.iteritems():
 
 draw_graph_on_map(pop_iden_g, popid2weight, popid2pos, 'inter population identity map '+popid2ecotypeid_table, output_fname_prefix='identity_map1')
 
-
+##graph of strains
 strain_iden_g = construct_graph_out_of_identity_pair(identity_pair_ls)
 ecotypeid2pos = get_ecotypeid2pos(curs, 'ecotype')
 ecotypeid2weight = {}
@@ -1028,9 +1313,7 @@ for n in strain_iden_g:
 import networkx as nx
 strain_iden_g_cc = nx.connected_components(strain_iden_g)
 
-i=11
-
-
+#draw cc of strain_iden_g
 for i in range(len(strain_iden_g_cc)):
 	gs = strain_iden_g.subgraph(strain_iden_g_cc[i])
 	site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos)
@@ -1041,8 +1324,81 @@ for i in range(len(strain_iden_g_cc)):
 	draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s'%i, pic_area=[-130,34,35,65], output_fname_prefix='ecotype_identity_cc%s'%i)
 
 
-#2007-10-01 parition cc into cliques
+#2007-10-02 use clique to represent unique haplotype
+strain_iden_g_cc, clique_ls_indexed_by_cc_number = get_clique_ls_indexed_by_cc_number(strain_iden_g)
+haplotype_size2number = get_haplotype_size2number(clique_ls_indexed_by_cc_number)
+singleton_strain_id_ls = get_singleton_strain_id_ls(strain_iden_g, input_fname)
+haplotype_size2number[1] += len(singleton_strain_id_ls)	#need to make up the singletons lost in graph
+hist_output_fname_prefix = '%s_haplotype_size_bar'%os.path.splitext(input_fname)[0]
+draw_histogram_of_haplotype_size(haplotype_size2number, hist_output_fname_prefix)
+ordered_clique_ls = get_ordered_clique_ls(clique_ls_indexed_by_cc_number)
+for i in range(len(ordered_clique_ls)):
+	gs = strain_iden_g.subgraph(ordered_clique_ls[i])
+	site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos, node_weight_by_no_of_nodes=1)
+	display_matrix_of_component(input_fname, ordered_clique_ls[i], ecotypeid2pos, output_fname='haplotype_%s_size%s'%(i,len(ordered_clique_ls[i])), need_sort=0, need_savefig=1)
+	draw_graph_on_map(site_g, site2weight, site2pos, 'haplotype %s size %s'%(i,len(ordered_clique_ls[i])), pic_area=get_pic_area(site2pos.values()), output_fname_prefix='haplotype_%s_size%s_map'%(i,len(ordered_clique_ls[i])))
 
+europe_lon_span = [-12,50]
+norame_lon_span = [-130,-60]
+centralasia_lon_span = [60,90]
+japan_lon_span = [130, 150]
+norame_strain_ls = get_strains_within_longitude_span(ordered_clique_ls[0], ecotypeid2pos, norame_lon_span)
+japan_strain_ls = get_strains_within_longitude_span(ordered_clique_ls[0], ecotypeid2pos, japan_lon_span)
+
+
+cross_atlantic_cc2lon_pair_set = check_cross_ocean_components(strain_iden_g, ordered_clique_ls, ecotypeid2pos, longi_watershed=-30)
+cross_eurasia_cc2lon_pair_set = check_cross_ocean_components(strain_iden_g, ordered_clique_ls, ecotypeid2pos, longi_watershed=70)
+
+
+#2007-10-03 to see whether geographic distance correlates with genotype distance
+import numpy
+geno_dist_ls, geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos)
+geo_dist_ls = numpy.array(geo_dist_ls)
+geno_dist_ls = numpy.array(geno_dist_ls)
+
+output_fname_prefix = '%s'%os.path.splitext(input_fname)[0]
+geo_output_fname_prefix = '%s_geo_distance_hist'%output_fname_prefix
+plotHist(geo_dist_ls, title="Histogram of non-NA geographic distances", output_fname_prefix=geo_output_fname_prefix)
+
+import random
+index_ls = range(len(geo_dist_ls))
+index_selected_ls = random.sample(index_ls, 10000)
+geo_dist_selected_ls = geo_dist_ls[index_selected_ls]
+geno_dist_selected_ls = geno_dist_ls[index_selected_ls]
+
+geno_vs_geo_output_fname_prefix = '%s_geno_vs_geo_dist'%output_fname_prefix
+plotXY(geo_dist_selected_ls, geno_dist_selected_ls, title='genotype vs geographic distance', xlabel="geographic dist", ylabel='genotype dist', output_fname_prefix=geno_vs_geo_output_fname_prefix)
+plot_LD(geo_dist_selected_ls, geno_dist_selected_ls,  title='genotype vs geographic distance', xlabel="geographic dist", ylabel='genotype dist', output_fname_prefix=geno_vs_geo_output_fname_prefix)
+
+#2007-10-04 divide data into continents to see whether geographic distance correlates with genotype distance
+europe_lon_span = [-12,50]
+norame_lon_span = [-130,-60]
+centralasia_lon_span = [60,90]
+japan_lon_span = [130, 150]
+def sample_geno_geo_correlation(geno_dist_ls, geo_dist_ls, output_fname_prefix):
+	import numpy
+	geo_dist_ls = numpy.array(geo_dist_ls)
+	geno_dist_ls = numpy.array(geno_dist_ls)
+	import random
+	index_ls = range(len(geo_dist_ls))
+	index_selected_ls = random.sample(index_ls, 10000)
+	geo_dist_selected_ls = geo_dist_ls[index_selected_ls]
+	geno_dist_selected_ls = geno_dist_ls[index_selected_ls]
+	plot_LD(geo_dist_selected_ls, geno_dist_selected_ls,  title='genotype vs geographic distance', xlabel="geographic dist", ylabel='genotype dist', output_fname_prefix=output_fname_prefix)
+
+eur_geno_dist_ls, eur_geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos, europe_lon_span)
+eur_geno_vs_geo_output_fname_prefix = '%s_geno_vs_geo_dist_eur'%output_fname_prefix
+sample_geno_geo_correlation(eur_geno_dist_ls, eur_geo_dist_ls, eur_geno_vs_geo_output_fname_prefix)
+
+noramer_geno_dist_ls, noramer_geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos, norame_lon_span)
+noramer_geno_vs_geo_output_fname_prefix = '%s_geno_vs_geo_dist_noramer'%output_fname_prefix
+sample_geno_geo_correlation(noramer_geno_dist_ls, noramer_geo_dist_ls, noramer_geno_vs_geo_output_fname_prefix)
+
+eur_noramer_geno_dist_ls, eur_noramer_geo_dist_ls =  calGenoDistAndGeoDistBetweenTwoAreas(input_fname, ecotypeid2pos, europe_lon_span, norame_lon_span)
+eur_noramer_geno_vs_geo_output_fname_prefix = '%s_geno_vs_geo_dist_eur_noramer'%output_fname_prefix
+sample_geno_geo_correlation(eur_noramer_geno_dist_ls, eur_noramer_geo_dist_ls, eur_noramer_geno_vs_geo_output_fname_prefix)
+
+#2007-10-01 parition cc into cliques
 from PartitionGraphIntoCliques import PartitionGraphIntoCliques
 PartitionGraphIntoCliques_ins = PartitionGraphIntoCliques(0)
 for for i in range(len(strain_iden_g_cc)):
@@ -1052,8 +1408,8 @@ for for i in range(len(strain_iden_g_cc)):
 	for j in range(len(PartitionGraphIntoCliques_ins.clique_ls)):
 		gs = g_cc.subgraph(PartitionGraphIntoCliques_ins.clique_ls[j])
 		site_g, site2weight, site2pos = construct_site_graph_out_of_strain_graph(gs, ecotypeid2pos)
-		#for site, weight in site2weight.iteritems():
-		#	site2weight[site] =  8*math.log(weight+1)
+		for site, weight in site2weight.iteritems():
+			site2weight[site] =  8*math.log(weight+1)
 		
 		display_matrix_of_component(input_fname, PartitionGraphIntoCliques_ins.clique_ls[j], ecotypeid2pos, output_fname='ecotype_identity_map_cc%sc%s'%(i,j), need_sort=0, need_savefig=1)
 		draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s clique%s'%(i,j), pic_area=[-130,34,120,65], output_fname_prefix='ecotype_identity_cc%sc%s'%(i,j))
@@ -1606,18 +1962,21 @@ def plot_LD(x_ls, y_ls, title, xlabel, ylabel, max_dist=0, output_fname_prefix=N
 			new_y_ls.append(y_ls[x_argsort_ls[i]])
 	
 	sp = scipy.interpolate.UnivariateSpline(new_x_ls,new_y_ls)
-	n_y_ls = map(sp, new_x_ls)
+	step = (new_x_ls[-1]-new_x_ls[0])/100
+	n_x_ls = numpy.arange(new_x_ls[0], new_x_ls[-1], step)
+	n_y_ls = map(sp, n_x_ls)
 	pylab.clf()
 	pylab.title(title)
 	pylab.xlabel(xlabel)
 	pylab.ylabel(ylabel)
 	pylab.plot(new_x_ls, new_y_ls, '.')
-	pylab.plot(new_x_ls, n_y_ls)
+	pylab.plot(n_x_ls, n_y_ls)
 	if output_fname_prefix:
-		output_fname_prefix = '%s_%s'%(output_fname_prefix, max_dist)
-		pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
-		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
-		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+		if max_dist:
+			output_fname_prefix = '%s_%s'%(output_fname_prefix, max_dist)
+		pylab.savefig('%s.eps'%output_fname_prefix, dpi=450)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=450)
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=450)
 
 
 """
@@ -1662,6 +2021,7 @@ else:   #32bit
 
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script/test/python')))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script/pymodule')))
 from codense.common import db_connect, form_schema_tables
 hostname='dl324b-1'
 dbname='yhdb'
@@ -1678,18 +2038,14 @@ conn0 = MySQLdb.connect(db=dbname,host=hostname)
 curs0 = conn0.cursor()
 
 hostname='localhost'
-dbname='stock20070919'
+dbname='stock20071008'
 import MySQLdb
 conn = MySQLdb.connect(db=dbname,host=hostname)
 curs = conn.cursor()
 
 if __name__ == '__main__':
-	input_fname = './script/variation/stock20070919/data_d110_c0_5.tsv'
-	input_fname = '/tmp/test'
-	r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = calculate_LD(input_fname, curs, snp_locus_table='snps', debug=1)
-	import numpy
-	from numpy import arange, cos, linspace, pi, sin, random
-	from scipy.interpolate import splprep, splev
-	tckp,u = splprep([numpy.array(distance_ls), numpy.array(r_square_ls)])
-	xnew,ynew,znew = splev(linspace(1000, 1e7, 10000),tckp)
-	
+	ecotype_table = 'ecotype'
+	calls_table = 'calls'
+	strain_snp_pair_set1, inconsistent_dup_strain_snp_pair_set1 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table)
+	strain_snp_pair_set2, inconsistent_dup_strain_snp_pair_set2 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=2)
+	strain_snp_pair_set3, inconsistent_dup_strain_snp_pair_set3 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=3)
