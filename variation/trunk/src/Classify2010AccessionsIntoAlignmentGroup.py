@@ -39,6 +39,11 @@ from codense.common import db_connect, dict_map
 from sets import Set
 import networkx as nx
 
+"""
+2007-10-12
+	following functions till the class are used to output 2010 alignments and 149 snps in lindna (EMBOSS software to draw linear maps of dna constructs) format.
+"""
+
 def get_alignment_id2pos(curs, alignment_table='at.alignment'):
 	sys.stderr.write("Getting alignment_id2pos ...")
 	alignment_id2pos = {}
@@ -50,7 +55,7 @@ def get_alignment_id2pos(curs, alignment_table='at.alignment'):
 	sys.stderr.write("Done.\n")
 	return alignment_id2pos
 
-def get_snp_id2pos(curs, snp_table):
+def get_snp_id2pos(curs, snp_table='stock.snps'):
 	sys.stderr.write("Getting snp_id2pos ...")
 	snp_id2pos = {}
 	curs.execute("select id, chromosome, position from %s"%(snp_table))
@@ -76,13 +81,15 @@ def get_chr_id2pos_ls(curs, alignment_type, alignment_id2pos, snp_id2pos, alignm
 	for snp_id, pos in snp_id2pos.iteritems():
 		chromosome, position = pos
 		if chromosome not in chr_id2pos_ls:
-			chr_id2pos_ls.append((position, -1, snp_id))	#-1 is an indicator of snp versus alignment
+			chr_id2pos_ls[chromosome] = []
+		chr_id2pos_ls[chromosome].append((position, -1, snp_id))	#-1 is an indicator of snp versus alignment
 	sys.stderr.write("Done.\n")
 	return chr_id2pos_ls
 
 def get_chr_id2size(curs, chromosome_table='at.chromosome'):
 	sys.stderr.write("Getting chr_id2size ...")
 	curs.execute("select id, size from %s"%chromosome_table)
+	chr_id2size = {}
 	rows = curs.fetchall()
 	for row in rows:
 		chr_id, size = row
@@ -90,7 +97,7 @@ def get_chr_id2size(curs, chromosome_table='at.chromosome'):
 	sys.stderr.write("Done.\n")
 	return chr_id2size
 
-def output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname):
+def output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname, label_alignment=0):
 	f = open(output_fname, 'w')
 	max_length = max(chr_id2size.values())
 	f.write('Start\t1\n')
@@ -101,7 +108,7 @@ def output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname):
 		f.write('group\n')
 		f.write('chr %s\n'%chr_id)
 		f.write('label\n')
-		f.write('Tick\t1\t15\n')	#the white tick in order for the EMBOSS lindna to draw the  line before the 1st block, 15 means white (background color).
+		f.write('Block\t1\t2\t15\n')	#the initial white block in order for the EMBOSS lindna to draw the  line before the 1st block, 15 means white (background color).
 		f.write('endlabel\n')
 		pos_ls = chr_id2pos_ls[chr_id]
 		pos_ls.sort()	#ascending order to avoid the default connecting line ran through blocks
@@ -110,17 +117,32 @@ def output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname):
 			if pos[1] == -1:	#it's a tick
 				f.write('Tick\t%s\t8\tH\n'%pos[0])	#the white tick in order for the EMBOSS lindna to draw the  line before the 1st block. 8 denotes brown color. H means label in vertical
 			else:
-				f.write('Block\t%s\t%s\t3\tH\n'%(pos[0], pos[1]))	#3 denotes green color
-				f.write('%s\n'%pos[2])
+				f.write('Block\t%s\t%s\t0\tH\n'%(pos[0], pos[1]))	#0 denotes black color
+				if label_alignment:
+					f.write('%s\n'%pos[2])
 			f.write('endlabel\n')
 		#the last white tick in order for the EMBOSS lindna to draw the line after the last block till chromosome end
 		f.write('label\n')
-		f.write('Tick\t%s\t15\n'%chr_id2size[chr_id])
+		f.write('Block\t%s\t%s\t15\n'%(chr_id2size[chr_id]-1,chr_id2size[chr_id]))
 		f.write('endlabel\n')
 		f.write('endgroup\n')
 
 """
-2007-10-12
+#2007-10-12
+hostname='localhost'
+dbname='stock20071008'
+import MySQLdb
+conn = MySQLdb.connect(db=dbname,host=hostname)
+curs = conn.cursor()
+
+alignment_id2pos = get_alignment_id2pos(curs, alignment_table='at.alignment')
+snp_id2pos = get_snp_id2pos(curs, snp_table='%s.snps'%dbname)
+chr_id2size = get_chr_id2size(curs, chromosome_table='at.chromosome')
+
+for alignment_type in range(1,106):
+	chr_id2pos_ls = get_chr_id2pos_ls(curs, alignment_type, alignment_id2pos, snp_id2pos, alignment_type2alignment_table='at.alignment_type2alignment')
+	output_fname = '/tmp/chr_2010_alignment_type%s_149snps.txt'%alignment_type
+	output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname)
 """
 
 class Classify2010AccessionsIntoAlignmentGroup:
