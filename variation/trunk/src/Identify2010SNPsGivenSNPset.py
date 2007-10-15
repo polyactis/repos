@@ -54,6 +54,174 @@ import Numeric
 from sets import Set
 from transfacdb import fasta_block_iterator
 
+def setup2010Alignment(curs, accession_table, sequence_table):
+	"""
+	2007-10-09
+	"""
+	sys.stderr.write("Setting up for 2010 alignment ...")
+	accession_id2index = {}
+	accession_id_ls = []
+	accession_name_ls = []
+	accession_name2id = {}
+	curs.execute("select distinct s.accession, a.name from %s s, %s a where a.id=s.accession order by accession"%(sequence_table, accession_table))
+	rows = curs.fetchall()
+	for row in rows:
+		accession_id, accession_name = row
+		accession_id_ls.append(accession_id)
+		accession_name_ls.append(accession_name)
+		accession_id2index[accession_id] = len(accession_id_ls)-1
+		accession_name2id[accession_name] = accession_id
+	alignment_id2index = {}
+	alignment_id_ls = []
+	curs.execute("select distinct alignment from %s order by alignment"%sequence_table)
+	rows = curs.fetchall()
+	for row in rows:
+		alignment_id = row[0]
+		alignment_id_ls.append(alignment_id)
+		alignment_id2index[alignment_id] = len(alignment_id_ls)-1
+	sys.stderr.write("Done.\n")
+	return accession_id2index, accession_id_ls, accession_name_ls, accession_name2id, alignment_id2index, alignment_id_ls
+
+def get2010Alignment(curs, accession_id2index, alignment_id2index, alignment_id_ls, sequence_table):
+	"""
+	2007-10-09
+	"""
+	sys.stderr.write("Getting 2010 alignment ...")
+	alignment_matrix = []
+	for accession_id in accession_id2index:
+		alignment_row = ['']*len(alignment_id_ls)
+		alignment_matrix.append(alignment_row)
+	curs.execute("select accession, alignment, bases from %s"%sequence_table)
+	rows = curs.fetchmany(5000)
+	while rows:
+		for row in rows:
+			accession_id, alignment_id, bases = row
+			alignment_matrix[accession_id2index[accession_id]][alignment_id2index[alignment_id]] = bases
+		rows = curs.fetchmany(5000)
+	sys.stderr.write("Done.\n")
+	return alignment_matrix
+
+def output2010Alignment(accession_id_ls, accession_name_ls, alignment_id_ls, alignment_matrix, output_fname):
+	"""
+	2007-10-09
+	"""
+	sys.stderr.write("Outputting 2010 alignment ...")
+	import csv
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	header = ['accession_id', 'accession_name'] + alignment_id_ls
+	writer.writerow(header)
+	for i in range(len(accession_id_ls)):
+		row = [accession_id_ls[i], accession_name_ls[i]] + alignment_matrix[i]
+		writer.writerow(row)
+	sys.stderr.write("Done.\n")
+	del writer
+
+def calBinaryDistanceBetTwoNumericVectors(row1, row2):
+	"""
+	2007-10-09
+	"""
+	no_of_valid_pairs = 0.0
+	no_of_matching_pairs = 0.0
+	for i in range(len(row1)):
+		if row1[i]!=0 and row2[i]!=0:
+			no_of_valid_pairs += 1
+			if row1[i] == row2[i]:
+				no_of_matching_pairs += 1
+	if no_of_valid_pairs!=0:
+		distance = 1 - no_of_matching_pairs/no_of_valid_pairs
+	else:
+		distance = None
+	return distance, no_of_valid_pairs
+
+def calBinaryDistanceBetTwoAlignmentVectors(row1, row2):
+	"""
+	2007-10-09
+	"""
+	no_of_valid_pairs = 0.0
+	no_of_matching_pairs = 0.0
+	for i in range(len(row1)):
+		if row1[i]!='' and row2[i]!='':	#both data has to be available
+			for j in range(len(row1[i])):
+				nut1 = row1[i][j].upper()
+				nut2 = row2[i][j].upper()
+				if nut1!='N' and nut2!='N':	#'-' is treated as deletion, not NA
+					no_of_valid_pairs += 1
+					if nut1 == nut2:
+						no_of_matching_pairs += 1
+	if no_of_valid_pairs!=0:
+		distance = 1 - no_of_matching_pairs/no_of_valid_pairs
+	else:
+		distance = None
+	return distance, no_of_valid_pairs
+
+def cmp192StrainsBorevitsAndNordborgData(borevitz_data_fname, nordborg_data_fname):
+	"""
+	2007-10-09
+		compare between borevitz and nordborg data of 192 strains
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	borevitz_header, borevitz_strain_acc_list, borevitz_category_list, borevitz_data_matrix = FilterStrainSNPMatrix_instance.read_data(borevitz_data_fname)
+	
+	nordborg_header, nordborg_strain_acc_list, nordborg_category_list, nordborg_data_matrix = FilterStrainSNPMatrix_instance.read_data(nordborg_data_fname, turn_into_integer=0)
+	
+	#for nordborg data
+	accession_name2index = {}
+	for i in range(len(nordborg_category_list)):
+		accession_name = nordborg_category_list[i]
+		accession_name2index[accession_name] = i
+	
+	nativename_missing_in_nordborg_alignment_ls = []
+	for nativename in borevitz_category_list:
+		if nativename not in accession_name2index:
+			nativename_missing_in_nordborg_alignment_ls.append(nativename)
+	print 'nativename_missing_in_nordborg_alignment_ls:', nativename_missing_in_nordborg_alignment_ls
+	
+	sys.stderr.write("Comparing 192 strains' data from borevitz lab and nordborg 2010 ...")
+	acc_name_pair_ls = []
+	borevitz_dist_ls = []
+	nordborg_dist_ls = []
+	no_of_borevits_strains = len(borevitz_strain_acc_list)
+	no_of_valid_nordborg_pairs_ls = []
+	for i in range(no_of_borevits_strains):
+		for j in range(i+1, no_of_borevits_strains):
+			acc_name1 = borevitz_category_list[i]
+			acc_name2 = borevitz_category_list[j]
+			if acc_name1 in accession_name2index and acc_name2 in accession_name2index:
+				borevitz_dist, no_of_valid_pairs = calBinaryDistanceBetTwoNumericVectors(borevitz_data_matrix[i], borevitz_data_matrix[j])
+				
+				nordborg_dist, no_of_valid_pairs = calBinaryDistanceBetTwoAlignmentVectors(nordborg_data_matrix[accession_name2index[acc_name1]], nordborg_data_matrix[accession_name2index[acc_name2]])
+				
+				borevitz_dist_ls.append(borevitz_dist)
+				nordborg_dist_ls.append(nordborg_dist)
+				acc_name_pair_ls.append((acc_name1, acc_name2))
+				no_of_valid_nordborg_pairs_ls.append(no_of_valid_pairs)
+	sys.stderr.write("Done.\n")
+	return acc_name_pair_ls, borevitz_dist_ls, nordborg_dist_ls, no_of_valid_nordborg_pairs_ls
+
+"""
+hostname='papaya.usc.edu'
+dbname='at'
+import MySQLdb
+conn = MySQLdb.connect(db=dbname,host=hostname,user='yh', passwd='yh324')
+curs = conn.cursor()
+accession_table = 'accession'
+sequence_table = 'sequence'
+accession_id2index, accession_id_ls, accession_name_ls, accession_name2id, alignment_id2index, alignment_id_ls = setup2010Alignment(curs, accession_table, sequence_table)
+alignment_matrix = get2010Alignment(curs, accession_id2index, alignment_id2index, alignment_id_ls, sequence_table)
+output_fname = '/tmp/2010alignment.tsv'
+output2010Alignment(accession_id_ls, accession_name_ls, alignment_id_ls, alignment_matrix, output_fname)
+
+#output 192 strains' data in justin borevitz's database by './src/dbSNP2data.py -z localhost -d stock20071008 -i calls -o stock20071008/data_192.tsv -s ecotype -n snps -m -y 30001101'
+
+input_fname_192 = 'script/variation/stock20071008/data_192.tsv'
+acc_name_pair_ls, borevitz_dist_ls, nordborg_dist_ls, no_of_valid_nordborg_pairs_ls = cmp192StrainsBorevitsAndNordborgData(input_fname_192, output_fname)
+
+from misc import plot_LD
+output_fname_prefix = '%s'%os.path.splitext(input_fname_192)[0]
+plot_LD(nordborg_dist_ls, borevitz_dist_ls,  title='149snp vs 2010 pairwise dist', xlabel="nordborg dist", ylabel='borevitz dist', output_fname_prefix='%s_vs_2010_dist'%output_fname_prefix)
+"""
+
 class Identify2010SNPsGivenSNPset:
 	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', \
 		input_fname=None, data_dir_2010=None, output_fname=None, strain_info_table='strain_info', \
