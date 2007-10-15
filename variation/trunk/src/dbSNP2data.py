@@ -40,8 +40,8 @@ Examples:
 Description:
 	output SNP data from database schema
 	
-	definition of each bit in processing_bits (0=off, 1=on)
-	1. only include strains with GPS info
+	definition of each bit in processing_bits (0=off, 1=on), default is 10101101.
+	1. 1: only include strains with GPS info, 2: north american strains only, 3: 2010's 192 strains
 	2. include columns of other strain info (latitude, longitude, stockparent, site, country)
 	3. resolve duplicated calls (unique constraint on (nativename, stockparent))
 	4. toss out rows to make distance matrix NA free
@@ -169,15 +169,19 @@ class dbSNP2data:
 			solve the call-duplication problem.
 		2007-09-23
 			add only_include_strains_with_GPS and resolve_duplicated_calls
+		2007-10-09
+			only_include_strains_with_GPS has more meanings
 		"""
 		sys.stderr.write("Getting strain_id2index ..m.")
 		strain_id2index = {}
 		strain_id_list = []
 		nativename2strain_id = {}
-		if only_include_strains_with_GPS:
+		if only_include_strains_with_GPS==1:
 			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
-			#2007-10-01 north american samples
-			#curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and s.longitude<-60 and s.longitude>-130 order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
+		elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
+			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and s.longitude<-60 and s.longitude>-130 order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
+		elif only_include_strains_with_GPS==3:
+			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s, batch_ecotype be, batch b where b.batchname='192' and b.id=be.batchid and s.id=be.ecotypeid and d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
 		else:
 			curs.execute("select distinct d.ecotypeid, s.nativename, s.stockparent from %s d, %s s where d.ecotypeid=s.id order by ecotypeid, nativename, stockparent"%(input_table, strain_info_table))
 		rows = curs.fetchall()
