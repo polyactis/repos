@@ -7,6 +7,10 @@
 esc_character_dict = {'_':'\\_'}
 
 def escape_characters(latex_line):
+	"""
+	2007-10-15
+		to escape some characters
+	"""
 	new_latex_line = ''
 	for character in latex_line:
 		if character in esc_character_dict:
