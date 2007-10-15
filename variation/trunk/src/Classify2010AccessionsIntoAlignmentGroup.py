@@ -45,6 +45,9 @@ import networkx as nx
 """
 
 def get_alignment_id2pos(curs, alignment_table='at.alignment'):
+	"""
+	2007-10-12
+	"""
 	sys.stderr.write("Getting alignment_id2pos ...")
 	alignment_id2pos = {}
 	curs.execute("select id, chromosome, start, end from %s"%(alignment_table))
@@ -56,6 +59,9 @@ def get_alignment_id2pos(curs, alignment_table='at.alignment'):
 	return alignment_id2pos
 
 def get_snp_id2pos(curs, snp_table='stock.snps'):
+	"""
+	2007-10-12
+	"""
 	sys.stderr.write("Getting snp_id2pos ...")
 	snp_id2pos = {}
 	curs.execute("select id, chromosome, position from %s"%(snp_table))
@@ -67,26 +73,47 @@ def get_snp_id2pos(curs, snp_table='stock.snps'):
 	return snp_id2pos
 
 def get_chr_id2pos_ls(curs, alignment_type, alignment_id2pos, snp_id2pos, alignment_type2alignment_table='at.alignment_type2alignment'):
-	sys.stderr.write("Getting chr_id2pos_ls ...")
+	"""
+	2007-10-12
+	"""
+	sys.stderr.write("Getting chr_id2pos_ls for alignment_type %s..."%alignment_type)
 	chr_id2pos_ls = {}
 	curs.execute("select alignment_type, alignment_id from %s where alignment_type=%s"%(alignment_type2alignment_table, alignment_type))
 	rows = curs.fetchall()
+	chr_id2alignment_pos_ls = {}
 	for row in rows:
 		alignment_type, alignment_id = row
 		chromosome, start, end = alignment_id2pos[alignment_id]
 		if chromosome not in chr_id2pos_ls:
 			chr_id2pos_ls[chromosome] = []
+			chr_id2alignment_pos_ls[chromosome] = []
 		chr_id2pos_ls[chromosome].append((start, end, alignment_id))
+		chr_id2alignment_pos_ls[chromosome].append((start, end, alignment_id))
 	
+	chr_id2snp_pos_ls = {}
 	for snp_id, pos in snp_id2pos.iteritems():
 		chromosome, position = pos
 		if chromosome not in chr_id2pos_ls:
 			chr_id2pos_ls[chromosome] = []
+		if chromosome not in chr_id2snp_pos_ls:
+			chr_id2snp_pos_ls[chromosome] = []
 		chr_id2pos_ls[chromosome].append((position, -1, snp_id))	#-1 is an indicator of snp versus alignment
+		chr_id2snp_pos_ls[chromosome].append((position, -1, snp_id))
+	
+	#sort all pos_ls
+	for chr_id in chr_id2pos_ls:	#chr_id2pos_ls.keys() encompass chr_id2alignment_pos_ls.keys() and chr_id2snp_pos_ls.keys()
+		chr_id2pos_ls[chr_id].sort()
+		if chr_id in chr_id2alignment_pos_ls:
+			chr_id2alignment_pos_ls[chr_id].sort()
+		if chr_id in chr_id2snp_pos_ls:
+			chr_id2snp_pos_ls[chr_id].sort()
 	sys.stderr.write("Done.\n")
-	return chr_id2pos_ls
+	return chr_id2pos_ls, chr_id2alignment_pos_ls, chr_id2snp_pos_ls
 
 def get_chr_id2size(curs, chromosome_table='at.chromosome'):
+	"""
+	2007-10-12
+	"""
 	sys.stderr.write("Getting chr_id2size ...")
 	curs.execute("select id, size from %s"%chromosome_table)
 	chr_id2size = {}
@@ -98,6 +125,9 @@ def get_chr_id2size(curs, chromosome_table='at.chromosome'):
 	return chr_id2size
 
 def output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname, label_alignment=0):
+	"""
+	2007-10-12
+	"""
 	f = open(output_fname, 'w')
 	max_length = max(chr_id2size.values())
 	f.write('Start\t1\n')
@@ -127,6 +157,122 @@ def output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname, label_alignme
 		f.write('endlabel\n')
 		f.write('endgroup\n')
 
+def get_alignment_type_group_ls(curs, alignment_type2alignment_table = 'at.alignment_type2alignment', alignments_cnt_range_ls=[(1,10),(10,50),(100,150),(150,200),(1300,1600)]):
+	"""
+	2007-10-12
+	"""
+	sys.stderr.write("Getting alignment_type_group_ls ...")
+	alignment_type_group_ls = []
+	alignment_type_cnt_group_ls = []
+	for cnt_range in alignments_cnt_range_ls:
+		curs.execute("select alignment_type, count(alignment_id) as cnt from %s group by alignment_type  order by cnt, alignment_type"%alignment_type2alignment_table)
+		rows = curs.fetchall()
+		alignment_type_group = []
+		alignment_type_cnt_group = []
+		for row in rows:
+			alignment_type, cnt = row
+			if cnt>=cnt_range[0] and cnt<=cnt_range[1]:
+				alignment_type_group.append(alignment_type)
+				alignment_type_cnt_group.append(cnt)
+		alignment_type_group_ls.append(alignment_type_group)
+		alignment_type_cnt_group_ls.append(alignment_type_cnt_group)
+	sys.stderr.write("Done.\n")
+	return alignment_type_group_ls, alignment_type_cnt_group_ls
+
+def is_snp_within_alignment_pos_ls(snp_pos, alignment_pos_ls):
+	"""
+	2007-10-14
+		alignment_pos_ls is already sorted
+	"""
+	position = snp_pos[0]
+	return_value = False
+	for alignment_pos in alignment_pos_ls:
+		if position>=alignment_pos[0] and position<=alignment_pos[1]:	#found one
+			return_value = True
+			break
+		if position<alignment_pos[0]:	#skip the rest
+			break
+	return return_value
+
+
+"""
+#some tests for is_snp_within_alignment_pos_ls()
+alignment_pos_ls= [ [1,10,1],[100,1000,2]]
+is_snp_within_alignment_pos_ls([101,-1], alignment_pos_ls)
+"""
+
+def get_alignment_type2no_of_aligns_and_149_snps(curs, alignment_id2pos, snp_id2pos, alignment_type2alignment_table='at.alignment_type2alignment'):
+	"""
+	2007-10-14
+	"""
+	sys.stderr.write("Getting alignment_type2no_of_aligns_and_149_snps ...\n")
+	alignment_type2no_of_aligns_and_149_snps = {}
+	curs.execute("select distinct alignment_type from %s"%alignment_type2alignment_table)
+	rows = curs.fetchall()
+	for row in rows:
+		alignment_type = row[0]
+		chr_id2pos_ls, chr_id2alignment_pos_ls, chr_id2snp_pos_ls = get_chr_id2pos_ls(curs, alignment_type, alignment_id2pos, snp_id2pos, alignment_type2alignment_table)
+		no_of_overlappings = 0
+		for chr_id, snp_pos_ls in chr_id2snp_pos_ls.iteritems():
+			if chr_id in chr_id2alignment_pos_ls:
+				for snp_pos in snp_pos_ls:
+					if is_snp_within_alignment_pos_ls(snp_pos, chr_id2alignment_pos_ls[chr_id]):
+						no_of_overlappings += 1
+		alignment_type2no_of_aligns_and_149_snps[alignment_type] = [sum(map(len,chr_id2alignment_pos_ls.values())), no_of_overlappings]
+	sys.stderr.write("Done.\n")
+	return alignment_type2no_of_aligns_and_149_snps
+
+def LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_group_ls, alignment_type_cnt_group_ls, fig_fname_ls, alignment_type2no_of_aligns_and_149_snps, output_fname, accession_table='at.accession', ecotype2accession_table='at.ecotype2accession', stock_schema='stock20071008', accession2alignment_type_table='at.accession2alignment_type'):
+	"""
+	2007-10-12
+	"""
+	sys.stderr.write("Output alignment summary in latex ...\n")
+	of = open(output_fname, 'w')
+	for i in range(len(alignment_type_group_ls)):
+		sys.stderr.write("\t alignment group %s "%i)
+		of.write('\\begin{table}\n')
+		alignment_type_group = alignment_type_group_ls[i]
+		cnt_range = alignments_cnt_range_ls[i]
+		alignment_type_cnt_group = alignment_type_cnt_group_ls[i]
+		flabel = 'fatg%s'%i
+		caption = "The number of alignments for these strains is from %s to %s falling into %s. %s distinct alignment combinations. alignment-type is id for one kind of distinct alignment combination. \\#fragments is the number of fragments sequenced in 2010. \\#149snps is the number of the 149 snps falling into that strain's fragments. Figure~\\ref{%s} is an example chromosome chart of this table."%(alignment_type_cnt_group[0], alignment_type_cnt_group[-1], cnt_range, len(alignment_type_group), flabel)
+		of.write('\\caption{%s}\n'%caption)
+		of.write('\\begin{tabular}{|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}\n')
+		of.write('\\hline\n')
+		of.write('\\multicolumn{4}{|c|}{accession table} & \\multicolumn{8}{|c|}{ecotype table} & \\multicolumn{3}{|c|}{fragments info} \\\\\n')
+		of.write('\\hline\n')
+		of.write('id & name & origin & number & id & name & nativename & stockparent & lat & lon & site & country & alignment-type & \\#fragments & \\#149snps\\\\\n')
+		of.write('\\hline\n')
+		curs.execute("select aa.accession_id, a.name, a.origin, a.number, aa.alignment_type from %s aa, %s a where a.id=aa.accession_id and aa.alignment_type in (%s) order by name, accession_id "%(accession2alignment_type_table, accession_table, repr(map(int ,alignment_type_group))[1:-1]))
+		rows = curs.fetchall()
+		of.write('\\multicolumn{13}{|c|}{%s strains} \\\\\n'%(len(rows)) )
+		of.write('\\hline\n')
+		for row in rows:
+			accession_id, name, origin, number, alignment_type = row
+			curs.execute("select e.id, e.name, e.nativename, e.stockparent, e.latitude, e.longitude, s.name, c.abbr from %s.ecotype e, %s.address a, %s.site s, %s.country c, %s ea where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=ea.ecotype_id and ea.accession_id=%s "%(stock_schema, stock_schema, stock_schema, stock_schema, ecotype2accession_table, accession_id))
+			ecotype_rows = curs.fetchall()
+			if ecotype_rows:
+				ecotype_id, ecotype_name, nativename, stockparent, latitude, longitude, site, country = ecotype_rows[0]
+			else:
+				ecotype_id=ecotype_name= nativename= stockparent= latitude= longitude= site= country = ''
+			no_of_alns, no_of_149snps = alignment_type2no_of_aligns_and_149_snps[alignment_type]
+			of.write('%s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s  \\\\\n'%(accession_id, name, origin, number, ecotype_id, ecotype_name, nativename, stockparent, latitude, longitude, site, country, alignment_type, no_of_alns, no_of_149snps))
+		of.write('\\hline\n')
+		of.write('\\end{tabular}\n')
+		label = 'tatg%s'%i
+		of.write('\\label{%s}\n'%label)
+		of.write('\\end{table}\n')
+		of.write('\n')
+		of.write('\\begin{figure}\n')
+		of.write('\\includegraphics[width=1\\textwidth, height=1\\textheight]{figures/%s}\n'%fig_fname_ls[i])
+		of.write('\\caption{Red ticks are locations of 149 snps. Black blocks are locations of fragments.}\\label{%s}\n'%flabel)
+		of.write('\\end{figure}\n')
+		of.write('\n')
+		sys.stderr.write("\n")
+	del of
+	sys.stderr.write("Done.\n")
+
+
 """
 #2007-10-12
 hostname='localhost'
@@ -134,15 +280,35 @@ dbname='stock20071008'
 import MySQLdb
 conn = MySQLdb.connect(db=dbname,host=hostname)
 curs = conn.cursor()
+alignment_type2alignment_table='at.alignment_type2alignment'
 
 alignment_id2pos = get_alignment_id2pos(curs, alignment_table='at.alignment')
 snp_id2pos = get_snp_id2pos(curs, snp_table='%s.snps'%dbname)
 chr_id2size = get_chr_id2size(curs, chromosome_table='at.chromosome')
 
+
 for alignment_type in range(1,106):
-	chr_id2pos_ls = get_chr_id2pos_ls(curs, alignment_type, alignment_id2pos, snp_id2pos, alignment_type2alignment_table='at.alignment_type2alignment')
+	chr_id2pos_ls, chr_id2alignment_pos_ls, chr_id2snp_pos_ls = get_chr_id2pos_ls(curs, alignment_type, alignment_id2pos, snp_id2pos, alignment_type2alignment_table)
 	output_fname = '/tmp/chr_2010_alignment_type%s_149snps.txt'%alignment_type
 	output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname)
+
+alignment_type2no_of_aligns_and_149_snps = get_alignment_type2no_of_aligns_and_149_snps(curs, alignment_id2pos, snp_id2pos, alignment_type2alignment_table)
+
+alignments_cnt_range_ls=[(1,10),(10,50),(100,150),(150,200),(1300,1600)]
+alignment_type_group_ls, alignment_type_cnt_group_ls = get_alignment_type_group_ls(curs, alignment_type2alignment_table, alignments_cnt_range_ls)
+
+accession_table='at.accession'
+ecotype2accession_table='at.ecotype2accession'
+stock_schema='stock20071008'
+accession2alignment_type_table='at.accession2alignment_type'
+
+fig_fname_ls = []	#this corresponds to alignments_cnt_range_ls
+for alignment_type in [105, 97, 101, 98, 92]:
+	fig_fname = 'chr_2010_alignment_type%s_149snps.eps'%alignment_type
+	fig_fname_ls.append(fig_fname)
+
+output_fname = '2010SequenceReport.tex'
+LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_group_ls, alignment_type_cnt_group_ls, fig_fname_ls, alignment_type2no_of_aligns_and_149_snps, output_fname, accession_table, ecotype2accession_table, stock_schema, accession2alignment_type_table)
 """
 
 class Classify2010AccessionsIntoAlignmentGroup:
