@@ -2,12 +2,10 @@
 \usepackage[pdftex]{color,graphicx}
 \usepackage[pdftex, bookmarks, colorlinks=false]{hyperref}
 %\usepackage[all]{xy}
-\addtolength{\textheight}{6.5cm}
-\addtolength{\textwidth}{3.5cm}
+\addtolength{\textheight}{4cm}
+\addtolength{\textwidth}{3cm}
 \addtolength{\hoffset}{-3cm}
 \addtolength{\voffset}{-3cm}
-
-\setlength{\parskip}{3ex plus 0.5ex minus 0.2ex}
 
 %opening
 \title{Paper}
@@ -89,7 +87,7 @@ Figure~\ref{f4} is a histogram of NA percentage in all SNPs. 5 SNPs with $\geq 4
 \section{Bogus Heterozygous Calls(column-wise)}
 From figure~\ref{f24} or figure~\ref{f10}, there're columns with an unreasonable whopping number of heterozygous calls.
 
-Check figure~\ref{f2} for the histogram of heterozygosity of each strain. Among 5590-194=5396 strains, 2407 strains have no heterozygous calls. 1961 strains have only one heterozygous call. None of the strains' heterozygosity exceeds 0.5.
+Check figure~\ref{f2} for the histogram of heterozygosity of each strain. Among 5602-194=5408 strains, 2407 (?) strains have no heterozygous calls. 1961 (?) strains have only one heterozygous call. None of the strains' heterozygosity exceeds 0.5.
 
 \begin{figure}
 \includegraphics[width=1\textwidth]{figures/data_d110_strain_hz_perc.png}
@@ -114,7 +112,7 @@ Figure~\ref{f3} is the histogram of the probability for each SNP locus after tak
 \caption{}\label{f3}
 \end{figure}
 
-4 SNP loci with log probability $\leq -0.5$ were removed. These four loci show long stretch of heterozygous calls among lots of strains in Figure~\ref{f2}. 
+4 SNP loci (AtMSQTsnp 267, AtMSQTsnp 232, AtMSQTsnp 138, AtMSQTsnp 263) with log probability $\leq -0.5$ were removed. These four loci show long stretch of heterozygous calls among lots of strains in Figure~\ref{f2}.
 
 These long stretch of heterozygous calls could trace to technical error, segmental duplication in all strains, segmental duplication in some strains  or real heterozygotes caused by population structure.
 
@@ -122,9 +120,19 @@ These long stretch of heterozygous calls could trace to technical error, segment
 \section{identity strains across globe}
 Here is to see how identity strain pairs are distributed across globe. We first tried a loose criteria to define identity. If one of the two calls is NA, it's deemed as identical too. Hence, the transivity of identity relationship is not guaranteed. For example, given strain 1 and 2 are identical and strain 1 and 3 are also identical, strain 1 and 3 might not be identical.
 
-In total, there're 433,295 identity pairs. Think of it as a graph, which can be partitioned into connected components. Within each connected component, any two strains could be reached via some intermediate strains based on identity relationship. Each connected component could loosely correspond to a distinct haplotype ('loosely' because its transivity is not guaranteed and there're still some strains who are not identical.).
+Figure~\ref{f29} is a histogram of pairwise distances (binary/hamming). 433,295 identity pairs is a major portion of the leftest spike.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_distance_hist.png}
+\caption{histogram of pairwise distance}\label{f29}
+\end{figure}
+
+
+In total, there're 433,295 identity pairs.
 
 \subsection{connected components in the identity strain graph}
+Think of it as a graph, which can be partitioned into connected components. Within each connected component, any two strains could be reached via some intermediate strains based on identity relationship. Each connected component could loosely correspond to a distinct haplotype ('loosely' because its transivity is not guaranteed and there're still some strains who are not identical.).
+
 There're not many long-distance connected components. Most of them are within one country. So far two components were spotted as cross ocean.(still need systematically determine how many cross-ocean components there are.)
 
 Figure~\ref{f25} shows the cross-atlantic component. Figure~\ref{f26} is the data matrix corresponding to the cross-atlantic component. Notice this component is actually a clique (transivity reached, any two strains are identical to each other.). Magnus and I just sat down and found three Col-0 strains are in this component, which raises lab-contamination suspicion over this component. This component is probably Col-0 haplotype.
@@ -145,6 +153,208 @@ There's another component linking america and japan, figure~\ref{f27}. the pictu
 \includegraphics[width=1\textwidth]{figures/ecotype_identity_cc0_site_network.png}
 \caption{the america-japan component}\label{f27}
 \end{figure}
+
+\subsection{unique haplotypes}
+With transivity not guaranteed in the connected component, we further break the connected components into cliques. A clique is a graph in which any two vertices are neighbors. Every clique could represent one unique haplotype.
+
+Figure~\ref{fhap_1} shows the distribution of the number of times unique haplotypes (magnus, i changed 'genotypes' to 'haplotypes') were sampled. There're 2256 unique haplotypes in total. The distribution is extremely skewed: 1782(78.99\%) of all haplotypes are seen once, and of those seen more than once, 217(9.62\%) are only seen twice. Only 257 haplotypes are seen more than twice. The most frequent one is seen 900 times. Figure~\ref{fhap_2} shows the geographic distribution of all 900 instances. only one of them appear outside north america, which is suspected to be the result of academia interaction.
+
+For 257 haplotypes that appear in more than three times, most of them appear in local populations, or at least within one continent. Apart from the one, figure~\ref{fhap_2} crossing pacific, there're six cross-atalantic, table~\ref{thap_2}, \ref{thap_3}, \ref{thap_4}, \ref{thap_5}, \ref{thap_6}, \ref{thap_7} and one cross-eurasia, table~\ref{thap_1}.
+
+
+
+%for internal clique tracking purpose
+%[7, 90, 143, 169, 194, 231] are cross-atlantic cliques.
+%[96] is a cross-eurasia clique.
+%[0] is cross-pacific.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_haplotype_size_bar_no_900.png}
+\caption{x axis is how many times one unique haplotype occur in the population, which is labeled haplotype size. y axis is the number of unique haplotypes with that number of occurrence. for example, 1st bar means there're 1782 unique haplotypes that occur only once in the population. An outlier whose haplotype size is 900 is excluded in this figure and it only occurs once, figure~\ref{fhap_2}.}\label{fhap_1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[angle=-90,width=1\textwidth]{figures/haplotype_0_size900_map_site_network.png}
+\caption{the most frequent haplotype, also the only one cross-pacific. most of them, 899 are in north america (US). only 1 (nativename is Gifu-2) is in japan.}\label{fhap_2}
+\end{figure}
+
+\begin{table}
+\caption{Cross Eurasia Haplotype}
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+ecotypeid & nativename & stockparent & latitude & longitude & site & country\\
+\hline
+7374 & CS28781    & CS6926      &    34.43 &    136.31 & Tsu  & JPN  \\
+6972 & CS28782    & CS22641     &    34.43 &    136.31 & Tsu  & JPN  \\
+7373 & Tsu-0      & CS6874      &    34.43 &    136.31 & Tsu  & JPN  \\
+8394 & Tsu-1      & CS22641     &    34.43 &    136.31 & Tsu  & JPN  \\
+7375 & Tu-0       & CS6875      &       45 &       7.5 & Tu   & ITA  \\
+8395 & Tu-0       & N1567       &       45 &       7.5 & Tu   & ITA  \\
+\hline
+\end{tabular}
+\label{thap_1}
+\end{table}
+
+\begin{table}
+\caption{Cross Atlantic 1}
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+ecotypeid & nativename & stockparent & latitude & longitude & site & country\\
+\hline
+6714 & BG-7        & CS22347     &  47.6479 &  -122.305 & BG                       & USA \\
+7012 & Berkeley    & CS8068      &  37.8695 &  -122.271 & Berkeley                 & USA \\
+8377 & Santa Clara & N8069       &    37.21 &   -121.16 & Santa Clara              & USA \\
+7329 & Santa Clara & CS8069      &    37.21 &   -121.16 & Santa Clara              & USA \\
+7090 & Col-2       & CS907       &     38.3 &     -92.3 & Col                      & USA \\
+7089 & Col(gl1)    & CS3879      &     38.3 &     -92.3 & Col                      & USA \\
+7088 & Col-0       & CS60000     &     38.3 &     -92.3 & Col                      & USA \\
+6909 & Col-0       & CS22625     &     38.3 &     -92.3 & Col                      & USA \\
+7086 & CS28175     & CS6930      &     38.3 &     -92.3 & Col                      & USA \\
+7087 & Col-1       & CS3176      &     38.3 &     -92.3 & Col                      & USA \\
+7082 & Col-0       & CS6673      &     38.3 &     -92.3 & Col                      & USA \\
+7083 & Col-4       & CS933       &     38.3 &     -92.3 & Col                      & USA \\
+7084 & Col-7       & CS3731      &     38.3 &     -92.3 & Col                      & USA \\
+7085 & Col-3       & CS908       &     38.3 &     -92.3 & Col                      & USA \\
+7091 & Col-6(gl1)  & CS8155      &     38.3 &     -92.3 & Col                      & USA \\
+7233 & Limeport    & CS8070      &  40.5088 &  -75.4472 & Limeport                 & USA \\
+4778 & UKSW06-178  &             &     50.4 &      -4.9 & St Columb                & UK  \\
+4855 & UKSW06-255  &             &     50.4 &      -4.9 & St Dennis                & UK  \\
+5712 & UKID5       &             &     53.2 &      -4.1 & Bangor                   & UK  \\
+ 241 & MOG-36      &             &  48.6667 &  -4.06667 & MOG                      & FRA \\
+5639 & UKNW06-476  &             &     54.7 &      -3.4 & Cockermouth              & UK  \\
+5485 & UKNW06-232  &             &     54.6 &      -3.3 & High Lorton              & UK  \\
+5656 & UKNW06-493  &             &     54.4 &      -2.9 & Windemere                & UK  \\
+5714 & UKID7       &             &     51.6 &      -0.6 & Becconsfield             & UK  \\
+5818 & UKID114     &             &     51.8 &      -0.6 & Tring (N.History Museum) & UK  \\
+5221 & UKSE06-450  &             &     51.2 &       0.3 & Tonbridge castle         & UK  \\
+5177 & UKSE06-375  &             &     51.3 &       0.4 & Wateringbury             & UK  \\
+6896 & Sq-4        & CS22243     &  51.4083 &    0.6383 & SQ                       & UK  \\
+5766 & UKID61      &             &     51.1 &         1 & Port Lympne              & UK  \\
+7018 & Bla-12      & CS6624      &     41.3 &         3 & Bla                      & ESP \\
+7226 & Li-5        & CS6775      &  50.3833 &    8.0666 & Li                       & GER \\
+6414 & Uod-3       &             &     48.3 &     14.45 & Uod                      & AUT \\
+8428 & Uod-2       &             &     48.3 &     14.45 & Uod                      & AUT \\
+5880 & DraIII-7    &             &  49.4112 &   16.2815 & DraIII                   & CZE \\
+5879 & DraIII-5    &             &  49.4112 &   16.2815 & DraIII                   & CZE \\
+6294 & UduI 1-8    &             &   49.281 &   16.6353 & UduI 1                   & CZE \\
+1441 & SL-3        &             &     62.8 &   18.0833 & SL                       & SWE \\
+\hline
+\end{tabular}
+\label{thap_2}
+\end{table}
+
+\begin{table}
+\caption{Cross Atlantic 2}
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+ecotypeid & nativename & stockparent & latitude & longitude & site & country\\
+\hline
+7805 & ME3.09     &             &   42.093 &    -86.74 & ME (Benton Harbor) & USA \\
+7821 & ME3.25     &             &   42.093 &    -86.74 & ME (Benton Harbor) & USA \\
+7831 & ME3.35     &             &   42.093 &    -86.74 & ME (Benton Harbor) & USA \\
+7844 & ME3.48     &             &   42.093 &    -86.74 & ME (Benton Harbor) & USA \\
+8623 & 1130ME1.52 &             &   42.093 &   -86.359 & ME (Benton Harbor) & USA \\
+8624 & 1130ME1.53 &             &   42.093 &   -86.359 & ME (Benton Harbor) & USA \\
+ 299 & TOU-A1-138 &             &  46.6667 &   4.11667 & TOU-A1             & FRA \\
+\hline
+\end{tabular}
+\label{thap_3}
+\end{table}
+
+\begin{table}
+\caption{Cross Atlantic 3}
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+ecotypeid & nativename & stockparent & latitude & longitude & site & country\\
+\hline
+7524 & Rmx-A02    & CS22568     &   42.036 &   -86.511 & RMX           & USA \\
+5764 & UKID59     &             &     54.7 &      -2.8 & Penrith       & UK  \\
+5768 & UKID63     &             &     54.1 &      -1.5 & Ripon         & UK  \\
+5778 & UKID73     &             &     52.2 &       1.5 & Snape Malting & UK  \\
+\hline
+\end{tabular}
+\label{thap_4}
+\end{table}
+
+\begin{table}
+\caption{Cross Atlantic 4}
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+ecotypeid & nativename & stockparent & latitude & longitude & site & country\\
+\hline
+6708 & BG-1       & CS22341     &  47.6479 &  -122.305 & BG   & USA \\
+6709 & BG-2       & CS22342     &  47.6479 &  -122.305 & BG   & USA \\
+6711 & BG-4       & CS22344     &  47.6479 &  -122.305 & BG   & USA \\
+6908 & CIBC-5     & CS22602     &  51.4083 &    0.6383 & CIBC & UK  \\
+\hline
+\end{tabular}
+\label{thap_5}
+\end{table}
+
+\begin{table}
+\caption{Cross Atlantic 5}
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+ecotypeid & nativename & stockparent & latitude & longitude & site & country\\
+\hline
+7350 & Tac-0      & CS3885      &  47.2413 &  -122.459 & Tac  & USA \\
+7349 & Ta-0       & CS6867      &     49.5 &      14.5 & Ta   & CZE \\
+8389 & Ta-0       & N1549       &     49.5 &      14.5 & Ta   & CZE \\
+\hline
+\end{tabular}
+\label{thap_6}
+\end{table}
+
+\begin{table}
+\caption{Cross Atlantic 6}
+\begin{tabular}{|r|r|r|r|r|r|r|}
+\hline
+ecotypeid & nativename & stockparent & latitude & longitude & site & country\\
+\hline
+7523 & Pna-17     & CS22570     &  42.0945 &  -86.3253 & PNA       & USA \\
+5708 & UKID1      &             &     56.8 &      -3.9 & Aberfeldy & UK  \\
+5730 & UKID23     &             &     55.3 &      -1.8 & Cragside  & UK  \\
+\hline
+\end{tabular}
+\label{thap_7}
+\end{table}
+
+\subsection{Correlation between genotype and geographic distance.}
+As in previous section, most unique haplotypes spread in local populations. So we suspected that the pairwise distance based on genotype might be correlated to geographic distance.
+
+Figure~\ref{fggd_1} is a histogram of distance showing a bi-modal shape, which reflects that most strains come from either north america or europe.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_geo_distance_hist.png}
+\caption{Histogram of geographic distance}\label{fggd_1}
+\end{figure}
+
+Figure~\ref{fggd_2} shows the correlation between genotype and geographic distance. Due to the whopping number of pairwise comparisons, 14 million, 10000 samples were taken to plot the correlation. There's some issue regarding the inter-continent comparisons. So we separate the data into 3 groups, europe, north america and inter-continent.
+
+Europe, figure~\ref{fggd_3}, shows a positive correlation. While in north america, figure~\ref{fggd_4}, the correlation is botched up by two very similar populations 1000km apart. Between the two continents, figure~\ref{fggd_5}, the correlation is noisier.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_geno_vs_geo_dist.png}
+\caption{Correlation between genotype and geographic distance (10000 sampling from all data). the green curve is spline-fitting.}\label{fggd_2}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_geno_vs_geo_dist_eur.png}
+\caption{Correlation between genotype and geographic distance (10000 sampling from comparisons within europe). the green curve is spline-fitting.}\label{fggd_3}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_geno_vs_geo_dist_noramer.png}
+\caption{Correlation between genotype and geographic distance (10000 sampling from comparisons within north america). the green curve is spline-fitting. around 1000km apart, there's a long stretch of everything}\label{fggd_4}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_geno_vs_geo_dist_eur_noramer.png}
+\caption{Correlation between genotype and geographic distance (10000 sampling from comparisons between europe and north america). the green curve is spline-fitting.}\label{fggd_5}
+\end{figure}
+
 
 \subsection{Identity Map on the scale of population}
 In order to gain a global look. we grouped strains into population. Each population is formed via connecting close sites. There's a distance (great circle distance) threshold to determine how close sites within a population should be.
@@ -179,6 +389,78 @@ Figure~\ref{f28} is the identity map after thinning. global pattern is still the
 Due to the highly inbreeding nature of Arabidopsis, there're lots of identity strains in the samples collected from nature. In Figure~\ref{f10}, blocks of identity strains are very obvious. In the detection of identity strains, NA is regarded to be identical to any genotyping call. Because different strains have NAs in different SNP loci, the identity relation is not transitive. For example, A is identical to B and B is identical to C but A might not be identical to C. A graph is constructed with strains as nodes and two nodes are connected if these two strains are deemed as identical. An example graph is shown in Figure ~(?). A greedy algorithm is used to remove nodes with highest degree until no edges left.
 
 In the end, 2575 strains were removed.
+
+\section{Linkage Disequilibrium}
+we calculate LD among all pairwise loci on the same chromosome. In the calculation, all pairs with one or two missing values are discarded. all pairs with both heterozygous calls are discarded as the phase is unknown.
+
+The only with considerable high LD, figure~\ref{fld_1}-\ref{fld_12} ($r^2$=0.9114) is 'AtMSQTsnp 22' versus 'AtMSQTsnp 27'. These two snp loci is only 1713bp apart. The next closest pair is 4520bp apart with very low LD ($r^2$=0.0351). The next top 9 highest LDs (their $r^2$ ranges from 0.2423 to 0.2882) are all from chromosome 1 although their distance ranges from 1.1MB to 25MB. Other chromosomes have shorter distance pairs.
+
+In figures about LD, the curve-fitting method is spline.
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_r2_0.png}
+\caption{LD wih $r^2$}\label{fld_1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_r2_500000.png}
+\caption{LD with $r^2$ of all pairs within 500KB}\label{fld_2}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_r2_1000000.png}
+\caption{LD with $r^2$ of all pairs within 1MB}\label{fld_3}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_r2_5000000.png}
+\caption{LD with $r^2$ of all pairs within 5MB}\label{fld_4}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_D_prime_0.png}
+\caption{LD wih D'}\label{fld_9}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_D_prime_500000.png}
+\caption{LD with D' of all pairs within 500KB}\label{fld_10}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_D_prime_1000000.png}
+\caption{LD with D' of all pairs within 1MB}\label{fld_11}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_d110_c0_5_LD_D_prime_5000000.png}
+\caption{LD with D' of all pairs within 5MB}\label{fld_12}
+\end{figure}
+
+\subsection{LD in North American Samples}
+the LD in North America is considerably higher than in the globe (Figure~\ref{fld_13}, \ref{fld_14}, \ref{fld_15}, \ref{fld_16}).
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_NorAmer_d110_c0_5_LD_r2_0.png}
+\caption{LD wih $r^2$ in North America}\label{fld_13}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_NorAmer_d110_c0_5_LD_r2_500000.png}
+\caption{LD with $r^2$ of all pairs within 500KB in North America}\label{fld_14}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_NorAmer_d110_c0_5_LD_r2_1000000.png}
+\caption{LD with $r^2$ of all pairs within 1MB in North America}\label{fld_15}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/data_NorAmer_d110_c0_5_LD_r2_5000000.png}
+\caption{LD with $r^2$ of all pairs within 5MB in North America}\label{fld_16}
+\end{figure}
+
 
 \section{Detecting Recombinant Inbred Line(RIL)}
 Figure~\ref{f6} is a diagram showing the production of recombinant imbred lines by selfing.
@@ -227,7 +509,7 @@ This model assumes the independence among the SNP loci, which is not true in gen
 \caption{}\label{f7}
 \end{figure}
 
-Figure~\ref{f8} is the result. The spike in 6 is probably spurious estimates.
+Figure~\ref{f8} is the result. The spike in 6 is probably spurious estimates due to only 1 or 2 hets in one strain which could be caused by genotyping error. If the whole population is in inbreeding equilibrium. The data should be geometric distribution with p=outcrossing rate. With large data, it's supposed to look like exponential decay. Our data is not true in this sense which hints inbreeding equilibrium hasn't been reached.
 
 \begin{figure}
 \includegraphics[width=1\textwidth]{figures/justin_data_y_b_filtered_estimate_selfing_generation_hist.png}
