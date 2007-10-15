@@ -32,9 +32,9 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.0107657"
      inkscape:cx="359.51074"
-     inkscape:cy="302.59793"
+     inkscape:cy="563.7323"
      inkscape:document-units="px"
-     inkscape:current-layer="g2302"
+     inkscape:current-layer="layer1"
      inkscape:window-width="1076"
      inkscape:window-height="1067"
      inkscape:window-x="151"
@@ -91,7 +91,7 @@
            transform="translate(-10,-18)" /></flowRegion><flowPara
          id="flowPara18442">DB</flowPara><flowPara
          id="flowPara2300">Postgres</flowPara><flowPara
-         id="flowPara2302">MySQL</flowPara></flowRoot>    <g
+         id="flowPara2302">/MySQL</flowPara></flowRoot>    <g
        id="g19454"
        transform="translate(30,148)">
       <text
@@ -726,5 +726,68 @@
        d="M 343.65004,419.32263 C 343.65004,419.32263 345.11404,547.66634 345.82492,609.98634 C 345.86941,613.88713 346.09974,617.53244 345.94901,620.86503 C 344.1589,660.44164 313.95605,658.01914 313.95605,658.01914"
        id="path2314"
        sodipodi:nodetypes="cssc" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path27419"
+       d="M 332.06384,898.72922 L 463.35882,941.25149"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.09006381;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="607.02991"
+       y="740.51111"
+       id="text27421"
+       transform="matrix(0.950846,0.3096641,-0.3096641,0.950846,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan27423"
+         x="607.02991"
+         y="740.51111">EcotypeIdentity.py</tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:2.49418664;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
+       id="rect27425"
+       width="138.93086"
+       height="59.808914"
+       x="185.78661"
+       y="862.67792"
+       ry="19.290995"
+       rx="19.290995" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="200.85915"
+       y="874.25806"
+       id="text27427"><tspan
+         sodipodi:role="line"
+         id="tspan27429"
+         x="200.85915"
+         y="874.25806">tables:</tspan><tspan
+         sodipodi:role="line"
+         x="200.85915"
+         y="889.25806"
+         id="tspan27431">eoctype_identity</tspan><tspan
+         sodipodi:role="line"
+         x="200.85915"
+         y="904.25806"
+         id="tspan27433">component2clique</tspan><tspan
+         sodipodi:role="line"
+         x="200.85915"
+         y="919.25806"
+         id="tspan27435">clique2ecotype</tspan></text>
+    <path
+       sodipodi:nodetypes="cc"
+       id="path27437"
+       d="M 47.080475,380.23503 L 248.7229,246.3233"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.53119469;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-189.66713"
+       y="334.08789"
+       id="text27439"
+       transform="matrix(0.8419864,-0.5394988,0.5394988,0.8419864,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan27441"
+         x="-189.66713"
+         y="334.08789">Classify2010AccessionsIntoAlignmentGroup.py </tspan></text>
   </g>
 </svg>
