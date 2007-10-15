@@ -1,6 +1,15 @@
-\documentclass[a4paper,10pt]{article}
+\documentclass[a2paper, 10pt]{article}
+\usepackage[a2paper]{geometry}
 \usepackage[dvips]{color,graphicx}
 \usepackage[dvips, bookmarks, colorlinks=false]{hyperref}
+\usepackage{supertabular}
+\usepackage{longtable}
+\usepackage{tabularx}
+
+%\pdfpagewidth and \pdfpageheight is only good for pdflatex
+%\pdfpagewidth 13in
+%\pdfpageheight 22in
+
 \addtolength{\textheight}{5cm}
 \addtolength{\textwidth}{5cm}
 \addtolength{\hoffset}{-3cm}
@@ -18,6 +27,9 @@
 \end{abstract}
 
 \section{Group the 2010 accessions}
+
+Based on the number of fragments, 248 2010 accessions are grouped into five tables. Table~\ref{tatg0} corresponds to 1 to 10 fragments. Table~\ref{tatg1} corresponds to 10 to 50 fragments. Table~\ref{tatg2} corresponds to 100 to 150 fragments. Table~\ref{tatg3} corresponds to 150 to 200 fragments. Table~\ref{tatg4} corresponds to 1300 to 1600 fragments.
+
 
 \input{alignment_type_tables_figures.tex}
 
