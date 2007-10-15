@@ -225,8 +225,11 @@ def get_alignment_type2no_of_aligns_and_149_snps(curs, alignment_id2pos, snp_id2
 def LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_group_ls, alignment_type_cnt_group_ls, fig_fname_ls, alignment_type2no_of_aligns_and_149_snps, output_fname, accession_table='at.accession', ecotype2accession_table='at.ecotype2accession', stock_schema='stock20071008', accession2alignment_type_table='at.accession2alignment_type'):
 	"""
 	2007-10-12
+	2007-10-15
+		beautify the format, but still use the tabular. change the page size in 2010SequenceReport.tex to fit the table in. rather than use supertabular or longtable. cuz the table is too wide.
 	"""
 	sys.stderr.write("Output alignment summary in latex ...\n")
+	from pymodule.latex import escape_characters
 	of = open(output_fname, 'w')
 	for i in range(len(alignment_type_group_ls)):
 		sys.stderr.write("\t alignment group %s "%i)
@@ -237,17 +240,20 @@ def LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_grou
 		flabel = 'fatg%s'%i
 		caption = "The number of alignments for these strains is from %s to %s falling into %s. %s distinct alignment combinations. alignment-type is id for one kind of distinct alignment combination. \\#fragments is the number of fragments sequenced in 2010. \\#149snps is the number of the 149 snps falling into that strain's fragments. Figure~\\ref{%s} is an example chromosome chart of this table."%(alignment_type_cnt_group[0], alignment_type_cnt_group[-1], cnt_range, len(alignment_type_group), flabel)
 		of.write('\\caption{%s}\n'%caption)
-		of.write('\\begin{tabular}{|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}\n')
+		label = 'tatg%s'%i
+		of.write('\\label{%s}\n'%label)
+		of.write('\\begin{tabular}{|rrrr|rrrrrrrr|rrr|}\n')
+		of.write('\\hline\n')
+		#get all accessions within this alignment_type_group
+		curs.execute("select aa.accession_id, a.name, a.origin, a.number, aa.alignment_type from %s aa, %s a where a.id=aa.accession_id and aa.alignment_type in (%s) order by name, accession_id "%(accession2alignment_type_table, accession_table, repr(map(int ,alignment_type_group))[1:-1]))
+		rows = curs.fetchall()
+		of.write('\\multicolumn{15}{|c|}{%s strains} \\\\\n'%(len(rows)) )
 		of.write('\\hline\n')
 		of.write('\\multicolumn{4}{|c|}{accession table} & \\multicolumn{8}{|c|}{ecotype table} & \\multicolumn{3}{|c|}{fragments info} \\\\\n')
 		of.write('\\hline\n')
 		of.write('id & name & origin & number & id & name & nativename & stockparent & lat & lon & site & country & alignment-type & \\#fragments & \\#149snps\\\\\n')
 		of.write('\\hline\n')
-		curs.execute("select aa.accession_id, a.name, a.origin, a.number, aa.alignment_type from %s aa, %s a where a.id=aa.accession_id and aa.alignment_type in (%s) order by name, accession_id "%(accession2alignment_type_table, accession_table, repr(map(int ,alignment_type_group))[1:-1]))
-		rows = curs.fetchall()
-		of.write('\\multicolumn{13}{|c|}{%s strains} \\\\\n'%(len(rows)) )
-		of.write('\\hline\n')
-		for row in rows:
+		for row in rows:	#table entry starts here. one by one
 			accession_id, name, origin, number, alignment_type = row
 			curs.execute("select e.id, e.name, e.nativename, e.stockparent, e.latitude, e.longitude, s.name, c.abbr from %s.ecotype e, %s.address a, %s.site s, %s.country c, %s ea where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=ea.ecotype_id and ea.accession_id=%s "%(stock_schema, stock_schema, stock_schema, stock_schema, ecotype2accession_table, accession_id))
 			ecotype_rows = curs.fetchall()
@@ -256,11 +262,11 @@ def LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_grou
 			else:
 				ecotype_id=ecotype_name= nativename= stockparent= latitude= longitude= site= country = ''
 			no_of_alns, no_of_149snps = alignment_type2no_of_aligns_and_149_snps[alignment_type]
-			of.write('%s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s  \\\\\n'%(accession_id, name, origin, number, ecotype_id, ecotype_name, nativename, stockparent, latitude, longitude, site, country, alignment_type, no_of_alns, no_of_149snps))
+			one_table_entry = '%s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s  \\\\\n'%(accession_id, name, origin, number, ecotype_id, ecotype_name, nativename, stockparent, latitude, longitude, site, country, alignment_type, no_of_alns, no_of_149snps)
+			one_table_entry = escape_characters(one_table_entry)
+			of.write(one_table_entry)
 		of.write('\\hline\n')
 		of.write('\\end{tabular}\n')
-		label = 'tatg%s'%i
-		of.write('\\label{%s}\n'%label)
 		of.write('\\end{table}\n')
 		of.write('\n')
 		of.write('\\begin{figure}\n')
@@ -275,6 +281,20 @@ def LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_grou
 
 """
 #2007-10-12
+import sys, os, math
+bit_number = math.log(sys.maxint)/math.log(2)
+if bit_number>40:       #64bit
+	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/test/python')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/variation/src')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64')))
+else:   #32bit
+	sys.path.insert(0, os.path.expanduser('~/lib/python'))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/test/python')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 hostname='localhost'
 dbname='stock20071008'
 import MySQLdb
@@ -307,7 +327,7 @@ for alignment_type in [105, 97, 101, 98, 92]:
 	fig_fname = 'chr_2010_alignment_type%s_149snps.eps'%alignment_type
 	fig_fname_ls.append(fig_fname)
 
-output_fname = '2010SequenceReport.tex'
+output_fname = 'alignment_type_tables_figures.tex'
 LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_group_ls, alignment_type_cnt_group_ls, fig_fname_ls, alignment_type2no_of_aligns_and_149_snps, output_fname, accession_table, ecotype2accession_table, stock_schema, accession2alignment_type_table)
 """
 
