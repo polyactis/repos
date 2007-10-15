@@ -194,12 +194,14 @@ class FilterStrainSNPMatrix:
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def read_data(self, input_fname, input_alphabet=0):
+	def read_data(self, input_fname, input_alphabet=0, turn_into_integer=1):
 		"""
 		2007-03-06
 			different from the one from SelectStrains.py is map(int, data_row)
 		2007-05-14
 			add input_alphabet
+		2007-10-09
+			add turn_into_integer
 		"""
 		sys.stderr.write("Reading data ...")
 		reader = csv.reader(open(input_fname), delimiter='\t')
@@ -217,7 +219,8 @@ class FilterStrainSNPMatrix:
 				if no_of_snps!=len(data_row):
 					print row
 			else:
-				data_row = map(int, data_row)
+				if turn_into_integer:
+					data_row = map(int, data_row)
 			data_matrix.append(data_row)
 		del reader
 		sys.stderr.write("Done.\n")
