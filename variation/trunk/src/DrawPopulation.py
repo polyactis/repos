@@ -128,6 +128,9 @@ class DrawPopulation:
 			copied from CreatePopulation.py
 		2007-09-11
 			add label name
+		2007-10-14
+			correct a bug in 5*diameter_ls. diameter_ls has to an array
+
 		"""
 		sys.stderr.write("Drawing population map...")
 		import pylab
@@ -147,10 +150,12 @@ class DrawPopulation:
 			euc_coord1_ls.append(euc_coord1)
 			euc_coord2_ls.append(euc_coord2)
 			ax.text(euc_coord1, euc_coord2, str(label_ls[i]), size=5, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
+		import numpy
+		diameter_ls = numpy.array(diameter_ls)
 		m.scatter(euc_coord1_ls, euc_coord2_ls, 5*diameter_ls, marker='o', color='r', alpha=0.3, zorder=10, faceted=False)
 		
 		#m.drawcoastlines()
-		m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,0,1])	#labels intersect the left, right, top bottom of the plot
+		m.drawparallels(pylab.arange(-90,90,30), labels=[1,1,0,1])	#labels intersect the left, right, top bottom of the plot
 		m.drawmeridians(pylab.arange(-180,180,30), labels=[1,1,0,1])
 		m.fillcontinents()
 		m.drawcountries()
@@ -190,7 +195,7 @@ class DrawPopulation:
 			ax.plot([x1,x2],[y1,y2], 'g', alpha=0.5, zorder=12)
 		
 		#m.drawcoastlines()
-		m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,0,1])
+		m.drawparallels(pylab.arange(-90,90,30), labels=[1,1,0,1])
 		m.drawmeridians(pylab.arange(-180,180,30), labels=[1,1,0,1])
 		m.fillcontinents()
 		m.drawcountries()
