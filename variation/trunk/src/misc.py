@@ -843,6 +843,68 @@ def construct_site_graph_out_of_strain_graph(g, ecotypeid2pos, node_weight_by_no
 	sys.stderr.write("Done.\n")
 	return site_g, site2weight, site2pos
 
+def collapseStrainsWithSamePos(ecotypeid_ls, ecotypeid2pos):
+	"""
+	2007-10-09
+	"""
+	sys.stderr.write("Collapsing Strains with same GPS ...")
+	site2pos = {}
+	site2weight = {}
+	for ecotypeid in ecotypeid_ls:
+		pos = (round(ecotypeid2pos[ecotypeid][0],2), round(ecotypeid2pos[ecotypeid][1],2))
+		if pos not in site2weight:
+			site2weight[pos] = 0
+			site2pos[pos] = pos
+		site2weight[pos] += 1
+	sys.stderr.write("Done.\n")
+	return site2weight, site2pos
+
+
+def draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title,  pic_area=[-130,10,140,70], output_fname_prefix=None):
+	"""
+	2007-10-09
+	"""
+	import os, sys
+	sys.stderr.write("Drawing strains on a map ...\n")
+	import pylab, math
+	from matplotlib.toolkits.basemap import Basemap
+	pylab.clf()
+	fig = pylab.figure()
+	fig.add_axes([0.05,0.05,0.9,0.9])	#[left, bottom, width, height]
+	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
+	resolution='l',projection='mill')
+	
+	site2weight, site2pos = collapseStrainsWithSamePos(ecotypeid_ls, ecotypeid2pos)
+	
+	sys.stderr.write("\tDrawing nodes ...")
+	euc_coord1_ls = []
+	euc_coord2_ls = []
+	diameter_ls = []
+	for n in site2pos:
+		lat, lon = site2pos[n]
+		euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
+		euc_coord1_ls.append(euc_coord1)
+		euc_coord2_ls.append(euc_coord2)
+		diameter_ls.append(math.sqrt(site2weight[n]))
+	import numpy
+	diameter_ls = numpy.array(diameter_ls)
+	m.scatter(euc_coord1_ls, euc_coord2_ls, 8*diameter_ls, marker='o', color='r', alpha=0.4, zorder=12, faceted=False)
+	sys.stderr.write("Done.\n")
+	
+	#m.drawcoastlines()
+	m.drawparallels(pylab.arange(-90,90,30), labels=[1,1,0,1])
+	m.drawmeridians(pylab.arange(-180,180,30), labels=[1,1,0,1])
+	m.fillcontinents()
+	m.drawcountries()
+	m.drawstates()
+	
+	pylab.title(pic_title)
+	if output_fname_prefix:
+		pylab.savefig('%s.eps'%output_fname_prefix, dpi=600)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=600)
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=600)
+	sys.stderr.write("Done.\n")
+
 def display_matrix_of_component(input_fname, ecotypeid_ls, ecotypeid2pos, output_fname=None, need_sort=0, need_savefig=0):
 	"""
 	2007-09-20
@@ -888,13 +950,18 @@ def display_matrix_of_component(input_fname, ecotypeid_ls, ecotypeid2pos, output
 		pylab.savefig('%s.png'%output_fname, dpi=300)
 	pylab.show()
 
-def get_ecotypeid2pos(curs, ecotype_table):
+def get_ecotypeid2pos(curs, ecotype_table, with_data_affiliated=0):
 	"""
 	2007-09-18
+	2007-10-09
+		add with_data_affiliated
 	"""
 	sys.stderr.write("Getting ecotypeid2pos from %s ..."%ecotype_table)
 	ecotypeid2pos = {}
-	curs.execute("select id, latitude, longitude from %s where latitude is not null and longitude is not null"%ecotype_table)
+	if with_data_affiliated:
+		curs.execute("select distinct e.id, e.latitude, e.longitude from %s e, calls c where e.latitude is not null and e.longitude is not null and e.id=c.ecotypeid"%ecotype_table)
+	else:
+		curs.execute("select id, latitude, longitude from %s where latitude is not null and longitude is not null"%ecotype_table)
 	rows = curs.fetchall()
 	for row in rows:
 		ecotypeid, latitude, longitude = row
@@ -993,6 +1060,9 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 	"""
 	2007-09-13
 		identity_pair_ls is a list of pairs of strains (ecotype id as in table ecotype)
+	2007-10-08
+		correct a bug in 4*diameter_ls, diameter_ls has to be converted to array first.
+		sqrt the node weight, 8 times the original weight
 	"""
 	import os, sys
 	sys.stderr.write("Drawing graph on a map ...\n")
@@ -1031,7 +1101,7 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 		sys.stderr.write("Done.\n")
 	
 	#m.drawcoastlines()
-	m.drawparallels(pylab.arange(-9,90,30), labels=[1,1,0,1])
+	m.drawparallels(pylab.arange(-90,90,30), labels=[1,1,0,1])
 	m.drawmeridians(pylab.arange(-180,180,30), labels=[1,1,0,1])
 	m.fillcontinents()
 	m.drawcountries()
@@ -1232,10 +1302,10 @@ def calGenoDistAndGeoDistBetweenTwoAreas(data_matrix_fname, ecotypeid2pos, longi
 	print "out of %s pairs, %s are NA"%(no_of_pairs, no_of_NA_pairs)
 	return geno_dist_ls, geo_dist_ls
 
-def plotHist(ls, title=None, output_fname_prefix=None):
+def plotHist(ls, title=None, output_fname_prefix=None, no_of_bins=40):
 	import pylab
 	pylab.clf()
-	pylab.hist(geo_dist_ls, 40)
+	pylab.hist(ls, no_of_bins)
 	if title:
 		pylab.title(title)
 	if output_fname_prefix:
@@ -1312,6 +1382,14 @@ for n in strain_iden_g:
 
 import networkx as nx
 strain_iden_g_cc = nx.connected_components(strain_iden_g)
+
+#2007-10-09 draw all strains on map
+output_fname_prefix = '%s'%os.path.splitext(input_fname)[0]
+strain_map_fname_prefix = '%s_strain_map'%output_fname_prefix
+draw_strains_on_map(ecotypeid2pos.keys(), ecotypeid2pos, 'map of strains',  get_pic_area(ecotypeid2pos.values()), strain_map_fname_prefix)
+
+ecotypeid2pos_with_data = get_ecotypeid2pos(curs, 'ecotype', 1)
+draw_strains_on_map(ecotypeid2pos_with_data.keys(), ecotypeid2pos_with_data, 'map of strains with snp data',  get_pic_area(ecotypeid2pos_with_data.values()), '%s_with_data'%strain_map_fname_prefix)
 
 #draw cc of strain_iden_g
 for i in range(len(strain_iden_g_cc)):
@@ -2015,13 +2093,15 @@ bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
 	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/test/python')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/variation/src')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64')))
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-
-sys.path.insert(0, os.path.join(os.path.expanduser('~/script/test/python')))
-sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
-sys.path.insert(0, os.path.join(os.path.expanduser('~/script/pymodule')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/test/python')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 from codense.common import db_connect, form_schema_tables
 hostname='dl324b-1'
 dbname='yhdb'
