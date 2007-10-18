@@ -34,25 +34,23 @@ class abstract_output:
 		return abstract_id_ls
 	
 	def output_abstract_in_order(self, curs, abstract_id_ls, abstract_table='abstract'):
+		no_of_abstracts = 0
 		for abstract_id in abstract_id_ls:
 			curs.execute("select pref,title,author_list, abstract from %s where id=%s"%(abstract_table, abstract_id))
 			rows = curs.fetchall()
 			pref, title, author_list, abstract = rows[0]
+			no_of_abstracts += 1
+			print '%s %s'%(pref, no_of_abstracts)
 			print title
 			print author_list
 			print abstract
 			print
 	
 	def output(self):
+		print '<pre>'
 		presentation_abstract_id_ls = self.get_abstract_id_ls(self.curs, pref='Presentation')
-		print '<p align=center ><h>Presentation</h></p>'
-		print '<pre>'
 		self.output_abstract_in_order(self.curs, presentation_abstract_id_ls)
-		print '</pre>'
 		poster_abstract_id_ls = self.get_abstract_id_ls(self.curs, pref='Poster')
-		
-		print '<p align=center ><h>Poster</h></p>'
-		print '<pre>'
 		self.output_abstract_in_order(self.curs, poster_abstract_id_ls)
 		print '</pre>'
 
