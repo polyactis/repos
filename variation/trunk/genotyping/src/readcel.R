@@ -115,7 +115,9 @@ if(imageType == "pdf") dev.off()
 #(mprobe.mean - mprobe.bg)[chrom.order,]
 mprobe.mean[chrom.order,]
 }
-##2007-09-06 read raw data, no log
+
+#######################################################################
+##2007-09-06 function to read raw samples from a directory to make a matrix, no log transformation
 readcel_raw <- function(cel_file_directory, array.size = 712, probe.OK="", chrom.order=""){
 # read .cel files
 cel.files <- list.celfiles(cel_file_directory, full.names=TRUE)
@@ -132,48 +134,9 @@ for (i in 1:length(cel.files))
 mprobe.mean[chrom.order,]
 }
 
-## 2007-09-06 based on snippets copied form Xu Zhang's email
-load ("snp.RData")
-library(affy)
 
-ord <- rep( c(1,2,3,4), nrow(snp)/4 )
-snp <- cbind( snp, ord)
-
-##2007-09-07 convert some columns into integer class
-write.table(snp, '/tmp/snp', sep='\t')
-snp=read.table('/tmp/snp',as.is=c(1:4,7:9))	#column 1,2,3,4,7,8,9 is snpid, seq, chr, bp, xpos, ypos, ord
-
-
-array.size <- 1612
-probe.ok <- matrix(FALSE, nr=array.size, nc=array.size)
-probe.ok.chrom <- matrix(NA, nr=array.size, nc=array.size)
-probe.ok.position <- matrix(NA, nr=array.size, nc=array.size)
-probe.ok.ord <- matrix(NA, nr=array.size, nc=array.size)
-probe.ok[cbind(snp$xpos+1, snp$ypos+1)] <- TRUE
-probe.ok.chrom[cbind(snp$xpos + 1, snp$ypos+1)] <-snp$chr
-probe.ok.position [cbind(snp$xpos + 1, snp$ypos+1)] <- snp$bp	#when factor is converted into integer, it messed up. 657 => 202179
-probe.ok.ord [cbind(snp$xpos + 1, snp$ypos+1)] <- snp$ord
-
-probe.ok.chrom.valid <- probe.ok.chrom[probe.ok]
-probe.ok.position.valid <- probe.ok.position [probe.ok]
-probe.ok.ord.valid <- probe.ok.ord [probe.ok]
-chrom.order <- order(probe.ok.chrom.valid, probe.ok.position.valid, probe.ok.ord.valid)
-
-#show how it looks like in chrom.order
-snp_chr_order_data = rbind(probe.ok.chrom.valid[chrom.order], probe.ok.position.valid[chrom.order], probe.ok.ord.valid[chrom.order])
-snp_chr_order_data[,1:20]
-
-cel_file_directory = 'yanli_8-8-07'
-mprobe.mean <- readcel2('yanli_8-8-07', array.size=1612, filter.size=81, imageType="jpg", probe.OK=probe.ok)
-mprobe.mean <- normalize.quantiles(mprobe.mean)
-
-mprobe.raw = readcel_raw(cel_file_directory, array.size = 1612, probe.OK=probe.ok, chrom.order=chrom.order)
-
-##2007-09-09 show where each chromsome's probes are
-xls=1:array.size
-image(xls, 1:array.size, (probe.ok.chrom==3), col=topo.colors(2^8))
-
-##check sign of mprobe.raw data, 1 means pairs of two sense strains and two anti-sense are in same order (either > or <). -1 means in discordant order. 0 means one of the pairs show equal intensity count.
+#######################################################################
+##2007-09-07 function to check sign of mprobe.raw data, 1 means pairs of two sense strains and two anti-sense are in same order (either > or <). -1 means in discordant order. 0 means one of the pairs show equal intensity count.
 check_sign <- function(data)
 {
 no_of_snps=dim(data)[1]/4
@@ -201,9 +164,9 @@ for (j in 1:no_of_arrays)
   plot(d2_ls, d1_ls)
 }
 }
-check_sign(mprobe.raw)
 
-##for 6 arrays from 'yanli_8-8-07', each strain got two copies. so a simple MA-plot which compares two arrays' intensity
+#######################################################################
+##2007-09-07 function to draw a MA-like plot. it's only for 6 arrays from 'yanli_8-8-07'. function readcel_raw() is used to read these 6 arrays. each strain got two copies. so a simple MA-plot which compares two arrays' intensity
 ma_p <- function(data)
 {
 no_of_snps=dim(data)[1]
@@ -228,9 +191,67 @@ for (j in 1:as.integer(no_of_arrays/2))
   plot(d2_ls, d1_ls)
 }
 }
+
+
+## 2007-09-06 code starts from here. based on snippets copied form Xu Zhang's email
+load ("snp.RData")
+library(affy)
+
+##data frame 'snp' is loaded from 'snp.RData', which has all sorts of information about snp probes. check 'snp' is already loaded in by objects().
+objects()
+##print the 1st 10 probes
+snp[1:10,]
+ord <- rep( c(1,2,3,4), nrow(snp)/4 )	##every row in 'snp' is a probe for one snp. there're 4 probes for one snp, order them 1,2,3,4.
+snp <- cbind( snp, ord)
+
+##2007-09-07 convert some columns into integer class to avoid the bug. this is the way i came up. probably there's a better way to do it.
+write.table(snp, '/tmp/snp', sep='\t')
+snp=read.table('/tmp/snp',as.is=c(1:4,7:9))	#column 1,2,3,4,7,8,9 is snpid, seq, chr, bp, xpos, ypos, ord
+
+##another way to do the conversoin: snp[,4] = as.integer(as.character(snp[,4]))
+
+##map most useful columns of 'snp' to a matrix whose cells correspond to that of the physical array
+array.size <- 1612
+probe.ok <- matrix(FALSE, nr=array.size, nc=array.size)
+probe.ok.chrom <- matrix(NA, nr=array.size, nc=array.size)
+probe.ok.position <- matrix(NA, nr=array.size, nc=array.size)
+probe.ok.ord <- matrix(NA, nr=array.size, nc=array.size)
+probe.ok[cbind(snp$xpos+1, snp$ypos+1)] <- TRUE
+probe.ok.chrom[cbind(snp$xpos + 1, snp$ypos+1)] <-snp$chr
+probe.ok.position [cbind(snp$xpos + 1, snp$ypos+1)] <- snp$bp	#when factor is converted into integer, it messed up. 657 => 202179
+probe.ok.ord [cbind(snp$xpos + 1, snp$ypos+1)] <- snp$ord
+probe.ok.chrom.valid <- probe.ok.chrom[probe.ok]
+probe.ok.position.valid <- probe.ok.position [probe.ok]
+probe.ok.ord.valid <- probe.ok.ord [probe.ok]
+chrom.order <- order(probe.ok.chrom.valid, probe.ok.position.valid, probe.ok.ord.valid)
+
+##show how probes look like in chrom.order
+snp_chr_order_data = rbind(probe.ok.chrom.valid[chrom.order], probe.ok.position.valid[chrom.order], probe.ok.ord.valid[chrom.order])
+snp_chr_order_data[,1:20]
+
+##now start to read files, readcel2() did log transformation, filtering, etc.
+cel_file_directory = 'yanli_8-8-07'
+mprobe.mean <- readcel2('yanli_8-8-07', array.size=1612, filter.size=81, imageType="jpg", probe.OK=probe.ok)
+mprobe.mean <- normalize.quantiles(mprobe.mean)
+
+##read the raw intensity data
+mprobe.raw = readcel_raw(cel_file_directory, array.size = 1612, probe.OK=probe.ok, chrom.order=chrom.order)
+
+##2007-09-09 show where each chromsome's probes are
+xls=1:array.size
+#chromsome 3
+image(xls, 1:array.size, (probe.ok.chrom==3), col=topo.colors(2^8))
+#all chromsomes
+jpeg(file='genotyping_probes_on_the_array.jpeg')
+image(xls, 1:array.size, (probe.ok.chrom==3)+(probe.ok.chrom==4)+(probe.ok.chrom==1)+(probe.ok.chrom==2)+(probe.ok.chrom==5), col=topo.colors(2^8), main='location of genotyping probes on the array')
+dev.off()
+##a simple sign test to see how 
+check_sign(mprobe.raw)
+
+##MA-like plot for 6 replicate arrays in 'yanli_8-8-07'
 ma_p(mprobe.raw)
 
-##2007-09-07 test
+##2007-09-07 just test, on the way to find out the bug
 for (i in 1:dim(probe.ok.position)[1])
    for (j in 1:dim(probe.ok.position)[2])
      if (!is.na(probe.ok.position[i,j]))
