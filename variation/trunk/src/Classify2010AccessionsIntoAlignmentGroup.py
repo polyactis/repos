@@ -127,6 +127,7 @@ def get_chr_id2size(curs, chromosome_table='at.chromosome'):
 def output_chr_id2pos_ls(chr_id2pos_ls, chr_id2size, output_fname, label_alignment=0):
 	"""
 	2007-10-12
+	  in emboss's lindna format
 	"""
 	f = open(output_fname, 'w')
 	max_length = max(chr_id2size.values())
