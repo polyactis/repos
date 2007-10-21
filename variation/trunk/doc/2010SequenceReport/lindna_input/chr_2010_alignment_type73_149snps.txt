@@ -1,0 +1,5036 @@
+Start	1
+End	30432563L
+group
+chr 1
+label
+Block	1	2	15
+endlabel
+label
+Block	29215	29831	0	H
+endlabel
+label
+Block	112445	113023	0	H
+endlabel
+label
+Tick	112907	8	H
+endlabel
+label
+Block	197433	198054	0	H
+endlabel
+label
+Block	279856	280463	0	H
+endlabel
+label
+Block	340398	341050	0	H
+endlabel
+label
+Tick	340810	8	H
+endlabel
+label
+Block	394740	395274	0	H
+endlabel
+label
+Block	444376	444993	0	H
+endlabel
+label
+Block	493732	494386	0	H
+endlabel
+label
+Block	592464	593099	0	H
+endlabel
+label
+Block	642707	643326	0	H
+endlabel
+label
+Block	761524	762034	0	H
+endlabel
+label
+Block	898252	898892	0	H
+endlabel
+label
+Block	992824	993428	0	H
+endlabel
+label
+Tick	993374	8	H
+endlabel
+label
+Block	1042028	1042645	0	H
+endlabel
+label
+Tick	1042427	8	H
+endlabel
+label
+Block	1098013	1098470	0	H
+endlabel
+label
+Block	1149096	1149550	0	H
+endlabel
+label
+Tick	1149280	8	H
+endlabel
+label
+Block	1187278	1187805	0	H
+endlabel
+label
+Block	1187843	1188318	0	H
+endlabel
+label
+Block	1198859	1199508	0	H
+endlabel
+label
+Block	1240392	1241040	0	H
+endlabel
+label
+Block	1295701	1296352	0	H
+endlabel
+label
+Block	1341166	1341804	0	H
+endlabel
+label
+Block	1399230	1399736	0	H
+endlabel
+label
+Block	1509420	1509973	0	H
+endlabel
+label
+Block	1601885	1602481	0	H
+endlabel
+label
+Tick	1602136	8	H
+endlabel
+label
+Block	1726104	1726657	0	H
+endlabel
+label
+Block	1844671	1845288	0	H
+endlabel
+label
+Block	1944581	1945228	0	H
+endlabel
+label
+Block	1995315	1995965	0	H
+endlabel
+label
+Block	2079956	2080530	0	H
+endlabel
+label
+Block	2210982	2211529	0	H
+endlabel
+label
+Tick	2211033	8	H
+endlabel
+label
+Block	2398543	2399191	0	H
+endlabel
+label
+Block	2546184	2546686	0	H
+endlabel
+label
+Block	2547754	2548384	0	H
+endlabel
+label
+Block	2553378	2553841	0	H
+endlabel
+label
+Block	2558336	2558851	0	H
+endlabel
+label
+Block	2594097	2594750	0	H
+endlabel
+label
+Block	2647886	2648416	0	H
+endlabel
+label
+Block	2696429	2697075	0	H
+endlabel
+label
+Block	2775589	2776133	0	H
+endlabel
+label
+Tick	2775956	8	H
+endlabel
+label
+Block	2844111	2844741	0	H
+endlabel
+label
+Tick	2844525	8	H
+endlabel
+label
+Block	2845094	2845649	0	H
+endlabel
+label
+Block	2991798	2992421	0	H
+endlabel
+label
+Block	3041038	3041691	0	H
+endlabel
+label
+Block	3169189	3169645	0	H
+endlabel
+label
+Block	3229453	3229932	0	H
+endlabel
+label
+Block	3294414	3295041	0	H
+endlabel
+label
+Block	3398022	3398548	0	H
+endlabel
+label
+Block	3503792	3504337	0	H
+endlabel
+label
+Block	3607377	3607938	0	H
+endlabel
+label
+Block	3645216	3645835	0	H
+endlabel
+label
+Block	3678179	3678735	0	H
+endlabel
+label
+Block	3797061	3797609	0	H
+endlabel
+label
+Block	3797953	3798606	0	H
+endlabel
+label
+Block	3872234	3872708	0	H
+endlabel
+label
+Tick	3872591	8	H
+endlabel
+label
+Block	3941262	3941893	0	H
+endlabel
+label
+Block	4040915	4041557	0	H
+endlabel
+label
+Block	4095670	4096320	0	H
+endlabel
+label
+Block	4136990	4137533	0	H
+endlabel
+label
+Block	4142402	4142946	0	H
+endlabel
+label
+Tick	4142539	8	H
+endlabel
+label
+Block	4175290	4175813	0	H
+endlabel
+label
+Block	4178828	4179706	0	H
+endlabel
+label
+Block	4248687	4249253	0	H
+endlabel
+label
+Block	4316911	4317528	0	H
+endlabel
+label
+Block	4395913	4396498	0	H
+endlabel
+label
+Tick	4396087	8	H
+endlabel
+label
+Block	4443309	4443890	0	H
+endlabel
+label
+Block	4529095	4529571	0	H
+endlabel
+label
+Block	4569320	4569836	0	H
+endlabel
+label
+Block	4631921	4632562	0	H
+endlabel
+label
+Block	4670950	4671424	0	H
+endlabel
+label
+Block	4743914	4744452	0	H
+endlabel
+label
+Block	4826763	4827267	0	H
+endlabel
+label
+Block	4880814	4881336	0	H
+endlabel
+label
+Block	4946740	4947363	0	H
+endlabel
+label
+Block	4991927	4992574	0	H
+endlabel
+label
+Block	5095277	5095788	0	H
+endlabel
+label
+Block	5206479	5207021	0	H
+endlabel
+label
+Tick	5206767	8	H
+endlabel
+label
+Block	5290295	5290944	0	H
+endlabel
+label
+Block	5380792	5381318	0	H
+endlabel
+label
+Block	5447909	5448483	0	H
+endlabel
+label
+Block	5481722	5482296	0	H
+endlabel
+label
+Tick	5482008	8	H
+endlabel
+label
+Block	5592553	5593203	0	H
+endlabel
+label
+Block	5628596	5629196	0	H
+endlabel
+label
+Tick	5629159	8	H
+endlabel
+label
+Block	5669192	5669673	0	H
+endlabel
+label
+Block	5730355	5730894	0	H
+endlabel
+label
+Block	5757110	5757629	0	H
+endlabel
+label
+Block	5859976	5860593	0	H
+endlabel
+label
+Block	5922974	5923561	0	H
+endlabel
+label
+Tick	5923041	8	H
+endlabel
+label
+Block	6040552	6041178	0	H
+endlabel
+label
+Block	6053261	6054635	0	H
+endlabel
+label
+Block	6143598	6144145	0	H
+endlabel
+label
+Block	6290164	6290785	0	H
+endlabel
+label
+Block	6375563	6376095	0	H
+endlabel
+label
+Tick	6375605	8	H
+endlabel
+label
+Block	6489533	6490097	0	H
+endlabel
+label
+Block	6591305	6591930	0	H
+endlabel
+label
+Block	6664172	6664639	0	H
+endlabel
+label
+Block	6752370	6752826	0	H
+endlabel
+label
+Block	6832887	6833467	0	H
+endlabel
+label
+Block	6890229	6890772	0	H
+endlabel
+label
+Block	6940693	6941322	0	H
+endlabel
+label
+Block	6992858	6993477	0	H
+endlabel
+label
+Block	7042862	7043374	0	H
+endlabel
+label
+Block	7095889	7096527	0	H
+endlabel
+label
+Block	7197460	7198100	0	H
+endlabel
+label
+Block	7246331	7246974	0	H
+endlabel
+label
+Block	7341614	7342244	0	H
+endlabel
+label
+Block	7449482	7449965	0	H
+endlabel
+label
+Tick	7449598	8	H
+endlabel
+label
+Block	7498464	7499109	0	H
+endlabel
+label
+Block	7571273	7574216	0	H
+endlabel
+label
+Block	7573610	7574216	0	H
+endlabel
+label
+Block	7590430	7591002	0	H
+endlabel
+label
+Block	7672503	7672974	0	H
+endlabel
+label
+Block	7735392	7736040	0	H
+endlabel
+label
+Block	7842440	7842960	0	H
+endlabel
+label
+Tick	7842523	8	H
+endlabel
+label
+Block	8014943	8015528	0	H
+endlabel
+label
+Tick	8015448	8	H
+endlabel
+label
+Block	8077027	8077605	0	H
+endlabel
+label
+Block	8119140	8119643	0	H
+endlabel
+label
+Block	8168820	8169342	0	H
+endlabel
+label
+Block	8214455	8215106	0	H
+endlabel
+label
+Block	8312876	8313489	0	H
+endlabel
+label
+Block	8384891	8385473	0	H
+endlabel
+label
+Block	8485357	8485890	0	H
+endlabel
+label
+Block	8535052	8535524	0	H
+endlabel
+label
+Block	8612871	8613498	0	H
+endlabel
+label
+Block	8682419	8683011	0	H
+endlabel
+label
+Block	8791282	8791828	0	H
+endlabel
+label
+Block	8878370	8878864	0	H
+endlabel
+label
+Block	8943035	8943674	0	H
+endlabel
+label
+Block	9058932	9059542	0	H
+endlabel
+label
+Block	9101828	9102235	0	H
+endlabel
+label
+Block	9143829	9144415	0	H
+endlabel
+label
+Block	9250892	9251443	0	H
+endlabel
+label
+Block	9343234	9343758	0	H
+endlabel
+label
+Tick	9343401	8	H
+endlabel
+label
+Block	9436820	9438499	0	H
+endlabel
+label
+Block	9496666	9497308	0	H
+endlabel
+label
+Tick	9497118	8	H
+endlabel
+label
+Block	9615268	9615843	0	H
+endlabel
+label
+Block	9709142	9709742	0	H
+endlabel
+label
+Block	9781260	9781911	0	H
+endlabel
+label
+Tick	9781347	8	H
+endlabel
+label
+Block	9877084	9877588	0	H
+endlabel
+label
+Block	9973016	9973655	0	H
+endlabel
+label
+Block	10095031	10095649	0	H
+endlabel
+label
+Block	10095832	10096468	0	H
+endlabel
+label
+Block	10176169	10176698	0	H
+endlabel
+label
+Block	10290849	10291500	0	H
+endlabel
+label
+Block	10340235	10340734	0	H
+endlabel
+label
+Block	10423483	10424071	0	H
+endlabel
+label
+Tick	10423708	8	H
+endlabel
+label
+Block	10547351	10547923	0	H
+endlabel
+label
+Block	10641417	10642021	0	H
+endlabel
+label
+Block	10719833	10720471	0	H
+endlabel
+label
+Tick	10720273	8	H
+endlabel
+label
+Block	10784209	10784675	0	H
+endlabel
+label
+Block	10841392	10841910	0	H
+endlabel
+label
+Block	10905534	10905989	0	H
+endlabel
+label
+Block	10983499	10984137	0	H
+endlabel
+label
+Block	11037228	11037803	0	H
+endlabel
+label
+Block	11098516	11098976	0	H
+endlabel
+label
+Block	11159587	11160124	0	H
+endlabel
+label
+Block	11362011	11362609	0	H
+endlabel
+label
+Block	11399346	11399954	0	H
+endlabel
+label
+Block	11465886	11466518	0	H
+endlabel
+label
+Block	11553447	11554096	0	H
+endlabel
+label
+Block	11655171	11655786	0	H
+endlabel
+label
+Tick	11655519	8	H
+endlabel
+label
+Block	11746630	11747133	0	H
+endlabel
+label
+Block	11849555	11850186	0	H
+endlabel
+label
+Block	11919983	11920498	0	H
+endlabel
+label
+Block	11993712	11994308	0	H
+endlabel
+label
+Block	12093079	12093617	0	H
+endlabel
+label
+Tick	12093546	8	H
+endlabel
+label
+Block	12171136	12171732	0	H
+endlabel
+label
+Block	12171696	12173066	0	H
+endlabel
+label
+Block	12294575	12295170	0	H
+endlabel
+label
+Block	12357044	12357631	0	H
+endlabel
+label
+Tick	12357583	8	H
+endlabel
+label
+Block	12493611	12494181	0	H
+endlabel
+label
+Block	12616858	12617444	0	H
+endlabel
+label
+Block	12892180	12892731	0	H
+endlabel
+label
+Block	13002329	13002898	0	H
+endlabel
+label
+Block	13090276	13090847	0	H
+endlabel
+label
+Block	13337425	13337915	0	H
+endlabel
+label
+Block	13395451	13395994	0	H
+endlabel
+label
+Tick	13395892	8	H
+endlabel
+label
+Block	13427879	13428502	0	H
+endlabel
+label
+Block	13541490	13542021	0	H
+endlabel
+label
+Tick	13541648	8	H
+endlabel
+label
+Block	13671173	13671830	0	H
+endlabel
+label
+Block	13711856	13712430	0	H
+endlabel
+label
+Tick	13712241	8	H
+endlabel
+label
+Block	13900434	13901070	0	H
+endlabel
+label
+Block	13925073	13925717	0	H
+endlabel
+label
+Block	14042420	14042956	0	H
+endlabel
+label
+Block	14162569	14163220	0	H
+endlabel
+label
+Block	14251231	14251775	0	H
+endlabel
+label
+Block	15633694	15634287	0	H
+endlabel
+label
+Block	15916053	15916639	0	H
+endlabel
+label
+Block	15976827	15977406	0	H
+endlabel
+label
+Block	16157719	16158285	0	H
+endlabel
+label
+Block	16245684	16246193	0	H
+endlabel
+label
+Block	16395208	16395826	0	H
+endlabel
+label
+Block	16480690	16481239	0	H
+endlabel
+label
+Block	16568120	16568714	0	H
+endlabel
+label
+Block	16678334	16678922	0	H
+endlabel
+label
+Block	16782945	16783544	0	H
+endlabel
+label
+Block	16874305	16874817	0	H
+endlabel
+label
+Tick	16874727	8	H
+endlabel
+label
+Block	16972778	16973325	0	H
+endlabel
+label
+Block	17031821	17032420	0	H
+endlabel
+label
+Block	17031821	17032420	0	H
+endlabel
+label
+Block	17031821	17032420	0	H
+endlabel
+label
+Block	17080646	17081113	0	H
+endlabel
+label
+Block	17151037	17151638	0	H
+endlabel
+label
+Block	17181498	17182056	0	H
+endlabel
+label
+Block	17252372	17252982	0	H
+endlabel
+label
+Block	17355484	17356019	0	H
+endlabel
+label
+Tick	17355738	8	H
+endlabel
+label
+Block	17571921	17572544	0	H
+endlabel
+label
+Block	17682203	17682846	0	H
+endlabel
+label
+Block	17780009	17780612	0	H
+endlabel
+label
+Block	17879944	17880521	0	H
+endlabel
+label
+Block	17919323	17919781	0	H
+endlabel
+label
+Block	17960726	17961223	0	H
+endlabel
+label
+Block	18040681	18041235	0	H
+endlabel
+label
+Block	18155049	18155678	0	H
+endlabel
+label
+Block	18231887	18232429	0	H
+endlabel
+label
+Block	18340113	18340733	0	H
+endlabel
+label
+Tick	18340160	8	H
+endlabel
+label
+Block	18433043	18433664	0	H
+endlabel
+label
+Block	18531580	18532216	0	H
+endlabel
+label
+Block	18632610	18633142	0	H
+endlabel
+label
+Block	18874074	18874705	0	H
+endlabel
+label
+Block	19130570	19131179	0	H
+endlabel
+label
+Block	19219855	19220320	0	H
+endlabel
+label
+Block	19269660	19270186	0	H
+endlabel
+label
+Block	19477157	19477768	0	H
+endlabel
+label
+Block	19505630	19506157	0	H
+endlabel
+label
+Block	19518938	19519542	0	H
+endlabel
+label
+Block	19672910	19673494	0	H
+endlabel
+label
+Block	19782272	19782922	0	H
+endlabel
+label
+Block	19864482	19865019	0	H
+endlabel
+label
+Block	19909582	19910445	0	H
+endlabel
+label
+Block	19981596	19982213	0	H
+endlabel
+label
+Block	20083545	20084061	0	H
+endlabel
+label
+Block	20141544	20142109	0	H
+endlabel
+label
+Block	20174753	20175396	0	H
+endlabel
+label
+Tick	20175347	8	H
+endlabel
+label
+Block	20215927	20216545	0	H
+endlabel
+label
+Block	20311816	20312334	0	H
+endlabel
+label
+Block	20348671	20349128	0	H
+endlabel
+label
+Block	20349346	20349870	0	H
+endlabel
+label
+Block	20350729	20351262	0	H
+endlabel
+label
+Block	20351720	20352249	0	H
+endlabel
+label
+Block	20383970	20384571	0	H
+endlabel
+label
+Block	20421552	20422175	0	H
+endlabel
+label
+Block	20556852	20557503	0	H
+endlabel
+label
+Block	20583873	20584392	0	H
+endlabel
+label
+Block	20738912	20739444	0	H
+endlabel
+label
+Block	20810407	20810860	0	H
+endlabel
+label
+Block	20990055	20990629	0	H
+endlabel
+label
+Block	21079875	21080414	0	H
+endlabel
+label
+Block	21140811	21141319	0	H
+endlabel
+label
+Block	21187559	21188107	0	H
+endlabel
+label
+Block	21563945	21564566	0	H
+endlabel
+label
+Block	21669047	21669588	0	H
+endlabel
+label
+Block	21887579	21888176	0	H
+endlabel
+label
+Block	21908157	21909189	0	H
+endlabel
+label
+Block	21908330	21908966	0	H
+endlabel
+label
+Tick	21908667	8	H
+endlabel
+label
+Block	21944133	21944765	0	H
+endlabel
+label
+Block	21997696	21998334	0	H
+endlabel
+label
+Block	22020259	22020737	0	H
+endlabel
+label
+Block	22096472	22096990	0	H
+endlabel
+label
+Block	22097512	22098144	0	H
+endlabel
+label
+Block	22181104	22181607	0	H
+endlabel
+label
+Block	22245997	22246520	0	H
+endlabel
+label
+Block	22283402	22284001	0	H
+endlabel
+label
+Block	22290018	22290491	0	H
+endlabel
+label
+Block	22353611	22354209	0	H
+endlabel
+label
+Block	22387873	22388506	0	H
+endlabel
+label
+Block	22442524	22443151	0	H
+endlabel
+label
+Block	22492711	22493352	0	H
+endlabel
+label
+Block	22569092	22569693	0	H
+endlabel
+label
+Block	22590685	22591240	0	H
+endlabel
+label
+Block	22688933	22689492	0	H
+endlabel
+label
+Block	22694785	22695367	0	H
+endlabel
+label
+Block	22793052	22793705	0	H
+endlabel
+label
+Block	22903880	22904420	0	H
+endlabel
+label
+Block	22970699	22971300	0	H
+endlabel
+label
+Block	22992351	22992905	0	H
+endlabel
+label
+Block	23076749	23077294	0	H
+endlabel
+label
+Block	23088916	23089582	0	H
+endlabel
+label
+Block	23155464	23155996	0	H
+endlabel
+label
+Tick	23155780	8	H
+endlabel
+label
+Block	23193140	23193645	0	H
+endlabel
+label
+Block	23270329	23270910	0	H
+endlabel
+label
+Block	23381443	23381968	0	H
+endlabel
+label
+Tick	23381760	8	H
+endlabel
+label
+Block	23394478	23395087	0	H
+endlabel
+label
+Tick	23395010	8	H
+endlabel
+label
+Block	23474024	23474668	0	H
+endlabel
+label
+Block	23593474	23594110	0	H
+endlabel
+label
+Block	23647608	23648303	0	H
+endlabel
+label
+Block	23651090	23651786	0	H
+endlabel
+label
+Block	23657491	23658039	0	H
+endlabel
+label
+Block	23675437	23676020	0	H
+endlabel
+label
+Block	23773807	23774378	0	H
+endlabel
+label
+Block	23785991	23786539	0	H
+endlabel
+label
+Block	23820455	23821158	0	H
+endlabel
+label
+Block	23858224	23858749	0	H
+endlabel
+label
+Block	23858224	23858749	0	H
+endlabel
+label
+Block	23893276	23893816	0	H
+endlabel
+label
+Tick	23893336	8	H
+endlabel
+label
+Block	24001386	24002015	0	H
+endlabel
+label
+Block	24071203	24071716	0	H
+endlabel
+label
+Tick	24071689	8	H
+endlabel
+label
+Block	24190997	24191516	0	H
+endlabel
+label
+Block	24292482	24293032	0	H
+endlabel
+label
+Tick	24292774	8	H
+endlabel
+label
+Block	24321799	24322413	0	H
+endlabel
+label
+Block	24395844	24396441	0	H
+endlabel
+label
+Block	24467979	24468514	0	H
+endlabel
+label
+Block	24498960	24499417	0	H
+endlabel
+label
+Block	24501006	24501623	0	H
+endlabel
+label
+Block	24526072	24526668	0	H
+endlabel
+label
+Block	24598020	24598551	0	H
+endlabel
+label
+Block	24684571	24685032	0	H
+endlabel
+label
+Block	24689651	24690126	0	H
+endlabel
+label
+Block	24693330	24693790	0	H
+endlabel
+label
+Block	24694531	24695174	0	H
+endlabel
+label
+Block	24700110	24700661	0	H
+endlabel
+label
+Block	24737931	24738580	0	H
+endlabel
+label
+Block	24738805	24739340	0	H
+endlabel
+label
+Block	24739369	24739947	0	H
+endlabel
+label
+Block	24794774	24795352	0	H
+endlabel
+label
+Block	24893448	24894013	0	H
+endlabel
+label
+Tick	24893649	8	H
+endlabel
+label
+Block	25094209	25094858	0	H
+endlabel
+label
+Block	25188894	25189430	0	H
+endlabel
+label
+Block	25314068	25314715	0	H
+endlabel
+label
+Block	25375323	25375953	0	H
+endlabel
+label
+Block	25487179	25487728	0	H
+endlabel
+label
+Block	25543101	25543687	0	H
+endlabel
+label
+Block	25604287	25604865	0	H
+endlabel
+label
+Block	25697749	25698293	0	H
+endlabel
+label
+Block	25717715	25718354	0	H
+endlabel
+label
+Tick	25717887	8	H
+endlabel
+label
+Block	25793571	25794082	0	H
+endlabel
+label
+Block	25905270	25905853	0	H
+endlabel
+label
+Block	25986790	25987435	0	H
+endlabel
+label
+Block	26107930	26108534	0	H
+endlabel
+label
+Block	26197117	26197692	0	H
+endlabel
+label
+Block	26278221	26278728	0	H
+endlabel
+label
+Tick	26278413	8	H
+endlabel
+label
+Block	26373979	26374477	0	H
+endlabel
+label
+Block	26453921	26454447	0	H
+endlabel
+label
+Block	26507455	26507978	0	H
+endlabel
+label
+Block	26573187	26573730	0	H
+endlabel
+label
+Block	26685153	26685711	0	H
+endlabel
+label
+Block	26787354	26787880	0	H
+endlabel
+label
+Block	26794732	26795361	0	H
+endlabel
+label
+Tick	26794838	8	H
+endlabel
+label
+Block	26894309	26894827	0	H
+endlabel
+label
+Block	26992815	26993444	0	H
+endlabel
+label
+Block	27096655	27097196	0	H
+endlabel
+label
+Block	27172441	27173044	0	H
+endlabel
+label
+Block	27251273	27251879	0	H
+endlabel
+label
+Block	27290853	27291486	0	H
+endlabel
+label
+Block	27360177	27360710	0	H
+endlabel
+label
+Block	27495891	27496540	0	H
+endlabel
+label
+Block	27649784	27650371	0	H
+endlabel
+label
+Block	27734407	27734969	0	H
+endlabel
+label
+Block	27789334	27789818	0	H
+endlabel
+label
+Block	27855749	27856348	0	H
+endlabel
+label
+Block	27959121	27959660	0	H
+endlabel
+label
+Block	28034216	28034814	0	H
+endlabel
+label
+Block	28190123	28190707	0	H
+endlabel
+label
+Block	28302177	28302725	0	H
+endlabel
+label
+Block	28408254	28408814	0	H
+endlabel
+label
+Block	28484815	28485455	0	H
+endlabel
+label
+Block	28584108	28584742	0	H
+endlabel
+label
+Block	28666569	28667145	0	H
+endlabel
+label
+Tick	28666837	8	H
+endlabel
+label
+Block	28714026	28714581	0	H
+endlabel
+label
+Block	28774664	28775189	0	H
+endlabel
+label
+Block	28809541	28810145	0	H
+endlabel
+label
+Block	28860014	28860470	0	H
+endlabel
+label
+Block	28897502	28898078	0	H
+endlabel
+label
+Block	28911863	28912432	0	H
+endlabel
+label
+Block	28935198	28935800	0	H
+endlabel
+label
+Block	28960524	28960901	0	H
+endlabel
+label
+Block	28963242	28963911	0	H
+endlabel
+label
+Block	28980819	28981326	0	H
+endlabel
+label
+Block	28983406	28984046	0	H
+endlabel
+label
+Block	29015270	29015830	0	H
+endlabel
+label
+Block	29064502	29064993	0	H
+endlabel
+label
+Block	29075763	29076351	0	H
+endlabel
+label
+Block	29112371	29112900	0	H
+endlabel
+label
+Block	29131721	29132204	0	H
+endlabel
+label
+Block	29199758	29200375	0	H
+endlabel
+label
+Block	29211857	29212326	0	H
+endlabel
+label
+Block	29326387	29326886	0	H
+endlabel
+label
+Block	29393096	29393717	0	H
+endlabel
+label
+Block	29496328	29496916	0	H
+endlabel
+label
+Block	29612282	29612811	0	H
+endlabel
+label
+Block	29696341	29696847	0	H
+endlabel
+label
+Block	29737418	29737876	0	H
+endlabel
+label
+Block	29897892	29898386	0	H
+endlabel
+label
+Block	29955637	29956148	0	H
+endlabel
+label
+Block	30049082	30049586	0	H
+endlabel
+label
+Block	30116103	30116656	0	H
+endlabel
+label
+Block	30146323	30146821	0	H
+endlabel
+label
+Block	30213917	30214407	0	H
+endlabel
+label
+Tick	30214313	8	H
+endlabel
+label
+Block	30312251	30312831	0	H
+endlabel
+label
+Block	30363679	30364203	0	H
+endlabel
+label
+Block	30432562	30432563	15
+endlabel
+endgroup
+group
+chr 2
+label
+Block	1	2	15
+endlabel
+label
+Block	172277	172796	0	H
+endlabel
+label
+Block	208721	209206	0	H
+endlabel
+label
+Block	285731	286199	0	H
+endlabel
+label
+Block	311073	311722	0	H
+endlabel
+label
+Block	322253	322741	0	H
+endlabel
+label
+Tick	322335	8	H
+endlabel
+label
+Block	347341	347814	0	H
+endlabel
+label
+Block	368997	369463	0	H
+endlabel
+label
+Block	419364	419850	0	H
+endlabel
+label
+Block	452961	453513	0	H
+endlabel
+label
+Block	475268	475818	0	H
+endlabel
+label
+Block	518445	518898	0	H
+endlabel
+label
+Block	551943	552529	0	H
+endlabel
+label
+Block	592553	593203	0	H
+endlabel
+label
+Block	693817	694404	0	H
+endlabel
+label
+Block	764166	764733	0	H
+endlabel
+label
+Block	795780	796315	0	H
+endlabel
+label
+Block	839342	839976	0	H
+endlabel
+label
+Block	875981	876470	0	H
+endlabel
+label
+Block	917961	918417	0	H
+endlabel
+label
+Block	948122	948704	0	H
+endlabel
+label
+Block	1043454	1043982	0	H
+endlabel
+label
+Block	1149580	1150126	0	H
+endlabel
+label
+Block	1251831	1252330	0	H
+endlabel
+label
+Block	1283082	1283693	0	H
+endlabel
+label
+Block	1377474	1378036	0	H
+endlabel
+label
+Block	1540361	1540828	0	H
+endlabel
+label
+Block	1610686	1611218	0	H
+endlabel
+label
+Block	1737436	1738041	0	H
+endlabel
+label
+Block	1798324	1798802	0	H
+endlabel
+label
+Tick	1798445	8	H
+endlabel
+label
+Block	2037121	2037751	0	H
+endlabel
+label
+Block	2116129	2116588	0	H
+endlabel
+label
+Block	2171791	2172386	0	H
+endlabel
+label
+Block	2270294	2270916	0	H
+endlabel
+label
+Block	2364657	2365300	0	H
+endlabel
+label
+Block	2477306	2477888	0	H
+endlabel
+label
+Tick	2477756	8	H
+endlabel
+label
+Block	2615097	2615733	0	H
+endlabel
+label
+Block	3041318	3041898	0	H
+endlabel
+label
+Block	3142485	3143073	0	H
+endlabel
+label
+Block	3208669	3209168	0	H
+endlabel
+label
+Block	3393477	3394026	0	H
+endlabel
+label
+Block	3493265	3493848	0	H
+endlabel
+label
+Block	3541213	3541746	0	H
+endlabel
+label
+Block	3690865	3691396	0	H
+endlabel
+label
+Block	3834038	3834589	0	H
+endlabel
+label
+Block	3946002	3946530	0	H
+endlabel
+label
+Block	3987880	3988336	0	H
+endlabel
+label
+Block	4081362	4081897	0	H
+endlabel
+label
+Block	4123482	4124048	0	H
+endlabel
+label
+Block	4263285	4263858	0	H
+endlabel
+label
+Block	4354393	4354973	0	H
+endlabel
+label
+Block	4512492	4513101	0	H
+endlabel
+label
+Block	4680142	4680705	0	H
+endlabel
+label
+Block	4796716	4797266	0	H
+endlabel
+label
+Block	4824010	4824467	0	H
+endlabel
+label
+Block	4978534	4979081	0	H
+endlabel
+label
+Block	5020871	5021361	0	H
+endlabel
+label
+Tick	5021020	8	H
+endlabel
+label
+Block	5085749	5086328	0	H
+endlabel
+label
+Block	5250013	5250600	0	H
+endlabel
+label
+Block	5396809	5397434	0	H
+endlabel
+label
+Block	5587395	5587919	0	H
+endlabel
+label
+Block	5661204	5661768	0	H
+endlabel
+label
+Block	5803805	5804373	0	H
+endlabel
+label
+Tick	5804076	8	H
+endlabel
+label
+Block	6032634	6033160	0	H
+endlabel
+label
+Block	6235900	6236447	0	H
+endlabel
+label
+Block	6280036	6280613	0	H
+endlabel
+label
+Block	6401167	6401758	0	H
+endlabel
+label
+Block	6499196	6499759	0	H
+endlabel
+label
+Tick	6499679	8	H
+endlabel
+label
+Block	6654153	6654746	0	H
+endlabel
+label
+Block	6742724	6743201	0	H
+endlabel
+label
+Block	6766031	6766681	0	H
+endlabel
+label
+Block	6838547	6839057	0	H
+endlabel
+label
+Block	6890496	6890977	0	H
+endlabel
+label
+Block	6979789	6980286	0	H
+endlabel
+label
+Block	7072571	7073205	0	H
+endlabel
+label
+Tick	7072955	8	H
+endlabel
+label
+Block	7150415	7151067	0	H
+endlabel
+label
+Block	7237666	7238172	0	H
+endlabel
+label
+Block	7316074	7316619	0	H
+endlabel
+label
+Block	7352222	7352838	0	H
+endlabel
+label
+Block	7432996	7433513	0	H
+endlabel
+label
+Block	7551069	7551693	0	H
+endlabel
+label
+Block	7650078	7650638	0	H
+endlabel
+label
+Block	7742280	7742919	0	H
+endlabel
+label
+Block	7853251	7853850	0	H
+endlabel
+label
+Block	7938717	7939351	0	H
+endlabel
+label
+Block	8041692	8042343	0	H
+endlabel
+label
+Block	8212721	8213284	0	H
+endlabel
+label
+Block	8307912	8308483	0	H
+endlabel
+label
+Block	8323677	8324180	0	H
+endlabel
+label
+Block	8358722	8359217	0	H
+endlabel
+label
+Block	8370574	8371212	0	H
+endlabel
+label
+Tick	8371133	8	H
+endlabel
+label
+Block	8402911	8403425	0	H
+endlabel
+label
+Block	8412050	8412511	0	H
+endlabel
+label
+Block	8442945	8443454	0	H
+endlabel
+label
+Block	8442950	8443454	0	H
+endlabel
+label
+Block	8464851	8465422	0	H
+endlabel
+label
+Block	8477933	8478474	0	H
+endlabel
+label
+Block	8498153	8498793	0	H
+endlabel
+label
+Block	8594088	8594585	0	H
+endlabel
+label
+Block	8609267	8609782	0	H
+endlabel
+label
+Block	8659687	8660194	0	H
+endlabel
+label
+Block	8705284	8705801	0	H
+endlabel
+label
+Block	8720919	8721417	0	H
+endlabel
+label
+Block	8749828	8750384	0	H
+endlabel
+label
+Tick	8750047	8	H
+endlabel
+label
+Block	8752841	8753352	0	H
+endlabel
+label
+Block	8799503	8800147	0	H
+endlabel
+label
+Block	8904633	8905129	0	H
+endlabel
+label
+Block	8957827	8958456	0	H
+endlabel
+label
+Block	9180212	9180684	0	H
+endlabel
+label
+Block	9256049	9256670	0	H
+endlabel
+label
+Tick	9256095	8	H
+endlabel
+label
+Block	9360787	9361389	0	H
+endlabel
+label
+Block	9428891	9429479	0	H
+endlabel
+label
+Tick	9428987	8	H
+endlabel
+label
+Block	9550714	9551238	0	H
+endlabel
+label
+Block	9653034	9653667	0	H
+endlabel
+label
+Block	9744220	9744684	0	H
+endlabel
+label
+Block	9819360	9819969	0	H
+endlabel
+label
+Block	9884519	9885093	0	H
+endlabel
+label
+Block	9910258	9910767	0	H
+endlabel
+label
+Block	9936277	9936805	0	H
+endlabel
+label
+Block	9961161	9961695	0	H
+endlabel
+label
+Block	9961507	9962058	0	H
+endlabel
+label
+Block	9961944	9962536	0	H
+endlabel
+label
+Block	9962449	9962915	0	H
+endlabel
+label
+Block	9962843	9963398	0	H
+endlabel
+label
+Block	9963371	9963895	0	H
+endlabel
+label
+Block	9963873	9964331	0	H
+endlabel
+label
+Block	9964295	9964936	0	H
+endlabel
+label
+Block	9964905	9965448	0	H
+endlabel
+label
+Block	9965420	9965892	0	H
+endlabel
+label
+Block	9965803	9966265	0	H
+endlabel
+label
+Block	9966180	9966695	0	H
+endlabel
+label
+Block	9966659	9967162	0	H
+endlabel
+label
+Block	9967054	9967551	0	H
+endlabel
+label
+Block	9967465	9968011	0	H
+endlabel
+label
+Block	9968238	9968799	0	H
+endlabel
+label
+Block	9998222	9998724	0	H
+endlabel
+label
+Block	10022342	10022848	0	H
+endlabel
+label
+Block	10049851	10050365	0	H
+endlabel
+label
+Block	10134225	10134831	0	H
+endlabel
+label
+Block	10193011	10193522	0	H
+endlabel
+label
+Block	10249205	10249736	0	H
+endlabel
+label
+Block	10323373	10323975	0	H
+endlabel
+label
+Block	10371948	10372422	0	H
+endlabel
+label
+Block	10400180	10400703	0	H
+endlabel
+label
+Block	10479181	10479708	0	H
+endlabel
+label
+Block	10566416	10566953	0	H
+endlabel
+label
+Tick	10566917	8	H
+endlabel
+label
+Block	10617536	10618026	0	H
+endlabel
+label
+Block	10635604	10636111	0	H
+endlabel
+label
+Block	10702850	10703500	0	H
+endlabel
+label
+Tick	10703371	8	H
+endlabel
+label
+Block	10799767	10800323	0	H
+endlabel
+label
+Block	10811320	10811932	0	H
+endlabel
+label
+Block	10811911	10812460	0	H
+endlabel
+label
+Block	10812428	10812830	0	H
+endlabel
+label
+Block	10900127	10900663	0	H
+endlabel
+label
+Block	10963894	10964376	0	H
+endlabel
+label
+Block	11028504	11029095	0	H
+endlabel
+label
+Block	11178299	11178939	0	H
+endlabel
+label
+Block	11234390	11234845	0	H
+endlabel
+label
+Block	11299826	11300463	0	H
+endlabel
+label
+Block	11371624	11372173	0	H
+endlabel
+label
+Block	11388866	11389477	0	H
+endlabel
+label
+Block	11456847	11457499	0	H
+endlabel
+label
+Block	11521743	11522211	0	H
+endlabel
+label
+Block	11564515	11565001	0	H
+endlabel
+label
+Block	11594514	11595138	0	H
+endlabel
+label
+Block	11691317	11691918	0	H
+endlabel
+label
+Block	11752693	11753293	0	H
+endlabel
+label
+Block	11806713	11807307	0	H
+endlabel
+label
+Block	11850407	11850986	0	H
+endlabel
+label
+Block	11923997	11924502	0	H
+endlabel
+label
+Block	12013896	12014448	0	H
+endlabel
+label
+Block	12105444	12106012	0	H
+endlabel
+label
+Block	12186976	12187491	0	H
+endlabel
+label
+Block	12296677	12297274	0	H
+endlabel
+label
+Block	12435063	12435607	0	H
+endlabel
+label
+Block	12553336	12553940	0	H
+endlabel
+label
+Block	12649285	12649792	0	H
+endlabel
+label
+Block	12655017	12655471	0	H
+endlabel
+label
+Block	12656716	12657277	0	H
+endlabel
+label
+Tick	12657149	8	H
+endlabel
+label
+Block	12658576	12659083	0	H
+endlabel
+label
+Tick	12658862	8	H
+endlabel
+label
+Block	12663190	12663730	0	H
+endlabel
+label
+Block	12785167	12785639	0	H
+endlabel
+label
+Block	12789184	12789704	0	H
+endlabel
+label
+Block	12821670	12822315	0	H
+endlabel
+label
+Block	12877069	12877538	0	H
+endlabel
+label
+Block	12955478	12956036	0	H
+endlabel
+label
+Block	13090066	13090698	0	H
+endlabel
+label
+Block	13201367	13202010	0	H
+endlabel
+label
+Block	13265029	13265631	0	H
+endlabel
+label
+Tick	13265124	8	H
+endlabel
+label
+Block	13326009	13326522	0	H
+endlabel
+label
+Block	13391829	13392450	0	H
+endlabel
+label
+Block	13392472	13393088	0	H
+endlabel
+label
+Block	13471383	13472018	0	H
+endlabel
+label
+Block	13555780	13556401	0	H
+endlabel
+label
+Block	13604707	13605323	0	H
+endlabel
+label
+Block	13648095	13648565	0	H
+endlabel
+label
+Block	13714704	13715230	0	H
+endlabel
+label
+Block	13756115	13756681	0	H
+endlabel
+label
+Block	13852145	13852743	0	H
+endlabel
+label
+Block	13925500	13925993	0	H
+endlabel
+label
+Block	13952362	13952863	0	H
+endlabel
+label
+Block	14003272	14003745	0	H
+endlabel
+label
+Tick	14003409	8	H
+endlabel
+label
+Block	14033492	14034061	0	H
+endlabel
+label
+Block	14085168	14085627	0	H
+endlabel
+label
+Block	14153030	14153593	0	H
+endlabel
+label
+Block	14256729	14257259	0	H
+endlabel
+label
+Block	14350233	14350875	0	H
+endlabel
+label
+Block	14406425	14407069	0	H
+endlabel
+label
+Block	14582886	14583462	0	H
+endlabel
+label
+Block	14696923	14697552	0	H
+endlabel
+label
+Block	14801046	14801603	0	H
+endlabel
+label
+Block	14872827	14873331	0	H
+endlabel
+label
+Block	14900368	14900834	0	H
+endlabel
+label
+Block	14949211	14949778	0	H
+endlabel
+label
+Block	15041290	15041854	0	H
+endlabel
+label
+Block	15090724	15091186	0	H
+endlabel
+label
+Block	15251663	15252228	0	H
+endlabel
+label
+Block	15348953	15349494	0	H
+endlabel
+label
+Block	15447737	15448190	0	H
+endlabel
+label
+Block	15510501	15511034	0	H
+endlabel
+label
+Block	15553098	15553642	0	H
+endlabel
+label
+Block	15565356	15565940	0	H
+endlabel
+label
+Block	15645793	15646398	0	H
+endlabel
+label
+Block	15801112	15801634	0	H
+endlabel
+label
+Tick	15801542	8	H
+endlabel
+label
+Block	15936957	15937569	0	H
+endlabel
+label
+Block	15986145	15986627	0	H
+endlabel
+label
+Tick	15986354	8	H
+endlabel
+label
+Block	16080080	16080633	0	H
+endlabel
+label
+Block	16110655	16110838	0	H
+endlabel
+label
+Block	16110998	16111502	0	H
+endlabel
+label
+Block	16111467	16111840	0	H
+endlabel
+label
+Block	16111799	16112218	0	H
+endlabel
+label
+Block	16199114	16199742	0	H
+endlabel
+label
+Block	16352229	16352861	0	H
+endlabel
+label
+Block	16437369	16437949	0	H
+endlabel
+label
+Block	16487030	16487534	0	H
+endlabel
+label
+Block	16578236	16578772	0	H
+endlabel
+label
+Block	16640339	16640811	0	H
+endlabel
+label
+Block	16680494	16681106	0	H
+endlabel
+label
+Block	16683829	16684352	0	H
+endlabel
+label
+Block	16730135	16730666	0	H
+endlabel
+label
+Block	16837084	16837732	0	H
+endlabel
+label
+Block	16908054	16908629	0	H
+endlabel
+label
+Tick	16908190	8	H
+endlabel
+label
+Block	17050977	17051538	0	H
+endlabel
+label
+Block	17121159	17121651	0	H
+endlabel
+label
+Tick	17121378	8	H
+endlabel
+label
+Block	17195033	17195620	0	H
+endlabel
+label
+Block	17304212	17304822	0	H
+endlabel
+label
+Block	17375325	17375867	0	H
+endlabel
+label
+Block	17499948	17500504	0	H
+endlabel
+label
+Block	17605912	17606444	0	H
+endlabel
+label
+Block	17656278	17656829	0	H
+endlabel
+label
+Block	17754977	17755491	0	H
+endlabel
+label
+Block	17792058	17792606	0	H
+endlabel
+label
+Block	17801863	17802455	0	H
+endlabel
+label
+Block	17844092	17844611	0	H
+endlabel
+label
+Block	17859576	17860201	0	H
+endlabel
+label
+Tick	17859964	8	H
+endlabel
+label
+Block	17899295	17899844	0	H
+endlabel
+label
+Block	17901419	17902004	0	H
+endlabel
+label
+Block	17958710	17959250	0	H
+endlabel
+label
+Block	17982338	17982877	0	H
+endlabel
+label
+Block	18004150	18004674	0	H
+endlabel
+label
+Block	18033535	18034225	0	H
+endlabel
+label
+Block	18053860	18054401	0	H
+endlabel
+label
+Block	18103618	18104246	0	H
+endlabel
+label
+Block	18142981	18143555	0	H
+endlabel
+label
+Block	18155066	18155717	0	H
+endlabel
+label
+Block	18201631	18202269	0	H
+endlabel
+label
+Block	18252715	18253309	0	H
+endlabel
+label
+Block	18304029	18304555	0	H
+endlabel
+label
+Block	18352807	18353439	0	H
+endlabel
+label
+Block	18401753	18402263	0	H
+endlabel
+label
+Block	18503911	18504561	0	H
+endlabel
+label
+Block	18552460	18553094	0	H
+endlabel
+label
+Block	18602635	18603282	0	H
+endlabel
+label
+Block	18652671	18653242	0	H
+endlabel
+label
+Block	18700921	18701472	0	H
+endlabel
+label
+Block	18752604	18753254	0	H
+endlabel
+label
+Tick	18752840	8	H
+endlabel
+label
+Block	18851088	18851684	0	H
+endlabel
+label
+Block	18954010	18954555	0	H
+endlabel
+label
+Block	18985941	18986447	0	H
+endlabel
+label
+Block	19104081	19104723	0	H
+endlabel
+label
+Block	19152856	19153501	0	H
+endlabel
+label
+Block	19252771	19253278	0	H
+endlabel
+label
+Block	19308547	19309101	0	H
+endlabel
+label
+Block	19351423	19351973	0	H
+endlabel
+label
+Block	19451347	19451940	0	H
+endlabel
+label
+Block	19504415	19504941	0	H
+endlabel
+label
+Block	19558419	19559030	0	H
+endlabel
+label
+Block	19601674	19602259	0	H
+endlabel
+label
+Block	19700591	19701053	0	H
+endlabel
+label
+Block	19705358	19705359	15
+endlabel
+endgroup
+group
+chr 3
+label
+Block	1	2	15
+endlabel
+label
+Block	70672	71299	0	H
+endlabel
+label
+Block	184452	184914	0	H
+endlabel
+label
+Block	297801	298428	0	H
+endlabel
+label
+Tick	298210	8	H
+endlabel
+label
+Block	444578	445119	0	H
+endlabel
+label
+Block	483013	483550	0	H
+endlabel
+label
+Block	580026	580551	0	H
+endlabel
+label
+Tick	580470	8	H
+endlabel
+label
+Block	690939	691501	0	H
+endlabel
+label
+Block	777477	778064	0	H
+endlabel
+label
+Block	884417	885009	0	H
+endlabel
+label
+Block	964879	965404	0	H
+endlabel
+label
+Block	1073635	1074102	0	H
+endlabel
+label
+Block	1173032	1173637	0	H
+endlabel
+label
+Block	1270680	1271248	0	H
+endlabel
+label
+Block	1362944	1363458	0	H
+endlabel
+label
+Block	1509719	1510225	0	H
+endlabel
+label
+Block	1514276	1514782	0	H
+endlabel
+label
+Block	1638284	1638870	0	H
+endlabel
+label
+Block	1731806	1732407	0	H
+endlabel
+label
+Block	1803691	1804211	0	H
+endlabel
+label
+Block	1901310	1901899	0	H
+endlabel
+label
+Block	2072648	2073182	0	H
+endlabel
+label
+Tick	2072780	8	H
+endlabel
+label
+Block	2214965	2215546	0	H
+endlabel
+label
+Block	2216613	2217179	0	H
+endlabel
+label
+Block	2231413	2232065	0	H
+endlabel
+label
+Tick	2231938	8	H
+endlabel
+label
+Block	2232504	2233011	0	H
+endlabel
+label
+Block	2236406	2236900	0	H
+endlabel
+label
+Tick	2236458	8	H
+endlabel
+label
+Block	2298395	2298887	0	H
+endlabel
+label
+Block	2382316	2382884	0	H
+endlabel
+label
+Block	2485139	2485736	0	H
+endlabel
+label
+Block	2564729	2565358	0	H
+endlabel
+label
+Block	2687019	2687525	0	H
+endlabel
+label
+Block	2770397	2770946	0	H
+endlabel
+label
+Block	2837174	2837687	0	H
+endlabel
+label
+Block	2907449	2907970	0	H
+endlabel
+label
+Block	2967832	2968416	0	H
+endlabel
+label
+Block	3176691	3177311	0	H
+endlabel
+label
+Block	3242782	3243314	0	H
+endlabel
+label
+Block	3344695	3345263	0	H
+endlabel
+label
+Block	3424533	3425084	0	H
+endlabel
+label
+Block	3610125	3610729	0	H
+endlabel
+label
+Block	3645884	3646417	0	H
+endlabel
+label
+Block	3679103	3679647	0	H
+endlabel
+label
+Tick	3679541	8	H
+endlabel
+label
+Block	3745652	3746193	0	H
+endlabel
+label
+Block	3895793	3896327	0	H
+endlabel
+label
+Block	3991563	3992166	0	H
+endlabel
+label
+Block	4056767	4057296	0	H
+endlabel
+label
+Block	4140699	4141351	0	H
+endlabel
+label
+Block	4194716	4195362	0	H
+endlabel
+label
+Block	4264875	4265363	0	H
+endlabel
+label
+Block	4304960	4305433	0	H
+endlabel
+label
+Block	4355883	4356408	0	H
+endlabel
+label
+Block	4470202	4470762	0	H
+endlabel
+label
+Block	4591238	4591770	0	H
+endlabel
+label
+Block	4693915	4694419	0	H
+endlabel
+label
+Block	4818362	4818993	0	H
+endlabel
+label
+Tick	4818602	8	H
+endlabel
+label
+Block	4856336	4856821	0	H
+endlabel
+label
+Block	4942156	4942657	0	H
+endlabel
+label
+Block	4991655	4992173	0	H
+endlabel
+label
+Block	5091514	5091977	0	H
+endlabel
+label
+Block	5140793	5141385	0	H
+endlabel
+label
+Block	5210062	5210568	0	H
+endlabel
+label
+Block	5235221	5235841	0	H
+endlabel
+label
+Tick	5235571	8	H
+endlabel
+label
+Block	5269420	5269877	0	H
+endlabel
+label
+Block	5299316	5299953	0	H
+endlabel
+label
+Block	5362498	5363044	0	H
+endlabel
+label
+Block	5440344	5440989	0	H
+endlabel
+label
+Block	5640103	5640726	0	H
+endlabel
+label
+Block	5749816	5750368	0	H
+endlabel
+label
+Block	5869872	5870473	0	H
+endlabel
+label
+Block	5910133	5910734	0	H
+endlabel
+label
+Block	6036261	6036900	0	H
+endlabel
+label
+Block	6121158	6121756	0	H
+endlabel
+label
+Block	6240557	6241170	0	H
+endlabel
+label
+Block	6297610	6298141	0	H
+endlabel
+label
+Block	6353188	6353704	0	H
+endlabel
+label
+Block	6400105	6400662	0	H
+endlabel
+label
+Block	6401599	6402126	0	H
+endlabel
+label
+Block	6448643	6449204	0	H
+endlabel
+label
+Block	6450361	6450871	0	H
+endlabel
+label
+Block	6498779	6499278	0	H
+endlabel
+label
+Block	6501709	6502282	0	H
+endlabel
+label
+Block	6522814	6523299	0	H
+endlabel
+label
+Block	6524196	6524767	0	H
+endlabel
+label
+Block	6549471	6549994	0	H
+endlabel
+label
+Block	6550261	6550765	0	H
+endlabel
+label
+Block	6574711	6575230	0	H
+endlabel
+label
+Block	6603003	6603514	0	H
+endlabel
+label
+Block	6631196	6631807	0	H
+endlabel
+label
+Block	6653659	6654190	0	H
+endlabel
+label
+Block	6702233	6702785	0	H
+endlabel
+label
+Block	6731371	6731898	0	H
+endlabel
+label
+Block	6799231	6799789	0	H
+endlabel
+label
+Block	6810901	6811442	0	H
+endlabel
+label
+Block	6890596	6891235	0	H
+endlabel
+label
+Tick	6890665	8	H
+endlabel
+label
+Block	7012599	7013127	0	H
+endlabel
+label
+Block	7120747	7121393	0	H
+endlabel
+label
+Block	7196024	7196528	0	H
+endlabel
+label
+Block	7221772	7222227	0	H
+endlabel
+label
+Block	7223139	7223786	0	H
+endlabel
+label
+Block	7225373	7225911	0	H
+endlabel
+label
+Block	7261129	7261653	0	H
+endlabel
+label
+Block	7307668	7308244	0	H
+endlabel
+label
+Block	7391896	7392521	0	H
+endlabel
+label
+Tick	7392098	8	H
+endlabel
+label
+Block	7493708	7494361	0	H
+endlabel
+label
+Block	7590422	7590940	0	H
+endlabel
+label
+Block	7759898	7760430	0	H
+endlabel
+label
+Block	7842037	7842681	0	H
+endlabel
+label
+Block	7917372	7917912	0	H
+endlabel
+label
+Block	7975915	7976459	0	H
+endlabel
+label
+Block	8041706	8042355	0	H
+endlabel
+label
+Block	8117861	8118403	0	H
+endlabel
+label
+Block	8189947	8190497	0	H
+endlabel
+label
+Block	8260339	8260823	0	H
+endlabel
+label
+Block	8311996	8312499	0	H
+endlabel
+label
+Block	8346842	8347487	0	H
+endlabel
+label
+Block	8447876	8448504	0	H
+endlabel
+label
+Block	8535266	8535815	0	H
+endlabel
+label
+Block	8641624	8642178	0	H
+endlabel
+label
+Block	8693018	8693659	0	H
+endlabel
+label
+Block	8753341	8753898	0	H
+endlabel
+label
+Block	8828419	8828952	0	H
+endlabel
+label
+Block	8941230	8941802	0	H
+endlabel
+label
+Block	9073714	9074296	0	H
+endlabel
+label
+Block	9224766	9225277	0	H
+endlabel
+label
+Block	9279010	9279583	0	H
+endlabel
+label
+Block	9341833	9342393	0	H
+endlabel
+label
+Block	9547376	9547996	0	H
+endlabel
+label
+Block	9629161	9629813	0	H
+endlabel
+label
+Block	9690898	9691351	0	H
+endlabel
+label
+Block	9747158	9747676	0	H
+endlabel
+label
+Tick	9747261	8	H
+endlabel
+label
+Block	9842899	9843415	0	H
+endlabel
+label
+Block	9889902	9890413	0	H
+endlabel
+label
+Block	9942057	9942629	0	H
+endlabel
+label
+Block	10055557	10056076	0	H
+endlabel
+label
+Block	10142490	10143129	0	H
+endlabel
+label
+Block	10245180	10245745	0	H
+endlabel
+label
+Block	10318401	10318901	0	H
+endlabel
+label
+Block	10363439	10363961	0	H
+endlabel
+label
+Block	10369539	10370062	0	H
+endlabel
+label
+Block	10382110	10382647	0	H
+endlabel
+label
+Block	10445157	10445758	0	H
+endlabel
+label
+Block	10790463	10790993	0	H
+endlabel
+label
+Block	10849420	10849973	0	H
+endlabel
+label
+Block	10995480	10996098	0	H
+endlabel
+label
+Block	11097749	11098255	0	H
+endlabel
+label
+Block	11190073	11190635	0	H
+endlabel
+label
+Block	11192052	11192692	0	H
+endlabel
+label
+Block	11293117	11293708	0	H
+endlabel
+label
+Block	11350419	11351010	0	H
+endlabel
+label
+Block	11398071	11398633	0	H
+endlabel
+label
+Tick	11398207	8	H
+endlabel
+label
+Block	11534436	11535017	0	H
+endlabel
+label
+Block	11594041	11594677	0	H
+endlabel
+label
+Block	11621094	11621609	0	H
+endlabel
+label
+Block	12044854	12045449	0	H
+endlabel
+label
+Block	12102716	12103260	0	H
+endlabel
+label
+Block	12348893	12349416	0	H
+endlabel
+label
+Block	12647139	12647755	0	H
+endlabel
+label
+Block	13147909	13148499	0	H
+endlabel
+label
+Block	13319414	13319925	0	H
+endlabel
+label
+Block	13542858	13543506	0	H
+endlabel
+label
+Block	13926448	13927091	0	H
+endlabel
+label
+Block	14028978	14029518	0	H
+endlabel
+label
+Block	14332874	14333381	0	H
+endlabel
+label
+Block	14627479	14628113	0	H
+endlabel
+label
+Block	14672505	14673136	0	H
+endlabel
+label
+Block	14778667	14779185	0	H
+endlabel
+label
+Block	15028165	15028802	0	H
+endlabel
+label
+Block	15116441	15117091	0	H
+endlabel
+label
+Block	15128952	15129539	0	H
+endlabel
+label
+Block	15232977	15233594	0	H
+endlabel
+label
+Block	15328540	15329130	0	H
+endlabel
+label
+Block	15526753	15527277	0	H
+endlabel
+label
+Block	15679305	15679922	0	H
+endlabel
+label
+Block	15771731	15772370	0	H
+endlabel
+label
+Block	15879997	15880614	0	H
+endlabel
+label
+Tick	15880426	8	H
+endlabel
+label
+Block	15977141	15977667	0	H
+endlabel
+label
+Block	16176554	16177116	0	H
+endlabel
+label
+Block	16282334	16282850	0	H
+endlabel
+label
+Block	16379891	16380444	0	H
+endlabel
+label
+Block	16395152	16395730	0	H
+endlabel
+label
+Block	16432184	16432704	0	H
+endlabel
+label
+Block	16489217	16489693	0	H
+endlabel
+label
+Tick	16489589	8	H
+endlabel
+label
+Block	16553416	16553968	0	H
+endlabel
+label
+Block	16608148	16608629	0	H
+endlabel
+label
+Block	16676839	16677347	0	H
+endlabel
+label
+Block	16774008	16774618	0	H
+endlabel
+label
+Block	16883046	16883597	0	H
+endlabel
+label
+Block	16977709	16978255	0	H
+endlabel
+label
+Block	17141912	17142476	0	H
+endlabel
+label
+Block	17166109	17166625	0	H
+endlabel
+label
+Block	17277073	17277602	0	H
+endlabel
+label
+Block	17381234	17381846	0	H
+endlabel
+label
+Block	17478329	17478865	0	H
+endlabel
+label
+Block	17580617	17581208	0	H
+endlabel
+label
+Block	17655476	17656040	0	H
+endlabel
+label
+Block	17766746	17767316	0	H
+endlabel
+label
+Block	17882280	17882818	0	H
+endlabel
+label
+Block	18093909	18094443	0	H
+endlabel
+label
+Block	18180258	18180825	0	H
+endlabel
+label
+Block	18274510	18275024	0	H
+endlabel
+label
+Block	18379314	18379911	0	H
+endlabel
+label
+Block	18449959	18450564	0	H
+endlabel
+label
+Block	18509758	18510304	0	H
+endlabel
+label
+Block	18590590	18591142	0	H
+endlabel
+label
+Tick	18590671	8	H
+endlabel
+label
+Block	18680494	18681042	0	H
+endlabel
+label
+Block	18779784	18780419	0	H
+endlabel
+label
+Block	18866920	18867498	0	H
+endlabel
+label
+Block	18948770	18949663	0	H
+endlabel
+label
+Block	18980171	18980778	0	H
+endlabel
+label
+Tick	18980664	8	H
+endlabel
+label
+Block	19042988	19043589	0	H
+endlabel
+label
+Block	19077075	19077706	0	H
+endlabel
+label
+Block	19178847	19179378	0	H
+endlabel
+label
+Block	19282780	19283353	0	H
+endlabel
+label
+Block	19429153	19429685	0	H
+endlabel
+label
+Block	19444323	19444948	0	H
+endlabel
+label
+Block	19533535	19534039	0	H
+endlabel
+label
+Block	19627769	19628409	0	H
+endlabel
+label
+Block	19725023	19725626	0	H
+endlabel
+label
+Block	19831582	19832106	0	H
+endlabel
+label
+Block	19930188	19930758	0	H
+endlabel
+label
+Tick	19930624	8	H
+endlabel
+label
+Block	20017597	20018206	0	H
+endlabel
+label
+Block	20027878	20028489	0	H
+endlabel
+label
+Block	20128469	20128991	0	H
+endlabel
+label
+Block	20233050	20233619	0	H
+endlabel
+label
+Block	20327825	20328401	0	H
+endlabel
+label
+Block	20428108	20428747	0	H
+endlabel
+label
+Block	20475538	20476162	0	H
+endlabel
+label
+Block	20482976	20483613	0	H
+endlabel
+label
+Tick	20483289	8	H
+endlabel
+label
+Block	20607597	20608138	0	H
+endlabel
+label
+Block	20728533	20729155	0	H
+endlabel
+label
+Block	20828415	20829065	0	H
+endlabel
+label
+Block	20927355	20927909	0	H
+endlabel
+label
+Block	21034289	21034859	0	H
+endlabel
+label
+Block	21127342	21127934	0	H
+endlabel
+label
+Block	21200125	21200715	0	H
+endlabel
+label
+Block	21229916	21230529	0	H
+endlabel
+label
+Block	21308958	21309526	0	H
+endlabel
+label
+Block	21428716	21429275	0	H
+endlabel
+label
+Block	21528272	21528779	0	H
+endlabel
+label
+Block	21632379	21633010	0	H
+endlabel
+label
+Tick	21632608	8	H
+endlabel
+label
+Block	21728242	21728850	0	H
+endlabel
+label
+Block	21815226	21815864	0	H
+endlabel
+label
+Block	21927490	21928029	0	H
+endlabel
+label
+Block	21988890	21989528	0	H
+endlabel
+label
+Block	22146206	22146782	0	H
+endlabel
+label
+Block	22229907	22230413	0	H
+endlabel
+label
+Block	22315717	22316186	0	H
+endlabel
+label
+Block	22370781	22371364	0	H
+endlabel
+label
+Block	22469913	22470420	0	H
+endlabel
+label
+Block	22617190	22617659	0	H
+endlabel
+label
+Block	22678741	22679205	0	H
+endlabel
+label
+Block	22787414	22788002	0	H
+endlabel
+label
+Block	22843282	22843859	0	H
+endlabel
+label
+Block	22878785	22879309	0	H
+endlabel
+label
+Block	22944175	22944688	0	H
+endlabel
+label
+Block	22991272	22991791	0	H
+endlabel
+label
+Block	23053771	23054322	0	H
+endlabel
+label
+Tick	23053878	8	H
+endlabel
+label
+Block	23098765	23099287	0	H
+endlabel
+label
+Block	23260626	23261085	0	H
+endlabel
+label
+Block	23357043	23357541	0	H
+endlabel
+label
+Block	23411789	23412346	0	H
+endlabel
+label
+Block	23470804	23470805	15
+endlabel
+endgroup
+group
+chr 4
+label
+Block	1	2	15
+endlabel
+label
+Block	48286	48938	0	H
+endlabel
+label
+Block	142440	143093	0	H
+endlabel
+label
+Block	152834	153467	0	H
+endlabel
+label
+Block	152834	153467	0	H
+endlabel
+label
+Block	234722	235175	0	H
+endlabel
+label
+Block	241345	241865	0	H
+endlabel
+label
+Block	256085	256581	0	H
+endlabel
+label
+Block	256085	256581	0	H
+endlabel
+label
+Block	265611	266143	0	H
+endlabel
+label
+Block	265611	266143	0	H
+endlabel
+label
+Block	268482	270480	0	H
+endlabel
+label
+Block	268482	271540	0	H
+endlabel
+label
+Block	269684	270480	0	H
+endlabel
+label
+Block	270464	271052	0	H
+endlabel
+label
+Block	270596	271051	0	H
+endlabel
+label
+Block	271593	272168	0	H
+endlabel
+label
+Block	274738	275352	0	H
+endlabel
+label
+Block	283458	283976	0	H
+endlabel
+label
+Block	299434	299967	0	H
+endlabel
+label
+Block	302532	303046	0	H
+endlabel
+label
+Block	343010	343579	0	H
+endlabel
+label
+Block	367052	367539	0	H
+endlabel
+label
+Block	377361	377988	0	H
+endlabel
+label
+Block	390775	391317	0	H
+endlabel
+label
+Block	428353	428851	0	H
+endlabel
+label
+Block	455345	455902	0	H
+endlabel
+label
+Block	541028	541637	0	H
+endlabel
+label
+Block	641318	641904	0	H
+endlabel
+label
+Block	747636	748157	0	H
+endlabel
+label
+Block	871781	872376	0	H
+endlabel
+label
+Block	926871	927473	0	H
+endlabel
+label
+Block	983727	984295	0	H
+endlabel
+label
+Block	1055093	1055626	0	H
+endlabel
+label
+Tick	1055234	8	H
+endlabel
+label
+Block	1076872	1077422	0	H
+endlabel
+label
+Block	1078027	1078548	0	H
+endlabel
+label
+Block	1127510	1128076	0	H
+endlabel
+label
+Block	1144876	1145394	0	H
+endlabel
+label
+Block	1182269	1182795	0	H
+endlabel
+label
+Block	1228831	1229431	0	H
+endlabel
+label
+Block	1242552	1243102	0	H
+endlabel
+label
+Block	1276056	1276639	0	H
+endlabel
+label
+Block	1320122	1320658	0	H
+endlabel
+label
+Block	1321887	1322536	0	H
+endlabel
+label
+Block	1329067	1329655	0	H
+endlabel
+label
+Block	1388830	1389388	0	H
+endlabel
+label
+Block	1393960	1394476	0	H
+endlabel
+label
+Block	1442533	1443088	0	H
+endlabel
+label
+Block	1542316	1542884	0	H
+endlabel
+label
+Block	1543167	1543620	0	H
+endlabel
+label
+Block	1553323	1553786	0	H
+endlabel
+label
+Block	1576278	1576736	0	H
+endlabel
+label
+Block	1584905	1585415	0	H
+endlabel
+label
+Block	1600871	1601370	0	H
+endlabel
+label
+Block	1603999	1604465	0	H
+endlabel
+label
+Block	1613047	1613503	0	H
+endlabel
+label
+Block	2132994	2133622	0	H
+endlabel
+label
+Block	2241076	2241604	0	H
+endlabel
+label
+Block	2433908	2434380	0	H
+endlabel
+label
+Block	2438790	2439255	0	H
+endlabel
+label
+Block	2440917	2441447	0	H
+endlabel
+label
+Tick	2441217	8	H
+endlabel
+label
+Block	2510259	2510777	0	H
+endlabel
+label
+Block	2611190	2611788	0	H
+endlabel
+label
+Block	2741188	2741731	0	H
+endlabel
+label
+Block	2816586	2817100	0	H
+endlabel
+label
+Block	2817117	2817710	0	H
+endlabel
+label
+Block	2918459	2919095	0	H
+endlabel
+label
+Block	3006871	3007512	0	H
+endlabel
+label
+Block	4197233	4197872	0	H
+endlabel
+label
+Block	4462828	4463445	0	H
+endlabel
+label
+Block	4644916	4645473	0	H
+endlabel
+label
+Block	4802506	4803064	0	H
+endlabel
+label
+Block	4877081	4877607	0	H
+endlabel
+label
+Block	4933422	4933951	0	H
+endlabel
+label
+Block	5077409	5078001	0	H
+endlabel
+label
+Block	5291289	5291826	0	H
+endlabel
+label
+Block	5482077	5482585	0	H
+endlabel
+label
+Block	5591100	5591731	0	H
+endlabel
+label
+Block	5713200	5713659	0	H
+endlabel
+label
+Block	5775541	5776074	0	H
+endlabel
+label
+Tick	5775707	8	H
+endlabel
+label
+Block	6083580	6084060	0	H
+endlabel
+label
+Block	6192468	6193031	0	H
+endlabel
+label
+Block	6272449	6273041	0	H
+endlabel
+label
+Block	6430024	6430654	0	H
+endlabel
+label
+Block	6675797	6676323	0	H
+endlabel
+label
+Block	6780970	6781592	0	H
+endlabel
+label
+Block	6889474	6889949	0	H
+endlabel
+label
+Block	6923670	6924185	0	H
+endlabel
+label
+Block	7045400	7045890	0	H
+endlabel
+label
+Block	7077771	7078282	0	H
+endlabel
+label
+Tick	7077926	8	H
+endlabel
+label
+Block	7176963	7177607	0	H
+endlabel
+label
+Block	7448387	7448892	0	H
+endlabel
+label
+Block	7585983	7586527	0	H
+endlabel
+label
+Block	7660266	7660877	0	H
+endlabel
+label
+Block	7767058	7767581	0	H
+endlabel
+label
+Block	7771904	7772363	0	H
+endlabel
+label
+Block	7775210	7775741	0	H
+endlabel
+label
+Block	7776710	7777284	0	H
+endlabel
+label
+Block	7781747	7782258	0	H
+endlabel
+label
+Block	7857754	7858349	0	H
+endlabel
+label
+Block	7965274	7965829	0	H
+endlabel
+label
+Block	8078388	8078999	0	H
+endlabel
+label
+Tick	8078648	8	H
+endlabel
+label
+Block	8177364	8177886	0	H
+endlabel
+label
+Block	8280764	8281463	0	H
+endlabel
+label
+Block	8297594	8298241	0	H
+endlabel
+label
+Tick	8297960	8	H
+endlabel
+label
+Block	8367979	8368703	0	H
+endlabel
+label
+Block	8375566	8376088	0	H
+endlabel
+label
+Block	8380918	8381954	0	H
+endlabel
+label
+Block	8381892	8382594	0	H
+endlabel
+label
+Block	8382499	8383163	0	H
+endlabel
+label
+Block	8481986	8482548	0	H
+endlabel
+label
+Block	8575465	8576040	0	H
+endlabel
+label
+Block	8646352	8646866	0	H
+endlabel
+label
+Block	8758539	8759072	0	H
+endlabel
+label
+Block	8788890	8789540	0	H
+endlabel
+label
+Block	8876513	8877069	0	H
+endlabel
+label
+Block	8957303	8957867	0	H
+endlabel
+label
+Block	8975650	8976257	0	H
+endlabel
+label
+Block	9058122	9058692	0	H
+endlabel
+label
+Block	9121153	9121634	0	H
+endlabel
+label
+Block	9157838	9158427	0	H
+endlabel
+label
+Block	9176348	9176946	0	H
+endlabel
+label
+Block	9207583	9208190	0	H
+endlabel
+label
+Block	9213072	9213601	0	H
+endlabel
+label
+Tick	9213312	8	H
+endlabel
+label
+Block	9226375	9226885	0	H
+endlabel
+label
+Block	9276263	9276772	0	H
+endlabel
+label
+Block	9277112	9277658	0	H
+endlabel
+label
+Block	9314687	9315248	0	H
+endlabel
+label
+Block	9330349	9330960	0	H
+endlabel
+label
+Block	9364484	9365081	0	H
+endlabel
+label
+Block	9376858	9377418	0	H
+endlabel
+label
+Block	9377549	9378200	0	H
+endlabel
+label
+Tick	9377790	8	H
+endlabel
+label
+Block	9449928	9450456	0	H
+endlabel
+label
+Block	9450159	9450601	0	H
+endlabel
+label
+Block	9468176	9468819	0	H
+endlabel
+label
+Block	9478782	9479325	0	H
+endlabel
+label
+Block	9577993	9578629	0	H
+endlabel
+label
+Block	9579976	9580500	0	H
+endlabel
+label
+Tick	9580049	8	H
+endlabel
+label
+Block	9630580	9631066	0	H
+endlabel
+label
+Block	9676797	9677437	0	H
+endlabel
+label
+Block	9680252	9680778	0	H
+endlabel
+label
+Block	9730142	9730726	0	H
+endlabel
+label
+Block	9741713	9742184	0	H
+endlabel
+label
+Block	9790764	9791272	0	H
+endlabel
+label
+Block	9809618	9810131	0	H
+endlabel
+label
+Block	9877844	9878461	0	H
+endlabel
+label
+Block	9952045	9952585	0	H
+endlabel
+label
+Block	10080586	10081129	0	H
+endlabel
+label
+Block	10180210	10180828	0	H
+endlabel
+label
+Block	10196229	10196760	0	H
+endlabel
+label
+Block	10275867	10276514	0	H
+endlabel
+label
+Block	10375441	10375987	0	H
+endlabel
+label
+Block	10482038	10482640	0	H
+endlabel
+label
+Tick	10482088	8	H
+endlabel
+label
+Block	10580308	10580860	0	H
+endlabel
+label
+Block	10659034	10659536	0	H
+endlabel
+label
+Tick	10659455	8	H
+endlabel
+label
+Block	10707519	10707951	0	H
+endlabel
+label
+Block	10707952	10708314	0	H
+endlabel
+label
+Block	10708387	10708743	0	H
+endlabel
+label
+Block	10726692	10727184	0	H
+endlabel
+label
+Block	10764663	10765304	0	H
+endlabel
+label
+Block	10776796	10777367	0	H
+endlabel
+label
+Block	10787118	10787821	0	H
+endlabel
+label
+Block	10875843	10876418	0	H
+endlabel
+label
+Block	10977375	10977884	0	H
+endlabel
+label
+Block	11175138	11175632	0	H
+endlabel
+label
+Block	11183071	11183713	0	H
+endlabel
+label
+Block	11277212	11277851	0	H
+endlabel
+label
+Block	11325921	11326457	0	H
+endlabel
+label
+Tick	11326190	8	H
+endlabel
+label
+Block	11397248	11397724	0	H
+endlabel
+label
+Block	11487891	11488437	0	H
+endlabel
+label
+Block	11579700	11580288	0	H
+endlabel
+label
+Tick	11580143	8	H
+endlabel
+label
+Block	11684469	11685100	0	H
+endlabel
+label
+Block	11789078	11789652	0	H
+endlabel
+label
+Block	11793738	11794255	0	H
+endlabel
+label
+Block	11795810	11796289	0	H
+endlabel
+label
+Block	11798675	11799142	0	H
+endlabel
+label
+Block	11877837	11878481	0	H
+endlabel
+label
+Block	11984495	11985078	0	H
+endlabel
+label
+Tick	11984772	8	H
+endlabel
+label
+Block	12076453	12077081	0	H
+endlabel
+label
+Block	12195762	12196371	0	H
+endlabel
+label
+Block	12279689	12280262	0	H
+endlabel
+label
+Block	12326053	12326680	0	H
+endlabel
+label
+Block	12403706	12404216	0	H
+endlabel
+label
+Tick	12404111	8	H
+endlabel
+label
+Block	12576653	12577206	0	H
+endlabel
+label
+Block	12653827	12654429	0	H
+endlabel
+label
+Block	12711709	12712213	0	H
+endlabel
+label
+Block	12775629	12776239	0	H
+endlabel
+label
+Block	12900199	12900798	0	H
+endlabel
+label
+Block	12978424	12978935	0	H
+endlabel
+label
+Block	13038258	13038769	0	H
+endlabel
+label
+Block	13078113	13078737	0	H
+endlabel
+label
+Block	13179575	13180131	0	H
+endlabel
+label
+Block	13213639	13214129	0	H
+endlabel
+label
+Block	13221777	13222255	0	H
+endlabel
+label
+Block	13226204	13226989	0	H
+endlabel
+label
+Block	13235768	13236221	0	H
+endlabel
+label
+Block	13237802	13238386	0	H
+endlabel
+label
+Block	13238453	13238918	0	H
+endlabel
+label
+Block	13275676	13276248	0	H
+endlabel
+label
+Block	13358202	13358833	0	H
+endlabel
+label
+Block	13475607	13476188	0	H
+endlabel
+label
+Block	13576336	13576947	0	H
+endlabel
+label
+Tick	13576588	8	H
+endlabel
+label
+Block	13680078	13680624	0	H
+endlabel
+label
+Block	13753481	13754073	0	H
+endlabel
+label
+Block	13858779	13859387	0	H
+endlabel
+label
+Block	13978166	13978747	0	H
+endlabel
+label
+Block	14075640	14076149	0	H
+endlabel
+label
+Block	14176737	14177321	0	H
+endlabel
+label
+Block	14244989	14245581	0	H
+endlabel
+label
+Block	14260012	14260563	0	H
+endlabel
+label
+Block	14318106	14318648	0	H
+endlabel
+label
+Block	14379328	14379968	0	H
+endlabel
+label
+Block	14455809	14456333	0	H
+endlabel
+label
+Block	14532967	14533580	0	H
+endlabel
+label
+Block	14635360	14635905	0	H
+endlabel
+label
+Block	14731890	14732425	0	H
+endlabel
+label
+Block	14803151	14803662	0	H
+endlabel
+label
+Block	14877256	14877722	0	H
+endlabel
+label
+Block	14935788	14936438	0	H
+endlabel
+label
+Block	15087114	15087687	0	H
+endlabel
+label
+Block	15175252	15175770	0	H
+endlabel
+label
+Block	15251327	15251916	0	H
+endlabel
+label
+Block	15274100	15274643	0	H
+endlabel
+label
+Block	15329486	15330128	0	H
+endlabel
+label
+Block	15368323	15368878	0	H
+endlabel
+label
+Block	15420619	15421187	0	H
+endlabel
+label
+Block	15524223	15524768	0	H
+endlabel
+label
+Block	15571672	15572272	0	H
+endlabel
+label
+Block	15661985	15662470	0	H
+endlabel
+label
+Block	15727315	15727790	0	H
+endlabel
+label
+Block	15764920	15765429	0	H
+endlabel
+label
+Tick	15765120	8	H
+endlabel
+label
+Block	15806074	15806579	0	H
+endlabel
+label
+Block	15864710	15865243	0	H
+endlabel
+label
+Block	15924983	15925521	0	H
+endlabel
+label
+Block	15990474	15990977	0	H
+endlabel
+label
+Block	16025418	16025877	0	H
+endlabel
+label
+Block	16051193	16052085	0	H
+endlabel
+label
+Block	16120843	16121439	0	H
+endlabel
+label
+Block	16173795	16174290	0	H
+endlabel
+label
+Block	16272270	16272809	0	H
+endlabel
+label
+Tick	16272521	8	H
+endlabel
+label
+Block	16337754	16338306	0	H
+endlabel
+label
+Block	16382808	16383302	0	H
+endlabel
+label
+Block	16474552	16475110	0	H
+endlabel
+label
+Block	16546780	16547296	0	H
+endlabel
+label
+Block	16582588	16583089	0	H
+endlabel
+label
+Block	16636610	16637102	0	H
+endlabel
+label
+Block	16741855	16742309	0	H
+endlabel
+label
+Tick	16742071	8	H
+endlabel
+label
+Block	16792898	16793410	0	H
+endlabel
+label
+Block	16888018	16888606	0	H
+endlabel
+label
+Block	16944291	16944780	0	H
+endlabel
+label
+Block	17038096	17038697	0	H
+endlabel
+label
+Tick	17038400	8	H
+endlabel
+label
+Block	17151741	17152239	0	H
+endlabel
+label
+Block	17257880	17258407	0	H
+endlabel
+label
+Block	17360694	17361166	0	H
+endlabel
+label
+Block	17442864	17443477	0	H
+endlabel
+label
+Block	17608717	17609255	0	H
+endlabel
+label
+Tick	17608924	8	H
+endlabel
+label
+Block	17679679	17680157	0	H
+endlabel
+label
+Block	17732266	17732785	0	H
+endlabel
+label
+Block	17803605	17804161	0	H
+endlabel
+label
+Tick	17803781	8	H
+endlabel
+label
+Block	18155898	18156416	0	H
+endlabel
+label
+Block	18187286	18187928	0	H
+endlabel
+label
+Block	18267742	18268217	0	H
+endlabel
+label
+Block	18371519	18372106	0	H
+endlabel
+label
+Block	18416907	18417472	0	H
+endlabel
+label
+Block	18496213	18496675	0	H
+endlabel
+label
+Block	18560103	18560641	0	H
+endlabel
+label
+Tick	18560343	8	H
+endlabel
+label
+Block	18585041	18585042	15
+endlabel
+endgroup
+group
+chr 5
+label
+Block	1	2	15
+endlabel
+label
+Block	43643	44262	0	H
+endlabel
+label
+Block	73052	73570	0	H
+endlabel
+label
+Block	93542	94086	0	H
+endlabel
+label
+Block	98950	99497	0	H
+endlabel
+label
+Block	105340	105855	0	H
+endlabel
+label
+Block	107557	108113	0	H
+endlabel
+label
+Block	110411	111003	0	H
+endlabel
+label
+Block	174369	174894	0	H
+endlabel
+label
+Block	201475	202064	0	H
+endlabel
+label
+Block	242093	242718	0	H
+endlabel
+label
+Block	274207	274737	0	H
+endlabel
+label
+Block	342177	342819	0	H
+endlabel
+label
+Block	375923	376395	0	H
+endlabel
+label
+Block	403847	404445	0	H
+endlabel
+label
+Block	428711	429173	0	H
+endlabel
+label
+Block	476340	476875	0	H
+endlabel
+label
+Block	576287	576795	0	H
+endlabel
+label
+Block	625179	625754	0	H
+endlabel
+label
+Tick	625679	8	H
+endlabel
+label
+Block	657920	658523	0	H
+endlabel
+label
+Block	689282	689806	0	H
+endlabel
+label
+Block	748144	748793	0	H
+endlabel
+label
+Block	872097	872628	0	H
+endlabel
+label
+Tick	872350	8	H
+endlabel
+label
+Block	904790	905232	0	H
+endlabel
+label
+Block	905202	905605	0	H
+endlabel
+label
+Block	905594	906033	0	H
+endlabel
+label
+Block	906024	906619	0	H
+endlabel
+label
+Block	947444	948014	0	H
+endlabel
+label
+Block	1040768	1041403	0	H
+endlabel
+label
+Block	1154651	1155166	0	H
+endlabel
+label
+Block	1213621	1214213	0	H
+endlabel
+label
+Tick	1214057	8	H
+endlabel
+label
+Block	1245733	1246306	0	H
+endlabel
+label
+Block	1337128	1337691	0	H
+endlabel
+label
+Block	1348012	1348743	0	H
+endlabel
+label
+Block	1362872	1363597	0	H
+endlabel
+label
+Block	1370084	1370683	0	H
+endlabel
+label
+Block	1399612	1400201	0	H
+endlabel
+label
+Block	1445887	1446399	0	H
+endlabel
+label
+Block	1496987	1497444	0	H
+endlabel
+label
+Tick	1497133	8	H
+endlabel
+label
+Block	1541585	1542190	0	H
+endlabel
+label
+Block	1586121	1586757	0	H
+endlabel
+label
+Block	1640096	1640557	0	H
+endlabel
+label
+Block	1694708	1695183	0	H
+endlabel
+label
+Block	1742958	1743582	0	H
+endlabel
+label
+Block	1792746	1793215	0	H
+endlabel
+label
+Block	1841010	1841517	0	H
+endlabel
+label
+Block	1931083	1931599	0	H
+endlabel
+label
+Tick	1931167	8	H
+endlabel
+label
+Block	1943546	1944156	0	H
+endlabel
+label
+Block	2084671	2085248	0	H
+endlabel
+label
+Block	2152872	2153445	0	H
+endlabel
+label
+Block	2192708	2193272	0	H
+endlabel
+label
+Block	2244524	2245045	0	H
+endlabel
+label
+Tick	2244739	8	H
+endlabel
+label
+Block	2296325	2296954	0	H
+endlabel
+label
+Block	2376210	2376721	0	H
+endlabel
+label
+Block	2419697	2420244	0	H
+endlabel
+label
+Block	2491906	2492422	0	H
+endlabel
+label
+Block	2707476	2708137	0	H
+endlabel
+label
+Block	2719033	2719617	0	H
+endlabel
+label
+Block	2798797	2799420	0	H
+endlabel
+label
+Block	2808688	2809180	0	H
+endlabel
+label
+Block	2899849	2900468	0	H
+endlabel
+label
+Block	2924846	2925326	0	H
+endlabel
+label
+Block	2971450	2971919	0	H
+endlabel
+label
+Block	2974039	2974589	0	H
+endlabel
+label
+Block	3077198	3077741	0	H
+endlabel
+label
+Block	3092584	3093094	0	H
+endlabel
+label
+Block	3126281	3126784	0	H
+endlabel
+label
+Block	3149879	3150390	0	H
+endlabel
+label
+Block	3173755	3174296	0	H
+endlabel
+label
+Block	3175643	3176158	0	H
+endlabel
+label
+Block	3177286	3177780	0	H
+endlabel
+label
+Block	3199903	3200546	0	H
+endlabel
+label
+Block	3227256	3227793	0	H
+endlabel
+label
+Block	3281569	3282191	0	H
+endlabel
+label
+Block	3288843	3289479	0	H
+endlabel
+label
+Block	3330136	3330609	0	H
+endlabel
+label
+Block	3392409	3393043	0	H
+endlabel
+label
+Block	3430933	3431445	0	H
+endlabel
+label
+Block	3491308	3491876	0	H
+endlabel
+label
+Block	3497886	3498505	0	H
+endlabel
+label
+Block	3588309	3589556	0	H
+endlabel
+label
+Block	3606683	3607305	0	H
+endlabel
+label
+Tick	3606967	8	H
+endlabel
+label
+Block	3695163	3695702	0	H
+endlabel
+label
+Block	3794543	3795158	0	H
+endlabel
+label
+Block	3907744	3908393	0	H
+endlabel
+label
+Block	4010373	4010935	0	H
+endlabel
+label
+Block	4097721	4098243	0	H
+endlabel
+label
+Block	4121368	4121892	0	H
+endlabel
+label
+Block	4148390	4148905	0	H
+endlabel
+label
+Block	4179110	4179689	0	H
+endlabel
+label
+Block	4223264	4223782	0	H
+endlabel
+label
+Block	4235132	4235731	0	H
+endlabel
+label
+Block	4252468	4252987	0	H
+endlabel
+label
+Block	4293225	4293769	0	H
+endlabel
+label
+Block	4317905	4318531	0	H
+endlabel
+label
+Block	4327375	4327889	0	H
+endlabel
+label
+Block	4329883	4330413	0	H
+endlabel
+label
+Block	4343828	4344363	0	H
+endlabel
+label
+Block	4418743	4419315	0	H
+endlabel
+label
+Block	4428486	4429013	0	H
+endlabel
+label
+Block	4473515	4474030	0	H
+endlabel
+label
+Block	4496415	4496934	0	H
+endlabel
+label
+Block	4515967	4516493	0	H
+endlabel
+label
+Block	4547900	4548408	0	H
+endlabel
+label
+Block	4617913	4618426	0	H
+endlabel
+label
+Block	4721025	4721551	0	H
+endlabel
+label
+Block	4820117	4820748	0	H
+endlabel
+label
+Block	4897035	4897616	0	H
+endlabel
+label
+Block	5005363	5005947	0	H
+endlabel
+label
+Tick	5005750	8	H
+endlabel
+label
+Block	5021995	5022521	0	H
+endlabel
+label
+Block	5103425	5104044	0	H
+endlabel
+label
+Block	5198066	5198580	0	H
+endlabel
+label
+Block	5318924	5319465	0	H
+endlabel
+label
+Tick	5319138	8	H
+endlabel
+label
+Block	5388213	5388725	0	H
+endlabel
+label
+Block	5452167	5452695	0	H
+endlabel
+label
+Block	5452188	5452695	0	H
+endlabel
+label
+Block	5619629	5620180	0	H
+endlabel
+label
+Block	5725918	5726542	0	H
+endlabel
+label
+Block	5824910	5826769	0	H
+endlabel
+label
+Block	5841106	5841651	0	H
+endlabel
+label
+Block	6022450	6022986	0	H
+endlabel
+label
+Block	6114736	6115251	0	H
+endlabel
+label
+Block	6221773	6222326	0	H
+endlabel
+label
+Block	6322372	6322948	0	H
+endlabel
+label
+Block	6416243	6416759	0	H
+endlabel
+label
+Block	6523001	6523630	0	H
+endlabel
+label
+Block	6620641	6621293	0	H
+endlabel
+label
+Block	6707732	6708355	0	H
+endlabel
+label
+Tick	6708014	8	H
+endlabel
+label
+Block	6820183	6820770	0	H
+endlabel
+label
+Block	6888169	6888630	0	H
+endlabel
+label
+Block	6893131	6893601	0	H
+endlabel
+label
+Block	6896680	6897168	0	H
+endlabel
+label
+Block	6897774	6898314	0	H
+endlabel
+label
+Block	6899594	6900178	0	H
+endlabel
+label
+Block	6905067	6905617	0	H
+endlabel
+label
+Block	7004132	7004706	0	H
+endlabel
+label
+Block	7123202	7123807	0	H
+endlabel
+label
+Block	7278798	7279330	0	H
+endlabel
+label
+Tick	7279057	8	H
+endlabel
+label
+Block	7442039	7442650	0	H
+endlabel
+label
+Tick	7442381	8	H
+endlabel
+label
+Block	7543818	7544360	0	H
+endlabel
+label
+Block	7635124	7635747	0	H
+endlabel
+label
+Block	7742135	7742640	0	H
+endlabel
+label
+Block	7842900	7843547	0	H
+endlabel
+label
+Tick	7842993	8	H
+endlabel
+label
+Block	7881187	7881700	0	H
+endlabel
+label
+Tick	7881430	8	H
+endlabel
+label
+Block	7931168	7931678	0	H
+endlabel
+label
+Block	7984946	7985568	0	H
+endlabel
+label
+Block	8331140	8331711	0	H
+endlabel
+label
+Block	8562462	8563095	0	H
+endlabel
+label
+Block	8687304	8687847	0	H
+endlabel
+label
+Block	8791781	8792416	0	H
+endlabel
+label
+Block	8821662	8822251	0	H
+endlabel
+label
+Block	8894600	8895101	0	H
+endlabel
+label
+Block	8977837	8978431	0	H
+endlabel
+label
+Block	9105161	9105771	0	H
+endlabel
+label
+Block	9360741	9361339	0	H
+endlabel
+label
+Block	9447889	9448456	0	H
+endlabel
+label
+Block	9627893	9628415	0	H
+endlabel
+label
+Block	9722715	9723270	0	H
+endlabel
+label
+Block	9820365	9820970	0	H
+endlabel
+label
+Block	9987077	9987723	0	H
+endlabel
+label
+Block	10525294	10525917	0	H
+endlabel
+label
+Block	10909688	10910284	0	H
+endlabel
+label
+Block	11023392	11023966	0	H
+endlabel
+label
+Block	11452690	11453344	0	H
+endlabel
+label
+Block	12037526	12038101	0	H
+endlabel
+label
+Block	12530803	12531455	0	H
+endlabel
+label
+Block	12698120	12698703	0	H
+endlabel
+label
+Block	12966055	12966566	0	H
+endlabel
+label
+Block	13179661	13180177	0	H
+endlabel
+label
+Block	13272250	13272823	0	H
+endlabel
+label
+Block	13355705	13356285	0	H
+endlabel
+label
+Block	13614231	13614825	0	H
+endlabel
+label
+Block	13691445	13691984	0	H
+endlabel
+label
+Block	13814976	13815515	0	H
+endlabel
+label
+Block	13917790	13918296	0	H
+endlabel
+label
+Block	14122731	14123261	0	H
+endlabel
+label
+Block	14215995	14216514	0	H
+endlabel
+label
+Tick	14216131	8	H
+endlabel
+label
+Block	14303501	14304008	0	H
+endlabel
+label
+Block	14337952	14338523	0	H
+endlabel
+label
+Block	14564158	14564793	0	H
+endlabel
+label
+Block	14661116	14661721	0	H
+endlabel
+label
+Block	14711801	14712320	0	H
+endlabel
+label
+Block	14765903	14766535	0	H
+endlabel
+label
+Block	14870781	14871391	0	H
+endlabel
+label
+Block	14952392	14953025	0	H
+endlabel
+label
+Block	15065018	15065606	0	H
+endlabel
+label
+Tick	15065196	8	H
+endlabel
+label
+Block	15315686	15316249	0	H
+endlabel
+label
+Block	15456895	15457454	0	H
+endlabel
+label
+Block	15568698	15569232	0	H
+endlabel
+label
+Tick	15569205	8	H
+endlabel
+label
+Block	15574542	15575087	0	H
+endlabel
+label
+Block	15659669	15660197	0	H
+endlabel
+label
+Tick	15767945	8	H
+endlabel
+label
+Block	15871814	15872367	0	H
+endlabel
+label
+Block	15964782	15965309	0	H
+endlabel
+label
+Block	16122434	16123012	0	H
+endlabel
+label
+Block	16259147	16259764	0	H
+endlabel
+label
+Block	16368204	16368724	0	H
+endlabel
+label
+Block	16445959	16446488	0	H
+endlabel
+label
+Block	16565622	16566178	0	H
+endlabel
+label
+Block	16788158	16788702	0	H
+endlabel
+label
+Block	16869955	16870498	0	H
+endlabel
+label
+Block	16964524	16965158	0	H
+endlabel
+label
+Block	17155306	17155846	0	H
+endlabel
+label
+Block	17155867	17156450	0	H
+endlabel
+label
+Block	17171242	17171802	0	H
+endlabel
+label
+Tick	17171676	8	H
+endlabel
+label
+Block	17242293	17242835	0	H
+endlabel
+label
+Block	17469049	17469628	0	H
+endlabel
+label
+Block	17569546	17570125	0	H
+endlabel
+label
+Block	17629093	17629602	0	H
+endlabel
+label
+Tick	17629384	8	H
+endlabel
+label
+Block	17692511	17693148	0	H
+endlabel
+label
+Block	17772218	17772849	0	H
+endlabel
+label
+Block	17864866	17865430	0	H
+endlabel
+label
+Block	17924116	17924835	0	H
+endlabel
+label
+Block	17944190	17944730	0	H
+endlabel
+label
+Block	17950074	17950564	0	H
+endlabel
+label
+Block	17954944	17955470	0	H
+endlabel
+label
+Block	17960014	17960537	0	H
+endlabel
+label
+Block	17965430	17965926	0	H
+endlabel
+label
+Block	18065657	18066170	0	H
+endlabel
+label
+Block	18134361	18135029	0	H
+endlabel
+label
+Block	18166759	18167398	0	H
+endlabel
+label
+Block	18247051	18247578	0	H
+endlabel
+label
+Block	18258413	18258955	0	H
+endlabel
+label
+Block	18364871	18365455	0	H
+endlabel
+label
+Block	18464494	18465056	0	H
+endlabel
+label
+Block	18568481	18569086	0	H
+endlabel
+label
+Block	18666458	18666971	0	H
+endlabel
+label
+Block	18782019	18782631	0	H
+endlabel
+label
+Block	18905471	18906113	0	H
+endlabel
+label
+Block	18987816	18988445	0	H
+endlabel
+label
+Block	19123616	19124258	0	H
+endlabel
+label
+Block	19315950	19316497	0	H
+endlabel
+label
+Tick	19316200	8	H
+endlabel
+label
+Block	19414594	19415166	0	H
+endlabel
+label
+Block	19503206	19503717	0	H
+endlabel
+label
+Block	19614150	19614705	0	H
+endlabel
+label
+Block	19715720	19716324	0	H
+endlabel
+label
+Block	19823080	19823625	0	H
+endlabel
+label
+Block	19917554	19918168	0	H
+endlabel
+label
+Block	20021418	20022008	0	H
+endlabel
+label
+Block	20128253	20128807	0	H
+endlabel
+label
+Block	20214933	20215552	0	H
+endlabel
+label
+Tick	20215473	8	H
+endlabel
+label
+Block	20317927	20318544	0	H
+endlabel
+label
+Block	20408706	20409277	0	H
+endlabel
+label
+Tick	20409250	8	H
+endlabel
+label
+Block	20516380	20517017	0	H
+endlabel
+label
+Block	20518241	20518698	0	H
+endlabel
+label
+Tick	20518330	8	H
+endlabel
+label
+Block	20522724	20523199	0	H
+endlabel
+label
+Block	20723166	20723797	0	H
+endlabel
+label
+Block	20818149	20818691	0	H
+endlabel
+label
+Block	20915132	20915694	0	H
+endlabel
+label
+Tick	20915321	8	H
+endlabel
+label
+Block	21019196	21019781	0	H
+endlabel
+label
+Block	21038817	21039321	0	H
+endlabel
+label
+Block	21115349	21115879	0	H
+endlabel
+label
+Block	21216163	21216675	0	H
+endlabel
+label
+Block	21318883	21319506	0	H
+endlabel
+label
+Block	21415454	21415971	0	H
+endlabel
+label
+Block	21517341	21517886	0	H
+endlabel
+label
+Block	21612941	21613471	0	H
+endlabel
+label
+Block	21718524	21719100	0	H
+endlabel
+label
+Block	21880799	21881361	0	H
+endlabel
+label
+Block	22040690	22041208	0	H
+endlabel
+label
+Tick	22040877	8	H
+endlabel
+label
+Block	22116605	22117175	0	H
+endlabel
+label
+Tick	22116788	8	H
+endlabel
+label
+Block	22210843	22211351	0	H
+endlabel
+label
+Block	22317718	22318302	0	H
+endlabel
+label
+Block	22414510	22415112	0	H
+endlabel
+label
+Tick	22414941	8	H
+endlabel
+label
+Block	22459735	22460318	0	H
+endlabel
+label
+Block	22627431	22627935	0	H
+endlabel
+label
+Block	22714241	22714807	0	H
+endlabel
+label
+Block	22817255	22817771	0	H
+endlabel
+label
+Block	22918487	22919032	0	H
+endlabel
+label
+Block	23029417	23029930	0	H
+endlabel
+label
+Block	23114998	23115650	0	H
+endlabel
+label
+Block	23207669	23208169	0	H
+endlabel
+label
+Block	23213214	23213680	0	H
+endlabel
+label
+Block	23214314	23214847	0	H
+endlabel
+label
+Block	23219226	23219774	0	H
+endlabel
+label
+Block	23224445	23224958	0	H
+endlabel
+label
+Block	23270845	23271497	0	H
+endlabel
+label
+Tick	23270994	8	H
+endlabel
+label
+Block	23412833	23413364	0	H
+endlabel
+label
+Block	23518249	23518752	0	H
+endlabel
+label
+Block	23536891	23537439	0	H
+endlabel
+label
+Block	23614758	23615369	0	H
+endlabel
+label
+Block	23722397	23722972	0	H
+endlabel
+label
+Block	23815354	23815963	0	H
+endlabel
+label
+Tick	23815848	8	H
+endlabel
+label
+Block	23920347	23920959	0	H
+endlabel
+label
+Block	23979597	23980130	0	H
+endlabel
+label
+Block	24131146	24131668	0	H
+endlabel
+label
+Block	24214323	24214895	0	H
+endlabel
+label
+Block	24316680	24317304	0	H
+endlabel
+label
+Block	24417054	24417630	0	H
+endlabel
+label
+Block	24504086	24504617	0	H
+endlabel
+label
+Block	24697303	24697890	0	H
+endlabel
+label
+Block	24832858	24833362	0	H
+endlabel
+label
+Block	24870175	24870726	0	H
+endlabel
+label
+Block	24996339	24996942	0	H
+endlabel
+label
+Block	25151167	25151779	0	H
+endlabel
+label
+Block	25300706	25301629	0	H
+endlabel
+label
+Block	25301036	25301683	0	H
+endlabel
+label
+Tick	25301234	8	H
+endlabel
+label
+Block	25417774	25418346	0	H
+endlabel
+label
+Block	25466669	25467176	0	H
+endlabel
+label
+Block	25616974	25617596	0	H
+endlabel
+label
+Block	25715014	25715544	0	H
+endlabel
+label
+Block	25819581	25820087	0	H
+endlabel
+label
+Block	25963405	25963947	0	H
+endlabel
+label
+Block	26029366	26029851	0	H
+endlabel
+label
+Tick	26029439	8	H
+endlabel
+label
+Block	26120843	26121407	0	H
+endlabel
+label
+Tick	26120955	8	H
+endlabel
+label
+Block	26220285	26220878	0	H
+endlabel
+label
+Block	26379717	26380252	0	H
+endlabel
+label
+Tick	26379972	8	H
+endlabel
+label
+Block	26437584	26438052	0	H
+endlabel
+label
+Block	26638689	26639177	0	H
+endlabel
+label
+Block	26707937	26708512	0	H
+endlabel
+label
+Tick	26708459	8	H
+endlabel
+label
+Block	26815330	26815878	0	H
+endlabel
+label
+Block	26876994	26877524	0	H
+endlabel
+label
+Block	26992727	26992728	15
+endlabel
+endgroup
