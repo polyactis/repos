@@ -1,0 +1,50 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[pdftex]{color,graphicx}
+\usepackage[pdftex, bookmarks, colorlinks=false]{hyperref}
+\usepackage{supertabular}
+\usepackage{longtable}
+\usepackage{tabularx}
+
+%\pdfpagewidth and \pdfpageheight is only good for pdflatex
+%\pdfpagewidth 13in
+%\pdfpageheight 22in
+
+\addtolength{\textheight}{5cm}
+\addtolength{\textwidth}{5cm}
+\addtolength{\hoffset}{-3cm}
+\addtolength{\voffset}{-3cm}
+
+%opening
+\title{Report on Identity Ecotypes in Database Stock}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+this is an expansion of section \emph{identity strains across globe} in outcrossing.pdf
+\end{abstract}
+
+\tableofcontents
+
+
+\section{Identity Cliques}
+Here is to see how identity strain pairs are distributed across globe.  the criteria to define identity is this. If one of the two calls is NA, it's deemed as identical too. Hence, the transivity of identity relationship is not guaranteed. For example, given strain 1 and 2 are identical and strain 1 and 3 are also identical, strain 1 and 3 might not be identical.
+
+Think of identity relationship as a graph, which can be partitioned into connected components.
+
+Any two nodes inside a connected component might not be directly connected to each other. They however could be reached via some intermediate nodes.
+
+Each connected component could loosely correspond to a distinct haplotype. 'loosely' because its transivity is not guaranteed and there're still some strains who are not identical to each other. That's why we need cliques.
+
+Any two nodes inside a clique are directly connected to each other. Each clique could correspond to a unique haplotype. Every clique is got by breaking a component. The last section tells you which component each clique is from.
+
+All identity cliques are classified based on continent. Very few cliques are across continents. Even within one continent, most cliques reside in one country.
+
+No figure/map here. all the figure references don't work. there're too many figures to be included in latex.
+
+
+\input{tables_figures.tex}
+
+\end{document}
