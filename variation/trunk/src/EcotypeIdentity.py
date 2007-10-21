@@ -27,15 +27,179 @@ bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
 	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/pymodule')))
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-sys.path.insert(0, os.path.join(os.path.expanduser('~/script/pymodule')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/pymodule')))
 import psycopg, sys, getopt
 from codense.common import db_connect, dict_map
 from sets import Set
 import networkx as nx
 
+def get_continent_combo2clique_id_ls(curs, country2continent_table='at.country2continent', clique2ecotype_table='stock20071008.clique2ecotype', stock_db='stock20071008'):
+	"""
+	2007-10-16
+	"""
+	sys.stderr.write("Getting continent_combo2clique_id_ls ...")
+	continent_combo2clique_id_ls = {}
+	clique_id2continent_ls = {}
+	curs.execute("select distinct ce.clique_id, cc.continent from %s cc, %s ce, %s.ecotype e, %s.country c, %s.site s, %s.address a where ce.ecotypeid=e.id and e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and c.id=cc.id"%(country2continent_table, clique2ecotype_table, stock_db, stock_db, stock_db, stock_db))
+	rows = curs.fetchall()
+	for row in rows:
+		clique_id, continent = row
+		if clique_id not in clique_id2continent_ls:
+			clique_id2continent_ls[clique_id] = []
+		clique_id2continent_ls[clique_id].append(continent)
+	for clique_id, continent_ls in clique_id2continent_ls.iteritems():
+		continent_ls.sort()
+		continent_combo = tuple(continent_ls)
+		if continent_combo not in continent_combo2clique_id_ls:
+			continent_combo2clique_id_ls[continent_combo] = []
+		continent_combo2clique_id_ls[continent_combo].append(clique_id)
+	sys.stderr.write("Done.\n")
+	return continent_combo2clique_id_ls
+
+
+def get_clique_id2size(curs, clique2ecotype_table='stock20071008.clique2ecotype'):
+	clique_id2size = {}
+	curs.execute("select clique_id, count(ecotypeid) from %s group by clique_id"%(clique2ecotype_table))
+	rows = curs.fetchall()
+	for row in rows:
+		clique_id, cnt = row
+		clique_id2size[clique_id] = cnt
+	return clique_id2size
+
+def construct_site_graph_out_of_ecotype_id_ls(ecotype_id_ls, ecotypeid2pos):
+	"""
+	2007-10-18
+		modified from construct_site_graph_out_of_strain_graph()
+		node weighted by the number of ecotype_id's
+	"""
+	sys.stderr.write("Constructing site graph out of ecotype_id_ls...")
+	site2pos = {}
+	site2weight = {}
+	import networkx as nx
+	site_g = nx.XGraph()
+	for e in ecotype_id_ls:
+		pos = (round(ecotypeid2pos[e][0],2), round(ecotypeid2pos[e][1],2))
+		site_g.add_node(pos)
+		if pos not in site2weight:
+			site2weight[pos] = 0
+		site2weight[pos] += 1
+		site2pos[pos] = pos
+	sys.stderr.write("Done.\n")
+	return site_g, site2weight, site2pos
+
+
+def outputCliqueInLatexTable(curs, region, clique_id, table_label, fig_label, stock_db, clique2ecotype_table, outf):
+	from pymodule.latex import outputMatrixInLatexTable
+	data_matrix = []
+	curs.execute("select e.id, e.name, e.nativename, e.stockparent, e.latitude, e.longitude, c.abbr, s.name from %s.ecotype e, %s.address a, %s.site s, %s.country c, %s ce where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=ce.ecotypeid and ce.clique_id=%s order by nativename, stockparent"%(stock_db, stock_db, stock_db, stock_db, clique2ecotype_table, clique_id))
+	rows = curs.fetchall()
+	ecotype_id_ls = []
+	for row in rows:
+		ecotype_id = row[0]
+		ecotype_id_ls.append(ecotype_id)
+		data_matrix.append(row)
+	caption = 'haplotype clique %s has %s ecotypes from %s. check Figure~\\ref{%s}.'%(clique_id, len(ecotype_id_ls), region, fig_label)
+	header_ls = ['ecotypeid', 'name', 'nativename', 'stockparent', 'latitude', 'longitude', 'country', 'site']
+	outf.write(outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls))
+	return ecotype_id_ls
+
+
+def OutputCliquesGroupedByRegion(curs, region2clique_id_ls, clique_id2size, clique2ecotype_table, component2clique_table, output_fname, fig_output_dir, stock_db='stock20071008', min_clique_size=3, need_to_draw_figures=0):
+	from variation.src.common import draw_graph_on_map, get_ecotypeid2pos
+	from variation.src.common import get_pic_area
+	from pymodule.latex import outputFigureInLatex
+	import sys,os
+	ecotypeid2pos = get_ecotypeid2pos(curs, '%s.ecotype'%stock_db)
+	
+	outf = open(output_fname, 'w')
+	no_of_regions = 0
+	clique_id2region = {}	#for the cc2clique latex table
+	for region, clique_id_ls in region2clique_id_ls.iteritems():
+		region = ' and '.join(region)	#region is tuple, convert it to string
+		sys.stderr.write("%s:\n"%region)
+		outf.write("\\subsection{%s}\n"%region)
+		size_clique_id_ls = []
+		for clique_id in clique_id_ls:
+			if clique_id2size[clique_id]>=min_clique_size:
+				size_clique_id_ls.append([clique_id2size[clique_id], clique_id])
+		outf.write('region %s has %s cliques in total but %s cliques above min size %s.\n'%(region, len(clique_id_ls), len(size_clique_id_ls), min_clique_size))
+		if len(size_clique_id_ls)==0:
+			continue
+		size_clique_id_ls.sort()
+		caption = 'region %s has %s cliques in total but %s cliques above min size %s.'%(region, len(clique_id_ls), len(size_clique_id_ls), min_clique_size)
+		no_of_regions += 1
+		table_label = 't_region_%s'%no_of_regions
+		clique_id_size_ls = [[row[1],row[0]] for row in size_clique_id_ls]
+		header_ls = ['clique_id', 'size']
+		outf.write(outputMatrixInLatexTable(clique_id_size_ls, caption, table_label, header_ls))
+		
+		for size, clique_id in size_clique_id_ls:
+			sys.stderr.write("clique %s, size %s\n"%(clique_id, size))
+			#output the table and get ecotype_id_ls
+			fig_label = 'fclique%s'%clique_id
+			table_label = 'tclique%s'%clique_id
+			ecotype_id_ls = outputCliqueInLatexTable(curs, region, clique_id, table_label, fig_label, stock_db, clique2ecotype_table, outf)
+			
+			#draw the clique
+			site_g, site2weight, site2pos = construct_site_graph_out_of_ecotype_id_ls(ecotype_id_ls, ecotypeid2pos)
+			fig_fname = 'haplotype_%s_size%s_%ssites_map'%(clique_id,len(ecotype_id_ls), len(site2pos))	#just the name without filetype extension, like png, eps etc.
+			if need_to_draw_figures:
+				draw_graph_on_map(site_g, site2weight, site2pos, 'clique %s, size %s, %s sites of %s'%(clique_id, len(ecotype_id_ls), len(site2pos), region), pic_area=get_pic_area(site2pos.values(), 30), output_fname_prefix=os.path.join(fig_output_dir, fig_fname))
+				
+				#output the figure in latex
+				fig_fname = os.path.join('figures/', '%s.png'%fig_fname)	#relative path of the figure to the latex file
+				caption = 'map of haplotype clique %s has %s ecotypes from %s sites of %s. check Table~\\ref{%s}.'%(clique_id, len(ecotype_id_ls), len(site2pos), region, table_label)
+				outf.write(outputFigureInLatex(fig_fname, caption, fig_label))
+			clique_id2region[clique_id] = region
+			del site_g, site2pos, site2weight, ecotype_id_ls
+	outf.write("\\subsection{which component the clique is from}\n")
+	cc_id_clique_id_region_ls = []
+	cc_id2clique_id_ls = {}
+	for clique_id, region in clique_id2region.iteritems():
+		curs.execute("select cc_id from %s where clique_id=%s"%(component2clique_table, clique_id))
+		rows = curs.fetchall()
+		cc_id = rows[0][0]
+		cc_id_clique_id_region_ls.append([cc_id, clique_id, region])
+		if cc_id not in cc_id2clique_id_ls:
+			cc_id2clique_id_ls[cc_id] = []
+		cc_id2clique_id_ls[cc_id].append(clique_id)
+	cc_id_clique_id_region_ls.sort()
+	
+	caption = '%s components versus %s cliques'%(len(cc_id2clique_id_ls), len(cc_id_clique_id_region_ls))
+	table_label = 't_cc2clique_1'
+	header_ls = ['component id', 'clique id', 'region']
+	outf.write(outputMatrixInLatexTable(cc_id_clique_id_region_ls, caption, table_label, header_ls))
+	del outf
+
+"""
+#2007-10-16
+import os,sys
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+from pymodule.latex import outputMatrixInLatexTable
+
+hostname='localhost'
+dbname='stock20071008'
+import MySQLdb
+conn = MySQLdb.connect(db=dbname,host=hostname)
+curs = conn.cursor()
+
+country2continent_table='at.country2continent'
+clique2ecotype_table='stock20071008.clique2ecotype'
+stock_db='stock20071008'
+continent_combo2clique_id_ls = get_continent_combo2clique_id_ls(curs, country2continent_table, clique2ecotype_table, stock_db)
+
+clique2ecotype_table='stock20071008.clique2ecotype'
+clique_id2size = get_clique_id2size(curs, clique2ecotype_table)
+component2clique_table = 'stock20071008.component2clique'
+stock_db = 'stock20071008'
+output_fname = 'script/variation/doc/StockIdentityReport/tables_figures.tex'
+fig_output_dir = 'script/variation/doc/StockIdentityReport/figures'
+OutputCliquesGroupedByRegion(curs, continent_combo2clique_id_ls, clique_id2size, clique2ecotype_table, component2clique_table, output_fname, fig_output_dir, stock_db, min_clique_size=3, need_to_draw_figures=1)
+"""
 class EcotypeIdentity:
 	"""
 	2007-10-11
