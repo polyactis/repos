@@ -62,6 +62,9 @@ def get_continent_combo2clique_id_ls(curs, country2continent_table='at.country2c
 
 
 def get_clique_id2size(curs, clique2ecotype_table='stock20071008.clique2ecotype'):
+	"""
+	2007-10-16
+	"""
 	clique_id2size = {}
 	curs.execute("select clique_id, count(ecotypeid) from %s group by clique_id"%(clique2ecotype_table))
 	rows = curs.fetchall()
@@ -93,22 +96,37 @@ def construct_site_graph_out_of_ecotype_id_ls(ecotype_id_ls, ecotypeid2pos):
 
 
 def outputCliqueInLatexTable(curs, region, clique_id, table_label, fig_label, stock_db, clique2ecotype_table, outf):
+	"""
+	2007-10-18
+	2007-10-21
+		shorten some label names
+			ecotypeid -> id
+			stockparent -> stkparent
+		add one more column, collector
+	"""
 	from pymodule.latex import outputMatrixInLatexTable
 	data_matrix = []
-	curs.execute("select e.id, e.name, e.nativename, e.stockparent, e.latitude, e.longitude, c.abbr, s.name from %s.ecotype e, %s.address a, %s.site s, %s.country c, %s ce where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=ce.ecotypeid and ce.clique_id=%s order by nativename, stockparent"%(stock_db, stock_db, stock_db, stock_db, clique2ecotype_table, clique_id))
+	curs.execute("select e.id, e.name, e.nativename, e.stockparent, e.latitude, e.longitude, c.abbr, s.name, p.firstname, p.surname from %s.ecotype e, %s.address a, %s.site s, %s.country c, %s.person p, %s ce where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=ce.ecotypeid and p.id=e.collectorid and ce.clique_id=%s order by nativename, stockparent"%(stock_db, stock_db, stock_db, stock_db, stock_db, clique2ecotype_table, clique_id))
 	rows = curs.fetchall()
 	ecotype_id_ls = []
 	for row in rows:
 		ecotype_id = row[0]
 		ecotype_id_ls.append(ecotype_id)
-		data_matrix.append(row)
+		new_row = list(row[:-4])
+		new_row.append('%s %s'%(row[-2], row[-1]))	#firstname surname
+		new_row.append(row[-4])	#country
+		new_row.append(row[-3])	#site
+		data_matrix.append(new_row)
 	caption = 'haplotype clique %s has %s ecotypes from %s. check Figure~\\ref{%s}.'%(clique_id, len(ecotype_id_ls), region, fig_label)
-	header_ls = ['ecotypeid', 'name', 'nativename', 'stockparent', 'latitude', 'longitude', 'country', 'site']
+	header_ls = ['id', 'name', 'nativename', 'stkparent', 'lat', 'lon', 'collector',  'country', 'site']
 	outf.write(outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls))
 	return ecotype_id_ls
 
 
 def OutputCliquesGroupedByRegion(curs, region2clique_id_ls, clique_id2size, clique2ecotype_table, component2clique_table, output_fname, fig_output_dir, stock_db='stock20071008', min_clique_size=3, need_to_draw_figures=0):
+	"""
+	2007-10-18
+	"""
 	from variation.src.common import draw_graph_on_map, get_ecotypeid2pos
 	from variation.src.common import get_pic_area
 	from pymodule.latex import outputFigureInLatex
