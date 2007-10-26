@@ -8,6 +8,8 @@
 2007-03-29
 	add mappings for '-', 'N', and ambiguous letters ('M', 'R', 'W', 'S', 'Y', 'K')
 """
+import os, sys
+
 nt2number = {'-': -1,	#deletion
 	'N': 0,
 	'NA': 0,
@@ -48,6 +50,8 @@ number2nt = {-1: '-',
 	9:'CT',
 	10:'GT'
 	}
+
+number2color = {0:(0,0,122), 1:(0,0,255), 2:(0,122,122), 3:(122,122,0), 4:(255,0,0)}
 
 #2007-04-16 entry[i,j] means whether nucleotide i and j matches. 0(NA) matches everything. singleton(1-4) matches itself and the doublet containing it. doublet(5-10) matches only itself.
 nt_number_matching_matrix = [[1, 1,1,1,1,1, 1,1,1,1,1],
