@@ -31,7 +31,7 @@ fill_snp_locus_table_with_position_info(curs, './script/variation/data/snp_posit
 2007-06-05
 	set aspect='auto' in imshow(), the default (pylab.image.rcParams['image.aspect'])='equal', which is bad
 """
-def display_snp_matrix(input_fname, output_fname=None, need_sort=0, need_savefig=0):
+def display_snp_matrix(input_fname, output_fname=None, need_sort=0, need_savefig=0, xlabel='', ylabel=''):
 	import csv, Numeric, pylab
 	reader = csv.reader(open(input_fname), delimiter='\t')
 	header = reader.next()
@@ -49,11 +49,45 @@ def display_snp_matrix(input_fname, output_fname=None, need_sort=0, need_savefig
 	pylab.clf()
 	pylab.imshow(data_matrix, aspect='auto', interpolation='nearest')	#2007-06-05
 	pylab.colorbar()
+	if xlabel:
+		pylab.xticks([data_matrix.shape[1]/2], [xlabel])
+	if ylabel:
+		pylab.yticks([data_matrix.shape[0]/2], [ylabel])
 	if need_savefig:
 		pylab.savefig('%s.eps'%output_fname, dpi=300)
 		pylab.savefig('%s.svg'%output_fname, dpi=300)
 		pylab.savefig('%s.png'%output_fname, dpi=300)
 	pylab.show()
+
+def make_snp_matrix_legend(value_ls, label_ls, output_fname=None):
+	"""
+	2007-10-25
+		to pair with display_snp_matrix()
+	"""
+	import numpy, pylab
+	label_ls_copy = label_ls[:]
+	data_matrix = numpy.zeros([len(value_ls), 1], numpy.int)
+	for i in range(len(value_ls)):
+		data_matrix[i,0] = value_ls[i]
+	label_ls_copy.reverse()	#pylab put the label on starting from the bottom of the picture
+	pylab.clf()
+	pylab.imshow(data_matrix, aspect='auto', interpolation='nearest')
+	pylab.yticks(range(len(value_ls)), label_ls_copy, fontsize=60, verticalalignment='bottom', horizontalalignment='right')
+	pylab.xticks([],[])
+	if output_fname:
+		pylab.savefig('%s.eps'%output_fname, dpi=300)
+		pylab.savefig('%s.svg'%output_fname, dpi=300)
+		pylab.savefig('%s.png'%output_fname, dpi=300)
+	pylab.show()
+
+"""
+2007-10-25
+value_ls = range(3)
+label_ls = ['NA', 'A', 'C']
+make_snp_matrix_legend(value_ls, label_ls)
+
+"""
+
 
 """
 2007-03-15
@@ -1977,6 +2011,163 @@ plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 5000000, output_fname_pr
 
 """
 
+"""
+2007-10-16
+"""
+def get_snp_index2pos(snp_acc_list, curs, snps_table='stock20071008.snps'):
+	sys.stderr.write("Getting snp_index2pos ...")
+	snp_index2pos = {}
+	for i in range(len(snp_acc_list)):
+		curs.execute("select chromosome, position from %s where snpid='%s'"%(snps_table, snp_acc_list[i]))
+		rows = curs.fetchall()
+		chromosome, position = rows[0]
+		snp_index2pos[i] = (chromosome, position)
+	sys.stderr.write("Done.\n")
+	return snp_index2pos
+
+def get_shared_block_ls(row1, row2, snp_index2pos):
+	shared_block_ls = []
+	shared_block = []
+	for i in range(len(row1)):
+		if row1[i] == row2[i]:	#same allele
+			if i==0 or snp_index2pos[i-1][0]==snp_index2pos[i][0]:	#1st snp or previous snp and this one are on same chromosome
+				shared_block.append(i)
+			elif shared_block:	#same allele, but previous snp is on different chromosome
+				shared_block_ls.append(shared_block)
+				shared_block = []	#clear it up
+				shared_block.append(i)
+		elif shared_block:	#different allele but shared_block is not empty
+			shared_block_ls.append(shared_block)	#store the shared_block
+			shared_block = []	#clear it up
+	if row1[-1]==row2[-1]:	#last snp is same. then the shared_block is not put in yet.
+		shared_block_ls.append(shared_block)
+	return shared_block_ls
+
+def get_all_pairs_with_max_shared_block_length_ls(strain_acc_list, snp_index2pos, data_matrix):
+	sys.stderr.write("Getting all_pairs_with_max_shared_block_length_ls ...")
+	all_pairs_with_max_shared_block_length_ls = []
+	no_of_strains = len(strain_acc_list)
+	for i in range(no_of_strains):
+		for j in range(i+1, no_of_strains):
+			shared_block_ls = get_shared_block_ls(data_matrix[i], data_matrix[j], snp_index2pos)
+			shared_block_length_ls = map(len, shared_block_ls)
+			shared_block_length_ls.sort()
+			all_pairs_with_max_shared_block_length_ls.append([shared_block_length_ls[-1], (i,j)])	#take the maximum shared block length
+	all_pairs_with_max_shared_block_length_ls.sort()
+	sys.stderr.write("Done.\n")
+	return all_pairs_with_max_shared_block_length_ls
+
+def DrawTwoRowAndSharedBlock(data_matrix, strain_index_pair, strain_acc_list, snp_index2pos):
+	"""
+	2007-10-16
+		used to check get_shared_block_ls() is correct
+	"""
+	import Numeric
+	from common import nt2number, number2nt
+	data_row1 = []
+	data_row2 = []
+	shared_block_row = []
+	no_of_chrs = 0
+	row1 = data_matrix[strain_index_pair[0]]
+	row2 = data_matrix[strain_index_pair[1]]
+	for i in range(len(row1)):
+		#for shared_block_row: -1 is chromosome separator, 1 is same, 0 is different.
+		if i!=0 and snp_index2pos[i-1][0]!=snp_index2pos[i][0]:	#a different chromosome
+			shared_block_row.append(-1)
+			data_row1.append(-1)	#-1 is chromosome separator
+			data_row2.append(-1)
+		if row1[i]==row2[i]:
+			shared_block_row.append(1)
+		else:
+			shared_block_row.append(0)
+		data_row1.append(row1[i])
+		data_row2.append(row2[i])
+	sub_data_matrix = Numeric.array([data_row1, data_row2, shared_block_row])
+	import pylab
+	pylab.clf()
+	pylab.imshow(sub_data_matrix, interpolation='nearest')
+	pylab.colorbar()
+	ytick_label_ls = []
+	for strain_index in strain_index_pair:
+		ytick_label_ls.append(strain_acc_list[strain_index])
+	ytick_label_ls.append('block')
+	pylab.yticks([2,1,0], ytick_label_ls)	#it's reversed.
+	pylab.show()
+
+def get_chr_id2cumu_size(chr_id2size):
+	"""
+	2007-10-16
+	"""
+	chr_id_ls = chr_id2size.keys()
+	chr_id_ls.sort()
+	chr_id_ls = [0] + chr_id_ls	#chromosome 0 is a place holder. 
+	chr_id2cumu_size = {0:0}	#chr_id_ls might not be continuous integers. so dictionary is better
+	for i in range(1,len(chr_id_ls)):
+		chr_id = chr_id_ls[i]
+		prev_chr_id = chr_id_ls[i-1]
+		chr_id2cumu_size[chr_id] = chr_id2cumu_size[prev_chr_id] + chr_id2size[chr_id]
+	return chr_id2cumu_size
+
+def DrawSharedBlock_ls(shared_block_ls, snp_index2pos, chr_id2cumu_size):
+	"""
+	2007-10-16
+	"""
+	import pylab
+	pylab.clf()
+	#draw the chromosome separator
+	for chr_id, cumu_size in chr_id2cumu_size.iteritems():
+		pylab.plot([cumu_size], [1], 'go')
+	#draw the snp first as red circles
+	for snp_index,pos in snp_index2pos.iteritems():
+		chr_id, chr_pos = pos
+		cumu_chr_pos = chr_id2cumu_size[chr_id-1]+chr_pos
+		pylab.plot([cumu_chr_pos], [1], 'r|')
+	#draw the blocks as lines crossing those red circles.
+	for shared_block in shared_block_ls:
+		if len(shared_block)>1:
+			starting_snp_index = shared_block[0]
+			ending_snp_index = shared_block[-1]
+			
+			chr_id = snp_index2pos[starting_snp_index][0]
+			starting_chr_pos = snp_index2pos[starting_snp_index][1]
+			ending_chr_pos = snp_index2pos[ending_snp_index][1]
+			#add the cumulative chromosome size
+			cumu_starting_chr_pos = chr_id2cumu_size[chr_id-1]+starting_chr_pos
+			cumu_ending_chr_pos = chr_id2cumu_size[chr_id-1]+ending_chr_pos
+			#draw the block
+			pylab.plot([cumu_starting_chr_pos, cumu_ending_chr_pos], [1,1], c='b')
+	#chromosome separator on the x axis
+	xtick_label_ls = []
+	xtick_loc_ls = []
+	chr_id_ls = chr_id2cumu_size.keys()
+	chr_id_ls.sort()
+	for i in range(1,len(chr_id_ls)):
+		chr_id = chr_id_ls[i]
+		xtick_loc_ls.append(chr_id2cumu_size[chr_id])
+		xtick_label_ls.append('%s:%s'%(chr_id, chr_id2size[chr_id]))
+	pylab.xticks(xtick_loc_ls, xtick_label_ls)	#it's reversed.
+	pylab.show()
+
+
+"""
+#2007-10-16 check shared block between pairwise strains
+
+input_fname = 'script/variation/stock20071008/data_d110_c0_5_d001.tsv'
+from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+snp_acc_list = header[2:]
+snp_index2pos = get_snp_index2pos(snp_acc_list, curs, snps_table='stock20071008.snps')
+all_pairs_with_max_shared_block_length_ls = get_all_pairs_with_max_shared_block_length_ls(strain_acc_list, snp_index2pos, data_matrix)
+
+#2007-10-16 test to draw the diagrams
+from common import get_chr_id2size
+chr_id2size = get_chr_id2size(curs)
+chr_id2cumu_size = get_chr_id2cumu_size(chr_id2size)
+shared_block_ls = get_shared_block_ls(data_matrix[1], data_matrix[2], snp_index2pos)
+DrawSharedBlock_ls(shared_block_ls, snp_index2pos, chr_id2cumu_size)
+
+"""
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
@@ -1993,6 +2184,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/test/python')))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+
 from codense.common import db_connect, form_schema_tables
 hostname='dl324b-1'
 dbname='yhdb'
