@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="576"
+   height="432"
+   viewBox="0 0 576 432"
+   version="1.1"
+   id="svg1"
+   sodipodi:version="0.32"
+   inkscape:version="0.45"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:docbase="/home/crocea/script/variation/doc/lab_meeting_2007_10_23"
+   sodipodi:docname="data_d110_c0_5_distance_hist.svg"
+   inkscape:export-filename="/home/crocea/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_distance_hist.png"
+   inkscape:export-xdpi="179.14"
+   inkscape:export-ydpi="179.14"
+   sodipodi:modified="TRUE">
+  <metadata
+     id="metadata3053">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3051" />
+  <sodipodi:namedview
+     inkscape:window-height="1056"
+     inkscape:window-width="1406"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="0.94212963"
+     inkscape:cx="288"
+     inkscape:cy="216"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:current-layer="svg1" />
+  <g
+     id="figure1">
+    <polygon
+       style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+       points="0.000000,432.000000 0.000000,0.000000 576.000000,0.000000 576.000000,432.000000"
+       id="polygon2828" />
+    <g
+       id="axes1">
+      <polygon
+         style="fill: #ffffff; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         points="72.000000,388.800000 72.000000,43.200000 518.400000,43.200000 518.400000,388.800000"
+         id="polygon2831" />
+      <defs
+         id="defs2833">
+        <clipPath
+           id="-8582347323069147106">
+          <rect
+             x="72.000000"
+             y="43.200000"
+             width="446.400000"
+             height="345.600000"
+             style="stroke: gray; fill: none;"
+             id="rect2836" />
+        </clipPath>
+      </defs>
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="72.000000,388.800000 72.000000,297.672768 81.388571,297.672768 81.388571,388.800000"
+         id="polygon2838" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="82.431746,388.800000 82.431746,385.496064 91.820317,385.496064 91.820317,388.800000"
+         id="polygon2840" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="92.863492,388.800000 92.863492,385.854720 102.252063,385.854720 102.252063,388.800000"
+         id="polygon2842" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="103.295238,388.800000 103.295238,382.514496 112.683810,382.514496 112.683810,388.800000"
+         id="polygon2844" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="113.726984,388.800000 113.726984,384.922752 123.115556,384.922752 123.115556,388.800000"
+         id="polygon2846" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="124.158730,388.800000 124.158730,384.036480 133.547302,384.036480 133.547302,388.800000"
+         id="polygon2848" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="134.590476,388.800000 134.590476,380.802432 143.979048,380.802432 143.979048,388.800000"
+         id="polygon2850" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="145.022222,388.800000 145.022222,375.207936 154.410794,375.207936 154.410794,388.800000"
+         id="polygon2852" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="155.453968,388.800000 155.453968,375.788928 164.842540,375.788928 164.842540,388.800000"
+         id="polygon2854" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="165.885714,388.800000 165.885714,370.756416 175.274286,370.756416 175.274286,388.800000"
+         id="polygon2856" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="176.317460,388.800000 176.317460,372.750720 185.706032,372.750720 185.706032,388.800000"
+         id="polygon2858" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="186.749206,388.800000 186.749206,367.743360 196.137778,367.743360 196.137778,388.800000"
+         id="polygon2860" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="197.180952,388.800000 197.180952,364.634688 206.569524,364.634688 206.569524,388.800000"
+         id="polygon2862" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="207.612698,388.800000 207.612698,368.335296 217.001270,368.335296 217.001270,388.800000"
+         id="polygon2864" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="218.044444,388.800000 218.044444,364.144128 227.433016,364.144128 227.433016,388.800000"
+         id="polygon2866" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="228.476190,388.800000 228.476190,354.157440 237.864762,354.157440 237.864762,388.800000"
+         id="polygon2868" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="238.907937,388.800000 238.907937,339.543168 248.296508,339.543168 248.296508,388.800000"
+         id="polygon2870" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="249.339683,388.800000 249.339683,299.546496 258.728254,299.546496 258.728254,388.800000"
+         id="polygon2872" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="259.771429,388.800000 259.771429,252.856512 269.160000,252.856512 269.160000,388.800000"
+         id="polygon2874" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="270.203175,388.800000 270.203175,159.928896 279.591746,159.928896 279.591746,388.800000"
+         id="polygon2876" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="280.634921,388.800000 280.634921,108.579840 290.023492,108.579840 290.023492,388.800000"
+         id="polygon2878" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="291.066667,388.800000 291.066667,65.516928 300.455238,65.516928 300.455238,388.800000"
+         id="polygon2880" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="301.498413,388.800000 301.498413,47.265024 310.886984,47.265024 310.886984,388.800000"
+         id="polygon2882" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="311.930159,388.800000 311.930159,47.342208 321.318730,47.342208 321.318730,388.800000"
+         id="polygon2884" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="322.361905,388.800000 322.361905,115.765056 331.750476,115.765056 331.750476,388.800000"
+         id="polygon2886" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="332.793651,388.800000 332.793651,208.722240 342.182222,208.722240 342.182222,388.800000"
+         id="polygon2888" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="343.225397,388.800000 343.225397,280.554432 352.613968,280.554432 352.613968,388.800000"
+         id="polygon2890" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="353.657143,388.800000 353.657143,338.810688 363.045714,338.810688 363.045714,388.800000"
+         id="polygon2892" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="364.088889,388.800000 364.088889,362.446848 373.477460,362.446848 373.477460,388.800000"
+         id="polygon2894" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="374.520635,388.800000 374.520635,373.014912 383.909206,373.014912 383.909206,388.800000"
+         id="polygon2896" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="384.952381,388.800000 384.952381,376.727232 394.340952,376.727232 394.340952,388.800000"
+         id="polygon2898" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="395.384127,388.800000 395.384127,378.827136 404.772698,378.827136 404.772698,388.800000"
+         id="polygon2900" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="405.815873,388.800000 405.815873,380.107200 415.204444,380.107200 415.204444,388.800000"
+         id="polygon2902" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="416.247619,388.800000 416.247619,382.149312 425.636190,382.149312 425.636190,388.800000"
+         id="polygon2904" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="426.679365,388.800000 426.679365,384.089088 436.067937,384.089088 436.067937,388.800000"
+         id="polygon2906" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="437.111111,388.800000 437.111111,386.486016 446.499683,386.486016 446.499683,388.800000"
+         id="polygon2908" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="447.542857,388.800000 447.542857,387.964608 456.931429,387.964608 456.931429,388.800000"
+         id="polygon2910" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="457.974603,388.800000 457.974603,388.696320 467.363175,388.696320 467.363175,388.800000"
+         id="polygon2912" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="468.406349,388.800000 468.406349,388.752384 477.794921,388.752384 477.794921,388.800000"
+         id="polygon2914" />
+      <polygon
+         style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#-8582347323069147106)"
+         points="478.838095,388.800000 478.838095,388.792512 488.226667,388.792512 488.226667,388.800000"
+         id="polygon2916" />
+      <g
+         id="matplotlib.axis1">
+        <g
+           id="xtick1">
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="65.000000"
+             y="398.800000"
+             id="text2920">0.0</text>
+        </g>
+        <g
+           id="xtick2">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 121.600000,388.800000 L 121.600000,383.800000"
+             id="path2923" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 121.600000,48.200000 L 121.600000,43.200000"
+             id="path2925" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="115.100000"
+             y="398.800000"
+             id="text2927">0.1</text>
+        </g>
+        <g
+           id="xtick3">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 171.200000,388.800000 L 171.200000,383.800000"
+             id="path2930" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 171.200000,48.200000 L 171.200000,43.200000"
+             id="path2932" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="164.200000"
+             y="398.800000"
+             id="text2934">0.2</text>
+        </g>
+        <g
+           id="xtick4">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 220.800000,388.800000 L 220.800000,383.800000"
+             id="path2937" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 220.800000,48.200000 L 220.800000,43.200000"
+             id="path2939" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="213.800000"
+             y="398.800000"
+             id="text2941">0.3</text>
+        </g>
+        <g
+           id="xtick5">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 270.400000,388.800000 L 270.400000,383.800000"
+             id="path2944" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 270.400000,48.200000 L 270.400000,43.200000"
+             id="path2946" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="263.400000"
+             y="398.800000"
+             id="text2948">0.4</text>
+        </g>
+        <g
+           id="xtick6">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 320.000000,388.800000 L 320.000000,383.800000"
+             id="path2951" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 320.000000,48.200000 L 320.000000,43.200000"
+             id="path2953" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="313.000000"
+             y="398.800000"
+             id="text2955">0.5</text>
+        </g>
+        <g
+           id="xtick7">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 369.600000,388.800000 L 369.600000,383.800000"
+             id="path2958" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 369.600000,48.200000 L 369.600000,43.200000"
+             id="path2960" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="362.600000"
+             y="398.800000"
+             id="text2962">0.6</text>
+        </g>
+        <g
+           id="xtick8">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 419.200000,388.800000 L 419.200000,383.800000"
+             id="path2965" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 419.200000,48.200000 L 419.200000,43.200000"
+             id="path2967" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="412.200000"
+             y="398.800000"
+             id="text2969">0.7</text>
+        </g>
+        <g
+           id="xtick9">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 468.800000,388.800000 L 468.800000,383.800000"
+             id="path2972" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 468.800000,48.200000 L 468.800000,43.200000"
+             id="path2974" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="461.800000"
+             y="398.800000"
+             id="text2976">0.8</text>
+        </g>
+        <g
+           id="xtick10">
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="511.400000"
+             y="398.800000"
+             id="text2979">0.9</text>
+        </g>
+      </g>
+      <g
+         id="matplotlib.axis2">
+        <g
+           id="ytick1">
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="55.000000"
+             y="392.300000"
+             id="text2983">0.0</text>
+        </g>
+        <g
+           id="ytick2">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,350.400000 L 77.000000,350.400000"
+             id="path2986" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,350.400000 L 518.400000,350.400000"
+             id="path2988" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="55.000000"
+             y="353.900000"
+             id="text2990">0.2</text>
+        </g>
+        <g
+           id="ytick3">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,312.000000 L 77.000000,312.000000"
+             id="path2993" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,312.000000 L 518.400000,312.000000"
+             id="path2995" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="55.000000"
+             y="315.500000"
+             id="text2997">0.4</text>
+        </g>
+        <g
+           id="ytick4">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,273.600000 L 77.000000,273.600000"
+             id="path3000" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,273.600000 L 518.400000,273.600000"
+             id="path3002" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="55.000000"
+             y="277.100000"
+             id="text3004">0.6</text>
+        </g>
+        <g
+           id="ytick5">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,235.200000 L 77.000000,235.200000"
+             id="path3007" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,235.200000 L 518.400000,235.200000"
+             id="path3009" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="55.000000"
+             y="238.700000"
+             id="text3011">0.8</text>
+        </g>
+        <g
+           id="ytick6">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,196.800000 L 77.000000,196.800000"
+             id="path3014" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,196.800000 L 518.400000,196.800000"
+             id="path3016" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="56.000000"
+             y="200.300000"
+             id="text3018">1.0</text>
+        </g>
+        <g
+           id="ytick7">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,158.400000 L 77.000000,158.400000"
+             id="path3021" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,158.400000 L 518.400000,158.400000"
+             id="path3023" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="56.000000"
+             y="161.900000"
+             id="text3025">1.2</text>
+        </g>
+        <g
+           id="ytick8">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,120.000000 L 77.000000,120.000000"
+             id="path3028" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,120.000000 L 518.400000,120.000000"
+             id="path3030" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="56.000000"
+             y="123.500000"
+             id="text3032">1.4</text>
+        </g>
+        <g
+           id="ytick9">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 72.000000,81.600000 L 77.000000,81.600000"
+             id="path3035" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.400000,81.600000 L 518.400000,81.600000"
+             id="path3037" />
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="56.000000"
+             y="85.100000"
+             id="text3039">1.6</text>
+        </g>
+        <g
+           id="ytick10">
+          <text
+             style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+             x="56.000000"
+             y="46.700000"
+             id="text3042">1.8</text>
+        </g>
+        <text
+           style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+           x="72.000000"
+           y="40.200000"
+           id="text3044">x1e+6</text>
+      </g>
+      <path
+         style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         d="M 72.000000,388.800000 L 518.400000,388.800000 L 518.400000,43.200000 L 72.000000,43.200000 L 72.000000,388.800000 "
+         id="path3046" />
+      <text
+         style="font-size: 14.400000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;"
+         x="185.700000"
+         y="36.288000"
+         id="text3048">Histogram of non-NA distances</text>
+    </g>
+  </g>
+  <path
+     style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#3edf1a;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 59.439803,282.33907 C 62.642805,283.55686 73.091268,285.98052 78.545455,288.70762 C 83.77322,291.3215 85.881576,296.04374 90.22113,300.38329 C 96.037921,306.20008 97.988726,310.22517 99.773956,317.36609 C 100.99759,322.26061 98.712531,328.04803 98.712531,333.28747 C 98.712531,338.15709 99.773956,343.93965 99.773956,349.20885 C 99.773956,354.51597 99.773956,359.8231 99.773956,365.13022 C 99.773956,370.43735 99.773956,375.74447 99.773956,381.0516 C 99.773956,387.13709 92.638586,392.57997 88.09828,394.85012 C 82.675524,397.5615 78.444347,400.15725 72.176904,400.15725 C 67.034022,400.15725 60.509366,394.85419 56.255528,392.72727 C 50.375425,389.78722 45.562388,378.82356 42.457002,374.68305 C 40.050224,371.47401 41.395577,363.00004 41.395577,358.76167 C 41.395577,351.62857 45.988492,343.57429 47.764128,336.47174 C 49.238797,330.57307 50.948403,325.77023 50.948403,319.48894 C 50.948403,313.63449 50.197184,306.93124 48.825553,301.44472 C 47.368404,295.61612 49.38617,290.08298 52.009828,286.58477 C 55.048326,282.53344 52.467026,283.73362 59.439803,282.33907 z "
+     id="path3055" />
+  <path
+     style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ea0f0f;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 270.66339,68.992629 C 275.52472,62.510857 272.66954,61.002765 283.40049,63.685504 C 287.99494,64.834115 291.09382,68.194556 294.01474,71.115479 C 298.06327,75.164012 298.81368,79.65192 301.44472,84.914005 C 303.71241,89.449387 302.50614,97.561631 302.50614,102.95823 C 302.50614,110.1564 301.74202,116.33166 300.38329,123.12531 C 299.28361,128.62373 299.54366,133.9138 298.26044,139.04668 C 296.6505,145.48647 296.66012,151.81652 295.07617,158.15233 C 293.42346,164.76317 292.95332,172.22292 292.95332,179.38084 C 292.95332,186.81081 292.95332,194.24079 292.95332,201.67076 C 292.95332,208.74693 292.95332,215.8231 292.95332,222.89926 C 292.95332,229.73176 292.46008,236.8477 294.01474,243.06634 C 295.36866,248.48201 292.95332,253.76313 292.95332,258.98771 C 292.95332,264.36436 294.32912,269.40588 292.95332,274.90909 C 291.61936,280.24491 292.08981,285.79309 290.83047,290.83047 C 289.34751,296.76228 288.88935,303.11322 286.58477,308.87469 C 284.47532,314.14831 282.65047,320.36618 281.27764,325.85749 C 279.91372,331.31318 275.18937,336.97261 272.78624,341.77887 C 270.66563,346.02009 261.95439,351.49489 257.92629,354.51597 C 250.77457,359.87976 246.17035,364.63964 238.82064,368.3145 C 233.34277,371.05343 228.05177,372.10679 222.89926,374.68305 C 214.86357,378.70089 212.05851,379.93355 203.79361,377.86732 C 198.28787,376.49089 193.80403,373.40324 189.99509,371.49877 C 185.50331,369.25288 182.83927,367.39015 178.31941,365.13022 C 172.28897,362.115 175.19734,343.59071 176.19656,338.59459 C 176.55037,336.82555 176.90418,335.05651 177.25799,333.28747 C 179.90162,320.06927 184.00917,303.86372 189.99509,291.89189 C 195.00621,281.86965 197.48442,268.39215 201.67076,257.92629 C 205.16664,249.18659 208.99315,239.25097 211.22359,230.32924 C 215.21061,214.38116 222.92437,198.41117 228.20639,182.56511 C 233.22523,167.50857 239.93242,155.77771 243.06634,140.10811 C 244.83119,131.28383 247.30036,123.17202 249.43489,114.63391 C 250.77903,109.25734 252.38444,103.42768 254.74201,98.712531 C 257.6615,92.873562 258.18555,86.51833 261.11057,80.668305 C 264.41813,74.053173 270.17091,70.470084 272.78624,62.624079"
+     id="path4026" />
+  <text
+     xml:space="preserve"
+     style="font-size:20px;font-style:normal;font-weight:normal;fill:#21db1f;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:125%"
+     x="82.791153"
+     y="278.09338"
+     id="text4028"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan4030"
+       x="82.791153"
+       y="278.09338">Identity</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#d91941;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="-6.9894915"
+     y="270.11923"
+     id="text4032"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.7384487,-0.6743096,0.6743096,0.7384487,0,0)"
+     inkscape:transform-center-x="71.296872"
+     inkscape:transform-center-y="27.915438"><tspan
+       sodipodi:role="line"
+       x="-6.9894915"
+       y="270.11923"
+       id="tspan4036">Parent-child</tspan><tspan
+       sodipodi:role="line"
+       x="-6.9894915"
+       y="295.11923"
+       id="tspan4038">Sib-ship</tspan><tspan
+       sodipodi:role="line"
+       x="-6.9894915"
+       y="320.11923"
+       id="tspan4042">...</tspan></text>
+</svg>

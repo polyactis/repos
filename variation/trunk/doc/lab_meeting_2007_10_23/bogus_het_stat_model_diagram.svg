@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1024px"
+   height="768px"
+   id="svg1891"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docbase="/home/yh/script/variation/doc/lab_meeting_2007_10_23"
+   sodipodi:docname="bogus_het_stat_model_diagram.svg"
+   inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+   inkscape:export-xdpi="120"
+   inkscape:export-ydpi="120">
+  <defs
+     id="defs1893">
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path3912"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path5669"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.5"
+     inkscape:cx="512"
+     inkscape:cy="416.80769"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:window-width="914"
+     inkscape:window-height="626"
+     inkscape:window-x="0"
+     inkscape:window-y="25" />
+  <metadata
+     id="metadata1896">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3557"
+       width="98"
+       height="490"
+       x="216"
+       y="44"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4456"
+       width="100"
+       height="100"
+       x="216"
+       y="342"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="226"
+       y="406"
+       id="text4458"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4460"
+         x="226"
+         y="406">het</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4462"
+       width="100"
+       height="100"
+       x="216"
+       y="42"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="226"
+       y="106"
+       id="text4464"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4466"
+         x="226"
+         y="106">het</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4468"
+       width="100"
+       height="100"
+       x="216"
+       y="142"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="224"
+       y="202"
+       id="text4470"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4472"
+         x="224"
+         y="202">homo</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4474"
+       width="100"
+       height="100"
+       x="216"
+       y="242"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="226"
+       y="306"
+       id="text4476"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4478"
+         x="226"
+         y="306">NA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:50px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="234"
+       y="492"
+       id="text4508"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         x="234"
+         y="492"
+         id="tspan4512">...</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4516"
+       width="98"
+       height="490"
+       x="784"
+       y="44"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4518"
+       width="100"
+       height="100"
+       x="784"
+       y="342"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="794"
+       y="406"
+       id="text4520"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4522"
+         x="794"
+         y="406">0.02</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4524"
+       width="100"
+       height="100"
+       x="784"
+       y="42"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="794"
+       y="106"
+       id="text4526"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4528"
+         x="794"
+         y="106">0.6</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4530"
+       width="100"
+       height="100"
+       x="784"
+       y="142"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="792"
+       y="202"
+       id="text4532"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4534"
+         x="792"
+         y="202">0.05</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4536"
+       width="100"
+       height="100"
+       x="784"
+       y="242"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="794"
+       y="306"
+       id="text4538"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4540"
+         x="794"
+         y="306">0.2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:50px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="802"
+       y="492"
+       id="text4542"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         x="802"
+         y="492"
+         id="tspan4544">...</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4546"
+       width="492"
+       height="492"
+       x="62"
+       y="42"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="222"
+       y="8"
+       id="text4548"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4550"
+         x="222"
+         y="8">SNP j</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-32"
+       y="316"
+       id="text4552"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4554"
+         x="-32"
+         y="316">Strain i</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="768"
+       y="6"
+       id="text4556"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4558"
+         x="768"
+         y="6">Prob(Het) + Prob(Homo)=1</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4578"
+       width="98"
+       height="490"
+       x="954.36914"
+       y="41.99649"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4580"
+       width="100"
+       height="100"
+       x="954.36914"
+       y="339.99646"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="964.36914"
+       y="403.99646"
+       id="text4582"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4584"
+         x="964.36914"
+         y="403.99646">0.98</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4586"
+       width="100"
+       height="100"
+       x="954.36914"
+       y="39.99649"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="964.36914"
+       y="103.99649"
+       id="text4588"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4590"
+         x="964.36914"
+         y="103.99649">0.4</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4592"
+       width="100"
+       height="100"
+       x="954.36914"
+       y="139.99649"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="962.36914"
+       y="199.99649"
+       id="text4594"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4596"
+         x="962.36914"
+         y="199.99649">0.95</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4598"
+       width="100"
+       height="100"
+       x="954.36914"
+       y="239.99646"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="964.36914"
+       y="303.99646"
+       id="text4600"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4602"
+         x="964.36914"
+         y="303.99646">0.8</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:50px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="972.36914"
+       y="489.99646"
+       id="text4604"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         x="972.36914"
+         y="489.99646"
+         id="tspan4606">...</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 572.13577,267.98767 C 755.86423,266.00602 755.86423,266.00602 755.86423,266.00602"
+       id="path4612"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="560"
+       y="244"
+       id="text1953"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan1955"
+         x="560"
+         y="244">1. infer model</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="338"
+       y="296"
+       id="text2843"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan2845"
+         x="338"
+         y="296">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="138"
+       y="296"
+       id="text2847"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan2849"
+         x="138"
+         y="296">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="904"
+       y="266.93848"
+       id="text2851"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan2853"
+         x="904"
+         y="266.93848">+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1084"
+       y="270"
+       id="text2855"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan2857"
+         x="1084"
+         y="270">= 1</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 836,10 C 836,38 836,38 836,38"
+       id="path2861"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.39999998;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 1002,10 C 1002,38 1002,38 1002,38"
+       id="path4815"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 264,546 L 386,618 L 547.96915,616.21343 L 586.00502,646.91801 L 624.69861,617.75071 C 638.41705,617.16714 709.5662,616.58357 752,616 L 787.06931,587.30693 L 840,544 L 840,544"
+       id="path4817"
+       sodipodi:nodetypes="ccccccccc"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="424"
+       y="676"
+       id="text5704"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/bogus_het_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan5706"
+         x="424"
+         y="676">2. probability of SNP j</tspan></text>
+  </g>
+</svg>

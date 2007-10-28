@@ -1,0 +1,1013 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1024px"
+   height="768px"
+   id="svg5716"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docbase="/home/yh/script/variation/doc/lab_meeting_2007_10_23"
+   sodipodi:docname="selfing_generations_stat_model_diagram.svg"
+   inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+   inkscape:export-xdpi="120"
+   inkscape:export-ydpi="120">
+  <defs
+     id="defs5718">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path5669"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.5"
+     inkscape:cx="734"
+     inkscape:cy="523.47826"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:window-width="1004"
+     inkscape:window-height="677"
+     inkscape:window-x="10"
+     inkscape:window-y="73" />
+  <metadata
+     id="metadata5721">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3557"
+       width="98"
+       height="490"
+       x="-242.40875"
+       y="-8.0167427"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4456"
+       width="100"
+       height="100"
+       x="-244.40915"
+       y="291.98343"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4462"
+       width="100"
+       height="100"
+       x="-244.40915"
+       y="-8.0169468"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4468"
+       width="100"
+       height="100"
+       x="-244.40915"
+       y="91.982964"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4474"
+       width="100"
+       height="100"
+       x="-244.40915"
+       y="191.98297"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="writing-mode:tb-rl;fill:black;fill-opacity:0;stroke:black;stroke-width:1.60000002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4546"
+       width="492"
+       height="492"
+       x="-448.40918"
+       y="-8.0212364"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30.0001297px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-158.06119"
+       y="194.63243"
+       id="text4552"
+       sodipodi:linespacing="100%"
+       transform="matrix(1,5.51573e-4,-5.51573e-4,1,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan4554"
+         x="-158.06119"
+         y="194.63243">Strain k</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-122.40916"
+       y="245.98297"
+       id="text2843"
+       sodipodi:linespacing="100%"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan2845"
+         x="-122.40916"
+         y="245.98297">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-322.40912"
+       y="245.98297"
+       id="text2847"
+       sodipodi:linespacing="100%"
+       transform="matrix(-8.555664e-5,-1,1,-8.555664e-5,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan2849"
+         x="-322.40912"
+         y="245.98297">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="204"
+       y="-66"
+       id="text7706"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7708"
+         x="204"
+         y="-66">SNP i</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30.0006218px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="33.221752"
+       y="197.13722"
+       id="text7710"
+       sodipodi:linespacing="100%"
+       transform="matrix(1,5.515601e-4,-5.515601e-4,1,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7712"
+         x="33.221752"
+         y="197.13722">1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30.00137329px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="132.3044"
+       y="196.19379"
+       id="text7714"
+       sodipodi:linespacing="100%"
+       transform="matrix(1,5.515404e-4,-5.515404e-4,1,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7716"
+         x="132.3044"
+         y="196.19379">2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30.00173187px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="334.96887"
+       y="196.27774"
+       id="text7718"
+       sodipodi:linespacing="100%"
+       transform="matrix(1,5.51531e-4,-5.51531e-4,1,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7720"
+         x="334.96887"
+         y="196.27774">2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30.00191498px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="234.9698"
+       y="196.33411"
+       id="text7722"
+       sodipodi:linespacing="100%"
+       transform="matrix(1,5.515262e-4,-5.515262e-4,1,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7724"
+         x="234.9698"
+         y="196.33411">0</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60001898;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4516"
+       width="98.001213"
+       height="490.00647"
+       x="-668.38513"
+       y="-3.7732208"
+       transform="matrix(6.817359e-3,-0.999977,0.999977,6.817359e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60001898;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4518"
+       width="100.00131"
+       height="100.00131"
+       x="-668.38513"
+       y="294.23013"
+       transform="matrix(6.817359e-3,-0.999977,0.999977,6.817359e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60001898;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4524"
+       width="100.00131"
+       height="100.00131"
+       x="-668.38513"
+       y="-5.7732282"
+       transform="matrix(6.817359e-3,-0.999977,0.999977,6.817359e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60001898;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4530"
+       width="100.00131"
+       height="100.00131"
+       x="-668.38513"
+       y="94.228195"
+       transform="matrix(6.817359e-3,-0.999977,0.999977,6.817359e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60001898;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4536"
+       width="100.00131"
+       height="100.00131"
+       x="-668.38513"
+       y="194.22987"
+       transform="matrix(6.817359e-3,-0.999977,0.999977,6.817359e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="424"
+       y="188"
+       id="text7759"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7761"
+         x="424"
+         y="188">...</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60002434;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7763"
+       width="98.001556"
+       height="490.0083"
+       x="-782.3775"
+       y="-2.9992774"
+       transform="matrix(6.817329e-3,-0.999977,0.999977,6.817329e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60002434;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7765"
+       width="100.00172"
+       height="100.00172"
+       x="-782.3775"
+       y="295.00516"
+       transform="matrix(6.817329e-3,-0.999977,0.999977,6.817329e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60002434;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7767"
+       width="100.00172"
+       height="100.00172"
+       x="-782.3775"
+       y="-4.9992776"
+       transform="matrix(6.817329e-3,-0.999977,0.999977,6.817329e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60002434;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7769"
+       width="100.00172"
+       height="100.00172"
+       x="-782.3775"
+       y="95.002609"
+       transform="matrix(6.817329e-3,-0.999977,0.999977,6.817329e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60002434;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7771"
+       width="100.00172"
+       height="100.00172"
+       x="-782.3775"
+       y="195.0045"
+       transform="matrix(6.817329e-3,-0.999977,0.999977,6.817329e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-137.97217"
+       y="628"
+       id="text7773"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7775"
+         x="-137.97217"
+         y="628">allele 1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-137.97217"
+       y="743.89404"
+       id="text7777"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7779"
+         x="-137.97217"
+         y="743.89404">allele 2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="18"
+       y="620"
+       id="text7781"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7783"
+         x="18"
+         y="620">0.9</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="16.196289"
+       y="737.63037"
+       id="text7785"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7787"
+         x="16.196289"
+         y="737.63037">0.1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="121.6958"
+       y="612.57031"
+       id="text7789"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7791"
+         x="121.6958"
+         y="612.57031">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="121.6958"
+       y="723.86035"
+       id="text7793"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7795"
+         x="121.6958"
+         y="723.86035">...</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006189;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7797"
+       width="98.00396"
+       height="490.02112"
+       x="-948.40399"
+       y="-3.3419359"
+       transform="matrix(6.817119e-3,-0.999977,0.999977,6.817119e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006189;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7799"
+       width="100.00433"
+       height="100.00433"
+       x="-948.40399"
+       y="294.66931"
+       transform="matrix(6.817119e-3,-0.999977,0.999977,6.817119e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006189;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7801"
+       width="100.00433"
+       height="100.00433"
+       x="-948.40399"
+       y="-5.3419824"
+       transform="matrix(6.817119e-3,-0.999977,0.999977,6.817119e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006189;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7803"
+       width="100.00433"
+       height="100.00433"
+       x="-948.40399"
+       y="94.662468"
+       transform="matrix(6.817119e-3,-0.999977,0.999977,6.817119e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006189;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7805"
+       width="100.00433"
+       height="100.00433"
+       x="-948.40399"
+       y="194.66669"
+       transform="matrix(6.817119e-3,-0.999977,0.999977,6.817119e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-149.45308"
+       y="909.89124"
+       id="text7807"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7809"
+         x="-149.45308"
+         y="909.89124">D vector</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-337.28461"
+       y="817.62762"
+       id="text7811"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7813"
+         x="-337.28461"
+         y="817.62762">2. heterozygosity vector:  1-0.1*0.1-0.9*0.9</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="120.2149"
+       y="889.85754"
+       id="text7815"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7817"
+         x="120.2149"
+         y="889.85754">...</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.30204272;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 226.71252,466.68474 C 225.91825,541.11956 225.91825,541.11956 225.91825,541.11956"
+       id="path4612"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.14390612;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 44.608876,786.70352 C 43.802547,843.29648 43.802547,843.29648 43.802547,843.29648"
+       id="path7822"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-222"
+       y="508"
+       id="text7824"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7826"
+         x="-222"
+         y="508">1. calculate allele frequency</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006297;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7828"
+       width="98.004028"
+       height="490.02148"
+       x="-158.30351"
+       y="885.7113"
+       transform="matrix(6.817113e-3,-0.999977,0.999977,6.817113e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006297;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7830"
+       width="100.0044"
+       height="100.0044"
+       x="-158.30351"
+       y="1183.7228"
+       transform="matrix(6.817113e-3,-0.999977,0.999977,6.817113e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006297;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7832"
+       width="100.0044"
+       height="100.0044"
+       x="-158.30351"
+       y="883.7113"
+       transform="matrix(6.817113e-3,-0.999977,0.999977,6.817113e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006297;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7834"
+       width="100.0044"
+       height="100.0044"
+       x="-158.30351"
+       y="983.71576"
+       transform="matrix(6.817113e-3,-0.999977,0.999977,6.817113e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006297;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7836"
+       width="100.0044"
+       height="100.0044"
+       x="-158.30351"
+       y="1083.7201"
+       transform="matrix(6.817113e-3,-0.999977,0.999977,6.817113e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="730.96594"
+       y="125.86938"
+       id="text7838"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7840"
+         x="730.96594"
+         y="125.86938">n=0: D</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1014.6339"
+       y="105.83569"
+       id="text7842"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7844"
+         x="1014.6339"
+         y="105.83569">...</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006261;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7846"
+       width="98.004005"
+       height="490.02136"
+       x="-306.2999"
+       y="886.72076"
+       transform="matrix(6.817115e-3,-0.999977,0.999977,6.817115e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006261;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7848"
+       width="100.00438"
+       height="100.00438"
+       x="-306.2999"
+       y="1184.7322"
+       transform="matrix(6.817115e-3,-0.999977,0.999977,6.817115e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006261;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7850"
+       width="100.00438"
+       height="100.00438"
+       x="-306.2999"
+       y="884.72076"
+       transform="matrix(6.817115e-3,-0.999977,0.999977,6.817115e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006261;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7852"
+       width="100.00438"
+       height="100.00438"
+       x="-306.2999"
+       y="984.72534"
+       transform="matrix(6.817115e-3,-0.999977,0.999977,6.817115e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006261;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7854"
+       width="100.00438"
+       height="100.00438"
+       x="-306.2999"
+       y="1084.7295"
+       transform="matrix(6.817115e-3,-0.999977,0.999977,6.817115e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="730.96594"
+       y="273.86942"
+       id="text7856"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7858"
+         x="730.96594"
+         y="273.86942">n=1: D/2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1014.6339"
+       y="253.83572"
+       id="text7860"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7862"
+         x="1014.6339"
+         y="253.83572">...</tspan></text>
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7864"
+       width="98.004051"
+       height="490.02161"
+       x="-438.28931"
+       y="888.73059"
+       transform="matrix(6.817111e-3,-0.999977,0.999977,6.817111e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7866"
+       width="100.00443"
+       height="100.00443"
+       x="-438.28931"
+       y="1186.7422"
+       transform="matrix(6.817111e-3,-0.999977,0.999977,6.817111e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7868"
+       width="100.00443"
+       height="100.00443"
+       x="-438.28931"
+       y="886.73059"
+       transform="matrix(6.817111e-3,-0.999977,0.999977,6.817111e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7870"
+       width="100.00443"
+       height="100.00443"
+       x="-438.28931"
+       y="986.73517"
+       transform="matrix(6.817111e-3,-0.999977,0.999977,6.817111e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <rect
+       style="fill:black;fill-opacity:0;stroke:black;stroke-width:1.60006332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect7872"
+       width="100.00443"
+       height="100.00443"
+       x="-438.28931"
+       y="1086.7394"
+       transform="matrix(6.817111e-3,-0.999977,0.999977,6.817111e-3,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="730.96594"
+       y="405.86926"
+       id="text7874"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7876"
+         x="730.96594"
+         y="405.86926">n=1: D/4</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1015.7434"
+       y="385.83557"
+       id="text7878"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7880"
+         x="1015.7434"
+         y="385.83557">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="746"
+       y="554"
+       id="text7882"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan7884"
+         x="746"
+         y="554">.....</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 506,888 L 700,124"
+       id="path7886"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.07700968;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 506.67971,885.45279 L 700.45763,269.32981"
+       id="path8773"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:0.97733241;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 507.0612,888.11133 L 710.9388,405.88867"
+       id="path8775"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:25.99294472px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="662.85938"
+       y="402.9483"
+       id="text8777"
+       sodipodi:linespacing="100%"
+       transform="scale(0.761515,1.313172)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan8779"
+         x="662.85938"
+         y="402.9483">3. expected D in certain generation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="727.84082"
+       y="657.54346"
+       id="text8781"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan8783"
+         x="727.84082"
+         y="657.54346">n=20</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.43851125;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 488.39194,176.34926 L 684.85567,124.28611"
+       id="path8785"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 486.54011,180.24722 L 693.26965,256.34837"
+       id="path9672"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:1.2;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 487.05681,180.37101 L 702.94319,391.629"
+       id="path10559"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:22.28804016px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="597.29407"
+       y="226.01326"
+       id="text11446"
+       sodipodi:linespacing="100%"
+       transform="matrix(0.810303,-0.208204,7.001409e-2,1.216116,0,0)"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan11448"
+         x="597.29407"
+         y="226.01326">4. likelihood for each n</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:0.94613105;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 699.92583,69.866303 L 786.07418,8.494599"
+       id="path11450"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120" />
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="810"
+       y="-12"
+       id="text11452"
+       sodipodi:linespacing="100%"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"><tspan
+         sodipodi:role="line"
+         id="tspan11454"
+         x="810"
+         y="-12">5. MLE for n</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="6"
+       y="912"
+       id="text11466"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan11468"
+         x="6"
+         y="912">0.18</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="912"
+       y="114"
+       id="text11478"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan11480"
+         x="912"
+         y="114">0.18</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="914"
+       y="264"
+       id="text11482"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan11484"
+         x="914"
+         y="264">0.9</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="918"
+       y="400"
+       id="text11486"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/selfing_generations_stat_model_diagram.png"
+       inkscape:export-xdpi="120"
+       inkscape:export-ydpi="120"><tspan
+         sodipodi:role="line"
+         id="tspan11488"
+         x="918"
+         y="400">0.45</tspan></text>
+  </g>
+</svg>

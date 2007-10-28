@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docbase="/home/yh/script/variation/doc/lab_meeting_2007_10_23"
+   sodipodi:docname="data_d110_c0_5_d001_estimate_selfing_generation_hist.svg"
+   inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"
+   inkscape:export-xdpi="120"
+   inkscape:export-ydpi="120">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path4164"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.0875"
+     inkscape:cx="375"
+     inkscape:cy="518.57143"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="914"
+     inkscape:window-height="626"
+     inkscape:window-x="49"
+     inkscape:window-y="45" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       y="-1405.2092"
+       x="-1785.7858"
+       id="image2213"
+       height="3978"
+       width="5103"
+       sodipodi:absref="/usr/local/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"
+       xlink:href="/usr/local/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"
+       inkscape:export-xdpi="25"
+       inkscape:export-ydpi="25" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 1851.4286,-673.3521 C 2262.8571,-410.49496 2262.8571,-410.49496 2262.8571,-410.49496"
+       id="path3107"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"
+       inkscape:export-xdpi="25"
+       inkscape:export-ydpi="25" />
+    <text
+       xml:space="preserve"
+       style="font-size:80px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1495.4286"
+       y="-724.7807"
+       id="text11456"
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"
+       inkscape:export-xdpi="25"
+       inkscape:export-ydpi="25"><tspan
+         sodipodi:role="line"
+         id="tspan11458"
+         x="1495.4286"
+         y="-724.7807">homozygous strains</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:black;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 554.64509,1286.3472 C 176.78343,1595.5201 176.78343,1595.5201 176.78343,1595.5201"
+       id="path11460"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"
+       inkscape:export-xdpi="25"
+       inkscape:export-ydpi="25" />
+    <text
+       xml:space="preserve"
+       style="font-size:80;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr;text-anchor:start;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="611.42859"
+       y="1258.0765"
+       id="text11462"
+       sodipodi:linespacing="100%"
+       inkscape:export-xdpi="25"
+       inkscape:export-ydpi="25"
+       inkscape:export-filename="/home/yh/script/variation/doc/lab_meeting_2007_10_23/data_d110_c0_5_d001_estimate_selfing_generation_hist.png"><tspan
+         sodipodi:role="line"
+         id="tspan11464"
+         x="611.42859"
+         y="1258.0765">not robust</tspan></text>
+  </g>
+</svg>

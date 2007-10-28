@@ -1,0 +1,82 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="432" height="495" viewBox="0 0 432 495"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<g id="figure1">
+<polygon style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "0.000000,495.900000 0.000000,0.000000 432.000000,0.000000 432.000000,495.900000"/>
+<g id="axes1">
+<polygon style="fill: #ffffff; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "54.000000,446.310000 54.000000,49.590000 388.800000,49.590000 388.800000,446.310000"/>
+<image x="54.000000" y="49.310000" width="335.000000" height="397.000000" xlink:href="data:image/png;base64,
+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
+" />
+<g id="matplotlib.axis1">
+</g>
+<g id="matplotlib.axis2">
+<g id="ytick1">
+<text style="font-size: 60.000000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="13.000000" y="446.310000" >B</text>
+</g>
+<g id="ytick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 54.000000,389.635714 L 59.000000,389.635714"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 383.800000,389.635714 L 388.800000,389.635714"/>
+<text style="font-size: 60.000000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="7.000000" y="389.635714" >A</text>
+</g>
+<g id="ytick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 54.000000,332.961429 L 59.000000,332.961429"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 383.800000,332.961429 L 388.800000,332.961429"/>
+<text style="font-size: 60.000000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="13.000000" y="332.961429" >T</text>
+</g>
+<g id="ytick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 54.000000,276.287143 L 59.000000,276.287143"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 383.800000,276.287143 L 388.800000,276.287143"/>
+<text style="font-size: 60.000000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="11.000000" y="276.287143" >G</text>
+</g>
+<g id="ytick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 54.000000,219.612857 L 59.000000,219.612857"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 383.800000,219.612857 L 388.800000,219.612857"/>
+<text style="font-size: 60.000000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="12.000000" y="219.612857" >C</text>
+</g>
+<g id="ytick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 54.000000,162.938571 L 59.000000,162.938571"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 383.800000,162.938571 L 388.800000,162.938571"/>
+<text style="font-size: 60.000000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="7.000000" y="162.938571" >A</text>
+</g>
+<g id="ytick7">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 54.000000,106.264286 L 59.000000,106.264286"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 383.800000,106.264286 L 388.800000,106.264286"/>
+<text style="font-size: 60.000000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-43.000000" y="106.264286" >NA</text>
+</g>
+</g>
+<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  d="M 54.000000,446.310000 L 388.800000,446.310000 L 388.800000,49.590000 L 54.000000,49.590000 L 54.000000,446.310000 "/>
+</g>
+</g>
+</svg>

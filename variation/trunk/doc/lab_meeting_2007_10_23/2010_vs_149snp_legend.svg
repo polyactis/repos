@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2311"
+   sodipodi:version="0.32"
+   inkscape:version="0.45"
+   sodipodi:docbase="/home/crocea/script/variation/doc/lab_meeting_2007_10_23"
+   sodipodi:docname="2010_vs_149snp_legend.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/crocea/script/variation/doc/lab_meeting_2007_10_23/2010_vs_149snp_legend.png"
+   inkscape:export-xdpi="260.34"
+   inkscape:export-ydpi="260.34"
+   sodipodi:modified="TRUE">
+  <defs
+     id="defs2313" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="375"
+     inkscape:cy="520"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="910"
+     inkscape:window-height="793"
+     inkscape:window-x="222"
+     inkscape:window-y="348" />
+  <metadata
+     id="metadata2316">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       y="-293.35208"
+       x="304.35712"
+       id="image2437"
+       height="1640"
+       width="237"
+       sodipodi:absref="/home/crocea/script/variation/doc/lab_meeting_2007_10_23/2010_vs_149snp_legend.png.png"
+       xlink:href="2010_vs_149snp_legend.png.png" />
+    <text
+       xml:space="preserve"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-802"
+       y="-127.63782"
+       id="text2440"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2442"
+         x="-802"
+         y="-127.63782">deletion vs NA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-802"
+       y="116.6479"
+       id="text2444"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2446"
+         x="-802"
+         y="116.6479">deletion vs call</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-808.1875"
+       y="349.79077"
+       id="text2448"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2450"
+         x="-808.1875"
+         y="349.79077">NA vs NA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-808.1875"
+       y="584.36218"
+       id="text2452"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2454"
+         x="-808.1875"
+         y="584.36218">NA vs call</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
+       x="-802"
+       y="815.21936"
+       id="text2456"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan2458"
+         x="-802"
+         y="815.21936">call vs NA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-802"
+       y="1054.0764"
+       id="text2460"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2462"
+         x="-802"
+         y="1054.0764">call != call</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-802"
+       y="1291.505"
+       id="text2464"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2466"
+         x="-802"
+         y="1291.505">call = call</tspan></text>
+  </g>
+</svg>

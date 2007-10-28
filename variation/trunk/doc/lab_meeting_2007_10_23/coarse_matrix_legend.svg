@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2211"
+   sodipodi:version="0.32"
+   inkscape:version="0.45"
+   width="1800"
+   height="1215"
+   version="1.0"
+   sodipodi:docbase="/tmp"
+   sodipodi:docname="legend.png"
+   sodipodi:modified="TRUE"
+   inkscape:export-filename="/home/crocea/script/variation/doc/lab_meeting_2007_10_23/coarse_matrix_legend.png"
+   inkscape:export-xdpi="260.34"
+   inkscape:export-ydpi="260.34">
+  <metadata
+     id="metadata2216">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2214" />
+  <sodipodi:namedview
+     inkscape:window-height="626"
+     inkscape:window-width="910"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="0.33497942"
+     inkscape:cx="900"
+     inkscape:cy="607.5"
+     inkscape:window-x="39"
+     inkscape:window-y="189"
+     inkscape:current-layer="svg2211" />
+  <image
+     y="133.96315"
+     x="923.14862"
+     id="image2278"
+     height="962"
+     width="321"
+     sodipodi:absref="/tmp/legend.png"
+     xlink:href="/tmp/legend.png" />
+  <text
+     xml:space="preserve"
+     style="font-size:144px;font-style:normal;font-weight:normal;line-height:125%;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr"
+     x="297.086"
+     y="369.39313"
+     id="text2281"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan2283"
+       x="297.086"
+       y="369.39313"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;opacity:1;font-family:Bitstream Vera Sans">NA</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="-49.014736"
+     y="638.84521"
+     id="text2285"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan2287"
+       x="-49.014736"
+       y="638.84521">Homozygous</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     x="-104.48402"
+     y="958.26782"
+     id="text2289"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan2291"
+       x="-104.48402"
+       y="958.26782">Heterozygous</tspan></text>
+</svg>
