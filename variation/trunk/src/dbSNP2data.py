@@ -299,6 +299,8 @@ def get_nn_sp_duplicated_time_cross_another_set(nn_sp_duplicated_time2ecotype_du
 
 """
 2007-10-22
+functions to understand the duplication structure inside the database
+
 hostname='localhost'
 dbname='stock20071008'
 import MySQLdb
