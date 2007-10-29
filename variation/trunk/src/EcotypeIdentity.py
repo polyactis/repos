@@ -195,6 +195,7 @@ def OutputCliquesGroupedByRegion(curs, region2clique_id_ls, clique_id2size, cliq
 
 """
 #2007-10-16
+#call functions above to compile a StockIdentityReport
 import os,sys
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 from pymodule.latex import outputMatrixInLatexTable
