@@ -282,6 +282,7 @@ def LatexSummaryAlignmentType(curs, alignments_cnt_range_ls, alignment_type_grou
 
 """
 #2007-10-12
+#call functions above to compile a 2010SequenceReport
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
