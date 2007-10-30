@@ -1,0 +1,78 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[pdftex]{color,graphicx}
+\usepackage[pdftex, bookmarks, colorlinks=false]{hyperref}
+\usepackage{longtable}
+%\usepackage{afterpage}
+\usepackage{float}
+%\usepackage[all]{xy}
+\addtolength{\textheight}{5cm}
+\addtolength{\textwidth}{5cm}
+\addtolength{\hoffset}{-3cm}
+\addtolength{\voffset}{-3cm}
+
+%opening
+\title{the investigation of 149-snp peak data}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+look at the peak data for different calls
+\end{abstract}
+
+\section{cluster plots}
+282802 out of 955388 snp calls (30\%) has raw peak(intensity) data. check their cluster plots.
+
+For every snp genotyped, there're two alleles. Sequenom uses mass spectrometer to distinguish different alleles. It produces the intensity of peak1 and peak2, which corresponds to allele 1 and 2 respectively.
+
+I don't know which allele each peak corresponds to(someone can give me this information.) Right now, i just check the thaliana reference genome using the position information of each snp and assume the thaliana reference genome base as allele 1. The non-reference-base is regarded as allele 2.
+
+A cluster plot (name comes from the supplementary of the Wellcome Trust 2007 paper. \url{https://dl324b-1.cmb.usc.edu/research/ref/nobody2007}) is a graphical representation of the results of both the genotyping and genotype calling of a SNP. It is a scatter plot of the two peak intensities from the genotyping, with each point representing one snp calling in one ecotype. Each point is colored according to how genotype calling algorithm decided to classify that particular snp in one ecotype. 4 different classifications are homozygote for allele 1 (red), homozygote for allele 2 (blue), heterozygote for two alleles (green), missing/NA (yellow).
+
+Figure~\ref{f1}-\ref{f7} are cluster plots with all snps concatenated together. the sequenom genotype calling algorithm doesn't look very promising.
+
+Figure~\ref{flAtMSQTsnp2} and onwards are the cluster plots for one single snp. the genotype calling algorithm might have different parameters for different snps.
+
+
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_allele1.png}
+\caption{homozygote for allele 1}\label{f1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_allele2.png}
+\caption{homozygote for allele 2}\label{f2}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_het.png}
+\caption{heterozygote}\label{f3}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_NA.png}
+\caption{missing/NA}\label{f4}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_allele1_het.png}
+\caption{overlapping of homozygote for allele 1 and heterozygote}\label{f5}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_allele2_het.png}
+\caption{overlapping of homozygote for allele 2 and heterozygote}\label{f6}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_allele1_NA.png}
+\caption{overlapping of homozygote for allele 1 and NA}\label{f7}
+\end{figure}
+
+\input{tables_figures.tex}
+
+\end{document}
