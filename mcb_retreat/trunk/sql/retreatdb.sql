@@ -26,3 +26,14 @@ create table abstract(
 	author_list	varchar,
 	abstract	varchar,
 	date_created	timestamp default current_timestamp);
+
+create table carpool(
+	id	serial primary key,
+	name	varchar,
+	email	varchar,
+	phone	varchar,
+	address	varchar,
+	ride_type varchar,
+	no_of_people integer,
+	severity varchar,
+	date_created timestamp default current_timestamp);
