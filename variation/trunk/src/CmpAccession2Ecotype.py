@@ -131,6 +131,24 @@ class CmpAccession2Ecotype:
 		sys.stderr.write("Done.\n")
 		return ecotype_id2accession_id, ecotype_id2row_index, ecotype_id2nativename, ecotype_id_ls, accession_id2row_index, accession_id_ls
 	
+	def get_alignment_id2positions_to_be_checked_ls(self, curs, alignment_table):
+		"""
+		2007-11-05
+		"""
+		sys.stderr.write("Getting alignment_id2positions_to_be_checked_ls ...")
+		alignment_id2positions_to_be_checked_ls = {}
+		curs.execute("select id, target from %s"%alignment_table)
+		rows = curs.fetchall()
+		for row in rows:
+			alignment_id, target_seq = row
+			positions_to_be_checked_ls = []
+			for i in range(len(target_seq)):
+				if target_seq[i]!='-':
+					positions_to_be_checked_ls.append(i)
+			alignment_id2positions_to_be_checked_ls[alignment_id] = positions_to_be_checked_ls
+		sys.stderr.write("Done.\n")
+		return alignment_id2positions_to_be_checked_ls
+	
 	def get_ecotype_X_snp_matrix(self, curs, ecotype_id2row_index, snpid2col_index, calls_table):
 		sys.stderr.write("Getting ecotype_X_snp_matrix ... \n")
 		data_matrix = numpy.zeros([len(ecotype_id2row_index), len(snpid2col_index)], numpy.integer)
@@ -154,7 +172,11 @@ class CmpAccession2Ecotype:
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
-	def get_accession_X_snp_matrix(self, curs, accession_id2row_index, SNPpos2col_index, sequence_table, alignment_table):
+	def get_accession_X_snp_matrix(self, curs, accession_id2row_index, SNPpos2col_index, sequence_table, alignment_table, alignment_id2positions_to_be_checked_ls):
+		"""
+		2007-11-05
+			add alignment_id2positions_to_be_checked_ls to skip '-' columns in reference genome to match the real genome position
+		"""
 		sys.stderr.write("Getting accession_X_snp_matrix ...\n")
 		data_matrix = numpy.zeros([len(accession_id2row_index), len(SNPpos2col_index)], numpy.integer)
 		curs.execute("select s.accession, s.alignment, s.bases, a.chromosome, a.start from %s s, %s a where s.alignment=a.id"%(sequence_table, alignment_table))
@@ -164,14 +186,16 @@ class CmpAccession2Ecotype:
 			for row in rows:
 				accession_id, alignment_id, bases, chromosome, start_pos = row
 				if accession_id in accession_id2row_index:
-					for i in range(start_pos, start_pos+len(bases)):
-						SNP_pos_key = (chromosome, i)
+					positions_to_be_checked_ls = alignment_id2positions_to_be_checked_ls[alignment_id]
+					for i in range(len(positions_to_be_checked_ls)):	#i is the real index after reference '-' is removed.
+						inflated_index = positions_to_be_checked_ls[i]
+						SNP_pos_key = (chromosome, start_pos+i)
 						if SNP_pos_key in SNPpos2col_index:
 							if self.debug:
 								import pdb
 								pdb.set_trace()
 							SNP_index = SNPpos2col_index[SNP_pos_key]
-							data_matrix[accession_id2row_index[accession_id], SNP_index] = nt2number[bases[i-start_pos]]
+							data_matrix[accession_id2row_index[accession_id], SNP_index] = nt2number[bases[inflated_index]]
 				counter += 1
 			rows = curs.fetchmany(5000)
 			if self.report:
@@ -213,8 +237,8 @@ class CmpAccession2Ecotype:
 			header = ['ecotype_id', 'ecotype_id'] + snp_acc_ls
 			FilterStrainSNPMatrix_instance.write_data_matrix(ecotype_X_snp_matrix, self.sub_justin_output_fname, header, ecotype_id_ls, ecotype_id_ls)
 		
-		
-		accession_X_snp_matrix = self.get_accession_X_snp_matrix(curs, accession_id2row_index, SNPpos2col_index, self.sequence_table, self.alignment_table)
+		alignment_id2positions_to_be_checked_ls = self.get_alignment_id2positions_to_be_checked_ls(curs, self.alignment_table)
+		accession_X_snp_matrix = self.get_accession_X_snp_matrix(curs, accession_id2row_index, SNPpos2col_index, self.sequence_table, self.alignment_table, alignment_id2positions_to_be_checked_ls)
 		
 		if self.output_fname:
 			header = ['accession_id', 'accession_id'] + snp_acc_ls
