@@ -14,7 +14,7 @@ if ($_POST['_submit_check'])
 	if ($address=='' || $email=='' || $name=='' ||$no_of_people=='')
 	{
 		echo  "<script  type='text/javascript'>
-           alert('ERROR. Dear $name, Either name or email or address or how many people is empty.');
+           alert('ERROR. Dear $name, Name or Email or Address or how many people is empty.');
           </script>";
 	}
 	else
@@ -74,25 +74,25 @@ if ($_POST['_submit_check'])
         </tr>
       <tr>
         <td height="34">&nbsp;</td>
-        <td colspan="2" align="left"><strong>Name:</strong></td>
+        <td colspan="2" align="left"><strong>*Name:</strong></td>
         <td align="left"> <input type="text" name="name" /></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
         <td height="32">&nbsp;</td>
-        <td colspan="2" align="left"><strong>E-mail:</strong></td>
+        <td colspan="2" align="left"><strong>*E-mail:</strong></td>
         <td align="left"><input type="text" name="email" /></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
         <td height="32">&nbsp;</td>
-        <td colspan="2" align="left"><strong>Phone (securely kept): </strong></td>
+        <td colspan="2" align="left"><strong>Phone: </strong></td>
         <td align="left"><input type="text" name="phone" /></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
         <td height="32">&nbsp;</td>
-        <td colspan="2" align="left"><strong>address (for carpool coordination): </strong></td>
+        <td colspan="2" align="left"><strong>*Address(for coordination): </strong></td>
         <td align="left"><input type="text" name="address" /></td>
         <td>&nbsp;</td>
       </tr>
@@ -107,7 +107,7 @@ if ($_POST['_submit_check'])
       </tr>
       <tr>
         <td height="32">&nbsp;</td>
-        <td colspan="2" align="left"><strong>How Many People you need/provide: </strong></td>
+        <td colspan="2" align="left"><strong>*How Many People you need/provide: </strong></td>
         <td align="left"><input type="text" name="no_of_people" /></td>
         <td>&nbsp;</td>
       </tr>
