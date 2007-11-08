@@ -5,6 +5,8 @@ set search_path to retreat;
 create table register(
 	id	serial primary key,
 	name	varchar,
+	firstname	varchar,
+	lastname	varchar,
 	email	varchar,
 	pi	varchar,
 	special_treat	varchar,

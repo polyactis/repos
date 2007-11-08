@@ -46,6 +46,19 @@ class abstract_output:
 			print abstract
 			print
 	
+	def split_name_into_first_last_name(self, curs, register_table='register', commit=0):
+		curs.execute("select id, name from %s"%register_table)
+		rows = curs.fetchall()
+		for row in rows:
+			row_id, name = row
+			name_ls = name.split()
+			lastname = name_ls[-1]
+			lastname = lastname[0].upper()+lastname[1:]	#turn 1st character into capital form
+			firstname = ' '.join(name_ls[:-1])
+			curs.execute("update %s set lastname='%s', firstname='%s' where id=%s"%(register_table, lastname, firstname, row_id))
+		if commit:
+			self.conn.commit()
+	
 	def output(self):
 		print '<pre>'
 		presentation_abstract_id_ls = self.get_abstract_id_ls(self.curs, pref='Presentation')
@@ -53,6 +66,7 @@ class abstract_output:
 		poster_abstract_id_ls = self.get_abstract_id_ls(self.curs, pref='Poster')
 		self.output_abstract_in_order(self.curs, poster_abstract_id_ls)
 		print '</pre>'
+		self.split_name_into_first_last_name(self.curs, register_table='register', commit=1)
 
 if __name__ == '__main__':
 	print "Content-Type: text/html\n\n"
