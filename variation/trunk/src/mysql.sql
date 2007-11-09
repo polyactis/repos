@@ -67,3 +67,59 @@ create table person(
 	email	varchar(100),
 	donor	integer not null
 	);
+
+--2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
+use dbsnp;
+create table snp_locus(
+	id	integer,
+	acc	varchar(20) primary key,
+	tax_id	integer,
+	chromosome	integer,
+	strand	varchar(1),
+	align_2010_start_pos	integer,
+	freq	float,
+	name	varchar(200),
+	description	varchar(2000),
+	date_created	timestamp default current_timestamp,
+	position	integer,
+	UEP_DIR	varchar(1),
+	adjacent_sequence	varchar(200),
+	lyrata_call	varchar(5),
+	thaliana_call	varchar(5),
+	flanking_25mer	varchar(200)
+	);
+
+create table readme(
+	id	integer auto_increment primary key,
+	name	varchar(2000),
+	description	varchar(60000),
+	date_created	timestamp default current_timestamp
+	);
+
+--2007-10-29 a table copying http://naturalsystems.uchicago.edu/naturalvariation/149SNPposII.csv
+use dbsnp;
+create table snps_sequenom_info(
+	snpfragpos	varchar(200),
+	chromosome	varchar(200),
+	exact_SNP_position	integer,
+	well	varchar(2),
+	term	varchar(5),
+	snpid	varchar(20) primary key,
+	x2nd_pcrp	varchar(200),
+	x1st_pcrp	varchar(200),
+	amp_len	integer,
+	up_conf	float,
+	mp_conf	float,
+	tm_nn	float,
+	pcgc	float,
+	pwarn	varchar(2),
+	uep_dir	varchar(1),
+	uep_mass	float,
+	uep_seq	varchar(200),
+	ext1_call	varchar(1),
+	ext1_mass	float,
+	ext1_seq	varchar(200),
+	ext2_call	varchar(1),
+	ext2_mass	float,
+	ext2_seq	varchar(200)
+	);
