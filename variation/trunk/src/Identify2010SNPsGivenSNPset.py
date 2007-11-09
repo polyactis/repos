@@ -3,8 +3,8 @@
 Usage: Identify2010SNPsGivenSNPset.py [OPTIONS] -i INPUT_FNAME -a DATA_DIR -o OUTPUT_FNAME
 
 Option:
-	-z ..., --hostname=...	the hostname, dl324b-1(default)
-	-d ..., --dbname=...	the database name, yhdb(default)
+	-z ..., --hostname=...	the hostname, zhoudb(default)
+	-d ..., --dbname=...	the database name, graphdb(default)
 	-k ..., --schema=...	which schema in the database, dbsnp(default)
 	-i ...,	input_fname
 	-a ...,	2010 aligned sequence data directory
@@ -42,17 +42,17 @@ bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
 	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/transfac/src')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64')))
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/transfac/src')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import psycopg, sys, getopt, csv, re, cStringIO
 from codense.common import db_connect
 from common import nt2number, number2nt
 import Numeric
 from sets import Set
-from transfacdb import fasta_block_iterator
+from transfac.src.transfacdb import fasta_block_iterator
 
 def setup2010Alignment(curs, accession_table, sequence_table):
 	"""
@@ -222,6 +222,78 @@ output_fname_prefix = '%s'%os.path.splitext(input_fname_192)[0]
 plot_LD(nordborg_dist_ls, borevitz_dist_ls,  title='149snp vs 2010 pairwise dist', xlabel="nordborg dist", ylabel='borevitz dist', output_fname_prefix='%s_vs_2010_dist'%output_fname_prefix)
 """
 
+
+"""
+2007-11-05
+	a bunch of functions responsible for https://dl324b-1.cmb.usc.edu/projects/hapmap/ticket/2
+	to resort the columns of the output by this program (Identify2010SNPsGivenSNPset.py) to the chromosome,position order
+	
+"""
+def shuffleMatrixSNPColumn_in_chrom_position_order(input_fname, curs, snps_table, output_fname):
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	snp_acc_list = header[2:]
+	snp_acc2col_index = {}
+	new_snp_acc_list = []
+	curs.execute("select snpid, chromosome, position from %s order by chromosome, position"%(snps_table))
+	rows = curs.fetchall()
+	for row in rows:
+		snpid, chromosome, position = row
+		snp_acc2col_index[snpid] = len(snp_acc2col_index)
+		new_snp_acc_list.append(snpid)
+	import numpy
+	old_matrix = numpy.array(data_matrix)
+	new_matrix = numpy.zeros(old_matrix.shape, numpy.integer)
+	for j in range(old_matrix.shape[1]):
+		snp_acc = snp_acc_list[j]
+		col_index = snp_acc2col_index[snp_acc]
+		new_matrix[:,col_index] = old_matrix[:,j]
+	header = header[:2] + new_snp_acc_list
+	FilterStrainSNPMatrix_instance.write_data_matrix(new_matrix, output_fname, header, strain_acc_list, category_list)
+
+
+def find_2010_accession_id_for_old_2010_x_149snp_matrix(input_fname, curs, accession_table='at.accession'):
+	"""
+	2007-11-05 whether the names can still be matched to entries in accession_table.
+	"""
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	strain_acc_accession_id_ls = []
+	strain_acc_match_failed_ls = []
+	for strain_acc in category_list:
+		curs.execute("select id from %s where name='%s'"%(accession_table, strain_acc))
+		rows = curs.fetchall()
+		if rows:
+			accession_id = rows[0][0]
+			strain_acc_accession_id_ls.append([strain_acc, accession_id])
+		else:
+			accession_id = ''
+			strain_acc_accession_id_ls.append([strain_acc])
+			strain_acc_match_failed_ls.append(strain_acc)
+		print '%s\t%s'%(strain_acc, accession_id)
+	return strain_acc_accession_id_ls, strain_acc_match_failed_ls
+
+"""
+data_dir = 'script/variation/data/'
+input_fname = os.path.join(data_dir, 'justin_data_y.csv')
+output_fname = os.path.join(data_dir, 'justin_data_y_snp_in_order.csv')
+snps_table = 'stock20071008.snps'
+shuffleMatrixSNPColumn_in_chrom_position_order(input_fname, curs, snps_table, output_fname)
+
+input_fname = os.path.join(data_dir, 'snp_matrix_2010.justin.149snps')
+output_fname = os.path.join(data_dir, 'snp_matrix_2010.justin.149snps_in_snp_order')
+shuffleMatrixSNPColumn_in_chrom_position_order(input_fname, curs, snps_table, output_fname)
+
+input_fname = os.path.join(data_dir, 'justin_data_y.2010.96strains.149snp.csv')
+output_fname = os.path.join(data_dir, 'justin_data_y.2010.96strains.149snp_in_snp_order.csv')
+shuffleMatrixSNPColumn_in_chrom_position_order(input_fname, curs, snps_table, output_fname)
+
+input_fname = os.path.join(data_dir, 'snp_matrix_2010.justin.149snps')
+strain_acc_accession_id_ls, strain_acc_match_failed_ls = find_2010_accession_id_for_old_2010_x_149snp_matrix(input_fname, curs, accession_table='at.accession')
+"""
+
 class Identify2010SNPsGivenSNPset:
 	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', \
 		input_fname=None, data_dir_2010=None, output_fname=None, strain_info_table='strain_info', \
@@ -277,6 +349,11 @@ class Identify2010SNPsGivenSNPset:
 	def get_align_matrix_from_fname(self, fname):
 		"""
 		2007-03-29
+		2007-11-05
+			add comment for this function:
+				first_block(the reference genome) is used to make sure positions with '-' in the reference would be skipped.
+				these '-' don't belong to the reference and they have no corresponding position. if they are not taken out, they
+				would cause positions to be offseted.
 		"""
 		inf = open(fname)
 		iter = fasta_block_iterator(inf)
@@ -485,7 +562,6 @@ class Identify2010SNPsGivenSNPset:
 			--outputDiffType()
 			
 		"""
-		(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header, src_strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
@@ -493,6 +569,7 @@ class Identify2010SNPsGivenSNPset:
 			header, strain_acc_ls, abbr_name_ls_sorted, SNP_matrix_2010_sorted = FilterStrainSNPMatrix_instance.read_data(self.output_fname)
 			SNP_matrix_2010_sorted = Numeric.array(SNP_matrix_2010_sorted)
 		else:
+			(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 			#extract data from alignment
 			snp_acc_ls = header[2:]
 			SNPpos2index = self.get_SNPpos2index(curs, snp_acc_ls, self.snp_locus_table)
@@ -527,6 +604,14 @@ class Identify2010SNPsGivenSNPset:
 		pylab.title(' '.join(summary_result_ls))
 		pylab.colorbar()
 		pylab.show()
+		
+		#2007-11-01 do something as CmpAccession2Ecotype.py
+		from CmpAccession2Ecotype import CmpAccession2Ecotype
+		CmpAccession2Ecotype_ins = CmpAccession2Ecotype()
+		nt_number2diff_matrix_index = CmpAccession2Ecotype_ins.get_nt_number2diff_matrix_index(nt2number)
+		dc_placeholder = dict(zip(range(sub_data_matrix.shape[0]), range(sub_data_matrix.shape[1])))
+		diff_matrix_ls = CmpAccession2Ecotype_ins.cmp_two_matricies(SNP_matrix_2010_sorted, sub_data_matrix, nt_number2diff_matrix_index, dc_placeholder, dc_placeholder, dc_placeholder)
+		print diff_matrix_ls
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
