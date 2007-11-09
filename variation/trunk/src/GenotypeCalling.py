@@ -70,11 +70,15 @@ def get_snpid2allele(curs, snps_sequenom_info_table='dbsnp.snps_sequenom_info', 
 	return snpid2allele
 
 
-def get_peak1_peak2_color_ls(curs, snpid2allele, calls_table):
+def get_peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid=5):
+	"""
+	2007-11-08
+		add extractionid
+	"""
 	import sys
 	sys.stderr.write("Getting peak1_peak2_color_ls ...")
 	peak1_peak2_color_ls = []
-	curs.execute("select snpid, call1, callhet, peak1, peak2 from %s where peak1 is not null and peak2 is not null"%(calls_table))
+	curs.execute("select snpid, call1, callhet, peak1, peak2 from %s where extractionid=%s and peak1 is not null and peak2 is not null"%(calls_table, extractionid))
 	rows = curs.fetchmany(5000)
 	while rows:
 		for row in rows:
@@ -93,11 +97,15 @@ def get_peak1_peak2_color_ls(curs, snpid2allele, calls_table):
 	sys.stderr.write("Done.\n")
 	return peak1_peak2_color_ls
 
-def get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table):
+def get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid=5):
+	"""
+	2007-11-08
+		add extractionid
+	"""
 	import sys
 	sys.stderr.write("Getting snpid2peak1_peak2_color_ls ...")
 	snpid2peak1_peak2_color_ls = {}
-	curs.execute("select snpid, call1, callhet, peak1, peak2 from %s where peak1 is not null and peak2 is not null"%(calls_table))
+	curs.execute("select snpid, call1, callhet, peak1, peak2 from %s where extractionid=%s and peak1 is not null and peak2 is not null"%(calls_table, extractionid))
 	rows = curs.fetchmany(5000)
 	while rows:
 		for row in rows:
@@ -140,7 +148,7 @@ def drawClusterPlot(peak1_peak2_color_ls, color_picked=0, color_to_be_drawn='r',
 	pylab.title('cluster plots')
 	pylab.xlabel('peak1')
 	pylab.ylabel('peak2')
-	ps=pylab.scatter(xls, yls, c=color_to_be_drawn, marker='o', alpha=0.5, faceted=False)
+	ps=pylab.scatter(xls, yls, c=color_to_be_drawn, marker='o', alpha=0.2, faceted=False)
 	if output_fname_prefix:
 		#pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
 		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
@@ -222,35 +230,55 @@ snpid2allele = get_snpid2allele(curs, snps_sequenom_info_table, snps_table)
 calls_table = 'stock20071008.calls'
 peak1_peak2_color_ls = get_peak1_peak2_color_ls(curs, snpid2allele, calls_table)
 
+output_dir = 'script/variation/doc/PeakDataReport/figures'
+
 pylab.clf()
-output_fname_prefix = 'script/variation/stock20071008/cluster_plots_allele1'
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_allele1')
 drawClusterPlot(peak1_peak2_color_ls, color_picked=0, color_to_be_drawn='r', output_fname_prefix=output_fname_prefix)
 
 pylab.clf()
-output_fname_prefix = 'script/variation/stock20071008/cluster_plots_het'
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_het')
 drawClusterPlot(peak1_peak2_color_ls, 1, 'g', output_fname_prefix)
 
 pylab.clf()
-output_fname_prefix = 'script/variation/stock20071008/cluster_plots_allele2'
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_allele2')
 drawClusterPlot(peak1_peak2_color_ls, 2, 'b', output_fname_prefix)
 
 pylab.clf()
-output_fname_prefix = 'script/variation/stock20071008/cluster_plots_NA'
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_NA')
 drawClusterPlot(peak1_peak2_color_ls, 3, 'y', output_fname_prefix)
 
 pylab.clf()
-output_fname_prefix = 'script/variation/stock20071008/cluster_plots_allele1_het'
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_allele1_het')
 drawClusterPlot(peak1_peak2_color_ls, 0, 'r', output_fname_prefix)
 drawClusterPlot(peak1_peak2_color_ls, 1, 'g', output_fname_prefix)
 
 pylab.clf()
-output_fname_prefix = 'script/variation/stock20071008/cluster_plots_allele2_het'
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_allele2_het')
 drawClusterPlot(peak1_peak2_color_ls, 2, 'b', output_fname_prefix)
 drawClusterPlot(peak1_peak2_color_ls, 1, 'g', output_fname_prefix)
 
 pylab.clf()
-output_fname_prefix = 'script/variation/stock20071008/cluster_plots_allele1_NA'
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_allele1_allele2')
 drawClusterPlot(peak1_peak2_color_ls, 0, 'r', output_fname_prefix)
+drawClusterPlot(peak1_peak2_color_ls, 2, 'b', output_fname_prefix)
+
+pylab.clf()
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_allele1_NA')
+drawClusterPlot(peak1_peak2_color_ls, 0, 'r', output_fname_prefix)
+drawClusterPlot(peak1_peak2_color_ls, 3, 'y', output_fname_prefix)
+
+pylab.clf()
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_homo_and_hetero')
+drawClusterPlot(peak1_peak2_color_ls, 0, 'r', output_fname_prefix)
+drawClusterPlot(peak1_peak2_color_ls, 2, 'b', output_fname_prefix)
+drawClusterPlot(peak1_peak2_color_ls, 1, 'g', output_fname_prefix)
+
+pylab.clf()
+output_fname_prefix = os.path.join(output_dir, 'cluster_plots_all')
+drawClusterPlot(peak1_peak2_color_ls, 0, 'r', output_fname_prefix)
+drawClusterPlot(peak1_peak2_color_ls, 1, 'g', output_fname_prefix)
+drawClusterPlot(peak1_peak2_color_ls, 2, 'b', output_fname_prefix)
 drawClusterPlot(peak1_peak2_color_ls, 3, 'y', output_fname_prefix)
 
 snpid2peak1_peak2_color_ls = get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table)
