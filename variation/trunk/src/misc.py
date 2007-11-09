@@ -785,9 +785,11 @@ def collapseStrainsWithSamePos(ecotypeid_ls, ecotypeid2pos):
 	return site2weight, site2pos
 
 
-def draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title,  pic_area=[-130,10,140,70], output_fname_prefix=None):
+def draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title,  pic_area=[-130,10,140,70], output_fname_prefix=None, label_ls=None, need_collapse_strains_with_same_pos=0):
 	"""
 	2007-10-09
+	2007-11-08
+		add label_ls, need_collapse_strains_with_same_pos
 	"""
 	import os, sys
 	sys.stderr.write("Drawing strains on a map ...\n")
@@ -799,21 +801,33 @@ def draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title,  pic_area=[-130,
 	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
 	resolution='l',projection='mill')
 	
-	site2weight, site2pos = collapseStrainsWithSamePos(ecotypeid_ls, ecotypeid2pos)
 	
 	sys.stderr.write("\tDrawing nodes ...")
 	euc_coord1_ls = []
 	euc_coord2_ls = []
 	diameter_ls = []
-	for n in site2pos:
-		lat, lon = site2pos[n]
-		euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
-		euc_coord1_ls.append(euc_coord1)
-		euc_coord2_ls.append(euc_coord2)
-		diameter_ls.append(math.sqrt(site2weight[n]))
+	ax=pylab.gca()
+	if need_collapse_strains_with_same_pos:
+		site2weight, site2pos = collapseStrainsWithSamePos(ecotypeid_ls, ecotypeid2pos)
+		for n in site2pos:
+			lat, lon = site2pos[n]
+			euc_coord1, euc_coord2 = m(lon, lat)	#longitude first, latitude 2nd
+			euc_coord1_ls.append(euc_coord1)
+			euc_coord2_ls.append(euc_coord2)
+			diameter_ls.append(8*math.sqrt(site2weight[n]))
+	else:
+		for i in range(len(ecotypeid_ls)):
+			ecotypeid = ecotypeid_ls[i]
+			lat, lon = ecotypeid2pos[ecotypeid]
+			euc_coord1, euc_coord2 = m(lon, lat)
+			euc_coord1_ls.append(euc_coord1)
+			euc_coord2_ls.append(euc_coord2)
+			if label_ls:
+				ax.text(euc_coord1, euc_coord2, str(label_ls[i]), size=5, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
+			diameter_ls.append(1)
 	import numpy
-	diameter_ls = numpy.array(diameter_ls)
-	m.scatter(euc_coord1_ls, euc_coord2_ls, 8*diameter_ls, marker='o', color='r', alpha=0.4, zorder=12, faceted=False)
+	#diameter_ls = numpy.array(diameter_ls)
+	m.scatter(euc_coord1_ls, euc_coord2_ls, diameter_ls, marker='o', color='r', alpha=0.4, zorder=10, faceted=False)
 	sys.stderr.write("Done.\n")
 	
 	#m.drawcoastlines()
@@ -1266,6 +1280,14 @@ def outputGraphInCliquerFormat(graph, output_fname):
 	for e in graph.edges():
 		of.write("e %s %s\n"%(node_name2index[e[0]], node_name2index[e[1]]))
 	del of
+
+def get_ecotypeid_ls_given_popid(curs, popid2ecotypeid_table, popid):
+	ecotypeid_ls = []
+	curs.execute("select ecotypeid from %s where popid=%s and selected=1"%(popid2ecotypeid_table, popid))
+	rows = curs.fetchall()
+	for row in rows:
+		ecotypeid_ls.append(row[0])
+	return ecotypeid_ls
 
 """
 from misc import *
@@ -2168,6 +2190,30 @@ shared_block_ls = get_shared_block_ls(data_matrix[1], data_matrix[2], snp_index2
 DrawSharedBlock_ls(shared_block_ls, snp_index2pos, chr_id2cumu_size)
 
 """
+
+"""
+2007-11-08
+	get 192 strains for suzi
+"""
+def get_ecotypeid_ls_nativename_ls_of_192_strains(curs):
+	ecotypeid_ls = []
+	nativename_ls = []
+	curs.execute("select b.ecotypeid, e.nativename from ecotype e, batch_ecotype b where b.ecotypeid=e.id and b.batchid=2")
+	rows = curs.fetchall()
+	for row in rows:
+		ecotypeid, nativename = row
+		ecotypeid_ls.append(ecotypeid)
+		nativename_ls.append(nativename)
+	return ecotypeid_ls, nativename_ls
+
+
+"""
+ecotypeid_ls, nativename_ls = get_ecotypeid_ls_nativename_ls_of_192_strains(curs)
+ecotypeid2pos = get_ecotypeid2pos(curs, 'ecotype')
+draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title='192 strains',  pic_area=[-130,10,140,70], output_fname_prefix='/tmp/suzi_192', label_ls=nativename_ls, need_collapse_strains_with_same_pos=0)
+
+"""
+
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
