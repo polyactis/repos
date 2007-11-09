@@ -90,6 +90,8 @@ class RestoreHeterozygousCalls:
 	def displayDataMatrix(self, data_matrix, title):
 		"""
 		2007-03-20
+		2007-11-08
+			add "aspect='auto'" to pylab.imshow()
 		"""
 		sys.stderr.write("Displaying Data matrix ...")
 		pylab.clf()
@@ -97,7 +99,7 @@ class RestoreHeterozygousCalls:
 		data_matrix_ls = list(data_matrix)	#reverse the data_matrix to match the y index
 		data_matrix_ls.reverse()
 		data_matrix = Numeric.array(data_matrix_ls)
-		pylab.imshow(data_matrix, interpolation='nearest')
+		pylab.imshow(data_matrix, interpolation='nearest', aspect='auto',)
 		pylab.colorbar()
 		pylab.show()
 		sys.stderr.write("done.\n")
@@ -106,15 +108,14 @@ class RestoreHeterozygousCalls:
 		"""
 		2007-03-20
 		2007-04-03
-		"""
-		(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
-		
+		"""		
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		if self.draw_only:
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.output_fname)
 			data_matrix = Numeric.array(data_matrix)
 		else:
+			(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
 			
 			snp_acc_ls = header[2:]
@@ -130,6 +131,7 @@ class RestoreHeterozygousCalls:
 		heterozygous_data_matrix, coarse_data_matrix = self.get_heterozygous_and_coarse_data_matrix(data_matrix)
 		self.displayDataMatrix(heterozygous_data_matrix, title='heterozygous_data_matrix, 5-10=hetero, else=0')
 		self.displayDataMatrix(coarse_data_matrix, title='coarse_data_matrix, 0=NA, 1=homo, 2=hetero')
+		raw_input("enter")
 		
 
 if __name__ == '__main__':
