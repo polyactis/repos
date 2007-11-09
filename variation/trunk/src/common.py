@@ -51,7 +51,7 @@ number2nt = {-1: '-',
 	10:'GT'
 	}
 
-number2color = {0:(0,0,122), 1:(0,0,255), 2:(0,122,122), 3:(122,122,0), 4:(255,0,0)}
+number2color = {-1:(0,0,0), 0:(255,255,255), 1:(0,0,255), 2:(0,255,0), 3:(255,0,0), 4:(122,0,122), 5:(122,122,0), 6:(122,255,255), 7:(122,122,122), 8:(255,122,0), 9:(255,255,122), 10:(122,122,255) }
 
 #2007-04-16 entry[i,j] means whether nucleotide i and j matches. 0(NA) matches everything. singleton(1-4) matches itself and the doublet containing it. doublet(5-10) matches only itself.
 nt_number_matching_matrix = [[1, 1,1,1,1,1, 1,1,1,1,1],
