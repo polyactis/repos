@@ -9,6 +9,7 @@ Option:
 	-i ...,	input_fname
 	-o ...,	output_fname_prefix
 	-s ...,	snps_sequenom_info_table, 'dbsnp.snps_sequenom_info'(default)
+	-x ...,	row label type, 1 (default)
 	-y ...,	drawing_type, 1 (default)
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -18,7 +19,7 @@ Examples:
 	DrawSNPMatrix.py -i ./2010_with_149snps_ecotype2accession.csv -o /tmp/2010_with_149snps_ecotype2accession_y4 -y4
 
 Description:
-	Program to draw image for a strain X snp matrix.
+	Program to draw image for a strain X snp matrix. input_fname's format is like the one outputted by dbSNP2data.py
 	two images generated.
 		output_fname_prefix.png: the matrix itself
 		output_fname_prefix_legend.png: the legend of the color used in drawing
@@ -28,6 +29,9 @@ Description:
 	 3. into 4 colors, '-', NA, homozygous, heterozygous
 	 4. into 5 colors, '-', NA, allele1, allele2, heterozygous (allele1/allele2 randomly assigned)
 	 5. into 6 colors, '-', NA, A,C,G,T (every strain duplicates into two rows (haplotypes))
+	Row label type:
+	 1. 1st column
+	 2. 2nd column.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -46,9 +50,11 @@ class DrawSNPMatrix:
 	2007-11-02
 	"""
 	def __init__(self, hostname='localhost', dbname='dbsnp', schema='dbsnp', input_fname='',\
-		output_fname_prefix='', snps_sequenom_info_table='dbsnp.snps_sequenom_info', drawing_type=1, debug=0, report=0):
+		output_fname_prefix='', snps_sequenom_info_table='dbsnp.snps_sequenom_info', row_label_type=1, drawing_type=1, debug=0, report=0):
 		"""
 		2007-11-02
+		2007-11-05
+			add row_label_type
 		"""
 		self.hostname = hostname
 		self.dbname = dbname
@@ -56,6 +62,7 @@ class DrawSNPMatrix:
 		self.input_fname = input_fname
 		self.output_fname_prefix = output_fname_prefix
 		self.snps_sequenom_info_table = snps_sequenom_info_table
+		self.row_label_type = int(row_label_type)
 		self.drawing_type = int(drawing_type)
 		self.debug = int(debug)
 		self.report = int(report)
@@ -172,10 +179,11 @@ class DrawSNPMatrix:
 		else:
 			sys.stderr.write("drawing_type %s not supported\n"%drawing_type)
 			sys.exit(2)
-		
+		row_label_type2label_ls = {1:strain_acc_list,
+			2:category_list}
 		im = drawLegend(matrix_value2label, matrix_value2color)
 		im.save('%s_legend.png'%self.output_fname_prefix)
-		im = drawMatrix(data_matrix, matrix_value2color, strain_acc_list, snp_acc_ls, with_grid=1)
+		im = drawMatrix(data_matrix, matrix_value2color, row_label_type2label_ls[self.row_label_type], snp_acc_ls, with_grid=1)
 		im.save('%s.png'%self.output_fname_prefix)
 
 if __name__ == '__main__':
@@ -185,7 +193,7 @@ if __name__ == '__main__':
 	import getopt
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:y:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:o:s:x:y:brh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -196,6 +204,7 @@ if __name__ == '__main__':
 	input_fname = None
 	output_fname_prefix = None
 	snps_sequenom_info_table = 'snps_sequenom_info'
+	row_label_type = 1
 	drawing_type = 1
 	debug = 0
 	report = 0
@@ -218,6 +227,8 @@ if __name__ == '__main__':
 			snps_sequenom_info_table = arg
 		elif opt in ("-y",):
 			drawing_type = int(arg)
+		elif opt in ("-x",):
+			row_label_type = int(arg)
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -225,7 +236,7 @@ if __name__ == '__main__':
 
 	if input_fname and output_fname_prefix and hostname and dbname and schema:
 		instance = DrawSNPMatrix(hostname, dbname, schema, input_fname, output_fname_prefix, \
-			snps_sequenom_info_table, drawing_type, debug, report)
+			snps_sequenom_info_table, row_label_type, drawing_type, debug, report)
 		instance.run()
 	else:
 		print __doc__
