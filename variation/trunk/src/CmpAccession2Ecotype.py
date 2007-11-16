@@ -241,13 +241,18 @@ class CmpAccession2Ecotype:
 		sys.stderr.write("Done.\n")
 		return data_matrix, data_matrix_touched, snp_index2alignment_id
 	
-	def cmp_two_matricies(self, accession_X_snp_matrix, accession_X_snp_matrix_touched, ecotype_X_snp_matrix, ecotype_X_snp_matrix_touched, nt_number2diff_matrix_index, ecotype_id2accession_id, ecotype_id2row_index, accession_id2row_index, snp_column=-1, need_diff_details_ls=0):
+	def cmp_two_matricies(self, accession_X_snp_matrix, accession_X_snp_matrix_touched, ecotype_X_snp_matrix, ecotype_X_snp_matrix_touched, nt_number2diff_matrix_index, ecotype_id2accession_id, ecotype_id2row_index, accession_id2row_index, snp_column=-1, diff_details_ls_type=0):
 		"""
 		2007-11-06
 			add accession_X_snp_matrix_touched
 			split diff_matrix into diff_matrix_for_touched and diff_matrix_for_untouched
 		2007-11-07
 			add snp_column and need_diff_details_ls to deal with 2-snp-column comparison
+		2007-11-15
+			more choices for diff_details_ls
+			change need_diff_details_ls to diff_details_ls_type
+			diff_details_ls_type==1 is for one snp column comparison
+			diff_details_ls_type==2 adds snp column index to diff_details_ls.
 		"""
 		if self.report or self.debug:
 			sys.stderr.write("Comparing two matricies ...")
@@ -269,9 +274,12 @@ class CmpAccession2Ecotype:
 				e_nt_diff_index = nt_number2diff_matrix_index[ecotype_X_snp_matrix[e_row_index, i]]
 				if accession_X_snp_matrix_touched[a_row_index, i]==1 and ecotype_X_snp_matrix_touched[e_row_index, i]==1:
 					diff_matrix_touched_accession_vs_touched_ecotype[a_nt_diff_index, e_nt_diff_index] += 1
-					if need_diff_details_ls:
+					if diff_details_ls_type==1:	#2007-11-15
 						if a_nt_diff_index!=e_nt_diff_index:
 							diff_details_ls.append([accession_id, accession_X_snp_matrix[a_row_index, i], ecotype_id, ecotype_X_snp_matrix[e_row_index, i]])
+					elif diff_details_ls_type==2:	#2007-11-15
+						if a_nt_diff_index!=e_nt_diff_index and a_nt_diff_index!=0 and a_nt_diff_index!=1 and e_nt_diff_index!=0 and e_nt_diff_index!=1:	#deletion or NA is not interested.
+							diff_details_ls.append([accession_id, accession_X_snp_matrix[a_row_index, i], ecotype_id, ecotype_X_snp_matrix[e_row_index, i], i])
 				elif accession_X_snp_matrix_touched[a_row_index, i]==1 and ecotype_X_snp_matrix_touched[e_row_index, i]==0:
 					diff_matrix_touched_accession_vs_untouched_ecotype[a_nt_diff_index, e_nt_diff_index] += 1
 				elif accession_X_snp_matrix_touched[a_row_index, i]==0 and ecotype_X_snp_matrix_touched[e_row_index, i]==1:
@@ -342,18 +350,28 @@ class CmpAccession2Ecotype:
 			sys.stderr.write("Done.\n")
 		return new_diff_details_ls
 	
-	def beautify_snp_diff_details_ls(self, diff_details_ls, ecotype_id2info_ls):
+	def beautify_snp_diff_details_ls(self, diff_details_ls, ecotype_id2info_ls, snp_index2snp_info_ls=None, alignment_id2start=None, snp_index2alignment_id=None):
 		"""
 		2007-11-07
+		2007-11-15
+			deal with diff_details_ls_type==2
 		"""
 		if self.report or self.debug:
 			sys.stderr.write("Beautifying SNP diff_details_ls ...")
 		new_diff_details_ls = []
 		diff_details_ls.sort()	#sort based on accession_id
 		for row in diff_details_ls:
-			accession_id, pcr_call, ecotype_id, sequenom_call = row
-			nativename, stockparent = ecotype_id2info_ls[ecotype_id]
-			new_diff_details_ls.append([nativename, stockparent, ecotype_id[0], ecotype_id[1], accession_id, number2nt[pcr_call], number2nt[sequenom_call]])
+			if len(row)==4:
+				accession_id, pcr_call, ecotype_id, sequenom_call = row
+				nativename, stockparent = ecotype_id2info_ls[ecotype_id]
+				new_diff_details_ls.append([nativename, stockparent, ecotype_id[0], ecotype_id[1], accession_id, number2nt[pcr_call], number2nt[sequenom_call]])
+			elif len(row)==5:
+				accession_id, pcr_call, ecotype_id, sequenom_call, snp_index = row
+				nativename, stockparent = ecotype_id2info_ls[ecotype_id]
+				snp_acc, snp_chr, snp_pos = snp_index2snp_info_ls[snp_index]
+				alignment_id = snp_index2alignment_id[snp_index]
+				alignment_start = alignment_id2start[alignment_id]
+				new_diff_details_ls.append([nativename, stockparent, ecotype_id[0], ecotype_id[1], accession_id, snp_acc, snp_chr, snp_pos, alignment_id, alignment_start, number2nt[pcr_call], number2nt[sequenom_call]])
 		if self.report or self.debug:
 			sys.stderr.write("Done.\n")
 		return new_diff_details_ls
@@ -384,7 +402,7 @@ class CmpAccession2Ecotype:
 		if self.output_fname:
 			header = ['accession_id', 'accession_id'] + snp_acc_ls
 			FilterStrainSNPMatrix_instance.write_data_matrix(accession_X_snp_matrix, self.output_fname, header, accession_id_ls, accession_id_ls)
-		summary_diff_matrix_ls, diff_details_ls = self.cmp_two_matricies(accession_X_snp_matrix, accession_X_snp_matrix_touched, ecotype_X_snp_matrix, ecotype_X_snp_matrix_touched, nt_number2diff_matrix_index, ecotype_id2accession_id, ecotype_id2row_index, accession_id2row_index)
+		summary_diff_matrix_ls, diff_details_ls = self.cmp_two_matricies(accession_X_snp_matrix, accession_X_snp_matrix_touched, ecotype_X_snp_matrix, ecotype_X_snp_matrix_touched, nt_number2diff_matrix_index, ecotype_id2accession_id, ecotype_id2row_index, accession_id2row_index, diff_details_ls_type=2)
 		print "diff_matrix_touched_accession_vs_touched_ecotype"
 		print summary_diff_matrix_ls[0]
 		print "diff_matrix_touched_accession_vs_untouched_ecotype"
@@ -404,10 +422,18 @@ class CmpAccession2Ecotype:
 				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(summary_diff_matrix_ls[i])
 				table_label = 'table_dm%s'%i
 				outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, summary_diff_matrix_caption_ls[i], table_label))
+			table_no = i
+			
+			#output the whole diff_details_ls
+			outf.write('\\section{Real Mismatches between pcr and sequenom (deletion/NA excluded)} \\label{section_real_mismatch}\n')
+			diff_details_ls = self.beautify_snp_diff_details_ls(diff_details_ls, ecotype_id2info_ls, snp_index2snp_info_ls, alignment_id2start, snp_index2alignment_id)
+			table_label = 'table_dm%s'%table_no
+			caption = 'mismatches between pcr and sequenom data (deletion/NA excluded, sorted by accession id)'
+			outf.write(outputMatrixInLatexTable(diff_details_ls, caption, table_label, header_ls=['nativename', 'stkparent', 'ecotype_id', 'duplicate', 'accession_id', 'SNP', 'chromosome', 'position', 'alignment_id', 'alignment_start', 'pcr_call', 'sequenom_call']))
+			
 			#Strain-wise comparison
 			outf.write('\\section{2010 PCR versus sequenom for each strain} \\label{section_strain_wise}\n')
 			accession_id_ls.sort()
-			table_no = i
 			for accession_id in accession_id_ls:
 				ecotype_id_ls = accession_id2ecotype_id_ls[accession_id]
 				outf.write('\\subsection{strain %s(accession id=%s)}\n'%(ecotype_id2info_ls[ecotype_id_ls[0]][0], accession_id))
@@ -437,7 +463,7 @@ class CmpAccession2Ecotype:
 				alignment_start = alignment_id2start[alignment_id]
 				outf.write('\\subsection{SNP %s(chrom=%s, pos=%s, alignment id=%s, alignment start=%s)}\n'%(snp_acc, chromosome, position, alignment_id, alignment_start))
 				
-				diff_matrix_ls, diff_details_ls = self.cmp_two_matricies(accession_X_snp_matrix, accession_X_snp_matrix_touched, ecotype_X_snp_matrix, ecotype_X_snp_matrix_touched, nt_number2diff_matrix_index, ecotype_id2accession_id, ecotype_id2row_index, accession_id2row_index, snp_column=snp_column, need_diff_details_ls=1)
+				diff_matrix_ls, diff_details_ls = self.cmp_two_matricies(accession_X_snp_matrix, accession_X_snp_matrix_touched, ecotype_X_snp_matrix, ecotype_X_snp_matrix_touched, nt_number2diff_matrix_index, ecotype_id2accession_id, ecotype_id2row_index, accession_id2row_index, snp_column=snp_column, diff_details_ls_type=1)
 				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix_ls[0])
 				table_no += 1
 				table_label = 'table_dm%s'%table_no
