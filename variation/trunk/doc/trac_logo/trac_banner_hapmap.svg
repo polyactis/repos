@@ -14,15 +14,39 @@
    id="svg2220"
    sodipodi:version="0.32"
    inkscape:version="0.45"
-   sodipodi:docbase="/home/crocea/Desktop"
+   sodipodi:docbase="/usr/local/home_ubuntu/crocea/script/variation/doc/trac_logo"
    sodipodi:docname="trac_banner_hapmap.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/crocea/Desktop/trac_banner_hapmap.png"
    inkscape:export-xdpi="155.24001"
    inkscape:export-ydpi="155.24001"
-   sodipodi:modified="TRUE">
+   sodipodi:modified="true">
   <defs
-     id="defs2222" />
+     id="defs2222">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3215">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop3217" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop3219" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3215"
+       id="radialGradient3223"
+       cx="-36.456291"
+       cy="390.98404"
+       fx="-36.456291"
+       fy="390.98404"
+       r="68.698227"
+       gradientTransform="matrix(1,0,0,0.1520912,0,331.51881)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -58,19 +82,19 @@
      inkscape:groupmode="layer"
      id="layer1">
     <image
-       y="439.60568"
-       x="-120.94418"
+       y="437.60568"
+       x="-124.94418"
        id="image2800"
        height="29.654808"
        width="29.743963"
        sodipodi:absref="/usr/local/home_ubuntu/crocea/Desktop/trac_banner_2.png"
-       xlink:href="/usr/local/home_ubuntu/crocea/Desktop/trac_banner_2.png"
+       xlink:href="./trac_banner_2.png"
        inkscape:export-filename="/home/crocea/Desktop/text2803.png"
        inkscape:export-xdpi="156.44"
        inkscape:export-ydpi="156.44" />
     <text
        xml:space="preserve"
-       style="font-size:6.85311747px;font-style:normal;font-weight:normal;fill:#8a1106;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       style="font-size:6.85311747px;font-style:normal;font-weight:normal;fill:#b21e11;fill-opacity:1;stroke:url(#radialGradient3223);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
        x="-106.6723"
        y="396.65594"
        id="text2803"
@@ -81,6 +105,6 @@
          id="tspan2805"
          x="-106.6723"
          y="396.65594"
-         style="font-size:20.55935287px;fill:#8a1106;fill-opacity:1">Nordborg Lab</tspan></text>
+         style="font-size:20.55935287px;fill:#b21e11;fill-opacity:1;stroke:url(#radialGradient3223);stroke-opacity:1">Nordborg Lab</tspan></text>
   </g>
 </svg>
