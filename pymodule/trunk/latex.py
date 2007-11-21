@@ -21,7 +21,7 @@ def escape_characters(latex_line):
 
 toString = lambda x: '%s'%x
 
-def outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls, footer=None):
+def outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls=None, footer=None):
 	"""
 	2007-10-18
 		user longtable, rather than tabular
@@ -30,6 +30,9 @@ def outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls, foote
 		more complicated handling of header_ls
 		header_ls could look like [(2,header1), header2, (3,header3)]
 		header1 spans 2 columns, header2 1 column, header3 spans 3 columns
+	2007-11-06
+		header_ls could be nothing.
+		footer is a placeholder, not used.
 	"""
 	no_of_rows = len(data_matrix)
 	no_of_cols = len(data_matrix[0])
@@ -39,11 +42,12 @@ def outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls, foote
 	latex_to_be_returned += '\\caption{%s} \\label{%s}\\\\\n'%(caption, table_label)
 	latex_to_be_returned += '\\hline\n'
 	table_header_in_latex = []
-	for header in header_ls:
-		if type(header)==list or type(header)==tuple:
-			table_header_in_latex.append('\\multicolumn{%s}{|c|}{%s}'%(header[0], header[1]))
-		else:
-			table_header_in_latex.append(header)
+	if header_ls:
+		for header in header_ls:
+			if type(header)==list or type(header)==tuple:
+				table_header_in_latex.append('\\multicolumn{%s}{|c|}{%s}'%(header[0], header[1]))
+			else:
+				table_header_in_latex.append(header)
 	header_line = '%s\\\\\n'%('&'.join(table_header_in_latex))
 	header_line = escape_characters(header_line)
 	latex_to_be_returned += header_line
@@ -57,7 +61,7 @@ def outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls, foote
 		latex_to_be_returned += one_table_entry
 	latex_to_be_returned += '\\hline\n'
 	latex_to_be_returned += '\\end{longtable}\n'
-	latex_to_be_returned += '\\end{center}\n'
+	latex_to_be_returned += '\\end{center}\n\n'
 	return latex_to_be_returned
 
 def outputFigureInLatex(fig_fname, caption, fig_label, need_clearpage=0, need_floatpackage=0, fig_width=1):
@@ -76,5 +80,5 @@ def outputFigureInLatex(fig_fname, caption, fig_label, need_clearpage=0, need_fl
 	latex_to_be_returned += '\\includegraphics[width=%s\\textwidth]{%s}\n'%(fig_width,fig_fname)
 	caption = escape_characters(caption)
 	latex_to_be_returned += '\\caption{%s} \\label{%s}\n'%(caption, fig_label)
-	latex_to_be_returned += '\\end{figure}\n'
+	latex_to_be_returned += '\\end{figure}\n\n'
 	return latex_to_be_returned
