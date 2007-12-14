@@ -35,7 +35,7 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-
+from pymodule.latex import outputFigureInLatex
 
 """
 2007-10-26
@@ -97,6 +97,31 @@ def get_peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid=5):
 	sys.stderr.write("Done.\n")
 	return peak1_peak2_color_ls
 
+def contrast_transform_peak1_peak2(peak1, peak2):
+	import math
+	S = peak1 + peak2
+	if S!=0:
+		y = 2*peak2/S-1
+		if abs(y)<1:
+			contrast = math.sinh(2*y)/math.sinh(2)
+		else:
+			contrast = y
+	else:
+		contrast = 0
+	return contrast, S
+
+def contrast_transform_peak1_peak2_color_ls(peak1_peak2_color_ls):
+	"""
+	2007-11-19
+		transformation method from Moorhead2006 and Plagnol2007
+		both paper shows some typos. vincent sent me his c source code
+	"""
+	ls = []
+	for peak1, peak2, color in peak1_peak2_color_ls:
+		contrast, S = contrast_transform_peak1_peak2(peak1, peak2)
+		ls.append([contrast, S, color])
+	return ls
+
 def get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid=5):
 	"""
 	2007-11-08
@@ -126,6 +151,20 @@ def get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid
 	sys.stderr.write("Done.\n")
 	return snpid2peak1_peak2_color_ls
 
+def contrast_transform_snpid2peak1_peak2_color_ls(snpid2peak1_peak2_color_ls):
+	"""
+	2007-11-19
+		transformation method from Moorhead2006 and Plagnol2007
+	"""
+	new_snpid2peak1_peak2_color_ls = {}
+	for snpid, peak1_peak2_color_ls in snpid2peak1_peak2_color_ls.iteritems():
+		ls = []
+		for peak1, peak2, color in peak1_peak2_color_ls:
+			contrast, S = contrast_transform_peak1_peak2(peak1, peak2)
+			ls.append([contrast, S, color])
+		new_snpid2peak1_peak2_color_ls[snpid] = ls
+	return new_snpid2peak1_peak2_color_ls
+
 def get_ordered_snpid_ls_and_snpid2name(curs, snps_table='stock20071008.snps'):
 	ordered_snpid_ls = []
 	snpid2name = {}
@@ -151,7 +190,7 @@ def drawClusterPlot(peak1_peak2_color_ls, color_picked=0, color_to_be_drawn='r',
 	ps=pylab.scatter(xls, yls, c=color_to_be_drawn, marker='o', alpha=0.2, faceted=False)
 	if output_fname_prefix:
 		#pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
-		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
 		pylab.savefig('%s.png'%output_fname_prefix, dpi=150)
 	pylab.show()
 
@@ -195,7 +234,7 @@ def drawClusterPlotForOneSNP(peak1_peak2_color_ls, figure_title='', output_fname
 	pylab.legend(pscatter_ls, color_ls, shadow = True)
 	if output_fname_prefix:
 		#pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
-		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
 		pylab.savefig('%s.png'%output_fname_prefix, dpi=150)
 	sys.stderr.write("Done.\n")
 	pylab.show()
@@ -229,6 +268,9 @@ snps_sequenom_info_table='dbsnp.snps_sequenom_info'
 snpid2allele = get_snpid2allele(curs, snps_sequenom_info_table, snps_table)
 calls_table = 'stock20071008.calls'
 peak1_peak2_color_ls = get_peak1_peak2_color_ls(curs, snpid2allele, calls_table)
+
+#new_peak1_peak2_color_ls = contrast_transform_peak1_peak2_color_ls(peak1_peak2_color_ls)
+#peak1_peak2_color_ls = new_peak1_peak2_color_ls
 
 output_dir = 'script/variation/doc/PeakDataReport/figures'
 
@@ -283,6 +325,7 @@ drawClusterPlot(peak1_peak2_color_ls, 3, 'y', output_fname_prefix)
 
 snpid2peak1_peak2_color_ls = get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table)
 ordered_snpid_ls, snpid2name = get_ordered_snpid_ls_and_snpid2name(curs, snps_table)
+#new_snpid2peak1_peak2_color_ls = contrast_transform_snpid2peak1_peak2_color_ls(snpid2peak1_peak2_color_ls)
 
 output_fname = 'script/variation/doc/PeakDataReport/tables_figures.tex'
 fig_output_dir = 'script/variation/doc/PeakDataReport/figures'
