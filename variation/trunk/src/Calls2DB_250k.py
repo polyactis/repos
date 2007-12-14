@@ -89,14 +89,16 @@ class Calls2DB_250k:
 	def get_chr_pos2snpid(self, curs, snps_table):
 		"""
 		2007-12-11
+		2007-12-13
+			'chr' in snps_table changed to 'chromosome'
 		"""
 		sys.stderr.write("Getting chr_pos2snpid from %s ..."%(snps_table))
 		chr_pos2snpid = {}
-		curs.execute("select id, chr, position from %s"%(snps_table))
+		curs.execute("select id, chromosome, position from %s"%(snps_table))
 		rows = curs.fetchall()
 		for row in rows:
-			snpid, chr, position = row
-			chr_pos_key = (chr, position)
+			snpid, chromosome, position = row
+			chr_pos_key = (chromosome, position)
 			chr_pos2snpid[chr_pos_key] = snpid
 		sys.stderr.write("Done.\n")
 		return chr_pos2snpid
