@@ -123,3 +123,55 @@ create table snps_sequenom_info(
 	ext2_mass	float,
 	ext2_seq	varchar(200)
 	);
+
+--2007-12-10 table to store 250k snps and calls
+use stock;
+create table probes_250k(
+	id	integer auto_increment primary key,
+	snpid	integer,
+	seq	varchar(200),
+	chromosome	integer,
+	position	integer,
+	allele	varchar(1),
+	strand	varchar(10),
+	xpos	integer,
+	ypos	integer
+	);
+
+create table snps_250k(
+	id	integer auto_increment primary key,
+	snpid	varchar(200),
+	chromosome	integer,
+	position	integer,
+	allele1	varchar(1),
+	allele2	varchar(2)
+	);
+
+create table intensity_250k(
+	id	integer auto_increment primary key,
+	probeid	integer,
+	intensity	integer,
+	duplicate	integer,
+	date_created	timestamp default current_timestamp,
+	date_modified	timestamp
+	);
+
+create table calls_250k(
+	id	integer auto_increment primary key,
+	ecotypeid	integer,
+	snpid	integer,
+	snpcall	varchar(2),
+	duplicate	integer,
+	date_created	timestamp default current_timestamp,
+	date_modified	timestamp
+	);
+
+create table calls_250k_duplicate_comment(
+	id	integer auto_increment primary key,
+	ecotypeid	integer,
+	duplicate	integer,
+	comment	varchar(2000),
+	date_created	timestamp default current_timestamp,
+	date_modified	timestamp
+	);
+
