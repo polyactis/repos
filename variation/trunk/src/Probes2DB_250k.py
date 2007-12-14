@@ -60,7 +60,7 @@ class Probes2DB_250k:
 			id	integer auto_increment primary key,\
 			snpid	integer,\
 			seq	varchar(200),\
-			chr	integer,\
+			chromosome	integer,\
 			position	integer,\
 			allele	varchar(1),\
 			strand	varchar(10),\
@@ -73,7 +73,7 @@ class Probes2DB_250k:
 		curs.execute("create table %s(\
 			id	integer auto_increment primary key,\
 			snpacc	varchar(200),\
-			chr	integer,\
+			chromosome	integer,\
 			position	integer,\
 			allele1	varchar(1),\
 			allele2	varchar(2))"%snps_table)
@@ -115,13 +115,13 @@ class Probes2DB_250k:
 		sys.stderr.write("Submitting snps_ls...")
 		for snpid, snpacc, chr, position in snps_ls:
 			allele_ls = [snpid2allele_ls[snpid][0], snpid2allele_ls[snpid][2]]	#take the 1st and 3rd position
-			curs.execute("insert into %s(id, snpacc, chr, position, allele1, allele2) values(%s, '%s', %s, %s, '%s', '%s')"%(snps_table, snpid, snpacc, chr, position, allele_ls[0], allele_ls[1]))
+			curs.execute("insert into %s(id, snpacc, chromosome, position, allele1, allele2) values(%s, '%s', %s, %s, '%s', '%s')"%(snps_table, snpid, snpacc, chr, position, allele_ls[0], allele_ls[1]))
 		sys.stderr.write("Done.\n")
 	
 	def submit_probes_ls(self, curs, probes_ls, probes_table):
 		sys.stderr.write("Submitting probes_ls ...")
 		for snpid, seq, chr, position, allele, strand, xpos, ypos in probes_ls:
-			curs.execute("insert into %s(snpid, seq, chr, position, allele, strand, xpos, ypos) values (%s, '%s', %s, %s, '%s', '%s', %s, %s)"%(probes_table, snpid, seq, chr, position, allele, strand, xpos, ypos) )
+			curs.execute("insert into %s(snpid, seq, chromosome, position, allele, strand, xpos, ypos) values (%s, '%s', %s, %s, '%s', '%s', %s, %s)"%(probes_table, snpid, seq, chr, position, allele, strand, xpos, ypos) )
 		sys.stderr.write("Done.\n")
 
 	def run(self):
