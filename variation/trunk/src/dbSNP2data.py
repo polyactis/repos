@@ -37,7 +37,7 @@ Examples:
 	#output data for all ecotypeid. however duplicated calls with same ecotypeid are imputed randomly
 	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00001100.tsv -s ecotype -n snps -m -y 00001100
 
-	#output 250k SNP data (not to resolve duplicated calls, only SNPs shared with 149SNP)
+	#output 250k SNP data (not to resolve duplicated calls, all SNPs. uncomment another sql line to get only SNPs shared with 149SNP)
 	dbSNP2data.py -z localhost -d stock20071008 -i calls_250k -o /tmp/data_250k.tsv -s ecotype -n snps_250k -m -y 10001101 -r
 
 Description:
@@ -45,7 +45,7 @@ Description:
 	
 	definition of each bit in processing_bits (0=off, 1=on), default is 10101101.
 	1. 1: only include strains with GPS info, 2: north american strains only, 3: 2010's 192 strains
-	2. include columns of other strain info (latitude, longitude, stockparent, site, country)
+	2. include columns of other strain info (latitude, longitude, nativename, stockparent, site, country)
 	3. resolve duplicated calls (unique constraint on (nativename, stockparent))
 	4. toss out rows to make distance matrix NA free
 	5. need heterozygous call
@@ -146,7 +146,9 @@ class dbSNP2data:
 		if snp_locus_table == 'snps':
 			curs.execute("select distinct i.snpid, s.chromosome, s.position from %s i, %s s where i.snpid=s.id order by chromosome, position"%(input_table, snp_locus_table))
 		elif snp_locus_table == 'snps_250k':
+			#2007-12-13 only the snps overlapping with 149SNP
 			#curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s2, %s s1 where s1.chromosome=s2.chromosome and s1.position=s2.position order by chromosome, position"%('snps', snp_locus_table))
+			#2007-12-13 all 250k SNPs
 			curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s1"%(snp_locus_table))
 		rows = curs.fetchall()
 		for row in rows:
@@ -185,11 +187,16 @@ class dbSNP2data:
 		2007-12-13
 			add duplicate
 			strain_id = (strain_id, duplicate)
+		2007-12-16
+			add strain_id2acc, strain_id2category
+			abandon get_strain_id_info_m()
 		"""
 		sys.stderr.write("Getting strain_id2index ..m.")
 		strain_id2index = {}
 		strain_id_list = []
 		nativename2strain_id = {}
+		strain_id2acc = {}
+		strain_id2category = {}
 		common_sql_string = "select distinct d.ecotypeid, d.duplicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
 		if only_include_strains_with_GPS==1:
 			curs.execute("%s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(common_sql_string))
@@ -201,8 +208,8 @@ class dbSNP2data:
 			curs.execute("%s where d.ecotypeid=s.id order by ecotypeid, nativename, stockparent"%(common_sql_string))
 		rows = curs.fetchall()
 		for row in rows:
-			strain_id, duplicate, nativename, stockparent = row
-			strain_id = (strain_id, duplicate)
+			ecotypeid, duplicate, nativename, stockparent = row
+			strain_id = (ecotypeid, duplicate)
 			nativename = nativename.upper()
 			if resolve_duplicated_calls:
 				key_pair = (nativename, stockparent)
@@ -210,11 +217,15 @@ class dbSNP2data:
 					nativename2strain_id[key_pair] = strain_id
 					strain_id_list.append(strain_id)
 					strain_id2index[strain_id] = len(strain_id2index)
+					strain_id2acc[strain_id] = ecotypeid
+					strain_id2category[strain_id] = duplicate
 			else:
 				strain_id_list.append(strain_id)
 				strain_id2index[strain_id] = len(strain_id2index)
+				strain_id2acc[strain_id] = ecotypeid
+				strain_id2category[strain_id] = duplicate
 		sys.stderr.write("Done.\n")
-		return strain_id2index, strain_id_list, nativename2strain_id
+		return strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category
 	
 	def get_strain_id_info(self, curs, strain_id_list, strain_info_table):
 		sys.stderr.write("Getting strain_id_info ...")
@@ -239,6 +250,8 @@ class dbSNP2data:
 			replace 'name' with 'nativename'
 		2007-12-13
 			changes following strain_id = (strain_id, duplicate)
+		2007-12-16
+			abandoned, get_strain_id2index_m() supercedes this function. 
 		"""
 		sys.stderr.write("Getting strain_id_info ..m.")
 		strain_id2acc = {}
@@ -269,17 +282,13 @@ class dbSNP2data:
 			mysql version of get_snp_id_info
 		2007-12-13
 			snp_locus_table could be 'snps' or 'snps_250k'
+		2007-12-18
+			table 'snps' and 'snps_250k' have same field names, no need to differentiate two
 		"""
 		sys.stderr.write("Getting snp_id_info ..m.")
 		snp_id2acc = {}
 		for snp_id in snp_id_list:
-			if snp_locus_table == 'snps':
-				curs.execute("select snpid from %s where id=%s"%(snp_locus_table, snp_id))
-			elif snp_locus_table == 'snps_250k':
-				curs.execute("select snpacc from %s where id=%s"%(snp_locus_table, snp_id))
-			else:
-				sys.stderr.write("Error: SNP table '%s' not supported.\n"%(snp_locus_table))
-				sys.exit(3)
+			curs.execute("select snpid from %s where id=%s"%(snp_locus_table, snp_id))
 			rows = curs.fetchall()
 			acc = rows[0][0]
 			snp_id2acc[snp_id] = acc
@@ -456,18 +465,20 @@ class dbSNP2data:
 		2007-09-22
 		2007-12-13
 			changes following strain_id = (strain_id, duplicate)
+		2007-12-16
+			add nativename
 		"""
 		sys.stderr.write("Getting strain_id2other_info ..m.")
 		strain_id2other_info = {}
 		for strain_id in strain_id_list:
-			curs.execute("select e.id, e.latitude, e.longitude, e.stockparent, s.name, c.abbr from %s e, address a, site s, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=%s"%(strain_info_table, strain_id[0]))
+			curs.execute("select e.id, e.latitude, e.longitude, e.nativename, e.stockparent, s.name, c.abbr from %s e, address a, site s, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and e.id=%s"%(strain_info_table, strain_id[0]))
 			rows = curs.fetchall()
-			id, latitude, longitude, stockparent, site_name, abbr = rows[0]
-			strain_id2other_info[strain_id] = [latitude, longitude, stockparent, site_name, abbr]
+			id, latitude, longitude, nativename, stockparent, site_name, abbr = rows[0]
+			strain_id2other_info[strain_id] = [latitude, longitude, nativename, stockparent, site_name, abbr]
 		sys.stderr.write("Done.\n")
 		return strain_id2other_info
 	
-	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None, rows_to_be_tossed_out=Set(), strain_id2other_info=None, discard_all_NA_strain=0, predefined_header_row=['strain', 'nativename', 'latitude', 'longitude', 'stockparent', 'site', 'country']):
+	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None, rows_to_be_tossed_out=Set(), strain_id2other_info=None, discard_all_NA_strain=0, predefined_header_row=['strain', 'duplicate', 'latitude', 'longitude', 'nativename', 'stockparent', 'site', 'country']):
 		"""
 		2007-02-19
 			if strain_id2acc is available, translate strain_id into strain_acc,
@@ -482,6 +493,8 @@ class dbSNP2data:
 			add no_of_all_NA_rows
 		2007-12-13
 			add predefined_header_row
+		2007-12-16
+			add 'duplicate' into predefined_header_row
 		"""
 		sys.stderr.write("Writing data_matrix ...")
 		no_of_all_NA_rows = 0
@@ -617,9 +630,9 @@ class dbSNP2data:
 			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 			curs = conn.cursor()
 			snp_id2index, snp_id_list = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
-			strain_id2index, strain_id_list, nativename2strain_id = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, self.resolve_duplicated_calls)
+			strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, self.resolve_duplicated_calls)
 			
-			strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
+			#strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 			snp_id2acc = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
 			data_matrix = self.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
 			if self.resolve_duplicated_calls:
@@ -644,8 +657,6 @@ class dbSNP2data:
 			rows_to_be_tossed_out = Set(rows_to_be_tossed_out)
 		else:
 			rows_to_be_tossed_out = Set()
-		if not self.resolve_duplicated_calls:	#if not to resolve duplicated calls, use strain_id_list to print 1st column
-			strain_id2acc = None
 		self.write_data_matrix(data_matrix, self.output_fname, strain_id_list, snp_id_list, snp_id2acc, self.with_header_line,\
 			self.nt_alphabet, strain_id2acc, strain_id2category, rows_to_be_tossed_out, strain_id2other_info, self.discard_all_NA_strain)
 
