@@ -72,7 +72,7 @@ class Probes2DB_250k:
 		sys.stderr.write("Creating %s ..."%snps_table)
 		curs.execute("create table %s(\
 			id	integer auto_increment primary key,\
-			snpacc	varchar(200),\
+			snpid	varchar(200),\
 			chromosome	integer,\
 			position	integer,\
 			allele1	varchar(1),\
@@ -115,7 +115,7 @@ class Probes2DB_250k:
 		sys.stderr.write("Submitting snps_ls...")
 		for snpid, snpacc, chr, position in snps_ls:
 			allele_ls = [snpid2allele_ls[snpid][0], snpid2allele_ls[snpid][2]]	#take the 1st and 3rd position
-			curs.execute("insert into %s(id, snpacc, chromosome, position, allele1, allele2) values(%s, '%s', %s, %s, '%s', '%s')"%(snps_table, snpid, snpacc, chr, position, allele_ls[0], allele_ls[1]))
+			curs.execute("insert into %s(id, snpid, chromosome, position, allele1, allele2) values(%s, '%s', %s, %s, '%s', '%s')"%(snps_table, snpid, snpacc, chr, position, allele_ls[0], allele_ls[1]))
 		sys.stderr.write("Done.\n")
 	
 	def submit_probes_ls(self, curs, probes_ls, probes_table):
