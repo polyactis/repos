@@ -100,7 +100,7 @@ class QualityControl:
 		sys.stderr.write("Done.\n")
 		return row_id2NA_mismatch_rate
 	
-	def cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
+	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
 		2007-12-21
 		"""
@@ -128,6 +128,21 @@ class QualityControl:
 		sys.stderr.write("Done.\n")
 		return row_id2pairwise_dist
 	
+	def trim_row_id2pairwise_dist(self, row_id2pairwise_dist, min_no_of_non_NA_pairs=10):
+		"""
+		2007-12-26
+			used to throw away unreliable pairwise comparisons
+		"""
+		new_row_id2pairwise_dist = {}
+		for row_id, pairwise_dist_ls in row_id2pairwise_dist.iteritems():
+			new_pairwise_dist_ls = []
+			for row in pairwise_dist_ls:
+				mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs = row
+				if no_of_non_NA_pairs>=min_no_of_non_NA_pairs:
+					new_pairwise_dist_ls.append(row)
+			new_row_id2pairwise_dist[row_id] = new_pairwise_dist_ls
+		return new_row_id2pairwise_dist
+
 	def cmp_col_wise(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
 		2007-12-18
@@ -281,5 +296,5 @@ class QualityControl:
 		self.col_id2NA_mismatch_rate = self.cmp_col_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 		self.plot_NA_mismatch_rate(self.col_id2NA_mismatch_rate.values(), self.on_click_col, title=title)
 	
-	def get_row_id2pairwise_dist(self):
-		self.row_id2pairwise_dist = self.cal_pairwise_dist(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+	def cal_row_id2pairwise_dist(self):
+		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
