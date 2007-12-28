@@ -139,4 +139,6 @@ pylab.plot([1],[1])
 pylab.show()
 
 Cmp250kVs2010_ins.plot_row_NA_mismatch_rate('250k vs 2010 strain-wise')
+#Cmp250kVs2010_ins.cal_row_id2pairwise_dist()
+#new_row_id2pairwise_dist = Cmp250kVs2010_ins.trim_row_id2pairwise_dist(Cmp250kVs2010_ins.row_id2pairwise_dist, 10)
 #Cmp250kVs2010_ins.plot_col_NA_mismatch_rate('250k vs 2010 snp-wise')

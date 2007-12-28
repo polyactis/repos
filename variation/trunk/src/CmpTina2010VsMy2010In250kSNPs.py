@@ -236,5 +236,5 @@ pylab.plot([1],[1])
 pylab.show()
 
 CmpTina2010VsMy2010In250kSNPs_ins.plot_row_NA_mismatch_rate('Tina 2010 vs 2010 db strain wise')
-#CmpTina2010VsMy2010In250kSNPs_ins.get_row_id2pairwise_dist()
+#CmpTina2010VsMy2010In250kSNPs_ins.cal_row_id2pairwise_dist()
 #CmpTina2010VsMy2010In250kSNPs_ins.plot_col_NA_mismatch_rate('Tina 2010 vs 2010 db snp wise')
