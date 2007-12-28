@@ -42,7 +42,7 @@ Figure~\ref{f1}-\ref{f7} are cluster plots with all snps concatenated together.
 
 Figure~\ref{flAtMSQTsnp2} and onwards are the cluster plots for one single snp (ordered by chromosome, position). the genotype calling algorithm might have different parameters for different snps.
 
-One apparent problem is that same color dots appear on two off-diagonal sides
+One apparent problem is that same color dots appear on two off-diagonal sides. This can be seen in some single-snp cluster plots. (2007-10-30) Figure~\ref{f2} and \ref{f1} shows this issue is not as serious for allele 2 homozygote as for allele 1 homozygote. it looks like it doesn't happen at all to allele 2 homozygote calling (dots all above the diagonal line in Figure~\ref{f2}). this  raises the suspicion that the sequenom algorithm uses the diagonal line to separate data. this diagonal cut is also visible in Figure~\ref{f1}.
 
 Three Possibilities:
 
@@ -91,8 +91,24 @@ but for some snps, like Figure~\ref{flAtMSQTsnp15}, \ref{flAtMSQTsnp54}, \ref{fl
 \end{figure}
 
 \begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_allele1_allele2.png}
+\caption{overlapping of homozygote for allele 1 and allele 2}\label{f7}
+\end{figure}
+
+\begin{figure}
 \includegraphics[width=1\textwidth]{figures/cluster_plots_allele1_NA.png}
-\caption{overlapping of homozygote for allele 1 and NA}\label{f7}
+\caption{overlapping of homozygote for allele 1 and NA}\label{f8}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_homo_and_hetero.png}
+\caption{homozygote and heterozygote}\label{f9}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/cluster_plots_all.png}
+\caption{all four different calls}\label{f10}
 \end{figure}
 
 \subsection{cluster plots for single snp}
