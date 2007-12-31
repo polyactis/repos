@@ -12,6 +12,8 @@ Option:
 	-a ..., alignment table, 'at.alignment'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
 	-o ...,	output_fname
+	-y ...,	processing bits to control which processing step should be turned on.
+		default is 0. for what each bit stands, see Description.
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -25,6 +27,9 @@ Examples:
 
 Description:
 	program to output 2010 data from db at with columns/SNPs from either 250k or 149SNP
+
+	definition of each bit in processing_bits (0=off, 1=on), default is 0.
+	1. 0: row id of the output is ecotype id, 1: accession id instead.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -43,7 +48,11 @@ class Output2010InCertainSNPs:
 	"""
 	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', ecotype_table='ecotype',\
 		accession2ecotype_table=None, alignment_table='at.alignment', sequence_table='at.sequence',\
-		snp_locus_table='stock20071008.snps', output_fname=None,  debug=0, report=0):
+		snp_locus_table='stock20071008.snps', output_fname=None, processing_bits='0', debug=0, report=0):
+		"""
+		2007-12-29
+			add processing_bits
+		"""
 		self.hostname = hostname
 		self.dbname = dbname
 		self.schema = schema
@@ -54,7 +63,10 @@ class Output2010InCertainSNPs:
 		self.sequence_table = sequence_table
 		self.snp_locus_table = snp_locus_table
 		self.output_fname = output_fname
-		
+
+		self.processing_bits = [0]
+		for i in range(len(processing_bits)):
+			self.processing_bits[i] = int(processing_bits[i])
 		self.debug = int(debug)
 		self.report = int(report)
 	
@@ -211,8 +223,13 @@ class Output2010InCertainSNPs:
 
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header = ['ecotype_id', 'nativename'] + snp_acc_ls
-		FilterStrainSNPMatrix_instance.write_data_matrix(accession_X_snp_matrix, self.output_fname, header, ecotype_id_ls, nativename_ls)
+		if self.processing_bits[0]==0:
+			strain_acc_list = ecotype_id_ls
+			header = ['ecotype_id', 'nativename'] + snp_acc_ls
+		else:
+			strain_acc_list = accession_id_ls
+			header = ['accession_id', 'nativename'] + snp_acc_ls
+		FilterStrainSNPMatrix_instance.write_data_matrix(accession_X_snp_matrix, self.output_fname, header, strain_acc_list, nativename_ls)
 
 
 
@@ -223,7 +240,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:e:p:s:a:n:o:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:e:p:s:a:n:o:y:brh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -237,6 +254,7 @@ if __name__ == '__main__':
 	alignment_table = 'at.alignment'
 	snp_locus_table = 'stock20071008.snps'
 	output_fname = None
+	processing_bits = '0'
 	debug = 0
 	report = 0
 	
@@ -262,6 +280,8 @@ if __name__ == '__main__':
 			snp_locus_table = arg
 		elif opt in ("-o",):
 			output_fname = arg
+		elif opt in ("-y",):
+			processing_bits = arg
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -270,7 +290,7 @@ if __name__ == '__main__':
 	if ecotype_table and accession2ecotype_table and sequence_table and alignment_table and snp_locus_table and hostname and dbname and schema:
 		instance = Output2010InCertainSNPs(hostname, dbname, schema, ecotype_table,\
 			accession2ecotype_table, alignment_table, sequence_table,\
-			snp_locus_table, output_fname, debug, report)
+			snp_locus_table, output_fname, processing_bits, debug, report)
 		
 		instance.run()
 	else:
