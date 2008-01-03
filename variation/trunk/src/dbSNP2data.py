@@ -39,7 +39,9 @@ Examples:
 
 	#output 250k SNP data (not to resolve duplicated calls, all SNPs. uncomment another sql line to get only SNPs shared with 149SNP)
 	dbSNP2data.py -z localhost -d stock20071008 -i calls_250k -o /tmp/data_250k.tsv -s ecotype -n snps_250k -m -y 10001101 -r
-
+	
+	#output 149SNP (table calls_byseq)
+	dbSNP2data.py -z localhost -d stock20071227 -i calls_byseq -o stock20071227/data_y10001101.tsv -s ecotype -n snps -m -y 10001101 -r
 Description:
 	output SNP data from database schema
 	
@@ -190,6 +192,8 @@ class dbSNP2data:
 		2007-12-16
 			add strain_id2acc, strain_id2category
 			abandon get_strain_id_info_m()
+		2008-01-02
+			replicate replaces duplicate for table calls_byseq
 		"""
 		sys.stderr.write("Getting strain_id2index ..m.")
 		strain_id2index = {}
@@ -197,7 +201,10 @@ class dbSNP2data:
 		nativename2strain_id = {}
 		strain_id2acc = {}
 		strain_id2category = {}
-		common_sql_string = "select distinct d.ecotypeid, d.duplicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
+		if input_table=='calls_byseq':
+			common_sql_string = "select distinct d.ecotypeid, d.replicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
+		else:
+			common_sql_string = "select distinct d.ecotypeid, d.duplicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
 		if only_include_strains_with_GPS==1:
 			curs.execute("%s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(common_sql_string))
 		elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
@@ -338,12 +345,15 @@ class dbSNP2data:
 		2007-12-14
 			after an index on calls_250k(snpid) was created in db, output data matrix one snpid after another.
 			otherwise, the program blew up the memory by sifting through all data.
-
+		2008-01-01
+			add code to deal with table calls_byseq
 		"""
 		sys.stderr.write("Getting data_matrix ..m.\n")
 		data_matrix = num.zeros([len(strain_id2index), len(snp_id2index)])
 		if input_table == 'calls':
 			common_sql_string = "select ecotypeid, duplicate, snpid, call1, callhet from %s"%(input_table)
+		elif input_table == 'calls_byseq':
+			common_sql_string = "select ecotypeid, replicate, snpid, call1, call2 from %s"%(input_table)
 		elif input_table == 'calls_250k':
 			common_sql_string = "select ecotypeid, duplicate, snpid, snpcall from %s"%(input_table)
 		else:
@@ -359,7 +369,7 @@ class dbSNP2data:
 			rows = curs.fetchmany(5000)
 			while rows:
 				for row in rows:
-					if input_table == 'calls':
+					if input_table == 'calls' or input_table=='calls_byseq':
 						strain_id, duplicate, snp_id, call, callhet = row
 					elif input_table == 'calls_250k':
 						strain_id, duplicate, snp_id, call = row
