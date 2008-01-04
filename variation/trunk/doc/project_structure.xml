@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ROOT item="y" tlversion="1.0.2"
+line0="{*Name*}"
+line1="{*Name*}"
+childtype="DEFAULT">
+<Name type="Text" ref="y">149SNP genotype calling</Name>
+<DEFAULT item="y"
+line0="{*Name*}"
+line1="{*Name*}">
+<Name type="Text" ref="y">QC vs 2010</Name>
+<Description type="Text"></Description>
+<DEFAULT item="y">
+<Name>Cluster Plots</Name>
+<DEFAULT item="y">
+<Name>Strain-wise</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>SNP-wise</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>only Strains mapped to 2010</Name>
+</DEFAULT>
+<AnsweredQuestion item="y"
+line0="{*Name*}"
+line1="{*Name*}"
+icon="bullet_2">
+<Name type="Text" ref="y">Try Area rather than Height</Name>
+<Description type="Text">Height is better than Area in separating the data points.</Description>
+</AnsweredQuestion>
+<DEFAULT item="y">
+<Name>Use 2010's call to color data points</Name>
+<Description>it looks like 2010 has some errors, like snpid=34. the few heterozygous calls in 2010 are undisputably homozygous in cluster plots.
+also some homozygous calls in 2010 fall into the other allele's cloud in cluster plots.</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>Try different extraction ID</Name>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>NA vs mismatch plot</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>Error Matrix</Name>
+</DEFAULT>
+</DEFAULT>
+<Question item="n"
+line0="{*Name*}"
+line1="{*Name*}">
+<Name type="Text" ref="y"></Name>
+</Question>
+</ROOT>
