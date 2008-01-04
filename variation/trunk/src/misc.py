@@ -823,8 +823,8 @@ def draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title,  pic_area=[-130,
 			euc_coord1_ls.append(euc_coord1)
 			euc_coord2_ls.append(euc_coord2)
 			if label_ls:
-				ax.text(euc_coord1, euc_coord2, str(label_ls[i]), size=5, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
-			diameter_ls.append(1)
+				ax.text(euc_coord1, euc_coord2, str(label_ls[i]), size=2, alpha=0.5, horizontalalignment='center', verticalalignment='center', zorder=12)
+			diameter_ls.append(3)
 	import numpy
 	#diameter_ls = numpy.array(diameter_ls)
 	m.scatter(euc_coord1_ls, euc_coord2_ls, diameter_ls, marker='o', color='r', alpha=0.4, zorder=10, faceted=False)
@@ -840,7 +840,7 @@ def draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title,  pic_area=[-130,
 	pylab.title(pic_title)
 	if output_fname_prefix:
 		pylab.savefig('%s.eps'%output_fname_prefix, dpi=600)
-		pylab.savefig('%s.svg'%output_fname_prefix, dpi=600)
+		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=600)
 		pylab.savefig('%s.png'%output_fname_prefix, dpi=600)
 	sys.stderr.write("Done.\n")
 
@@ -1075,7 +1075,7 @@ def get_clique_ls_indexed_by_cc_number(g):
 	"""
 	sys.stderr.write("Getting clique_ls_indexed_by_cc_number ...\n")
 	import networkx as nx
-	from PartitionGraphIntoCliques import PartitionGraphIntoCliques
+	from pymodule.PartitionGraphIntoCliques import PartitionGraphIntoCliques
 	PartitionGraphIntoCliques_ins = PartitionGraphIntoCliques(algorithm_type=2)
 	g_cc_ls = nx.connected_components(g)
 	clique_ls_indexed_by_cc_number = []
@@ -2193,7 +2193,7 @@ DrawSharedBlock_ls(shared_block_ls, snp_index2pos, chr_id2cumu_size)
 
 """
 2007-11-08
-	get 192 strains for suzi
+	get 192 strains for suzi and draw them on the map
 """
 def get_ecotypeid_ls_nativename_ls_of_192_strains(curs):
 	ecotypeid_ls = []
@@ -2213,6 +2213,8 @@ ecotypeid2pos = get_ecotypeid2pos(curs, 'ecotype')
 draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title='192 strains',  pic_area=[-130,10,140,70], output_fname_prefix='/tmp/suzi_192', label_ls=nativename_ls, need_collapse_strains_with_same_pos=0)
 
 """
+
+
 
 
 #2007-03-05 common codes to initiate database connection
