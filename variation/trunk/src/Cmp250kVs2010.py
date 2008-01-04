@@ -109,6 +109,7 @@ class Cmp250kVs2010(QualityControl):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
+		QualityControl.load_dstruc(self)
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header1, strain_acc_list1, category_list1, self.data_matrix1 = FilterStrainSNPMatrix_instance.read_data(self.input_fname1)
@@ -134,9 +135,6 @@ snp_locus_table2 = 'snps'
 ecotype_duplicate2tg_ecotypeid_table = 'ecotype_duplicate2tg_ecotypeid'
 Cmp250kVs2010_ins= Cmp250kVs2010(curs, input_fname1, input_fname2, snp_locus_table1, snp_locus_table2, ecotype_duplicate2tg_ecotypeid_table)
 Cmp250kVs2010_ins.load_dstruc()
-import pylab
-pylab.plot([1],[1])
-pylab.show()
 
 Cmp250kVs2010_ins.plot_row_NA_mismatch_rate('250k vs 2010 strain-wise')
 #Cmp250kVs2010_ins.cal_row_id2pairwise_dist()

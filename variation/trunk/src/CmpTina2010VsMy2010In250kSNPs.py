@@ -1,5 +1,33 @@
 #!/usr/bin/env python
 """
+Usage: CmpTina2010VsMy2010In250kSNPs.py [OPTIONS] -i XXX -j XXX
+
+Option:
+	-z ..., --hostname=...	the hostname, localhost(default)
+	-d ..., --dbname=...	the database name, stock20071008(default)
+	-k ..., --schema=...	which schema in the database, dbsnp(default)
+	-e ...,	ecotype_table, 'stock20071008.ecotype'(default)
+	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete'/'at.ecotype2accession'
+	-s ...,	sequence table, 'at.sequence'(default)
+	-a ..., alignment table, 'at.alignment'(default)
+	-n ...,	snp_locus_table, 'snp_locus'(default)
+	-l ...,	calls table, 'stock20071008.calls'(default)
+	-i ...,	input_fname1, 149SNP data filename
+	-j ...,	input_fname2, 2010 data filename
+	-o ...,	latex_output_fname which stores both the summary and detailed difference tables
+		specify this latex_output_fname if you want output
+	-b, --debug	enable debug
+	-r, --report	enable more progress-related output
+	-h, --help	show this help
+
+Examples:
+	CmpTina2010VsMy2010In250kSNPs.py -i /Network/Data/250k/calls/Tina_120607/250K_PERL_2010.csv -j ~/script/variation/data/2010/data_2010_x_250k.tsv -o ~/script/variation/genotyping/149snp/analysis/250K_PERL_2010Vs2010_x_250k_diff_matrix.tex
+	
+	CmpTina2010VsMy2010In250kSNPs.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP.tsv
+	
+Description:
+	program to compare the 149snp calls based on the common strains inn 2010 pcr data and Justin's sequenom data.
+	
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -12,17 +40,20 @@ else:   #32bit
 
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
+import getopt
 
 class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 	"""
 	2007-12-20
 		compare Tina's 2010 data with mine
 	"""
-	def __init__(self, curs, input_fname1, input_fname2, debug=0):
+	def __init__(self, curs, input_fname1, input_fname2, latex_output_fname, debug=0, report=0):
 		self.curs = curs
 		self.input_fname1 = input_fname1
 		self.input_fname2 = input_fname2
+		self.latex_output_fname = latex_output_fname
 		self.debug = int(debug)
+		self.report = int(report)
 	
 	def get_col_matching_dstruc(self, header1, header2):
 		"""
@@ -201,6 +232,7 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
+		QualityControl.load_dstruc(self)
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header1, strain_acc_list1, category_list1, self.data_matrix1 = self.readTina2010In250kSNPs(self.input_fname1)
@@ -217,24 +249,120 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 		for row_id in row_id_ls:
 			row_id2info[row_id] = row_id
 		return row_id2info
+
+
+"""
+Omo2\_3\_2010&1\_11160050&A&8350&1\_11160050&G\\
+
+select id, chromosome, start, end, target from alignment where id=770;
+| id  | chromosome | start    | end      | target                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
++-----+------------+----------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 770 |          1 | 11159587 | 11160124 | CCATTGTTGTGTTATCTGAAAAAATTACTGTGGTACCAAGACGAAGAGGAGATA----CCTGAAAATTCCCTCAATTCGCAGTATTTTATCCCCTGTTTCGAGGAGACCACGTAAGGTGCTAATAATTGGAAGACCAGCTCCAACGGTGGCTTCATAAAAGTAATGTGTGTACGATTTTCGTTGAAGATCTCTGATCTTTAGATACTGCATTTACAGGAGTGTTACCAATTAGTCTCTCTGTTCATAAAATCACAGAATCTTAATGGATATATA-TCAAGATGAACATATATGTAGCTCCCGATCCAACAGTCATTTAAACAAATATCAAACACTTTACCTGATCAAGTGGTCCAGAGTTAGCCTTTTTGTTCGGAGTGACCACATGAATTCCTCGTAGCAACCAGTCGTAGTAACAGCTAGCGATGTCAGCATCGGCTGTACAATCAACCATAACAGAGTTTGGGATGAAATGATTTCCCTTCACATATTGGGTGAACTTCTCCATGTCAGCTTTTTCTCCCTCTTCTTTCATAAGCTCTCT | 
+
+5 insertions
+
+11160050-11159587 = 463
+
+real index for 11160050 is 463+5
+
+#check Omo2-3 (accession=22)
+
+select accession, alignment, bases from sequence where accession=22 and alignment=770;
+
+|        22 |       770 | NNNNNNNNNNNNNNNNNNNNNNNNTTACTGTGGTACCAAGACGAAGAGGAGATA----CCTGAAAATTCCCTCAATTCGCAGTATTTTATCCCCTGTTTCGAGGAGACCACGTAAGGTGCTAATAATTGGAAGACCAGCTCCAACGGTGGCTTCATAAAAGTAATGTGTGTACGATTTTCGTTGAAGATCTCTGATCTTTAGATACTGCATTTACAGGAGTGTTACCAATTAGTCTCTCTGTTCATAAAATCACAGAATCTTAATGGATATATACTCAAGATGAACATATATGTAGCTCCCGATCCAACAGTCATTTAAACAAATATCAAACACTTTACCTGATCAAGTGGTCCAGAGTTAGCCTTTTTGTTCGGAGTGACCACATGAATTCCTCGTAGCAACCAGTCGTAGTAACAGCTAGCGATGTCAGCATCGGCTGTACAATCAACCATAACAGAGTTTGGGATGAAATGATTTCCCTTCACATATTGGGTGAACTTCTCCATGTCAGCTTTTTCTCCCTCTTCTTTCATAAGCTCTCT | 
+
+s = 'NNNNNNNNNNNNNNNNNNNNNNNNTTACTGTGGTACCAAGACGAAGAGGAGATA----CCTGAAAATTCCCTCAATTCGCAGTATTTTATCCCCTGTTTCGAGGAGACCACGTAAGGTGCTAATAATTGGAAGACCAGCTCCAACGGTGGCTTCATAAAAGTAATGTGTGTACGATTTTCGTTGAAGATCTCTGATCTTTAGATACTGCATTTACAGGAGTGTTACCAATTAGTCTCTCTGTTCATAAAATCACAGAATCTTAATGGATATATACTCAAGATGAACATATATGTAGCTCCCGATCCAACAGTCATTTAAACAAATATCAAACACTTTACCTGATCAAGTGGTCCAGAGTTAGCCTTTTTGTTCGGAGTGACCACATGAATTCCTCGTAGCAACCAGTCGTAGTAACAGCTAGCGATGTCAGCATCGGCTGTACAATCAACCATAACAGAGTTTGGGATGAAATGATTTCCCTTCACATATTGGGTGAACTTCTCCATGTCAGCTTTTTCTCCCTCTTCTTTCATAAGCTCTCT'
+
+s[463+5]
+'G'
+
+check Omo2-1 (accession=21)
+
+select accession, alignment, bases from sequence where accession=21 and alignment=770;
+
+| accession | alignment | bases                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
++-----------+-----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|        21 |       770 | NNNNNNNNNNNNNNNNNNNNNNNNTTACTGTGGCACCAAGACGAAGAGGAGATAGATACCTGAAAATTCCCTCAATTCGCAGTATTTTATCCCCTGTTTCGAGGAGACCACGTAAGGTGCTAATAATTGGAAGACCAGCTCCAACGGTGGCTTCATAAAAGTAATGTGTGTACGATTTTCTTTGAAGATCTCTGATCTTTAGATACTGCATTTACAGGAGTGTTACCAATTAGTCTCTCTGTTCATAAAACCACAGAATCTTAATGGATATATACTCAAGATGAACATAAAAGTAGCTTCCGATCCAACAGTCATTTAAGCAAATATCAAACACTTTACCTGATCAAGTGGTCCAGAGTTAGCCTTTTTGTTCGGAGTGACCACATGAATTCCTCGTAGCAACCAGTCGTAGTAACAGCTAGCGATGTCAGCATCGGCTGTACAATCAACCATAACAGAGTTTGGGATAAAATGATTTCCCTTCACATATTGGGTGAACTTCTCCATGTCAGCTTTTTCTCCTTCTTCTTTCATAAGTTCTCT | 
+
+
+s2 = 'NNNNNNNNNNNNNNNNNNNNNNNNTTACTGTGGCACCAAGACGAAGAGGAGATAGATACCTGAAAATTCCCTCAATTCGCAGTATTTTATCCCCTGTTTCGAGGAGACCACGTAAGGTGCTAATAATTGGAAGACCAGCTCCAACGGTGGCTTCATAAAAGTAATGTGTGTACGATTTTCTTTGAAGATCTCTGATCTTTAGATACTGCATTTACAGGAGTGTTACCAATTAGTCTCTCTGTTCATAAAACCACAGAATCTTAATGGATATATACTCAAGATGAACATAAAAGTAGCTTCCGATCCAACAGTCATTTAAGCAAATATCAAACACTTTACCTGATCAAGTGGTCCAGAGTTAGCCTTTTTGTTCGGAGTGACCACATGAATTCCTCGTAGCAACCAGTCGTAGTAACAGCTAGCGATGTCAGCATCGGCTGTACAATCAACCATAACAGAGTTTGGGATAAAATGATTTCCCTTCACATATTGGGTGAACTTCTCCATGTCAGCTTTTTCTCCTTCTTCTTTCATAAGTTCTCT'
+
+s2[463+5]
+'A'
+
+"""
+if __name__ == '__main__':
+	if len(sys.argv) == 1:
+		print __doc__
+		sys.exit(2)
 	
-
-#if __name__ == '__main__':
-hostname='localhost'
-dbname='stock20071008'
-import MySQLdb
-conn = MySQLdb.connect(db=dbname,host=hostname)
-curs = conn.cursor()
-
-input_fname1 = os.path.expanduser('/Network/Data/250k/calls/Tina_120607/250K_PERL_2010.csv')
-input_fname2 = os.path.expanduser('~/script/variation/data/2010/data_2010_x_250k.tsv')
-
-CmpTina2010VsMy2010In250kSNPs_ins = CmpTina2010VsMy2010In250kSNPs(curs, input_fname1, input_fname2)
-CmpTina2010VsMy2010In250kSNPs_ins.load_dstruc()
-import pylab
-pylab.plot([1],[1])
-pylab.show()
-
-CmpTina2010VsMy2010In250kSNPs_ins.plot_row_NA_mismatch_rate('Tina 2010 vs 2010 db strain wise')
-#CmpTina2010VsMy2010In250kSNPs_ins.cal_row_id2pairwise_dist()
-#CmpTina2010VsMy2010In250kSNPs_ins.plot_col_NA_mismatch_rate('Tina 2010 vs 2010 db snp wise')
+	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "commit", "help"]
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:e:p:s:a:n:l:i:j:o:brh", long_options_list)
+	except:
+		print __doc__
+		sys.exit(2)
+	
+	hostname = 'localhost'
+	dbname = 'stock20071008'
+	schema = 'dbsnp'
+	ecotype_table = 'stock20071008.ecotype'
+	accession2ecotype_table = None
+	sequence_table = 'at.sequence'
+	alignment_table = 'at.alignment'
+	snp_locus_table = 'stock20071008.snps'
+	calls_table = 'stock20071008.calls'
+	input_fname1 = None
+	input_fname2 = None
+	diff_type_to_be_outputted = 5
+	latex_output_fname = None
+	debug = 0
+	report = 0
+	
+	for opt, arg in opts:
+		if opt in ("-h", "--help"):
+			print __doc__
+			sys.exit(2)
+		elif opt in ("-z", "--hostname"):
+			hostname = arg
+		elif opt in ("-d", "--dbname"):
+			dbname = arg
+		elif opt in ("-k", "--schema"):
+			schema = arg
+		elif opt in ("-e",):
+			ecotype_table = arg
+		elif opt in ("-p",):
+			accession2ecotype_table = arg
+		elif opt in ("-s",):
+			sequence_table = arg
+		elif opt in ("-a",):
+			alignment_table = arg
+		elif opt in ("-n",):
+			snp_locus_table = arg
+		elif opt in ("-l",):
+			calls_table = arg
+		elif opt in ("-i",):
+			input_fname1 = arg
+		elif opt in ("-j",):
+			input_fname2 = arg
+		elif opt in ("-o",):
+			latex_output_fname = arg
+		elif opt in ("-b", "--debug"):
+			debug = 1
+		elif opt in ("-r", "--report"):
+			report = 1
+	
+	if ecotype_table and sequence_table and alignment_table and snp_locus_table and calls_table and input_fname1 and input_fname2 and hostname and dbname and schema:
+		import MySQLdb
+		conn = MySQLdb.connect(db=dbname,host=hostname)
+		curs = conn.cursor()
+		ins= CmpTina2010VsMy2010In250kSNPs(curs, input_fname1, input_fname2, latex_output_fname, debug, report)
+		ins.load_dstruc()
+		ins.plot_row_NA_mismatch_rate('Tina 2010 vs 2010 db strain wise')
+		#ins.cal_row_id2pairwise_dist()
+		#new_row_id2pairwise_dist = ins.trim_row_id2pairwise_dist(ins.row_id2pairwise_dist, 10)
+		ins.plot_col_NA_mismatch_rate('Tina 2010 vs 2010 db snp wise')
+		ins.output_diff_matrix()
+	else:
+		print __doc__
+		sys.exit(2)

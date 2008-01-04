@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Usage: CmpAccession2Ecotype.py [OPTIONS] -p XXX -o OUTPUT_FNAME -j XXX
+Usage: Cmp250kVs149SNP.py [OPTIONS] -p XXX -o OUTPUT_FNAME -j XXX
 
 Option:
 	-z ..., --hostname=...	the hostname, localhost(default)
@@ -22,9 +22,8 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	./src/CmpAccession2Ecotype.py -p at.ecotype2accession -o 2010pcr_with_sequenom_149snps_ecotype2accession.csv -j sequenom_with_strains_matched_to_2010pcr_ecotype2accession.csv -r
+	./src/Cmp250kVs149SNP.py 
 	
-	./src/CmpAccession2Ecotype.py -p at.accession2ecotype_complete -o 2010pcr_with_sequenom_149snps_accession2ecotype_complete.csv -j  sequenom_with_strains_matched_to_2010pcr_accession2ecotype_complete.csv -r -f 2010pcr_vs_sequenom_diff.tex
 
 Description:
 	program to compare the 149snp calls based on the common strains inn 2010 pcr data and Justin's sequenom data.
@@ -123,6 +122,7 @@ class Cmp250kVs149SNP(QualityControl):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
+		QualityControl.load_dstruc(self)
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header1, strain_acc_list1, category_list1, self.data_matrix1 = FilterStrainSNPMatrix_instance.read_data(self.input_fname1)
@@ -147,10 +147,6 @@ snp_locus_table_149snp = 'snps'
 ecotype_duplicate2tg_ecotypeid_table = 'ecotype_duplicate2tg_ecotypeid'
 Cmp250kVs149SNP_ins = Cmp250kVs149SNP(curs, input_fname_250k, input_fname_149snp, snp_locus_table_250k, snp_locus_table_149snp, ecotype_duplicate2tg_ecotypeid_table)
 Cmp250kVs149SNP_ins.load_dstruc()
-
-import pylab
-pylab.plot([1],[1])
-pylab.show()
 
 Cmp250kVs149SNP_ins.plot_row_NA_mismatch_rate('250k vs 149SNP strain-wise')
 #Cmp250kVs149SNP_ins.plot_col_NA_mismatch_rate('250k vs 149SNP snp-wise')
