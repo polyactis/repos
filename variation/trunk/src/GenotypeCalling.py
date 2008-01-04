@@ -35,6 +35,8 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+
+
 from pymodule.latex import outputFigureInLatex
 
 """
@@ -74,11 +76,14 @@ def get_peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid=5):
 	"""
 	2007-11-08
 		add extractionid
+	2007-12-27
+		calls_table is calls_byseq
 	"""
 	import sys
 	sys.stderr.write("Getting peak1_peak2_color_ls ...")
 	peak1_peak2_color_ls = []
-	curs.execute("select snpid, call1, callhet, peak1, peak2 from %s where extractionid=%s and peak1 is not null and peak2 is not null"%(calls_table, extractionid))
+	#curs.execute("select snpid, call1, call2, ext1height, ext2height from %s where extractionid=%s and ext1height is not null and ext2height is not null"%(calls_table, extractionid))
+	curs.execute("select snpid, call1, call2, ext1height, ext2height from %s where ext1height is not null and ext2height is not null"%(calls_table))
 	rows = curs.fetchmany(5000)
 	while rows:
 		for row in rows:
@@ -122,19 +127,48 @@ def contrast_transform_peak1_peak2_color_ls(peak1_peak2_color_ls):
 		ls.append([contrast, S, color])
 	return ls
 
-def get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid=5):
+def get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, extractionid=5, data_type=1, ecotype2accession_table='at.ecotype2accession', data_2010=[]):
 	"""
 	2007-11-08
 		add extractionid
+	2007-12-28
+		add data_type
+			1: height
+			2: area
+			3: only the strains matched to 2010 data, use ecotype2accession_table
+			4: 3 + call determined by 2010 data
 	"""
 	import sys
 	sys.stderr.write("Getting snpid2peak1_peak2_color_ls ...")
 	snpid2peak1_peak2_color_ls = {}
-	curs.execute("select snpid, call1, callhet, peak1, peak2 from %s where extractionid=%s and peak1 is not null and peak2 is not null"%(calls_table, extractionid))
+	if data_type==1:
+		curs.execute("select snpid, call1, call2, ext1height, ext2height from %s where ext1height is not null and ext2height is not null"%(calls_table))
+	elif data_type==2:
+		curs.execute("select snpid, call1, call2, ext1area, ext2area from %s where ext1height is not null and ext2height is not null"%(calls_table))
+	elif data_type==3:
+		curs.execute("select c.snpid, c.call1, c.call2, c.ext1area, c.ext2area from %s c, %s ea where c.ext1height is not null and c.ext2height is not null and c.ecotypeid=ea.ecotype_id"%(calls_table, ecotype2accession_table))
+	elif data_type==4:
+		snp_acc2col_index, accession_id2row_index, data_matrix_2010 = data_2010
+		curs.execute("select ea.accession_id, s.snpid, c.snpid, c.call1, c.call2, c.ext1area, c.ext2area from %s c, %s ea, snps s where c.ext1height is not null and c.ext2height is not null and c.ecotypeid=ea.ecotype_id and s.id=c.snpid"%(calls_table, ecotype2accession_table))
 	rows = curs.fetchmany(5000)
 	while rows:
 		for row in rows:
-			snpid, call1, callhet, peak1, peak2 = row
+			if data_type==4:
+				accession_id, snp_acc, snpid, call1, callhet, peak1, peak2 = row
+				#replace the call with the 2010 call
+				if accession_id in accession_id2row_index and snp_acc in snp_acc2col_index:
+					call_2010 = data_matrix_2010[accession_id2row_index[accession_id]][snp_acc2col_index[snp_acc]]
+					from variation.src.common import number2nt
+					call_2010_nt = number2nt[call_2010]
+					call1 = call_2010_nt[0]
+					if len(call_2010_nt)==2 and call_2010>0: #non NA
+						callhet = call_2010_nt[1]
+					else:
+						callhet = None
+				else:
+					continue
+			else:
+				snpid, call1, callhet, peak1, peak2 = row
 			if snpid not in snpid2peak1_peak2_color_ls:
 				snpid2peak1_peak2_color_ls[snpid] = []
 			call1 = call1.upper()
@@ -190,7 +224,7 @@ def drawClusterPlot(peak1_peak2_color_ls, color_picked=0, color_to_be_drawn='r',
 	ps=pylab.scatter(xls, yls, c=color_to_be_drawn, marker='o', alpha=0.2, faceted=False)
 	if output_fname_prefix:
 		#pylab.savefig('%s.eps'%output_fname_prefix, dpi=300)
-		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
 		pylab.savefig('%s.png'%output_fname_prefix, dpi=150)
 	pylab.show()
 
@@ -258,22 +292,35 @@ def outputClusterPlotsForAllSNPs(ordered_snpid_ls, snpid2name, snpid2peak1_peak2
 		outf.write(outputFigureInLatex(fig_fname, caption, fig_label, need_floatpackage=1, fig_width=0.5))
 	del outf
 
+def read_2010_x_149SNP(input_fname):
+	"""
+	2007-12-30
+	"""
+	from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	snp_acc_ls = header[2:]
+	snp_acc2col_index = dict(zip(snp_acc_ls, range(len(snp_acc_ls))))
+	accession_id_ls = map(int, strain_acc_list)
+	accession_id2row_index = dict(zip(accession_id_ls, range(len(accession_id_ls))))
+	return snp_acc2col_index, accession_id2row_index, data_matrix
 
 """
 #2007-10-29
 #cluster plots investigating intensity/peak data of 149snp genotype calls
-
-snps_table='stock20071008.snps'
+dbname = 'stock20071227'
+snps_table='%s.snps'%dbname
 snps_sequenom_info_table='dbsnp.snps_sequenom_info'
 snpid2allele = get_snpid2allele(curs, snps_sequenom_info_table, snps_table)
-calls_table = 'stock20071008.calls'
+calls_table = '%s.calls_byseq'%dbname
 peak1_peak2_color_ls = get_peak1_peak2_color_ls(curs, snpid2allele, calls_table)
 
 #new_peak1_peak2_color_ls = contrast_transform_peak1_peak2_color_ls(peak1_peak2_color_ls)
 #peak1_peak2_color_ls = new_peak1_peak2_color_ls
 
-output_dir = 'script/variation/doc/PeakDataReport/figures'
+output_dir = os.path.expanduser('~/script/variation/doc/PeakDataReport/figures')
 
+import pylab
 pylab.clf()
 output_fname_prefix = os.path.join(output_dir, 'cluster_plots_allele1')
 drawClusterPlot(peak1_peak2_color_ls, color_picked=0, color_to_be_drawn='r', output_fname_prefix=output_fname_prefix)
@@ -326,16 +373,28 @@ drawClusterPlot(peak1_peak2_color_ls, 3, 'y', output_fname_prefix)
 snpid2peak1_peak2_color_ls = get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table)
 ordered_snpid_ls, snpid2name = get_ordered_snpid_ls_and_snpid2name(curs, snps_table)
 #new_snpid2peak1_peak2_color_ls = contrast_transform_snpid2peak1_peak2_color_ls(snpid2peak1_peak2_color_ls)
+#snpid2peak1_peak2_color_ls = new_snpid2peak1_peak2_color_ls
 
 output_fname = 'script/variation/doc/PeakDataReport/tables_figures.tex'
 fig_output_dir = 'script/variation/doc/PeakDataReport/figures'
 outputClusterPlotsForAllSNPs(ordered_snpid_ls, snpid2name, snpid2peak1_peak2_color_ls, fig_output_dir, output_fname)
 
+#check only the ones overlapping with 2010 strains
+snpid2peak1_peak2_color_ls = get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, data_type=3)
+drawClusterPlotForOneSNP(snpid2peak1_peak2_color_ls[2], 2, '/tmp/2')
+
+input_fname_2010 = os.path.expanduser('~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv')
+snp_acc2col_index, accession_id2row_index, data_matrix_2010 = read_2010_x_149SNP(input_fname_2010)
+data_2010=[snp_acc2col_index, accession_id2row_index, data_matrix_2010]
+snpid2peak1_peak2_color_ls = get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, data_type=4, data_2010=data_2010)
+drawClusterPlotForOneSNP(snpid2peak1_peak2_color_ls[2], 2, '/tmp/2')
+
+
 """
 
-if __name__ == '__main__':
-	hostname='localhost'
-	dbname='stock20071008'
-	import MySQLdb
-	conn = MySQLdb.connect(db=dbname,host=hostname)
-	curs = conn.cursor()
+#if __name__ == '__main__':
+hostname='localhost'
+dbname='stock20071227'
+import MySQLdb
+conn = MySQLdb.connect(db=dbname,host=hostname)
+curs = conn.cursor()
