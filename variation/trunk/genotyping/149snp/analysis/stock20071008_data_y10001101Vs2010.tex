@@ -1,0 +1,38 @@
+\documentclass[a3paper,10pt]{article}
+\usepackage[a3paper]{geometry}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{ifpdf}
+\ifpdf
+\usepackage[pdftex, bookmarks, colorlinks, plainpages=false,pdfpagelabels,breaklinks]{hyperref}
+\else
+\usepackage[dvips, bookmarks, colorlinks, linkcolor=blue, urlcolor=blue, citecolor=blue, plainpages=false,pdfpagelabels,linktocpage]{hyperref}
+\fi
+
+\usepackage{longtable}
+%\usepackage{afterpage}
+\usepackage{float}
+%\usepackage[all]{xy}
+\addtolength{\textheight}{5cm}
+\addtolength{\textwidth}{5cm}
+\addtolength{\hoffset}{-3cm}
+\addtolength{\voffset}{-3cm}
+
+%opening
+\title{Comparison of 149SNP(2007-10-08 datestamp) and 2010 data}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\tableofcontents
+
+
+
+\input{stock20071008_data_y10001101Vs2010_diff_matrix.tex}
+
+\end{document}
