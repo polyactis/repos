@@ -1,0 +1,38 @@
+\documentclass[a3paper,10pt]{article}
+\usepackage[a3paper]{geometry}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{ifpdf}
+\ifpdf
+\usepackage[pdftex, bookmarks, colorlinks, plainpages=false,pdfpagelabels,breaklinks]{hyperref}
+\else
+\usepackage[dvips, bookmarks, colorlinks, linkcolor=blue, urlcolor=blue, citecolor=blue, plainpages=false,pdfpagelabels,linktocpage]{hyperref}
+\fi
+
+\usepackage{longtable}
+%\usepackage{afterpage}
+\usepackage{float}
+%\usepackage[all]{xy}
+\addtolength{\textheight}{5cm}
+\addtolength{\textwidth}{5cm}
+\addtolength{\hoffset}{-3cm}
+\addtolength{\voffset}{-3cm}
+
+%opening
+\title{Comparison of 250k calls between Tina's 2010  and Yu's 2010 data}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\tableofcontents
+
+
+
+\input{250K_PERL_2010Vs2010_x_250k_diff_matrix.tex}
+
+\end{document}
