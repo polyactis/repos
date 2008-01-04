@@ -7,6 +7,9 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
+
+from variation.src.common import get_nt_number2diff_matrix_index, nt2number, number2nt
+
 class QualityControl:
 	"""
 	2007-12-19
@@ -16,6 +19,12 @@ class QualityControl:
 	def __init__(self, **keywords):
 		if keywords.has_key('debug'):
 			self.debug = int(keywords['debug'])
+		else:
+			self.debug = 0
+		if keywords.has_key('latex_output_fname'):
+			self.latex_output_fname = int(keywords['latex_output_fname'])
+		else:
+			self.latex_output_fname = ''
 	
 	def calculate_row_NA_rate(self, strain_acc_list, category_list, data_matrix):
 		"""
@@ -57,11 +66,58 @@ class QualityControl:
 		sys.stderr.write("Done.\n")
 		return col_id_NA_rate_ls
 	
-	def get_col_matching_dstruc(self):
-		pass
+	def get_col_matching_dstruc(self, header1, header2):
+		"""
+		2008-01-01
+			default version. matching by same names
+			copied from get_col_matching_dstruc() of Cmp250kVs2010.py
+		"""
+		sys.stderr.write("Getting col matching dstruc ...\n")
+		snpid2col_index1 = {}
+		for i in range(2, len(header1)):
+			snpid = header1[i]
+			snpid2col_index1[snpid] = i-2
+		snpid2col_index2 = {}
+		for i in range(2, len(header2)):
+			snpid = header2[i]
+			snpid2col_index2[snpid] = i-2
+		
+		col_id12col_id2 = {}
+		for snpid in snpid2col_index1:
+			if snpid in snpid2col_index2:
+				col_id12col_id2[snpid] = snpid
+		sys.stderr.write("Done.\n")
+		return snpid2col_index1, snpid2col_index2, col_id12col_id2
 	
-	def get_row_matching_dstruc(self):
-		pass
+	def get_row_matching_dstruc(self, strain_acc_list1, category_list1, strain_acc_list2):
+		"""
+		2008-01-01
+			default version.
+			copied from get_row_matching_dstruc() of Cmp250kVs2010.py
+		"""
+		sys.stderr.write("Getting row matching dstruc ...\n")
+		strain_acc2row_index1 = {}
+		for i in range(len(strain_acc_list1)):
+			ecotypeid = int(strain_acc_list1[i])
+			duplicate = int(category_list1[i])
+			strain_acc = (ecotypeid, duplicate)
+			strain_acc2row_index1[strain_acc] = i
+		
+		strain_acc2row_index2 = {}
+		for i in range(len(strain_acc_list2)):
+			strain_acc = strain_acc_list2[i]
+			ecotypeid = int(strain_acc)
+			strain_acc2row_index2[ecotypeid] = i
+		
+		row_id12row_id2 = {}
+		for strain_acc in strain_acc2row_index1:
+			ecotypeid, duplicate = strain_acc
+			if ecotypeid in strain_acc2row_index2:
+				row_id12row_id2[strain_acc] = ecotypeid
+			else:
+				print 'Failure:', strain_acc
+		sys.stderr.write("Done.\n")
+		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
 	def cmp_row_wise(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
@@ -180,6 +236,108 @@ class QualityControl:
 		sys.stderr.write("Done.\n")
 		return col_id2NA_mismatch_rate
 	
+	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1):
+		"""
+		2008-01-01 derived from cmp_two_matricies() of CmpAccession2Ecotype.py
+		"""
+		import numpy
+		if self.report or self.debug:
+			sys.stderr.write("Comparing two matricies ...")
+		diff_matrix = numpy.zeros([len(nt_number2diff_matrix_index), len(nt_number2diff_matrix_index)], numpy.integer)
+		if row_id!=-1:
+			if row_id in row_id12row_id2:
+				row_id_ls_to_be_checked = [row_id]
+			else:
+				return None, None
+		else:
+			row_id_ls_to_be_checked = row_id12row_id2.keys()
+		if col_id!=-1:
+			if col_id in col_id12col_id2:
+				col_id_ls_to_be_checked = [col_id]
+			else:
+				return None, None
+		else:
+			col_id_ls_to_be_checked = col_id12col_id2.keys()
+		diff_details_ls = []
+		for row_id1 in row_id_ls_to_be_checked:
+			row_id2 = row_id12row_id2[row_id1]
+			row_index1 = row_id2row_index1[row_id1]
+			row_index2 = row_id2row_index2[row_id2]
+			for col_id1 in col_id_ls_to_be_checked:
+				col_id2 = col_id12col_id2[col_id1]
+				col_index1 = col_id2col_index1[col_id1]
+				col_index2 = col_id2col_index2[col_id2]
+				nt1 = data_matrix1[row_index1][col_index1]
+				nt2 = data_matrix2[row_index2][col_index2]
+				nt_diff_matrix_index1 = nt_number2diff_matrix_index[nt1]
+				nt_diff_matrix_index2 = nt_number2diff_matrix_index[nt2]
+				diff_matrix[nt_diff_matrix_index1][nt_diff_matrix_index2] += 1
+				if nt1!=nt2:
+					diff_details_ls.append([row_id1, col_id1, nt1, row_id2, col_id2, nt2])
+		if self.report or self.debug:
+			sys.stderr.write("Done.\n")
+		return diff_matrix, diff_details_ls
+	
+	def wrap_diff_matrix_with_row_col_names(self, diff_matrix):
+		"""
+		2008-01-01
+		"""
+		if self.report or self.debug:
+			sys.stderr.write("Wrapping diff_matrix with row, column names ...")
+		row_name_ls = ['-', 'NA', 'A', 'C', 'G', 'T', 'AC', 'AG', 'AT', 'CG', 'CT', 'GT']
+		wrapped_diff_matrix = [ [''] + row_name_ls]
+		for i in range(diff_matrix.shape[0]):
+			wrapped_diff_matrix.append([row_name_ls[i]] + diff_matrix[i,:].tolist())
+		if self.report or self.debug:
+			sys.stderr.write("Done.\n")
+		return wrapped_diff_matrix
+	
+	def beautify_diff_details_ls(self, diff_details_ls, row_id2info={}):
+		"""
+		2008-01-01
+		"""
+		if self.report or self.debug:
+			sys.stderr.write("Beautifying diff_details_ls ...")
+		new_diff_details_ls = []
+		for row in diff_details_ls:
+			row_id1, col_id1, nt1, row_id2, col_id2, nt2 = row
+			if nt1<=0 or nt2<=0:	#skip deletion or missing
+				continue
+			if row_id1 in row_id2info:
+				row_id1_info = row_id2info[row_id1]
+			else:
+				row_id1_info = repr(row_id1)
+			new_diff_details_ls.append([row_id1_info, col_id1, number2nt[nt1], row_id2, col_id2, number2nt[nt2]])
+		if self.report or self.debug:
+			sys.stderr.write("Done.\n")
+		return new_diff_details_ls
+	
+	def output_diff_matrix(self):
+		"""
+		2008-01-01
+			self.nt_number2diff_matrix_index, self.row_id2info will have to be loaded in ahead.
+		"""
+		diff_matrix, diff_details_ls = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		print diff_matrix
+		i = 0
+		if self.latex_output_fname:
+			outf = open(self.latex_output_fname, 'w')
+			outf.write('\\section{Summary} \\label{section_summary}\n')
+			from pymodule.latex import outputMatrixInLatexTable
+			wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix)
+			table_label = 'table_dm%s'%i
+			outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, '%s vs %s'%(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)), table_label))
+			i += 1
+			table_no = i
+			
+			#output the whole diff_details_ls
+			outf.write('\\section{Real Mismatches (deletion/NA excluded)} \\label{section_real_mismatch}\n')
+			bea_diff_details_ls = self.beautify_diff_details_ls(diff_details_ls, self.row_id2info)
+			table_label = 'table_dm%s'%table_no
+			caption = 'mismatches (deletion/NA excluded)'
+			outf.write(outputMatrixInLatexTable(bea_diff_details_ls, caption, table_label, header_ls=['row id1', 'col id1', 'call1', 'row id2', 'col id2', 'call2']))
+			del outf
+	
 	def load_dstruc(self):
 		"""
 		2007-12-21
@@ -189,13 +347,15 @@ class QualityControl:
 				self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2
 				self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2
 		"""
-		pass
+		self.nt_number2diff_matrix_index = get_nt_number2diff_matrix_index(nt2number)
 
 	def get_row_id2info(self, row_id_ls, curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype'):
 		"""
 		2007-12-16
 		2007-12-20
 			make it more generic
+		2008-01-01
+			'%s'%row_id doesn't work cuz row_id is a tuple. changed to '%s'%repr(row_id)
 		"""
 		row_id2info = {}
 		for row_id in row_id_ls:
@@ -210,7 +370,7 @@ class QualityControl:
 				row_id2info[row_id] = row_id2info[row_id].decode('utf-8', 'ignore')
 				#ecotypeid_duplicate2info[key_pair] = ecotypeid_duplicate2info[key_pair].decode('latin10')
 			else:
-				row_id2info[row_id] = '%s'%row_id
+				row_id2info[row_id] = '%s'%repr(row_id)
 		return row_id2info
 	
 	def on_click_row(self, event):
@@ -224,6 +384,7 @@ class QualityControl:
 			make it more generic
 			replace ecotypeid_duplicate2info with row_id2info
 			replace ecotypeid_duplicate2NA_mismatch_rate with row_id2NA_mismatch_rate
+		2008-01-01 dead
 		"""
 		# get the x and y coords, flip y from top to bottom
 		import pylab
@@ -244,6 +405,7 @@ class QualityControl:
 		2007-12-20
 			make it more generic
 			replace snpid2NA_mismatch_rate with col_id2NA_mismatch_rate
+		2008-01-01 dead
 		"""
 		# get the x and y coords, flip y from top to bottom
 		import pylab
@@ -260,6 +422,7 @@ class QualityControl:
 	def plot_NA_mismatch_rate(self, NA_mismatch_rate_ls, on_click_func, title=''):
 		"""
 		2007-12-14
+		2008-01-01 dead
 		"""
 		NA_rate_ls = []
 		mismatch_rate_ls = []
@@ -287,14 +450,22 @@ class QualityControl:
 		"""
 		self.row_id2NA_mismatch_rate = self.cmp_row_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 )
 		self.row_id2info = self.get_row_id2info(self.row_id2NA_mismatch_rate.keys(), self.curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype')
-		self.plot_NA_mismatch_rate(self.row_id2NA_mismatch_rate.values(), self.on_click_row, title=title)
+		from QCVisualize import QCVisualize
+		import gtk
+		QCVisualize_ins = QCVisualize(self.row_id2NA_mismatch_rate, title, self.row_id2info)
+		QCVisualize_ins.show_all()
+		gtk.main()
 	
 	def plot_col_NA_mismatch_rate(self, title=''):
 		"""
 		2007-12-20
 		"""
 		self.col_id2NA_mismatch_rate = self.cmp_col_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
-		self.plot_NA_mismatch_rate(self.col_id2NA_mismatch_rate.values(), self.on_click_col, title=title)
+		from QCVisualize import QCVisualize
+		import gtk
+		QCVisualize_ins = QCVisualize(self.col_id2NA_mismatch_rate, title)
+		QCVisualize_ins.show_all()
+		gtk.main()
 	
 	def cal_row_id2pairwise_dist(self):
 		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
