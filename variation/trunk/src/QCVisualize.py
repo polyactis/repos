@@ -137,7 +137,11 @@ class QCVisualize(gtk.Window):
 			self.treeview.append_column(column)
 	
 	def create_model(self, id2NA_mismatch_rate, id2info):
-		types = [str]*2 + [float]*6
+		"""
+		2008-01-02
+			types = [str]*2 + [float]*2 + [int]*4
+		"""
+		types = [str]*2 + [float]*2 + [int]*4
 		store = gtk.ListStore(*types)
 		for id, NA_mismatch_rate in id2NA_mismatch_rate.iteritems():
 			if id in id2info:
