@@ -1,0 +1,948 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1728"
+   height="980"
+   viewBox="0 0 1728 980"
+   version="1.1"
+   id="svg1"
+   sodipodi:version="0.32"
+   inkscape:version="0.45.1"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:docbase="/usr/local/home_ubuntu/crocea/script/variation/genotyping/250ksnp/analysis"
+   sodipodi:docname="250kVs149SNP_snpid_NA_mismatch_plot.svg"
+   inkscape:export-filename="/usr/local/home_ubuntu/crocea/script/variation/genotyping/250ksnp/analysis/250kVs149SNP_snpid_NA_mismatch_plot.png"
+   inkscape:export-xdpi="120.79"
+   inkscape:export-ydpi="120.79">
+  <metadata
+     id="metadata17975">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs17973" />
+  <sodipodi:namedview
+     inkscape:window-height="1087"
+     inkscape:window-width="1331"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="0.77498863"
+     inkscape:cx="864"
+     inkscape:cy="407.27863"
+     inkscape:window-x="34"
+     inkscape:window-y="69"
+     inkscape:current-layer="svg1" />
+  <g
+     id="figure1">
+    <polygon
+       style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+       points="0.000000,980.100000 0.000000,0.000000 1728.000000,0.000000 1728.000000,980.100000"
+       id="polygon17612" />
+    <g
+       id="axes1">
+      <polygon
+         style="fill: #ffffff; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         points="216.000000,882.090000 216.000000,98.010000 1555.200000,98.010000 1555.200000,882.090000"
+         id="polygon17615" />
+      <defs
+         id="defs17617">
+        <clipPath
+           id="5419046363373412500">
+          <rect
+             x="216.000000"
+             y="98.010000"
+             width="1339.200000"
+             height="784.080000"
+             style="stroke: gray; fill: none;"
+             id="rect17620" />
+        </clipPath>
+      </defs>
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="389.023256,857.363684 387.457256,858.263684 387.457256,860.063684 389.023256,860.963684 390.589256,860.063684 390.589256,858.263684"
+         id="polygon17622" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="585.116279,843.990000 583.550279,844.890000 583.550279,846.690000 585.116279,847.590000 586.682279,846.690000 586.682279,844.890000"
+         id="polygon17624" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="331.348837,828.608644 329.782837,829.508644 329.782837,831.308644 331.348837,832.208644 332.914837,831.308644 332.914837,829.508644"
+         id="polygon17626" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="319.813953,851.005966 318.247953,851.905966 318.247953,853.705966 319.813953,854.605966 321.379953,853.705966 321.379953,851.905966"
+         id="polygon17628" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="596.651163,825.840000 595.085163,826.740000 595.085163,828.540000 596.651163,829.440000 598.217163,828.540000 598.217163,826.740000"
+         id="polygon17630" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="458.232558,775.423333 456.666558,776.323333 456.666558,778.123333 458.232558,779.023333 459.798558,778.123333 459.798558,776.323333"
+         id="polygon17632" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="469.767442,839.579720 468.201442,840.479720 468.201442,842.279720 469.767442,843.179720 471.333442,842.279720 471.333442,840.479720"
+         id="polygon17634" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="446.697674,831.890000 445.131674,832.790000 445.131674,834.590000 446.697674,835.490000 448.263674,834.590000 448.263674,832.790000"
+         id="polygon17636" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="296.744186,873.149016 295.178186,874.049016 295.178186,875.849016 296.744186,876.749016 298.310186,875.849016 298.310186,874.049016"
+         id="polygon17638" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="319.813953,880.290000 318.247953,881.190000 318.247953,882.990000 319.813953,883.890000 321.379953,882.990000 321.379953,881.190000"
+         id="polygon17640" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="931.162791,629.490000 929.596791,630.390000 929.596791,632.190000 931.162791,633.090000 932.728791,632.190000 932.728791,630.390000"
+         id="polygon17642" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="273.674419,873.090000 272.108419,873.990000 272.108419,875.790000 273.674419,876.690000 275.240419,875.790000 275.240419,873.990000"
+         id="polygon17644" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="469.767442,847.414528 468.201442,848.314528 468.201442,850.114528 469.767442,851.014528 471.333442,850.114528 471.333442,848.314528"
+         id="polygon17646" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="400.558140,840.690000 398.992140,841.590000 398.992140,843.390000 400.558140,844.290000 402.124140,843.390000 402.124140,841.590000"
+         id="polygon17648" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="331.348837,682.622773 329.782837,683.522773 329.782837,685.322773 331.348837,686.222773 332.914837,685.322773 332.914837,683.522773"
+         id="polygon17650" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="285.209302,851.958293 283.643302,852.858293 283.643302,854.658293 285.209302,855.558293 286.775302,854.658293 286.775302,852.858293"
+         id="polygon17652" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="319.813953,843.684958 318.247953,844.584958 318.247953,846.384958 319.813953,847.284958 321.379953,846.384958 321.379953,844.584958"
+         id="polygon17654" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="527.441860,863.038515 525.875860,863.938515 525.875860,865.738515 527.441860,866.638515 529.007860,865.738515 529.007860,863.938515"
+         id="polygon17656" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="342.883721,828.608644 341.317721,829.508644 341.317721,831.308644 342.883721,832.208644 344.449721,831.308644 344.449721,829.508644"
+         id="polygon17658" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="746.604651,848.416829 745.038651,849.316829 745.038651,851.116829 746.604651,852.016829 748.170651,851.116829 748.170651,849.316829"
+         id="polygon17660" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="573.581395,839.769070 572.015395,840.669070 572.015395,842.469070 573.581395,843.369070 575.147395,842.469070 575.147395,840.669070"
+         id="polygon17662" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="377.488372,865.005789 375.922372,865.905789 375.922372,867.705789 377.488372,868.605789 379.054372,867.705789 379.054372,865.905789"
+         id="polygon17664" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="319.813953,865.647983 318.247953,866.547983 318.247953,868.347983 319.813953,869.247983 321.379953,868.347983 321.379953,866.547983"
+         id="polygon17666" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="446.697674,504.634954 445.131674,505.534954 445.131674,507.334954 446.697674,508.234954 448.263674,507.334954 448.263674,505.534954"
+         id="polygon17668" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="688.930233,822.974211 687.364233,823.874211 687.364233,825.674211 688.930233,826.574211 690.496233,825.674211 690.496233,823.874211"
+         id="polygon17670" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="342.883721,880.290000 341.317721,881.190000 341.317721,882.990000 342.883721,883.890000 344.449721,882.990000 344.449721,881.190000"
+         id="polygon17672" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="377.488372,863.536154 375.922372,864.436154 375.922372,866.236154 377.488372,867.136154 379.054372,866.236154 379.054372,864.436154"
+         id="polygon17674" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="965.767442,562.232857 964.201442,563.132857 964.201442,564.932857 965.767442,565.832857 967.333442,564.932857 967.333442,563.132857"
+         id="polygon17676" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="481.302326,863.373495 479.736326,864.273495 479.736326,866.073495 481.302326,866.973495 482.868326,866.073495 482.868326,864.273495"
+         id="polygon17678" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="712.000000,647.294651 710.434000,648.194651 710.434000,649.994651 712.000000,650.894651 713.566000,649.994651 713.566000,648.194651"
+         id="polygon17680" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="492.837209,845.787030 491.271209,846.687030 491.271209,848.487030 492.837209,849.387030 494.403209,848.487030 494.403209,846.687030"
+         id="polygon17682" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="285.209302,851.005966 283.643302,851.905966 283.643302,853.705966 285.209302,854.605966 286.775302,853.705966 286.775302,851.905966"
+         id="polygon17684" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="262.139535,872.370000 260.573535,873.270000 260.573535,875.070000 262.139535,875.970000 263.705535,875.070000 263.705535,873.270000"
+         id="polygon17686" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="608.186047,797.755263 606.620047,798.655263 606.620047,800.455263 608.186047,801.355263 609.752047,800.455263 609.752047,798.655263"
+         id="polygon17688" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="308.279070,873.030000 306.713070,873.930000 306.713070,875.730000 308.279070,876.630000 309.845070,875.730000 309.845070,873.930000"
+         id="polygon17690" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="365.953488,865.138696 364.387488,866.038696 364.387488,867.838696 365.953488,868.738696 367.519488,867.838696 367.519488,866.038696"
+         id="polygon17692" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="296.744186,880.290000 295.178186,881.190000 295.178186,882.990000 296.744186,883.890000 298.310186,882.990000 298.310186,881.190000"
+         id="polygon17694" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="469.767442,390.758571 468.201442,391.658571 468.201442,393.458571 469.767442,394.358571 471.333442,393.458571 471.333442,391.658571"
+         id="polygon17696" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="285.209302,866.008033 283.643302,866.908033 283.643302,868.708033 285.209302,869.608033 286.775302,868.708033 286.775302,866.908033"
+         id="polygon17698" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="446.697674,848.319358 445.131674,849.219358 445.131674,851.019358 446.697674,851.919358 448.263674,851.019358 448.263674,849.219358"
+         id="polygon17700" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="435.162791,864.005888 433.596791,864.905888 433.596791,866.705888 435.162791,867.605888 436.728791,866.705888 436.728791,864.905888"
+         id="polygon17702" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="735.069767,804.060000 733.503767,804.960000 733.503767,806.760000 735.069767,807.660000 736.635767,806.760000 736.635767,804.960000"
+         id="polygon17704" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="781.209302,836.730000 779.643302,837.630000 779.643302,839.430000 781.209302,840.330000 782.775302,839.430000 782.775302,837.630000"
+         id="polygon17706" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="250.604651,880.290000 249.038651,881.190000 249.038651,882.990000 250.604651,883.890000 252.170651,882.990000 252.170651,881.190000"
+         id="polygon17708" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="654.325581,740.898000 652.759581,741.798000 652.759581,743.598000 654.325581,744.498000 655.891581,743.598000 655.891581,741.798000"
+         id="polygon17710" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="308.279070,872.968992 306.713070,873.868992 306.713070,875.668992 308.279070,876.568992 309.845070,875.668992 309.845070,873.868992"
+         id="polygon17712" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="723.534884,579.134444 721.968884,580.034444 721.968884,581.834444 723.534884,582.734444 725.100884,581.834444 725.100884,580.034444"
+         id="polygon17714" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="735.069767,816.543659 733.503767,817.443659 733.503767,819.243659 735.069767,820.143659 736.635767,819.243659 736.635767,817.443659"
+         id="polygon17716" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="792.744186,361.981139 791.178186,362.881139 791.178186,364.681139 792.744186,365.581139 794.310186,364.681139 794.310186,362.881139"
+         id="polygon17718" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="239.069767,852.850630 237.503767,853.750630 237.503767,855.550630 239.069767,856.450630 240.635767,855.550630 240.635767,853.750630"
+         id="polygon17720" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="262.139535,804.897692 260.573535,805.797692 260.573535,807.597692 262.139535,808.497692 263.705535,807.597692 263.705535,805.797692"
+         id="polygon17722" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="308.279070,844.290000 306.713070,845.190000 306.713070,846.990000 308.279070,847.890000 309.845070,846.990000 309.845070,845.190000"
+         id="polygon17724" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="331.348837,864.450000 329.782837,865.350000 329.782837,867.150000 331.348837,868.050000 332.914837,867.150000 332.914837,865.350000"
+         id="polygon17726" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="435.162791,864.304679 433.596791,865.204679 433.596791,867.004679 435.162791,867.904679 436.728791,867.004679 436.728791,865.204679"
+         id="polygon17728" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="919.627907,803.419412 918.061907,804.319412 918.061907,806.119412 919.627907,807.019412 921.193907,806.119412 921.193907,804.319412"
+         id="polygon17730" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="550.511628,598.965000 548.945628,599.865000 548.945628,601.665000 550.511628,602.565000 552.077628,601.665000 552.077628,599.865000"
+         id="polygon17732" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="412.093023,848.895405 410.527023,849.795405 410.527023,851.595405 412.093023,852.495405 413.659023,851.595405 413.659023,849.795405"
+         id="polygon17734" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="654.325581,797.318571 652.759581,798.218571 652.759581,800.018571 654.325581,800.918571 655.891581,800.018571 655.891581,798.218571"
+         id="polygon17736" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="492.837209,855.398571 491.271209,856.298571 491.271209,858.098571 492.837209,858.998571 494.403209,858.098571 494.403209,856.298571"
+         id="polygon17738" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="481.302326,855.398571 479.736326,856.298571 479.736326,858.098571 481.302326,858.998571 482.868326,858.098571 482.868326,856.298571"
+         id="polygon17740" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="562.046512,861.554516 560.480512,862.454516 560.480512,864.254516 562.046512,865.154516 563.612512,864.254516 563.612512,862.454516"
+         id="polygon17742" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="458.232558,861.948947 456.666558,862.848947 456.666558,864.648947 458.232558,865.548947 459.798558,864.648947 459.798558,862.848947"
+         id="polygon17744" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="239.069767,850.248621 237.503767,851.148621 237.503767,852.948621 239.069767,853.848621 240.635767,852.948621 240.635767,851.148621"
+         id="polygon17746" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="838.883721,752.514000 837.317721,753.414000 837.317721,755.214000 838.883721,756.114000 840.449721,755.214000 840.449721,753.414000"
+         id="polygon17748" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="227.534884,849.721579 225.968884,850.621579 225.968884,852.421579 227.534884,853.321579 229.100884,852.421579 229.100884,850.621579"
+         id="polygon17750" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="319.813953,865.397692 318.247953,866.297692 318.247953,868.097692 319.813953,868.997692 321.379953,868.097692 321.379953,866.297692"
+         id="polygon17752" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="262.139535,880.290000 260.573535,881.190000 260.573535,882.990000 262.139535,883.890000 263.705535,882.990000 263.705535,881.190000"
+         id="polygon17754" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="412.093023,862.327113 410.527023,863.227113 410.527023,865.027113 412.093023,865.927113 413.659023,865.027113 413.659023,863.227113"
+         id="polygon17756" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="296.744186,837.444098 295.178186,838.344098 295.178186,840.144098 296.744186,841.044098 298.310186,840.144098 298.310186,838.344098"
+         id="polygon17758" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="435.162791,823.295607 433.596791,824.195607 433.596791,825.995607 435.162791,826.895607 436.728791,825.995607 436.728791,824.195607"
+         id="polygon17760" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         points="239.069767,873.430157 237.503767,874.330157 237.503767,876.130157 239.069767,877.030157 240.635767,876.130157 240.635767,874.330157"
+         id="polygon17762" />
+      <path
+         style="fill: none; stroke: #008000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         clip-path="url(#5419046363373412500)"
+         d="M 216.000000,882.090000 L 1406.400000,185.130000 "
+         id="path17764" />
+      <g
+         id="matplotlib.axis1">
+        <g
+           id="xtick1">
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="207.000000"
+             y="895.090000"
+             id="text17768">0.0</text>
+        </g>
+        <g
+           id="xtick2">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 364.800000,882.090000 L 364.800000,878.090000"
+             id="path17771" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 364.800000,102.010000 L 364.800000,98.010000"
+             id="path17773" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="356.300000"
+             y="895.090000"
+             id="text17775">0.1</text>
+        </g>
+        <g
+           id="xtick3">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.600000,882.090000 L 513.600000,878.090000"
+             id="path17778" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 513.600000,102.010000 L 513.600000,98.010000"
+             id="path17780" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="504.576563"
+             y="895.090000"
+             id="text17782">0.2</text>
+        </g>
+        <g
+           id="xtick4">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 662.400000,882.090000 L 662.400000,878.090000"
+             id="path17785" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 662.400000,102.010000 L 662.400000,98.010000"
+             id="path17787" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="653.400000"
+             y="895.090000"
+             id="text17789">0.3</text>
+        </g>
+        <g
+           id="xtick5">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 811.200000,882.090000 L 811.200000,878.090000"
+             id="path17792" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 811.200000,102.010000 L 811.200000,98.010000"
+             id="path17794" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="802.200000"
+             y="895.090000"
+             id="text17796">0.4</text>
+        </g>
+        <g
+           id="xtick6">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 960.000000,882.090000 L 960.000000,878.090000"
+             id="path17799" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 960.000000,102.010000 L 960.000000,98.010000"
+             id="path17801" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="951.000000"
+             y="895.090000"
+             id="text17803">0.5</text>
+        </g>
+        <g
+           id="xtick7">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1108.800000,882.090000 L 1108.800000,878.090000"
+             id="path17806" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1108.800000,102.010000 L 1108.800000,98.010000"
+             id="path17808" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="1099.800000"
+             y="895.090000"
+             id="text17810">0.6</text>
+        </g>
+        <g
+           id="xtick8">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1257.600000,882.090000 L 1257.600000,878.090000"
+             id="path17813" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1257.600000,102.010000 L 1257.600000,98.010000"
+             id="path17815" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="1248.600000"
+             y="895.090000"
+             id="text17817">0.7</text>
+        </g>
+        <g
+           id="xtick9">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1406.400000,882.090000 L 1406.400000,878.090000"
+             id="path17820" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1406.400000,102.010000 L 1406.400000,98.010000"
+             id="path17822" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="1397.400000"
+             y="895.090000"
+             id="text17824">0.8</text>
+        </g>
+        <g
+           id="xtick10">
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="1546.200000"
+             y="895.090000"
+             id="text17827">0.9</text>
+        </g>
+        <text
+           style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+           x="862.600000"
+           y="909.090000"
+           id="text17829">NA rate</text>
+      </g>
+      <g
+         id="matplotlib.axis2">
+        <g
+           id="ytick1">
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="886.590000"
+             id="text17833">0.0</text>
+        </g>
+        <g
+           id="ytick2">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,794.970000 L 220.000000,794.970000"
+             id="path17836" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,794.970000 L 1555.200000,794.970000"
+             id="path17838" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="195.000000"
+             y="799.470000"
+             id="text17840">0.1</text>
+        </g>
+        <g
+           id="ytick3">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,707.850000 L 220.000000,707.850000"
+             id="path17843" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,707.850000 L 1555.200000,707.850000"
+             id="path17845" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="193.953125"
+             y="712.350000"
+             id="text17847">0.2</text>
+        </g>
+        <g
+           id="ytick4">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,620.730000 L 220.000000,620.730000"
+             id="path17850" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,620.730000 L 1555.200000,620.730000"
+             id="path17852" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="625.230000"
+             id="text17854">0.3</text>
+        </g>
+        <g
+           id="ytick5">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,533.610000 L 220.000000,533.610000"
+             id="path17857" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,533.610000 L 1555.200000,533.610000"
+             id="path17859" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="538.110000"
+             id="text17861">0.4</text>
+        </g>
+        <g
+           id="ytick6">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,446.490000 L 220.000000,446.490000"
+             id="path17864" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,446.490000 L 1555.200000,446.490000"
+             id="path17866" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="450.990000"
+             id="text17868">0.5</text>
+        </g>
+        <g
+           id="ytick7">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,359.370000 L 220.000000,359.370000"
+             id="path17871" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,359.370000 L 1555.200000,359.370000"
+             id="path17873" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="363.870000"
+             id="text17875">0.6</text>
+        </g>
+        <g
+           id="ytick8">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,272.250000 L 220.000000,272.250000"
+             id="path17878" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,272.250000 L 1555.200000,272.250000"
+             id="path17880" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="276.750000"
+             id="text17882">0.7</text>
+        </g>
+        <g
+           id="ytick9">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 216.000000,185.130000 L 220.000000,185.130000"
+             id="path17885" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"
+             d="M 1551.200000,185.130000 L 1555.200000,185.130000"
+             id="path17887" />
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="189.630000"
+             id="text17889">0.8</text>
+        </g>
+        <g
+           id="ytick10">
+          <text
+             style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+             x="194.000000"
+             y="102.510000"
+             id="text17892">0.9</text>
+        </g>
+        <text
+           style="font-size: 12.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+           x="188.953125"
+           y="534.550000"
+           transform="translate(188.953125,534.550000) rotate(-90.0) translate(-188.953125,-534.550000)"
+           id="text17894">mismatch rate</text>
+      </g>
+      <path
+         style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"
+         d="M 216.000000,882.090000 L 1555.200000,882.090000 L 1555.200000,98.010000 L 216.000000,98.010000 L 216.000000,882.090000 "
+         id="path17896" />
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="794.700000"
+         y="365.400000"
+         id="text17898">3_5235571_T_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="468.000000"
+         y="392.400000"
+         id="text17900">1_23893336_T_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="449.100000"
+         y="508.500000"
+         id="text17902">5_22116788_G_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="550.800000"
+         y="603.000000"
+         id="text17904">4_17038400_A_T</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="333.900000"
+         y="685.800000"
+         id="text17906">2_5021020_T_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="458.100000"
+         y="777.600000"
+         id="text17908">2_17859964_G_A</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="710.100000"
+         y="648.900000"
+         id="text17910">4_9580049_T_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="723.600000"
+         y="580.500000"
+         id="text17912">1_11655519_T_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="967.500000"
+         y="567.000000"
+         id="text17914">5_26120955_G_A</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="933.300000"
+         y="632.700000"
+         id="text17916">5_15065196_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="838.800000"
+         y="755.100000"
+         id="text17918">5_2244739_C_T</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="921.600000"
+         y="808.200000"
+         id="text17920">5_17629384_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="781.200000"
+         y="840.600000"
+         id="text17922">2_13265124_C_T</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="655.200000"
+         y="742.500000"
+         id="text17924">4_8297960_T_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="735.300000"
+         y="806.400000"
+         id="text17926">3_11398207_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="732.600000"
+         y="820.800000"
+         id="text17928">1_23395010_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="689.400000"
+         y="828.000000"
+         id="text17930">2_15986354_A_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="748.800000"
+         y="853.200000"
+         id="text17932">1_7842523_C_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="656.100000"
+         y="800.100000"
+         id="text17934">5_1931167_G_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="608.400000"
+         y="801.000000"
+         id="text17936">4_7077926_C_T</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="596.700000"
+         y="827.100000"
+         id="text17938">1_28666837_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="585.900000"
+         y="849.600000"
+         id="text17940">4_9377790_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="573.300000"
+         y="843.300000"
+         id="text17942">1_17355738_G_A</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="562.500000"
+         y="866.700000"
+         id="text17944">4_2441217_A_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="527.400000"
+         y="864.900000"
+         id="text17946">5_20518330_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="492.300000"
+         y="848.700000"
+         id="text17948">5_23270994_T_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="493.200000"
+         y="860.400000"
+         id="text17950">1_20175347_T_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="262.800000"
+         y="809.100000"
+         id="text17952">3_18980664_A_C</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="238.500000"
+         y="853.200000"
+         id="text17954">4_13576588_G_T</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="297.000000"
+         y="841.500000"
+         id="text17956">1_10720273_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="341.100000"
+         y="832.500000"
+         id="text17958">1_4396087_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="321.300000"
+         y="855.900000"
+         id="text17960">1_24893649_C_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="321.300000"
+         y="847.800000"
+         id="text17962">4_10482088_C_T</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="436.500000"
+         y="825.300000"
+         id="text17964">1_30214313_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="402.300000"
+         y="843.300000"
+         id="text17966">3_23053878_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="446.400000"
+         y="833.400000"
+         id="text17968">4_15765120_A_G</text>
+      <text
+         style="font-size: 8.000000; font-family: Bitstream Vera Sans; font-style: Roman; fill: #000000;"
+         x="480.600000"
+         y="869.400000"
+         id="text17970">5_625679_C_A</text>
+    </g>
+  </g>
+  <text
+     style="font-size:14px;fill:#000000;font-family:Bitstream Vera Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:125%"
+     x="783.22058"
+     y="80.848236"
+     id="text17216"
+     sodipodi:linespacing="125%">
+    <tspan
+       sodipodi:role="line"
+       id="tspan17978"
+       x="783.22058"
+       y="80.848236">250k vs 149SNP snp-wise</tspan>
+  </text>
+</svg>
