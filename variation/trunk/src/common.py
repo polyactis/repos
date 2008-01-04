@@ -66,6 +66,19 @@ nt_number_matching_matrix = [[1, 1,1,1,1,1, 1,1,1,1,1],
 	[1, 0,1,0,1,0, 0,0,0,1,0],
 	[1, 0,0,1,1,0, 0,0,0,0,1]]
 
+def get_nt_number2diff_matrix_index(nt2number):
+	"""
+	2008-01-01 copied from CmpAccession2Ecotype.py
+	2007-10-31
+		nucleotide number ranges from -1 to 10.
+		the diff_matrix_index ranges from 0 to 11.
+	"""
+	sys.stderr.write("Getting nt_number2diff_matrix_index from nt2number ...")
+	nt_number2diff_matrix_index = {}
+	for nt, number in nt2number.iteritems():
+		nt_number2diff_matrix_index[number] = number+1	#'-'(deletion) is -1
+	sys.stderr.write("Done.\n")
+	return nt_number2diff_matrix_index
 
 def get_chr_id2size(curs, chromosome_table='at.chromosome'):
 	"""
