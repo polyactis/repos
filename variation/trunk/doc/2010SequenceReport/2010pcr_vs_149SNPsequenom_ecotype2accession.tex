@@ -1,0 +1,102 @@
+\documentclass[a3paper,10pt]{article}
+\usepackage[a3paper]{geometry}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{ifpdf}
+\ifpdf
+\usepackage[pdftex, bookmarks, colorlinks, plainpages=false,pdfpagelabels,breaklinks]{hyperref}
+\else
+\usepackage[dvips, bookmarks, colorlinks, linkcolor=blue, urlcolor=blue, citecolor=blue, plainpages=false,pdfpagelabels,linktocpage]{hyperref}
+\fi
+
+\usepackage{longtable}
+%\usepackage{afterpage}
+\usepackage{float}
+%\usepackage[all]{xy}
+\addtolength{\textheight}{5cm}
+\addtolength{\textwidth}{5cm}
+\addtolength{\hoffset}{-3cm}
+\addtolength{\voffset}{-3cm}
+
+%opening
+\title{Comparison of calls for 149snps between 2010 pcr and sequenom data}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\tableofcontents
+
+
+\section{Introduction}
+In an earlier 2010SequenceReport, 244 out of old 2010's 248 strains were found matches in the new sequenom-genotyped ecotype table(one-to-one mapping). Now not only that, other copies of that 244 strains in ecotype table were also found out based on nativename(two pairs deleted after manual checkup. see ticket no.3 on the trac website). Different genotype runs for a single ecotype are also treated separately.
+
+The question is to do a detailed comparison between two different studies.
+
+The input are two matricies. Matrix 1 (2010 pcr data, Figure~\ref{f2}) is 236 2010 strains X 149 SNPs. (it's 236, not 244 because a few strains are not genotyped in sequenom-data. Matrix 2 (Figure~\ref{f3} is 454 sequenom strains X 149 SNPs. All these 454 sequenom strains could be mapped to 236 2010 pcr strains.
+
+The method is to look at contingency-like tables. It's a table to show where the 2010 pcr calls are mapped in sequenom calls. There're 12 different types of calls. The row is 2010 pcr call. The column is sequenom call.
+
+'-' is deletion. 'NA' means not available (it could mean not genotyped or genotyped but can't be told which is which.) The rest is self-explanatory.
+
+\begin{figure}
+\includegraphics{figures/2010pcr_with_sequenom_149snps_accession2ecotype_complete_y3_legend.png}
+\caption{matrix legend}\label{f1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth,height=1\textheight]{figures/2010pcr_with_sequenom_149snps_accession2ecotype_complete_y3.png}
+\caption{2010 pcr strain X snp matrix. rows are labeled by 2010 accession ids. columns are labeled by SNP ids. check Figure~\ref{f1} for legend.}\label{f2}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth, height=1\textheight]{figures/sequenom_with_strains_matched_to_2010pcr_accession2ecotype_complete_y3.png}
+\caption{sequenom strain X snp matrix. rows are labeled by sequenom ecotype,duplicate pairs. columns are labeled by SNP ids. check Figure~\ref{f1} for legend.}\label{f3}
+\end{figure}
+
+\section{Observations}
+\subsection{observation from summary comparison}
+Results are in section~\ref{section_summary}. Whether there's a strain recorded is one thing, whether that strain was tried using pcr or sequenom is another thing. Based on whether that strain was \textbf{tried} by pcr in 2010 or sequenom, there're 4 combinations between 2010 and sequenom. 4 tables (Table~\ref{table_dm0}-\ref{table_dm3}) correspond to these 4 different combinations. The data of the strains not tried by sequenom are not included. This is why table~\ref{table_dm1} and table~\ref{table_dm3} are empty.
+
+Attention should be focused on Table~\ref{table_dm0}.
+\begin{itemize}
+ \item There's a dominance of mismatches happening within two purine (A and G) or two pyrimidine bases (C and T). this is probably related to the mass spectrometry technology used by sequenom.
+\item Only 3 heterozygous calls match between 2010 pcr and sequenom data. If the heterozygous call is mismatched, it's mismatched to one of the two alleles (which is nothing new).
+\item Check 2nd column, Lots of calls (about 12\% for each base) made in 2010 pcr were called 'NA'(undecided) in sequenom data.
+\end{itemize}
+
+All these call for the improvement in the genotype calling algorithm.
+
+\subsection{observation from strain-wise comparison}
+Results are in section~\ref{section_strain_wise}.
+
+Strains are ordered by 2010 accession id. For each 2010 strain, different sequenom runs are listed as subsections.
+
+\begin{itemize}
+ \item 4 copies of Mr-0 in sequenom. 3 of them show consistent homozygous states. the 3rd one, which is a technical duplicate of the 2nd one, might be contamination (lots of heterozygous calls).
+\item 3 copies of Van-0 in sequenom all show consistent homozygous calls in sequenom. but Van-0 shows quite heterozygous in 2010 pcr. So 2010 pcr's Van-0 is contaminated?
+\item Cvi-0 looks pretty consistent between two types of data.
+\end{itemize}
+
+
+\subsection{observation from snp-wise comparison}
+Results are in section~\ref{section_snp_wise}.
+
+\begin{itemize}
+ \item AtMSQTsnp146 has 3 major alleles in 2010 pcr data. In sequenom, the 3rd allele('C') is all called 'NA' except one case.
+\item there're 4 bad snps (AtMSQTsnp 138, 232, 263 and 267) showing excessive heterozygosity that were tossed out based on a statistic model. one of them (AtMSQTsnp 264) doesn't show excessive heterozygosity in these strains. AtMSQTsnp 138 has lots of 'C' alleles of 2010 pcr called 'NA' and 'CT' in sequenom data (AtMSQTsnp 232, 267 has similar situation).
+\item (loss) snp AtMSQTsnp 30, 33, 47, 58, 60, 61, 67, 87, 91, 92, 129, 155, 156, 164, 170, 184, 186, 189, 205, 214, 231, 235, 237, 286, 331, 360, 368, 372, 398, 406, 409 show calls in 2010 pcr called 'NA' in sequenom data.
+\item (recovery) snp AtMSQTsnp 118, 126, 130, 142, 145, 174, 184, 278, 279, 304, 306, 315, 321, 325, 373, 415 show lots of 'NA' in 2010 pcr recovered by sequenom.
+\item snp AtMSQTsnp 327, 370, 392 show both loss and recovery.
+
+\end{itemize}
+
+
+
+\input{2010pcr_vs_149SNPsequenom_diff_ecotype2accession.tex}
+
+\end{document}
