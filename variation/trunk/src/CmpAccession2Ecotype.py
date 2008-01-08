@@ -22,12 +22,12 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	./src/CmpAccession2Ecotype.py -p at.ecotype2accession -o 2010pcr_with_sequenom_149snps_ecotype2accession.csv -j sequenom_with_strains_matched_to_2010pcr_ecotype2accession.csv -r
+	./src/CmpAccession2Ecotype.py -p at.ecotype2accession -o 2010pcr_X_149SNPsequenom_ecotype2accession.csv -j 149SNPsequenom_with_strains_matched_to_2010pcr_ecotype2accession.csv -r -f doc/2010SequenceReport/2010pcr_vs_149SNPsequenom_diff_ecotype2accession.tex
 	
-	./src/CmpAccession2Ecotype.py -p at.accession2ecotype_complete -o 2010pcr_with_sequenom_149snps_accession2ecotype_complete.csv -j  sequenom_with_strains_matched_to_2010pcr_accession2ecotype_complete.csv -r -f 2010pcr_vs_sequenom_diff.tex
+	./src/CmpAccession2Ecotype.py -p at.accession2ecotype_complete -o 2010pcr_X_149SNPsequenom_accession2ecotype_complete.csv -j 149SNPsequenom_with_strains_matched_to_2010pcr_accession2ecotype_complete.csv -r -f doc/2010SequenceReport/2010pcr_vs_149SNPsequenom_diff_accession2ecotype_complete.tex
 
 Description:
-	program to compare the 149snp calls based on the common strains inn 2010 pcr data and Justin's sequenom data.
+	program to compare the 149SNP calls based on the common strains in 2010 pcr data and Justin's sequenom data.
 	
 """
 import sys, os, math
