@@ -4,7 +4,7 @@
 	modules to deal with latex output
 """
 
-esc_character_dict = {'_':'\\_'}
+esc_character_dict = {'_':'\\_', '|':'$|$'}
 
 def escape_characters(latex_line):
 	"""
