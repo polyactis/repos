@@ -174,9 +174,12 @@ class Output2010InCertainSNPs:
 			add snp_index2alignment_id
 		2007-12-18
 			copied from CmpAccession2Ecotype.py
+		2008-01-07
+			default, data_matrix[:] = -2
 		"""
 		sys.stderr.write("Getting accession_X_snp_matrix ...\n")
 		data_matrix = numpy.zeros([len(accession_id2row_index), len(SNPpos2col_index)], numpy.integer)
+		data_matrix[:] = -2
 		data_matrix_touched = numpy.zeros([len(accession_id2row_index), len(SNPpos2col_index)], numpy.integer)
 		snp_index2alignment_id = {}
 		curs.execute("select s.accession, s.alignment, s.bases, a.chromosome, a.start from %s s, %s a where s.alignment=a.id"%(sequence_table, alignment_table))
