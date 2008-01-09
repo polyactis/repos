@@ -7,7 +7,7 @@ Option:
 	-d ..., --dbname=...	the database name, stock20071008(default)
 	-k ..., --schema=...	which schema in the database, dbsnp(default)
 	-e ...,	ecotype_table, 'stock20071008.ecotype'(default)
-	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession'
+	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession' or 'at.accession2ecotype'
 	-s ...,	sequence table, 'at.sequence'(default)
 	-a ..., alignment table, 'at.alignment'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
@@ -21,16 +21,21 @@ Option:
 	-h, --help	show this help
 
 Examples:
+	#row matching via at.ecotype2accession
 	Cmp149SNPVs2010.py -i ~/script/variation/stock20071008/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.ecotype2accession -o ~/script/variation/genotyping/149snp/analysis/stock20071008_data_y10001101Vs2010_ecotype2accession_diff_matrix.tex
 	
+	#row matching via at.accession2ecotype_complete (require is_stockparent_original=1, same stockparent)
 	Cmp149SNPVs2010.py -i ~/script/variation/stock20071008/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.accession2ecotype_complete -o ~/script/variation/genotyping/149snp/analysis/stock20071008_data_y10001101Vs2010_accession2ecotype_complete_diff_matrix.tex
 	
+	#row matching via at.accession2ecotype (similar to at.accession2ecotype_complete, except less coverage. some entries in at.ecotype2accession are not covered by ecotype_duplicate2tg_ecotypeid_table due to no genotyping or no GPS.)
+	Cmp149SNPVs2010.py  -i ~/script/variation/stock20071008/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.accession2ecotype -o ~/script/variation/genotyping/149snp/analysis/stock20071008_data_y10001101Vs2010_accession2ecotype_diff_matrix.tex
+
 	Cmp149SNPVs2010.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.ecotype2accession -o ~/script/variation/genotyping/149snp/analysis/stock20071227_data_y10001101Vs2010_ecotype2accession_diff_matrix.tex
 	
 	Cmp149SNPVs2010.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.accession2ecotype_complete -o ~/script/variation/genotyping/149snp/analysis/stock20071227_data_y10001101Vs2010_accession2ecotype_complete_diff_matrix.tex
 	
 Description:
-	program to compare the 149snp calls based on the common strains inn 2010 pcr data and Justin's sequenom data.
+	program to compare the 149snp calls based on the common strains in 2010 pcr data and Justin's sequenom data.
 	
 """
 import sys, os, math
@@ -62,6 +67,9 @@ class Cmp149SNPVs2010(QualityControl):
 	def get_row_matching_dstruc(self, strain_acc_list1, category_list1, strain_acc_list2, accession2ecotype_table):
 		"""
 		2008-01-07
+		2008-01-08
+			if accession2ecotype_table=='at.accession2ecotype_complete' or accession2ecotype_table=='accession2ecotype_complete':
+				make sure accession id and ecotype id share the same stockparent
 		"""
 		sys.stderr.write("Getting row matching dstruc ...\n")
 		strain_acc2row_index1 = {}
@@ -80,7 +88,8 @@ class Cmp149SNPVs2010(QualityControl):
 		row_id12row_id2 = {}
 		for strain_acc in strain_acc2row_index1:
 			ecotype_id = strain_acc[0]
-			if accession2ecotype_table=='at.accession2ecotype_complete':
+			if accession2ecotype_table=='at.accession2ecotype_complete' or accession2ecotype_table=='accession2ecotype_complete':
+				#make sure accession id and ecotype id share the same stockparent
 				curs.execute("select accession_id from %s where ecotype_id=%s and is_stockparent_original=1"%(accession2ecotype_table, ecotype_id))
 			else:
 				curs.execute("select accession_id from %s where ecotype_id=%s"%(accession2ecotype_table, ecotype_id))
