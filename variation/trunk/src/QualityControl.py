@@ -126,6 +126,8 @@ class QualityControl:
 		2007-12-20
 			make it more generic
 		2007-12-21 even more generic
+		2008-01-07
+			change the non_NA criteria from !=0 to >0. in 2010 data matrix, there's substantial amount of -2 (not tried).
 		"""
 		sys.stderr.write("Comparing row-wise for mismatches ...\n")
 		row_id2NA_mismatch_rate = {}
@@ -143,7 +145,7 @@ class QualityControl:
 					no_of_totals += 1
 					if data_matrix1[row_index1][col_index1] == 0:
 						no_of_NAs += 1
-					if data_matrix1[row_index1][col_index1] != 0 and data_matrix2[row_index2][col_index2]!=0:
+					if data_matrix1[row_index1][col_index1] > 0 and data_matrix2[row_index2][col_index2] > 0:	#2008-01-07
 						no_of_non_NA_pairs += 1
 						if data_matrix1[row_index1][col_index1] != data_matrix2[row_index2][col_index2]:
 							no_of_mismatches += 1
@@ -159,6 +161,8 @@ class QualityControl:
 	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
 		2007-12-21
+		2008-01-07
+			change the non_NA criteria from !=0 to >0. in 2010 data matrix, there's substantial amount of -2 (not tried).
 		"""
 		sys.stderr.write("Calculating pairwise distance ...")
 		row_id2pairwise_dist = {}
@@ -170,7 +174,7 @@ class QualityControl:
 				for col_id1, col_id2 in col_id12col_id2.iteritems():
 					col_index1 = col_id2col_index1[col_id1]
 					col_index2 = col_id2col_index2[col_id2]
-					if data_matrix1[row_index1][col_index1]!=0 and data_matrix2[row_index2][col_index2]!=0:
+					if data_matrix1[row_index1][col_index1]>0 and data_matrix2[row_index2][col_index2]>0:
 						no_of_non_NA_pairs += 1
 						if data_matrix1[row_index1][col_index1] != data_matrix2[row_index2][col_index2]:
 							no_of_mismatches += 1
@@ -205,6 +209,8 @@ class QualityControl:
 			SNP wise
 		2007-12-20
 			make it more generic
+		2008-01-07
+			change the non_NA criteria from !=0 to >0. in 2010 data matrix, there's substantial amount of -2 (not tried).
 		"""
 		sys.stderr.write("Comparing col-wise for mismatches ...\n")
 		col_id2NA_mismatch_rate = {}
@@ -223,7 +229,7 @@ class QualityControl:
 					no_of_totals += 1
 					if data_matrix1[row_index1][col_index1] == 0:
 						no_of_NAs += 1
-					if data_matrix1[row_index1][col_index1] != 0 and data_matrix2[row_index2][col_index2] != 0:
+					if data_matrix1[row_index1][col_index1] > 0 and data_matrix2[row_index2][col_index2] > 0:
 						no_of_non_NA_pairs += 1
 						if data_matrix1[row_index1][col_index1] != data_matrix2[row_index2][col_index2]:
 							no_of_mismatches += 1
@@ -281,10 +287,17 @@ class QualityControl:
 	def wrap_diff_matrix_with_row_col_names(self, diff_matrix):
 		"""
 		2008-01-01
+		2008-01-07
+			a cleverer way to generate row_name_ls
 		"""
 		if self.report or self.debug:
 			sys.stderr.write("Wrapping diff_matrix with row, column names ...")
-		row_name_ls = ['-', 'NA', 'A', 'C', 'G', 'T', 'AC', 'AG', 'AT', 'CG', 'CT', 'GT']
+		number_nt_ls = []
+		for number, nt in number2nt.iteritems():
+			number_nt_ls.append([number, nt])
+		number_nt_ls.sort()
+		row_name_ls = [row[1] for row in number_nt_ls]
+		#row_name_ls = ['-', 'NA', 'A', 'C', 'G', 'T', 'AC', 'AG', 'AT', 'CG', 'CT', 'GT']
 		wrapped_diff_matrix = [ [''] + row_name_ls]
 		for i in range(diff_matrix.shape[0]):
 			wrapped_diff_matrix.append([row_name_ls[i]] + diff_matrix[i,:].tolist())
@@ -316,15 +329,16 @@ class QualityControl:
 		"""
 		2008-01-01
 			self.nt_number2diff_matrix_index, self.row_id2info will have to be loaded in ahead.
+		2008-01-09 record diff_details_ls into db
 		"""
-		diff_matrix, diff_details_ls = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
-		print diff_matrix
+		self.diff_matrix, self.diff_details_ls = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		print self.diff_matrix
 		i = 0
 		if self.latex_output_fname:
 			outf = open(self.latex_output_fname, 'w')
 			outf.write('\\section{Summary} \\label{section_summary}\n')
 			from pymodule.latex import outputMatrixInLatexTable
-			wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix)
+			wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(self.diff_matrix)
 			table_label = 'table_dm%s'%i
 			outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, '%s vs %s'%(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)), table_label))
 			i += 1
@@ -332,11 +346,15 @@ class QualityControl:
 			
 			#output the whole diff_details_ls
 			outf.write('\\section{Real Mismatches (deletion/NA excluded)} \\label{section_real_mismatch}\n')
-			bea_diff_details_ls = self.beautify_diff_details_ls(diff_details_ls, self.row_id2info)
+			bea_diff_details_ls = self.beautify_diff_details_ls(self.diff_details_ls, self.row_id2info)
 			table_label = 'table_dm%s'%table_no
 			caption = 'mismatches (deletion/NA excluded)'
 			outf.write(outputMatrixInLatexTable(bea_diff_details_ls, caption, table_label, header_ls=['row id1', 'col id1', 'call1', 'row id2', 'col id2', 'call2']))
 			del outf
+		#2008-01-09 record details into db
+		if self.diff_details_table:
+			self.create_diff_details_table(self.curs, self.diff_details_table)
+			self.submit_diff_details_ls(self.curs, self.diff_details_table, self.diff_details_ls)
 	
 	def load_dstruc(self):
 		"""
@@ -347,7 +365,7 @@ class QualityControl:
 				self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2
 				self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2
 		"""
-		self.nt_number2diff_matrix_index = get_nt_number2diff_matrix_index(nt2number)
+		self.nt_number2diff_matrix_index = get_nt_number2diff_matrix_index(number2nt)
 
 	def get_row_id2info(self, row_id_ls, curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype'):
 		"""
@@ -469,3 +487,36 @@ class QualityControl:
 	
 	def cal_row_id2pairwise_dist(self):
 		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+	
+
+	def create_diff_details_table(self, curs, diff_details_table):
+		"""
+		2008-01-09
+			store the diff_details_ls into db
+		"""
+		sys.stderr.write("Creating diff_details_table ...")
+		curs.execute("create table %s(\
+			id	integer primary key auto_increment,\
+			ecotype_id	integer	not null,\
+			duplicate	integer,\
+			col_id1	varchar(200) not null,\
+			call1	integer,\
+			accession_id	integer not null,\
+			col_id2	varchar(200) not null,\
+			call2	integer)"%diff_details_table)
+		sys.stderr.write("Done.\n")
+	
+	def submit_diff_details_ls(self, curs, diff_details_table, diff_details_ls):
+		"""
+		2008-01-09
+		"""
+		sys.stderr.write('Submitting diff_details_ls ...')
+		for row in diff_details_ls:
+			row_id1, col_id1, number1, row_id2, col_id2, number2 = row
+			if type(row_id1)==tuple:
+				ecotype_id, duplicate = row_id1
+				sql_string = "insert into %s(ecotype_id, duplicate, col_id1, call1, accession_id, col_id2, call2) values(%s, %s, '%s', %s, %s, '%s', %s)"%(diff_details_table, ecotype_id, duplicate, col_id1, number1, row_id2, col_id2, number2)
+			else:
+				sql_string = "insert into %s(ecotype_id, col_id1, call1, accession_id, col_id2, call2) values(%s, '%s', %s, %s, '%s', %s)"%(diff_details_table, row_id1, col_id1, number1, row_id2, col_id2, number2)
+			curs.execute(sql_string)
+		sys.stderr.write("Done.\n")
