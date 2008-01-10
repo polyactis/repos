@@ -24,6 +24,11 @@ class QCVisualize(gtk.Window):
 		class to visualize the results from QualityControl.py
 	"""
 	def __init__(self, id2NA_mismatch_rate, plot_title='', id2info={}):
+		"""
+		2008-01-10
+			use a paned window to wrap the scrolledwindow and the canvas
+			so that the relative size of canvas to the scrolledwindow could be adjusted by the user.
+		"""
 		gtk.Window.__init__(self)
 		self.id2NA_mismatch_rate = id2NA_mismatch_rate
 		self.plot_title = plot_title
@@ -38,27 +43,30 @@ class QCVisualize(gtk.Window):
 		self.add(vbox)
 
 		label = gtk.Label('Double click a row to highlight it')
-
 		vbox.pack_start(label, False, False)
-
+		
+		vpaned = gtk.VPaned()
+		vbox.pack_start(vpaned, True, True)
+		
 		sw = gtk.ScrolledWindow()
 		sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
 		sw.set_policy(gtk.POLICY_NEVER,
 			          gtk.POLICY_AUTOMATIC)
-		vbox.pack_start(sw, True, True)
+		vpaned.add1(sw)
+		#vbox.pack_start(sw, True, True)
 
 		self.liststore = self.create_model(self.id2NA_mismatch_rate, self.id2info)
-
 		self.treeview = gtk.TreeView(self.liststore)
 		self.treeview.set_rules_hint(True)
 		self.treeselection = self.treeview.get_selection()
 		
 		# matplotlib stuff
 		fig = Figure(figsize=(8,8))
-
 		self.canvas = FigureCanvas(fig)  # a gtk.DrawingArea
 		self.canvas.mpl_connect('button_press_event', self.on_click)
-		vbox.pack_start(self.canvas, True, True)
+		vpaned.add2(self.canvas)
+		
+		#vbox.pack_start(self.canvas, True, True)
 		self.ax = fig.add_subplot(111)
 		
 		self.plot_NA_mismatch_rate(self.ax, self.canvas, self.liststore, self.plot_title)
