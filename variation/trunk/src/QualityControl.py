@@ -308,16 +308,19 @@ class QualityControl:
 	def beautify_diff_details_ls(self, diff_details_ls, row_id2info={}):
 		"""
 		2008-01-01
+		2008-01-11
+			sort the diff_details_ls and retain the original row_id1 into row_id1_info
 		"""
 		if self.report or self.debug:
 			sys.stderr.write("Beautifying diff_details_ls ...")
 		new_diff_details_ls = []
+		diff_details_ls.sort()
 		for row in diff_details_ls:
 			row_id1, col_id1, nt1, row_id2, col_id2, nt2 = row
 			if nt1<=0 or nt2<=0:	#skip deletion or missing
 				continue
 			if row_id1 in row_id2info:
-				row_id1_info = row_id2info[row_id1]
+				row_id1_info = '%s/%s'%(repr(row_id1), row_id2info[row_id1])
 			else:
 				row_id1_info = repr(row_id1)
 			new_diff_details_ls.append([row_id1_info, col_id1, number2nt[nt1], row_id2, col_id2, number2nt[nt2]])
@@ -330,6 +333,8 @@ class QualityControl:
 		2008-01-01
 			self.nt_number2diff_matrix_index, self.row_id2info will have to be loaded in ahead.
 		2008-01-09 record diff_details_ls into db
+		2008-01-11
+			add strain-wise and snp-wise diff output
 		"""
 		self.diff_matrix, self.diff_details_ls = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 		print self.diff_matrix
@@ -350,6 +355,58 @@ class QualityControl:
 			table_label = 'table_dm%s'%table_no
 			caption = 'mismatches (deletion/NA excluded)'
 			outf.write(outputMatrixInLatexTable(bea_diff_details_ls, caption, table_label, header_ls=['row id1', 'col id1', 'call1', 'row id2', 'col id2', 'call2']))
+			
+			#output diff_matrix and diff_details_ls one strain by one
+			outf.write('\\section{Diff Matrix for each strain} \\label{section_strain_wise}\n')
+			row_id1_ls = self.row_id12row_id2.keys()
+			row_id1_ls.sort()
+			for row_id1 in row_id1_ls:
+				row_id2 = self.row_id12row_id2[row_id1]
+				diff_matrix_for_one_row, diff_details_ls_for_one_row = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, row_id=row_id1)
+				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix_for_one_row)
+				table_no += 1
+				table_label = 'table_dm%s'%table_no
+				if row_id1 in self.row_id2info:
+					row_id1_info = self.row_id2info[row_id1]
+				elif type(row_id1)==tuple:
+					if row_id1[0] in self.row_id2info:
+						row_id1_info = self.row_id2info[row_id1[0]]
+					else:
+						row_id1_info = ''
+				else:
+					row_id1_info = ''
+				caption = 'row id1=%s (%s) vs row id2=%s'%(row_id1, row_id1_info, row_id2)
+				outf.write('\\subsection{row id1=%s (%s) vs row id2=%s}\n'%(row_id1, row_id1_info, row_id2))
+				outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, caption, table_label))
+				if diff_details_ls_for_one_row:
+					bea_diff_details_ls = self.beautify_diff_details_ls(diff_details_ls_for_one_row, self.row_id2info)
+					table_no += 1
+					table_label = 'table_dm%s'%table_no
+					caption = 'detailed difference for row id1=%s (%s) vs row id2=%s'%(row_id1, row_id1_info, row_id2)
+					if bea_diff_details_ls:
+						outf.write(outputMatrixInLatexTable(bea_diff_details_ls, caption, table_label, header_ls=['row id1', 'col id1', 'call1', 'row id2', 'col id2', 'call2']))
+
+			#SNP-wise comparison
+			outf.write('\\section{Diff Matrix for each SNP} \\label{section_snp_wise}\n')
+			col_id1_ls = self.col_id12col_id2.keys()
+			col_id1_ls.sort()
+			for col_id1 in col_id1_ls:
+				col_id2 = self.col_id12col_id2[col_id1]
+				diff_matrix_for_one_col, diff_details_ls_for_one_col = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, col_id=col_id1)
+				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix_for_one_col)
+				table_no += 1
+				table_label = 'table_dm%s'%table_no
+				caption = 'col id1=%s vs col id2=%s'%(col_id1, col_id2)
+				outf.write('\\subsection{col id1=%s vs col id2=%s}\n'%(col_id1, col_id2))
+				outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, caption, table_label))
+				if diff_details_ls_for_one_col:
+					bea_diff_details_ls = self.beautify_diff_details_ls(diff_details_ls_for_one_col, self.row_id2info)
+					table_no += 1
+					table_label = 'table_dm%s'%table_no
+					caption = 'detailed difference for col id1=%s vs col id2=%s'%(col_id1, col_id2)
+					if bea_diff_details_ls:
+						outf.write(outputMatrixInLatexTable(bea_diff_details_ls, caption, table_label, header_ls=['row id1', 'col id1', 'call1', 'row id2', 'col id2', 'call2']))
+
 			del outf
 		#2008-01-09 record details into db
 		if self.diff_details_table:
