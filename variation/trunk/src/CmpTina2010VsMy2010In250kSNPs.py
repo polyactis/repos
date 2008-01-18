@@ -23,8 +23,6 @@ Option:
 Examples:
 	CmpTina2010VsMy2010In250kSNPs.py -i /Network/Data/250k/calls/Tina_120607/250K_PERL_2010.csv -j ~/script/variation/data/2010/data_2010_x_250k.tsv -o ~/script/variation/genotyping/149snp/analysis/250K_PERL_2010Vs2010_x_250k_diff_matrix.tex
 	
-	CmpTina2010VsMy2010In250kSNPs.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP.tsv
-	
 Description:
 	program to compare the 149snp calls based on the common strains inn 2010 pcr data and Justin's sequenom data.
 	
@@ -48,6 +46,7 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 		compare Tina's 2010 data with mine
 	"""
 	def __init__(self, curs, input_fname1, input_fname2, latex_output_fname, debug=0, report=0):
+		QualityControl.__init__(self)
 		self.curs = curs
 		self.input_fname1 = input_fname1
 		self.input_fname2 = input_fname2
@@ -81,6 +80,8 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 	def get_row_matching_dstruc(self, strain_acc_list1, strain_acc_list2, ecotype_table='ecotype', batch_ecotype_table='batch_ecotype'):
 		"""
 		2007-12-20
+		2008-01-18
+			Tina changed the naming format in her new output: /Network/Data/250k/calls/Tina_011708/250K_PERL_2010.csv
 		"""
 		sys.stderr.write("Getting row matching dstruc ...\n")
 		strain_acc2row_index1 = {}
@@ -106,23 +107,31 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 			'BurOB':8272,
 			'C24A':8273,
 			'C24B':8273,
+			'Cibc17':8276,
 			'ColOA':8279,
 			'COL0A':8279,
 			'Col0B':8279,
 			'CS2249':8429,	#'CS2249' should be 'CS22491' and in ecotype, its nativename is 'N13'
 			'CviOA':8281,
+			'CVI0A':8281,
 			'CviOB':8281,
 			'CVI-0A':8281,
 			'El-2':8289,
+			'El2':8289,
 			'EST1A':8291,
 			'Est1B':8291,
 			'Fab-2':8292,
 			'Fab-4':8293,
 			'FeiOB':8294,
 			'FEI0A':8294,
+			'Got22':8298,
 			'Got7A':8299,
 			'GOT7B':8299,
+			'HR10':8308,
+			'Kas1':8315,
 			'Kas-1':8315,	#'Kas-1' mapped to 'Kas-2' in 2010
+			'Kno10':8317,
+			'Kno18':8318,
 			'Kz_9':8322,
 			'Ler1A':8324,
 			'LER1A':8324,
@@ -130,10 +139,18 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 			'Lov_1':6043,
 			'LOV5A':6046,
 			'Lov5B':6046,
+			'LY1':8279,	#Col-0
+			'LY2':8279,	#Col-0
+			'LY3':8324,	#Ler-1
+			'LY4':8324,	#Ler-1
+			'LY5':8400,	#Van-0
+			'LY6':8400,	#Van-0
 			'Ms_0':8340,
 			'Nafa8B':8346,
+			'Nfa10':8345,
 			'NFA8A':8346,
 			'Nok_3':8347,
+			'Omo21':8349,
 			'Omo2-1':8349,
 			'Omo2_3':8350,
 			'RmxA02':8370,
@@ -144,8 +161,10 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 			'Pna_17':8359,
 			'Pna_10':8358,
 			'Pu2_7':8362,
+			'Pu223':8361,
 			'SahB':8248,
 			'Se-0_2':8379,
+			'Se0_2':8379,
 			'ShaA':8248,
 			'SHADARAA':8248,
 			'Spr1_6':8383,
@@ -170,12 +189,19 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 		for strain_acc in strain_acc2row_index1:
 			#p_strain_name_search = p_strain_name.search(strain_acc)
 			#if p_strain_name_search:
-			strain_name = strain_acc[:-5]
-			strain_name_all_dash = strain_name.replace('_','-')	#backup strain_name
+			if strain_acc[-5]=='_':	#2008-01-17, Tina's old naming is like 'Omo2-1_2010'. New naming is like 'Omo212010'.
+				strain_name = strain_acc[:-5]
+			else:
+				strain_name = strain_acc[:-4]
 			curs.execute("select b.ecotypeid from %s b, %s e where e.id=b.ecotypeid and b.batchid=2 and e.nativename='%s'"%(batch_ecotype_table, ecotype_table, strain_name))
 			rows = curs.fetchall()
 			if not rows:
+				strain_name_all_dash = strain_name.replace('_','-')	#backup strain_name
 				curs.execute("select b.ecotypeid from %s b, %s e where e.id=b.ecotypeid and b.batchid=2 and e.nativename='%s'"%(batch_ecotype_table, ecotype_table, strain_name_all_dash))
+				rows = curs.fetchall()
+			if not rows and strain_name.find('-')==-1 and strain_name.find('_')==-1:	#2008-01-17 try one more type of strain_name if the strain_name doesn't have '-' and '_'
+				strain_name_tmp = strain_name[:-1] + '-' + strain_name[-1]
+				curs.execute("select b.ecotypeid from %s b, %s e where e.id=b.ecotypeid and b.batchid=2 and e.nativename='%s'"%(batch_ecotype_table, ecotype_table, strain_name_tmp))
 				rows = curs.fetchall()
 			if rows:
 				ecotypeid = rows[0][0]
@@ -189,6 +215,9 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 					row_id12row_id2[strain_acc] = ecotypeid
 				else:
 					sys.stderr.write("\tMatching Failure: %s.\n"%(strain_acc))
+		#2008-01-17 temporary, swap the mapping
+		#row_id12row_id2['Omo2-1_2010'] = 8350
+		#row_id12row_id2['Omo2_3_2010'] = 8349
 		sys.stderr.write("Done.\n")
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
@@ -359,10 +388,20 @@ if __name__ == '__main__':
 		ins= CmpTina2010VsMy2010In250kSNPs(curs, input_fname1, input_fname2, latex_output_fname, debug, report)
 		ins.load_dstruc()
 		ins.plot_row_NA_mismatch_rate('Tina 2010 vs 2010 db strain wise')
-		#ins.cal_row_id2pairwise_dist()
-		#new_row_id2pairwise_dist = ins.trim_row_id2pairwise_dist(ins.row_id2pairwise_dist, 10)
 		ins.plot_col_NA_mismatch_rate('Tina 2010 vs 2010 db snp wise')
+		ins.diff_details_table = ''
 		ins.output_diff_matrix()
+		ins.qc_cross_match_table = ''
+		ins.cal_row_id2pairwise_dist()
+		of = open(os.path.expanduser('~/script/variation/genotyping/149snp/analysis/qc_cross_Tina2010'), 'w')
+		import csv
+		writer = csv.writer(of, delimiter='\t')
+		for row_id, pairwise_dist_ls in ins.row_id2pairwise_dist.iteritems():
+			for pairwise_dist in pairwise_dist_ls:
+				mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs = pairwise_dist
+				writer.writerow([row_id, row_id2, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs])
+		del writer, of
+		#new_row_id2pairwise_dist = ins.trim_row_id2pairwise_dist(ins.row_id2pairwise_dist, 10)
 	else:
 		print __doc__
 		sys.exit(2)
