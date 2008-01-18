@@ -25,6 +25,8 @@ class QualityControl:
 			self.latex_output_fname = int(keywords['latex_output_fname'])
 		else:
 			self.latex_output_fname = ''
+		self.diff_details_table = ''
+		self.qc_cross_match_table = ''
 	
 	def calculate_row_NA_rate(self, strain_acc_list, category_list, data_matrix):
 		"""
@@ -166,6 +168,7 @@ class QualityControl:
 		"""
 		sys.stderr.write("Calculating pairwise distance ...")
 		row_id2pairwise_dist = {}
+		counter = 0
 		for row_id1, row_index1 in row_id2row_index1.iteritems():
 			pairwise_dist = []
 			for row_id2, row_index2 in row_id2row_index2.iteritems():
@@ -543,8 +546,14 @@ class QualityControl:
 		gtk.main()
 	
 	def cal_row_id2pairwise_dist(self):
+		"""
+		2008-01-11
+			add the part to submit the result to db
+		"""
 		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
-	
+		if self.qc_cross_match_table:
+			self.create_qc_cross_match_table(self.curs, self.qc_cross_match_table)
+			self.submit_row_id2pairwise_dist(self.curs, self.qc_cross_match_table, self.row_id2pairwise_dist)
 
 	def create_diff_details_table(self, curs, diff_details_table):
 		"""
@@ -576,4 +585,39 @@ class QualityControl:
 			else:
 				sql_string = "insert into %s(ecotype_id, col_id1, call1, accession_id, col_id2, call2) values(%s, '%s', %s, %s, '%s', %s)"%(diff_details_table, row_id1, col_id1, number1, row_id2, col_id2, number2)
 			curs.execute(sql_string)
+		sys.stderr.write("Done.\n")
+	
+	def create_qc_cross_match_table(self, curs, qc_cross_match_table):
+		"""
+		2008-01-11
+			create the qc_cross_match_table
+		"""
+		sys.stderr.write("Creating table %s ..."%qc_cross_match_table)
+		curs.execute("create table %s(\
+			id	integer primary key auto_increment,\
+			ecotype_id	integer	not null,\
+			duplicate	integer,\
+			accession_id	integer,\
+			mismatch_rate	float,\
+			no_of_mismatches	integer,\
+			no_of_non_NA_pairs	integer)"%qc_cross_match_table)
+		sys.stderr.write("Done.\n")
+	
+	def submit_row_id2pairwise_dist(self, curs, qc_cross_match_table, row_id2pairwise_dist):
+		"""
+		2008-01-11
+			submit row_id2pairwise_dist
+		"""
+		sys.stderr.write('Submitting row_id2pairwise_dist ...')
+		for row_id, pairwise_dist_ls in row_id2pairwise_dist.iteritems():
+			for pairwise_dist in pairwise_dist_ls:
+				mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs = pairwise_dist
+				accession_id = row_id2
+				if type(row_id)==tuple:
+					ecotype_id, duplicate = row_id
+					sql_string = "insert into %s(ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
+				else:
+					ecotype_id = row_id
+					sql_string = "insert into %s(ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
+				curs.execute(sql_string)
 		sys.stderr.write("Done.\n")
