@@ -1,0 +1,150 @@
+Start	1
+End	717
+group
+AtAAD10655
+label
+Block	1	2	15
+endlabel
+label
+Block	395	542	1	H
+Pre-SET
+endlabel
+label
+Block	544	685	0	H
+SET
+endlabel
+label
+Block	709	710	15	H
+  
+endlabel
+endgroup
+
+group
+AtF20H23.22
+label
+Block	1	2	15
+endlabel
+label
+Block	68	183	1	H
+Pre-SET
+endlabel
+label
+Block	140	190	10	H
+AWS
+endlabel
+label
+Block	191	329	0	H
+SET
+endlabel
+label
+Block	334	350	14	H
+Post-SET
+endlabel
+label
+Block	353	354	15	H
+  
+endlabel
+endgroup
+
+group
+AtSUVR2
+label
+Block	1	2	15
+endlabel
+label
+Block	395	542	1	H
+Pre-SET
+endlabel
+label
+Block	544	685	0	H
+SET
+endlabel
+label
+Block	716	717	15	H
+  
+endlabel
+endgroup
+
+group
+AtSuVAR39-4
+label
+Block	1	2	15
+endlabel
+label
+Block	146	294	1	H
+Pre-SET
+endlabel
+label
+Block	296	441	0	H
+SET
+endlabel
+label
+Block	487	488	15	H
+  
+endlabel
+endgroup
+
+group
+AtT27C4.2
+label
+Block	1	2	15
+endlabel
+label
+Block	130	278	1	H
+Pre-SET
+endlabel
+label
+Block	280	416	0	H
+SET
+endlabel
+label
+Block	423	424	15	H
+  
+endlabel
+endgroup
+
+group
+Atsuv1
+label
+Block	1	2	15
+endlabel
+label
+Block	305	454	1	H
+Pre-SET
+endlabel
+label
+Block	456	598	0	H
+SET
+endlabel
+label
+Block	603	619	14	H
+Post-SET
+endlabel
+label
+Block	629	630	15	H
+  
+endlabel
+endgroup
+
+group
+Os
+label
+Block	1	2	15
+endlabel
+label
+Block	6	20	1	H
+Pre-SET
+endlabel
+label
+Block	22	127	0	H
+SET
+endlabel
+label
+Block	171	249	13	H
+DUF260
+endlabel
+label
+Block	374	375	15	H
+  
+endlabel
+endgroup

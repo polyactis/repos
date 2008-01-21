@@ -1,0 +1,293 @@
+Start	1
+End	2210
+group
+At40.1KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	60	110	10	H
+AWS
+endlabel
+label
+Block	105	234	0	H
+SET
+endlabel
+label
+Block	234	250	14	H
+Post-SET
+endlabel
+label
+Block	351	352	15	H
+  
+endlabel
+endgroup
+
+group
+At41.3KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	63	115	10	H
+AWS
+endlabel
+label
+Block	110	239	0	H
+SET
+endlabel
+label
+Block	239	255	14	H
+Post-SET
+endlabel
+label
+Block	362	363	15	H
+  
+endlabel
+endgroup
+
+group
+At54.2KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	134	139	14	H
+Cytochrome c  heme-binding site
+endlabel
+label
+Block	134	204	6	H
+PHD
+endlabel
+label
+Block	300	429	0	H
+SET
+endlabel
+label
+Block	429	445	14	H
+Post-SET
+endlabel
+label
+Block	476	477	15	H
+  
+endlabel
+endgroup
+
+group
+At59.4KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	36	88	10	H
+AWS
+endlabel
+label
+Block	83	212	0	H
+SET
+endlabel
+label
+Block	213	229	14	H
+Post-SET
+endlabel
+label
+Block	527	528	15	H
+  
+endlabel
+endgroup
+
+group
+AtASH1l
+label
+Block	1	2	15
+endlabel
+label
+Block	1	130	0	H
+SET
+endlabel
+label
+Block	131	147	14	H
+Post-SET
+endlabel
+label
+Block	228	229	15	H
+  
+endlabel
+endgroup
+
+group
+AtHypo
+label
+Block	1	2	15
+endlabel
+label
+Block	121	126	14	H
+Cytochrome c  heme-binding site
+endlabel
+label
+Block	121	183	6	H
+PHD
+endlabel
+label
+Block	320	449	0	H
+SET
+endlabel
+label
+Block	449	465	14	H
+Post-SET
+endlabel
+label
+Block	496	497	15	H
+  
+endlabel
+endgroup
+
+group
+AtHypo5
+label
+Block	1	2	15
+endlabel
+label
+Block	83	212	0	H
+SET
+endlabel
+label
+Block	491	492	15	H
+  
+endlabel
+endgroup
+
+group
+AtT14N5
+label
+Block	1	2	15
+endlabel
+label
+Block	903	915	14	H
+Calcium-binding EF-hand
+endlabel
+label
+Block	974	1025	10	H
+AWS
+endlabel
+label
+Block	1020	1150	0	H
+SET
+endlabel
+label
+Block	1151	1167	14	H
+Post-SET
+endlabel
+label
+Block	1766	1767	15	H
+  
+endlabel
+endgroup
+
+group
+DmASH1
+label
+Block	1	2	15
+endlabel
+label
+Block	245	257	7	H
+AT_hook
+endlabel
+label
+Block	1049	1061	7	H
+AT_hook
+endlabel
+label
+Block	1079	1091	7	H
+AT_hook
+endlabel
+label
+Block	1323	1372	10	H
+AWS
+endlabel
+label
+Block	1368	1497	0	H
+SET
+endlabel
+label
+Block	1498	1514	14	H
+Post-SET
+endlabel
+label
+Block	1843	1887	6	H
+PHD
+endlabel
+label
+Block	1914	2056	14	H
+BAH
+endlabel
+label
+Block	2209	2210	15	H
+  
+endlabel
+endgroup
+
+group
+ScSET2
+label
+Block	1	2	15
+endlabel
+label
+Block	63	119	10	H
+AWS
+endlabel
+label
+Block	120	243	0	H
+SET
+endlabel
+label
+Block	244	260	14	H
+Post-SET
+endlabel
+label
+Block	476	507	14	H
+WW/Rsp5/WWP domain
+endlabel
+label
+Block	732	733	15	H
+  
+endlabel
+endgroup
+
+group
+ZmSET102
+label
+Block	1	2	15
+endlabel
+label
+Block	32	84	10	H
+AWS
+endlabel
+label
+Block	79	208	0	H
+SET
+endlabel
+label
+Block	209	225	14	H
+Post-SET
+endlabel
+label
+Block	512	513	15	H
+  
+endlabel
+endgroup
+
+group
+ZmSET110
+label
+Block	1	2	15
+endlabel
+label
+Block	113	242	0	H
+SET
+endlabel
+label
+Block	341	342	15	H
+  
+endlabel
+endgroup

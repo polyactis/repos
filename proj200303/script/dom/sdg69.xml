@@ -1,0 +1,2300 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<interpro_matches>
+
+   <protein id="SDG000001" length="902" crc64="90B45ED27D219D64" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="746" end="874" score="4.5e-44" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="752" end="873" score="7.3e-31" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="751" end="871" score="30.210" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="649" end="720" score="19.565" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="2" end="17" status="?" evidence="Seg" />
+	    <location start="183" end="197" status="?" evidence="Seg" />
+	    <location start="393" end="418" status="?" evidence="Seg" />
+	    <location start="435" end="451" status="?" evidence="Seg" />
+	    <location start="610" end="624" status="?" evidence="Seg" />
+	    <location start="745" end="752" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000002" length="2283" crc64="B952867AB6AC5907" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1711" end="1858" score="8.4e-27" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="1718" end="1858" score="1.8e-28" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1744" end="1856" score="21.418" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="PS50323" name="ARG_RICH" dbname="">
+	    <location start="398" end="492" score="10.358" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS50324" name="SER_RICH" dbname="">
+	    <location start="1502" end="1540" score="8.555" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="63" end="88" status="?" evidence="Seg" />
+	    <location start="448" end="460" status="?" evidence="Seg" />
+	    <location start="805" end="818" status="?" evidence="Seg" />
+	    <location start="838" end="849" status="?" evidence="Seg" />
+	    <location start="1064" end="1075" status="?" evidence="Seg" />
+	    <location start="1502" end="1515" status="?" evidence="Seg" />
+	    <location start="1523" end="1532" status="?" evidence="Seg" />
+	    <location start="1737" end="1753" status="?" evidence="Seg" />
+	    <location start="2020" end="2031" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000003" length="651" crc64="412AD76C8869ACF9" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="489" end="644" score="1.4e-37" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="495" end="644" score="1.1e-32" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="494" end="642" score="25.284" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="202" end="358" score="3e-108" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="202" end="358" score="7e-109" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="386" end="479" score="7.8e-41" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="388" end="487" score="2.7e-43" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="434" end="492" score="11.251" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="15" end="32" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000004" length="497" crc64="10D9C7EC779C2108" >
+	<interpro id="IPR000345" name="Cytochrome c  heme-binding site" type="Domain">
+	  <classification id="GO:0005489" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>electron transporter activity</description>
+	  </classification>
+	  <classification id="GO:0006118" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>electron transport</description>
+	  </classification>
+	  <match id="PS00190" name="CYTOCHROME_C" dbname="">
+	    <location start="121" end="126" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="320" end="449" score="2.7e-51" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="326" end="449" score="1.9e-43" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="120" end="168" score="1.2e-05" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="449" end="465" score="0.0017" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000005" length="689" crc64="2103D06ACD589CDF" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="538" end="665" score="6.9e-48" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="544" end="665" score="2.3e-37" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="543" end="663" score="31.034" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001368" name="TNFR/CD27/30/40/95 cysteine-rich region" type="Domain">
+	  <classification id="GO:0004872" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>receptor activity</description>
+	  </classification>
+	  <match id="PS00652" name="TNFR_NGFR_1" dbname="">
+	    <location start="460" end="498" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="163" end="193" status="?" evidence="Coil" />
+	  </match>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="450" end="519" score="20.059" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="169" end="195" status="?" evidence="Seg" />
+	    <location start="407" end="425" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000006" length="1114" crc64="6C5247E6835FD163" >
+	<interpro id="IPR001064" name="Beta and gamma crystallin" type="Domain">
+	  <match id="PS00225" name="CRYSTALLIN_BETAGAMMA" dbname="">
+	    <location start="930" end="945" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="950" end="1095" score="2.2e-55" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="956" end="1094" score="4.4e-42" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001687" name="ATP/GTP-binding site motif A (P-loop)" type="Domain">
+	  <classification id="GO:0005524" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>ATP binding activity</description>
+	  </classification>
+	  <match id="PS00017" name="ATP_GTP_A" dbname="">
+	    <location start="904" end="911" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001865" name="Ribosomal protein S2" type="Family">
+	  <classification id="GO:0003735" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>structural constituent of ribosome</description>
+	  </classification>
+	  <classification id="GO:0005622" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>intracellular</description>
+	  </classification>
+	  <classification id="GO:0005840" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>ribosome</description>
+	  </classification>
+	  <classification id="GO:0006412" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>protein biosynthesis</description>
+	  </classification>
+	  <match id="PS00962" name="RIBOSOMAL_S2_1" dbname="">
+	    <location start="500" end="511" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="823" end="940" score="4.1e-05" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="1098" end="1114" score="0.0018" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007087" name="Zn-finger, C2H2 type" type="Domain">
+	  <match id="PF00096" name="zf-C2H2" dbname="">
+	    <location start="467" end="490" score="0.021" status="T" evidence="HMMPfam" />
+	    <location start="570" end="593" score="0.019" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00355" name="ZnF_C2H2" dbname="">
+	    <location start="467" end="490" score="3.9" status="T" evidence="HMMSmart" />
+	    <location start="501" end="524" score="0.52" status="T" evidence="HMMSmart" />
+	    <location start="570" end="593" score="0.2" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS00028" name="ZINC_FINGER_C2H2_1" dbname="">
+	    <location start="469" end="491" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="503" end="524" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="572" end="593" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="825" end="948" score="1.7e-11" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="878" end="891" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000007" length="363" crc64="BA4CB48ACF54DFBF" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="110" end="239" score="1.1e-51" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="116" end="239" score="1.9e-45" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="115" end="237" score="32.231" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="239" end="255" score="0.0025" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="239" end="255" score="9.020" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="">
+	    <location start="63" end="115" score="2.4e-19" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="68" end="84" status="?" evidence="Seg" />
+	    <location start="93" end="105" status="?" evidence="Seg" />
+	    <location start="129" end="144" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000008" length="1792" crc64="0C4BEFADB0DCFACC" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1020" end="1150" score="1.1e-53" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="1026" end="1149" score="1.2e-42" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1025" end="1147" score="32.997" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002048" name="Calcium-binding EF-hand" type="Domain">
+	  <classification id="GO:0005509" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>calcium ion binding activity</description>
+	  </classification>
+	  <match id="PS00018" name="EF_HAND" dbname="">
+	    <location start="903" end="915" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="1151" end="1167" score="0.00045" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="1151" end="1167" score="10.068" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="">
+	    <location start="974" end="1025" score="1.2e-26" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="235" end="255" status="?" evidence="Seg" />
+	    <location start="486" end="500" status="?" evidence="Seg" />
+	    <location start="764" end="778" status="?" evidence="Seg" />
+	    <location start="1280" end="1293" status="?" evidence="Seg" />
+	    <location start="1688" end="1700" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000009" length="794" crc64="9C3BB4FA62885F17" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="641" end="771" score="8.8e-51" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="647" end="770" score="2.9e-45" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="646" end="768" score="34.410" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="360" end="519" score="3.2e-111" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="360" end="519" score="9.2e-106" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="541" end="631" score="4e-38" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="778" end="794" score="0.0027" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="778" end="794" score="9.052" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="543" end="639" score="9.6e-43" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="585" end="644" score="11.210" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="432" end="441" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000010" length="856" crc64="DD4B099C936F197C" >
+	<interpro id="IPR001005" name="Myb DNA-binding domain" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <classification id="GO:0005634" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>nucleus</description>
+	  </classification>
+	  <match id="SM00717" name="SANT" dbname="">
+	    <location start="489" end="539" score="0.0066" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="701" end="829" score="4.3e-44" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="707" end="828" score="1.4e-33" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="706" end="826" score="30.465" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR008197" name="Whey acidic protein, core region" type="Domain">
+	  <match id="PS00317" name="4_DISULFIDE_CORE" dbname="">
+	    <location start="617" end="630" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="22" end="50" status="?" evidence="Coil" />
+	  </match>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="605" end="680" score="20.553" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="17" end="33" status="?" evidence="Seg" />
+	    <location start="170" end="191" status="?" evidence="Seg" />
+	    <location start="325" end="343" status="?" evidence="Seg" />
+	    <location start="700" end="711" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000011" length="312" crc64="9349BB5A6D07CCB6" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="138" end="297" score="2.9e-10" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="74" end="296" score="1.1e-21" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="218" end="294" score="17.846" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="1" end="136" score="4.2e-80" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="1" end="136" score="5.8e-71" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="163" end="219" score="3.7e-05" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000013" length="630" crc64="C7E5A870917B1E81" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="456" end="598" score="2.8e-44" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="462" end="598" score="1.5e-37" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="461" end="596" score="26.285" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="303" end="446" score="1.2e-43" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="305" end="454" score="3.8e-06" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="356" end="459" score="8.564" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="10" end="28" status="?" evidence="Seg" />
+	    <location start="74" end="82" status="?" evidence="Seg" />
+	    <location start="83" end="95" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000014" length="967" crc64="227DE9B9793F1CF5" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="">
+	    <location start="186" end="270" score="1.6e-10" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00293" name="PWWP" dbname="">
+	    <location start="187" end="256" score="1.2e-06" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="">
+	    <location start="189" end="258" score="12.045" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="818" end="949" score="2.1e-46" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="824" end="948" score="2.1e-35" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="835" end="946" score="32.349" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="350" end="404" score="8.7e-10" status="T" evidence="HMMPfam" />
+	    <location start="534" end="583" score="3.3e-10" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="350" end="402" score="6e-09" status="T" evidence="HMMSmart" />
+	    <location start="534" end="581" score="1.3e-05" status="T" evidence="HMMSmart" />
+	    <location start="645" end="701" score="0.016" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2_1" dbname="">
+	    <location start="348" end="404" score="9.526" status="T" evidence="ProfileScan" />
+	    <location start="532" end="583" score="9.374" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="951" end="967" score="0.00027" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="951" end="967" score="8.987" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="49" end="68" status="?" evidence="Seg" />
+	    <location start="117" end="132" status="?" evidence="Seg" />
+	    <location start="362" end="376" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000014alt2" length="861" crc64="D1CC90B8BB21E9C8" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="">
+	    <location start="186" end="270" score="1.6e-10" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00293" name="PWWP" dbname="">
+	    <location start="187" end="256" score="1.2e-06" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="">
+	    <location start="189" end="258" score="12.045" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="350" end="404" score="8.7e-10" status="T" evidence="HMMPfam" />
+	    <location start="534" end="583" score="3.3e-10" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="350" end="402" score="6e-09" status="T" evidence="HMMSmart" />
+	    <location start="534" end="581" score="1.3e-05" status="T" evidence="HMMSmart" />
+	    <location start="645" end="701" score="0.016" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2_1" dbname="">
+	    <location start="348" end="404" score="9.526" status="T" evidence="ProfileScan" />
+	    <location start="532" end="583" score="9.374" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="49" end="68" status="?" evidence="Seg" />
+	    <location start="117" end="132" status="?" evidence="Seg" />
+	    <location start="362" end="376" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000015" length="352" crc64="7BF11C7B88013825" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="212" end="347" score="2.2e-25" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="218" end="346" score="0.00042" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="217" end="344" score="14.412" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001472" name="Bipartite nuclear localization signal" type="Domain">
+	  <match id="PS50079" name="NLS_BP" dbname="">
+	    <location start="122" end="139" score="5.000" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="66" end="114" score="3.3e-14" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="66" end="112" score="4.3e-11" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2" dbname="">
+	    <location start="64" end="114" score="10.131" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="6" end="19" status="?" evidence="Seg" />
+	    <location start="21" end="40" status="?" evidence="Seg" />
+	    <location start="52" end="60" status="?" evidence="Seg" />
+	    <location start="115" end="126" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000015alt2" length="379" crc64="F5A792C7E491BB48" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="239" end="374" score="2.2e-25" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="245" end="373" score="0.00042" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="244" end="371" score="14.412" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001472" name="Bipartite nuclear localization signal" type="Domain">
+	  <match id="PS50079" name="NLS_BP" dbname="">
+	    <location start="149" end="166" score="5.000" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="66" end="114" score="3.3e-14" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="66" end="112" score="4.3e-11" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2" dbname="">
+	    <location start="64" end="114" score="10.131" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="6" end="19" status="?" evidence="Seg" />
+	    <location start="21" end="40" status="?" evidence="Seg" />
+	    <location start="52" end="60" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000016" length="981" crc64="E01D80AF2E56C6E5" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="">
+	    <location start="204" end="283" score="0.0015" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="">
+	    <location start="207" end="276" score="10.001" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="833" end="963" score="4.8e-46" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="839" end="962" score="3.1e-36" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="850" end="960" score="32.879" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="400" end="454" score="4.8e-06" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="400" end="452" score="5.2e-06" status="T" evidence="HMMSmart" />
+	    <location start="659" end="715" score="0.27" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2" dbname="">
+	    <location start="398" end="454" score="8.956" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="965" end="981" score="0.00026" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="965" end="981" score="8.987" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="30" end="45" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000016alt2" length="366" crc64="995A7F0D9F772EAF" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="">
+	    <location start="204" end="283" score="0.0015" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="">
+	    <location start="207" end="276" score="10.001" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="30" end="45" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000017" length="693" crc64="E03E22BC2863E2D7" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="513" end="666" score="5.4e-50" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="519" end="666" score="2.1e-32" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="518" end="664" score="26.501" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="222" end="377" score="4.7e-44" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="222" end="377" score="7.2e-67" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="404" end="503" score="1.3e-21" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="677" end="693" score="8.774" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="406" end="511" score="3.3e-42" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="454" end="516" score="9.780" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="129" end="139" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000018" length="717" crc64="20B82033F384EC54" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="544" end="685" score="4.1e-39" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="550" end="685" score="1.5e-30" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="549" end="683" score="24.185" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="393" end="534" score="7.6e-22" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="395" end="542" score="6.4e-08" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="445" end="462" score="9.186" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="65" end="78" status="?" evidence="Seg" />
+	    <location start="116" end="130" status="?" evidence="Seg" />
+	    <location start="442" end="453" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000019" length="669" crc64="8878E000747FD1AB" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="488" end="644" score="1.3e-52" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="494" end="644" score="2.6e-36" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="493" end="642" score="29.248" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="203" end="359" score="1.5e-64" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="203" end="359" score="3e-103" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="384" end="478" score="9.2e-39" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="653" end="669" score="9.085" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR005805" name="Rieske iron-sulfur protein" type="Family">
+	  <classification id="GO:0006118" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>electron transport</description>
+	  </classification>
+	  <classification id="GO:0008121" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>ubiquinol-cytochrome c reductase activity</description>
+	  </classification>
+	  <classification id="GO:0016020" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>membrane</description>
+	  </classification>
+	  <classification id="GO:0045285" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>ubiquinol-cytochrome c reductase complex</description>
+	  </classification>
+	  <match id="PS00200" name="RIESKE_2" dbname="">
+	    <location start="477" end="482" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="386" end="486" score="3.3e-48" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="430" end="491" score="10.931" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="40" end="62" status="?" evidence="Seg" />
+	    <location start="115" end="127" status="?" evidence="Seg" />
+	    <location start="431" end="447" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000020" length="354" crc64="4DAA060DC3EEAF0D" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="185" end="330" score="1.3e-41" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="191" end="329" score="4.1e-26" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="190" end="327" score="27.521" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="334" end="350" score="8.561" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="">
+	    <location start="140" end="190" score="2.3e-16" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="68" end="183" score="5.5e-30" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="145" end="180" score="8.691" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="100" end="107" status="?" evidence="Seg" />
+	    <location start="142" end="157" status="?" evidence="Seg" />
+	    <location start="170" end="181" status="?" evidence="Seg" />
+	    <location start="338" end="345" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000021" length="755" crc64="4B5BF379B8BF0C27" >
+	<interpro id="IPR000637" name="HMG-I and HMG-Y DNA-binding domain (A+T-hook)" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <classification id="GO:0005634" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>nucleus</description>
+	  </classification>
+	  <match id="PF02178" name="AT_hook" dbname="">
+	    <location start="174" end="186" score="0.19" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="575" end="729" score="7.1e-46" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="581" end="729" score="2.2e-34" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="580" end="727" score="26.991" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="305" end="452" score="1.6e-50" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="305" end="452" score="8.3e-89" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="479" end="571" score="9.8e-32" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="739" end="755" score="8.888" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="481" end="573" score="5.8e-32" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="167" end="189" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000022" length="650" crc64="B2F291C5FA18A6E9" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="487" end="643" score="9.6e-40" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="493" end="643" score="7.2e-26" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="200" end="356" score="1.7e-75" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="200" end="356" score="4e-101" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="384" end="477" score="7.1e-38" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="386" end="485" score="6.4e-46" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="7" end="20" status="?" evidence="Seg" />
+	    <location start="94" end="106" status="?" evidence="Seg" />
+	    <location start="167" end="187" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000023" length="790" crc64="AEA7AC629AD23E6B" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="610" end="767" score="4.5e-57" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="616" end="766" score="3.3e-44" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="325" end="486" score="1.2e-109" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="325" end="486" score="1.9e-102" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="507" end="600" score="1.1e-37" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="774" end="790" score="0.0034" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="509" end="608" score="3.1e-42" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="77" end="99" status="?" evidence="Seg" />
+	    <location start="151" end="159" status="?" evidence="Seg" />
+	    <location start="256" end="269" status="?" evidence="Seg" />
+	    <location start="553" end="565" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000024" length="352" crc64="85D73D69D8493D6A" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="105" end="234" score="4.5e-49" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="111" end="234" score="4.1e-44" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="234" end="250" score="0.0011" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="">
+	    <location start="60" end="110" score="1.3e-16" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="10" end="31" status="?" evidence="Coil" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="50" end="59" status="?" evidence="Seg" />
+	    <location start="88" end="100" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000025" length="1423" crc64="E0FC98122AF0697D" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1259" end="1389" score="9.3e-54" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="1266" end="1389" score="1.4e-39" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1264" end="1387" score="34.704" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="908" end="921" status="?" evidence="Seg" />
+	    <location start="1087" end="1095" status="?" evidence="Seg" />
+	    <location start="1162" end="1184" status="?" evidence="Seg" />
+	    <location start="1236" end="1250" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000026" length="492" crc64="87795D3EAAB01C5D" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="83" end="212" score="2.2e-51" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="89" end="212" score="1.2e-37" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="88" end="210" score="33.330" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="213" end="229" score="0.0018" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="213" end="229" score="9.380" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="">
+	    <location start="36" end="88" score="1.7e-25" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="309" end="321" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000027" length="1062" crc64="44605DEAEF1CCA8B" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="">
+	    <location start="298" end="374" score="3.1e-11" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00293" name="PWWP" dbname="">
+	    <location start="299" end="364" score="2.7e-06" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="">
+	    <location start="301" end="365" score="13.989" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR000345" name="Cytochrome c  heme-binding site" type="Domain">
+	  <classification id="GO:0005489" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>electron transporter activity</description>
+	  </classification>
+	  <classification id="GO:0006118" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>electron transport</description>
+	  </classification>
+	  <match id="PS00190" name="CYTOCHROME_C" dbname="">
+	    <location start="612" end="617" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="892" end="1022" score="3.5e-49" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="898" end="1022" score="4e-32" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="897" end="1020" score="29.778" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="611" end="660" score="1.2e-05" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="611" end="658" score="0.0024" status="T" evidence="HMMSmart" />
+	    <location start="723" end="785" score="0.025" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2" dbname="">
+	    <location start="609" end="660" score="8.805" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002219" name="Protein kinase C, phorbol ester/diacylglycerol binding" type="Domain">
+	  <classification id="GO:0007242" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>intracellular signaling cascade</description>
+	  </classification>
+	  <match id="PS50081" name="DAG_PE_BIND_DOM_2" dbname="">
+	    <location start="591" end="647" score="8.456" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="1022" end="1038" score="9.020" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003888" name="FY-rich domain, N-terminal" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <classification id="GO:0005634" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>nucleus</description>
+	  </classification>
+	  <match id="SM00541" name="FYRN" dbname="">
+	    <location start="456" end="500" score="3e-16" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003889" name="FY-rich domain, C-terminal" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <classification id="GO:0005634" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>nucleus</description>
+	  </classification>
+	  <match id="SM00542" name="FYRC" dbname="">
+	    <location start="508" end="598" score="1.1e-16" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="94" end="103" status="?" evidence="Seg" />
+	    <location start="166" end="180" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000029" length="1043" crc64="0871B150AA379250" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="">
+	    <location start="220" end="301" score="0.00031" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="">
+	    <location start="223" end="292" score="10.198" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="895" end="1025" score="5e-46" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="901" end="1024" score="2.5e-32" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="899" end="1022" score="31.191" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001687" name="ATP/GTP-binding site motif A (P-loop)" type="Domain">
+	  <classification id="GO:0005524" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>ATP binding activity</description>
+	  </classification>
+	  <match id="PS00017" name="ATP_GTP_A" dbname="">
+	    <location start="224" end="231" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="415" end="469" score="2.2e-05" status="T" evidence="HMMPfam" />
+	    <location start="609" end="658" score="4.9e-06" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="415" end="467" score="2.6e-05" status="T" evidence="HMMSmart" />
+	    <location start="609" end="656" score="0.0021" status="T" evidence="HMMSmart" />
+	    <location start="720" end="776" score="0.13" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2_1" dbname="">
+	    <location start="413" end="469" score="9.161" status="T" evidence="ProfileScan" />
+	    <location start="607" end="658" score="8.894" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="1027" end="1043" score="0.0022" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="1027" end="1043" score="8.872" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="118" end="139" status="?" evidence="Coil" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="75" end="86" status="?" evidence="Seg" />
+	    <location start="130" end="139" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000030" length="1063" crc64="D1D9B28893B990A0" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="">
+	    <location start="312" end="384" score="5e-06" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00293" name="PWWP" dbname="">
+	    <location start="313" end="373" score="3e-05" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="">
+	    <location start="315" end="366" score="11.946" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR000345" name="Cytochrome c  heme-binding site" type="Domain">
+	  <classification id="GO:0005489" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>electron transporter activity</description>
+	  </classification>
+	  <classification id="GO:0006118" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>electron transport</description>
+	  </classification>
+	  <match id="PS00190" name="CYTOCHROME_C" dbname="">
+	    <location start="594" end="599" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="893" end="1023" score="2.3e-49" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="899" end="1023" score="5.3e-34" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="898" end="1021" score="30.426" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001472" name="Bipartite nuclear localization signal" type="Domain">
+	  <match id="PS50079" name="NLS_BP" dbname="">
+	    <location start="78" end="95" score="5.000" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="593" end="642" score="2.2e-05" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="593" end="640" score="0.00059" status="T" evidence="HMMSmart" />
+	    <location start="710" end="787" score="0.19" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2" dbname="">
+	    <location start="591" end="642" score="8.778" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="1023" end="1039" score="9.347" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003888" name="FY-rich domain, N-terminal" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <classification id="GO:0005634" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>nucleus</description>
+	  </classification>
+	  <match id="SM00541" name="FYRN" dbname="">
+	    <location start="437" end="481" score="1.3e-17" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003889" name="FY-rich domain, C-terminal" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <classification id="GO:0005634" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>nucleus</description>
+	  </classification>
+	  <match id="SM00542" name="FYRC" dbname="">
+	    <location start="489" end="575" score="3.1e-34" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="118" end="143" status="?" evidence="Coil" />
+	  </match>
+	  <match id="PS50323" name="ARG_RICH" dbname="">
+	    <location start="78" end="97" score="8.809" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="35" end="49" status="?" evidence="Seg" />
+	    <location start="88" end="97" status="?" evidence="Seg" />
+	    <location start="128" end="140" status="?" evidence="Seg" />
+	    <location start="394" end="406" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000030alt2" length="348" crc64="D8ECAAC869415D18" >
+	<interpro id="IPR001472" name="Bipartite nuclear localization signal" type="Domain">
+	  <match id="PS50079" name="NLS_BP" dbname="">
+	    <location start="78" end="95" score="5.000" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="118" end="143" status="?" evidence="Coil" />
+	  </match>
+	  <match id="PS50323" name="ARG_RICH" dbname="">
+	    <location start="78" end="97" score="8.809" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="35" end="49" status="?" evidence="Seg" />
+	    <location start="88" end="97" status="?" evidence="Seg" />
+	    <location start="128" end="140" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000031" length="492" crc64="86DA23CF75DD158E" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="296" end="441" score="3e-44" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="302" end="441" score="3.4e-35" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="301" end="439" score="27.992" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="144" end="286" score="5.2e-09" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="146" end="294" score="1.3e-22" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="196" end="299" score="8.796" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000032" length="670" crc64="C92CE89FF5C630F1" >
+	<interpro id="IPR000694" name="Proline-rich region" type="Family">
+	  <match id="PS50099" name="PRO_RICH" dbname="">
+	    <location start="25" end="102" score="9.249" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="489" end="645" score="1.5e-50" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="495" end="645" score="4.4e-33" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="494" end="643" score="28.071" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="206" end="361" score="1.1e-73" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="206" end="361" score="5.5e-89" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="386" end="480" score="3.1e-26" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="654" end="670" score="9.052" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="388" end="487" score="9.9e-44" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="432" end="492" score="10.605" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="40" end="58" status="?" evidence="Seg" />
+	    <location start="68" end="94" status="?" evidence="Seg" />
+	    <location start="124" end="136" status="?" evidence="Seg" />
+	    <location start="563" end="576" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000033" length="624" crc64="67B5CF6606F16B07" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="440" end="601" score="3.5e-50" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="446" end="600" score="1e-38" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="445" end="598" score="30.838" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002048" name="Calcium-binding EF-hand" type="Domain">
+	  <classification id="GO:0005509" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>calcium ion binding activity</description>
+	  </classification>
+	  <match id="PS00018" name="EF_HAND" dbname="">
+	    <location start="409" end="421" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="144" end="306" score="2.3e-54" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="144" end="306" score="1.7e-61" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="333" end="430" score="2.2e-19" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="608" end="624" score="9.216" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="335" end="438" score="4.7e-43" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="381" end="443" score="11.488" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="16" end="28" status="?" evidence="Seg" />
+	    <location start="504" end="514" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000034" length="349" crc64="ED8D4FA7C92283BA" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="208" end="344" score="4e-27" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="213" end="341" score="13.156" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding activity</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="">
+	    <location start="34" end="82" score="1.3e-13" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="">
+	    <location start="34" end="80" score="3.5e-11" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2" dbname="">
+	    <location start="32" end="82" score="10.149" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="23" end="32" status="?" evidence="Seg" />
+	    <location start="102" end="123" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000035" length="545" crc64="C8BC2CA7BA019155" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="175" end="383" score="0.00026" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="188" end="382" score="5.9e-12" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="187" end="375" score="13.489" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001440" name="TPR repeat" type="Repeat">
+	  <match id="PF00515" name="TPR" dbname="">
+	    <location start="19" end="52" score="2.7" status="T" evidence="HMMPfam" />
+	    <location start="74" end="107" score="0.0003" status="T" evidence="HMMPfam" />
+	    <location start="108" end="140" score="0.21" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00028" name="TPR" dbname="">
+	    <location start="19" end="52" score="2e+02" status="T" evidence="HMMSmart" />
+	    <location start="74" end="107" score="0.0065" status="T" evidence="HMMSmart" />
+	    <location start="108" end="140" score="21" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50293" name="TPR_REGION" dbname="">
+	    <location start="74" end="141" score="9.631" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="54" end="65" status="?" evidence="Seg" />
+	    <location start="481" end="493" status="?" evidence="Seg" />
+	    <location start="522" end="536" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000036" length="559" crc64="B264C0AE97EB05EA" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="493" end="527" score="8.720" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="73" end="85" status="?" evidence="Seg" />
+	    <location start="100" end="113" status="?" evidence="Seg" />
+	    <location start="200" end="216" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000037" length="447" crc64="DC9500F8D7E52F21" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="3" end="221" score="0.0004" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="11" end="221" score="2.4e-21" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002893" name="Zn-finger, MYND type" type="Domain">
+	  <match id="PF01753" name="zf-MYND" dbname="">
+	    <location start="56" end="93" score="7.7e-08" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="425" end="446" status="?" evidence="Coil" />
+	  </match>
+   </protein>
+   <protein id="SDG000038" length="188" crc64="D698218CCEAEB76D" >
+	  <match id="seg" name="seg" dbname="">
+	    <location start="143" end="157" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000039" length="341" crc64="A206767A5E2E3FD2" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="2" end="277" score="0.00029" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="11" end="276" score="4e-18" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="306" end="327" status="?" evidence="Coil" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="105" end="117" status="?" evidence="Seg" />
+	    <location start="142" end="153" status="?" evidence="Seg" />
+	    <location start="170" end="185" status="?" evidence="Seg" />
+	    <location start="304" end="327" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000101" length="208" crc64="07801D7CE3989824" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="29" end="182" score="3.3e-55" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="35" end="181" score="8.2e-42" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="34" end="179" score="28.817" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="192" end="208" score="8.315" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000102" length="513" crc64="7C687E368CA9A37A" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="79" end="208" score="6.3e-51" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="85" end="208" score="4.5e-38" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="84" end="206" score="34.214" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="209" end="225" score="9.216" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="">
+	    <location start="32" end="84" score="2.9e-19" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="382" end="399" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000103" length="253" crc64="BAFDD165A6717534" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="90" end="246" score="6.5e-42" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="96" end="246" score="2.4e-36" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="95" end="244" score="32.055" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="1" end="80" score="5.1e-13" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="1" end="88" score="2.1e-21" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="33" end="93" score="11.298" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="155" end="174" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000104" length="886" crc64="0FFAC9F4E77043AC" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="707" end="863" score="1e-43" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="713" end="862" score="3.9e-37" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="712" end="860" score="33.487" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="436" end="584" score="3.2e-34" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="436" end="584" score="1e-33" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="606" end="697" score="1.6e-26" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="870" end="886" score="0.0028" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="870" end="886" score="9.052" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="608" end="705" score="1.6e-32" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="650" end="710" score="12.218" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="5" end="13" status="?" evidence="Seg" />
+	    <location start="39" end="55" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000105" length="678" crc64="8DB65A9CE0FD4C68" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="500" end="656" score="3.6e-50" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="506" end="656" score="3.5e-39" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="505" end="654" score="28.032" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002086" name="Aldehyde dehydrogenase" type="Family">
+	  <classification id="GO:0008152" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>metabolism</description>
+	  </classification>
+	  <classification id="GO:0016491" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>oxidoreductase activity</description>
+	  </classification>
+	  <match id="PS00070" name="ALDEHYDE_DEHYDR_CYS" dbname="">
+	    <location start="482" end="493" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="215" end="371" score="4.7e-62" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="215" end="371" score="1.3e-75" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="396" end="490" score="1.6e-23" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="663" end="676" score="8.151" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="398" end="498" score="6.8e-35" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="442" end="503" score="10.901" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="64" end="75" status="?" evidence="Seg" />
+	    <location start="126" end="138" status="?" evidence="Seg" />
+	    <location start="650" end="661" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000106" length="248" crc64="810F855EA2B0C46A" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="97" end="230" score="2.6e-46" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="103" end="230" score="5.1e-39" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="102" end="228" score="35.470" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000107" length="148" crc64="232FE09BB90465F8" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1" end="117" score="2.8e-09" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="1" end="117" score="2.7e-10" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1" end="115" score="21.673" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="122" end="138" score="8.331" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000108" length="469" crc64="45761E4F17DD8C03" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1" end="48" score="16.806" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000110" length="342" crc64="B75F8D4E6E98EDBE" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="113" end="242" score="1.6e-53" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="119" end="242" score="2.3e-46" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="118" end="240" score="33.429" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="242" end="258" score="0.0046" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="242" end="258" score="9.265" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="">
+	    <location start="68" end="118" score="0.0022" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR008197" name="Whey acidic protein, core region" type="Domain">
+	  <match id="PS00317" name="4_DISULFIDE_CORE" dbname="">
+	    <location start="85" end="98" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="73" end="108" score="10.668" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="5" end="11" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000111" length="486" crc64="465BB2B9F5668EF3" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="308" end="464" score="5e-48" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="314" end="464" score="1.1e-37" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="313" end="462" score="27.953" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="40" end="179" score="4.5e-17" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="40" end="179" score="4.6e-22" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="204" end="298" score="1.5e-28" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="471" end="484" score="8.299" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="206" end="306" score="5.5e-38" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="250" end="311" score="11.002" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="458" end="469" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000113" length="766" crc64="D2778799EFB9E4B8" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="587" end="743" score="2.4e-45" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="593" end="743" score="4.2e-38" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="592" end="741" score="28.679" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="302" end="458" score="5.5e-62" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="302" end="458" score="3.3e-74" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="483" end="577" score="1.5e-25" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="750" end="766" score="8.151" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="485" end="585" score="1.2e-34" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="529" end="590" score="10.646" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="531" end="582" score="8.691" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="64" end="75" status="?" evidence="Seg" />
+	    <location start="181" end="189" status="?" evidence="Seg" />
+	    <location start="374" end="386" status="?" evidence="Seg" />
+	    <location start="551" end="562" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000115" length="147" crc64="00C9DD5658B6F925" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1" end="129" score="1.7e-41" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="5" end="128" score="2.4e-34" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1" end="126" score="32.349" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="131" end="147" score="8.872" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000116" length="104" crc64="DF93282DAB8B6875" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1" end="84" score="0.0013" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="2" end="83" score="1.1e-06" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1" end="81" score="17.532" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="84" end="100" score="8.692" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000117" length="1198" crc64="C9A6229A10116567" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1036" end="1182" score="6.1e-39" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="1042" end="1181" score="9.6e-34" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1041" end="1179" score="33.566" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="900" end="1026" score="1.2e-06" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="1182" end="1198" score="9.151" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR005805" name="Rieske iron-sulfur protein" type="Family">
+	  <classification id="GO:0006118" class_type="GO">
+	    <category>Biological Process</category>
+	    <description>electron transport</description>
+	  </classification>
+	  <classification id="GO:0008121" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>ubiquinol-cytochrome c reductase activity</description>
+	  </classification>
+	  <classification id="GO:0016020" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>membrane</description>
+	  </classification>
+	  <classification id="GO:0045285" class_type="GO">
+	    <category>Cellular Component</category>
+	    <description>ubiquinol-cytochrome c reductase complex</description>
+	  </classification>
+	  <match id="PS00200" name="RIESKE_2" dbname="">
+	    <location start="1184" end="1189" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007087" name="Zn-finger, C2H2 type" type="Domain">
+	  <match id="PF00096" name="zf-C2H2" dbname="">
+	    <location start="527" end="550" score="0.51" status="T" evidence="HMMPfam" />
+	    <location start="561" end="584" score="0.15" status="T" evidence="HMMPfam" />
+	    <location start="662" end="685" score="0.054" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00355" name="ZnF_C2H2" dbname="">
+	    <location start="527" end="550" score="5.7" status="T" evidence="HMMSmart" />
+	    <location start="561" end="584" score="0.028" status="T" evidence="HMMSmart" />
+	    <location start="595" end="618" score="64" status="T" evidence="HMMSmart" />
+	    <location start="662" end="685" score="2" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50157" name="ZINC_FINGER_C2H2_2_1" dbname="">
+	    <location start="527" end="555" score="8.954" status="T" evidence="ProfileScan" />
+	    <location start="561" end="589" score="10.408" status="T" evidence="ProfileScan" />
+	    <location start="662" end="685" score="8.891" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS00028" name="ZINC_FINGER_C2H2_1" dbname="">
+	    <location start="529" end="550" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="563" end="584" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="597" end="618" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="664" end="685" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="902" end="1034" score="2.1e-08" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="963" end="1039" score="8.594" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000118" length="696" crc64="6F30A9018126C9AD" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="513" end="673" score="3.3e-38" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="519" end="672" score="5.7e-35" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="518" end="670" score="27.855" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="215" end="379" score="1.2e-47" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="215" end="379" score="2.5e-57" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="406" end="503" score="1.8e-23" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="680" end="696" score="0.00035" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="680" end="696" score="9.445" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="408" end="511" score="1.9e-35" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="">
+	    <location start="453" end="516" score="11.340" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="">
+	    <location start="146" end="167" status="?" evidence="Coil" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="25" end="39" status="?" evidence="Seg" />
+	    <location start="58" end="79" status="?" evidence="Seg" />
+	    <location start="105" end="119" status="?" evidence="Seg" />
+	    <location start="170" end="198" status="?" evidence="Seg" />
+	    <location start="437" end="453" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000119" length="354" crc64="09638CECDB43F512" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="178" end="332" score="3.7e-48" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="184" end="331" score="4e-40" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="">
+	    <location start="77" end="168" score="4.6e-28" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="">
+	    <location start="79" end="176" score="2.4e-34" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="200" end="208" status="?" evidence="Seg" />
+	    <location start="212" end="230" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000123" length="303" crc64="1B05DA8E9B5E9855" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="163" end="280" score="0.0012" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="21" end="279" score="1e-07" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="226" end="272" score="12.155" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="3" end="18" status="?" evidence="Seg" />
+	    <location start="210" end="225" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000124" length="931" crc64="4F3CD84B17783B6C" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="772" end="900" score="1.5e-43" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="778" end="899" score="1.5e-32" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="777" end="897" score="30.249" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="675" end="750" score="20.553" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="2" end="30" status="?" evidence="Seg" />
+	    <location start="210" end="231" status="?" evidence="Seg" />
+	    <location start="396" end="407" status="?" evidence="Seg" />
+	    <location start="500" end="518" status="?" evidence="Seg" />
+	    <location start="771" end="778" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000125" length="894" crc64="9C2B04E6F80BA113" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="740" end="868" score="5.1e-43" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="746" end="867" score="3.1e-30" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="745" end="865" score="30.014" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR008197" name="Whey acidic protein, core region" type="Domain">
+	  <match id="PS00317" name="4_DISULFIDE_CORE" dbname="">
+	    <location start="655" end="668" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="642" end="718" score="20.306" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="2" end="19" status="?" evidence="Seg" />
+	    <location start="194" end="202" status="?" evidence="Seg" />
+	    <location start="568" end="579" status="?" evidence="Seg" />
+	    <location start="607" end="618" status="?" evidence="Seg" />
+	    <location start="739" end="746" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000126" length="895" crc64="2659DCF992A08919" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="741" end="869" score="5.1e-43" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="747" end="868" score="3.1e-30" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="746" end="866" score="30.014" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR008197" name="Whey acidic protein, core region" type="Domain">
+	  <match id="PS00317" name="4_DISULFIDE_CORE" dbname="">
+	    <location start="656" end="669" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="">
+	    <location start="650" end="719" score="20.059" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="seg" name="seg" dbname="">
+	    <location start="2" end="20" status="?" evidence="Seg" />
+	    <location start="198" end="206" status="?" evidence="Seg" />
+	    <location start="569" end="580" status="?" evidence="Seg" />
+	    <location start="608" end="619" status="?" evidence="Seg" />
+	    <location start="740" end="747" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000127" length="132" crc64="D985D8E653F4B2FD" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1" end="116" score="6.4e-42" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="1" end="116" score="1.1e-34" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1" end="114" score="35.097" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="116" end="132" score="0.00011" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="116" end="132" score="10.216" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000128" length="121" crc64="FCD73D77F555F405" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="">
+	    <location start="1" end="81" score="1.5e-10" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="2" end="81" score="1.3e-10" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1" end="79" score="23.930" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="SM00508" name="PostSET" dbname="">
+	    <location start="81" end="97" score="0.0033" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="81" end="97" score="9.527" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000129" length="67" crc64="D799B72023C65F13" >
+	  <match id="seg" name="seg" dbname="">
+	    <location start="1" end="14" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="SDG000130" length="410" crc64="DE1420151A743C17" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="SM00317" name="SET" dbname="">
+	    <location start="15" end="225" score="7e-09" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="182" end="218" score="10.192" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002893" name="Zn-finger, MYND type" type="Domain">
+	  <match id="PF01753" name="zf-MYND" dbname="">
+	    <location start="60" end="97" score="2.9e-08" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000131" length="63" crc64="E6DA158FD5EEA894" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PS50280" name="SET" dbname="">
+	    <location start="1" end="44" score="8.190" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="">
+	    <location start="51" end="63" score="8.331" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="SDG000134" length="181" crc64="747FCD3A9CA67E29" >
+	<interpro id="IPR003105" name="Nuclear protein G9a" type="Domain">
+	  <match id="PF02182" name="YDG_SRA" dbname="">
+	    <location start="1" end="131" score="2.1e-54" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00466" name="SRA" dbname="">
+	    <location start="1" end="131" score="1.1e-51" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>

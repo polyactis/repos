@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<interpro_matches>
+
+   <protein id="HsBLIMP-1" length="789" crc64="6A1FEBEAD309BC7D" >
+	<interpro id="IPR000345" name="Cytochrome c  heme-binding site" type="Domain">
+	  <match id="PS00190" name="CYTOCHROME_C" dbname="PROSITE">
+	    <location start="597" end="602" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="653" end="658" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="PFAM">
+	    <location start="41" end="171" score="7.7e-17" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="SMART">
+	    <location start="50" end="171" score="8.5e-22" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="PROFILE">
+	    <location start="49" end="169" score="19.004" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001412" name="Aminoacyl-tRNA  synthetase, class I" type="Family">
+	  <match id="PS00178" name="AA_TRNA_LIGASE_I" dbname="PROSITE">
+	    <location start="476" end="486" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001993" name="Mitochondrial substrate carrier" type="Family">
+	  <match id="PS00215" name="MITOCH_CARRIER" dbname="PROSITE">
+	    <location start="435" end="444" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007086" name="Zn-finger, C2H2 subtype" type="Domain" parent_id="IPR007087">
+	  <match id="PR00048" name="ZINCFINGER" dbname="PRINTS">
+	    <location start="566" end="579" score="4.664" status="T" evidence="FPrintScan" />
+	    <location start="610" end="619" score="45.68" status="T" evidence="FPrintScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007087" name="Zn-finger, C2H2 type" type="Domain">
+	  <match id="PD000003" name="sp_Q60636_Q60636_MOUSE" dbname="PRODOM">
+	    <location start="539" end="562" score="1e-06" status="T" evidence="BlastProDom" />
+	    <location start="595" end="618" score="4e-07" status="T" evidence="BlastProDom" />
+	  </match>
+	  <match id="PF00096" name="zf-C2H2" dbname="PFAM">
+	    <location start="539" end="561" score="9.6e-06" status="T" evidence="HMMPfam" />
+	    <location start="567" end="589" score="0.00012" status="T" evidence="HMMPfam" />
+	    <location start="595" end="617" score="6e-05" status="T" evidence="HMMPfam" />
+	    <location start="623" end="645" score="0.0049" status="T" evidence="HMMPfam" />
+	    <location start="651" end="674" score="3.4" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00355" name="ZnF_C2H2" dbname="SMART">
+	    <location start="539" end="561" score="0.0014" status="T" evidence="HMMSmart" />
+	    <location start="567" end="589" score="0.0089" status="T" evidence="HMMSmart" />
+	    <location start="595" end="617" score="0.017" status="T" evidence="HMMSmart" />
+	    <location start="623" end="645" score="0.031" status="T" evidence="HMMSmart" />
+	    <location start="651" end="671" score="1.9e+02" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50157" name="ZINC_FINGER_C2H2_2_1" dbname="PROFILE">
+	    <location start="539" end="566" score="16.602" status="T" evidence="ProfileScan" />
+	    <location start="567" end="594" score="15.978" status="T" evidence="ProfileScan" />
+	    <location start="595" end="622" score="15.937" status="T" evidence="ProfileScan" />
+	    <location start="623" end="650" score="13.921" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS00028" name="ZINC_FINGER_C2H2_1" dbname="PROSITE">
+	    <location start="541" end="561" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="569" end="589" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="597" end="617" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="625" end="645" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="HsMTB-ZF" length="1719" crc64="3DAEC6E465A3281D" >
+	<interpro id="IPR000694" name="Proline-rich region" type="Family">
+	  <match id="PS50099" name="PRO_RICH" dbname="PROFILE">
+	    <location start="903" end="1050" score="23.080" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="PFAM">
+	    <location start="22" end="147" score="1e-16" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="SMART">
+	    <location start="28" end="147" score="1e-22" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="PROFILE">
+	    <location start="27" end="145" score="16.453" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007087" name="Zn-finger, C2H2 type" type="Domain">
+	  <match id="PF00096" name="zf-C2H2" dbname="PFAM">
+	    <location start="360" end="382" score="0.00024" status="T" evidence="HMMPfam" />
+	    <location start="390" end="412" score="0.00011" status="T" evidence="HMMPfam" />
+	    <location start="483" end="506" score="0.001" status="T" evidence="HMMPfam" />
+	    <location start="1135" end="1157" score="0.14" status="T" evidence="HMMPfam" />
+	    <location start="1163" end="1186" score="0.46" status="T" evidence="HMMPfam" />
+	    <location start="1192" end="1215" score="0.0027" status="T" evidence="HMMPfam" />
+	    <location start="1334" end="1356" score="0.3" status="T" evidence="HMMPfam" />
+	    <location start="1456" end="1479" score="0.03" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00355" name="ZnF_C2H2" dbname="SMART">
+	    <location start="360" end="382" score="0.0063" status="T" evidence="HMMSmart" />
+	    <location start="390" end="412" score="0.0042" status="T" evidence="HMMSmart" />
+	    <location start="483" end="506" score="0.0096" status="T" evidence="HMMSmart" />
+	    <location start="1135" end="1157" score="0.35" status="T" evidence="HMMSmart" />
+	    <location start="1163" end="1186" score="0.6" status="T" evidence="HMMSmart" />
+	    <location start="1192" end="1215" score="0.11" status="T" evidence="HMMSmart" />
+	    <location start="1334" end="1354" score="1.2e+02" status="T" evidence="HMMSmart" />
+	    <location start="1456" end="1476" score="26" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50157" name="ZINC_FINGER_C2H2_2_1" dbname="PROFILE">
+	    <location start="360" end="382" score="10.928" status="T" evidence="ProfileScan" />
+	    <location start="390" end="412" score="11.157" status="T" evidence="ProfileScan" />
+	    <location start="483" end="506" score="10.637" status="T" evidence="ProfileScan" />
+	    <location start="1135" end="1162" score="10.949" status="T" evidence="ProfileScan" />
+	    <location start="1163" end="1186" score="9.245" status="T" evidence="ProfileScan" />
+	    <location start="1192" end="1215" score="10.492" status="T" evidence="ProfileScan" />
+	    <location start="1456" end="1483" score="9.141" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS00028" name="ZINC_FINGER_C2H2_1" dbname="PROSITE">
+	    <location start="362" end="382" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="392" end="412" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="485" end="506" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="1137" end="1157" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="1165" end="1186" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="1194" end="1215" score="8e-5" status="T" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="PS50313" name="GLU_RICH" dbname="PROFILE">
+	    <location start="207" end="336" score="15.357" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS50324" name="SER_RICH" dbname="PROFILE">
+	    <location start="1000" end="1088" score="21.097" status="T" evidence="ProfileScan" />
+	  </match>
+   </protein>
+   <protein id="HsNSD1" length="2588" crc64="145DFCF2F285A959" >
+	<interpro id="IPR000313" name="PWWP domain" type="Domain">
+	  <match id="PF00855" name="PWWP" dbname="PFAM">
+	    <location start="1651" end="1727" score="1.9e-31" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00293" name="PWWP" dbname="SMART">
+	    <location start="1652" end="1714" score="1.6e-28" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50812" name="PWWP" dbname="PROFILE">
+	    <location start="1654" end="1716" score="21.793" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR000345" name="Cytochrome c  heme-binding site" type="Domain">
+	  <match id="PS00190" name="CYTOCHROME_C" dbname="PROSITE">
+	    <location start="1481" end="1486" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="1538" end="1543" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="PFAM">
+	    <location start="1834" end="1963" score="1.3e-53" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="SMART">
+	    <location start="1840" end="1963" score="1.8e-45" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="PROFILE">
+	    <location start="1839" end="1961" score="33.566" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001841" name="Zn-finger, RING" type="Domain">
+	  <match id="PS50089" name="ZF_RING_2" dbname="PROFILE">
+	    <location start="1491" end="1536" score="8.860" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zn-finger-like, PHD finger" type="Domain">
+	  <match id="PF00628" name="PHD" dbname="PFAM">
+	    <location start="1443" end="1487" score="3.9e-12" status="T" evidence="HMMPfam" />
+	    <location start="1607" end="1649" score="2.7e-14" status="T" evidence="HMMPfam" />
+	    <location start="2018" end="2065" score="0.00032" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00249" name="PHD" dbname="SMART">
+	    <location start="1443" end="1485" score="7.6e-08" status="T" evidence="HMMSmart" />
+	    <location start="1490" end="1537" score="6.6e-05" status="T" evidence="HMMSmart" />
+	    <location start="1538" end="1591" score="19" status="T" evidence="HMMSmart" />
+	    <location start="1607" end="1647" score="1.8e-10" status="T" evidence="HMMSmart" />
+	    <location start="2018" end="2061" score="1.9e-09" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2_1" dbname="PROFILE">
+	    <location start="1441" end="1487" score="8.956" status="T" evidence="ProfileScan" />
+	    <location start="1605" end="1649" score="9.134" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS01359" name="ZF_PHD_1" dbname="PROSITE">
+	    <location start="1444" end="1484" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="1608" end="1646" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="PROFILE">
+	    <location start="1964" end="1980" score="9.609" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006560" name="AWS" type="Domain">
+	  <match id="SM00570" name="AWS" dbname="SMART">
+	    <location start="1788" end="1839" score="2.8e-22" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="HsPRD-1a" length="789" crc64="6A1FEBEAD309BC7D" >
+	<interpro id="IPR000345" name="Cytochrome c  heme-binding site" type="Domain">
+	  <match id="PS00190" name="CYTOCHROME_C" dbname="PROSITE">
+	    <location start="597" end="602" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="653" end="658" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="PFAM">
+	    <location start="41" end="171" score="7.7e-17" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="SMART">
+	    <location start="50" end="171" score="8.5e-22" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="PROFILE">
+	    <location start="49" end="169" score="19.004" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001412" name="Aminoacyl-tRNA  synthetase, class I" type="Family">
+	  <match id="PS00178" name="AA_TRNA_LIGASE_I" dbname="PROSITE">
+	    <location start="476" end="486" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001993" name="Mitochondrial substrate carrier" type="Family">
+	  <match id="PS00215" name="MITOCH_CARRIER" dbname="PROSITE">
+	    <location start="435" end="444" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007086" name="Zn-finger, C2H2 subtype" type="Domain" parent_id="IPR007087">
+	  <match id="PR00048" name="ZINCFINGER" dbname="PRINTS">
+	    <location start="566" end="579" score="4.664" status="T" evidence="FPrintScan" />
+	    <location start="610" end="619" score="45.68" status="T" evidence="FPrintScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007087" name="Zn-finger, C2H2 type" type="Domain">
+	  <match id="PD000003" name="sp_Q60636_Q60636_MOUSE" dbname="PRODOM">
+	    <location start="539" end="562" score="1e-06" status="T" evidence="BlastProDom" />
+	    <location start="595" end="618" score="4e-07" status="T" evidence="BlastProDom" />
+	  </match>
+	  <match id="PF00096" name="zf-C2H2" dbname="PFAM">
+	    <location start="539" end="561" score="9.6e-06" status="T" evidence="HMMPfam" />
+	    <location start="567" end="589" score="0.00012" status="T" evidence="HMMPfam" />
+	    <location start="595" end="617" score="6e-05" status="T" evidence="HMMPfam" />
+	    <location start="623" end="645" score="0.0049" status="T" evidence="HMMPfam" />
+	    <location start="651" end="674" score="3.4" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00355" name="ZnF_C2H2" dbname="SMART">
+	    <location start="539" end="561" score="0.0014" status="T" evidence="HMMSmart" />
+	    <location start="567" end="589" score="0.0089" status="T" evidence="HMMSmart" />
+	    <location start="595" end="617" score="0.017" status="T" evidence="HMMSmart" />
+	    <location start="623" end="645" score="0.031" status="T" evidence="HMMSmart" />
+	    <location start="651" end="671" score="1.9e+02" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50157" name="ZINC_FINGER_C2H2_2_1" dbname="PROFILE">
+	    <location start="539" end="566" score="16.602" status="T" evidence="ProfileScan" />
+	    <location start="567" end="594" score="15.978" status="T" evidence="ProfileScan" />
+	    <location start="595" end="622" score="15.937" status="T" evidence="ProfileScan" />
+	    <location start="623" end="650" score="13.921" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS00028" name="ZINC_FINGER_C2H2_1" dbname="PROSITE">
+	    <location start="541" end="561" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="569" end="589" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="597" end="617" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="625" end="645" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+   </protein>
+   <protein id="HsRIZ1" length="1715" crc64="6AEFFFCB152C7271" >
+	<interpro id="IPR000694" name="Proline-rich region" type="Family">
+	  <match id="PS50099" name="PRO_RICH" dbname="PROFILE">
+	    <location start="899" end="1046" score="23.080" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="PFAM">
+	    <location start="19" end="144" score="1e-16" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="SMART">
+	    <location start="25" end="144" score="1e-22" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="PROFILE">
+	    <location start="24" end="142" score="16.453" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007087" name="Zn-finger, C2H2 type" type="Domain">
+	  <match id="PF00096" name="zf-C2H2" dbname="PFAM">
+	    <location start="357" end="379" score="0.00024" status="T" evidence="HMMPfam" />
+	    <location start="387" end="409" score="0.00011" status="T" evidence="HMMPfam" />
+	    <location start="480" end="503" score="0.001" status="T" evidence="HMMPfam" />
+	    <location start="1131" end="1153" score="0.14" status="T" evidence="HMMPfam" />
+	    <location start="1159" end="1182" score="0.46" status="T" evidence="HMMPfam" />
+	    <location start="1188" end="1211" score="0.0027" status="T" evidence="HMMPfam" />
+	    <location start="1330" end="1352" score="0.3" status="T" evidence="HMMPfam" />
+	    <location start="1452" end="1475" score="0.03" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00355" name="ZnF_C2H2" dbname="SMART">
+	    <location start="357" end="379" score="0.0063" status="T" evidence="HMMSmart" />
+	    <location start="387" end="409" score="0.0042" status="T" evidence="HMMSmart" />
+	    <location start="480" end="503" score="0.0096" status="T" evidence="HMMSmart" />
+	    <location start="1131" end="1153" score="0.35" status="T" evidence="HMMSmart" />
+	    <location start="1159" end="1182" score="0.6" status="T" evidence="HMMSmart" />
+	    <location start="1188" end="1211" score="0.11" status="T" evidence="HMMSmart" />
+	    <location start="1330" end="1350" score="1.2e+02" status="T" evidence="HMMSmart" />
+	    <location start="1452" end="1472" score="26" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50157" name="ZINC_FINGER_C2H2_2_1" dbname="PROFILE">
+	    <location start="357" end="379" score="10.928" status="T" evidence="ProfileScan" />
+	    <location start="387" end="409" score="11.157" status="T" evidence="ProfileScan" />
+	    <location start="480" end="503" score="10.637" status="T" evidence="ProfileScan" />
+	    <location start="1131" end="1158" score="10.949" status="T" evidence="ProfileScan" />
+	    <location start="1159" end="1182" score="9.245" status="T" evidence="ProfileScan" />
+	    <location start="1188" end="1211" score="10.492" status="T" evidence="ProfileScan" />
+	    <location start="1452" end="1479" score="9.141" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS00028" name="ZINC_FINGER_C2H2_1" dbname="PROSITE">
+	    <location start="359" end="379" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="389" end="409" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="482" end="503" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="1133" end="1153" score="NA" status="?" evidence="ScanRegExp" />
+	    <location start="1161" end="1182" score="8e-5" status="T" evidence="ScanRegExp" />
+	    <location start="1190" end="1211" score="8e-5" status="T" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="PS50313" name="GLU_RICH" dbname="PROFILE">
+	    <location start="204" end="333" score="15.357" status="T" evidence="ProfileScan" />
+	  </match>
+	  <match id="PS50324" name="SER_RICH" dbname="PROFILE">
+	    <location start="996" end="1084" score="21.097" status="T" evidence="ProfileScan" />
+	  </match>
+   </protein>
+
+</interpro_matches>

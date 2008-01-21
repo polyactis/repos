@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<record xmlns:bioformat="http://biopython.org/bioformat"><appheader><bioformat:application_name app="blastn">BLASTN</bioformat:application_name> <bioformat:application_version><appversion>2.0a19MP-WashU</appversion></bioformat:application_version> [14-Jul-1998] [Build linux-x86 18:51:41 30-Jul-1998]
+</appheader><bioformat:search_header>
+Reference:  Gish, Warren (1994-1997).  unpublished.
+Altschul, Stephen F., Warren Gish, Webb Miller, Eugene W. Myers, and David J.
+Lipman (1990).  Basic local alignment search tool.  J. Mol. Biol. 215:403-10.
+
+Notice:  this program and its default parameter settings are optimized to find
+nearly identical sequences rapidly.  To identify weak similarities encoded in
+nucleic acid, use BLASTX, TBLASTN or TBLASTX.
+
+WARNING:  One or more invalid nucleotide codes "1" encountered in query
+          sequence will be skipped.
+
+<bioformat:query_description_block join-query="join|fixspaces">Query=  <bioformat:query_description>OsSET-NAP</bioformat:query_description>
+</bioformat:query_description_block>        (<bioformat:query_size>780</bioformat:query_size> letters)
+
+<to_database></to_database>Database:  <bioformat:database_name>/usr/share/ncbi/data/wublast/osest.nr</bioformat:database_name>
+           <bioformat:database_num_sequences bioformat:decode="int.comma">135,260</bioformat:database_num_sequences> sequences; <bioformat:database_num_letters bioformat:decode="int.comma">62,085,905</bioformat:database_num_letters> total letters.
+<to_table>Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+</to_table><bioformat:search_table><bioformat:search_table_entry><table_entry><bioformat:search_table_description bioformat:decode="strip">EMBLEST|BE040075    OD104A01 OD Oryza sativa cDNA 5' simi...</bioformat:search_table_description>  <bioformat:search_table_value name="score" bioformat:decode="float">3660</bioformat:search_table_value>  <bioformat:search_table_value name="P" bioformat:decode="float">1.2e-160</bioformat:search_table_value>  <bioformat:search_table_value name="N" bioformat:decode="float">1</bioformat:search_table_value>
+</table_entry></bioformat:search_table_entry></bioformat:search_table>
+
+
+</bioformat:search_header><bioformat:hit join-description="join|fixspaces">&gt;<bioformat:hit_description>EMBLEST|BE040075 OD104A01 OD Oryza sativa cDNA 5' similar to phospatase 2a</bioformat:hit_description>
+<bioformat:hit_description>            inhibitor, mRNA sequence.</bioformat:hit_description>
+            Length = <bioformat:hit_length>990</bioformat:hit_length>
+
+<hsp><bioformat:hsp><hsp_header>  Plus Strand HSPs:
+
+ Score = <bioformat:hsp_value name="bits" bioformat:decode="int">3660</bioformat:hsp_value> (549.1 bits), Expect = <bioformat:hsp_value name="expect" bioformat:decode="float">1.2e-160</bioformat:hsp_value>, P = <bioformat:hsp_value name="P" bioformat:decode="float">1.2e-160</bioformat:hsp_value>
+ Identities = <bioformat:hsp_value name="identical" bioformat:decode="int">758</bioformat:hsp_value>/<bioformat:hsp_value name="length" bioformat:decode="int">779</bioformat:hsp_value> (97%), Positives = <bioformat:hsp_value name="positives" bioformat:decode="int">758</bioformat:hsp_value>/779 (97%), Strand = <bioformat:hsp_strand strand="+1" which="query">Plus</bioformat:hsp_strand> / <bioformat:hsp_strand strand="+1" which="subject">Plus</bioformat:hsp_strand>
+
+</hsp_header><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:     <bioformat:hsp_seqalign_query_start>1</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>ATGGCGGCGGCGGAGCAGAAGGGGAAGAAGCCGAGGACCGACGGCGCGGAGGCCGAGCCC</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>60</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             ATGGCGGCGGCGGAGCAGAAGGGGAAGAAGCCGAGGACCGACGGCGCGGAGGCCGAGCCC</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:    <bioformat:hsp_seqalign_subject_start>38</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>ATGGCGGCGGCGGAGCAGAAGGGGAAGAAGCCGAGGACCGACGGCGCGGAGGCCGAGCCC</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>97</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:    <bioformat:hsp_seqalign_query_start>61</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>GTCGACGCCGCCCTGCTGCAGTCCATCGAGAAGCTCCAGGAGATCCAGGACGAGATCGAG</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>120</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             GTCGACGCCGCCCTGCTGCAGTCCATCGAGAAGCTCCAGGAGATCCAGGACGAGATCGAG</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:    <bioformat:hsp_seqalign_subject_start>98</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>GTCGACGCCGCCCTGCTGCAGTCCATCGAGAAGCTCCAGGAGATCCAGGACGAGATCGAG</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>157</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>121</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>AAGGTTAATGAGGAAGCATGTGATAAAGTTCTGGAGTTGGAACAGAAATACAACGAGGTT</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>180</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             AAGGTTAATGAGGAAGCATGTGATAAAGTTCTGGAGTTGGAACAGAAATACAACGAGGTT</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>158</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>AAGGTTAATGAGGAAGCATGTGATAAAGTTCTGGAGTTGGAACAGAAATACAACGAGGTT</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>217</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>181</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>CGCAGACCAGTTTATGTTCGACGGAATAAAATTATCAAGCAAATTCCTGACTTCTGGCTG</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>240</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             CGCAGACCAGTTTATGTTCGACGGAATAAAATTATCAAGCAAATTCCTGACTTCTGGCTG</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>218</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>CGCAGACCAGTTTATGTTCGACGGAATAAAATTATCAAGCAAATTCCTGACTTCTGGCTG</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>277</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>241</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>ACAGCGTTTCTTAGCCATCCTATGCTTGGTGAACTATTAACTGAAGATGATCAAAAGATT</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>300</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             ACAGCGTTTCTTAGCCATCCTATGCTTGGTGAACTATTAACTGAAGATGATCAAAAGATT</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>278</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>ACAGCGTTTCTTAGCCATCCTATGCTTGGTGAACTATTAACTGAAGATGATCAAAAGATT</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>337</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>301</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>TTCAAACACTTGGAGTCTATCGACGTGGATGACTCAGAAGATATCAAATCAGGCTACTCC</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>360</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             TTCAAACACTTGGAGTCTATCGACGTGGATGACTCAGAAGATATCAAATCAGGCTACTCC</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>338</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>TTCAAACACTTGGAGTCTATCGACGTGGATGACTCAGAAGATATCAAATCAGGCTACTCC</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>397</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>361</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>ATTACTCTCACATTCTCCCCCAATCCATATTTTGAAGATACAAAGCTTACAAAAACATAT</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>420</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             ATTACTCTCACATTCTCCCCCAATCCATATTTTGAAGATACAAAGCTTACAAAAACATAT</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>398</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>ATTACTCTCACATTCTCCCCCAATCCATATTTTGAAGATACAAAGCTTACAAAAACATAT</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>457</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>421</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>TCCTTTAGTGACGATGAAGCAGTCAAAGTAAAGGCTACCTCCATCAGGTGGAAGAAAGGA</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>480</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             TCCTTTAGTGACGATGAAGCAGTCAAAGTAAAGGCTACCTCCATCAGGTGGAAGAAAGGA</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>458</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>TCCTTTAGTGACGATGAAGCAGTCAAAGTAAAGGCTACCTCCATCAGGTGGAAGAAAGGA</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>517</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>481</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>ATGGATATTGCCAATGATCGTGCGTACACGAAGAAAGGGGACAAGCGAATCTTAATTGAT</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>540</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             ATGGATATTGCCAATGATCGTGCGTACACGAAGAAAGGGGACAAGCGAATCTTAAT GAT</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>518</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>ATGGATATTGCCAATGATCGTGCGTACACGAAGAAAGGGGACAAGCGAATCTTAATGGAT</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>577</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>541</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>GAAAGTTTCTTTACTTGGTTCAATAGTGAAAAGAACAGAAGTTTTGCTCATGGAGCTATG</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>600</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             GAAAGTTTCTTTACT GGTTCAATAGTGAAAA  ACAGA   TTTGCTCATGGAGCTATG</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>578</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>GAAAGTTTCTTTACTGGGTTCAATAGTGAAAAAGACAGANAGTTTGCTCATGGAGCTATG</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>637</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>601</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>GATGAGGTGGCAGATGTCATCAAGGAAGATCTGTGGCCTAATCCTTTGAAGTACTTCAAC</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>660</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             GATGAGGTGGCAGATGTCATCAAGGAAGATCTG GGCCTAATCCTTTGA GTACTTCAAC</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>638</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>GATGAGGTGGCAGATGTCATCAAGGAAGATCTG-GGCCTAATCCTTTGA-GTACTTCAAC</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>695</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>661</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>AATGAATTTGAAGAAGAATTAGAGCTACTGGATGACGATGACGAGGTATCTGATGATGAC</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>720</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>             AATGAATT GAAGA GAAT AGAGCTACT GATGACGATGACGAG TATCTGATGATGAC</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>696</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>AATGAATT-GAAGAGGAAT-AGAGCTACTTGATGACGATGACGAG-TATCTGATGATGAC</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>752</bioformat:hsp_seqalign_subject_end>
+
+</bioformat:hsp_seqalign><bioformat:hsp_seqalign><bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_name>Query</bioformat:hsp_seqalign_query_name>:   <bioformat:hsp_seqalign_query_start>721</bioformat:hsp_seqalign_query_start> </bioformat:hsp_seqalign_query_leader><bioformat:hsp_seqalign_query_seq>GATGAGGAGGAGGATGATGAAGACC-AAGGTGAAGGAGAGGAGGATGGAGAGGAGAACTG</bioformat:hsp_seqalign_query_seq> <bioformat:hsp_seqalign_query_end>779</bioformat:hsp_seqalign_query_end>
+<bioformat:hsp_seqalign_homology_seq>              ATGAGGAGGAGGATGATGAA ACC AAGGTGA GGA AGGAGGATGG  AGG GAACTG</bioformat:hsp_seqalign_homology_seq>
+<bioformat:hsp_seqalign_subject_name>Sbjct</bioformat:hsp_seqalign_subject_name>:   <bioformat:hsp_seqalign_subject_start>753</bioformat:hsp_seqalign_subject_start> <bioformat:hsp_seqalign_subject_seq>CATGAGGAGGAGGATGATGAAAACCCAAGGTGA-GGANAGGAGGATGGGNAGG-GAACTG</bioformat:hsp_seqalign_subject_seq> <bioformat:hsp_seqalign_subject_end>810</bioformat:hsp_seqalign_subject_end>
+
+
+</bioformat:hsp_seqalign></bioformat:hsp></hsp></bioformat:hit><ending>Parameters:
+
+  ctxfactor=2.00
+  E=10
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Strand MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +1      0   +5,-4           0.192   0.173   0.357    same    same    same
+               Q=10,R=10       0.104   0.0151  0.0600    n/a     n/a     n/a
+   -1      0   +5,-4           0.192   0.173   0.357    same    same    same
+               Q=10,R=10       0.104   0.0151  0.0600    n/a     n/a     n/a
+
+  Query
+  Strand MatID  Length  Eff.Length     E     S  W   T  X   E2      S2
+   +1      0      780       780       10.  177 11 n/a 73  0.022    81
+                                                      91  0.023   121
+   -1      0      780       780       10.  177 11 n/a 73  0.022    81
+                                                      91  0.023   121
+
+
+Statistics:
+
+  Database: <bioformat:search_statistic name="database"> /usr/share/ncbi/data/wublast/osest.nr</bioformat:search_statistic>
+    Title: <bioformat:search_statistic name="database_title"> /usr/share/ncbi/data/wublast/osest.nr</bioformat:search_statistic>
+    Release date: <bioformat:search_statistic name="release_date"> unknown</bioformat:search_statistic>
+    Posted date: <bioformat:search_statistic name="posted_date"> 1:31 PM CST Apr 9, 2003</bioformat:search_statistic>
+    Format: <bioformat:search_statistic name="format"> BLAST</bioformat:search_statistic>
+  # of letters in database:  <bioformat:search_statistic name="num_letters_in_database" bioformat:decode="int.comma">62,085,905</bioformat:search_statistic>
+  # of sequences in database:  <bioformat:search_statistic name="num_sequences_in_database" bioformat:decode="int.comma">135,260</bioformat:search_statistic>
+  # of database sequences satisfying E:  <bioformat:search_statistic name="num_sequences_satisying_E" bioformat:decode="int">108</bioformat:search_statistic>
+  No. of states in DFA: <bioformat:search_statistic name="num_dfa_states"> 252 (252 KB)</bioformat:search_statistic>
+  Total size of DFA: <bioformat:search_statistic name="total_dfa_size"> 271 KB (320 KB)</bioformat:search_statistic>
+  Time to generate neighborhood: <bioformat:search_statistic name="neighborhood_generation_time"> 0.01u 0.01s 0.02t  Elapsed: 00:00:00</bioformat:search_statistic>
+  No. of threads or processors used:  <bioformat:search_statistic name="num_threads" bioformat:decode="int">1</bioformat:search_statistic>
+  Search cpu time: <bioformat:search_statistic name="search_cpu_time"> 8.50u 2.77s 11.27t  Elapsed: 00:00:31</bioformat:search_statistic>
+  Total cpu time: <bioformat:search_statistic name="total_time"> 8.73u 3.43s 12.16t  Elapsed: 00:00:39</bioformat:search_statistic>
+  Start:  <bioformat:search_statistic name="start_time"><weekday type="short">Wed</weekday> <month type="short">Apr</month> <day type="numeric"> 9</day> <hour type="any">16</hour>:<minute type="numeric">30</minute>:<second type="numeric">02</second> <year type="long">2003</year></bioformat:search_statistic>   End:  <bioformat:search_statistic name="end_time"><weekday type="short">Wed</weekday> <month type="short">Apr</month> <day type="numeric"> 9</day> <hour type="any">16</hour>:<minute type="numeric">30</minute>:<second type="numeric">41</second> <year type="long">2003</year></bioformat:search_statistic>
+
+WARNINGS ISSUED:  <bioformat:search_statistic name="num_warnings" bioformat:decode="int">9</bioformat:search_statistic>
+</ending></record>

@@ -1,0 +1,328 @@
+Start	1
+End	3969
+group
+AtSETreg
+label
+Block	1	2	15
+endlabel
+label
+Block	1257	1387	0	H
+SET
+endlabel
+label
+Block	1420	1421	15	H
+  
+endlabel
+endgroup
+
+group
+AtSETreg3
+label
+Block	1	2	15
+endlabel
+label
+Block	17	146	0	H
+SET
+endlabel
+label
+Block	146	162	14	H
+Post-SET
+endlabel
+label
+Block	185	186	15	H
+  
+endlabel
+endgroup
+
+group
+AtT20M3.10
+label
+Block	1	2	15
+endlabel
+label
+Block	309	381	11	H
+PWWP
+endlabel
+label
+Block	434	478	14	H
+FY-rich domain, N-terminal
+endlabel
+label
+Block	486	572	14	H
+FY-rich domain, C-terminal
+endlabel
+label
+Block	590	639	6	H
+PHD
+endlabel
+label
+Block	591	596	14	H
+Cytochrome c  heme-binding site
+endlabel
+label
+Block	591	636	6	H
+PHD
+endlabel
+label
+Block	707	734	6	H
+PHD
+endlabel
+label
+Block	890	1020	0	H
+SET
+endlabel
+label
+Block	1020	1036	14	H
+Post-SET
+endlabel
+label
+Block	1192	1193	15	H
+  
+endlabel
+endgroup
+
+group
+AtTrxl1
+label
+Block	1	2	15
+endlabel
+label
+Block	298	374	11	H
+PWWP
+endlabel
+label
+Block	456	500	14	H
+FY-rich domain, N-terminal
+endlabel
+label
+Block	508	598	14	H
+FY-rich domain, C-terminal
+endlabel
+label
+Block	597	647	14	H
+Protein kinase C, phorbol ester/diacylglycerol binding
+endlabel
+label
+Block	611	660	6	H
+PHD
+endlabel
+label
+Block	612	617	14	H
+Cytochrome c  heme-binding site
+endlabel
+label
+Block	723	750	6	H
+PHD
+endlabel
+label
+Block	892	1022	0	H
+SET
+endlabel
+label
+Block	1022	1038	14	H
+Post-SET
+endlabel
+label
+Block	1061	1062	15	H
+  
+endlabel
+endgroup
+
+group
+AtpTRX1
+label
+Block	1	2	15
+endlabel
+label
+Block	309	439	0	H
+SET
+endlabel
+label
+Block	478	479	15	H
+  
+endlabel
+endgroup
+
+group
+CeC26E6.9b
+label
+Block	1	2	15
+endlabel
+label
+Block	594	723	0	H
+SET
+endlabel
+label
+Block	723	739	14	H
+Post-SET
+endlabel
+label
+Block	738	739	15	H
+  
+endlabel
+endgroup
+
+group
+DmTRX
+label
+Block	1	2	15
+endlabel
+label
+Block	1268	1345	6	H
+PHD
+endlabel
+label
+Block	1346	1391	6	H
+PHD
+endlabel
+label
+Block	1421	1482	6	H
+PHD
+endlabel
+label
+Block	1528	1544	14	H
+Post-SET
+endlabel
+label
+Block	1736	1787	6	H
+PHD
+endlabel
+label
+Block	1796	1842	6	H
+PHD
+endlabel
+label
+Block	1897	1942	14	H
+FY-rich domain, N-terminal
+endlabel
+label
+Block	3388	3476	14	H
+FY-rich domain, C-terminal
+endlabel
+label
+Block	3588	3710	0	H
+SET
+endlabel
+label
+Block	3710	3726	14	H
+Post-SET
+endlabel
+label
+Block	3725	3726	15	H
+  
+endlabel
+endgroup
+
+group
+HsHRX
+label
+Block	1	2	15
+endlabel
+label
+Block	170	181	7	H
+A+T-hook
+endlabel
+label
+Block	219	230	7	H
+A+T-hook
+endlabel
+label
+Block	300	312	7	H
+A+T-hook
+endlabel
+label
+Block	1001	1048	8	H
+zf-CXXC
+endlabel
+label
+Block	1147	1194	8	H
+zf-CXXC
+endlabel
+label
+Block	1287	1336	6	H
+PHD
+endlabel
+label
+Block	1337	1387	6	H
+PHD
+endlabel
+label
+Block	1422	1481	6	H
+PHD
+endlabel
+label
+Block	1479	1484	14	H
+Cytochrome c  heme-binding site
+endlabel
+label
+Block	1481	1531	6	H
+PHD
+endlabel
+label
+Block	1556	1578	14	H
+RecR protein
+endlabel
+label
+Block	1556	1624	6	H
+PHD
+endlabel
+label
+Block	1633	1767	14	H
+Bromodomain
+endlabel
+label
+Block	1932	1978	6	H
+PHD
+endlabel
+label
+Block	2030	2073	14	H
+FY-rich domain, N-terminal
+endlabel
+label
+Block	2884	2896	14	H
+Calcium-binding EF-hand
+endlabel
+label
+Block	3668	3753	14	H
+FY-rich domain, C-terminal
+endlabel
+label
+Block	3677	3805	0	H
+SET
+endlabel
+label
+Block	3829	3951	0	H
+SET
+endlabel
+label
+Block	3953	3969	14	H
+Post-SET
+endlabel
+label
+Block	3968	3969	15	H
+  
+endlabel
+endgroup
+
+group
+ScSET1
+label
+Block	1	2	15
+endlabel
+label
+Block	399	409	14	H
+Zinc carboxypeptidase A metalloprotease (M14)
+endlabel
+label
+Block	932	1061	0	H
+SET
+endlabel
+label
+Block	1064	1080	14	H
+Post-SET
+endlabel
+label
+Block	1079	1080	15	H
+  
+endlabel
+endgroup

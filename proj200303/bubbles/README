@@ -1,0 +1,15 @@
+bubbles.pl - Draw SMART domain bubbles
+
+Uses gimp and Gimp::Fu to automatically draw domain bubbles.
+
+Requires:
+-Gimp (http://www.gimp.org) : if you use Linux, you probably have Gimp already 
+installed 
+-Gimp::Fu (Gimp perl module) : avaliable at your neares CPAN mirror
+
+Using:
+
+-just copy bubbles.pl to your ~/.gimp-1.2/plug-ins/ and you'll have a new entry
+in Gimp under Xtns->Perl-Fu menu called SMART Bubbles
+
+-to use it in batch mode, see run_batch.pl for an example 

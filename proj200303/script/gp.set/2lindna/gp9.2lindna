@@ -1,0 +1,136 @@
+Start	1
+End	504
+group
+At40.5KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	1	176	0	H
+SET
+endlabel
+label
+Block	363	364	15	H
+  
+endlabel
+endgroup
+
+group
+AtF16A14.25
+label
+Block	1	2	15
+endlabel
+label
+Block	50	281	0	H
+SET
+endlabel
+label
+Block	473	474	15	H
+  
+endlabel
+endgroup
+
+group
+AtF21J9.27
+label
+Block	1	2	15
+endlabel
+label
+Block	34	288	0	H
+SET
+endlabel
+label
+Block	475	476	15	H
+  
+endlabel
+endgroup
+
+group
+AtHypo2
+label
+Block	1	2	15
+endlabel
+label
+Block	29	283	0	H
+SET
+endlabel
+label
+Block	470	471	15	H
+  
+endlabel
+endgroup
+
+group
+AtRubMt
+label
+Block	1	2	15
+endlabel
+label
+Block	75	311	0	H
+SET
+endlabel
+label
+Block	503	504	15	H
+  
+endlabel
+endgroup
+
+group
+AtRubMt2
+label
+Block	1	2	15
+endlabel
+label
+Block	50	289	0	H
+SET
+endlabel
+label
+Block	481	482	15	H
+  
+endlabel
+endgroup
+
+group
+AtRubMt3
+label
+Block	1	2	15
+endlabel
+label
+Block	75	311	0	H
+SET
+endlabel
+label
+Block	503	504	15	H
+  
+endlabel
+endgroup
+
+group
+AtpMT
+label
+Block	1	2	15
+endlabel
+label
+Block	75	311	0	H
+SET
+endlabel
+label
+Block	503	504	15	H
+  
+endlabel
+endgroup
+
+group
+NtRuBisCOMt
+label
+Block	1	2	15
+endlabel
+label
+Block	58	298	0	H
+SET
+endlabel
+label
+Block	490	491	15	H
+  
+endlabel
+endgroup

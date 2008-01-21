@@ -1,0 +1,163 @@
+Start	1
+End	1043
+group
+At102.8KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	186	270	11	H
+PWWP
+endlabel
+label
+Block	350	404	6	H
+PHD
+endlabel
+label
+Block	492	541	6	H
+PHD
+endlabel
+label
+Block	839	884	0	H
+SET
+endlabel
+label
+Block	886	902	14	H
+Post-SET
+endlabel
+label
+Block	901	902	15	H
+  
+endlabel
+endgroup
+
+group
+At103.2KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	204	283	11	H
+PWWP
+endlabel
+label
+Block	668	724	6	H
+PHD
+endlabel
+label
+Block	814	899	0	H
+SET
+endlabel
+label
+Block	911	912	15	H
+  
+endlabel
+endgroup
+
+group
+AtTrx4
+label
+Block	1	2	15
+endlabel
+label
+Block	137	267	0	H
+SET
+endlabel
+label
+Block	269	285	14	H
+Post-SET
+endlabel
+label
+Block	284	285	15	H
+  
+endlabel
+endgroup
+
+group
+AtpTX5
+label
+Block	1	2	15
+endlabel
+label
+Block	220	301	11	H
+PWWP
+endlabel
+label
+Block	415	469	6	H
+PHD
+endlabel
+label
+Block	609	658	6	H
+PHD
+endlabel
+label
+Block	895	1025	0	H
+SET
+endlabel
+label
+Block	1042	1043	15	H
+  
+endlabel
+endgroup
+
+group
+Atzinc
+label
+Block	1	2	15
+endlabel
+label
+Block	220	301	11	H
+PWWP
+endlabel
+label
+Block	415	495	6	H
+PHD
+endlabel
+label
+Block	606	655	6	H
+PHD
+endlabel
+label
+Block	717	773	6	H
+PHD
+endlabel
+label
+Block	892	1022	0	H
+SET
+endlabel
+label
+Block	1024	1040	14	H
+Post-SET
+endlabel
+label
+Block	1039	1040	15	H
+  
+endlabel
+endgroup
+
+group
+OsP0489G09.11
+label
+Block	1	2	15
+endlabel
+label
+Block	297	376	11	H
+PWWP
+endlabel
+label
+Block	486	539	6	H
+PHD
+endlabel
+label
+Block	822	952	0	H
+SET
+endlabel
+label
+Block	954	970	14	H
+Post-SET
+endlabel
+label
+Block	969	970	15	H
+  
+endlabel
+endgroup

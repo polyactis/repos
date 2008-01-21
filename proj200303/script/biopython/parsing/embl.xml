@@ -1,0 +1,995 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<dataset format="embl/65"><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OspTPR</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AC084023</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AC084023_239</entry_name></bioformat:dbid>; parent: <parent>AC084023</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(complement(156061..156189),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(155814..155948),complement(155363..155449),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(155089..155160),complement(154735..154945),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(154529..154647),complement(153892..154278),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(153671..153805),complement(152934..153065),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(152447..152602),complement(152128..152361),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(151882..152045),complement(151670..151784),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(151488..151568),complement(151138..151362))</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"OSJNBa0062C05.29"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"putative TPR (tetratricopeptide repeat) domain</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>containing protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"AAN05556.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MERLKSAVPAELRRAVGEGTAADLPSTTSRLLAFLEALPLFRQVI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GELTDPELALCRKDKGRAAELKGKGNACFSKREFEQALGFYSQALRYFPISPDGTDASL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>IATLYVNRASTMHKLGLLEECLRDCDRAISVSPNYAKAWYRRGMVNASFRNYSSSIHDL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EVALSMEVTSSGKSNIEQELKLILQKHQNVNEVGTASSNCINADMPHTEQQPKVILECT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>STPNKGRGMSSPNDISPASLIHAEDPLAVIIMKSCRDTHCHYCFSEAPADVVVCPSCTI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>PIYCSNRCQEKAIGQMSCNQNTHLESNNNVVDIAKLSVTSTKSKTPDSKQIAEHRHECG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GACWAAVLPADIVLAGRIMAQYIEKQLLVGKRSTISGPNLDLVHHYDQDSSASKFESHI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YATVLFLCLQSYYKSGVSWAEDSLSQLVLLICQIKVNSIAIVHMKSMDGVKALTKGFSG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FSGDVMCSVEQVRVAQAIYMSGSFFNHSCRPNIHAYFHSRTLILRSTEYIKAGSPIELS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YGPQVGEMDLPERQKSLRENYYFSCGCSSCSVLSLSDLVMNSFCCPQSNCLGAVSELIH</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>HRHKENFVHVSIGESHVCTLSLPDVSKFDEDIVKVGKLFFKSDTMFNIDPGFCMSCRSQ</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LDLSSAVAMSDRATSKINRLKELPSLDNVPEVLIAEALQSLERIEKLRHPYSKTLAQSH</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DTIAEAFAKVGDQEQARKHCEASIKILEKLYHPRHIIIAHELIKLVSIELSMGDGASAA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AAFARADAIFSLYYGPDVERILPYVDVLRRTVSERSIDSC"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2382</num_BP> BP;
+     <bioformat:sequence>atggagcggc tcaagtcggc ggtgccggcg gagctccggc gagccgtcgg cgagggcacg</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>gcggccgacc tcccctccac cacctcccgc ttgctcgcct tcctcgaagc tctccctctc</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>ttccgccagg tgattggtga gctgaccgac ccggagctcg cgctgtgccg caaggacaag</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>gggagggcgg ccgagctgaa ggggaagggg aatgcgtgct tctccaagag agagttcgag</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>caagcgcttg gattctactc gcaggcgtta cggtacttcc cgattagtcc tgatggaacg</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>gatgcaagct tgatagccac attatatgtc aaccgtgcct ctaccatgca taaattgggc</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>cttttggaag agtgtctgcg agattgcgac agggccattt ctgtttcacc taattatgct</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>aaggcatggt acagaagggg gatggtaaat gcatctttta ggaactattc atcttccata</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>catgatttgg aggttgcttt gagcatggaa gtaacctctt ctggaaagag taacatagaa</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>caagagttga agttgatttt acaaaagcat caaaatgtga atgaagttgg gacagcaagc</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>agcaattgca tcaatgcaga tatgccacat acagagcaac agcctaaggt tattctagaa</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>tgtacctcta cacccaacaa aggtagagga atgtcgtctc caaatgatat ttctccagcc</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>tcactgattc atgctgagga tcctcttgct gtgattatca tgaaatcttg ccgggatact</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>cactgccact attgctttag tgaagctcca gcagatgtcg tagtctgccc ttcatgtaca</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>atacccattt actgttcaaa caggtgccag gagaaggcta taggacaaat gtcttgtaat</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>caaaatactc atctagaatc taacaataat gtggtggata ttgcaaaatt gagtgtaact</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>tctacaaaga gcaagactcc agactctaaa caaattgctg aacataggca tgaatgtgga</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>ggtgcctgtt gggcagctgt tttgccagct gatatagttt tagctgggcg gataatggca</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>cagtacatag agaaacaatt gctggtcgga aagagatcta ccatctctgg tccaaatctg</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>gatctcgttc accactatga tcaagattct tctgctagca aatttgagtc acatatatat</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>gcaactgtcc tgttcttatg cctccagagc tattataaat caggtgtctc gtgggcagag</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>gattctttat cacagttggt tcttttgata tgtcaaatta aagtcaactc aattgcaatt</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>gttcatatga aatccatgga tggagtcaag gcgctgacaa aggggttttc tggatttagt</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>ggtgatgtta tgtgtagtgt ggaacaggtc agggttgctc aagctattta catgtctggt</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>agctttttca accactcgtg ccggcccaac atacatgcat attttcattc gcgcactctc</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>attctaaggt ctacagaata tataaaagca ggtagcccaa tcgagctgtc atacggccca</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>caggttggtg agatggatct tccagagaga caaaagtcac ttcgggagaa ttactacttc</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>agttgtgggt gttcaagttg ttcagtacta agtctatcag accttgtcat gaattcattt</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>tgctgtccgc aaagtaattg ccttggtgct gtatcagaat taattcatca tagacacaaa</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>gagaattttg tgcatgtttc cataggagaa tctcatgtct gtacattatc attacctgat</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>gtatctaagt ttgatgagga tatagtgaag gttggaaaac tatttttcaa gagtgatacc</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>atgttcaaca tagatcctgg attctgtatg agttgcagat cccaacttga cttgtcttct</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>gctgttgcta tgtcagatag agcaacatca aagataaaca gattgaagga gcttccatct</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>ctagacaatg tccctgaagt cctcattgca gaagcactac aatccttaga acgcattgag</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>aagttaaggc acccatatag caagactctt gctcagtcac acgacacaat tgctgaggcc</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>tttgctaagg taggagatca agaacaagca agaaaacact gtgaagcatc catcaagatt</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>cttgagaagc tttaccaccc caggcacatc atcatcgcgc acgagttgat caagctcgtc</bioformat:sequence>      <end_position>2220</end_position>
+     <bioformat:sequence>tccatcgagc tttccatggg agatggcgca agcgcggctg ctgcattcgc ccgggcagat</bioformat:sequence>      <end_position>2280</end_position>
+     <bioformat:sequence>gcgatattct cgctgtatta tgggcctgat gtagagagga ttttgcccta cgttgatgtg</bioformat:sequence>      <end_position>2340</end_position>
+     <bioformat:sequence>ctcagaagaa ctgtcagtga acggtctatt gattcatgtt ga                   </bioformat:sequence>      <end_position>2382</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>Os</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP003295</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP003295_9</entry_name></bioformat:dbid>; parent: <parent>AP003295</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(complement(52691..52865),complement(51313..51378),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(51034..51113),complement(50417..50646),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(49551..49704),complement(49049..49468))</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8S1J4</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"hypothetical protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0695H10.8"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAB89848.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MGSLRECGDGCACGPSCGNRRTQLGVTVRLRVVRHREKGWGLHAA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EVLRRGQFVCEYAGELLTTEEARRRQGLYDELASVEISSKEKSSPSVMVMLDLGRMACR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AFAESGGDEDESFDKEDSWREWRTQQKNNLVPLQSFIQSTLPFPLSLAFVSSVQQPQLM</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>PMPPLPMPHVPFALALQVLSEVFGASNVAKLLSRVPAALRREAARTVCYEAQARIADPV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YGSVGTILALQHQNKFMSQTQTDTNNIDPYEKFRSSDSKLHYARRQVSLLQGQLSVLES</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QLFNLRVALASAHPDTPPQHFVVLQPAHSAASTLNQVVVNYDDLPHAVDFMDAEPAALR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GLESLQLSQPLQREEDEGHRDMNLFSDSVGQRQL"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>1125</num_BP> BP;
+     <bioformat:sequence>atggggagcc tcagggagtg cggcgacggg tgcgcgtgcg ggccctcgtg cgggaaccgg</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>cggacccagc tcggcgtcac ggtgcggctg cgcgtcgtgc gccaccggga gaaagggtgg</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>gggctgcacg ccgccgaggt ccttcgccgc gggcagttcg tttgcgagta tgctggtgag</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>cttttgacaa ctgaagaagc aaggaggcgg caggggctat atgatgagct tgcctctgtc</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>gagatatcat cgaaggagaa gagctcacct tcagttatgg tgatgctaga cttaggccga</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>atggcttgcc gtgcttttgc ggagtcagga ggtgatgaag atgaatcctt tgacaaagaa</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gactcctgga gagagtggag gactcaacag aaaaacaacc ttgtgccgtt gcaatccttt</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>atccaaagca cacttccgtt tccgctttcc ctagcgtttg tttcctctgt gcagcaaccg</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>cagcttatgc caatgccacc attgcccatg ccccatgttc catttgcact agctttgcaa</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>gtgttgtcag aggtgttcgg cgccagcaac gtggcgaagc tgctgtcccg ggtgcccgcc</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>gcgctgcgcc gggaagcggc gcgcacggtc tgctacgagg cccaggcccg catcgccgac</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>cccgtctacg gcagcgtcgg caccatcctc gcgctccagc accagaacaa attcatgtca</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>caaacacaaa ctgacacaaa taatattgac ccctatgaaa aattccgttc ttctgattcg</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>aaactccatt acgcgagacg acaggtatct ctcctgcaag ggcagctctc cgtcctggag</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>tctcagctct tcaacctgcg ggtggccttg gcgagcgcgc accccgacac gccgccgcag</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>cacttcgtcg tgctgcagcc ggcgcactcc gcggcgtcca cgctgaacca ggtggtggtg</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>aactacgacg acctcccgca cgccgtggat ttcatggacg cggagcccgc cgcgctgagg</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>ggactagagt ctctccagct ctcgcagcca ctgcagcggg aggaagacga gggccaccga</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>gacatgaacc tcttctcgga cagtgtagga caacggcagc tgtaa                </bioformat:sequence>      <end_position>1125</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OsHypo</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AC091775</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AC091775_130</entry_name></bioformat:dbid>; parent: <parent>AC091775</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(135938..136049,136266..136411,136567..136701,</bioformat:feature_location>
+FT                   <bioformat:feature_location>136821..136875,136960..137078,137550..137638,</bioformat:feature_location>
+FT                   <bioformat:feature_location>137738..137819,137931..138029,138134..138212,</bioformat:feature_location>
+FT                   <bioformat:feature_location>138352..138471,138579..138685,138773..138842,</bioformat:feature_location>
+FT                   <bioformat:feature_location>138926..&gt;138989)</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8LN53</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"OSJNBa0004G17.3"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"unknown protein,3'-partial"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"AAM97151.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MASWEEQLRDELAGRDLAVASVPGKGRGLFAARSFFPGEVVISQE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>PYASTPNKISVGSNCDNCFASRNLRKCSVCRVAWYCGSACQREEWKLHQLECRAIAALT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EDRKKMLTPTIRLMVRLVLRRKLQDDKAIPSSGTDNYNLVDALESHISEVDKNQLVLYA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QMANLVQLILPSFELDLKEITHTFSKFACNAHTICDPELRPLGTGLYPVLSIINHSCVP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NAVLIFEGRTAYVRALQPISKNEEVSISYIETAATTMKRQDDLKHYYFTCTCPRCVKDS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EEDALLEGYRCNDQKCDGFLLPNAGNKGYTCQKCSTSRDGEELQKMASDVLLLSDKVSS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LVSSGNNSEVGSMYKTIEELERKLYHPLSITLLHTRETLLKIYMELQDWQTALMYCRLT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>IPVYERIYPPFHPMIGLQFYTCGKLE"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>1277</num_BP> BP;
+     <bioformat:sequence>atggcgtcgt gggaggagca gctgcgggac gagctcgccg gccgagacct cgccgtcgcc</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>tccgtccccg ggaagggccg cggcctcttc gccgcacgca gcttcttccc aggagaagtc</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>gttatttcgc aagagcctta cgcttctaca ccaaacaaga tttctgtggg ctccaactgc</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>gacaattgtt tcgcctccag aaacctgagg aagtgctccg tttgtcgagt tgcttggtac</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>tgtgggagtg cgtgtcagag agaagaatgg aagcttcatc aacttgaatg tcgagcaatc</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>gccgcgctta cagaggatag aaagaagatg cttactccca caattcgttt gatggtgcgg</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>cttgtactta gaagaaaact gcaggatgac aaggctattc catcttcagg aacagataac</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>tacaatctag tggatgcatt agaatcccac atctccgagg ttgataaaaa tcaactggtt</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>ttatatgctc agatggccaa tcttgtccaa ctgattcttc cttcattcga gcttgatctt</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>aaggaaatta cacatacctt ttccaagttt gcctgcaacg ctcataccat atgtgatcct</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>gaactgaggc cccttgggac tggactatac cctgttttat ctattattaa ccacagttgt</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>gtaccaaatg cagttttgat atttgaaggt cggacagcat atgttcgtgc attgcaacct</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>ataagtaaaa atgaggaggt atcaataagt tacattgaaa ctgcggcaac cactatgaag</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>agacaggacg atctcaagca ctactacttc acttgcacat gtccccgttg tgttaaggat</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>tctgaggaag atgcgctcct tgagggatac agatgcaatg accaaaagtg tgatggattt</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>cttctgccta atgcaggaaa caaaggttat acatgccaga aatgtagcac ttctagagat</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>ggggaagagt tacaaaagat ggctagcgat gtactactat tatctgacaa agtctcttcc</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>ttagtttcat ctggaaataa cagtgaggta ggttctatgt acaagaccat tgaagagcta</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>gagcggaagc tttaccatcc tttgtcaatc actttgcttc acacacggga aacactcttg</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>aagatatata tggagttaca agattggcag actgcattga tgtattgcag attgacaatt</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>ccagtttatg aaagaattta cccacctttt cacccaatga ttggattaca gttctatact</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>tgcggaaagc ttgaatg                                               </bioformat:sequence>      <end_position>1277</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OsP0458E05.13</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP004365</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP004365_20</entry_name></bioformat:dbid>; parent: <parent>AP004365</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(81185..81551,81701..81793,84629..84852,84930..85030,</bioformat:feature_location>
+FT                   <bioformat:feature_location>85112..85324,85726..85885)</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>GOA</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8LHD6</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8LHD6</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"hypothetical protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"similar to Arabidopsis thaliana chromosome 5,</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>MTH16.26"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0458E05.13"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAC05613.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MGRRALPPSSSSSSSSSTTTTSPELRRKRTAAPPPPPSPRRYRSI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SDVMRRSLPVDAAPPVARAYESTRCDVCGSGERDEELLLCDGCDRGRHTFCLRPIAARV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>PTGPWFCPPCAPRSKPVKRFPMTQTKIVDFFRIQKGAEDAEAEKYGLFQDVKKRRKRSL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VMHKKRRRILPYVPTEDKVQRLKQMASLATAMTSSKMKFSNELTYMPGMAGRSCNQATL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EEGGMQILPKEDKETIELCRTMQKRGECPPLLVVFDSREGFTVQADADIKDMTFIAEYT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GDVDFLENRANDDGDSIMTLLLTEDPSKRLVICPDKRGNISRFINGINNHTLDGKKKKN</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>IKCVRYDIDGESHVLLVACRDIACGEKLYYDYNGYEHEYPTHHFV"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>1158</num_BP> BP;
+     <bioformat:sequence>atgggccgcc gcgcgctgcc gccgtcgtcg tcgtcgtcgt cgtcgtcgtc gacgacgacc</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>acctcgccgg agctgcggcg gaagcgcacg gccgcgccgc ccccgccgcc gtcgccgcgg</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>aggtaccgct cgatctccga cgtcatgcgc cgctcgctgc ccgtcgacgc ggcgcccccc</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>gtggcgcgcg cctacgagag cacgcggtgc gacgtgtgcg ggtccgggga gcgggacgag</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>gagctgctgc tgtgcgacgg ctgcgaccgc ggccgccaca ccttctgcct ccgccccatc</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>gccgccaggg tccccaccgg cccctggttc tgcccgccat gcgccccgcg ctccaagccc</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gtcaaaaggt tcccgatgac tcagacgaag atcgttgatt tcttccggat tcagaagggc</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>gcagaggatg ccgaggcgga gaaatatggg ctttttcaag atgttaagaa gcgaagaaag</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>cgttcccttg ttatgcacaa gaagaggagg aggatactgc catatgtccc aactgaagat</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>aaagttcaaa ggctcaaaca aatggcttct ctagccactg ctatgacatc ttcgaagatg</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>aagttcagta atgagctgac ttacatgcct ggtatggctg ggagatcgtg taatcaagct</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>acactggaag aaggtggcat gcagattctt ccaaaagagg ataaggaaac tatagaactt</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>tgcagaacca tgcaaaaaag gggagaatgc cctccccttc ttgtggtgtt tgattcacgc</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>gaagggttca cagtgcaggc tgatgctgat attaaagata tgaccttcat cgccgaatat</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>actggagatg ttgatttttt ggaaaacaga gcaaatgatg atggtgacag tataatgact</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>cttcttttga cagaagatcc ttccaaaagg ctggttattt gtcctgataa gcgtggaaac</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>atttcccgtt tcattaatgg cattaataat cacactctgg atggcaaaaa gaagaagaat</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>attaaatgtg tccggtatga catagatggt gagagccatg tcttgttggt tgcctgccgt</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>gatatagctt gtggtgagaa gctatattat gattacaatg gatatgagca tgagtaccca</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>actcatcatt ttgtctaa                                              </bioformat:sequence>      <end_position>1158</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OssSET1</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP003247</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP003247_11</entry_name></bioformat:dbid>; parent: <parent>AP003247</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>50268..52478</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8RUS3</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0425G02.10"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"similar to SET1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAB85235.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MNRESNFMPTPDQDVLEVKPLRTLAPMFPAPLGIDVLNRLTAPPL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VFVAPAGQFPGGFGSLNIPAVRSFAAFGGQDASGGKTAGGGDQDASGGKTAAGGDQDAG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RGETAAFGGQETVRGEFVANGTPNVGASATGPIDATPISACKSTQPSVISLDDDDNDDD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EPYGGNQTSASGRKIKRPSHLKGYNVSDGLGTDSSNGTKKRPKTSNRKAATDNEISLMP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>PSSDPREVVEVLLMTFEALRRRHLQLDETQETSKRADLKAGAIMLASNLRANIGKRIGA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VPGVEVGDIFYFRMELCIIGLHAPSMGGIDYMNKFGDEDDSVAICIVAAGVYENDDDDT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DTLVYSGSGGISRNSEEKQDQKLERGNLALERSLSRKNVIRVVRGYKDPACLTGKVYIY</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DGLYKIHESWKERTKTGINCFKYKLQREPGQPDAVAIWKMCQRWVENPAARGKVLHPDL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SSGAENLPVCLINDVNSEKGPGHFNYITQVKYLKPLRSMKPFQGCRCTSVCLPGDTSCD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>CAQHNGGDLPYSSSGLLVCRKLMVYECGESCRCSINCRNRVAQKGVRIHLEVFRTTNRG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>WGLRSWDPIRAGSFICEYVGEVVDDTKVNLDGEDDYLFRTVCPGEKTLKWNYGPELIGE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>HSINISADTFEPLPIKISAMKMGNVARFMNHSCNPNTFWQPVQFDHGEDGYPHIMFFAL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KHIPPMTELTYDYGDIGCESRGVGSRAKNCLCGSSNCRGFFS"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2211</num_BP> BP;
+     <bioformat:sequence>atgaaccggg aatcaaattt catgcctact cctgatcagg atgttctgga agtcaagccc</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>ctgaggactt tggctccaat gttccctgca ccattgggga tcgatgtgct taaccggttg</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>acagccccac cgttggtatt tgtcgcacca gctgggcagt ttcctggggg ttttggatct</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>ttgaacattc ctgcggtcag atcgtttgcc gctttcggtg gtcaggatgc tagtggaggc</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>aagactgctg gtggtggtga tcaggatgct agtggaggca agactgccgc tggcggtgat</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>caggatgctg gtagaggcga gactgctgct tttggtggtc aggaaactgt cagaggtgaa</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>tttgttgcaa atgggactcc aaatgtaggt gctagtgcaa ctgggccaat tgacgccact</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>cctatctcag cttgcaaatc aacacaacca agtgtgatat cactggatga tgatgacaat</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>gatgatgatg agccttacgg tggtaaccaa acatcagcat ctggacggaa gatcaagagg</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>ccatcccatc tcaaaggata taatgtaagt gatggtttgg gcaccgacag ctccaacgga</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>acaaagaaac gccctaagac ctctaatagg aaggctgcta ctgacaatga gatttccttg</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>atgcctccat ccagcgatcc cagggaggtt gtggaagtgc ttctcatgac cttcgaggca</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>ctgcggcgta ggcatcttca attggatgag acacaagaga ctagcaaacg tgcagacctg</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>aaggctggtg ccatcatgtt ggccagtaat ctgagggcta acattgggaa gaggattgga</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>gctgtccctg gagttgaagt aggggatatt ttctacttca ggatggagct atgcattatc</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>ggcttgcatg cacctagcat gggtggaatt gattatatga ataagtttgg tgatgaggat</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>gactctgtag caatatgtat tgttgctgca ggtgtttatg agaatgatga tgatgataca</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>gatacactgg tctacagtgg ttctggaggt ataagcagga acagtgagga gaagcaggac</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>cagaagcttg agaggggtaa ccttgctctt gagaggagcc tgtccagaaa gaacgtgatc</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>cgggttgtac gtggttacaa ggatccagct tgcttgactg ggaaagttta tatctatgat</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>ggtctttata agattcatga gtcctggaaa gaaagaacaa agactgggat caattgtttc</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>aagtacaagt tgcagcgaga gccaggacag cctgatgcag ttgcaatctg gaagatgtgc</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>cagagatggg tagaaaatcc agctgctaga ggcaaagttt tgcaccctga tctatcatca</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>ggtgctgaaa atctcccagt gtgtcttatc aatgatgtta acagtgagaa aggaccaggg</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>cacttcaact atattactca ggtcaagtac ttgaagccac tccgctctat gaagccattt</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>cagggttgca gatgcactag tgtttgtctg cctggtgata ccagttgtga ttgtgcacag</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>cataatggag gtgacttacc gtacagttca tccggattgc ttgtatgtcg caagcttatg</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>gtatatgaat gtggtgaatc ttgccgatgt tcaatcaact gtcgtaatag ggtagcccaa</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>aagggagtaa ggatccacct tgaggtcttc aggacaacaa atcgaggctg gggtcttcgt</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>tcatgggatc ctatacgggc tgggtcattt atttgtgagt atgttggtga ggttgttgat</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>gatactaaag ttaatttgga tggtgaagat gattatcttt ttcgaactgt ctgtcctggc</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>gagaagacat taaaatggaa ttatgggcct gaattgatag gggaacacag cataaatatt</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>tcagctgata cttttgagcc gctgcccatc aagataagtg caatgaaaat gggaaatgtt</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>gcacgtttca tgaaccatag ttgcaaccct aacaccttct ggcaaccagt tcaatttgac</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>catggagagg atggttatcc acacatcatg ttcttcgcac tgaagcatat tcctcccatg</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>acagaactga cttatgacta tggcgacatc ggatgtgaat ctaggggtgt aggttctaga</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>gctaagaact gcctttgtgg atcctcaaat tgccggggct tttttagctg a         </bioformat:sequence>      <end_position>2211</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OsSET</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AF407010</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AF407010_2</entry_name></bioformat:dbid>; parent: <parent>AF407010</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>19..2706</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8LLD6</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"OsSET1; repressor of homeotic genes"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"SET1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"SET domain-containing protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"AAN01115.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MASSSSKASDSSSQRPKRPDQGPSGKDAAGLVALHGKLAQLKRQV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QSTRLAAIKERVEANRKALQVHTCALFDVAAAAEVASRGAEGGNALSRGAAEGHRRFVG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>WDSASGPGERELVHVQEENLVAGTLVLSSSGGSGASHRTVVQLVKLPVVDKIPPYTTWI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FLDKNQRMADDQSVGRRRIYYDPIVNEALICSESDDDVPEPEEEKHVFTEGEDQLIWKA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>TQDHGLSREVLNVLCQFVDATPSEIEERSEVLFEKYEKQSQSSYKTDLQLFLDKTMDVA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LDSFDNLFCRRCLVFDCRLHGCSQNLVFPSEKQPYGHELDENKRPCGDQCYLRRREVYQ</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DTCNDDRNACTTYNMDSRSSSLKVSATILSESEDSNRDEDNIKSTSIVETSRSKITNSE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YADKSVTPPPGDASETENVSPDMPLRTLGRRKISKHASKSNDHSPDKRQKIYSSPFPFA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>MSVLNKQSVPEIGETCPDSIESAVDQLPSLDDPNKKISTKDMCAGSTTNTTENTLRDNN</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NNLFISNKEHSISHWSALERDLYLKGIEIFGKNSCLIARNLLSGLKTCMEVASYVYNNG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AAMAKRPLSGKSILGDFAEAEQGYMEQDLVARTRICRRKGRARKLKYTWKSAGHPTVRK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RIGDGKQWYTQYNPCGCQQMCGKDCACVENGTCCEKYCGCSKSCKNRFRGCHCAKSQCR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SRQCPCFAASRECDPDVCRNCWVSCGDGSLGEPPARGDGYQCGNMKLLLKQQQRILLGK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SDVAGWGAFIKNPVNRNDYLGEYTGELISHREADKRGKIYDRANSSFLFDLNEQYVLDA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YRKGDNLKFANHSSNPNCYAKVMLVAGDHRVGIYAKDRIEASEELFYDYRYGPDQAPAW</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ARRPEGSKKDEASVSHHRAHKVAR"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2688</num_BP> BP;
+     <bioformat:sequence>atggcgtcgt cctcgtccaa ggcctccgat tcctcttccc aacgccccaa gcggccggat</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>caagggccgt cgggcaagga cgcggccggc ctcgtcgcgc tgcacgggaa gctggcgcag</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>ctgaagcgtc aggtccaatc cacccgcctc gccgcgatca aggagagggt ggaggcgaac</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>aggaaggcgc tgcaggtgca cacgtgcgct ctgttcgacg tcgccgcggc ggcggaggtg</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>gcgtcgcggg gcgccgaggg cggcaacgcg ctgtcgcggg gcgcggcgga ggggcaccgc</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>aggttcgtgg ggtgggactc ggcgagcggg ccgggggaga gggagttggt gcatgtgcag</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gaggagaatc tggtcgccgg gacgctcgtg ctctcgagct ctggtggtag cggcgcctcg</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>cataggaccg tcgtgcagct tgtgaagctg cctgtggtcg acaagattcc gccctacacc</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>acgtggatct tcctggacaa aaaccaaaga atggccgatg atcagtcagt tggtaggagg</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>agaatttact acgacccaat tgtcaatgag gctctgatct gcagtgaaag tgacgatgat</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>gttccagagc cagaggaaga gaaacatgtt ttcacagaag gagaagatca gctaatatgg</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>aaagctactc aagatcatgg gttaagtcga gaggttttaa atgtcctctg ccagtttgtt</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>gatgcaactc cttcagaaat tgaggaaaga tcagaagttc tttttgagaa atatgagaag</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>cagtctcaat cttcttacaa gacagatttg caactttttc ttgacaagac catggatgtg</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>gctttagatt cttttgataa tctcttctgt cggagatgtt tggtttttga ttgccgtctc</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>catgggtgct cccagaactt ggtattccct agcgagaagc aaccatatgg tcatgaactt</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>gatgaaaaca agagaccgtg tggcgatcag tgctaccttc gaaggagaga agtatatcaa</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>gatacgtgca atgatgaccg aaatgcttgt acaacatata atatggattc aagatcttcc</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>tcactcaaag ttagtgctac catattgtct gaatcagaag attcaaacag agatgaagat</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>aacatcaaat ccacttctat tgttgaaacc agcagatcaa aaataactaa ttctgaatat</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>gctgacaaaa gtgtgacgcc acctcctgga gatgcttctg aaactgaaaa tgtgtcccct</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>gacatgcccc taagaacttt aggcaggcgt aagatttcaa agcatgcctc caagtctaac</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>gatcattcac ctgataaaag gcagaagata tatagctcac cgtttccttt tgcaatgagt</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>gtactgaaca agcaatctgt tccagaaatt ggtgagacat gtccagattc catagaatct</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>gcagttgatc aacttccaag tctggatgac cctaacaaga aaatttctac caaagatatg</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>tgtgctggaa gcacaactaa cactactgaa aatacattac gagataataa taataatttg</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>ttcatctcca acaaggagca ctctatttct cattggagtg ctttagagag agatttgtac</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>ttgaagggaa ttgagatatt tgggaaaaac agttgtctca tagctagaaa cctattgtct</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>ggcctgaaga cctgcatgga agtggccagc tacgtgtaca acaatggtgc ggcaatggca</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>aagagacctc tatctggtaa atccatttta ggtgactttg cagaggctga acaaggttac</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>atggagcaag atttggtggc aaggacaaga atctgtcgtc gtaagggccg agctcgaaag</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>ctcaaataca cttggaagtc tgcagggcat ccaactgtaa gaaaaagaat cggtgatgga</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>aagcaatggt acactcagta taacccatgt gggtgtcagc aaatgtgtgg caaagattgc</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>gcctgtgtgg aaaatggaac ttgttgcgag aagtactgcg ggtgctcaaa gagctgcaaa</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>aataggttta gaggatgtca ttgcgcaaaa agtcaatgca gaagcagaca gtgcccgtgt</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>tttgctgcca gtcgtgaatg tgatccagat gtttgcagaa actgctgggt gagctgcgga</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>gatggctcac taggtgagcc accggcaaga ggtgatggct atcagtgtgg aaacatgaaa</bioformat:sequence>      <end_position>2220</end_position>
+     <bioformat:sequence>ctcctcttaa aacaacaaca acgtatattg cttggaaaat ctgatgttgc gggttggggt</bioformat:sequence>      <end_position>2280</end_position>
+     <bioformat:sequence>gcattcatta agaacccagt aaatagaaat gattaccttg gtgaatacac tggcgaattg</bioformat:sequence>      <end_position>2340</end_position>
+     <bioformat:sequence>atttctcata gagaagcaga taagcgtggc aaaatatatg atcgagcaaa ttcatcgttc</bioformat:sequence>      <end_position>2400</end_position>
+     <bioformat:sequence>ctatttgatt taaatgagca gtatgtactg gatgcttatc gcaaggggga taacctgaag</bioformat:sequence>      <end_position>2460</end_position>
+     <bioformat:sequence>tttgcaaatc actcgtcgaa tcctaactgc tatgcgaagg ttatgttggt ggctggcgat</bioformat:sequence>      <end_position>2520</end_position>
+     <bioformat:sequence>catcgagttg gtatctatgc aaaggaccgc attgaggcta gcgaggaact cttttatgat</bioformat:sequence>      <end_position>2580</end_position>
+     <bioformat:sequence>taccgctatg gacctgacca agccccagct tgggctagga gaccggaagg gtcaaaaaag</bioformat:sequence>      <end_position>2640</end_position>
+     <bioformat:sequence>gatgaagcat ctgtctctca ccaccgagcg cacaaagttg ctagatag             </bioformat:sequence>      <end_position>2688</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OsP0489G09.11</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP002745</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP002745_12</entry_name></bioformat:dbid>; parent: <parent>AP002745</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(complement(82104..82119),complement(80298..81340),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(80025..80080),complement(79721..79928),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(79514..79627),complement(79348..79416),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(79178..79243),complement(78964..79058),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(78214..78349),complement(77206..77376),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(76982..77086),complement(76065..76310),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(75386..75472),complement(75239..75295),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(75073..75162),complement(74839..74925),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(74590..74664),complement(74399..74499),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(74180..74270))</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>GOA</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8LJP4</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8LJP4</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"hypothetical protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"similar to Arabidopsis thaliana MYN8.4"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0489G09.11"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAC00543.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MLKFAASHLIPPPRADESSSPTSRLRLVPPTSRSKFSFKTRAPPC</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EGTQIFRPRLASEPHSDSPAEILKIPRPQRSETRNPNTRRIWPPTSWGEEGSSILGFCF</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GAAGMLASRIPLKRCTAAAVVPLPGELEMEEGPTPPAGGGEGSGAAVVPAKRRRERVVP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SRFRDSVVSLPLPPAKKGRPAKKAAAREGGDGEVYDVEVRAVEQQGATAAAFGAVETAV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>WPGDERPAQTEEELYRACRNIRRSSSSSGFSGSVVTSLSNAGGSVAPEGKPVVVVECKP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KREGGDKKEDFYWPEDFVLGDVVWARSGKKCPAWPAVVIDPLLHAPAVVLNSCIPGALC</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VMFFGFSSGGHGRDYGWIKQGMIFPFVDYLDRFQGQALYKLKANRFRQAIEEAFLAERG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FCELEMDEGCSLEKSVNDQSVPDGLQEGSGSNNDQECQSEAQVVGKSTGCCDSCGNRVP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>PKIAKKKKQAGEQLLCRHCDKLLQSKQYCGICKKIWHHTDGGNWVCCDECQIWVHVECD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LTCINMEDLENADYFCPDCKSKRKTVPPVEQMNTPNSSEILCQCNSCKERLMSLSEWER</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>HTGSRKKNWKMSVKLKSNGDPLVTLTFSFLIALGGALKPTDIDQLWVHVTCAWFQPKVS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FPVDETMEPAMGILSIPSEYFKKACVICKQMHGACTQCYKCSTYYHAMCASRAGYRMEW</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>HKFVLLTPVLLTLCSTPDPDNVLIVKTPEGVFSTKFLPQNNEKQSGTRLVRKENLQEKV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LPAKISDCPAARCLPYEMLKNKKEPGEAIAHRIMGPRHHSQESIEGLNACMDQKDEKSF</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ATFRERLRYLQKIENKRVSCGRSGIHGWGLFAAKKIQEGQMVIEYRGDQVRRSVADLRE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ARYHREKKDCYLFKISEDVVVDATEKGNIARLINHSCMPNCYARIMSVGDEKSQIILIA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KRDVSAGEELTYDYLFDPDESEDCRVPCLCKALNCRGYMN"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2913</num_BP> BP;
+     <bioformat:sequence>atgctaaaat ttgctgcctc ccatctcatc cccccgccgc gcgccgacga gtcgtcttcc</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>cccacctctc gcctccgcct cgtccccccg acatcgcgtt cgaaattttc gttcaaaacc</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>cgagcccctc cctgcgaggg aacccaaatt tttcgccctc gcctcgcctc cgaaccgcac</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>tcggattccc ccgccgagat ccttaaaatc cctcggcccc agcggtcgga aactcggaac</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>cctaacacgc ggaggatttg gccaccgacg agttgggggg aggaagggag ttcaattcta</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>gggttttgtt tcggcgcggc ggggatgctc gcgtcccgca tcccgctcaa gcgctgcacc</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gccgccgccg tcgtccccct ccccggggag ttggagatgg aggaggggcc cacccccccc</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>gccgggggtg gtgaggggag cggcgcggcg gtggtgcccg ccaagcgccg ccgcgagcgg</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>gtggtcccct cgcggtttag ggactcggtg gtgtcgctgc cgctgccgcc cgcgaagaag</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>gggaggcccg cgaagaaggc ggccgcgcgg gagggcgggg acggggaggt gtacgatgtg</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>gaggtgcgcg cggtggagca acaaggcgcg acggcggcgg ccttcggcgc cgtggagacc</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>gcggtgtggc ccggcgacga gcggccggcg cagacggagg aggagctgta ccgggcgtgc</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>aggaatatcc gcaggagcag cagctccagc gggttcagcg gcagcgtggt gacgtcgctg</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>agcaatgccg gcgggagcgt ggcgccggag gggaagcccg tggtggtggt ggagtgcaag</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>ccgaagaggg agggcggcga taaaaaggag gatttttact ggccggagga tttcgtgctg</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>ggtgatgtcg tgtgggcgag gtccgggaag aagtgcccag catggcctgc ggtggtgatt</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>gacccactgc tccacgcgcc agcggtcgtg ttgaactcct gcatcccggg tgcactctgc</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>gtcatgttct ttggattctc ttctggcggg catggcaggg actatggatg gattaagcaa</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>gggatgatct ttccatttgt ggactactta gaccggtttc agggtcaggc tttgtataaa</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>ctcaaggcaa acagattccg tcaagcaatt gaggaggctt tccttgctga gcgtgggttt</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>tgtgagctcg aaatggatga ggggtgctca ctagagaagt ctgtcaatga ccagtctgtc</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>cctgacgggt tacaggaagg gagtggttct aacaatgacc aggaatgtca atcggaggct</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>caggttgttg gcaaatcaac tggatgttgt gatagttgtg gtaatcgtgt tccacccaag</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>atcgcgaaga aaaagaagca agcgggagag cagttactct gtagacactg tgataagcta</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>ttgcagtcaa agcagtactg tggcatatgc aagaaaatct ggcaccacac agatggtgga</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>aattgggttt gttgtgatga gtgtcaaatt tgggttcacg tagaatgtga cctaacatgc</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>atcaacatgg aggacttaga aaatgccgat tacttctgtc cagattgcaa atcaaaacgc</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>aagacagtac ctcctgttga acaaatgaac actccgaaca gttcagagat actatgccaa</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>tgtaattctt gcaaagaaag gctgatgagt ctgagtgagt gggagagaca tactggttca</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>aggaagaaga actggaagat gagcgttaaa cttaagagca atggggatcc attggtaacc</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>ttgacctttt cttttttaat tgctttaggc ggtgctctca agccaacaga tattgaccaa</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>ctatgggttc atgttacatg tgcctggttt caacctaaag tctcttttcc tgttgatgag</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>acaatggagc cagccatggg catattgagc atcccttcag agtactttaa gaaggcatgt</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>gttatatgca agcagatgca tggtgcctgc actcagtgct acaagtgctc tacttattat</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>catgcaatgt gtgcatcaag agcaggatat cgcatggagt ggcacaaatt cgtgttactt</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>acacctgttc tactgaccct ttgcagtact cctgacccag ataatgtctt gatagttaag</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>acgcctgaag gagttttctc aaccaaattt ttgccccaaa ataatgagaa acagagtggt</bioformat:sequence>      <end_position>2220</end_position>
+     <bioformat:sequence>acaagacttg tcaggaaaga gaatctacag gagaaagtcc ttcctgctaa aatttctgac</bioformat:sequence>      <end_position>2280</end_position>
+     <bioformat:sequence>tgtccagctg caaggtgcct accttatgaa atgctgaaaa ataagaaaga accaggagag</bioformat:sequence>      <end_position>2340</end_position>
+     <bioformat:sequence>gcaattgccc acagaataat gggaccccga catcattccc aagagtcaat tgagggtttg</bioformat:sequence>      <end_position>2400</end_position>
+     <bioformat:sequence>aacgcttgca tggatcaaaa ggatgaaaaa tccttcgcaa cttttagaga acgacttcgg</bioformat:sequence>      <end_position>2460</end_position>
+     <bioformat:sequence>tatttacaga aaatagaaaa caaaagggtc tcttgtggtc gatctggaat acatggatgg</bioformat:sequence>      <end_position>2520</end_position>
+     <bioformat:sequence>ggactctttg ctgctaagaa aatccaggag gggcaaatgg ttatcgaata tcgcggtgac</bioformat:sequence>      <end_position>2580</end_position>
+     <bioformat:sequence>caagttagac gtagtgttgc agatttgagg gaagcacgat atcacaggga gaagaaagat</bioformat:sequence>      <end_position>2640</end_position>
+     <bioformat:sequence>tgttatctgt tcaagatcag cgaagacgtt gtcgttgatg caacagagaa agggaacata</bioformat:sequence>      <end_position>2700</end_position>
+     <bioformat:sequence>gcccgcctaa ttaatcactc gtgtatgcct aattgctacg caaggatcat gagtgttggc</bioformat:sequence>      <end_position>2760</end_position>
+     <bioformat:sequence>gatgaaaaga gccagataat tcttatcgcc aaaagagacg tctccgctgg cgaagaacta</bioformat:sequence>      <end_position>2820</end_position>
+     <bioformat:sequence>acctatgact acttgtttga ccctgacgag tccgaggact gcagggtccc ttgtctgtgt</bioformat:sequence>      <end_position>2880</end_position>
+     <bioformat:sequence>aaagctctta actgccgtgg atacatgaac tga                             </bioformat:sequence>      <end_position>2913</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OsSET1</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AF344453</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AF344453_2</entry_name></bioformat:dbid>; parent: <parent>AF344453</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>76..2514</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>GOA</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q9AT64</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q9AT64</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"SET1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"SET1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"AAK28975.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MAGTRQTTSVPMDNAAVVDAKPLRTLTPMFPAALGLHTFTAKENS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SSIVCITPFGPYAGGTEQAMPASIPPMFASPAAPADPNQRQPYAVHLNGAAPANGTANN</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>TGVIPDLQIAVAGTVESAKRKRGRPKRVQDSSVPSAHLVPSAPGGNITAVQTPPSATTD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ESGKKKRGRPKRVQDVPVLSTPSAPQVDSTVFQTPASAVNESVTRKRGRPRRVQDGADT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SAPPIQSKYNEPVLQTPSAVTLPEDGKRKRGRPKRVPDGALIPLSHSGVSIDDDSGEII</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>TGKRGRPRKIDVNLLNLPSLFSDDPRESVDNVLMMFDALRRRLMQLDEVKQGAKQQHNL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KAGSIMMSAELRANKNKRIGEVPGVEVGDMFYFRIEMCLVGLNSQSMSGIDYMSAKFGN</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EEDPVAISIVSAGVYENTEDDPDVLVYTGQGMSGKDDQKLERGNLALERSLHRGNQIRV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VRSVRDLTCPTGKIYIYDGLYKIREAWVEKGKTGFNVFKHKLLREPGQPDGIAVWKKTE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KWRENPSSRDHVILRDISYGAESKPVCLVNEVDDEKGPSHFNYTTKLNYRNSLSSMRKM</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QGCNCASVCLPGDNNCSCTHRNAGDLPYSASGILVSRMPMLYECNDSCTCSHNCRNRVV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QKGSQIHFEVFKTGDRGWGLRSWDPIRAGTFICEYAGEVIDRNSIIGEDDYIFETPSEQ</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NLRWNYAPELLGEPSLSDSSETPKQLPIIISAKRTGNIARFMNHSCSPNVFWQPVLYDH</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GDEGYPHIAFFAIKHIPPMTELTYDYGQSQGNVQLGINSGCRKSKNCLCWSRKCRGSFG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2439</num_BP> BP;
+     <bioformat:sequence>atggctggaa ctcggcagac aacttcagtt ccgatggata atgcagcagt tgttgatgca</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>aaacccttgc gcacattgac tcccatgttc cctgcggcac ttggtctgca cactttcact</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>gctaaagaaa actcatcttc gattgtctgt attaccccgt ttggaccata tgctgggggc</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>actgaacagg caatgcctgc tagtattcca ccaatgtttg catcaccggc tgcccctgca</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>gaccccaacc agaggcagcc atatgctgtt cacttgaatg gagctgctcc tgctaacggt</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>acagcaaaca acacaggggt catccctgat ttgcaaatag ctgtggcagg tacagtggaa</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>tctgctaaga ggaagagggg cagacccaag cgtgtgcaag attcttctgt tccttcagct</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>catttggttc cttcagctcc aggaggtaac atcactgctg tccagacgcc tccttcagca</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>accacagatg aatctggtaa gaagaagagg ggacggccca agcgggtaca agatgtacct</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>gtcctgtcaa ctccttcagc tcctcaggta gatagtacag tttttcagac acctgcttct</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>gctgtaaatg aatctgttac gaggaaaagg ggacgaccca ggcgtgtaca ggatggtgca</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>gatacttcag ctcctccaat tcaatcaaaa tataatgagc ctgttttgca gacaccttct</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>gctgtcacct taccagaaga tggtaagagg aagagagggc ggccaaagcg tgtgcctgat</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>ggtgcactga ttcctttaag tcactcaggt gtttcgatag atgatgacag tggtgaaata</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>ataacaggga aacgtggacg gcctaggaaa attgatgtca atcttctgaa tctgccatct</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>ttgttttcag atgatcctag ggaatctgtt gataatgtac tcatgatgtt tgatgcactg</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>cggcggaggc tcatgcagtt ggatgaggtg aagcaaggag caaagcagca acataactta</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>aaggccggga gtatcatgat gagtgctgaa cttcgtgcaa ataagaacaa gaggattgga</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>gaggttccag gtgtcgaggt tggtgatatg ttctacttca gaatagagat gtgtctggtt</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>ggactgaata gtcagagcat gtctgggatt gattacatgt ctgctaagtt tggtaatgag</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>gaggatcctg tggctatcag tatcgtgtca gctggtgtgt atgagaatac cgaagatgac</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>ccagatgtgc tggtttacac tggacagggc atgtctggaa aggatgacca aaagcttgaa</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>agaggtaatc ttgcacttga aaggagtttg catagaggta atcaaatcag agttgttcgt</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>agtgtaagag atttgacttg tcctactggt aagatataca tttatgatgg cctttataaa</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>ataagagaag catgggtgga gaaaggaaaa actggcttta atgtgtttaa acacaagctg</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>ctcagagaac ctggtcaacc tgatggcata gcagtgtgga agaagactga aaaatggagg</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>gagaatcctt cctctcgaga ccatgttata ttgcgtgaca tatcatatgg tgcagaaagc</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>aagcctgttt gccttgtgaa tgaagtggat gatgagaaag gtcctagcca cttcaactac</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>acaactaaac tgaactacag gaattctctc agctcaatga gaaagatgca aggctgcaat</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>tgcgcaagtg tgtgccttcc tggtgataac aactgctctt gcactcatcg aaatgccggt</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>gatcttccat acagtgcttc aggcatactt gttagccgga tgcctatgct gtatgagtgt</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>aacgattcct gtacatgctc acataattgc cggaaccgag ttgtacagaa aggttctcag</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>atccactttg aggtgtttaa gacaggagat cgaggttggg gacttcgtag ttgggatcca</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>attcgggcag gcacatttat ttgtgaatat gcaggagaag ttattgacag aaacagtatc</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>attggagaag atgattacat ctttgagaca ccttctgagc agaatttaag atggaactat</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>gcaccagaat tactgggtga acccagtctt tctgactcaa gtgagacacc taagcaactg</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>ccaataatta tcagtgcaaa acgaactgga aacatagctc gctttatgaa ccacagctgc</bioformat:sequence>      <end_position>2220</end_position>
+     <bioformat:sequence>tcaccaaatg ttttttggca accagttttg tatgatcatg gtgacgaggg atatccacat</bioformat:sequence>      <end_position>2280</end_position>
+     <bioformat:sequence>atcgcattct ttgcaatcaa gcatattcct ccgatgacag agcttacata tgattatggt</bioformat:sequence>      <end_position>2340</end_position>
+     <bioformat:sequence>cagagccagg gtaatgttca actgggaatc aattctggat gtcggaagtc caaaaactgc</bioformat:sequence>      <end_position>2400</end_position>
+     <bioformat:sequence>ttatgttggt ctcgcaagtg cagaggttcc tttggctaa                       </bioformat:sequence>      <end_position>2439</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>Os57.7KDa</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AC073556</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AC073556_110</entry_name></bioformat:dbid>; parent: <parent>AC073556</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>92924..94534</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8S7V1</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"OSJNBa0091P11.26"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"hypothetical protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"AAL84316.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MATPGLDDDSLQQLRSRATQLLLKENWTEYIAVCSLIIEAFDAAA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ACKDRRVLCSTLAHRADARARLGDAPGALADCDAALAADPAHPGALLSKGAVLRGLGRY</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SRAAECFRAALAVSGTDEVREMVEQCKRLDAQARSGAVDLSEWVLAGFSGKCPDLAEHV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GAVEVRRSAHGGRGVFAVKNIEAGANLVISKAVAIGRGVIPDAADSGEKMVVWKDLVDK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VLDAAEKCPRTASLIYTLSTGEEPEDELPIPDMAHFKQETEELDDGTAMAPKASLDVDK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ILKVLDVNCLTEDAAPSANLLGSNGVVNCGVGLWILPAFINHSCHPNARRTHVGDHAIV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>HASRDIKAGEEITFAYFDVLTPASKRREAARAWGLECQCDRCRFEASDAIVGQELTKLE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NELVNGRGGDMGALVVRLEERMRKSMVKERRKAFLRASFWSAYSALFDSDKLVRKWGRR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VPGEAAVAESVAGAIGGNESVLRAMLRGADNGNGCGNRLEVEDKVVRIGRATYGRVVKR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QAMRALFRLTLDADSNKSL"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>1611</num_BP> BP;
+     <bioformat:sequence>atggcgacgc ccggcctcga cgacgactcg ctgcagcagc tgcgcagccg cgcgacgcag</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>ctgctgctca aggagaactg gacggagtac atcgccgtgt gctccctcat catcgaggcg</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>ttcgacgccg ccgccgcctg caaagaccgc cgcgtcctct gctccaccct cgcccaccgc</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>gccgacgccc gcgcccgcct cggcgacgcc cccggcgcgc tcgccgactg cgacgccgcg</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>ctggcggccg acccggcgca ccccggggcg ttgctgtcca agggcgccgt cctgcgcggc</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>ctcggccggt actcgcgcgc cgccgagtgc ttccgcgcgg cgctcgccgt gagcggcacc</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gacgaggtcc gggagatggt cgagcagtgt aagcgcctgg acgcgcaggc gaggagcggc</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>gcggtggatc tgtcggagtg ggtgctcgcc gggttctccg ggaagtgccc agacctcgcg</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>gagcacgtcg gggcggtgga ggtgcgccgg tccgcgcacg gcggccgagg ggtgttcgcg</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>gtgaagaaca tcgaggcggg agctaacctg gtgatctcca aggcggtggc gatcggaagg</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>ggagtaattc cggacgccgc cgatagcggc gagaagatgg tggtgtggaa ggacctcgtc</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>gacaaggtgc tcgacgccgc cgagaagtgc ccgaggacgg catctctcat ctacactctc</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>tccaccggcg aggagccaga agacgagctc cccatcccgg acatggcaca tttcaagcaa</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>gaaacggagg agctcgatga cggcacggcc atggcgccga aggcatctct tgatgtggac</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>aagatcttga aagtgctcga cgtcaattgc ttgaccgagg acgcagcgcc atccgccaat</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>ctgctcggca gcaatggcgt cgtcaactgc ggcgtcgggc tgtggatctt gccggcgttc</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>atcaaccact cgtgccaccc caacgcccgg cgcacccacg tcggcgacca cgccattgtc</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>cacgcgtcaa gggacatcaa agccggggag gagatcacat tcgcctactt cgacgtgctc</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>accccggcga gcaagcgcag ggaggcagcg agagcgtggg gcctcgaatg ccaatgcgat</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>cggtgcaggt tcgaagccag cgacgccatt gttgggcaag aactcacaaa acttgagaac</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>gaattggtca atggccgagg aggagacatg ggagcactgg tggtgaggct ggaggagagg</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>atgagaaagt ccatggtgaa ggagaggagg aaggcgttct tgcgcgcgtc gttctggagc</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>gcgtactccg cgctgttcga ctccgacaag ctggtgagga agtgggggag gcgcgtcccc</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>ggtgaggccg ccgtcgcaga gagcgtcgcc ggcgcaatcg gcgggaacga gagcgtgctg</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>agggcaatgc tgaggggtgc cgacaatggc aacggctgcg gcaatcggct cgaggtggaa</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>gacaaggtgg tgaggattgg gagggctacc tatggcaggg tagtgaagag gcaggcaatg</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>agagctctct tcagacttac attggatgct gacagtaaca aaagcctgta g         </bioformat:sequence>      <end_position>1611</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OspSUVH4</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP003262</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP003262_22</entry_name></bioformat:dbid>; parent: <parent>AP003262</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(127155..127586,128150..128272,128422..128476,</bioformat:feature_location>
+FT                   <bioformat:feature_location>128628..128737,129367..129546,130018..130116,</bioformat:feature_location>
+FT                   <bioformat:feature_location>131197..131295,132043..132092,132305..132393,</bioformat:feature_location>
+FT                   <bioformat:feature_location>132754..132916,133314..133419,135662..135844,</bioformat:feature_location>
+FT                   <bioformat:feature_location>136074..136301,136388..136501)</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8S1X3</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0482D04.21"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"putative SUVH4"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAB89674.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MEVMDSVAVMEVSPVPKPPLEAALALRRSVRCLNRTRRPTYVEQE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EPKESAGRRRGGKRKREEEKKEPVAQHAMKPVRMGDAASERKPSSEGKPMPAIAAEPVS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>CAGFARPAAEDDVLGNGKSAKLRVKETLRAFTSHYLHLVQERMLSDNALVEFQEEQKRA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QAVLQEGQKRPSKRPDLKAITKMQESNAVLYPEKIIGELPGVDVGDQFYSRAEMVVLGI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>HSHWLNGIDYMGMKYQGKEEYANLTFPLATCIVMSGIYEDDLDKADEIIYTGQGGNDLL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GNHRQIGSQQLQRGNLALKNSKDNGNPIRVIRGHISKNSYTGKVYTYDGLYKVVDDWVQ</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NGVQGHVVFKYKLKRLEGQPSLTTSEVRFTRAEAPTTISELPGLVCDDISGGQENLPIP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ATNLVDDPPVPPTGFVYSKSLKIPKGIKIPSYCNGCDCEGDCANNKNCSCAQRNGSDLP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YVSHKNIGRLVEPKAIVFECGANCSCNNNCVNRTSQKGLQYRLEVFKTASKGWGVRTWD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>TILPGAPICEYTGVLRRTEEVDGLLQNNYIFDIDCLQTMKGLDGREKRAGSDMHLPSLH</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AENDSDPPAPEYCIDAGSIGNFARFINHSCEPNLFVQCVLSSHNDVKLAKVTLFAADTI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LPLQELSYDYGYVLDSVVGPDGNIVKLPCFCGAPYCRKRLY"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2031</num_BP> BP;
+     <bioformat:sequence>atggaggtga tggattcggt ggccgtgatg gaggtctcgc cggtgccgaa gccgccactg</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>gaggcggcgc ttgcgctgcg ccgcagcgtt cggtgcttga acaggacgcg ccgtcccact</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>tacgtggagc aggaggagcc caaggagagt gctggccggc ggcgcggcgg caagaggaag</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>cgggaagagg agaagaagga gccggtggcg cagcacgcca tgaagccggt caggatgggc</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>gatgcagcct cggagaggaa gccctcctcg gaggggaagc cgatgcccgc aattgcggcg</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>gagccggttt cttgtgccgg gttcgcacga cctgctgccg aggatgatgt ccttggcaac</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gggaagagtg cgaaactgcg ggtgaaggaa accttgaggg cattcaccag ccattacctt</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>caccttgtcc aggaacgtat gttatctgac aatgcacttg tggaatttca ggaggagcag</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>aaaagagcac aagcggtgtt acaggaaggc cagaagcgtc catcaaagcg gcctgacttg</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>aaagccatta caaagatgca agaaagcaat gccgtgcttt atccagagaa gataataggg</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>gaactacctg gtgttgatgt tggggatcaa ttttattctc gtgccgagat ggttgttttg</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>ggcattcata gtcattggct gaatggcatt gattatatgg gaatgaaata tcagggaaag</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>gaggagtatg caaacctaac tttcccactg gcaacttgta ttgtcatgtc gggaatatat</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>gaagatgatc ttgataaggc agatgaaatt atttatactg gtcaaggagg aaatgattta</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>ctcggtaatc atcgccaaat tggctctcaa caactgcaac gtggaaattt ggcattgaag</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>aacagtaagg ataatggcaa tcccataaga gttatccgag gacatatatc aaagaatagc</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>tacactggga aggtctacac ctatgatggg ctgtacaagg ttgtagatga ctgggtgcag</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>aatggagtac aagggcacgt tgttttcaaa tataaattaa agcggcttga gggacagcca</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>tcactgacaa cttctgaggt ccgatttact cgtgctgaag ctcccaccac gatttcggaa</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>ttacctgggt tggtttgtga tgacatatct ggtgggcagg agaatcttcc tattcctgct</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>actaatttgg ttgatgaccc acctgttcct ccaactggtt ttgtgtactc caaatctcta</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>aaaattccaa agggcatcaa gattccatct tattgtaatg gctgtgactg tgaaggagat</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>tgcgcaaaca acaaaaactg ctcatgcgcg cagcgcaatg gttctgattt accttatgta</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>tcacacaaga acattggcag gttggtggag cccaaagcta ttgtatttga atgtggtgct</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>aattgcagct gcaacaacaa ctgtgtaaat agaacatctc agaaaggtct gcagtatcgc</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>ttggaggtat ttaagacagc ttcaaaaggc tggggtgtca ggacttggga tactatcctc</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>cctggggctc ccatctgtga gtacactggt gtgctgagga ggactgaaga agtagatggt</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>ttgctgcaga acaattacat atttgatatt gattgtcttc aaactatgaa gggtctggat</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>ggaagagaga aaagggctgg ctctgacatg catctgccgt ctcttcatgc ggagaatgat</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>tcagatccac ctgcaccaga gtattgcatt gatgctggct ctattggcaa ctttgcaagg</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>tttataaacc acagctgcga gcctaacctt tttgtccagt gtgtcttgag ctcccataat</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>gatgttaagc tggcaaaggt gacgctcttt gctgctgaca ctatacttcc tcttcaggag</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>ctttcatatg attatggcta tgtcttggac agtgttgttg ggcctgatgg aaatattgtc</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>aagctgcctt gcttctgtgg tgcaccgtac tgccggaagc gactttatta g         </bioformat:sequence>      <end_position>2031</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OspSETreg</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AF480496</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AF480496_27</entry_name></bioformat:dbid>; parent: <parent>AF480496</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(complement(40120..41616),complement(39811..39972),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(38382..38498),complement(38162..38271),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(38091..38127),complement(37769..37935),</bioformat:feature_location>
+FT                   <bioformat:feature_location>complement(37542..37629),complement(37361..37468))</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>GOA</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8S3S4</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q8S3S4</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"49D11.8"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"putative SET-domain transcriptional regulator"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"AAL87154.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MPQILAEVSKNPDVGEFLLKLISSEREKLSHVWGFGTDSSNQMHS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ENQDGSVMVLREDGTHPSPGLKCKICSQEFSDDQGLGLHWTEVHKKEVRWLFRGYSCAV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>CMDSFTNRRVLERHVQEKHGAQYLQYSTLLRCISCNSNFLNTDLLWQHIVSDHSRDFSL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LDHVPRRPRGQSIKRTERASDELLYDNHNLGKDDGLQKFTCRLCGMMFDLLPDLGHHHQ</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VAHTNSGTVSDIPSGREKYQFNRGRHYYSAFKKSLRPSGSLKKRTSSGVEKHFKAQSLD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LSMDTSHIVESETTTLGRLLDFQCSDVALTLFSKIQKTRPHPSNLDILSIARSVCCKTS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LRAALKAKYGILPDNIFVKAAKLCSDVGIQIDWHQEEFFCPKGCKSRSSSNSLLPLQPT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QVDFVMSPPIGDEIWGMDEYHYVLDSEHFGWNLKNEMVIVCEDVSFGREKVPVVCAIDV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DAKEFPYMKPGEILQSENSLPWQGFHYVTKRLMDSSLVDSENTMVGCACSHAHCSPEEC</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DHVSLFDSIYENLVDLHGVPMRGRFAYDENSKVILQEGYPIYECNSSCTCDASCQNKVL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QRGLLVKLEVFRTENKGWAVRAAEPIPQGTFVCEYIGEVLKMKDDGAIRHVERLEIYWN</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FSGAFHKLIRKLLDLREAKSGSSYLFEITSQIDRERVQTTGTTAYVIDATRYGNVSRFI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NHSCSPNLSTRLVSVESKDCQLAHIGLFANQDILMGEELAYDYGQKLLPGDGCPCHCGA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KNCRGRVY"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2286</num_BP> BP;
+     <bioformat:sequence>atgccccaga tattagctga agtgtcaaaa aatcctgatg ttggagaatt tttgttaaaa</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>ctgatctcta gtgagagaga aaagctttca catgtttggg gctttggtac agatagctct</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>aatcaaatgc attctgagaa ccaagatgga tcagtgatgg tgttacgtga agatgggaca</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>catccttcac ctggtctgaa gtgcaaaata tgttctcagg agttctctga tgatcaagga</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>cttggattac actggacaga ggttcacaaa aaagaagtgc ggtggctttt cagaggctat</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>tcttgtgctg tatgcatgga ctcatttacc aacagaagag ttctcgaaag gcacgtgcag</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gaaaaacatg gcgctcagta tctccaatat tcgacactct tacgttgtat atcgtgcaac</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>agcaactttt tgaacacaga tcttttatgg cagcacattg tttcagatca ttctcgagat</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>ttcagccttc tggatcatgt ccctcgacga cctaggggtc aatctatcaa aagaacagaa</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>agggcaagtg atgagctcct ttatgataac cataaccttg gtaaggatga tggtttacag</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>aagttcacct gcagattatg tgggatgatg tttgatcttt tgccagatct tggccaccac</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>catcaagttg ctcatacaaa ctcaggtaca gtcagtgata tcccttcagg acgtgaaaag</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>tatcagttta accgtggtcg gcactattat tcagccttca agaaaagttt aagaccatcc</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>ggctcattga agaagaggac tagttctgga gttgagaaac attttaaggc tcaaagcttg</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>gatctatcta tggatacatc acacattgtg gaatctgaga ccaccaccct tggtaggtta</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>ctggatttcc aatgctcaga cgtggcattg actttatttt caaagattca aaagacaaga</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>ccccacccaa gcaaccttga tattctgtct attgcccgtt ctgtttgctg taagacaagc</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>cttcgtgctg cattgaaagc taaatatgga atcttgcctg ataacatatt tgtgaaagct</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>gcaaagcttt gtagtgatgt tggcatccaa attgattggc atcaagaaga attcttttgc</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>cctaaaggtt gcaagtccag gtctagttct aattccttgc tccctttaca gcctacccaa</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>gttgattttg tgatgagtcc tccaattggt gatgagatat ggggcatgga tgaataccac</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>tatgttcttg attcagagca ctttggttgg aatcttaaga atgagatggt tattgtttgt</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>gaagatgtta gctttggcag ggagaaagtt ccagttgtct gtgccattga tgtagatgca</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>aaagaatttc catatatgaa acctggagaa attttgcaaa gtgaaaattc tctgccctgg</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>caaggtttcc actacgtcac aaagcgtttg atggattcat ctcttgttga ttcagagaac</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>actatggttg ggtgtgcttg ttctcatgcc cattgcagtc ctgaggaatg tgatcatgtg</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>agcctctttg atagtatcta tgagaaccta gtggatctcc atggtgtacc tatgcgtggt</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>agatttgcat atgatgaaaa tagcaaagtt attttgcagg aaggatatcc tatatatgag</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>tgcaattcat catgcacttg tgatgcctcc tgtcagaata aagtactgca gagaggactg</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>ctggtaaagt tggaagtctt cagaactgag aataagggtt gggctgttag agccgcagaa</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>cctattccac agggcacatt tgtatgtgag tacattggag aggttttgaa gatgaaggat</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>gatggggcca taagacatgt agaaaggcta gaaatctatt ggaatttctc cggtgcattc</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>cataaactga taagaaaatt attggatctc agggaggcaa aaagtggtag cagctacttg</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>tttgaaatca cttctcagat tgacagggaa agagttcaga ctacagggac tactgcatac</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>gtgattgatg ccacaagata tggcaacgta tcccgtttta ttaatcatag ctgttcccca</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>aatctcagta cgcgtttagt ttcggtggag agcaaagact gtcagcttgc gcacattggt</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>ttgtttgcaa accaggatat cttgatggga gaagaattgg cctatgacta tggacaaaaa</bioformat:sequence>      <end_position>2220</end_position>
+     <bioformat:sequence>ttgctacctg gtgatggatg cccctgccat tgtggtgcta agaattgccg aggacgtgtg</bioformat:sequence>      <end_position>2280</end_position>
+     <bioformat:sequence>tattga                                                           </bioformat:sequence>      <end_position>2286</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>Ospclf</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP005813</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP005813_34</entry_name></bioformat:dbid>; parent: <parent>AP005813</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(130882..131244,132270..132389,132498..132817,</bioformat:feature_location>
+FT                   <bioformat:feature_location>133608..133769,134492..134576,134693..134842,</bioformat:feature_location>
+FT                   <bioformat:feature_location>134929..134976,135046..135114,135238..135941,</bioformat:feature_location>
+FT                   <bioformat:feature_location>136767..136902,136977..137197,137696..137827,</bioformat:feature_location>
+FT                   <bioformat:feature_location>138657..138747,139219..139266,139345..139473,</bioformat:feature_location>
+FT                   <bioformat:feature_location>139698..139967)</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0676F10.33"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"putative curly leaf protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAC20634.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MEPGQLPMVARRCIRHQQSTSRLMSVAWSAMRPALRPMSLVRPTP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FTAPSVSTCPVAMACCAASTAVWNPNEPPLLDLTVDCRRAAHHVVPTAVGVGRRRSRGG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AGGRGCRRWASEGGAWKLVLSPQPMFCEEGSSESGYVLCVIDSLKKKITSDRFVYIQKR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VEENSIKLSPITLHSHNLSKNRQTSTSNSTDLVSNLLTKRKEDALCAVNSRESSPDESE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GANCQDECSSTVIVGGNLSARNSVRPIRLPEVATLPPYTTWIFLDRNQRMQEDQSVLGR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RRIYYDTNCGEALICSDSEDEAVEDEEEKKEFKDSEDCIIRMTIQECGMSDAVLETLAR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DIERAPDDIKARYEILQGEKPEGSSKKVSELNVKMEDVYGDKDLDAALDSFDNLFCRRC</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LVFDCKLHGCSQDLVFPTEKQAPLCSSDEGTPCGIHCYKLVSKPDAIMEIDSHLLVDVE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EPTSDNLKDQIGSNKKKLGSSGQKTKSQQSESSSTARVSSESSESEVQLLSNKSPQHSP</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GLSKNKLGAKGGIKKSTNRRIAERILMSVKKGQQEMSPDSNSIVNGCHWPRDMKLRSDT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RSGIKDSVVSSQCNSPSTRSFRKKGTLQMENNSSFVDAQSDSMEDTNNEHSATDGCDSS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RKEECVDESICRQEAHGRSWKVIEQGLLLKGLEIFGKNSCLIARNLLGGMKTCTDVFQY</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>MNYIENSSASGALSGVDSLVKGYMKGNELRTRSRFVRRRGRVRRLKYTWKTAGYHFIRK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RITERKDQPCRQYTPCGCQSACGKQCPCLTNGTCCEKYCGCPKMCKNRFRGCHCAKSQC</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RSRQCPCFAADRECDPDVCRNCWVGCGDGTLGVPNQRGDNYECRNMKLLLKQQQRVLLG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RSDVSGWGAFLKNSVGKHEYLGEYTGELISHKEADKRGKIYDRENSSFLFNLNNEYVLD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AYRMGDKLKFANHSPDPNCYAKVIMVAGDHRVGIFAKERISAGEELFYDYRYEPDRAPA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>WARKPEGPGAKDDAQPSTGRAKKLAH"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>3048</num_BP> BP;
+     <bioformat:sequence>atggagcccg ggcaattgcc catggtggcc aggcgctgca tccgccacca acagtcgacg</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>tcgcggctga tgagcgtggc gtggagcgca atgcggccgg ctctccggcc catgagcttg</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>gtgaggccga cgccgttcac tgcgccctcg gtctccacgt gcccggtggc gatggcatgc</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>tgcgccgcgt ccaccgccgt gtggaacccg aacgagccgc cgctgctgga cctcacggtg</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>gattgtcgcc gcgccgcgca tcatgtcgtc cccaccgccg ttggggtggg acggaggagg</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>agcagaggcg gcgcaggggg acgaggatgc aggaggtggg ccagcgaggg aggagcctgg</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>aagcttgttc tgtccccgca gccgatgttt tgcgaggaag ggagcagtga atcgggctat</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>gttctatgtg ttattgattc gctgaagaag aaaatcacat cggaccgctt tgtttacatc</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>cagaaaaggg tagaggagaa tagcattaag cttagcccga ttacactgca ctctcacaat</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>ttgtcaaaaa ataggcaaac tagtacatcc aacagtacag atttagtctc gaatttgctc</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>acaaagagga aagaagatgc cctgtgtgct gtgaatagtc gtgagtcatc tcctgatgaa</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>agtgaaggtg ccaattgcca agatgagtgt tcatcgactg ttattgtggg tggaaatcta</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>tccgcgagga attctgtccg tccgattaga ctaccagaag tggcaacact ccctccatat</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>acaacttgga tatttttgga caggaaccag cggatgcaag aagaccaatc tgtacttggt</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>cgtcgaagga tttactatga tacaaactgt ggcgaagctt taatttgcag tgatagtgaa</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>gatgaagctg ttgaggacga ggaagagaaa aaggagttca aggattctga agattgcata</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>attcggatga ccattcaaga atgtggcatg tctgatgctg tgcttgaaac tctagctcga</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>gatatcgaaa gggctcctga tgatataaag gccaggtatg agatcctaca aggggagaaa</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>cctgagggtt cttccaagaa agtgtctgaa cttaatgtca aaatggaaga cgtgtacggt</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>gataaagatc tggatgcagc attggattcc tttgacaatc tcttttgtcg ccgatgtttg</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>gtttttgatt gcaagctaca tgggtgttct caagatttag tatttccgac tgaaaagcag</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>gcaccattgt gcagctcgga tgagggtaca ccatgtggta ttcactgtta caaactggtc</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>tctaaaccag atgctatcat ggagattgat tctcatttgc ttgttgatgt tgaggagcca</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>acatcggaca atctaaagga tcagataggg tcaaataaga aaaagcttgg ttctagtggg</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>cagaaaacaa aatctcaaca aagtgaaagt tcttcaactg caagggtttc ctcagaaagc</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>agtgagtctg aagtacaact gttaagcaat aaatccccgc aacactctcc tggcctctca</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>aaaaataagc ttggcgcaaa aggtggaatc aagaaaagta ctaacagaag aattgctgag</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>agaattctaa tgagtgtgaa aaaggggcaa caggaaatgt caccggactc taattctatt</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>gttaatggat gccattggcc tagggatatg aagcttagat ctgatactag gagtggaatt</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>aaggattctg ttgtatcctc acagtgtaat tctccaagca caaggagttt tagaaagaag</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>ggcacacttc aaatggagaa taactcatct tttgtggatg ctcagagtga ttcaatggag</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>gatacaaata atgaacattc agcaacagat ggttgtgata gttcaaggaa agaggaatgt</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>gttgatgaga gtatatgcag gcaagaagct catggcaggt cctggaaagt gattgagcaa</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>gggcttctat tgaaaggatt agagattttt ggaaagaaca gttgtttaat tgctcggaac</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>cttctgggtg ggatgaaaac atgcacagat gtttttcagt atatgaatta cattgaaaac</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>agcagtgcat ctggagctct tagtggtgtt gattctcttg ttaaaggata tatgaagggt</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>aatgaattac ggacaagatc aagatttgtg agaaggcgag gaagggtccg ccgtttgaag</bioformat:sequence>      <end_position>2220</end_position>
+     <bioformat:sequence>tacacctgga aaactgcagg ctaccatttt ataaggaaaa ggattacaga aaggaaggat</bioformat:sequence>      <end_position>2280</end_position>
+     <bioformat:sequence>cagccttgtc gacaatacac tccttgtggt tgccagtctg catgtgggaa gcaatgtcca</bioformat:sequence>      <end_position>2340</end_position>
+     <bioformat:sequence>tgtctcacaa atggtacctg ctgtgagaaa tactgtgggt gcccgaaaat gtgcaagaat</bioformat:sequence>      <end_position>2400</end_position>
+     <bioformat:sequence>cgcttccgag gttgccattg cgcaaagagt cagtgtcgca gccggcagtg tccatgcttt</bioformat:sequence>      <end_position>2460</end_position>
+     <bioformat:sequence>gctgctgaca gggaatgtga tcctgatgtg tgtagaaact gctgggtagg gtgcggtgat</bioformat:sequence>      <end_position>2520</end_position>
+     <bioformat:sequence>ggtacattgg gagtccctaa ccaaagaggt gataattatg aatgccggaa catgaaactg</bioformat:sequence>      <end_position>2580</end_position>
+     <bioformat:sequence>ctgcttaaac agcaacaaag ggtcttactt gggagatctg atgtttctgg ctggggagct</bioformat:sequence>      <end_position>2640</end_position>
+     <bioformat:sequence>ttcctcaaga atagtgttgg gaagcacgag tatcttggcg agtacactgg ggagcttatc</bioformat:sequence>      <end_position>2700</end_position>
+     <bioformat:sequence>tcccataaag aagctgacaa gcgtggaaag atatatgacc gtgagaattc atcgttcctt</bioformat:sequence>      <end_position>2760</end_position>
+     <bioformat:sequence>ttcaacttga acaatgagta cgttcttgat gcctacagaa tgggcgacaa gctgaagttc</bioformat:sequence>      <end_position>2820</end_position>
+     <bioformat:sequence>gccaaccatt cccctgatcc aaactgctac gccaaggtca tcatggtagc aggcgatcac</bioformat:sequence>      <end_position>2880</end_position>
+     <bioformat:sequence>agggtgggga tcttcgccaa agagcggatc agcgcgggcg aggagctgtt ctacgactac</bioformat:sequence>      <end_position>2940</end_position>
+     <bioformat:sequence>cgctacgagc ccgaccgggc cccggcgtgg gctcgcaagc ccgaggggcc cggtgccaag</bioformat:sequence>      <end_position>3000</end_position>
+     <bioformat:sequence>gacgacgccc agccttccac cgggagagca aagaagctcg cccactga             </bioformat:sequence>      <end_position>3048</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>Ospclf2</pname></pname>]
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP003044</accession></bioformat:dbid>;
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP003044_20</entry_name></bioformat:dbid>; parent: <parent>AP003044</parent>
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>join(94583..94623,94677..94838,95561..95645,95762..95911,</bioformat:feature_location>
+FT                   <bioformat:feature_location>95998..96045,96115..96183,96307..96501,96634..97010,</bioformat:feature_location>
+FT                   <bioformat:feature_location>97836..97971,98046..98266,98765..98896,99726..99816,</bioformat:feature_location>
+FT                   <bioformat:feature_location>100288..100335,100414..100542,100767..101036)</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>SPTREMBL</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>Q9FP07</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0038C05.17"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"putative curly leaf protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAB19344.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MVTVTIQHTFSLERNQRMQEDQSVLGRRRIYYDTNCGEALICSDS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EDEAVEDEEEKKEFKDSEDCIIRMTIQECGMSDAVLETLARDIERAPDDIKARYEILQG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EKPEGSSKKVSELNVKMEDVYGDKDLDAALDSFDNLFCRRCLVFDCKLHGCSQDLVFPT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>EKQAPLCSSDEGTPCGIHCYKLVSKPDAIMEIDSHLLVDVEEPTSDNLKDQIGSNKKKL</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GSSGQKTKSQQSESSSTARVSSESSESEGQQEMSPDSNSIVNGCHWPRDMKLRSDTRSG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>IKDSVVSSQCNSPSTRSFRKKGTLQMENNSSFVDAQSDSMEDTNNEHSATDGCDSSRKE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ECVDESICRQEAHGRSWKVIEQGLLLKGLEIFGKNSCLIARNLLGGMKTCTDVFQYMNY</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>IENSSASGALSGVDSLVKGYMKGNELRTRSRFVRRRGRVRRLKYTWKTAGYHFIRKRIT</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ERKDQPCRQYTPCGCQSACGKQCPCLTNGTCCEKYCGCPKMCKNRFRGCHCAKSQCRSR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QCPCFAADRECDPDVCRNCWVGCGDGTLGVPNQRGDNYECRNMKLLLKQQQRVLLGRSD</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VSGWGAFLKNSVGKHEYLGEYTGELISHKEADKRGKIYDRENSSFLFNLNNEYVLDAYR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>MGDKLKFANHSPDPNCYAKVIMVAGDHRVGIFAKERISAGEELFYDYRYEPDRAPAWAR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KPEGPGAKDDAQPSTGRAKKLAH"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>2154</num_BP> BP;
+     <bioformat:sequence>atggtcacag ttacaatcca gcatactttt agtttggaga ggaaccagcg gatgcaagaa</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>gaccaatctg tacttggtcg tcgaaggatt tactatgata caaactgtgg cgaagcttta</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>atttgcagtg atagtgaaga tgaagctgtt gaggacgagg aagagaaaaa ggagttcaag</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>gattctgaag attgcataat tcggatgacc attcaagaat gtggcatgtc tgatgctgtg</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>cttgaaactc tagctcgaga tatcgaaagg gctcctgatg atataaaggc caggtatgag</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>atcctacaag gggagaaacc tgagggttct tccaagaaag tgtctgaact taatgtcaaa</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>atggaagacg tgtacggtga taaagatctg gatgcagcat tggattcctt tgacaatctc</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>ttttgtcgcc gatgtttggt ttttgattgc aagctacatg ggtgttctca agatttagta</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>tttccgactg aaaagcaggc accattgtgc agctcggatg agggtacacc atgtggtatt</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>cactgttaca aactggtctc taaaccagat gctatcatgg agattgattc tcatttgctt</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>gttgatgttg aggagccaac atcggacaat ctaaaggatc agatagggtc aaataagaaa</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>aagcttggtt ctagtgggca gaaaacaaaa tctcaacaaa gtgaaagttc ttcaactgca</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>agggtttcct cagaaagcag tgagtctgaa gggcaacagg aaatgtcacc ggactctaat</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>tctattgtta atggatgcca ttggcctagg gatatgaagc ttagatctga tactaggagt</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>ggaattaagg attctgttgt atcctcacag tgtaattctc caagcacaag gagttttaga</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>aagaagggca cacttcaaat ggagaataac tcatcttttg tggatgctca gagtgattca</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>atggaggata caaataatga acattcagca acagatggtt gtgatagttc aaggaaagag</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>gaatgtgttg atgagagtat atgcaggcaa gaagctcatg gcaggtcctg gaaagtgatt</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>gagcaagggc ttctattgaa aggattagag atttttggaa agaacagttg tttaattgct</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>cggaaccttc tgggtgggat gaaaacatgc acagatgttt ttcagtatat gaattacatt</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>gaaaacagca gtgcatctgg agctcttagt ggtgttgatt ctcttgttaa aggatatatg</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>aagggtaatg aattacggac aagatcaaga tttgtgagaa ggcgaggaag ggtccgccgt</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>ttgaagtaca cctggaaaac tgcaggctac cattttataa ggaaaaggat tacagaaagg</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>aaggatcagc cttgtcgaca atacactcct tgtggttgcc agtctgcatg tgggaagcaa</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>tgtccatgtc tcacaaatgg tacctgctgt gagaaatact gtgggtgccc gaaaatgtgc</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>aagaatcgct tccgaggttg ccattgcgca aagagtcagt gtcgcagccg gcagtgtcca</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>tgctttgctg ctgacaggga atgtgatcct gatgtgtgta gaaactgctg ggtagggtgc</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>ggtgatggta cattgggagt ccctaaccaa agaggtgata attatgaatg ccggaacatg</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>aaactgctgc ttaaacagca acaaagggtc ttacttggga gatctgatgt ttctggctgg</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>ggagctttcc tcaagaatag tgttgggaag cacgagtatc ttggcgagta cactggggag</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>cttatctccc ataaagaagc tgacaagcgt ggaaagatat atgaccgtga gaattcatcg</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>ttccttttca acttgaacaa tgagtacgtt cttgatgcct acagaatggg cgacaagctg</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>aagttcgcca accattcccc tgatccaaac tgctacgcca aggtcatcat ggtagcaggc</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>gatcacaggg tggggatctt cgccaaagag cggatcagcg cgggcgagga gctgttctac</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>gactaccgct acgagcccga ccgggccccg gcgtgggctc gcaagcccga ggggcccggt</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>gccaaggacg acgcccagcc ttccaccggg agagcaaaga agctcgccca ctga      </bioformat:sequence>      <end_position>2154</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OsP0705A05.28</pname></pname>]
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>AP004623_29</entry_name></bioformat:dbid>; parent: <parent>AP004623</parent>
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AP004623</accession></bioformat:dbid>;
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>complement(125882..127666)</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"putative SET-domain-containing protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"P0705A05.28"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"BAC56009.1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MASPPPPPRLLTPKPDPDAPLPPLPYPDPNLVQSMLFSAQSPQAQ</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>PQAPPPHIQPPASASAEAPSGDEKNKKKKKRARASQEMVRITNLSIADHLHYRSLVRRA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RLTFEALRAIYQRQDLATAGGIRNRFDLRASSKMLSKGLWMHRDIRTVGSIPGLLVGDS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FFYRAELCVLGLHTAPQAGIGYIPASIVDQGHPVATSIVSSGGYLDDEDSGDVLVYSGS</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>GGRLRNRLDHSADQTLQRGNLALHYSCHYGIEVRVIRGHACDHSPSSKVYVYDGLYRVV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>TSTFGPGKSGRDVCKFKLVRIPGQDDLGSKAWHTAAELKDALDSKIRPPKYISLDIAKG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>KEPFRVPLYNKLDDDRSPLFYDYIACPDFPTTQQLLKRQTQRGCHCAELCGSRCSCERK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NRGADGPVYTSDGILLRGRPLVYECGPLCGCPMTCPNRVTQQGMKHRLEVFRSKETGWG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VRTLDLIQPGAFICEYAGDVLSLDSHSGDAPLPPMEDGSSIIDPTKFPERWREWGDASV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>VYPDRVPHFPLFAGARYRLDVSQRRNVACYISHSCSPNVFLQYVIRGNEDESYPHMMVF</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AMETIPPMRDLSIDYGLD"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><bioformat:sequence_block>SQ   Sequence  <num_BP>1785</num_BP> BP;
+     <bioformat:sequence>atggcgtctc cgccgccgcc gcctcgcctc ctcactccca agcccgaccc cgacgccccc</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>ctacccccgc tcccttaccc cgaccccaac ctcgtccaaa gcatgctctt ctccgcccag</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>tccccgcagg cgcagccgca ggcgccgcca ccccacatcc aaccccccgc ctccgcctcc</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>gccgaggccc cctccggcga cgagaagaat aagaagaaga agaagcgggc ccgcgcctcc</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>caggagatgg tgcgcatcac caaccttagc atcgccgacc acctccacta ccgctccctc</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>gtccgccgcg cccgcctcac cttcgaggcc ctccgcgcca tctaccaacg ccaggacctc</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gccaccgccg ggggaatccg caaccgcttc gacctccggg cctccagcaa gatgctctcc</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>aagggcctct ggatgcaccg cgacatccgc accgtcggct ccatccccgg cctcctcgtc</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>ggggactcct tcttctaccg cgccgagctc tgcgtcctcg gcctccacac cgcccctcag</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>gccggcatcg gctacatccc cgccagcatc gtcgaccagg gccaccccgt cgccaccagc</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>atcgtctcct ccgggggata cctcgacgac gaggacagcg gcgacgtcct cgtctactcc</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>ggcagcggcg gccgcctgcg caaccgcctc gaccacagcg ccgaccagac gctccagcgc</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>ggcaacctcg cgctccacta cagctgccac tacggcatcg aggtgcgcgt catccgtggc</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>cacgcctgcg accacagccc cagcagcaag gtctacgtct acgacggcct ctacagggtt</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>gtcacctcca ccttcggccc tggcaaatcc ggccgcgacg tctgcaagtt caagctcgtg</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>cgcatccctg gccaggacga cctcggcagc aaggcctggc ataccgcagc ggagctcaag</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>gatgcactgg attccaagat ccgcccgccc aagtacatct cgctcgacat tgccaagggc</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>aaggaaccat tccgcgtgcc cctctataac aagctcgacg acgacaggtc acccctcttc</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>tacgactaca ttgcctgtcc cgacttcccc accacccagc agctgctcaa acgccagacc</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>cagaggggct gccactgtgc cgagctgtgc ggctccaggt gcagctgtga gaggaagaac</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>aggggggccg acggccctgt gtacacctcc gatggcatcc ttctcagggg acgccccttg</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>gtgtacgagt gcggacccct gtgtggatgc cccatgacct gtcccaacag agtcacacag</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>caagggatga agcaccgcct cgaggtgttc cgttccaagg agacaggctg gggtgtcagg</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>acgcttgact tgatacagcc gggtgccttc atatgcgagt acgccggcga cgtgctctcc</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>ttggacagcc actcaggtga cgcccctctg cctccgatgg aggacgggag ctccatcatc</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>gacccgacca agttccccga gagatggagg gagtggggag atgcatccgt ggtttacccg</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>gacagggtac cccatttccc cctatttgca ggggcgcgct accgactcga cgtgtcacag</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>aggaggaacg tggcttgcta cattagccac agctgcagtc cgaatgtgtt ccttcaatat</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>gtaatccgtg gcaatgagga tgaatcctac cctcacatga tggtgtttgc catggagacc</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>atccctccaa tgcgggatct gtccatcgac tatggcttgg actag                </bioformat:sequence>      <end_position>1785</end_position>
+</bioformat:sequence_block>//
+</record><record xmlns:bioformat="http://biopython.org/bioformat" format="embl/65">&gt;[<pname><pname>OsEz</pname></pname>]
+ID   <bioformat:dbid type="primary" dbname="embl"><entry_name>OSA421722</entry_name></bioformat:dbid><dataclass>  standard</dataclass>; <molecule><bioformat:alphabet alphabet="iupac-ambiguous-rna">RNA</bioformat:alphabet></molecule>; <division>PLN</division>; <length>3133</length> BP.
+XX
+AC   <bioformat:dbid type="accession" dbname="embl"><accession>AJ421722</accession></bioformat:dbid>;
+XX
+SV   <sequence_version><accession>AJ421722</accession>.<version>3</version></sequence_version>
+XX
+DT   <date_created><day type="numeric">04</day>-<month type="short">APR</month>-<year type="any">2003</year></date_created> (Rel. <release_created>75</release_created>, Created)
+DT   <date_updated><day type="numeric">04</day>-<month type="short">APR</month>-<year type="any">2003</year></date_updated> (Rel. <release_updated>75</release_updated>, Last updated, Version <version_number>1</version_number>)
+XX
+<bioformat:description_block><description_block>DE   <bioformat:description><description>Oryza sativa (indica cultivar-group) mRNA for enhancer of zeste protein</description></bioformat:description>
+DE   <bioformat:description><description>(ez1 gene)</description></bioformat:description>
+</description_block></bioformat:description_block>XX
+KW   <keyword_data>enhancer of zeste protein; ez1 gene.</keyword_data>
+XX
+<organism><OS_block><OS>OS   <organism_species>Oryza sativa (indica cultivar-group)</organism_species>
+</OS></OS_block><OC_block><OC>OC   <organism_classification>Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;</organism_classification>
+</OC><OC>OC   <organism_classification>Spermatophyta; Magnoliophyta; Liliopsida; Poales; Poaceae; Ehrhartoideae;</organism_classification>
+</OC><OC>OC   <organism_classification>Oryzeae; Oryza; Oryza sativa.</organism_classification>
+</OC></OC_block></organism>XX
+<reference><RN>RN   [<reference_number>1</reference_number>]
+</RN><RC_block><RC>RC   <reference_comment>revised by author [24-MAR-2003]</reference_comment>
+</RC></RC_block><RP>RP   <reference_position>1-3133</reference_position>
+</RP><RA_block><RA>RA   <reference_author>Thakur J.K.;</reference_author>
+</RA></RA_block><RT_block><RT>RT   <reference_title>;</reference_title>
+</RT></RT_block><RL_block><RL>RL   <reference_location>Submitted (08-DEC-2001) to the EMBL/GenBank/DDBJ databases.</reference_location>
+</RL><RL>RL   <reference_location>Thakur J.K., Plant Molecular Biology, University of Delhi South Campus,</reference_location>
+</RL><RL>RL   <reference_location>Benito Juarez Road, New Delhi, Delhi - 110021, INDIA.</reference_location>
+</RL></RL_block></reference>XX
+<reference><RN>RN   [<reference_number>2</reference_number>]
+</RN><RA_block><RA>RA   <reference_author>Thakur J.K., Malik M., Tyagi A.K., Khurana J.P.;</reference_author>
+</RA></RA_block><RT_block><RT>RT   <reference_title>"A polycomb group gene (OsPCG1)from rice";</reference_title>
+</RT></RT_block><RL_block><RL>RL   <reference_location>Unpublished.</reference_location>
+</RL></RL_block></reference>XX
+FH   Key             Location/Qualifiers
+FH
+<bioformat:feature_block location-style="genbank"><bioformat:feature>FT   <bioformat:feature_name>source</bioformat:feature_name>          <bioformat:feature_location>1..3133</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>country</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"India"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"<bioformat:dbxref><bioformat:dbxref_dbname>taxon</bioformat:dbxref_dbname>:<bioformat:dbxref_dbid>39946</bioformat:dbxref_dbid></bioformat:dbxref>"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>organism</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"Oryza sativa (indica cultivar-group)"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>cultivar</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"pusa basmati"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature>FT   <bioformat:feature_name>CDS</bioformat:feature_name>             <bioformat:feature_location>216..2903</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"SET domain containing protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"ez1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"enhancer of zeste protein"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"CAD18871.3"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"MASSSSKASDSSSQRPKRPDQGPSGKDAAGLVVLHGKLAQLKRQV</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>QSTRLAAIKERVEANRKALQVHTCALFDVAAAAEVASRGAEGGNALSRGAAEGHCRLVG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>WDSASGPGERELVHVQEENLVAGTLVLSSSGGSGASHRTVVQLAKLPVVDKIPPYTTWI</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>FLDKNQRMADDQLVCRRRIYYDPIVNEALICSESDDDVPEPEEEKHVFTEGEDQLIWKA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>TQDHGLSREVLNVLCQFVDATPSEIEERSEVLFEKYEKQSQSSYETDFQLFLGKTMDVA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>LDSFDNLFCRRCLVFDCRLHGCSQNLVFPSEKQPYGHGLDENKRPCGDQRYLRRREVYQ</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>DTCNDDRNACTTYNTDSRSSSLKVSATILSESEDSNRDEDNIKSTSIVETSRSKITNSE</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YADKSVTPPPGDASETENVSPDMPLRTLGRRKISKHASKSNDHSPDKRQKIYSSPFPFA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>MSVLNKQSVPEIGETCPDSIESAVDQLPSLDDPNKKISTKDMCAGSTTNTTENTLRDNN</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>NNLFISNKEHSISHWSALERDLYLKGIEIFGKNSCLIARNLLSGLKTCMEVASYMYNNG</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>AAMAKRPLSGKSILGDFAEAEQGYMEQDLVARTRICRRKGRARKLKYTWKSAGHPTVRK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>RIGDGKQWYTQYNPCGCQQMCGKDCACVENGTCCEKYCGCSKSCKNRFRGCHCAKSQCR</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SRQCPCFAASRECDPDVCRNCWVSCGDGSLGEPLARGDGYQCGNMKLLLKQQQRILLGK</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>SDVAGWGAFIKNPVNRNDYLGEYTGELISHREADKRGKIYDRANSSFLFDLNEQYVLDA</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>YRKGDKLKFANHSSNPNCYAKVMLVAGDHRVGIYAKDRIEASEELFYDYRYGPDQAPAW</bioformat:feature_qualifier_description>
+FT                   <bioformat:feature_qualifier_description>ARRPEGSKKDEASVSHHRAHKVAR"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature>FT   <bioformat:feature_name>misc_feature</bioformat:feature_name>    <bioformat:feature_location>1808..1931</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"SANT domain"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"ez1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature>FT   <bioformat:feature_name>misc_feature</bioformat:feature_name>    <bioformat:feature_location>2158..2388</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>note</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"CXC domain"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"ez1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature>FT   <bioformat:feature_name>3'UTR</bioformat:feature_name>           <bioformat:feature_location>2900..3133</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"ez1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature>FT   <bioformat:feature_name>polyA_signal</bioformat:feature_name>    <bioformat:feature_location>3036..3041</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"ez1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature>FT   <bioformat:feature_name>polyA_site</bioformat:feature_name>      <bioformat:feature_location>3133</bioformat:feature_location>
+<bioformat:feature_qualifier>FT                   /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>"ez1"</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block>XX
+<bioformat:sequence_block>SQ   Sequence <num_BP>3133</num_BP> BP; <num_A>901</num_A> A; <num_C>655</num_C> C; <num_G>824</num_G> G; <num_T>753</num_T> T; <num_other>0</num_other> other;
+     <bioformat:sequence>cggcggggtc tcatccgatt ggaaacagat tgggaagggg gagggggtag gaatacgtgg</bioformat:sequence>        <end_position>60</end_position>
+     <bioformat:sequence>cgtcggcagt attaggtata gagagaaacc ctttccatcc tttgtctctt agccccgaag</bioformat:sequence>       <end_position>120</end_position>
+     <bioformat:sequence>gagagagaaa aatcagaaaa aaaaaaaccc tccgcgtgtg ggggaagcag agctccggac</bioformat:sequence>       <end_position>180</end_position>
+     <bioformat:sequence>gctggcgccg ctcgcgccac cgcacccgca ccgccatggc gtcgtcctcg tccaaggcct</bioformat:sequence>       <end_position>240</end_position>
+     <bioformat:sequence>ccgattcctc ttcccaacgc cccaagcggc cggatcaagg gccatcgggc aaggacgcgg</bioformat:sequence>       <end_position>300</end_position>
+     <bioformat:sequence>ccggcctcgt cgtgctgcac gggaagctgg cgcagctgaa gcgtcaggtc caatccaccc</bioformat:sequence>       <end_position>360</end_position>
+     <bioformat:sequence>gcctcgccgc gatcaaggag agggtggagg cgaacaggaa ggcgctgcag gtgcacacgt</bioformat:sequence>       <end_position>420</end_position>
+     <bioformat:sequence>gcgctctgtt cgacgtcgcc gcggcggcgg aggtggcgtc gcggggcgcc gagggcggca</bioformat:sequence>       <end_position>480</end_position>
+     <bioformat:sequence>acgcgctgtc gcggggcgcg gcggaggggc actgcaggct cgtggggtgg gactcggcga</bioformat:sequence>       <end_position>540</end_position>
+     <bioformat:sequence>gcgggccggg ggagagggag ttggtgcatg tgcaggagga gaatctggtc gccgggacgc</bioformat:sequence>       <end_position>600</end_position>
+     <bioformat:sequence>tcgtgctctc gagctctggt ggtagcggcg cctcgcatag gaccgtcgtg cagcttgcga</bioformat:sequence>       <end_position>660</end_position>
+     <bioformat:sequence>agctgcctgt ggtcgacaag attccgccct acaccacgtg gatcttcctg gacaaaaacc</bioformat:sequence>       <end_position>720</end_position>
+     <bioformat:sequence>aaagaatggc cgatgatcag ttagtttgta ggaggagaat ttactacgac ccaattgtca</bioformat:sequence>       <end_position>780</end_position>
+     <bioformat:sequence>atgaggctct gatctgcagt gaaagtgacg atgatgttcc agagccagag gaagagaaac</bioformat:sequence>       <end_position>840</end_position>
+     <bioformat:sequence>atgttttcac agaaggagaa gatcagctaa tatggaaagc tactcaagat catgggttaa</bioformat:sequence>       <end_position>900</end_position>
+     <bioformat:sequence>gtcgagaggt tttaaatgtc ctctgccagt ttgttgatgc aactccttca gaaattgagg</bioformat:sequence>       <end_position>960</end_position>
+     <bioformat:sequence>aaagatcaga agttcttttt gagaaatatg agaagcagtc tcaatcttct tacgagacag</bioformat:sequence>      <end_position>1020</end_position>
+     <bioformat:sequence>attttcaact ttttcttggc aagaccatgg atgtggcttt agattctttt gataatctct</bioformat:sequence>      <end_position>1080</end_position>
+     <bioformat:sequence>tctgtcggag atgtttggtt tttgattgcc gtctccatgg gtgctcccag aacttggtat</bioformat:sequence>      <end_position>1140</end_position>
+     <bioformat:sequence>tccctagcga gaagcaacca tatggtcatg gacttgatga aaacaagaga ccgtgtggcg</bioformat:sequence>      <end_position>1200</end_position>
+     <bioformat:sequence>atcagcgcta ccttcgaagg agagaagtat atcaagatac gtgcaatgat gaccgaaatg</bioformat:sequence>      <end_position>1260</end_position>
+     <bioformat:sequence>cttgtacaac atataatacg gattcaagat cttcctcact caaagttagt gctaccatat</bioformat:sequence>      <end_position>1320</end_position>
+     <bioformat:sequence>tgtctgaatc agaagattca aacagagatg aagataacat caaatccact tctattgttg</bioformat:sequence>      <end_position>1380</end_position>
+     <bioformat:sequence>aaaccagcag atcaaaaata actaattctg aatatgctga caaaagtgtg acaccacctc</bioformat:sequence>      <end_position>1440</end_position>
+     <bioformat:sequence>ctggagatgc ttctgaaact gaaaatgtgt cccctgacat gcccctaaga actttaggca</bioformat:sequence>      <end_position>1500</end_position>
+     <bioformat:sequence>ggcgtaagat ttcaaagcat gcctccaagt ctaacgatca ttcacctgat aaaaggcaga</bioformat:sequence>      <end_position>1560</end_position>
+     <bioformat:sequence>agatatatag ctcaccgttt ccttttgcaa tgagtgtact gaacaagcaa tctgttccag</bioformat:sequence>      <end_position>1620</end_position>
+     <bioformat:sequence>aaattggtga gacatgtcca gattccatag aatctgcagt tgatcaactt ccaagtctgg</bioformat:sequence>      <end_position>1680</end_position>
+     <bioformat:sequence>atgaccctaa caagaaaatt tctaccaaag atatgtgtgc tggaagcaca actaacacta</bioformat:sequence>      <end_position>1740</end_position>
+     <bioformat:sequence>ctgaaaatac attacgagat aataataata atttgttcat ctccaacaag gagcactcta</bioformat:sequence>      <end_position>1800</end_position>
+     <bioformat:sequence>tttctcattg gagtgcttta gagagagatt tgtacttgaa gggaattgag atatttggga</bioformat:sequence>      <end_position>1860</end_position>
+     <bioformat:sequence>aaaacagttg tctcatagct agaaacctat tgtctggcct gaagacctgc atggaagtgg</bioformat:sequence>      <end_position>1920</end_position>
+     <bioformat:sequence>ccagctacat gtacaacaat ggtgcggcaa tggcaaagag acctctatct ggtaaatcca</bioformat:sequence>      <end_position>1980</end_position>
+     <bioformat:sequence>ttttaggtga ctttgcagag gctgaacaag gttacatgga gcaagatttg gtggcaagga</bioformat:sequence>      <end_position>2040</end_position>
+     <bioformat:sequence>caagaatctg tcgtcgtaag ggccgagctc gaaagctcaa atacacttgg aagtctgcag</bioformat:sequence>      <end_position>2100</end_position>
+     <bioformat:sequence>ggcatccaac tgtaagaaaa agaatcggtg atggaaagca atggtacact cagtataacc</bioformat:sequence>      <end_position>2160</end_position>
+     <bioformat:sequence>catgtgggtg tcagcaaatg tgtggcaaag attgcgcctg tgtggaaaat ggaacttgtt</bioformat:sequence>      <end_position>2220</end_position>
+     <bioformat:sequence>gcgagaagta ctgtgggtgc tcaaagagct gcaaaaatag gtttagagga tgtcattgcg</bioformat:sequence>      <end_position>2280</end_position>
+     <bioformat:sequence>caaaaagtca atgcagaagc agacagtgcc cgtgttttgc tgccagtcgt gaatgtgatc</bioformat:sequence>      <end_position>2340</end_position>
+     <bioformat:sequence>cagatgtttg cagaaactgc tgggtgagct gcggagatgg ctcactaggt gagccactgg</bioformat:sequence>      <end_position>2400</end_position>
+     <bioformat:sequence>caagaggtga tggctatcag tgtggaaaca tgaaactcct cttaaaacaa caacaacgta</bioformat:sequence>      <end_position>2460</end_position>
+     <bioformat:sequence>tattgcttgg aaaatctgat gttgcaggtt ggggtgcatt cattaagaac ccagtaaata</bioformat:sequence>      <end_position>2520</end_position>
+     <bioformat:sequence>gaaatgatta ccttggtgaa tacactggcg aattgatttc tcatagagaa gcagataagc</bioformat:sequence>      <end_position>2580</end_position>
+     <bioformat:sequence>gtggcaaaat atatgatcga gcaaattcat cgttcctatt tgatttaaat gagcagtatg</bioformat:sequence>      <end_position>2640</end_position>
+     <bioformat:sequence>tactggatgc ttatcgcaag ggggataaac tgaagtttgc aaatcactcg tcgaatccta</bioformat:sequence>      <end_position>2700</end_position>
+     <bioformat:sequence>actgctatgc gaaggttatg ttggtggctg gcgatcatcg agttggtatc tatgcaaagg</bioformat:sequence>      <end_position>2760</end_position>
+     <bioformat:sequence>accgcattga ggctagcgag gaactctttt atgattaccg ctatggacct gaccaagccc</bioformat:sequence>      <end_position>2820</end_position>
+     <bioformat:sequence>cagcttgggc taggagaccg gaagggtcaa aaaaggatga agcatctgtc tctcaccacc</bioformat:sequence>      <end_position>2880</end_position>
+     <bioformat:sequence>gagcgcacaa agttgctaga tagtccaaca gcagctccag atgataatat caactgtaaa</bioformat:sequence>      <end_position>2940</end_position>
+     <bioformat:sequence>ttataccgtc attgaaacac atagttcaat cctagtccat tatacggcca atcgttggca</bioformat:sequence>      <end_position>3000</end_position>
+     <bioformat:sequence>taataagcat attctatatt ccttagttcc ttggtaaata aactgagata tcgagtatgc</bioformat:sequence>      <end_position>3060</end_position>
+     <bioformat:sequence>gaataaaaga aaaataaggc actgtaagtt tatttgtaca aagtttggaa tttatgctat</bioformat:sequence>      <end_position>3120</end_position>
+     <bioformat:sequence>gtatagtttt gcc                                                   </bioformat:sequence>      <end_position>3133</end_position>
+</bioformat:sequence_block>//
+</record></dataset>

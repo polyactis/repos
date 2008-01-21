@@ -1,0 +1,825 @@
+              A walkthrough on writing a Martel format description
+
+                  Rough Draft - needs a lot of improvement
+
+*** FASTA format
+
+XXX check with Brad's FASTA parser
+
+The FASTA format is a very simple format which is widely used for
+sequence analysis.  It contains zero or more records, where a record
+two parts, a header and the sequence.  The record format looks like:
+
+---------
+>This is the header
+MSRPGHGGLMPVNGLGFPPQNVARVVVWECLNEHSRWRPYTATVCHHIENVLKEDARGSVVLGQVDAQLV
+DADSGKNAEIAYSLDSSVMGIFAIDPDSGDIEKLADWERDNADRYEFKVNAKDKGIPVLQGSTTVIVQVA
+NTLTRREVYL
+---------
+
+The header line starts with a '>' followed by the text of the header.
+The header cannot continue over more than one line.
+
+The sequence data contains protein or nucleotide characters.  If there
+are too many characters per line (usually around 70 but it differs)
+then the text is folded over to the next line.  The characters can be
+in upper or lower case or even mixed case, and can also contain
+numbers or a stop symbol like "*", so it should be assumed that any
+character except newline is allowed, and the first character must not
+be ">".
+
+Often there is a blank line between the sequence data of one record
+and the header of the next record, but this is not always true.
+
+
+ ** Parsing the header line
+
+Go back to the description of the header line:
+
+   The header line starts with a '>' followed by the text of the
+   header.  The header cannot continue over more than one line.
+
+So the header line is '>' followed by everything up to the newline,
+followed by the newline.  This can be written in Martel as:
+
+>>> from Martel import *
+>>> header_line = Str(">") + Rep(AnyBut("\n")) + Str("\n")
+
+Since there are many formats which read "everything up to the newline,
+followed by the newline," Martel has a special command called "ToEol"
+to read everything up to the end of line.  The above could be
+rewritten as:
+
+>>> header_line = Str(">") + ToEol()
+
+Now let's see if this works.  I'll use some of the test functions
+included in Martel.  The 'test_string' function takes a format
+description and a string then prints out the SAX events as XML.
+
+>>> from Martel.test import support
+>>> support.test_string(header_line, ">This is the header\n")
+
+This prints out the following
+
+-------> Start
+&lt;This is the header
+ 
+-------> End
+
+
+Doesn't look very impressive does it?  After all, the second line is
+identical to the input string, except for the XML escape of '>' to
+'&lt;'.  That's because there wasn't anything in the format
+description which names the different parts of the text.  To do that
+you specify which parts of the text are important.
+
+For the FASTA header line, that's the text between the inital '>' and
+final '\n'.  Let's call that the "header".  The ToEol command takes an
+optional parameter, which is the name to use for the matched text,
+excluding the newline.
+
+
+>>> header_line = Str(">") + ToEol("header")
+>>> support.test_string(header_line, ">This is the header\n")
+-------> Start
+&gt;<header>This is the header</header>
+ 
+-------> End 
+
+ ** Parsing the sequence block
+
+The sequence block contains zero or more sequence lines.  A sequence
+line contains 1 or more characters where the first one is not a '>'.
+Working from the bottom up, that means we need
+
+ 1) the set of characters which can be in the first position
+
+>>> first_char = AnyBut(">\n")
+
+ 2) the sequence data (the first_char followed by anything except the newline)
+
+>>> sequence = first_char + Rep(AnyBut("\n"))
+
+ 3) the sequence line
+
+>>> sequence_line = sequence + Str("\n")
+
+ 4) the sequence block is 0 or more sequence lines
+
+>>> sequence_block = Rep(sequence_line)
+
+These four lines are usually written a bit more tersely as:
+
+>>> first_char = AnyBut(">\n")
+>>> sequence = first_char + Rep(AnyBut("\n"))
+>>> sequence_block = Rep(sequence + Str("\n"))
+
+Indeed, these could all be put on one long line, but the loss in
+readability is not worth it.
+
+As before, parts of the sequence block text are important and need to
+be named.  In this case that's the sequence data, which by convention
+has the name "sequence".  The 'Group' command is used to name part of
+an expression, and the change looks like:
+
+>>> sequence = Group("sequence", first_char + Rep(AnyBut("\n")))
+>>> sequence_block = Rep(sequence + Str("\n"))
+
+Testing it out
+
+>>> support.test_string(sequence_block, "MSRPGHGGLMPVNGLGF\n")
+-------> Start
+<sequence>MSRPGHGGLMPVNGLGF</sequence>
+ 
+-------> End 
+>>> support.test_string(sequence_block, "MSRPGHGGLMPVNGLGF\nDADSGKNAEIAY\n")
+-------> Start
+<sequence>MSRPGHGGLMPVNGLGF</sequence>
+<sequence>DADSGKNAEIAY</sequence>
+ 
+-------> End
+>>> support.test_string(sequence_block, "")
+-------> Start
+ 
+-------> End
+
+ ** Parsing the optional blank lines after the sequence block
+
+This one is pretty easy.  A blank line is the string '\n' which is the
+Martel command Str("\n").  The command 'Opt' is used for an optional
+expression, so
+
+>>> blank_line = Opt(Str("\n"))
+>>> support.test_string(sequence_block, "")
+>>> support.test_string(blank_line, "")
+-------> Start
+ 
+-------> End
+>>> support.test_string(blank_line, "\n")
+-------> Start
+ 
+ 
+-------> End
+
+
+ ** Parsing a FASTA record
+
+A FASTA record is made up of the header line, the sequence block and
+the optional blank line.
+
+>>> fasta_record = header_line + sequence_block + blank_line
+>>> support.test_string(fasta_record, ">header\nAAA\nB\nC\n\n")
+-------> Start
+&gt;<header>header</header>
+<sequence>AAA</sequence>
+<sequence>B</sequence>
+<sequence>C</sequence>
+ 
+ 
+-------> End
+
+
+ ** Parsing a FASTA file
+
+The FASTA file contains 0 or more FASTA records, so
+
+>>> fasta_format = Rep(fasta_record)
+support.test_string(fasta_format, """\
+... >header1
+... ABCD
+... >header2
+... QWERTY
+... UIOP
+... >header3
+... >header4
+... shrdlu
+... """)
+-------> Start
+&gt;<header>header1</header>
+<sequence>ABCD</sequence>
+&gt;<header>header2</header>
+<sequence>QWERTY</sequence>
+<sequence>UIOP</sequence>
+&gt;<header>header3</header>
+&gt;<header>header4</header>
+<sequence>shrdlu</sequence>
+ 
+-------> End
+
+ ** Putting it all together
+
+Before going on to the next section, here are the format descriptions
+all put together into one spot.
+
+
+from Martel import *
+
+header_line = Str(">") + ToEol("header")
+
+first_char = AnyBut(">\n")
+sequence = Group("sequence", first_char + Rep(AnyBut("\n")))
+sequence_block = Rep(sequence + Str("\n"))
+
+fasta_record = header_line + sequence_block + Opt(Str("\n"))
+fasta_format = Rep(fasta_record)
+
+
+*** Being useful
+
+The FASTA format description given above is able to parse FASTA files
+and identify the header and sequence data.  This is sufficent for any
+use, but there are ways to make it more usable.  There's a difference
+between being good enough and being useful, as some things are good
+enough but very cumbersome.
+
+Usability can be quite a complicated problem.  Judgements must be
+based upon testing, which in this case means coming up with reasonable
+scenarios of what people want to with FASTA files and seeing if there
+is a way to simplify those tasks.
+
+ ** Working with XML tools
+
+The intent of Martel is to be able to use existing XML tools to parse
+many existing non-XML format.  One of those is DOM, which requires a
+single-rooted document structure.  If you use the above format
+description to build a DOM document you get an exception:
+
+>>> from xml.sax import saxexts, saxutils
+>>> from xml.dom.sax_builder import SaxBuilder
+>>> parser = fasta_format.make_parser()
+>>> dh = SaxBuilder()
+>>> parser.setDocumentHandler(dh)
+>>> parser.setErrorHandler(saxutils.ErrorRaiser())
+>>> parser.parseString(">header\nDADSGKNAE\n")
+Traceback (innermost last):
+  ...
+xml.dom.core.HierarchyRequestException: insertBefore() would result in more than one root document element 
+
+That's because the top-level include the "header" and "sequence"
+elements as well as unnamed "\n" and ">" text elements.  To use DOM
+you must create a group name for the whole document.  In Martel, the
+convention is to use the format name appended with "_format":
+
+>>> fasta_format = Group("fasta_format", Rep(fasta_record))
+
+Now the DOM document can be built.
+
+>>> parser = fasta_format.make_parser()
+>>> dh = SaxBuilder()
+>>> parser.setDocumentHandler(dh)
+>>> parser.setErrorHandler(saxutils.ErrorRaiser())
+>>> parser.parseString("""\
+... >header1
+... ABCD
+... >header2
+... QWERTY
+... UIOP
+... >header3
+... >header4
+... shrdlu
+... """)
+>>> parser.close()
+>>> doc = dh.document
+
+
+ ** Building a data structure
+
+Most people will want to convert the FASTA file into their own data
+structure.  Consider the class
+
+class SeqData:
+    def __init__(self, description, seq):
+        self.description = description
+        self.seq = seq
+
+and suppose you want to make a function named 'read_fasta' which reads
+a FASTA file and returns a list of SeqData instances.  Let's use DOM
+for that, where 'doc' is the DOM document.
+
+def get_element_text(element):
+    text = ""
+    for node in element.get_childNodes():
+        text = text + node.get_data()
+    return text
+
+def read_fasta(infile):
+    doc = ... code to create the DOM document -- see previous scenario
+    root = doc.get_childNodes()[0]
+    header = None
+    seq = ""
+    for element in root.get_childNodes():
+        if element.name == "header":
+            if header is not None:
+                # At the beginning of a new record, so finish off
+                # the old one and append it to list
+                results.append(SeqData(header, seq))
+            header = get_element_text(element)
+            seq = ""
+        elif element.name == "sequence":
+            seq = seq + get_element_text(element)
+    if header is not None:
+        # finish off the last record, if there was one
+        results.append(SeqData(header, seq))
+    return results
+
+
+This is somewhat complicated because it needs to detect the end of a
+record in order to create the SeqData object.  The end of a record
+occurs either when a new "header" element is found which wasn't the
+first record, or the end of input was found and there was at least one
+record.
+
+Martel already knows about 'fasta_record's, so why not have it tell us
+about the beginning and ending of each one by putting a group name
+around the record definition.  By convention, the name is the format
+name appended with "_record".
+
+fasta_record = Group("fasta_record",\
+                     header_line + sequence_block + Opt(Str("\n"))
+fasta_format = Group("fasta_format", Rep(fasta_record))
+
+(Note that the "fasta_format" group name was already changed because
+of the previous scenario.)
+
+
+With this change, the conversion logic in read_fasta is cut in half:
+
+def read_fasta(infile):
+    doc = ... code to create the DOM document -- see previous scenario
+    results = []
+    for record in doc.getElementsByTagName("fasta_record"):
+        header = get_element_text(record.getElementsByTagName("header")[0])
+        seq = ""
+        for seq_node in record.getElementsByTagName("sequence"):
+            seq = seq + get_element_text(seq_node)
+        results.append(SeqData(header, seq))
+    return results
+
+Additionally, there are no "if" branches, which makes this code easier
+and cheaper to verify, test and maintain.
+
+ ** Conversion to HTML
+
+Suppose I want to convert FASTA records to HTML where each record is
+linkable (using "#" hrefs) and each of the sequence regions are shown
+in a fixed width font.
+
+More specifically, each record must start with an "a name=" tag where
+the name is an integer, starting from 0 and increasing by 1 each time.
+Each groups of sequence must be enclosed by a "pre" element.  All text
+must be properly HTML escaped.
+
+I decided to use a SAX parser for this task.  As a reminder, the
+current FASTA format definition, with the Group names from the
+previous two scenarios, is
+
+header_line = Str(">") + ToEol("header")
+
+first_char = AnyBut(">\n")
+sequence = Group("sequence", first_char + Rep(AnyBut("\n")))
+sequence_block = Rep(sequence + Str("\n"))
+
+fasta_record = Group("fasta_record", \
+                     header_line + sequence_block + Opt(Str("\n")))
+
+fasta_format = Group("fasta_format", Rep(fasta_record))
+
+
+The resulting SAX handler looks like:
+
+
+from xml.sax import saxlib
+import cgi
+class Fasta2HTML(saxlib.HandlerBase):
+    def __init__(self, outfile):
+        saxlib.HandlerBase.__init__(self)
+        self.write = outfile.write
+        self.record_count = 0
+
+    def startElement(self, name, attrs):
+        if name == "fasta_record":
+            # make the "a name=" tag
+            self.write("<a name='%d'>\n" % self.record_count)
+            self.record_count = self.record_count + 1
+
+    def characters(self, s, start, length):
+        self.write(cgi.escape(s[start:start+length]))
+
+    def endElement(self, name):
+        if name == "element":
+            # The sequence block is next, so put it inside a "<pre>"
+            self.write("<pre>")
+        elif name == "fasta_record":
+            # Finished with sequence, so close the "pre"
+            self.write("</pre>\n")
+
+parser = format.make_parser()
+parser.setDocumentHandler(Fasta2HTML(sys.stdout))
+parser.setErrorHandler(saxutils.ErrorRaiser())
+parser.parseString(...)
+parser.close()
+
+You can see the somewhat cumbersome way I had to use to detect where
+the sequence lines started and ended.  It print the "<pre>" after the
+end of the header element and closes the "</pre>" before the end of
+the record.  (This definition also encloses the blank_line in the PRE
+block, which is okay.)
+
+Again, the problem is the detection of the transition from record type
+to another.  I've found it useful to put repeats of homogenous data
+types (in this case, "sequence" elements) inside of another element.
+By Martel convention, the enclosing element tag is usually named
+"*_block", as in "sequence_block".
+
+...
+sequence_block = Group("sequence_block", Rep(sequence + Str("\n")))
+...
+
+
+With this definition, the SAX parser is 
+
+class Fasta2HTML(saxlib.HandlerBase):
+    def __init__(self, outfile):
+        saxlib.HandlerBase.__init__(self)
+        self.write = outfile.write
+        self.record_count = 0
+
+    def startElement(self, name, attrs):
+        if name == "fasta_record":
+            # make the "a name=" tag
+            self.write("<a name='%d'>\n" % self.record_count)
+            self.record_count = self.record_count + 1
+
+        elif name == "sequence_block":
+            self.write("<pre>")
+
+    def characters(self, s, start, length):
+        self.write(cgi.escape(s[start:start+length]))
+
+    def endElement(self, name):
+        if name == "sequence_block":
+            self.write("</pre>\n")
+
+
+The code isn't all that much simpler, but it's much easier to
+understand the intent.
+
+
+Given the scenarios, the final FASTA format definition is:
+
+header_line = Str(">") + ToEol("header")
+
+first_char = AnyBut(">\n")
+sequence = Group("sequence", first_char + Rep(AnyBut("\n")))
+sequence_block = Group("sequence_block", Rep(sequence + Str("\n")))
+
+fasta_record = Group("fasta_record", \
+                     header_line + sequence_block + Opt(Str("\n")))
+
+fasta_format = Group("fasta_format", Rep(fasta_record))
+
+
+
+ ** Too many names
+
+It is possible to go to excess in assigning names to different parts
+of the format.  For example, the sequence line is currently written as
+
+sequence = Group("sequence", first_char + Rep(AnyBut("\n")))
+
+but could be written as:
+
+sequence = Group("sequence", first_char) + \
+           Rep(Group("sequence", AnyBut("\n")))
+
+This definition would cause every single character of the sequence to
+be inside its own element.  It actually wouldn't affect any of the
+earlier examples, since the record's complete sequence is defined as
+the concatenation of each of the "sequence" elements.
+
+However, it doesn't lend any additional power to the handlers.  I
+can't come up with any reasonable scenario where this new definition
+makes things shorter, simpler, or easier to maintain.  On the other
+hand, the overhead of sending an event for every character instead of
+a block of characters is quite noticable, and is a reason for why the
+PIR parser is slow.
+
+
+*** RecordReader
+
+The default parsers parse everything in memory.  For example, if an
+input file handle is passed into the parser, the parser reads the file
+into memory then parses it.  In addition, it doesn't send any events
+to the handler until after the file is completely parsed.
+
+Some FASTA files can be quite large and cannot be stored in memory,
+much less parsed.  On the other hand, each record is small enough to
+be parsed on its own.  Martel isn't clever enough on its own to figure
+out how to parse part of the input, like a record, on its own, but it
+does allow you to tell it what to do.
+
+Take a look again at the fasta_format definition
+
+fasta_format = Group("fasta_format", Rep(fasta_record))
+
+A lot of formats end up having this same form of 0 or more repeats of
+a given record description (fasta_record) enclosed by a top-level
+element ("fasta_format").  The parser for the whole format can be
+replaced by the following pseudocode:
+
+    handler.startDocument()
+    handler.startElement(top-level name)
+    while 1:
+        record = read_record()
+        if not record:
+            break
+        parse_record(record_format, handler, record)
+    handler.endElement(top-level name)
+    handler.endDocument()
+
+This generic code needs to know three things: the top-level name, the
+record format, and a way to read a record at a time.  The first two
+are standard, but the last is new.
+
+In most cases, either the first line of a record starts with a
+specific string (like the ">" in FASTA) or the last line of a record
+starts with a specific string (like the "//\n" in SWISS-PROT).  The
+RecordReader submodule contains a module for each case, called
+StartsWith and EndsWith, respectively.
+
+For example, the following reads FASTA records:
+
+>>> import string
+>>> from cStringIO import StringIO
+>>> from Martel import RecordReader
+>>> infile = StringIO(">header1\nNTLTRREVYL\n>header2\nQWERTY\nUIOP\n")
+>>> reader = RecordReader.StartsWith(infile, ">")
+>>> while 1:
+...     record = reader.next()
+...     if record is None:
+...         break
+...     print string.split(record, "\n")[0]
+
+
+
+Going back to the pseudocode, Martel has a command called
+"ParseRecords" which implements this code given those three
+parameters.  For FASTA it is used like:
+
+>>> from Martel import RecordReader
+>>> fasta_format = ParseRecords("fasta_format", fasta_record,
+...                             RecordReader.StartsWith, (">",))
+
+
+There are actually four parameters passed to ParseRecords.  The third
+is the callable object (a function or a constructor) which takes as
+the first parameter the input file.  The last is an optional tuple
+used for the 2nd, 3rd, etc. arguments.
+
+The new fasta_format definition acts exactly the same as the old one
+(unless there is a mismatch between the regexp definition of a record
+and what the RecordReader finds.)
+
+
+*** Debugging
+
+FIRST! Make sure you set an error handler.  If you do not then errors
+will be silently ignored.  The quickest way to do it is to use the
+saxutils.ErrorRaiser class:
+
+from xml.sax import saxutils
+...
+parser = format.make_parser()
+parser.setErrorHandler(saxutils.ErrorRaiser())
+
+
+Debugging under Martel is tricky.  Because of the mxTexTools
+implementation, the location reported by the error message is the last
+character which was successfully parsed, not the last character which
+was attempted to be parsed.  Since that probably wasn't clear, let me
+show an example.
+
+Suppose you have the format description:
+
+>>> from Martel import *
+>>> from xml.sax import saxutils
+>>> format = Group("name", Any("AB") + Any("BC") + Any("CD") + Any("DE"))
+>>> parser = format.make_parser()
+>>> parser.setErrorHandler(saxutils.ErrorRaiser())
+>>> parser.parseString("ABCZ")
+Traceback (innermost last):
+...
+Martel.Parser.StateTablePositionException: error parsing at or beyond
+character 0
+
+
+The error "really" took place at position 3, not 0.  However, the
+parser starts at position 0 and tries to match everything inside of
+the "name" group.  That fails, so it decided that the error is at
+position 0.
+
+The thing is, in order to tell that "ABCZ" failed, mxTextTools knows
+that it tested "ABC" correctly.  It would be nice if the value of the
+highest character offset successfully tested (in this case, 2) was
+passed back to the Python layer, but it isn't, so we need to use
+alternate means to track down the error location.
+
+If the error positions were only off by a couple of characters, as
+with this made-up example, then there wouldn't be a problem.  However,
+because each parse document must be singly rooted, to work with DOM
+(see above), every format description is contained inside of a
+Group(name, ...) expression.  That means every failure will be "beyond
+character 0", making it a worthless diagnostic.  (The ParseRecords
+parser is a bit better and will point to the start of the record which
+failed.)
+
+To get better reporting you need to disable the various sorts of
+"chunking" in the format description.  By chunking I mean operations
+which test a set of expressions as a whole and either pass it or fail
+it.  The most obvious chunk is a Group.
+
+For example, in the above test case supposed you get rid of the
+'Group("name", ...)'  term.
+
+>>> format = Any("AB") + Any("BC") + Any("CD") + Any("DE")
+>>> parser = format.make_parser()
+>>> parser.setErrorHandler(saxutils.ErrorRaiser())
+>>> parser.parseString("ABCZ")
+Traceback (innermost last):
+...
+Martel.Parser.StateTablePositionException: error parsing at or beyond
+character 3
+
+That's pinpointed the error location exactly.
+
+
+When you are developing a new format it's easy to comment out one or
+two Group definitions, but it's hard to get all of them, especially
+ones created inside of regular expressions.
+
+Martel has a function called 'select_names' which removes all Group
+definitions except the ones listed.  It was designed to reduce the
+number of callbacks in a format like SWISS-PROT where you might be
+interested in only three events from a set of several score.
+
+>>> format = Group("name", Any("AB") + Any("BC") + Any("CD") + Any("DE"))
+>>> format = select_names(format, [])
+>>> parser = format.make_parser()
+>>> parser.setErrorHandler(saxutils.ErrorRaiser())
+>>> parser.parseString("ABCZ")
+Traceback (innermost last):
+...
+Martel.Parser.StateTablePositionException: error parsing at or beyond
+character 3
+
+
+So once you've found that a format description doesn't parse a file,
+you can use select_names to remove some or all of the groups.  You can
+get the list of available names from looking at the format or from
+using the "group_names" method, available from an expression node.  It
+returns a tuple of the group names used by this node or any of its
+children.
+
+(As a side note, group_names will always remove unnamed groups, which
+occur with regular expressions "(like)(this)".  To remove unnamed
+group without affecting named groups, you can use
+    new_format = select_names(format, format.group_names)
+
+or just use the underlying function, which is
+    from Martel import optimize
+    new_format = optimize.optimize_unnamed_groups(format.copy())
+)
+
+The elements of a Seq or Alt expression are also "chunky" as well as
+the text inside a Str expression (especially after being passed
+through optimize.optimize) and in the lookahead assertions.  The
+chunkiness in some of these will likely be reduced in future versions
+of Martel (XXX FIXME!).  Regardless, these expressions are usually a
+lot smaller than the Groups so if there is a failure the byte position
+is close enough to make it much easier to track down.
+
+It may also be possible to generate a "debug" tag table for
+mxTextTools which is able to track down where it is parsing.
+
+*** Common problems
+
+There are two problems you will likely run into when developing
+regexps for Martel, both related to MaxRepeat expressions (like Rep,
+Rep1 and RepN).
+
+ ** Backtracking - MaxRepeat expressions do not do backtracking.
+
+Consider the regexp pattern "\s*\n".  With a standard regular
+expression engine, this will match the string "\n".
+
+>>> import re
+>>> re.match(r"\s*\n", "\n")
+<re.MatchObject instance at 80f1038>
+
+It will not match in Martel:
+>>> import Martel
+>>> from xml.sax import saxutils
+>>> parser = Martel.Re(r"\s*\n").make_parser()
+>>> parser.setErrorHandler(saxutils.ErrorRaiser())
+>>> parser.parseString("\n")
+Traceback (innermost last):
+...
+Martel.Parser.StateTablePositionException: error parsing at or beyond
+character 1
+
+What happens is that newline ("\n") is also a whitespace character
+("\s") so is included as part of the "\s*".  The parser then tries to
+match the "\n" of "\s*\n" and fails, because there aren't any
+characters left.
+
+A normal regular expression engine would backtrack one character and
+try to match again, so throw back the "\n" and then make a successful
+match to "\n".  I haven't figured out how to do this with mxTextTools,
+so I can't to backtracking here.
+
+As it turns out, this isn't much of a problem.  For example, most of
+the places using "\s*\n" really mean to eat whitespace up to the end
+of line, and can be rewritten "[ \t\r\h\v]*\n".  Indeed, in every case
+so far it can be rewritten "[ \t]*\n".
+
+Using [^...] can get you into the same problem, but it's hard to come
+up with a simple example.  Basically, you need to be aware that "\n"
+may be in the negated set and watch out for it accidentally consuming
+the "\n".
+
+
+I've also seen people overrusing backtracking to get the data they
+wany.  Bioperl uses the regexp
+
+       r"^ID\s+(\S+)\s+\S+\; (.+)\; (\S+)"
+
+in Bio/SeqIO/embl.pm to parse an EMBL ID line like
+
+'ID   AF074119   standard; DNA; ORG; 134 BP.'
+ 01234567890123456789012345678901234567890
+           1         2         3         4
+(that regexp doesn't parse the " 1 BP.", btw.)
+
+
+The '(.)\;' part requires backtracking, since the '.' will consume the
+'\;' character.  Actually, ".+" greedily reads up to the end of line.
+This fails because there is no "; (\S+)" after the end of line.  A
+real regexp engine, like the one in perl does, backtracks one
+character and tries again.  If that fails, it backtracks another
+character, until things work or there are no characters left to
+backtrack.  In this case it will have to do 11 backtracks.  The
+"\S+\;" causes another backtrack because the first time through "\S+"
+will consume the ";", which must then be backtracked.
+
+The lack of backtracking can be remedied in two way.  One is to
+eliminate the need for back tracking.
+
+   r"ID\s+(\S+)\s+[^;]+\;(\s*([^;]*);)* (\S+)"
+
+The other is to use the correct regular expression.  According to the
+EMBL format definition at
+  http://www.ebi.ac.uk/embl/Documentation/User_manual/id_line.html
+ 
+> The ID (IDentification) line is always the first line of an entry. The
+> general form of the ID line is:
+>     ID   entryname  dataclass; molecule; division; sequencelength BP.
+ 
+so the correct pattern should be
+ 
+  r"ID\s+(\S+)\s+(\S+);\s+(\S+);\s+(\S+);\s+(\d+) BP\."
+ 
+and this doesn't need backtracking.
+
+ 
+
+ ** Martel will repeat 0 sized matches forever
+
+Martel will hang forever if you ask it to repeat 0-sized match.  For
+example:
+
+>>> from Martel import Re
+>>> parser = Re("(a*)*").make_parser()
+>>> parser.parseString("b")
+
+will hang the program hard.  It's inside of a C routine, so you can't
+even ^C to get out (Python captured the interrupt, but it's waiting
+for the C routine to return before it doesn't anything).  You'll have
+to ^Z and kill the process to make it stop.
+
+The reason it hangs is because the "a*" successfully matched 0 times.
+This doesn't consume any characters so the first repeat of "a*" also
+matches.  And the second.  And the third.  Etc.  So "(a*)*" will
+merrily sit there doing nothing.
+
+A standard regular expression engine will check the return size from a
+repeat match and return success if the match size is ever zero.
+Martel should probably do something like that as well, though it's a
+lot harder. XXX Change mxTexTools to make this easier?  XXX Could add
+a check during compilation for possible 0 sized infinite repeats?
+
+The best workaround for now is to never introduce zero-sized groups
+which can repeat an indefinite number of times.  Often it's a simple
+matter of replacing a "Rep" with a "Rep1".  Make sure that any Repeat
+expression consumes at least one character and you'll guarantee that
+Martel won't be caught in this loop.
+

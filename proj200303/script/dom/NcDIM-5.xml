@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<interpro_matches>
+
+   <protein id="NcDIM-5" length="318" crc64="5743847E5844AFBB" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="PFAM">
+	    <location start="143" end="290" score="1.1e-32" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="SMART">
+	    <location start="149" end="290" score="1.1e-29" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="PROFILE">
+	    <location start="148" end="288" score="30.171" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003606" name="Nuclear protein Zn2+-binding" type="Domain" parent_id="IPR007728">
+	  <match id="SM00468" name="PreSET" dbname="SMART">
+	    <location start="17" end="133" score="0.00079" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR003616" name="SET-related region" type="Domain">
+	  <match id="PS50868" name="POST_SET" dbname="PROFILE">
+	    <location start="302" end="318" score="9.282" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR007728" name="Pre-SET" type="Domain">
+	  <match id="PF05033" name="Pre-SET" dbname="PFAM">
+	    <location start="17" end="141" score="5.7e-08" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50867" name="PRE_SET" dbname="PROFILE">
+	    <location start="64" end="146" score="9.596" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>

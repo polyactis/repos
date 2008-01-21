@@ -1,0 +1,948 @@
+This is a technical description of how Martel works.
+
+This was written for version 0.3 of Martel.  Bear in mind that
+documentation rarely stays in synch with the code!
+
+=== Overview:
+
+ o  Build an Expression tree using basic functions or a regular
+     expression pattern;
+ o  Use the tree to make a StateTable;
+ o  Use the StateTable to parse a string or input file
+     - the StateTable implements the SAX parser API
+
+
+=== Expression Tree:
+
+The Martel formats are described using a regular expression that is
+converted into the actual parser code.  The regular expression can be
+given in one (very large) string, but that turns out to be error prone
+and hard to debug - it's hard to find the missing parenthesis in a 2K
+string!
+
+The regular expression gets converted into a parse tree during the
+conversion process.  The leaves of the tree are elements like "[a-z]"
+or "b" and the intermediate nodes describe things like "|" or "*".
+
+To prevent confusion, the word "regexp" will be used for the concept
+of a regular expression.  If the regexp is written as a string it is
+called a "pattern."  If it is written as a parse tree it is called an
+"expression."  If it is written as a mxTextTools table it is called a
+"tagtable."
+
+Greg Ewan developed a regular expression language called Plex which
+uses Python functions to build the expression tree directly rather
+than converting it whole from a string.  This simplifies creating the
+expression tree because 
+
+  o  you can build the expression in parts, and store the parts
+      in Python variables;
+  o the variable names can be used to name the parts;
+  o if the parts are valid then the composition of those parts
+      (as with "Alt(subexp1, subexp2, subexp3)") is guaranteed to be valid
+  o regex pattern syntax is replaced with Python syntax, and the Python
+      error reporting mechanism is better than the regexp pattern one.
+
+However, regexp patterns are a nice, terse description of a regexp, so
+there is still a converter from the pattern into an expression tree.
+
+
+The expression tree description, except for the regexp pattern
+converter, is contained in the file Expression.py.  It contains the
+following class hierarchy:
+
+  Expression
+   |--- Any           - match (or don't match) a set of characters
+   |--- Assert        - used for positive and negative lookahead assertions 
+   |--- AtBeginning   - match the beginning of a line
+   |--- AtEnd         - match the end of a line
+   |--- Dot           - match any character except newline
+   |--- Group         - give a group name to an expression
+   |--- GroupRef      - match a previously identified expression
+   |--- Literal       - match (or don't match) a single character
+   |--- MaxRepeat     - greedy repeat of an expression, within min/max bounds
+   |--- PassThrough   - used when overriding 'make_parser'; match its subexp
+   |      `--- ParseRecords - parse a record at a time
+   |--- Str           - match a given string
+   `--- ExpressionList  - expressions containing several subexpressions
+          |--- Alt    - subexp1 or subexp2 or subexp3 or ...
+          `--- Seq    - subexp1 followed by subexp2 followed by subexp3 ...
+
+
+ * Expression:
+
+The parent class is the 'Expression'.  It defines the following protocol:
+
+   __add__(self, other) -- returns an expression which matches "self"
+     followed by "other".  This overloads Python's '+' operator.
+
+   __or__(self, other) -- returns an expression which matches either "self"
+      or, if that fails, matches "other".  This overloads the '|' operator.
+
+   __str__(self) -- return the regexp pattern string corresponding to
+        this expression.
+
+   copy(self) -- return a deep copy of this expression.
+
+   make_parser(self) -- return a StateTable corresponding to this expression
+
+   group_names(self) -- returns the list of all group names used by this
+        expression.  Experimental command to be used with "select_names".
+        May be removed in the future.
+
+   _select_names(self, names) -- an internal function used to make a new
+        expression which only contains the specified names
+
+
+An expression may be a subexpression of several other expressions.
+For example,
+
+  a = Str("a")
+  b = Str("b")
+  aba = a + b + a
+  baa = b + a + a
+
+In this case, Str("a") is shared four times in two different
+expressions.  This means the (sub)expressions must not be altered
+unless there's a guarantee that the object isn't shared.  The easiest
+way to do that to .copy() the expression first.
+
+
+=== Description of Expression objects
+
+ * Any(chars, not_flag = 0)
+
+If not_flag is false, match a character if it is given in the chars
+string.  This is roughly equivalent to the "[...]" pattern.
+
+If not_flag is true, match a character which isn't in the chars
+string.  This is rougly equivalent to the "[^...]" pattern.
+
+("Roughly" means "assuming special characters like '-' and '\' are
+escaped for use inside of []s".)
+
+ * Assert(expression, not_flag = 0)
+
+The used for lookahead assertions.  Tests if the text after the
+current position matches (or does not match, if 'not_flag' is true)
+the given expression.  Does not consume any characters from the input.
+
+The equivalent pattern for this expression is '(?=...)' for positive
+lookaheads, or '(?!...)' for negative lookaheads.
+
+
+ * AtBeginning()
+
+Tests if the current character is at the beginning of a line, defined
+as being at the beginning of the input or immediately following a
+newline.  Does not consume any characters from the input.
+
+This is equivalent to '^' in multiline mode.
+
+ * AtEnd()
+
+Tests if the current character is at the end of a line, defined as
+being at the end of the input or immediately preceeding a newline.
+Does not consume any characters from the input.
+
+This is equivalent to '$' in multiline mode.
+
+ * Dot()
+
+The 'Dot' expression matches any character except the newline.
+
+This is equivalent to the "." pattern.
+
+ * Group(name, expression)
+
+Assign a name to the given subexpression.  If the subexpression
+matches then this is the name used for the SAX callback event and the
+match string is made available to the GroupRef object.
+
+The syntax for the group name is the same as element names in XML.
+
+This expression is equivalent to the '(?P<name>...)' pattern.
+
+ * GroupRef(name)
+
+Match the same string found by an earlier match from the named Group.
+
+For example, 'Group("G", Str("ab")) + GroupRef("G")' will match 'abab'
+because Group("G", Str("ab")) matches "ab" and stores the match string
+under the name "G".  The GroupRef gets the string "ab" and uses it to
+match the second "ab" in the input string.
+
+This expression is equivalent to the '(?P=name)' pattern.
+
+ * Literal(char, not_flag = 0)
+
+Match (or not) a single character.
+
+This is equivalent to using a (properly escaped) character as the
+pattern.
+
+ * MaxRepeat(expression, min_count = 0, max_count = MAXREPEAT)
+
+Match between min_count and max_count repeats of the given expression.
+If max_count == MAXREPEAT (which is 65535) then repeat an infinite
+number of times.  This is a greedy repeat, which means it will match
+as many times as it can before going on to the next expression.
+
+WARNING!!: The current implementation is in error as it does not
+support backtracking.  For example, MaxRepeat(Re(r"\s")) + Str("\n")
+should match the string " \n" but does not because the r"\s" greedily
+eats the "\n", making the actual "\n" fail.  If there was backtracking
+then the parser would give up the final "\n" and try again.
+
+Here are some mappings between a pattern and an expression:
+
+  a*     == MaxRepeat(Str("a"))
+  a+     == MaxRepeat(Str("a"), 1)
+  a?     == MaxRepeat(Str("a"), 0, 1)
+  a{3,5} == MaxRepeat(Str("a"), 3, 5)
+  a{3}   == MaxRepeat(Str("a"), 3, 3)
+  a{,3}  == MaxRepeat(Str("a"), 0, 3)
+  a{3,}  == MaxRepeat(Str("a"), 3)
+
+In addition, I have added support for what I call a "named group
+repeat."  Consider
+
+  Group("count", Any("0123456789")) + MaxRepeat(Str("a"), "count", "count")
+
+(more succiently as Re("(?P<count>\d)a{count}") )
+
+This will match any of the following string
+  ""
+  "1a"
+  "2aa"
+  "3aaa"
+   ...
+  "9aaaaaaaaa"
+
+because the Group("count"...) matches the first digit and assigns it
+to the group named "count". The MaxRepeat, when passed a string, uses
+the name as the repeat count, so the "3" in "3aaa" means "match 3
+repeats of 'a'".
+
+The current implementation only support named groups repeat counts if
+the name == min_count == max_count.
+
+ * ParseRecords(format_name, record_expression, make_reader,
+                reader_args = ())
+
+A subclass of PassThrough.  This class is designed for formats which
+contain 1 or more repeats of a record description.  In other words, if
+"X" is the record pattern, then "(?P<format_name>X+)" is the format
+pattern.
+
+The standard "make_parser" reads and parses the full input file before
+generating any events.  This works fine for small databases, but can
+run out of memory with large ones.  One way around the problem is to
+read and parse a record at a time.
+
+Conceptually that's:
+    handler.startDocument()
+    handler.beginElement(format_name)
+    for each record in the input file:
+        parse the record, sending beginElement(), endElement() and
+                     characters() events to the handler
+    handler.endElement(format_name)
+    handler.endDocument()
+
+The ParseRecords object redefines the "make_parser" method and creates
+a parser which implements this code.  To do it needs the format name
+(passed as the "format_name" argument), the expression for a record
+("record_expression"), and a way to get the text for each record.
+
+This is a parser generator, so it actually needs a way to generate the
+object used to get the text for each record.  The "make_reader" is
+called to create that object.  It is passed an open file handle, along
+with the contents of "reader_args".
+
+That is, if make_reader == RecordReader.StartsWith and reader_args ==
+("ID",) then the parser will call
+  RecordReader.StartsWith(infile, "ID")
+to create the object used to read records from the input file.
+
+(BTW, the parser generator could potentially figure out how recognize
+a record automatically, but it's much easy to have a function which
+returns each record.)
+
+The "RecordParser" section below describes two common record parsers.
+
+ * PassThrough(expression)
+
+Match the given subexpression.  This node does not affect the regular
+expression and in most respects as a null operation.  It is available
+so formats can redefine the "make_parser" method to provide a format
+specific parser.
+
+See the ParseRecords for an example.
+
+ * Str(string)
+
+Match the given string.  This is equivalent to the pattern returned
+from re.escape(string).
+
+ * Alt(expressions)
+
+Match if any of the expressions in the given list matches.  The
+expressions are tested in order, so if the first match fails then the
+second is attempted, then the third, then the ....
+
+(Actually, that's an implementation detail since a DFA matcher can
+check all branches simultaneously while an NFA, like what I've used,
+usually checks each branch one at a time.)
+
+Because of operator overloading, this is the same as the Python code
+
+  expressions[0] | expressions[1] | expressions[2] | ...
+
+The equivalent pattern is "...|...|...|...".
+
+ * Seq(expressions)
+
+Match each expression, in successive order.  
+
+Because of operator overloading, this is the same as the Python code
+
+  expressions[0] + expressions[1] + expressions[2] + ...
+
+The equivalent pattern is "............".  For example,
+Seq([Str("a"),Str("b")]) is the same thing as "ab".
+
+By the way - don't introduce cycles in the expression tree.  You'll
+likely get a stack overflow if you do that, since there are several
+recusive routines which traverse the tree.
+
+
+=== Description of the Plex-based Martel external API
+
+These are the nodes used in the expression tree, but are not
+necessarily the ones visible in the Martel API.  That interface uses
+most of the Plex names, and adds some new functions.  In most cases
+there is a one-to-one mapping between the Plex function and the
+Expression object, except perhaps the Plex API uses a *args while the
+Expression requires an explicit list.
+
+The implemented Plex calls are:
+
+ * __plus__(self, other)
+
+Matches first self then other.  Same as Expression.Seq([self, other])
+
+ * __or__(self, other)
+
+Try to match self and, if that fails, match other.  Same as
+Expression.Alt([self, other])
+
+ * Alt(*args)
+
+Same as Expression.Alt, except it uses *args instead of an explicit
+list.
+
+ * Any(s)
+
+Match any of the characters in the string 's'.  Same as
+Expression.Any(s).
+
+ * AnyBut(s)
+
+Match any character excepts ones given in the string 's'.  Same as
+Expression.Any(s, not_flag = 1)
+
+ * AnyChar()
+
+Match any character, including newline.
+
+ * Opt(expr)
+
+Same as Expression.MaxRepeat(expr, 0, 1)
+
+ * Rep(expr)
+
+Same as Expression.MaxRepeat(expr, 0, MAXREPEAT)
+
+ * Rep1(expr)
+
+Same as Expression.MaxRepeat(expr, 1, MAXREPEAT)
+
+ * Seq(*args)
+
+Same as Expression.Seq, except it uses *args instead of an explicit
+list.
+
+ * Str1(s)
+
+Match the given string.  Same as Expression.Str(s)
+
+ * Str(*args)
+
+Match one of the given strings.  Same as
+Expression.Alt( (args[0], args[1], args[2], ...) )
+
+
+The following Plex commands are NOT implemented
+
+ * Bol()
+ * Case(expr)
+ * Empty()
+ * Eol()
+ * NoCase(expr)
+
+The following commands are added to the Plex interface
+
+ * Eof()
+    XXX BROKEN!  Matches the end of file
+
+ * Group(name, expr)
+
+Gives direct access to Expression.Group.
+
+ * MaxRepeat(expr, min_count, max_count = MAXREPEAT)
+
+Gives direct access to Expression.MaxRepeat.
+
+ * Re(s)
+
+Convert the regex pattern into the corresponding expression.
+
+ * Integer(name = None)
+
+Match 1 or more digits.  If name is given, use it to name the match
+expression.
+
+If the name is not given, this is the same as "[0-9]+".
+If the name is given, this is the same as "(?P<name>[0-9]+)".
+
+ * RepN(expr, count)
+
+Same as Expression.MaxRepeat(expr, count, count)
+
+ * ToEol(name = None)
+
+Match everything up to and including the newline character.  If the
+name is given, use it to name the match for the characters up to, but
+not including, the newline.
+
+If the name is not given, this is the same as the pattern ".*\n".
+If the name is given, this is the same as the pattern "(?P<name>.*)\n".
+
+
+=== The regex pattern syntax
+
+I've mentioned a few times that an Expression tree can be created from
+a regexp pattern string.  The syntax for the string is similar to
+Python's 'sre' language, which is similar to the 'pcre' syntax, which
+is based off of Perl5's syntax.  Got that?
+
+The parse is a modified version of the sre_parse.py module from a beta
+version of Python 1.6.  The modifications are
+  - allow XML element names as group names (allow ':-.' characters)
+  - support the "named group repeat" extension of Martel
+
+Basically, think of it as a a subset of Perl's regexp pattern syntax.
+The following are supported:
+
+  regular characters
+  '\' to escape the metacharacters, including categories
+     '\t' for tab
+     '\n' for for newline
+     '\r' for return
+     '\f' for form feed
+     '\a' for alarm
+     '\e' for escape
+     '\0..' for octal escape, like '\012' instead of '\n'
+     '\x..' for hex escape, like '\x0C' instead of '\n'
+     '\w' for a character in 'A-Za-z0-9_'
+     '\d' for a character in '0-9'
+     '\s' for a character in '\t\n\v\f\r'
+     '\W' for a character NOT in 'A-Za-z0-9_'
+     '\D' for a character NOT in '0-9'
+     '\S' for a character NOT in '\t\n\v\f\r'
+
+  '.' to match any character, except newline
+  '|' for alternation
+  '[]' for character classes
+  '()' for grouping
+
+     All of the greedy repeat quantifiers are supported
+  '*' to match 0 or more times
+  '+' to match 1 or more times
+  '?' to match 1 or 0 times
+  '{n}' to match exactly n times
+  '{n,}' to match n or more times
+  '{,n}' to match up to n times
+  '{n,m}' to match at least n times, but no more than m times
+
+     The following Perl regexp extensions are supported
+  '(?#text)' for comments
+  '(?:pattern)' for grouping (the 'imsx' options are not supported)
+  '(?=pattern)' for zero-width positive lookahead assertion
+  '(?!pattern)' for zero-width negative lookahead assertion
+  
+
+     Python has another regexp extension, which is also supported
+  '(?P<name>pattern) for a named group
+
+
+  Martel adds a new construct, called a "named group repeat" of the
+form '{name}'.  This matches uses the integer value of the contents of
+the previous match of the named group as the repeat count.  For example
+
+ (?P<count>\d)a{count}
+
+will match any of '0', '1a', '2aa', '3aaa', ..., '9aaaaaaaaa'.
+
+
+The following are not (yet) supported.  Using them may cause an error
+during rexexp pattern parsing or conversion.  The ones marked '[*]'
+will not give an error and will be translated differently than used by
+Perl.
+
+  minimal-matching (non-greedy) constructs (+?, *?, ??, {m,n}?)
+  \1, \2, ... to refer to previously match group numbers is not supported
+  (?imsx) match modifiers
+  '^' to match the beginning of line
+  '$' to match the end of line
+  '\b' to match word boundary
+  '\B' to match a non-(word boundary)
+  (?<=pattern) for positive lookbehind assertions
+  (?<!pattern) for negative lookbehind assertions
+  '\c[' for control character  [*]
+      (read the perlre docs for the meaning of the following commands)
+  '\l' [*]
+  '\u' [*]
+  '\L' [*]
+  '\U' [*]
+  '\E' [*]
+  '\Q' [*]
+  '\A' 
+  '\Z' 
+  '\z' [*]
+  '\G' [*]
+  (?{ code })
+  (?>pattern)
+  (?(condition)yes-pattern|no-pattern)
+  (?(condition)yes-pattern)
+
+
+=== Converting an expression tree to a tagtable
+
+Most of the parsers use mxTextTools as the underlying parsing engine.
+The engine is configured using a tagtable, so we need to generate one
+given the expression tree.  The conversion code is located in the
+Generate module.
+
+The tagtable format is described in the mxTextTools documentation.
+The conversion from an expresssion tree to a tagtable is actually
+rather simple because the tagtable allows subtables, so I can make a
+nearly one-to-one mapping between an Expression object and a tagtable.
+
+(There is some performance loss because of this - each subtable uses
+an extra C-level function call.  It isn't too hard to fix, but it
+takes time and makes the code more complicated, so I haven't worked on
+it.)
+
+For the current implementation, every Expression object gets converted
+into a StateTable object with the property that it succeeds by a
+transition to one past the the last element of the tagtable, and fails
+by making a transition to mxTextTools.Fail.  mxTextTools will not
+accumlate tag information inside of untagged Tables, so Martel uses
+the tag '>ignore', which is not a legal XML element name.
+
+Here are how the different Expression objects are converted:
+
+Alt - implemented in generate_alt
+
+  Create tagtables for each of the subexpressions and chain them
+  together so if one fails the next is attempted:
+
+       Try subexp1 1.  On failure, goto the next state, else goto End.
+       Try subexp1 2.  On failure, goto the next state, else goto End.
+       ...
+       Try subexp1 N.  On failure, goto the next state, else goto End.
+       Fail.
+   End:
+
+Any - implemented in generate_any
+
+  Use the mxTextTools tagging command 'IsIn'; inverting the list of
+  characters if the 'not_flag' is true.
+
+Assert - implemented in generate_assert
+
+  This is tricky since mxTextTools really wants to consume a character
+  for each tagging command.
+
+  First, create a tagtable for the assertion expression.  Use it to
+  make a callable object ('CheckAssertWrapper' or 'CheckAssertNotWrapper')
+  and make it the target of a 'Call' tag command entry.  When Call'ed
+  it calls a new mxTextTools engine to do the check.
+
+  If the CheckAssert function fails, it returns a 0 offset, which tells
+  the mxTextTools engine that the Call failed.  If it succeeds, it returns
+  an offset of +1.  The next element of the tagtable skips -1 characters
+  so the overall effect is that there is no offset.
+  
+      Call the CheckAssert object. If it fails, goto MatchFail.
+      Skip -1 characters to get back to the original character position.
+     
+AtBeginning - implemented in generate_at_beginning
+
+  This uses the same trick described in Assert to do a match without
+  consuming characters.  It Call's the 'check_at_beginning' function
+  to see if the character position is 0 or the previous character was
+  a "\n".  If so, it returns the current position, which mxTextTools
+  considers to be a failure.
+
+  The failure condition jumps forward 2 positions in the state table,
+  which tells mxTextTools that the table as a whole was a success.
+
+  If the current character position is not at the beginning of a line,
+  the value of position+1 is returned, which goes to a state that
+  Skips -1 characters to reset the position, then goes to the
+  MatchFail state.
+
+          Call the check_at_beginning function.
+             If it fails, go to END, else goto BACKUP
+  BACKUP: Skip -1 characters and goto MatchFail
+     END:
+
+AtEnd - implemented in generate_at_end
+
+  See 'AtBeginning' and make the obvious changes to the description.
+
+Dot - implemented in generate_dot
+
+  This is the same as the IsIn tag command, where the target string
+  is any character except "\n".
+
+Group - implemented in generate_group
+
+  The group name is identical to what mxTextTool calls a tag, so in
+  the simplest case I get the tagable for the expression and use
+  the Table tag command, where the tag name is the group name.  The
+  created tagtable is of the form:
+
+     (group_name, Table, <subexpression's tagtable>, MatchFail, +1)
+
+  The complicated case handles name group references and named group
+  repeats.  They both need to know the value of the string matched by
+  the named group, so it must be saved for later use.
+
+  At the start of the tagtable generation, the conversion code scans
+  the expression tree to identify which group references are needed.
+  This information is stored in the groupref_names parameter.  If
+  the group name is in groupref_names, the tagtable created is actually
+
+    SetGroupValue(name), Table+CallTag, <subexpression's tagtable>
+
+  The new part is the "SetGroupValue" object and the "CallTag" tag
+  command.  The CallTag says to call the 'SetGroupValue()' instead
+  of doing the default action of appending a new tag.
+
+  SetGroupValue is a callable object which stores the group name.
+  When called, is stores the matched text into the global module
+  dictionary named '_match_group' then manually appends the match
+  information to the taglist.
+
+  Because it uses a module variable, this means two files cannot be
+  parsed at the same time.  The parser is not thread safe if you
+  use group references or named group repeats.
+
+GroupRef - implemented in generate_groupref
+
+  This creates a table with two states.  The first is a Call to a
+  CheckGroupRef callable object.  The object knows the name of the
+  group it references, so when it's called it can check the global
+  module dictionary '_match_group' to find the value of the previous
+  match and compare it to the current character position.
+
+  The group reference can contain 0 characters, which mxTextTools
+  doesn't like because it expects successful matches to consume a
+  character, so I do the +1/-1 trick again.  If there isn't a match,
+  the CheckGroupRef call returns the current position, which tells the
+  engine that the match failed.  If it is successful, it returns the
+  position as one past the end of the match.  The next state then
+  Skips -1 characters to get the right position.
+
+      Check if the current position matches the _match_group[refname] string
+         If not, MatchFail else I'm 1 character beyond where I should be.
+      Skip -1 characters in the input to get to the correct location.
+
+Literal - implemented in generate_literal
+
+  This one is pretty easy.  The Literal object contains a character which
+  must match (or which mustn't match, if not_flag is true).
+
+  If it must match, then the tagtable is
+
+     (None, Is, char)
+
+  If it mustn't match, then the tagtable is
+
+     (None, IsIn, a string containing every character except char)
+
+  mxTextTools does have a "IsNot" option which you think would be
+  the opposite of "Is".  However, IsNot allows EOF to match, which
+  isn't the expected behaviour.
+
+MaxRepeat - implemented in generate_max_repeat and generate_named_max_repeat
+ Part 1 - generate_max_repeat
+
+  This is the most complicated code because it handles so many cases.
+  Excepting named repeats, the general case is to repeat between n and
+  m times, as in {n,m}.  0<=n<=m.
+
+  Start by creating the tagtable for the repeated expression, and call
+  it 'subtagtable'.
+
+  Suppose n == m.  Generate n elements of the form
+
+      (None, SubTable, subtagtable)  ]
+      (None, SubTable, sintagtable)  ]__ repeat 'n' times
+             ...                     ]
+      (None, SubTable, subtagtable)  ]
+
+  Suppose n == 0 and m is unbounded (65535, to be precise).  This is
+  the same as:
+
+      (None, SubTable, subtagtable, +1, 0)
+
+  which means "if the subtagtable fails, that's okay, go on to the next
+  state.  If it succeeds, see if it succeeds again."  So if the
+  subtagtable fails right away, this is the same as 0 repeats.  It
+  will keep on checking until it fails, so the above is the same as
+  the "*" repeat quantifier.
+
+  XXX Why does this work?  Don't I need to use an '>ignore'?
+
+  Finally, suppose 0 == n < m.  This means there can be up to 'm'
+  matches of the subtagtable.  The tagtable for this is:
+
+      (None, SubTable, subtagtable, +m  , +1),  ]
+      (None, SubTable, subtagtable, +m-1, +1),  ]
+      (None, SubTable, subtagtable, +m-2, +1),  ] - there are 'm' lines
+         ...                                    ]
+      (None, SubTable, subtagtable, +1  , +1),  ]
+  
+  If the subtagtable fails immediately, it jumps forward "+m" lines.
+  This is one past the end of the table, so it is considered a
+  successful match.  If the subtagtable succeeds, it tries again.
+
+  The other combinations where 0<n<m, etc. can be built up given these
+  three cases.
+
+ Part 2 - generate_named_max_repeat
+
+   This is the hardest part of the generate_max_repeat code.  It's
+   hard enough that I only implemented the case where min_count ==
+   max_count == the value of the named group.  That is, I don't
+   support things like {0,name} or {name1, name2}.
+
+   There are two problems: 1) the value to match isn't known when the
+   tagtable is built, so the match test must be done using a Call tag
+   command and 2) the match could be of length 0 so I need to use the
+   +1/-1 trick, but if I do that normally the position of the matched
+   group is off by one, and because of subtle implementation issues,
+   that causes a problem, so I need to use a CallTag command to append
+   the real matched text, without the extra character.
+
+   XXX If I really can get rid of the '>ignore' by using a SubTable
+   XXX then the calltag problem disappears.
+
+   The actual tagtable looks like:
+
+       # 'min_name' must equal 'max_name'
+       counter = HandleRepeatCount( subtagtable, min_name, max_name )
+
+       tagtable = ( (counter.calltag, Call + CallTag, counter),
+                    (None, Skip, -1) )
+
+PassThrough - implemented in generate_pass_through
+
+  This does nothing by itself.  It returns the table created by its
+  subexpression.
+
+Seq - implemented in generate_seq
+
+  First, create the tagtables for each of the subexpressions.  By
+  construction, if a tagtable is successful then it ends by moving to
+  the state one past the end of the table.  So if I put the tagtables
+  together, one past the end of one table is the head of the next
+  table, and one past the end of the last subexpression's table is the
+  end of the whole list.
+
+     ( (tagtable),
+       (for),
+       (subexpression 1),
+       (tagtable),
+       (for),
+       (subexpression 2),
+        ...
+     )
+
+
+Str - implemented in generate_str
+
+  This maps directly to the TexTools tag 'Word' command.
+
+       (None, Word, expression.string)
+
+  Wasn't that nice and simple?
+
+
+
+=== Making a parser from the tagtable
+
+The next step is to turn the mxTextTools conformant tagtable into a
+SAX-like parser.  SAX parsers have (for my needs) the following
+requirements:
+
+   * parse - takes a "systemId" (meaning a URL)
+   * parseFile - takes an input file object
+   * parseString - takes a string (okay, this is my extension to the API)
+   * 
+
+
+=== RecordReader
+
+The "ParseRecords" PassThrough subclass creates a parser which reads a
+record at a time instead of the whole file.  It needs a way to get
+each record.  While it is possible to figure that information out from
+the regexp, that's very complicated.  Instead, it uses a support
+object and passes the work off to someone else.
+
+Nearly all records I've have to parse can be recognized syntactically
+in one of two ways.  The nice formats have records where the last line
+of the record is a constant string.  For example, SWISS-PROT records
+use "//\n" as the last line.
+
+The not-quite-as-nice formats have records where the first line starts
+with a constant string.  For example, the first line of a FASTA record
+is the '>' character.  (This isn't quite as nice because it require a
+lookahead, which is a bit more complicated to program.)
+
+(Most formats actually meet both criterion.  Going back to SWISS-PROT,
+the first line of a record starts "ID   " and the last line is "//\n".)
+
+The RecordReader module contains two classes, StartsWith and EndsWith,
+which are used for the two format styles.  They both implement the
+RecordReader protocol, which is simple:
+
+   o  the "next()" method returns the next record, as a string, and
+      returns None at EOF.
+
+Here's more information about the two:
+
+ * StartsWith - read records starting with the specified string
+
+The constructor is StartsWith(infile, str, readhint = 100000).  This
+reads input from the "infile" input stream, which must be positioned
+at the beginning of the first record.  That is, that first bit of data
+must match the string "str".
+
+When next() is called, it reads up to the next line starting with
+"str", or to EOF.  In either case, it returns the found text.
+
+  Example Usage:
+
+FASTA records start with the string ">".  To read FASTA records, use:
+
+   infile = open("test.fasta")
+   reader = RecordReader.StartsWith(infile, ">")
+   while 1:
+       record = reader.next()
+       if record is None:
+           break
+        ... do whatever you want with the record ...
+
+
+
+The line reading is done using the readlines method of the input file
+stream.  readlines takes an optional argument, which returns a list of
+lines containing at least 'readhint' bytes.  This gives better
+performance because it reduces the overall number of system calls, at
+a tradeoff of about 100K overhead.  You can change the readhint for
+better tuning, although if you want to read the whole data set you
+might as well use the mxTextTools based parser directly.
+
+
+ * EndsWith - read records ending with the specified string
+
+The constructor is EndsWith(infile, str, readhint = 100000).  This
+reads input from the "infile" input stream, which must be positioned
+at the start of the record.
+
+When next() is called, it reads up to the line matching "str".  Note
+that this says "matching" not "starts with" so you must include the
+newline.  (With the move to Python 2.0 that distinction will
+disappear, but you really should include the newline if appropriate.)
+The text it found, including the line it matched, is returned as the
+result.  An AssertionError is raised if EOF is found at any point
+other than what should otherwise be the beginning of a record.
+
+  Example Usage:
+
+SWISS-PROT records end with the line "//".  To read those records,
+use:
+
+   infile = open("test.swiss")
+   reader = RecordReader.EndsWith(infile, "//\n")
+   while 1:
+       record = reader.next()
+       if record is None:
+           break
+        ... do whatever you want with the record ...
+
+
+The ParseRecords parser generator passes a file handle to the
+appropriate RecordReader, but the reader constructor can take
+additional parameters.  To get around that, you could use an adapter,
+like:
+
+   def FastaReader(infile):
+       return RecordReader.StartsWith(infile, ">")
+
+   expression = ParseRecords("fasta", fasta_record, FastaReader)
+   parser = expression.make_parser()
+
+To make things easier, the ParseRecords expression node takes two
+parameters.  The first is "make_reader" which is the function to call
+and could be "RecordReader.StartsWith" or "FastaReader".  The second
+is "reader_args" which is a tuple containing the other arguments to
+pass to the function after the input file stream, allowing you to use:
+
+   expression = ParseRecords("fasta", fasta_record,
+                             RecordReader.StartsWith, (">",))
+   parser = expression.make_parser()
+
+
+There are record based formats which are a bit more complex than the
+two mentioned RecordReaders.  Take PIR as an example.  Most of the
+file contains records starting with "ENTRY" and ending with "///\n"
+but there is also a preamble and a postamble.  So PIR needs its own
+record reader which takes parsers for the three parts (preamble,
+record and postamble).
+
+
+
+----- Vocabulary -----
+a "regexp" is the same as a "regular expression" and is used to prevent
+        confusion with the word "expression" when used without "regular";
+
+a "pattern" is a regexp stored as a string;
+
+an "expression" is a regexp stored as an Expression tree;
+
+a "tagtable" is a regexp stored as state transitions for mxTextTools;
+
+a "taglist" is the list (really, a tree) of tags produced from parsing
+        the input using a tagtable;
+
+a "StateTable" is the SAX parser; it contains a tagtable.
+
+a "group" is a named portion of a regexp.  As a pattern it is denoted
+        with the "(?P<name>match)" construct.  As an expression it is
+        built using the "Group" class.

@@ -1,0 +1,143 @@
+Start	1
+End	969
+group
+AtP1clone
+label
+Block	1	2	15
+endlabel
+label
+Block	266	291	8	H
+zf-MYND
+endlabel
+label
+Block	493	540	0	H
+SET
+endlabel
+label
+Block	564	565	15	H
+  
+endlabel
+endgroup
+
+group
+AtT24P13.14
+label
+Block	1	2	15
+endlabel
+label
+Block	443	476	9	H
+TPR
+endlabel
+label
+Block	498	531	9	H
+TPR
+endlabel
+label
+Block	532	564	9	H
+TPR
+endlabel
+label
+Block	612	806	0	H
+SET
+endlabel
+label
+Block	968	969	15	H
+  
+endlabel
+endgroup
+
+group
+Os57.7KDa
+label
+Block	1	2	15
+endlabel
+label
+Block	54	87	9	H
+TPR
+endlabel
+label
+Block	88	121	9	H
+TPR
+endlabel
+label
+Block	158	363	0	H
+SET
+endlabel
+label
+Block	535	536	15	H
+  
+endlabel
+endgroup
+
+group
+OsHypo
+label
+Block	1	2	15
+endlabel
+label
+Block	60	97	8	H
+zf-MYND
+endlabel
+label
+Block	207	251	0	H
+SET
+endlabel
+label
+Block	319	381	14	H
+Iron hydrogenase, small subunit
+endlabel
+label
+Block	425	426	15	H
+  
+endlabel
+endgroup
+
+group
+OspTPR
+label
+Block	1	2	15
+endlabel
+label
+Block	63	96	9	H
+TPR
+endlabel
+label
+Block	106	139	9	H
+TPR
+endlabel
+label
+Block	140	173	9	H
+TPR
+endlabel
+label
+Block	482	526	0	H
+SET
+endlabel
+label
+Block	691	724	9	H
+TPR
+endlabel
+label
+Block	792	793	15	H
+  
+endlabel
+endgroup
+
+group
+ZmpSETreg
+label
+Block	1	2	15
+endlabel
+label
+Block	60	97	8	H
+zf-MYND
+endlabel
+label
+Block	174	218	0	H
+SET
+endlabel
+label
+Block	409	410	15	H
+  
+endlabel
+endgroup

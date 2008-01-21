@@ -1,0 +1,52 @@
+Please find your Pfam search results below.
+
+This is an experimental service, so if the results are not as expected,
+or if you have any comments about the use of this service, then please
+contact Pfam at: pfam@sanger.ac.uk.
+
+For REALLY large jobs, you should probably download Pfam and run locally.
+Please see the FAQ at http://www.sanger.ac.uk/Software/Pfam/ if you need
+help with this.
+
+--------------
+
+The first line of your submitted file:
+
+>ScCtm1
+
+Output format is:
+<seq id> <seq start> <seq end> <pfam acc> <hmm start> <hmm end> <bit score> <evalue> <pfam id>
+
+Results:
+
+HsRIZ1   19  144 PF00856    1  264    69.6  3.7e-19 SET
+HsRIZ1 1188 1211 PF00096    1   24    24.4  2.2e-04 zf-C2H2
+HsRIZ1 1159 1182 PF00096    1   24    17.0    4e-02 zf-C2H2
+HsRIZ1 1452 1475 PF00096    1   24    20.9  2.5e-03 zf-C2H2
+HsRIZ1  387  409 PF00096    1   24    29.0  9.5e-06 zf-C2H2
+HsRIZ1  357  379 PF00096    1   24    27.9  2.1e-05 zf-C2H2
+HsRIZ1 1131 1153 PF00096    1   24    18.7  1.2e-02 zf-C2H2
+HsRIZ1 1330 1352 PF00096    1   24    17.6  2.6e-02 zf-C2H2
+HsRIZ1  480  503 PF00096    1   24    25.8  8.6e-05 zf-C2H2
+HsNSD1 1443 1487 PF00628    1   51    53.6  3.6e-13 PHD
+HsNSD1 2018 2065 PF00628    1   51    22.2  2.7e-05 PHD
+HsNSD1 1607 1649 PF00628    1   51    60.8  2.4e-15 PHD
+HsNSD1 1834 1963 PF00856    1  264   194.7  1.2e-55 SET
+HsNSD1 1651 1727 PF00855    1   87   117.9  1.6e-32 PWWP
+HsMTB-ZF   22  147 PF00856    1  264    69.6  3.7e-19 SET
+HsMTB-ZF 1192 1215 PF00096    1   24    24.4  2.2e-04 zf-C2H2
+HsMTB-ZF 1163 1186 PF00096    1   24    17.0    4e-02 zf-C2H2
+HsMTB-ZF 1456 1479 PF00096    1   24    20.9  2.5e-03 zf-C2H2
+HsMTB-ZF  360  382 PF00096    1   24    27.9  2.1e-05 zf-C2H2
+HsMTB-ZF  390  412 PF00096    1   24    29.0  9.5e-06 zf-C2H2
+HsMTB-ZF 1135 1157 PF00096    1   24    18.7  1.2e-02 zf-C2H2
+HsMTB-ZF  483  506 PF00096    1   24    25.8  8.6e-05 zf-C2H2
+HsMTB-ZF 1334 1356 PF00096    1   24    17.6  2.6e-02 zf-C2H2
+HsBLIMP-1   41  172 PF00856    1  264    70.8  1.8e-19 SET
+HsBLIMP-1  623  645 PF00096    1   24    23.5  4.2e-04 zf-C2H2
+HsBLIMP-1  539  561 PF00096    1   24    32.5  8.2e-07 zf-C2H2
+HsBLIMP-1  651  674 PF00096    1   24    14.0  2.9e-01 zf-C2H2
+HsBLIMP-1  567  589 PF00096    1   24    28.8    1e-05 zf-C2H2
+HsBLIMP-1  595  617 PF00096    1   24    29.9  5.1e-06 zf-C2H2
+
+End of results

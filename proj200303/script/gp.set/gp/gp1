@@ -1,0 +1,44 @@
+AtPcG	339	389	SANT
+AtPcG	460	498	TNFR/CD27/30/40/95 cysteine-rich region
+AtPcG	538	665	SET
+AtPcG	688	689	  
+AtCLF	531	581	SANT
+AtCLF	686	722	Tesmin/TSO1-like CXC domain
+AtCLF	746	874	SET
+AtCLF	901	902	  
+Ospclf	651	701	SANT
+Ospclf	800	840	Tesmin/TSO1-like CXC domain
+Ospclf	860	988	SET
+Ospclf	1014	1015	  
+SDG711	353	403	SANT
+SDG711	502	542	Tesmin/TSO1-like CXC domain
+SDG711	562	690	SET
+SDG711	716	717	  
+AtEZA1	489	539	SANT
+AtEZA1	617	630	Whey acidic protein, core region
+AtEZA1	642	681	Tesmin/TSO1-like CXC domain
+AtEZA1	701	829	SET
+AtEZA1	855	856	  
+ZmEzl2	527	577	SANT
+ZmEzl2	655	668	Whey acidic protein, core region
+ZmEzl2	680	719	Tesmin/TSO1-like CXC domain
+ZmEzl2	740	868	SET
+ZmEzl2	893	894	  
+OsEz	528	578	SANT
+OsEz	656	669	Whey acidic protein, core region
+OsEz	681	718	Tesmin/TSO1-like CXC domain
+OsEz	741	869	SET
+OsEz	894	895	  
+SDG718	528	578	SANT
+SDG718	656	669	Whey acidic protein, core region
+SDG718	681	718	Tesmin/TSO1-like CXC domain
+SDG718	741	869	SET
+SDG718	894	895	  
+HsEZH2	159	250	SANT
+HsEZH2	428	476	SANT
+HsEZH2	612	733	SET
+HsEZH2	745	746	  
+DmEZ	152	292	SANT
+DmEZ	443	491	SANT
+DmEZ	620	748	SET
+DmEZ	759	760	  

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<dataset><record><locus_line>LOCUS       <bioformat:dbid type="primary" dbname="gb">AP003410</bioformat:dbid>                 <size>906</size> bp    <residue_type><bioformat:alphabet alphabet="iupac-ambiguous-dna">DNA</bioformat:alphabet>     linear</residue_type>   <data_file_division>PLN</data_file_division> <date>29-NOV-2002</date>
+</locus_line><bioformat:description_block>DEFINITION  <bioformat:description>Oryza sativa (japonica cultivar-group) genomic DNA, chromosome 1,</bioformat:description>
+            <bioformat:description>BAC clone:B1142C05.</bioformat:description>
+</bioformat:description_block><accession_block>ACCESSION   <accession>AP003410</accession> REGION:
+</accession_block><version_line>VERSION     <version><entry_name>AP003410.4</entry_name></version>  GI:<gi>20146319</gi>
+</version_line><keywords_block>KEYWORDS    <keywords>.</keywords>
+</keywords_block><source_block>SOURCE      <source>Oryza sativa (japonica cultivar-group)</source>
+</source_block><organism_block>  ORGANISM  <organism>Oryza sativa (japonica cultivar-group)
+</organism><taxonomy>            Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+            Spermatophyta; Magnoliophyta; Liliopsida; Poales; Poaceae;
+            Ehrhartoideae; Oryzeae; Oryza.
+</taxonomy></organism_block><reference><reference_line>REFERENCE   <reference_num>1</reference_num>
+</reference_line><authors_block>  AUTHORS   <authors>Sasaki,T., Matsumoto,T., Yamamoto,K., Sakata,K., Baba,T.,</authors>
+            <authors>Katayose,Y., Wu,J., Niimura,Y., Cheng,Z., Nagamura,Y.,</authors>
+            <authors>Antonio,B.A., Kanamori,H., Hosokawa,S., Masukawa,M., Arikawa,K.,</authors>
+            <authors>Chiden,Y., Hayashi,M., Okamoto,M., Ando,T., Aoki,H., Arita,K.,</authors>
+            <authors>Hamada,M., Harada,C., Hijishita,S., Honda,M., Ichikawa,Y.,</authors>
+            <authors>Idonuma,A., Iijima,M., Ikeda,M., Ikeno,M., Itoh,S., Itoh,T.,</authors>
+            <authors>Itoh,Y., Itoh,Y., Iwabuchi,A., Kamiya,K., Karasawa,W., Katagiri,S.,</authors>
+            <authors>Kikuta,A., Kobayashi,N., Kono,I., Machita,K., Maehara,T.,</authors>
+            <authors>Mizuno,H., Mizubayashi,T., Mukai,Y., Nagasaki,H., Nakashima,M.,</authors>
+            <authors>Nakama,Y., Nakamichi,Y., Nakamura,M., Namiki,N., Negishi,M.,</authors>
+            <authors>Ohta,I., Ono,N., Saji,S., Sakai,K., Shibata,M., Shimokawa,T.,</authors>
+            <authors>Shomura,A., Song,J., Takazaki,Y., Terasawa,K., Tsuji,K., Waki,K.,</authors>
+            <authors>Yamagata,H., Yamane,H., Yoshiki,S., Yoshihara,R., Yukawa,K.,</authors>
+            <authors>Zhong,H., Iwama,H., Endo,T., Ito,H., Hahn,J.H., Kim,H.I., Eun,M.Y.,</authors>
+            <authors>Yano,M., Jiang,J. and Gojobori,T.</authors>
+</authors_block><title_block>  TITLE     <title>The genome sequence and structure of rice chromosome 1</title>
+</title_block><journal_block>  JOURNAL   <journal>Nature 420 (6913), 312-316 (2002)</journal>
+</journal_block><medline_line>  MEDLINE   <medline_id>22337376</medline_id>
+</medline_line><pubmed_line>   PUBMED   <pubmed_id>12447438</pubmed_id>
+</pubmed_line></reference><reference><reference_line>REFERENCE   <reference_num>2</reference_num>  <reference_bases>(bases 1 to 906)</reference_bases>
+</reference_line><authors_block>  AUTHORS   <authors>Sasaki,T., Matsumoto,T. and Yamamoto,K.</authors>
+</authors_block><title_block>  TITLE     <title>Direct Submission</title>
+</title_block><journal_block>  JOURNAL   <journal>Submitted (14-MAR-2001) Takuji Sasaki, National Institute of</journal>
+            <journal>Agrobiological Sciences, Rice Genome Research Program; Kannondai</journal>
+            <journal>2-1-2, Tsukuba, Ibaraki 305-8602, Japan</journal>
+            <journal>(E-mail:tsasaki@nias.affrc.go.jp, URL:http://rgp.dna.affrc.go.jp/,</journal>
+            <journal>Tel:81-298-38-7441, Fax:81-298-38-7468)</journal>
+</journal_block></reference><comment_block>COMMENT     <comment>On Apr 12, 2002 this sequence version replaced gi:17933040.</comment>
+            <comment>Genes were predicted from the integrated results of the following:</comment>
+            <comment>GENSCAN1.0, BLASTN2.0, BLASTX2.0 as well as SplicePredictor</comment>
+            <comment>(October 1998 version). The genomic sequence was searched against</comment>
+            <comment>NCBI NonRedundant Protein database, nr</comment>
+            <comment>(ftp://ncbi.nlm.nih.gov/blast/db) and the cDNA sequence database at</comment>
+            <comment>RGP. Protein homologies of the coding regions were searched against</comment>
+            <comment>NCBI NonRedundant Protein database with BLASTP2.0. ESTs represent</comment>
+            <comment>the identified cDNA sequences using BLASTN 2.0 with the</comment>
+            <comment>corresponding DDBJ accession no. and RGP clone ID.</comment>
+            <comment>A gene with identity or significant homology to a protein is</comment>
+            <comment>classified based on the protein name to indicate the homology level</comment>
+            <comment>such as same name, 'putative-' and '-like protein'.  A gene without</comment>
+            <comment>significant homology to any protein but with EST homology (covering</comment>
+            <comment>almost the entire length of partial sequence) is classified as an</comment>
+            <comment>'unknown' protein. A gene predicted with a gene prediction program</comment>
+            <comment>is classified as a 'hypothetical' protein.</comment>
+            <comment>The orientation of the sequence is from M13rev to -21M13 of the BAC</comment>
+            <comment>clone. This sequence of B1142C05 clone has an overlap with P0456F08</comment>
+            <comment>clone(DDBJ: AP002901)  at the position 1 to 60,396 of 5' end and an</comment>
+            <comment>overlap with B1131B07 clone(DDBJ: AP003408)  at the position</comment>
+            <comment>140,090 to 151,457of 3' end. The sequence of this clone starts at</comment>
+            <comment>the position 96,455 of P0456F08 and ends at the position 11,367 of</comment>
+            <comment>B1131B07 . Detailed information on overlap and assembly quality</comment>
+            <comment>together with annotation of this entry is available at</comment>
+            <comment>http://rgp.dna.affrc.go.jp/GenomeSeq.html.</comment>
+</comment_block><bioformat:feature_block location-style="genbank"><features_line>FEATURES             Location/Qualifiers
+</features_line><bioformat:feature><feature_key_line>     <bioformat:feature_name><feature_key>source</feature_key></bioformat:feature_name>          <location><bioformat:feature_location>1..906</bioformat:feature_location>
+</location></feature_key_line><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>organism</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>Oryza sativa (japonica cultivar-group)</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>cultivar</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>Nipponbare</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>taxon:39947</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>chromosome</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>clone</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>B1142C05</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature><feature_key_line>     <bioformat:feature_name><feature_key>gene</feature_key></bioformat:feature_name>            <location><bioformat:feature_location>1..906</bioformat:feature_location>
+</location></feature_key_line><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>B1142C05.9</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature><feature_key_line>     <bioformat:feature_name><feature_key>CDS</feature_key></bioformat:feature_name>             <location><bioformat:feature_location>1..906</bioformat:feature_location>
+</location></feature_key_line><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>B1142C05.9</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>putative nucleosome assembly protein 1</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>BAB89109.1</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>GI:20146328</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>MSNPELLSEEKAILVETLKNKLQALAEQHVDVLESLAPVVRKRV</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>DVLIEIQSQHDELEAKFLEEKAALEANYQKLYGPLYSKRSEIVSGVLEVEGETEEREE</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>KGVPDFWLKAMKNNEILAEEIHESDEEALKYLKDIKWCRIDDPKGFKFEFFFDTNPFF</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>KNQVLTKTYHMIDEDDEPILEKAIGTEIEWHPGNCLTQEVLTKESSESTKPITKTEEY</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>ESFFNFFSPPQVPEDDAKIDENTAEELQNQMERDYDIASTLRDKIIPHVVSWFTGEAV</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>QDEDYGASWVDDEEDDDDEYSDEEA</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><base_count_line>BASE COUNT      <base_count>298 a    159 c    235 g    214 t</base_count>
+</base_count_line><bioformat:sequence_block><origin_line>ORIGIN<origin_name>      </origin_name>
+</origin_line><sequence_line>        <base_number>1</base_number><bioformat:sequence> atgagcaatc ccgagctctt gtcagaggaa aaggccatcc tcgtggagac gctgaagaac</bioformat:sequence>
+</sequence_line><sequence_line>       <base_number>61</base_number><bioformat:sequence> aagctgcagg cgttggcgga gcaacatgtt gacgtgctcg aaagcctggc gcccgtggtc</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>121</base_number><bioformat:sequence> aggaagcgcg tcgatgtgct catagagatt cagagccaac atgatgaact agaagcgaag</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>181</base_number><bioformat:sequence> ttcttggagg aaaaagctgc tctagaagct aattatcaga agctttatgg accattgtac</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>241</base_number><bioformat:sequence> tcaaagcgtt ctgaaattgt gagtggtgtt cttgaagtag agggcgagac tgaagaaaga</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>301</base_number><bioformat:sequence> gaggaaaagg gtgttccaga tttctggctc aaagcaatga agaacaatga gattcttgct</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>361</base_number><bioformat:sequence> gaggagatcc atgagagcga tgaggaagct ctgaagtacc ttaaggacat caaatggtgc</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>421</base_number><bioformat:sequence> agaattgatg atccaaaggg ttttaagttc gaattctttt tcgatacaaa tcccttcttt</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>481</base_number><bioformat:sequence> aaaaatcaag tgctgactaa aacataccac atgattgatg aagatgatga acccatccta</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>541</base_number><bioformat:sequence> gagaaagcaa ttgggactga aatcgaatgg catccaggaa attgtttgac acaggaggtg</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>601</base_number><bioformat:sequence> ctaacaaaag agagttcaga gagcactaaa cctataacaa agactgaaga atatgagagc</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>661</base_number><bioformat:sequence> ttctttaact tcttcagccc ccctcaagtt ccagaggatg atgcaaaaat tgacgaaaat</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>721</base_number><bioformat:sequence> accgctgaag aattgcagaa ccaaatggaa cgagattatg acattgcatc tactctcagg</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>781</base_number><bioformat:sequence> gacaagatta taccacatgt tgtttcttgg ttcactggag aggctgttca agacgaggat</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>841</base_number><bioformat:sequence> tatggtgctt cttgggtgga tgatgaagag gatgatgacg atgaatatag tgatgaagaa</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>901</base_number><bioformat:sequence> gcatag</bioformat:sequence>
+</sequence_line></bioformat:sequence_block><record_end>//
+
+</record_end></record><record><locus_line>LOCUS       <bioformat:dbid type="primary" dbname="gb">AP003410</bioformat:dbid>                 <size>906</size> bp    <residue_type><bioformat:alphabet alphabet="iupac-ambiguous-dna">DNA</bioformat:alphabet>     linear</residue_type>   <data_file_division>PLN</data_file_division> <date>29-NOV-2002</date>
+</locus_line><bioformat:description_block>DEFINITION  <bioformat:description>Oryza sativa (japonica cultivar-group) genomic DNA, chromosome 1,</bioformat:description>
+            <bioformat:description>BAC clone:B1142C05.</bioformat:description>
+</bioformat:description_block><accession_block>ACCESSION   <accession>AP003410</accession> REGION:
+</accession_block><version_line>VERSION     <version><entry_name>AP003410.4</entry_name></version>  GI:<gi>20146319</gi>
+</version_line><keywords_block>KEYWORDS    <keywords>.</keywords>
+</keywords_block><source_block>SOURCE      <source>Oryza sativa (japonica cultivar-group)</source>
+</source_block><organism_block>  ORGANISM  <organism>Oryza sativa (japonica cultivar-group)
+</organism><taxonomy>            Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+            Spermatophyta; Magnoliophyta; Liliopsida; Poales; Poaceae;
+            Ehrhartoideae; Oryzeae; Oryza.
+</taxonomy></organism_block><reference><reference_line>REFERENCE   <reference_num>1</reference_num>
+</reference_line><authors_block>  AUTHORS   <authors>Sasaki,T., Matsumoto,T., Yamamoto,K., Sakata,K., Baba,T.,</authors>
+            <authors>Katayose,Y., Wu,J., Niimura,Y., Cheng,Z., Nagamura,Y.,</authors>
+            <authors>Antonio,B.A., Kanamori,H., Hosokawa,S., Masukawa,M., Arikawa,K.,</authors>
+            <authors>Chiden,Y., Hayashi,M., Okamoto,M., Ando,T., Aoki,H., Arita,K.,</authors>
+            <authors>Hamada,M., Harada,C., Hijishita,S., Honda,M., Ichikawa,Y.,</authors>
+            <authors>Idonuma,A., Iijima,M., Ikeda,M., Ikeno,M., Itoh,S., Itoh,T.,</authors>
+            <authors>Itoh,Y., Itoh,Y., Iwabuchi,A., Kamiya,K., Karasawa,W., Katagiri,S.,</authors>
+            <authors>Kikuta,A., Kobayashi,N., Kono,I., Machita,K., Maehara,T.,</authors>
+            <authors>Mizuno,H., Mizubayashi,T., Mukai,Y., Nagasaki,H., Nakashima,M.,</authors>
+            <authors>Nakama,Y., Nakamichi,Y., Nakamura,M., Namiki,N., Negishi,M.,</authors>
+            <authors>Ohta,I., Ono,N., Saji,S., Sakai,K., Shibata,M., Shimokawa,T.,</authors>
+            <authors>Shomura,A., Song,J., Takazaki,Y., Terasawa,K., Tsuji,K., Waki,K.,</authors>
+            <authors>Yamagata,H., Yamane,H., Yoshiki,S., Yoshihara,R., Yukawa,K.,</authors>
+            <authors>Zhong,H., Iwama,H., Endo,T., Ito,H., Hahn,J.H., Kim,H.I., Eun,M.Y.,</authors>
+            <authors>Yano,M., Jiang,J. and Gojobori,T.</authors>
+</authors_block><title_block>  TITLE     <title>The genome sequence and structure of rice chromosome 1</title>
+</title_block><journal_block>  JOURNAL   <journal>Nature 420 (6913), 312-316 (2002)</journal>
+</journal_block><medline_line>  MEDLINE   <medline_id>22337376</medline_id>
+</medline_line><pubmed_line>   PUBMED   <pubmed_id>12447438</pubmed_id>
+</pubmed_line></reference><reference><reference_line>REFERENCE   <reference_num>2</reference_num>  <reference_bases>(bases 1 to 906)</reference_bases>
+</reference_line><authors_block>  AUTHORS   <authors>Sasaki,T., Matsumoto,T. and Yamamoto,K.</authors>
+</authors_block><title_block>  TITLE     <title>Direct Submission</title>
+</title_block><journal_block>  JOURNAL   <journal>Submitted (14-MAR-2001) Takuji Sasaki, National Institute of</journal>
+            <journal>Agrobiological Sciences, Rice Genome Research Program; Kannondai</journal>
+            <journal>2-1-2, Tsukuba, Ibaraki 305-8602, Japan</journal>
+            <journal>(E-mail:tsasaki@nias.affrc.go.jp, URL:http://rgp.dna.affrc.go.jp/,</journal>
+            <journal>Tel:81-298-38-7441, Fax:81-298-38-7468)</journal>
+</journal_block></reference><comment_block>COMMENT     <comment>On Apr 12, 2002 this sequence version replaced gi:17933040.</comment>
+            <comment>Genes were predicted from the integrated results of the following:</comment>
+            <comment>GENSCAN1.0, BLASTN2.0, BLASTX2.0 as well as SplicePredictor</comment>
+            <comment>(October 1998 version). The genomic sequence was searched against</comment>
+            <comment>NCBI NonRedundant Protein database, nr</comment>
+            <comment>(ftp://ncbi.nlm.nih.gov/blast/db) and the cDNA sequence database at</comment>
+            <comment>RGP. Protein homologies of the coding regions were searched against</comment>
+            <comment>NCBI NonRedundant Protein database with BLASTP2.0. ESTs represent</comment>
+            <comment>the identified cDNA sequences using BLASTN 2.0 with the</comment>
+            <comment>corresponding DDBJ accession no. and RGP clone ID.</comment>
+            <comment>A gene with identity or significant homology to a protein is</comment>
+            <comment>classified based on the protein name to indicate the homology level</comment>
+            <comment>such as same name, 'putative-' and '-like protein'.  A gene without</comment>
+            <comment>significant homology to any protein but with EST homology (covering</comment>
+            <comment>almost the entire length of partial sequence) is classified as an</comment>
+            <comment>'unknown' protein. A gene predicted with a gene prediction program</comment>
+            <comment>is classified as a 'hypothetical' protein.</comment>
+            <comment>The orientation of the sequence is from M13rev to -21M13 of the BAC</comment>
+            <comment>clone. This sequence of B1142C05 clone has an overlap with P0456F08</comment>
+            <comment>clone(DDBJ: AP002901)  at the position 1 to 60,396 of 5' end and an</comment>
+            <comment>overlap with B1131B07 clone(DDBJ: AP003408)  at the position</comment>
+            <comment>140,090 to 151,457of 3' end. The sequence of this clone starts at</comment>
+            <comment>the position 96,455 of P0456F08 and ends at the position 11,367 of</comment>
+            <comment>B1131B07 . Detailed information on overlap and assembly quality</comment>
+            <comment>together with annotation of this entry is available at</comment>
+            <comment>http://rgp.dna.affrc.go.jp/GenomeSeq.html.</comment>
+</comment_block><bioformat:feature_block location-style="genbank"><features_line>FEATURES             Location/Qualifiers
+</features_line><bioformat:feature><feature_key_line>     <bioformat:feature_name><feature_key>source</feature_key></bioformat:feature_name>          <location><bioformat:feature_location>1..906</bioformat:feature_location>
+</location></feature_key_line><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>organism</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>Oryza sativa (japonica cultivar-group)</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>cultivar</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>Nipponbare</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>taxon:39947</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>chromosome</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>clone</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>B1142C05</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature><feature_key_line>     <bioformat:feature_name><feature_key>gene</feature_key></bioformat:feature_name>            <location><bioformat:feature_location>1..906</bioformat:feature_location>
+</location></feature_key_line><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>B1142C05.9</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier></bioformat:feature><bioformat:feature><feature_key_line>     <bioformat:feature_name><feature_key>CDS</feature_key></bioformat:feature_name>             <location><bioformat:feature_location>1..906</bioformat:feature_location>
+</location></feature_key_line><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>gene</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>B1142C05.9</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>codon_start</bioformat:feature_qualifier_name>=<bioformat:feature_qualifier_description>1</bioformat:feature_qualifier_description>
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>product</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>putative nucleosome assembly protein 1</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>protein_id</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>BAB89109.1</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>db_xref</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>GI:20146328</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier><bioformat:feature_qualifier>                     /<bioformat:feature_qualifier_name>translation</bioformat:feature_qualifier_name>="<bioformat:feature_qualifier_description>MSNPELLSEEKAILVETLKNKLQALAEQHVDVLESLAPVVRKRV</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>DVLIEIQSQHDELEAKFLEEKAALEANYQKLYGPLYSKRSEIVSGVLEVEGETEEREE</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>KGVPDFWLKAMKNNEILAEEIHESDEEALKYLKDIKWCRIDDPKGFKFEFFFDTNPFF</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>KNQVLTKTYHMIDEDDEPILEKAIGTEIEWHPGNCLTQEVLTKESSESTKPITKTEEY</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>ESFFNFFSPPQVPEDDAKIDENTAEELQNQMERDYDIASTLRDKIIPHVVSWFTGEAV</bioformat:feature_qualifier_description>
+                     <bioformat:feature_qualifier_description>QDEDYGASWVDDEEDDDDEYSDEEA</bioformat:feature_qualifier_description>"
+</bioformat:feature_qualifier></bioformat:feature></bioformat:feature_block><base_count_line>BASE COUNT      <base_count>298 a    159 c    235 g    214 t</base_count>
+</base_count_line><bioformat:sequence_block><origin_line>ORIGIN<origin_name>      </origin_name>
+</origin_line><sequence_line>        <base_number>1</base_number><bioformat:sequence> atgagcaatc ccgagctctt gtcagaggaa aaggccatcc tcgtggagac gctgaagaac</bioformat:sequence>
+</sequence_line><sequence_line>       <base_number>61</base_number><bioformat:sequence> aagctgcagg cgttggcgga gcaacatgtt gacgtgctcg aaagcctggc gcccgtggtc</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>121</base_number><bioformat:sequence> aggaagcgcg tcgatgtgct catagagatt cagagccaac atgatgaact agaagcgaag</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>181</base_number><bioformat:sequence> ttcttggagg aaaaagctgc tctagaagct aattatcaga agctttatgg accattgtac</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>241</base_number><bioformat:sequence> tcaaagcgtt ctgaaattgt gagtggtgtt cttgaagtag agggcgagac tgaagaaaga</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>301</base_number><bioformat:sequence> gaggaaaagg gtgttccaga tttctggctc aaagcaatga agaacaatga gattcttgct</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>361</base_number><bioformat:sequence> gaggagatcc atgagagcga tgaggaagct ctgaagtacc ttaaggacat caaatggtgc</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>421</base_number><bioformat:sequence> agaattgatg atccaaaggg ttttaagttc gaattctttt tcgatacaaa tcccttcttt</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>481</base_number><bioformat:sequence> aaaaatcaag tgctgactaa aacataccac atgattgatg aagatgatga acccatccta</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>541</base_number><bioformat:sequence> gagaaagcaa ttgggactga aatcgaatgg catccaggaa attgtttgac acaggaggtg</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>601</base_number><bioformat:sequence> ctaacaaaag agagttcaga gagcactaaa cctataacaa agactgaaga atatgagagc</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>661</base_number><bioformat:sequence> ttctttaact tcttcagccc ccctcaagtt ccagaggatg atgcaaaaat tgacgaaaat</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>721</base_number><bioformat:sequence> accgctgaag aattgcagaa ccaaatggaa cgagattatg acattgcatc tactctcagg</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>781</base_number><bioformat:sequence> gacaagatta taccacatgt tgtttcttgg ttcactggag aggctgttca agacgaggat</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>841</base_number><bioformat:sequence> tatggtgctt cttgggtgga tgatgaagag gatgatgacg atgaatatag tgatgaagaa</bioformat:sequence>
+</sequence_line><sequence_line>      <base_number>901</base_number><bioformat:sequence> gcatag</bioformat:sequence>
+</sequence_line></bioformat:sequence_block><record_end>//
+
+</record_end></record></dataset>

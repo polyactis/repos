@@ -1,0 +1,225 @@
+Start	1
+End	1291
+group
+AtSUVR2
+label
+Block	1	2	15
+endlabel
+label
+Block	395	542	1	H
+Pre-SET
+endlabel
+label
+Block	544	685	0	H
+SET
+endlabel
+label
+Block	716	717	15	H
+  
+endlabel
+endgroup
+
+group
+AtSuVAR39-4
+label
+Block	1	2	15
+endlabel
+label
+Block	146	294	1	H
+Pre-SET
+endlabel
+label
+Block	296	441	0	H
+SET
+endlabel
+label
+Block	487	488	15	H
+  
+endlabel
+endgroup
+
+group
+Atsuv1
+label
+Block	1	2	15
+endlabel
+label
+Block	305	454	1	H
+Pre-SET
+endlabel
+label
+Block	456	598	0	H
+SET
+endlabel
+label
+Block	603	619	14	H
+Post-SET
+endlabel
+label
+Block	629	630	15	H
+  
+endlabel
+endgroup
+
+group
+DmSU(VAR)3-9
+label
+Block	1	2	15
+endlabel
+label
+Block	218	270	5	H
+Chromo domain
+endlabel
+label
+Block	410	474	1	H
+Pre-SET
+endlabel
+label
+Block	476	607	0	H
+SET
+endlabel
+label
+Block	619	635	14	H
+Post-SET
+endlabel
+label
+Block	634	635	15	H
+  
+endlabel
+endgroup
+
+group
+HsESET
+label
+Block	1	2	15
+endlabel
+label
+Block	256	318	14	H
+Tudor domain
+endlabel
+label
+Block	346	401	14	H
+Tudor domain
+endlabel
+label
+Block	597	672	14	H
+Methyl-CpG binding
+endlabel
+label
+Block	600	652	14	H
+MBD
+endlabel
+label
+Block	681	795	1	H
+Pre-SET
+endlabel
+label
+Block	797	1273	0	H
+SET
+endlabel
+label
+Block	1275	1291	14	H
+Post-SET
+endlabel
+label
+Block	1290	1291	15	H
+  
+endlabel
+endgroup
+
+group
+HsG9a
+label
+Block	1	2	15
+endlabel
+label
+Block	684	716	14	H
+ank
+endlabel
+label
+Block	717	749	14	H
+ank
+endlabel
+label
+Block	750	783	14	H
+ank
+endlabel
+label
+Block	784	816	14	H
+ank
+endlabel
+label
+Block	817	849	14	H
+ank
+endlabel
+label
+Block	850	882	14	H
+ank
+endlabel
+label
+Block	925	1030	1	H
+Pre-SET
+endlabel
+label
+Block	1032	1162	0	H
+SET
+endlabel
+label
+Block	1209	1210	15	H
+  
+endlabel
+endgroup
+
+group
+HsSUV39H
+label
+Block	1	2	15
+endlabel
+label
+Block	43	80	5	H
+Chromo domain
+endlabel
+label
+Block	135	235	1	H
+Pre-SET
+endlabel
+label
+Block	230	366	0	H
+SET
+endlabel
+label
+Block	396	412	14	H
+Post-SET
+endlabel
+label
+Block	411	412	15	H
+  
+endlabel
+endgroup
+
+group
+SpCLR4
+label
+Block	1	2	15
+endlabel
+label
+Block	7	62	5	H
+Chromo domain
+endlabel
+label
+Block	211	320	1	H
+Pre-SET
+endlabel
+label
+Block	322	459	0	H
+SET
+endlabel
+label
+Block	473	489	14	H
+Post-SET
+endlabel
+label
+Block	489	490	15	H
+  
+endlabel
+endgroup

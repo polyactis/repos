@@ -1,0 +1,254 @@
+Start	1
+End	1015
+group
+AtCLF
+label
+Block	1	2	15
+endlabel
+label
+Block	531	581	14	H
+SANT
+endlabel
+label
+Block	746	874	0	H
+SET
+endlabel
+label
+Block	901	902	15	H
+  
+endlabel
+endgroup
+
+group
+AtEZA1
+label
+Block	1	2	15
+endlabel
+label
+Block	489	539	14	H
+SANT
+endlabel
+label
+Block	617	630	14	H
+Whey acidic protein, core region
+endlabel
+label
+Block	701	829	0	H
+SET
+endlabel
+label
+Block	855	856	15	H
+  
+endlabel
+endgroup
+
+group
+AtPcG
+label
+Block	1	2	15
+endlabel
+label
+Block	339	389	14	H
+SANT
+endlabel
+label
+Block	460	498	14	H
+TNFR/CD27/30/40/95 cysteine-rich region
+endlabel
+label
+Block	538	665	0	H
+SET
+endlabel
+label
+Block	688	689	15	H
+  
+endlabel
+endgroup
+
+group
+DmE(Z)
+label
+Block	1	2	15
+endlabel
+label
+Block	152	292	14	H
+SANT
+endlabel
+label
+Block	443	491	14	H
+SANT
+endlabel
+label
+Block	620	748	0	H
+SET
+endlabel
+label
+Block	759	760	15	H
+  
+endlabel
+endgroup
+
+group
+HsEzh1
+label
+Block	1	2	15
+endlabel
+label
+Block	135	263	14	H
+SANT
+endlabel
+label
+Block	430	478	14	H
+SANT
+endlabel
+label
+Block	446	454	14	H
+AP endonuclease, family 2
+endlabel
+label
+Block	613	734	0	H
+SET
+endlabel
+label
+Block	746	747	15	H
+  
+endlabel
+endgroup
+
+group
+OsSET
+label
+Block	1	2	15
+endlabel
+label
+Block	528	578	14	H
+SANT
+endlabel
+label
+Block	656	669	14	H
+Whey acidic protein, core region
+endlabel
+label
+Block	681	718	14	H
+Tesmin/TSO1-like CXC domain
+endlabel
+label
+Block	741	869	0	H
+SET
+endlabel
+label
+Block	894	895	15	H
+  
+endlabel
+endgroup
+
+group
+Ospclf
+label
+Block	1	2	15
+endlabel
+label
+Block	651	701	14	H
+SANT
+endlabel
+label
+Block	800	840	14	H
+Tesmin/TSO1-like CXC domain
+endlabel
+label
+Block	860	988	0	H
+SET
+endlabel
+label
+Block	1014	1015	15	H
+  
+endlabel
+endgroup
+
+group
+Ospclf2
+label
+Block	1	2	15
+endlabel
+label
+Block	353	403	14	H
+SANT
+endlabel
+label
+Block	502	542	14	H
+Tesmin/TSO1-like CXC domain
+endlabel
+label
+Block	562	690	0	H
+SET
+endlabel
+label
+Block	716	717	15	H
+  
+endlabel
+endgroup
+
+group
+ZmEzl1
+label
+Block	1	2	15
+endlabel
+label
+Block	565	615	14	H
+SANT
+endlabel
+label
+Block	772	900	0	H
+SET
+endlabel
+label
+Block	930	931	15	H
+  
+endlabel
+endgroup
+
+group
+ZmEzl2
+label
+Block	1	2	15
+endlabel
+label
+Block	527	577	14	H
+SANT
+endlabel
+label
+Block	655	668	14	H
+Whey acidic protein, core region
+endlabel
+label
+Block	740	868	0	H
+SET
+endlabel
+label
+Block	893	894	15	H
+  
+endlabel
+endgroup
+
+group
+ZmEzl3
+label
+Block	1	2	15
+endlabel
+label
+Block	528	578	14	H
+SANT
+endlabel
+label
+Block	656	669	14	H
+Whey acidic protein, core region
+endlabel
+label
+Block	741	869	0	H
+SET
+endlabel
+label
+Block	894	895	15	H
+  
+endlabel
+endgroup

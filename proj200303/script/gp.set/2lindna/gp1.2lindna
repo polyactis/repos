@@ -1,0 +1,260 @@
+Start	1
+End	812
+group
+AtSET9
+label
+Block	1	2	15
+endlabel
+label
+Block	200	356	3	H
+YDG_SRA
+endlabel
+label
+Block	386	485	1	H
+Pre-SET
+endlabel
+label
+Block	487	643	0	H
+SET
+endlabel
+label
+Block	649	650	15	H
+  
+endlabel
+endgroup
+
+group
+AtSUVH3
+label
+Block	1	2	15
+endlabel
+label
+Block	203	359	3	H
+YDG_SRA
+endlabel
+label
+Block	386	486	1	H
+Pre-SET
+endlabel
+label
+Block	477	482	14	H
+Rieske iron-sulfur protein
+endlabel
+label
+Block	488	644	0	H
+SET
+endlabel
+label
+Block	653	669	14	H
+Post-SET
+endlabel
+label
+Block	668	669	15	H
+  
+endlabel
+endgroup
+
+group
+AtSUVH4
+label
+Block	1	2	15
+endlabel
+label
+Block	144	306	3	H
+YDG_SRA
+endlabel
+label
+Block	335	438	1	H
+Pre-SET
+endlabel
+label
+Block	409	421	14	H
+Calcium-binding EF-hand
+endlabel
+label
+Block	440	601	0	H
+SET
+endlabel
+label
+Block	608	624	14	H
+Post-SET
+endlabel
+label
+Block	623	624	15	H
+  
+endlabel
+endgroup
+
+group
+AtpG9A-SET2
+label
+Block	1	2	15
+endlabel
+label
+Block	202	358	3	H
+YDG_SRA
+endlabel
+label
+Block	388	487	1	H
+Pre-SET
+endlabel
+label
+Block	489	644	0	H
+SET
+endlabel
+label
+Block	650	651	15	H
+  
+endlabel
+endgroup
+
+group
+NtSET
+label
+Block	1	2	15
+endlabel
+label
+Block	260	416	3	H
+YDG_SRA
+endlabel
+label
+Block	443	543	1	H
+Pre-SET
+endlabel
+label
+Block	545	688	0	H
+SET
+endlabel
+label
+Block	688	704	14	H
+Post-SET
+endlabel
+label
+Block	703	704	15	H
+  
+endlabel
+endgroup
+
+group
+OsP0705A05.28
+label
+Block	1	2	15
+endlabel
+label
+Block	148	305	3	H
+YDG_SRA
+endlabel
+label
+Block	336	437	1	H
+Pre-SET
+endlabel
+label
+Block	439	594	0	H
+SET
+endlabel
+label
+Block	593	594	15	H
+  
+endlabel
+endgroup
+
+group
+OsSET1
+label
+Block	1	2	15
+endlabel
+label
+Block	123	135	7	H
+AT_hook
+endlabel
+label
+Block	167	179	7	H
+AT_hook
+endlabel
+label
+Block	207	219	7	H
+AT_hook
+endlabel
+label
+Block	249	261	7	H
+AT_hook
+endlabel
+label
+Block	282	294	7	H
+AT_hook
+endlabel
+label
+Block	355	506	3	H
+YDG_SRA
+endlabel
+label
+Block	533	633	1	H
+Pre-SET
+endlabel
+label
+Block	635	787	0	H
+SET
+endlabel
+label
+Block	796	812	14	H
+Post-SET
+endlabel
+label
+Block	811	812	15	H
+  
+endlabel
+endgroup
+
+group
+OspSUVH4
+label
+Block	1	2	15
+endlabel
+label
+Block	195	359	3	H
+YDG_SRA
+endlabel
+label
+Block	388	491	1	H
+Pre-SET
+endlabel
+label
+Block	493	653	0	H
+SET
+endlabel
+label
+Block	660	676	14	H
+Post-SET
+endlabel
+label
+Block	675	676	15	H
+  
+endlabel
+endgroup
+
+group
+OssSET1
+label
+Block	1	2	15
+endlabel
+label
+Block	276	430	3	H
+YDG_SRA
+endlabel
+label
+Block	457	557	1	H
+Pre-SET
+endlabel
+label
+Block	559	715	0	H
+SET
+endlabel
+label
+Block	720	736	14	H
+Post-SET
+endlabel
+label
+Block	735	736	15	H
+  
+endlabel
+endgroup

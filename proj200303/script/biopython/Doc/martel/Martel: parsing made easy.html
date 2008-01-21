@@ -1,0 +1,1744 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><title>Martel: Bioinformatics file parsing made easy</title></head>
+
+  <body>
+    <h2><center>
+             Martel: Bioinformatics file parsing made easy
+</center></h2>
+
+    <h6><center>
+     Andrew Dalke / Dalke Scientific Software, LLC / <a href="mailto:dalke@acm.org">dalke@acm.org</a> </center></h6>
+    
+
+<h4>Keywords</h4>
+
+Bioinformatics, biopython, computational biology, parsing, Martel,
+SWISS-PROT, regular expressions, SAX, XML.
+
+<h3>Abstract</h3>
+
+A goal of the Biopython project
+<sup><a href="#biopython_home">[1]</a></sup>
+is to reduce the amount of effort needed to do computational biology.
+A large part of that work turns out to be parsing file formats, so we
+have developed Martel, a parser generator which uses a regular
+expression as the format description to create a parser that returns
+the parse three using the SAX API common in XML processing.  The
+resulting system is able to do all of the parsing tasks needed for
+bioinformatics parsing while being both fast and relatively easy to
+understand.  Martel is not specific to bioinformatics and may be used
+to parse any regular grammar.
+
+<hr>
+
+Biopython started in August 1999 as international collaboration to
+collect, develop and share free Python tools for computational
+molecular biology.  The distribution contains various parsers, a
+sequence and an alignment class, algorithms for sequence analysis, a
+Prosite engine, interfaces to web services including Entrez, Prosite
+and SCOP and even a graphical sequence editor.  There are five main
+Biopython developers and the distribution is being used in at least
+Australia, Europe, South Africa and the United States.
+
+<p>
+
+Software development is a large part of modern biology research so a
+major goal of Biopython and its sister organizations Bioperl
+<sup><a href="#bioperl_home">[2]</a></sup>, BioJava
+<sup><a href="#biojava_home">[3]</a></sup>,
+BioXML<sup><a href="#bioxml_home">[4]</a></sup>
+and BioCORBA
+<sup><a href="#biocorba_home">[5]</a></sup>
+is to reduce the amount of effort needed to
+develop new science by providing a base set of robust, flexible
+components on which to build.  A surprisingly large amount of that
+development goes into parsing file formats. Traditional parser
+generation tools, like lex/yacc, are not very useful in parsing these
+bioinformatics files so people have written specialized parsers for
+each format.  Most are written to solve the problem at hand and rarely
+capture all the data present in a given format, much less provide a
+general or consistent solution to the wide class of formats.
+
+</p><p>
+
+To remedy that situation we have been developing Martel, a parser
+generator that uses a regular expression syntax as the format
+description to create a parser which analyzes a format and returns the
+results using the SAX API common in XML processing.  Martel makes it
+easy to implement the parsing tasks done by all other available
+parsers and it can even do some things which are difficult or not even
+possible in any other existing system.  Because of these abilities, I
+believe Martel will a killer app for Biopython and the use of Python
+in bioinformatics.  At least, I can hope.  The use of Martel is not
+specific to molecular biology and may be used to parse any regular
+grammar.
+
+
+</p><h3>File formats</h3>
+
+There are over 200 database formats relevant to molecular biology
+<sup><a href="#over_200">[6]</a></sup>,
+like Genbank, PDB and SWISS-PROT and roughly as many program outputs
+to parse, like BLAST and PHD.  These numbers are even higher if the
+various versions of a given format are included.  There are many
+reasons for the diversity.  Each subfield has its own focus and
+requirements, and the knowledge of what is important and even the
+vocabulary has changed over time.  A nearly-usable format might be too
+hard to parse, or not be extensible or covered under patent.  Or it
+was simply easier to make up a yet another format without looking to
+see if any existing one was usable.
+
+<p>
+
+Most readers here will not know the specifics of these formats but
+only the general form is important.  They would appear familiar to
+anyone who has worked with data meant for line printers.  First off,
+they are line oriented, so a line of text contains a well-defined
+piece of data.  Lines are arranged blocks, which may themselves be
+arranged inside larger blocks.  The number of levels of these blocks
+is fixed and small.  All of the formats are designed to be human
+readable, so people can scan a file or record quickly to see what's in
+it.  The database formats, and some of the program outputs, are also
+designed to be machine readable, and the machine would usually be
+programmed in FORTRAN.
+
+</p><p>
+
+Below are the beginning and end parts of a SWISS-PROT record, which is
+one of the most commonly used protein databases.
+
+</p><p>
+</p><center>
+<table>
+<caption>Part of SWISS-PROT record 143E_HUMAN</caption>
+<tbody><tr>
+<td>
+<blockquote>
+<pre>ID   143E_HUMAN     STANDARD;      PRT;   255 AA.
+AC   P42655; P29360; Q63631;
+DT   01-NOV-1995 (Rel. 32, Created)
+DT   01-NOV-1995 (Rel. 32, Last sequence update)
+DT   15-JUL-1999 (Rel. 38, Last annotation update)
+DE   14-3-3 PROTEIN EPSILON (MITOCHONDRIAL IMPORT STIMULATION FACTOR L
+DE   SUBUNIT) (PROTEIN KINASE C INHIBITOR PROTEIN-1) (KCIP-1) (14-3-3E).
+GN   YWHAE.
+OS   Homo sapiens (Human), Mus musculus (Mouse), Rattus norvegicus (Rat),
+OS   Bos taurus (Bovine), and Ovis aries (Sheep).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia;
+OC   Eutheria; Primates; Catarrhini; Hominidae; Homo.
+<center><b>...</b></center>
+SQ   SEQUENCE   255 AA;  29174 MW;  40A43E62 CRC32;
+     MDDREDLVYQ AKLAEQAERY DEMVESMKKV AGMDVELTVE ERNLLSVAYK NVIGARRASW
+     RIISSIEQKE ENKGGEDKLK MIREYRQMVE TELKLICCDI LDVLDKHLIP AANTGESKVF
+     YYKMKGDYHR YLAEFATGND RKEAAENSLV AYKAASDIAM TELPPTHPIR LGLALNFSVF
+     YYEILNSPDR ACRLAKAAFD DAIAELDTLS EESYKDSTLI MQLLRDNLTL WTSDMQGDGE
+     EQNKEALQDV EDENQ
+//
+</pre>
+</blockquote>
+</td></tr>
+</tbody></table>
+</center>
+
+
+Even without reading the format definition you can puzzle out some of
+the structure.  Lines start with two characters followed by three
+spaces and the first two characters tag the line type.  Long lines
+fold over and repeat the tag text.  The semicolon is often used to
+separate (unnamed) subfields.
+
+
+<h3>Lex/yacc</h3>
+
+The standard computer science approach to parsing is to define a lex
+and yacc grammar for the format.  Lex tokenizes the words and passes
+them to yacc, which puts them together.  This works very well for
+computer science languages because they are designed to be parsed by
+lex/yacc with a pipeline architecture where the lexer sends tokens to
+the parser with little or no need for information to be sent the other
+way.
+
+<p>
+
+Bioinformatics formats are usually messier than that.  Often there
+will be a lot of state information to pass around.  For example, the
+word "GENE" might mean four different things in a file depending on
+which block it is found: a keyword, a description, the submitter's
+name or a protein sequence.  It may even depend on which character
+position the word is in the line.
+
+</p><p>
+
+Lex can deal with this using start conditions but that results in
+dozens of different states and the lex description language does not
+simplify building explicit state machines.  The other option is to
+pass the state information from the grammar definition - which must
+also describe the token order - back to the lexer.  Again, it can be
+done but it gets to be quite messy.  Indeed, in the seven years I've
+been in this field I have only seen lex and yacc used by those formats
+designed to be used with those tools.
+
+</p><p>
+
+Instead, most people end up writing their own parsers by hand.  Being
+rational, they don't want to do a lot of extra work so end up writing
+a parser which does exactly what they need it to do.  For example, it
+might read only the data fields which are relevant to a project, or
+core dump when given improperly formatted data.  Rarely are these
+parsers usable for other projects.
+
+
+</p><h3>Requirements</h3>
+
+Our goal for Martel is to simplify parsing tasks so we need to be able
+to do nearly everything people want from a parser.  Following is a
+list of tasks based on long experience in writing and using those
+systems.  This list is somewhat sequence database-centric in that it
+deals with files containing many sequence records, but otherwise these
+tasks can be applied to a wide range of formats, including program
+outputs.
+
+<ul>
+  <li>Count the number of records in a file;
+
+  </li><li>Allow indexing by finding the name and byte position of each
+  record;
+
+  </li><li>Convert to FASTA format, which is a simple format containing
+  only two or three of the most common data elements;
+
+  </li><li>Build a generic data structure, which stores the fields common
+  to this and related formats but which doesn't store all of the
+  semantic data;
+
+  </li><li>Build a data structure which contains all of the semantic data;
+
+  </li><li>Convert the file to HTML by adding hypertext links for various
+  fields but preserve the presentation information like spaces and
+  newlines;
+
+  </li><li>Validate that the input file is in the correct format;
+
+  </li><li>Automatically identify which format or version of a format is
+  being parsed.
+</li></ul>
+
+Some of these tasks are subsets of others.  For example, a parser
+which builds a data structure for each record almost certainly can be
+used to count the number of records present in a file.  They are
+included because people write specialized parsers to handle those
+specific tasks very quickly.  Using <tt>grep ^ID | wc</tt> is a very
+fast way to count the number of records in a SWISS-PROT file.  Ideally
+then, file parsing should be faster if only a few fields are needed or
+if validity checking is not needed.
+
+<p>
+
+Some additional functional requirements go along with the use cases.
+
+</p><ul>
+ <li>Fast enough to parse multi-MB databases in reasonable time (there
+ is over 50 GB of publically available sequence data
+<sup><a href="#over_50GB">[9]</a></sup>);
+ </li><li>Free in both the money and FSF sense;
+ </li><li>Supports Python;
+ </li><li>Eventually language independent;
+ </li><li>Relatively easy to use, understand and support.
+</li></ul>
+
+
+<h3>Existing systems</h3>
+
+To make sure I fully captured the capabilities people use in a parser,
+I analyzed 19 different SWISS-PROT parsers.  They are listed here for
+reference: grep/shell utils, Bioperl
+<sup><a href="#bioperl_home">[2]</a></sup>, Biopython
+<sup><a href="#biopython_home">[3]</a></sup>, BioJava
+<sup><a href="#biojava_home">[4]</a></sup>, SRS
+<sup><a href="#SRS">[11]</a></sup>, Swissknife
+<sup><a href="#swissknife">[12]</a></sup>, Biopy
+<sup><a href="#biopy">[13]</a></sup>, Darwin
+<sup><a href="#darwin">[14]</a></sup>, SeqIO
+<sup><a href="#seqio">[15]</a></sup>, readseq(C)
+<sup><a href="#readseq_C">[16]</a></sup>, readseq(Java)
+<sup><a href="#readseq_java">[17]</a></sup>, Boulder
+<sup><a href="#boulder">[18]</a></sup>, molbio++
+<sup><a href="#molbio">[19]</a></sup>, BioDB-Loader
+<sup><a href="#biodb_loader">[20]</a></sup>, GCG
+<sup><a href="#gcg">[21]</a></sup>, sp2fasta
+<sup><a href="#sp2fasta">[22]</a></sup>, sw2xml
+<sup><a href="#sw2xml">[23]</a></sup>, NiceProt
+<sup><a href="#niceprot">[24]</a></sup>, and
+get-sprot-entry
+<sup><a href="#get_sprot_entry">[25]</a></sup>.
+All but five are freely available in source form for
+detailed analysis and information about the others was garnered from
+published papers, web documentation, web-based interfaces to those
+programs and by asking experienced people.
+
+<p>
+
+None of the programs implemented any parsing abilities which were not
+given in the task list, and at least one package was able to do each
+task.  (Some of them could do more than parse the input file but I
+only concentrated on their parsing requirements.)  For detailed
+analysis and discussion of the different programs, please see <a href="http://www.biopython.org/wiki/html/BioPython/ParserComparison.html">http://www.biopython.org/wiki/html/BioPython/ParserComparison.html</a>.
+
+</p><h3>SRS and Icarus</h3>
+
+Most of the packages are specialized to a single task or use a central
+dispatcher to determine the line type then call the associated
+function to parse the contents of the line.  In the latter case, the
+handlers can often be changed depending on the task.  Only one
+package, Icarus, provides a general parser generator.  In many
+respects, Icarus is very close to what I want Martel to be.
+
+<p>
+
+Icarus is the parser and language used by the SRS, a commercial
+bioinformatics database system available from Lion Bioscience.
+Definitions are available for over 150 different formats
+<sup><a href="#over_150">[26]</a></sup>, including
+non-sequence databases.
+
+</p><p>
+
+The major problem with lex/yacc was the need for explicit state
+declaration.  Icarus solves that by having the parser's grammar
+definition drive the parsing instead of the lexer's.  It only checks
+those lexical definitions which are expected, making the state
+declaration implicit.
+
+</p><p>
+
+Icarus is also the programming language used to implement the actions
+for each terminal in the parse tree.  Potentially any data structure
+can be built but Icarus is a simple language and only really supports
+the goal of translation to SRS's database data model.  I believe in
+theory Icarus can be used to produce HTML mark-up from an existing
+format, but the existing SWISS-PROT definition cannot be used for
+that, nor can it be used to verify that a record is in the correct
+format.
+
+</p><p>
+
+The most serious problem with Icarus is its specialized nature.  It is
+a parser which has become a programming language and its origins show
+in the relative opaqueness of the language.  I am quite serious when I
+say I spent an hour trying to figure out a tutorial example and could
+not understand why everything it used was needed.  Because it was
+designed as a language to normalize input data for the database, it
+does not allow building new data structures nor are there easy ways to
+integrate Icarus code with other languages and toolkits.
+
+</p><p>
+
+I have not yet been able to track down enough information about Icarus
+to judge it fully but I also believe Icarus uses a standard look-ahead
+1 algorithm, which means it cannot readily be used for some types of
+format or version identification that may require arbitrary lookahead.
+
+</p><p>
+Finally, the newest versions are commercial products and so Icarus is
+not free in either sense of the word.
+
+</p><h3>History: DiscoveryBase</h3>
+
+Given the lack of general solutions in both the public and commercial
+parsers, is one really possible?  The answer of course is yes, since
+otherwise this paper wouldn't have been written.  To explain how it
+works and comes together is best described with some history.
+
+<p>
+
+I've been writing parsers by hand for bioinformatics data for many
+years.  Part of that time was as an employee of Molecular
+Applications Group
+<sup><a href="#MAG">[27]</a></sup>.  While there I worked on 
+DiscoveryBase, a Perl-based web application that ties together many
+different bioinformatics databases and programs.  Each database and
+program required its own parser, which were still hand-written but
+used a consistent interface with a parser and a callback handler.
+These formats are nearly all line oriented, so the parser did just
+enough work to identify a line uniquely then passed the type
+information and the line's contents to the callback object for further
+analysis.
+
+</p><p>
+
+The callback approach turned out to be very handy.  The callback
+handler could decide to do HTML markup, or extract data, or even
+filter events through to another callback object.  Because the task
+specific work was shifted elsewhere, the parser itself could remain
+simple and easy to understand.  The data blocks were at most only a
+few levels deep, so the whole parser could be implemented with a few
+embedded while-loops and without recursive calls.  The handlers were
+mostly a set of simple string and regular expression searches.
+
+</p><p>
+
+Many other parsers, like the ones in BioJava, Biopy and BioDB-Loader,
+the existing Biopython parser, and the standard Icarus definition, use
+this approach of having a dispatcher identify line types and pass the
+text to the appropriate handler.  A novel and useful feature specific
+to the DiscoveryBase parser was what I termed <i>synthetic events</i>,
+that is, events which were not explicitly tied to a line of text.
+Each line sent and event to the handler, but some data elements may
+fold over multiple lines.  Synthetic events were sent before and after
+these data types so that the client code wouldn't need to keep track
+of the larger context of the file.  Below is an example of the events
+generated from the SWISS-PROT example above.
+
+</p><p>
+</p><center>
+ <table border="1">
+<caption>DiscoveryBase events for parts of SWISS-PROT 143E_HUMAN</caption>
+<tbody><tr><th>Event name</th><th>Content</th></tr>
+<tr><td>__begin</td><td> </td></tr>
+<tr><td>ID</td><td><pre>ID   143E_HUMAN     STANDARD;      PRT;   255 AA.</pre></td></tr>
+<tr><td>AC</td><td><pre>AC   P42655; P29360; Q63631;</pre></td></tr>
+<tr><td>__begin_DT</td><td> </td></tr>
+<tr><td>DT</td><td><pre>DT   01-NOV-1995 (Rel. 32, Created)</pre></td></tr>
+<tr><td>DT</td><td><pre>DT   01-NOV-1995 (Rel. 32, Last sequence update)</pre></td></tr>
+<tr><td>DT</td><td><pre>DT   15-JUL-1999 (Rel. 38, Last annotation update)</pre></td></tr>
+<tr><td>__end_DT</td><td> </td></tr>
+<tr><td>__begin_DE</td><td> </td></tr>
+<tr><td>DE</td><td><pre>DE   14-3-3 PROTEIN EPSILON (MITOCHONDRIAL IMPORT STIMULATION FACTOR L</pre></td></tr>
+<tr><td>DE</td><td><pre>DE   SUBUNIT) (PROTEIN KINASE C INHIBITOR PROTEIN-1) (KCIP-1) (14-3-3E).</pre></td></tr>
+<tr><td>__end_DE</td><td> </td></tr>
+<tr><td colspan="2"><center><b>...</b></center></td></tr>
+<tr><td>__end</td><td> </td></tr>
+</tbody></table>
+</center>
+
+<p>
+
+The synthetic events have names starting with "__" and contain no
+content.  I used "__" because I really wanted to use Python instead of
+Perl.
+
+
+</p><h3>Most formats are regular</h3>
+
+Jeff Chang and I worked together at Molecular Applications Group.
+Jeff is now the Biopython lead.  After we left, we worked on several
+approaches to generalize the parsing system from DiscoveryBase.  One
+became the original Biopython parser.  It simplified line
+identification by using a description of how to recognize each line
+rather than providing a hand-written one.  That description uses a
+regular grammar.
+
+<p>
+
+I ended up working on a different parsing system because I was
+interested in how to increase performance given better guarantees
+about the data.  For example, the output of a program is pretty much
+guaranteed to be in the right format, or at least a consistent format.
+Suppose you are interested in only a few items and you know the format
+is correct.  You might be able to seek to the right byte locations and
+read those items without parsing anything else.
+
+</p><p>
+
+This requires the parser generator have full details about the
+language description; details which were hidden inside of the callback
+routines of the Biopython parser.  I still liked the idea of
+describing the format as a set of lines so ended up working on a
+system with two regular languages; one to identify a line using a
+regular expression and the other to arrange those lines.  Jeff's work
+showed that the line arrangement could be done with regular
+expressions, which in retrospect is obvious from my statement that the
+hand-written parsers only needed a few while-loops and no recursion.
+
+</p><p>
+
+The composition of two regular languages is itself regular.  That's
+probably a true or false question on an undergraduate language theory
+course.  After a few months, I finally figured out it was true.
+
+</p><p>
+
+That leads to the interesting statement that most bioinformatics
+formats are described by regular grammars and don't require a full
+context-free definition.  In fact, the context-free formats are almost
+all easily parseable with existing parsers like lex/yacc or SPARK.  A
+context free grammar can always parse a regular grammar, but the
+emphasis here is on <i>easily parseable</i> so the goal of my project
+ended up being a way to simplify parsing regular languages.
+
+</p><p>
+
+By the way, formally speaking the formats are not regular.  When I say
+"regular" I am using the informal definition of "can be parsed with
+Perl5-like regular expressions."  Some of the non-regular features of
+regular expressions are back references, where "<tt>(\d+) \1</tt>"
+matches "<tt>1 1</tt>" and "<tt>999 999</tt>" and named
+group repeats, which is a construct I created and describe below that
+allows "<tt>(?P&lt;count&gt;\d)( \w+){count}</tt>" to match
+"<tt>1 Hello</tt>" and
+"<tt>4 This is some text</tt>."
+
+</p><h3>Features of regular expressions</h3>
+
+Regular expression engines meet many of the functional requirements
+listed earlier yet do not exclude the other requirements.
+
+<p>
+
+Perhaps the best feature of them is that most programmers in
+bioinformatics use Perl and so know at least a bit about Perl's
+regular expressions and how to use it.  For those that don't, there
+are many available references on-line and at the bookstore.
+Additionally, Perl's regular expression syntax has become the accepted
+standard so even non-Perl programmers know how to use them.
+
+</p><p>
+
+On a technical level, regular expression engines can potentially be
+very fast.  They also more naturally allow for unlimited backtracking,
+which makes version identification very easy.  For example, suppose
+"P1" is the regular expression for one format and "P2" for another.
+Then "P1|P2" is an expression which parses either P1 or P2 - if the
+first fails the second is attempted.
+
+</p><h3>Returning data</h3>
+
+Suppose you have a regular expression which describes a given format.
+Compile it with the re module and match it against the string to
+parse.  It may match the string, but there's no way to get all the
+information about what it matched.
+
+<p>
+
+Take a simple example from the SWISS-PROT format, which allows
+multiple accession names (a type of identifier) on a line.  The format
+as a regular expression is <tt>AC   (\w+);( (\w+);)*</tt>.
+When matched against
+<tt>"AC   P42655; P29360; Q63631;"</tt> you'll
+find that group 1 is
+"<tt>P42655</tt>", group 2 is
+"<tt> P29360; Q63631;</tt>" and group 3 is
+"<tt>Q63631</tt>".  There is no way to get the list of the two
+different substrings matching the third group - only the last
+match for <tt>"(\w+)"</tt> is returned.
+
+</p><p>
+
+That's because while the regular expression effectively produces a
+parse tree for a string, the APIs for Python, Perl, Tcl, pcre, GNU
+Regex and every other package I know of only return the last match for
+each branch of the tree.
+
+</p><p>
+
+Given that I could not find a regular expression parse engine which
+does this, I decided to write my own, but I needed to figure out how
+to pass the parse tree back to the caller.  Jumping sideways for a
+moment, XML documents are also tree data structures so XML processing
+has the same need.  They've solved it by defining two different
+interfaces: DOM for passing around a tree data structure and SAX for
+generating callbacks based on a tree traversal.
+
+</p><p>
+
+There are a lot of existing tools and documentation for working with
+XML so I decided to implement one of the XML APIs.  The two most
+common are DOM, which returns a tree data structure, and SAX, which
+sends a set of events corresponding to a traversal of the tree.  The
+DOM model is quite complicated and not easily usable for large data
+sets.  I already enjoyed using a callback mechanism in DiscoveryBase
+so I went the SAX route, or more specifically, I used the SAX2 API.
+
+</p><p>
+
+The difficulty is that SAX needs element names, which aren't available
+from the Perl5 regular expression syntax.  Using the group number for
+each match is not acceptable because counting embedded parenthesis
+inside a pattern string is very cumbersome, and adding a new
+parenthesis or data element requires renumbering in all the callbacks.
+
+</p><p>
+
+Luckily, Python regular expressions introduced me to the concept of
+"named groups," which are defined with the
+<tt>(?P&lt;name&gt;...)</tt> notation.  The start and end of a named
+group maps very naturally to the startElement/endElement events in
+SAX.  Replacing the <tt>(\w+)</tt> in the previous definition with
+<tt>(?P&lt;ac_number&gt;\w+)</tt> creates a parse tree where some of
+the node have the name "ac_number".  During traversal of the parse
+tree, descent into a named node is mapped to a
+<tt>startElement("ac_number", ...)</tt> and ascent out of the node
+maps to a <tt>endElement("ac_number")</tt>.  Below is an example of
+the parse tree for the AC line of the SWISS-PROT example and the
+corresponding SAX events.
+
+</p><p>
+</p><center>
+<table>
+<tbody><tr>
+<th>Parse tree for a SWISS-PROT AC line</th><th>SAX events from tree traversal</th>
+</tr>
+<tr><td>
+<a href="http://biopython.org/%7Edalke/Martel/ipc9/swiss_example.gif"><img src="Martel:%20parsing%20made%20easy_files/swiss_example.gif" border="1" width="376" height="267" alt="a parse tree"></a>
+</td>
+<td align="top">
+characters("AC  ")
+startElement("ac_number", ...")
+   characters("P42655")
+endElement("ac_number")
+characters("; ")
+startElement("ac_number", ...")
+   characters("P29360")
+endElement("ac_number")
+characters("; ")
+startElement("ac_number", ...")
+   characters("Q63631")
+endElement("ac_number")
+characters(";")
+</td>
+</tr>
+</tbody></table>
+</center>
+
+<h3>Martel - a new regexp engine</h3>
+
+Few of the existing regular expression engines understand named groups
+and none internally create parse trees so I wrote my own, which is
+called Martel.  It reuses a lot of existing code and ideas.  First
+off, the regular expression parser is a modified version of Fredrick
+Lundh's sre_parse.py from Python 2.0.  It is used to convert the
+pattern string into an Expression tree.  Another part of Martel
+converts an Expression into a set of tag tables for Marc-André
+Lemburg's mxTextTools
+<sup><a href="#mxTextTools">[28]</a></sup>,
+and wraps a SAX-like parser interface around
+the result.  And of course, using SAX means I get to borrow all the
+existing XML tools and expertise.
+
+<p>
+
+Building a large pattern string then parsing it is very error prone
+since mistakes - like a missing parenthesis or backslash - are not
+caught until they are embedded somewhere in a very large string, and
+regular expression pattern parsers are not very helpful in identifying
+those problem.  Greg Ewing's Plex
+<sup><a href="#plex">[29]</a></sup>,
+uses a Python based regular
+expression description, which reduces many of the regexp errors to
+Python errors - and Python is much better at pointing out where an
+error may be found.  I introduced many of his commands into Martel as
+alternate ways to build up an Expression tree, and added a few more
+for regular expression features Plex doesn't support.
+
+</p><p>
+
+Most of the standard expression syntax is supported including
+branches, greedy repeats, character classes, back references and
+look-ahead assertions.  A few are not either because they just haven't
+been written yet or because they are hard to implement on top of
+mxTextTools, like non-greedy expressions.
+
+</p><h3>Using Martel</h3>
+
+There are four steps to using Martel: make the format definition,
+construct the parser, set up the SAX callbacks and evaluate the input
+text.  Here is how they are applied to parse the AC line of a
+SWISS-PROT record.
+
+<p>
+
+The table below shows part of the SWISS-PROT format definition in
+<tt>Martel.formats.swissprot38</tt>.  It is written in my
+characteristic style of using regular expression strings for small
+patterns and assembling them with the Plex commands.  For the curious,
+<tt>Group("name", Re("pattern"))</tt> is identical to
+<tt>Re("(?P&amp;ltname&gt;pattern)")</tt>.
+
+</p><p>
+</p><center>
+<table>
+<caption>Portion of the SWISS-PROT format definition</caption>
+<tbody><tr><td><blockquote><pre>ID = Martel.Group("ID", Martel.Re(
+       r"ID   (?P&lt;entry_name&gt;\w+) +(?P&lt;data_class_table&gt;\w+); +" \
+       r"(?P&lt;molecule_type&gt;\w+); +(?P&lt;sequence_length&gt;\d+) AA\.\R"
+     ))
+
+AC = Martel.Group("AC", Martel.Re(
+       r"AC   (?P&lt;ac_number&gt;\w+);( (?P&lt;ac_number&gt;\w+);)*\R"
+     ))
+AC_block = Martel.Group("AC_block", Martel.Rep1(AC))
+
+     <b>...</b>
+
+end = Martel.Group("END", Martel.Str("//") + Martel.AnyEol())
+
+record = Martel.Group("swissprot38_record", \
+    ID + \
+    AC + \
+     <b>...</b>
+    end
+    )
+</pre></blockquote></td></tr>
+</tbody></table>
+</center>
+
+<p>
+
+(The "\R" and "AnyEol()" expressions will be described shortly.)
+
+</p><p>
+
+Making the parser from an expression is simple.  Start with the format
+definition and use its <tt>make_parser()</tt> method.  Since I want a
+short example, I'll only make a parser for an AC line and ignore the
+full record definition.
+
+</p><p>
+</p><center>
+<table>
+<caption>Making a parser</caption>
+<tbody><tr><td><blockquote><pre>from Martel.formats import swissprot38
+parser = swissprot38.AC.make_parser()
+</pre></blockquote>
+</td></tr></tbody></table>
+</center>
+
+<p>
+
+This newly created parser implements the xml.sax.xmlreader.XMLReader
+interface so the next step is to set up the callbacks.  For this
+example, I'll convert the events to XML by using the XMLGenerator
+class for the ContentHandler.  The default action on errors is to
+raise an exception so I don't need to change the ErrorHandler.
+
+</p><p>
+</p><center>
+<table>
+<caption>Setting up callback for XML output</caption>
+<tbody><tr><td><blockquote><pre>from xml.sax import saxutils
+parser.setContentHandler(saxutils.XMLGenerator())
+</pre></blockquote>
+</td></tr></tbody></table>
+</center>
+
+<p>
+An XMLReader can take a string, URL or file handle as input. For this
+example, I'll pass in the example SWISS-PROT AC line as a string.
+(The third accession number was removed to reduce the output size.)
+
+</p><p>
+</p><center>
+<table>
+<caption>Parse a string to produce XML</caption>
+<tbody><tr><td><blockquote><pre>&gt;&gt;&gt; parser.parseString("AC   P42655; P29360;\n")
+
+&lt;?xml version="1.0" encoding="iso-8859-1"?&gt;
+&lt;AC&gt;AC   &lt;ac_number&gt;P42655&lt;/ac_number&gt;; &lt;ac_number&gt;P29360&lt;/ac_number&gt;;
+&lt;/AC&gt;
+</pre></blockquote></td></tr>
+</tbody></table>
+</center>
+
+That showed how to parse a string containing a line from the accession
+definition.  Parsing a complete record from a URL is just as easy:
+
+<p>
+</p><center>
+<table>
+<caption>Converting a full record to XML</caption>
+<tbody><tr><td><blockquote><pre><font size="-2">
+&gt;&gt;&gt; from Martel.formats import swissprot38
+&gt;&gt;&gt; parser = swissprot38.record.make_parser()
+&gt;&gt;&gt; from xml.sax import saxutils
+&gt;&gt;&gt; parser.setContentHandler(saxutils.XMLGenerator())
+&gt;&gt;&gt; parser.parse("http://www.expasy.ch/cgi-bin/get-sprot-raw.pl?P42655")
+
+&lt;?xml version="1.0" encoding="iso-8859-1"?&gt;
+&lt;swissprot38_record&gt;&lt;ID&gt;ID   &lt;entry_name&gt;143E_HUMAN&lt;/entry_name&gt;     &lt;data_class_table&gt;STANDARD
+&lt;/data_class_table&gt;;      &lt;molecule_type&gt;PRT&lt;/molecule_type&gt;;   &lt;sequence_length&gt;255&lt;/sequence_
+length&gt; AA.
+&lt;/ID&gt;&lt;AC&gt;AC   &lt;ac_number&gt;P42655&lt;/ac_number&gt;; &lt;ac_number&gt;P29360&lt;/ac_number&gt;; &lt;ac_number&gt;Q63631&lt;/
+ac_number&gt;;
+&lt;/AC&gt;&lt;DT_created&gt;DT   &lt;day&gt;01&lt;/day&gt;-&lt;month&gt;NOV&lt;/month&gt;-&lt;year&gt;1995&lt;/year&gt; (Rel. &lt;release&gt;32&lt;/rel
+ease&gt;, Created)
+&lt;/DT_created&gt;&lt;DT_seq_update&gt;DT   &lt;day&gt;01&lt;/day&gt;-&lt;month&gt;NOV&lt;/month&gt;-&lt;year&gt;1995&lt;/year&gt; (Rel. &lt;rele
+ase&gt;32&lt;/release&gt;, Last sequence update)
+<center>...</center>
+&lt;/SQ_data&gt;&lt;SQ_data&gt;     &lt;sequence&gt;EQNKEALQDV EDENQ&lt;/sequence&gt;
+&lt;/SQ_data&gt;&lt;/SQ_data_block&gt;&lt;/sequence_block&gt;&lt;END&gt;//
+&lt;/END&gt;&lt;/swissprot38_record&gt;
+</font>
+</pre></blockquote>
+</td></tr></tbody></table>
+</center>
+
+<h3>Writing SAX handlers</h3>
+
+Suppose you need to reformat the SWISS-PROT record for HTML and want
+to put the accession numbers in bold text.  The simplest way to do
+this is to create a new ContentHandler that writes the
+<tt>characters</tt> callback to stdout and writes the
+<tt>&lt;b&gt;</tt> and <tt>&lt;/b&gt;</tt> tags when the
+<i>ac_number</i> <tt>startElement</tt> and <tt>endElement</tt> events
+are sent.  Below is a class which does just that.
+
+<p>
+</p><center>
+<table>
+<caption>ContentHandler to embolden accession numbers</caption>
+<tbody><tr><td><blockquote><pre>import sys
+from xml.sax import handler
+class ACBold(handler.ContentHandler):
+    def characters(self, s):
+        sys.stdout.write(s)
+    def startElement(self, name, attrs):
+        if name == "ac_number":
+            sys.stdout.write("&lt;b&gt;")
+    def endElement(self, name):
+        if name == "ac_number":
+            sys.stdout.write("&lt;/b&gt;")
+
+&gt;&gt;&gt; parser = swissprot38.AC.make_parser()
+&gt;&gt;&gt; parser.setContentHandler(ACBold())
+&gt;&gt;&gt; parser.parseString("AC   P42655; P29360;\n")
+AC   &lt;b&gt;P42655&lt;/b&gt;; &lt;b&gt;P29360&lt;/b&gt;;
+</pre></blockquote>
+</td></tr>
+</tbody></table>
+</center>
+
+<p>
+
+Suppose instead you want to capture all of the accession numbers as a
+list of strings.  This can be done by creating a new ContentHandler
+that stores the <tt>characters</tt> events between the start and end
+of the <tt>ac_number</tt> elements, but for variety I'll use DOM, and
+show a complete example of parsing the elements from a file.
+
+
+</p><p>
+</p><center>
+<table>
+<caption>Get a list of accession numbers using Martel and DOM</caption>
+<tbody><tr><td><blockquote><pre>
+from xml.dom.sax_builder import SaxBuilder
+from Martel.formats import swissprot38
+
+parser = swissprot38.record.make_parser()
+dh = SaxBuilder()
+parser.setContentHandler(dh)
+parser.parse(open("100K_RAT.swiss").read())
+
+for ac_node in dh.document.getElementsByTagName("ac_number"):
+    print "AC", ac_node.get_firstChild().get_data()
+
+</pre></blockquote>
+</td></tr>
+</tbody></table>
+</center>
+
+<p>
+
+By comparison, here is the existing Bioperl and Biopython code to do
+just the parsing part of this task.  The Bioperl example builds up a
+common data structure and is similar in that respect to SeqIO and
+readseq.  The Biopython uses a dispatcher and is similar to the
+BioJava, Biopy and Swissknife approach.
+
+</p><p>
+</p><center>
+<table>
+<caption>Bioperl code to capture all accession numbers</caption>
+<tbody><tr><td><blockquote><pre>
+until (!defined ($buffer)) {
+    $_ = $buffer;
+    ...
+    #accession number(s)
+    elsif( /^AC\s+(.+)/) {
+        $acc_string .= $acc_string ? " $1": $1;
+    }
+...
+$acc_string =~ s/\;\s*/ /g;
+( $acc, $sec ) = split " ", $acc_string;
+$seq-&gt;accession_number($acc);
+foreach my $s (@sec) {
+    $seq-&gt;add_secondary_accession($s);
+}
+
+</pre></blockquote>
+</td></tr>
+</tbody></table>
+</center>
+
+
+<center>
+<table>
+<caption>Biopython code to capture all accession numbers</caption>
+<tbody><tr><td><blockquote><pre>
+class _Scanner:
+    _scan_fns = [_scan_id, _scan_ac, ...]
+    ...
+    def _scan_ac(self, uhandle, consumer):
+        self.scan_line('AC', uhandle, consumer.accession, any_number = 1)
+    ...
+
+class _RecordConsumer(AbstractConsumer):
+    def accession(self, line):
+        cols = string.split(self._chomp(string.rstrip(line[5:])), ';')
+        for ac in cols:
+            self.data.accessions.append(string.lstring(ac))
+
+</pre></blockquote>
+</td></tr>
+</tbody></table>
+</center>
+
+<p>
+
+From these examples you should be able to see that Martel makes it
+easier to describe and parse the contents of a file than existing
+solutions.
+
+</p><h3>Reducing callback overhead</h3>
+
+The parser doesn't know which events are needed by the ContentHandler
+so it must send all of them.  In the previous example of the ACBold
+class, only one of the roughly 90 tag types is needed.  Python's
+method call overhead is not light so sending unneeded events may cause
+an appreciable performance hit.  Additionally, for each event there
+will be a table lookup or a set of if/else statements to determine the
+appropriate action.  Reducing the number of events reduces this
+overhead as well.
+
+<p>
+
+One way to solve the problem is to write a new format definition
+without the unneeded groups defined.  Martel has a function called
+<tt>select_names</tt> which takes an expression and a list of names as
+its two parameters.  It returns a new expression that describes the
+same format as the original except that only the specified events will
+be created.
+
+</p><p>
+
+The first test of the reduced parser was for the SwissProtBuilder
+test, which reads all of the records in the SWISS-PROT 38 release and
+builds the Biopython SwissProt object for each record.  After
+filtering out the unneeded events the overall performance, including
+all of the object creation, improved by about a third.
+
+
+</p><h3>Debugging</h3>
+
+When an error occurs during mxTextTools processing, it only returns
+the elements which have been completely parsed.  It does not return a
+list of subtables which have only been partially parsed.  (Subtables
+are an mxTextTools feature used to implement groups, both named and
+unnamed.)  If an error occurs while parsing a group, the error
+position is reported as happening after the last position successfully
+parsed.  Because proper XML demands that a document contain a single
+outermost tag, all of the format definitions use a named group to
+describe the full format, which means the error position will be
+reported as occurring at or after the first byte.
+
+<p>
+
+This obviously isn't very helpful but fixing it has a large
+performance impact.  Instead, better reporting is available by setting
+a <tt>debug_level</tt> when creating the parser.  This is an optional
+parameter to the <tt>make_parser</tt> method, as in
+"<tt>format.make_parser(debug_level=1)</tt>."  The default level is 0,
+which adds no additional debugging support.  Setting it to 1 inserts
+code that captures the location of all successful partial matches and
+assumes the furtherest location is the error position.  Setting it to
+2 also adds printouts at every successful match showing the location
+around the end of the match and the regular expression pattern which
+matched.  Debugging with support enabled makes for a slower run-time,
+but finding errors in the format definition or data file is much
+faster.
+
+</p><p>
+
+</p><center>
+<table>
+<caption>Example debugging output with debug_level = 2</caption>
+<tbody><tr><td><blockquote><pre>&gt;&gt;&gt; from Martel.formats import swissprot38
+&gt;&gt;&gt; parser = swissprot38.AC.make_parser(debug_level = 2)
+&gt;&gt;&gt; parser.parseString("AC   P42655; P29360; Q63631;\n")
+Match 'AC   P426' (x=1): 'A'
+Match 'AC   P4265' (x=2): 'C'
+Match 'AC   P42655' (x=3): ' '
+Match 'AC   P42655;' (x=4): ' '
+Match 'AC   P42655; ' (x=5): ' '
+Match 'AC   P42655; P' (x=6): '[\\dA-Z_a-z]'
+   <b>...</b>
+Match '  P42655; P29360' (x=11): '(?P&lt;ac_number&gt;[\\dA-Z_a-z]+)'
+Match ' P42655; P29360;' (x=12): '\\;'
+Match 'P42655; P29360; ' (x=13): ' '
+   <b>...</b>
+Match ' Q63631;\012' (x=28): '( (?P&lt;ac_number&gt;[\\dA-Z_a-z]+)\\;)'
+Match ' Q63631;\012' (x=28): '( (?P&lt;ac_number&gt;[\\dA-Z_a-z]+)\\;)*'
+Match 'Q63631;\012' (x=29): '(\\n|\\r\\n?)'
+Match 'Q63631;\012' (x=29): 'AC   (?P&lt;ac_numbe ... ]+)\\;)*(\\n|\\r\\n?)'
+Match 'Q63631;\012' (x=29): '(?P&lt;AC&gt;AC   (?P&lt;a ... +)\\;)*(\\n|\\r\\n?))'
+&gt;&gt;&gt;
+
+</pre></blockquote>
+</td></tr>
+</tbody></table>
+</center>
+
+<h3>Large files</h3>
+
+The mxTextTools engine will only evaluate a string, and not even a
+memory-mapped file.  Some of the data files to parse are several
+hundred megabytes in size and don't fit into the memory of at least my
+laptop so we needed to develop an alternate solution.  Nearly all of
+the large files are actually concatenations of many much smaller
+records, with perhaps an additional, short header and footer.
+
+<p>
+
+The record locations are designed to be very easy to find.  For
+SWISS-PROT, all records start with a line starting with
+"<tt>ID   </tt>" and end with the line "<tt>//\n</tt>".
+This let us write a two-stage parser where the first stage reads
+individual records, which are passed to the second stage for further
+analysis.
+
+</p><p>
+
+The first stage parsers are called RecordReaders.  One RecordReader is
+StartsWith, which finds records starting with a given string.  Another
+is EndsWith, which finds records whose last line start with the given
+string.  The readers are implemented by reading a large block of data
+at a time then passing the string to mxTextTools to find the record
+start or end positions.
+
+</p><p>
+
+The composition of these two parsers is done at the format definition
+level.  The <tt>ParseRecords</tt> expression stores an element name
+and an expression.  As a definition it acts like a named group of the
+given name containing 1 or more copies of the given expression.  A
+ParseRecords instance also stores a RecordReader constructor and an
+optional arglist.  These are used when the "<tt>make_parser</tt>"
+method is called.  What's returned is a RecordParser object that
+implements the XMLReader interface using the two different stages.
+
+</p><p>
+
+</p><center>
+<table>
+<caption>SWISS-PROT format definition reading a record at a time</caption>
+<tbody><tr><td><blockquote><pre>import Martel
+from Martel import ParseRecords
+from Martel.formats import swissprot38
+
+format = Martel.ParseRecords("swissprot38", swissprot38.record,
+                             RecordReader.EndsWith, ("//",))
+parser = format.make_parser()
+
+parser.parseFile("/home/dalke/databases/swissprot/sprot38.dat")
+</pre></blockquote></td></tr>
+</tbody></table>
+</center>
+
+<p>
+
+There is also a HeaderFooter expression object which handles the more
+general case where there may be an optional header or footer.
+
+</p><p>
+
+In theory this two-stage separation is not needed.  With sufficient
+analysis of the format expression, the parser generator could
+determine that no backtracking is possible at a given point (eg, after
+the "<tt>\n//\n</tt>" indicating the end of a record) and deallocate
+any text stored before there.  At the other end, it could read input
+text only when the engine has reached the end of the current in-memory
+buffer.  That analysis is more complicated than I have time to dedicate.
+
+</p><h3>Newlines</h3>
+
+Most of the databases are stored using the unix newline conventions of
+"<tt>\n</tt>".  Macintosh computers have had a long presence in
+biology labs so a lot of data is produced using the "<tt>\r</tt>"
+convention.  A lot of people use Microsoft Windows, which uses
+"<tt>\r\n</tt>".  To make matters even worse, people will concatenate
+files from different sources into one file with mixed newline
+conventions.
+
+<p>
+
+We need to be able to handle all of these possibilities so we decided
+to be platform neutral in the same fashion as Java, where any of
+"<tt>\n</tt>", "<tt>\r</tt>" or "<tt>\r\n</tt>" is recognized as a
+newline.  This means we could not use the <tt>readlines</tt> method of
+file objects because that uses the machine's local convention.
+Instead, the tag tables used by the RecordReaders were modified to
+handle the three cases.
+
+</p><p>
+
+The other half of the problem was the format definitions.  They had
+been using the character "<tt>\n</tt>" to mean newline, but the
+implementation converts that to a check for ASCII character 10.  This
+is fine if the newlines in the input file match the machine's
+definition and the file is opened in ASCII mode, for then C's stdio
+does the conversion.  That was not the case so we needed to either
+have "<tt>\n</tt>" match all three endings or use a new character.
+</p><p> Under the guiding philosophy of "things that look the same should
+act the same", we decided to keep "<tt>\n</tt>" as meaning "match
+ASCII 10" and instead use "<tt>\R</tt>" to mean "match any of the
+three standard newline conventions."  When used in a character set, as
+in "<tt>[\R]</tt>", it means to match either the "<tt>\r</tt>" or
+"<tt>\n</tt>" characters.  The sequence "<tt>\R</tt>" was chosen
+because it is not used by Perl's or Python's regular expression
+pattern syntax.  The Plex-style equivalent is "<tt>AnyEol()</tt>."
+
+
+
+</p><h3>Named group repeats</h3>
+
+A few of the formats could not be parsed with the standard expression
+syntax because they use one field to store a count of the number of
+fields that follow.  In the simplest example from the MDL Molfile
+format, the line "<tt>SKP <i>N</i></tt>" means the next
+<tt><i>N</i></tt> lines of input are skipped.
+
+<p>
+
+I ended up creating a new expression construct which I call a "named
+group repeat."  It is a modified form of the ranged repeat construct
+"<tt>{n}</tt>" and allows any group name to occur in place of
+<tt>n</tt>.  When called, it gets the integer value of the last match
+and uses it as the repeat count.
+
+</p><p>
+
+This allows the SKP instruction above to be parsed using:
+</p><blockquote>
+<pre>  Martel.Re("SKP (?P&lt;count&gt;\d+)\R([^\R]*\R){count}")
+            -- or in the Plex form --
+  Martel.Str("SKP ") + Martel.Integer("count") + Martel.AnyEol() + \
+     Martel.RepN(Martel.ToEol(), "count")
+</pre>
+</blockquote>
+
+
+<h3>Performance</h3>
+
+Martel's performance is quite good.  In fact, for the benchmark test
+it is just under 20% faster than the equivalent Biopython code and
+slightly faster than Biopy, which does much less work.  The major
+reason, of course, is because mxTextTools is a really fast parser.  In
+the benchmark it takes under 7 minutes to parse a 225 MB file and
+another 17 minutes to send all of the callback events.  (One of the
+next projects is to work on reducing that overhead.)
+
+<p>
+
+Martel can be sped up by removing events which would be ignored. This
+is done with the <tt>select_names</tt> function, described earlier.
+If only two fields are needed, as for making FASTA output, the
+callback overhead goes down to 3 minutes, or 9.5 minutes total.  The
+closest equivalent code from BioJava takes 2.25 minutes.  They are not
+validating the format so a better comparison would be to write a new
+Martel grammar which similarly does less identification.
+
+</p><p>
+
+A more surprising result is that Martel is just over 20% faster than
+the closest equivalent Perl code from the Bioperl project.  Both of
+the Biopython related parsers are faster than Bioperl's and are doing
+more work.  I believe the reason may Bioperl's if/elif chain in the
+dispatch handler.  If there are <tt>N</tt> tags and an even
+distribution of M tag events then there will be <tt>O(N*M)</tt>
+checks.  By comparison, the two Python projects use a lookup table for
+the dispatch, which should be <tt>O(M)</tt>.  (Using a dispatch table
+is more important for Martel because it sends many more events than
+the existing Biopython parser.)
+
+</p><h3>Format and Version detection</h3>
+
+The exact details of a database format often change over time as new
+fields are needed or old ones replaced.  The database files are
+designed to be parsed by machine so are usually stable and and changes
+fit a predictable scheme.  Program outputs are a different matter.
+Many programs are written expecting their outputs to be read by humans
+so less attention is made to keep them easily parseable.  They may for
+example add extra output fields or change the field ordering or insert
+extra whitespace.
+
+<p>
+
+The most notorious of these in bioinformatics is
+BLAST
+<sup><a href="#blast">[30]</a></sup>, which searches
+a database for sequence sufficiently similar to a query sequence.  I
+have had a parser break between version 2.0.2 and 2.0.3 of BLAST
+because an extra space was prepended to a line.  It is good that a
+parser is able to detect unexpected changes in a format raise an
+error, since otherwise the change might be silently ignored.  There
+still needs to be a way to handle parsing many alternate versions.
+
+</p><p>
+
+The Bioperl BLAST parser is perhaps the best known parser for this
+task.  Written by Steve Chervitz, it can handle many different
+versions of NCBI BLAST as well as some of the development forks like
+WU-BLAST and PSI-BLAST.  It works by using a lot of if/else statements
+to handle each case, as shown below.
+
+</p><p>
+
+</p><center>
+<table>
+<caption>Part of Bioperl's BLAST parser code for handling multiple versions</caption>
+<tbody><tr><td><blockquote><pre>    if( $data =~ /(.+?)${Newline}CPU time: (.*)/so) {
+        # NCBI-Blast2 format (v2.04).
+        ...
+    } elsif( $data =~ /(.+?)${Newline}Parameters:(.*)/so) {
+        # NCBI-Blast1 or WashU-Blast2 format.
+        ...
+    } elsif( $data =~ /(.+?)$Newline\s+Database:(.*)/so) {
+        # Gotta watch out for confusion with the Database: line in the header
+        # which will be present in the last hit of an internal Blast report
+        # in a multi-report stream.
+ 
+        # NCBI-Blast2 format (v2.05).
+        ...
+ 
+    } elsif( $data =~ /(.+?)$Newline\s*Searching/so) {
+        # trying to detect a Searching at the end of a PSI-blast round.
+        # Gotta watch out for confusion with the Searching line in the header
+        # which will be present in the last hit of an internal Blast report
+        # in a multi-report, non-PSI-blast stream.
+ 
+        # PSI-Blast format (v2.08).
+        ...
+    }
+</pre></blockquote></td></tr>
+</tbody></table>
+</center>
+
+<p>
+
+Steve did an excellent job at writing this parser but maintaining it
+requires detailed knowledge about what each version might do.  He no
+longer maintains this code and because of its complexity no one else
+has taken up the maintainer mantle.
+
+</p><p>
+
+Martel includes a BLAST parser but is not yet as complete as the
+Bioperl one.  The existing Biopython BLAST parser also does a good of
+parsing the different formats so there has not been the need to work
+on Martel definitions.  As mentioned earlier, Martel should be able to
+handle alternate versions of a format very easily by specifying that
+the BLAST parser is:
+
+</p><blockquote>
+<pre>    blast = blast_2_0_10 | blast_2_0_9 | ... | wublast_2_0 | \
+            blast_1_4_11 | ...
+</pre>
+</blockquote>
+
+Adding support for a new version is a simple matter of prepending a
+new definition it to the list.  The BLAST programs all display version
+information near the top of the file so identification should also
+occur quite quickly.  Since the format definitions are independent of
+each other, they are also a lot easier to maintain than a large set of
+if/else statements.
+
+<p>
+
+While Martel has not been tested with BLAST versions, it has been used
+to automatically recognized and parse different file formats.  The
+<tt>examples</tt> directory of the distribution includes a program
+named <tt>toxml.py</tt> which defines a new format as:
+</p><blockquote>
+<pre>    format = swissprot38.format | PDB_2_1.format | MDL_10_1996.format | \
+             blastall_2_0_10.format
+</pre>
+</blockquote>
+
+This new format can be used to make a parser which converts files in
+any of the given formats to the corresponding XML version.  The only
+other existing programs which manage this, like SeqIO, do so in the
+Bioperl fashion of writing specialized detectors by hand contained
+inside of if/else chains.
+
+
+<h3>Validation</h3>
+
+The final task in the requirement list was to use Martel to validate a
+file format.  Anyone who has worked with regular expression will
+realize how finicky they are, so it's no surprise that Martel can be
+used to check if a file is in the right format.
+
+<p>
+
+What is startling is how few formats agree with their documentation.
+Sometimes it is because the documentation is incomplete, as when a
+format contains undocumented fields or when certain fields are allowed
+to be optional.  In other cases, there actually is a problem in the
+output format, as when the arrangement of lines is in the wrong order
+or the year field contains 5 digits.  As these have come up we have
+sent email to the providers asking for clarification.
+
+</p><p>
+
+Still, the number of problems identified in the existing databases is
+a clear indication that few others program has achieved this level of
+validation checking.  Perhaps we can convince the database providers
+to validate all new releases against Martel.
+
+</p><h3>Language independence</h3>
+
+Martel is very useful for Python programmers but other people use
+other languages and that variety is not going to change.  A key
+feature of Martel's format definitions is that they can be written as
+a single regular expression pattern.  Indeed, every expression defines
+the <tt>__str__</tt> method to return the corresponding pattern
+string.
+
+<p>
+
+Ideally then, someone could start with a definition written in Python
+and export it as a pattern string.  The syntax is well defined and
+could be imported by a Martel-like processor written in another
+language.  The behavior of each part of the pattern is also well
+defined so this new engine would easily be able to reproduce the same
+SAX events as Martel given the same inputs.  In other words, Martel's
+format definitions are language independent.
+
+</p><p>
+
+We have experimented a bit with Fourthought's XSLT engine
+<sup><a href="#fourthought">[31]</a></sup>.  XSLT is a
+transformation language written in XML that describes how to convert one
+type of XML to another.  XSLT is not a full programming language but
+does provide enough functionality to merge, rearrange and remove parts
+of a XML document.  XSLT may be useful for two reasons.  First, most
+people are only interested in the semantic information in a file.
+This requires discarding the extra syntactical data in a file and
+merging fields that had been folded over several lines.  XSLT is
+powerful enough to be able to do that.
+
+</p><p>
+
+Just as exciting is that XSLT is itself language independent.
+Combined with a Martel definition means there is a language
+independent way to parse almost every bioinformatics data file and
+present the cleaned information (XML but with the syntactical fields
+removed) to a database, search engine or other analysis tool.
+
+</p><h3>Ease of use</h3>
+
+Martel is just starting to be used by the other Biopython developers
+so it is hard to quantify its ease of use.  The general consensus
+seems to be that it is powerful - Brad Chapman termed it "regular
+expressions on steroids" - and able to meet its other design goals.
+
+
+<p>
+
+There are several areas of concern.  A lot of Martel's parts were
+taken from other systems, including sre, Plex, mxTextTools, XML and
+SAX.  Most of these parts are quite novel in this field so there is a
+learning curve to use them effectively.  On the other hand, the most
+user-directed of these, regular expressions and SAX, are very well
+documented so help in using them is readily available.
+
+</p><p>
+
+Even then, regular expressions are used much less frequently in Python
+programming than in Perl.  One developer has even pointed out that
+this is his first serious use of regular expressions.  The Plex-style
+API has helped him out a lot.  He also pointed out that since I do
+have a lot of experience writing regular expression patterns my
+examples are not very helpful because they can be quite complex.  This
+can be addressed by reworking some of the format definitions to be
+more Plex-like and by continuing to develop the tutorial.
+
+</p><p>
+
+Another developer is used to regular expressions from Perl programming
+but is running into problems because Martel's regular expression
+evaluation behavior is not the same as Perl's.  These differences
+are covered in the Bugs section below.
+
+</p><p>
+
+One problem with writing format definitions is knowing which
+information is important.  The different fields on a line are
+obviously important, but knowledge of the arrangement of lines into
+larger blocks is also important though less apparent.  It takes some
+practice to learn where and how to define a format.  People seem to be
+picking up that sense pretty quickly, although more documentation
+would also help.
+
+</p><p>
+Another usability issue concerns the use of SAX itself.  I've found
+that most people are not used to callback based programming and expect
+a more iterator based approach.  Sean McGrath's RAX
+<sup><a href="#rax">[34]</a></sup> suggests an
+intermediate solution where records are built using SAX but returned
+through an iterator.  We have experimented with this concept further
+and while it may be useful, there is not enough experience yet to
+judge.
+
+</p><h3>Bugs</h3>
+
+There is a major design bug in Martel which thankfully has an easy
+workaround.  Backtracking does not work with the greedy repeat
+operator because I can't figure out how to do it using mxTextTools.
+For example, "<tt>.*\n</tt>" will always fail because the "<tt>.</tt>"
+will consume the final "<tt>\n</tt>" and not backtrack.  This case can
+be replaced with a pattern which doesn't depend on backtracking, like
+"<tt>[^\n]*\n</tt>", but I still consider it a serious usability
+problem.
+
+<p>
+
+A more subtle problem comes up in the expression "(AB)+A".  This will
+raise an internal assertion when matched against the string "ABA"
+because the "A" in "(AB)" will partially match the final "A" of the
+string then backtrack and match with the final "A" of the expression.
+The bug in this case is that the partial match is not discarded for
+unnamed groupings.  Using a named group will work as expected, as in
+"(?P&lt;foo&gt;AB)+A".
+
+</p><p>
+
+A last implementation bug exists with the <tt>or</tt> operator.  Once
+one of the parts of the expression matches none of the other parts
+will be tested during any backtracking.  Consider the expression
+"primer|primer_bind" matched against the string "primer_bind".  The
+"primer" part of the expression matches the string.  The substring
+"_bind" remains but there is nothing in the expression for it to match
+against, so the parser will exit with an error.  So far the workaround
+to this problem is to put the fields in an order where it won't be a
+problem.  With more complex cases it may require a lookahead
+assertion.
+
+
+</p><p>
+
+With all these bugs, a working Martel definition is a subset of the
+behavior expected by a full regular expression.  If the Martel pattern
+matches correctly then so will a standard regular expression.  This at
+least allows someone in the future to improve the parser engine but
+not break existing definitions.
+
+</p><h3>Possible long-term work</h3>
+
+There are a few projects that I would like to see implemented but
+haven't really mentioned earlier.  In most cases, neither I nor the
+other Biopython developer have the time or expertise to implement them
+soon.
+
+<p>
+
+The simplest of these is keeping up with new format definitions.  The
+database providers change their formats about once a year as do the
+outputs from programs.  Even limiting things to the major databases
+and programs, this means tweaking a format definition every week or
+two.  My hope here is to persuade the providers to also distribute a
+format definition with their data sets and tools, and hopefully it
+will be a definitions which they've also used to validate their
+output.
+
+</p><p>
+
+Keeping track of versions is a weak spot in Martel.  Currently it is
+being done at the tag level, so a parser for SWISS-PROT release 38
+gets an element named "swissprot38" while one for release 39 will
+likely get one named "swissprot39."  Release 39 is already out so it
+is easy see that it is a superset of release 38.  There should be
+almost no reason to change the callback handlers, but unfortunately
+they expect some tags containing the format name.  Another approach
+would be to use tag attributes to store format For example, the
+outermost element could be "<tt>&lt;swissprot version='38'&gt;</tt>".
+Most programs would only need the "swissprot" part and those which are
+dependent on the version could get that from the "version" attribute.
+
+</p><p>
+
+One of the task scenarios was the ability to do format and version
+detection.  This is easily implemented by "or"ing the possible formats
+together and seeing which one works, but that runs into problems when
+trying to identify large files.  The RecordReaders come into play only
+for a specified format and not an or'ed definition.  When multiples of
+those are merged together, the parser reverts to the original
+in-memory parser.  I see no way to solve that without solving the much
+harder problem of detecting when no valid backtracking is possible,
+but it should be possible to write detectors which can detect the
+format when given at most <tt>N</tt> characters of text (<tt>N</tt>
+may depend on the specific format) then defer the actual parsing to
+the appropriate parser.
+
+</p><p>
+
+The Friedl book on regular expressions <sup><a href="#friedl">[32]</a></sup> describes a few optimization for regular
+expressions but points out that checking for them usually takes too
+much overhead for their uses in Perl and other interactive languages.
+Martel is a different case because the data files to analyze are
+usually quite large so it is worthwhile to do some additional
+optimization, even if it might take a second or two.  The tag tables
+can be pickled and cached for later one so the amortized overhead
+should not be that large.
+
+</p><p>
+
+Apparently the mxTextTools engine can be made even faster, or so says
+Marc-André Lemburg.  For example, the comments mention "The beginnings
+of a Tag Table compiler."
+
+</p><p>
+
+The original goal of working on Martel was to allow faster parsing
+when the format is known to be correct.  Consider the task of counting
+the number of records in a SWISS-PROT file.  By analyzing the format
+definition each record must contain at least 200 characters, so a fast
+counter could skip 200 characters after reading the character sequence
+"\nID".  Potentially this sort of analysis could make Martel faster
+than even grep for some tasks.
+
+</p><p>
+
+The core interface for Martel is very simple - it takes a format
+definition and a string to parse and generates a hand full of callback
+events.  If rewritten as a C library, this core could be used by
+developers in C, Perl, Tcl, Java and other languages, which would
+really emphasize the language independence of Martel's grammar
+definition.  It is likely that the format definition will not be the
+full regular expression syntax but some specialized and optimized byte
+stream created by a Python program.
+
+</p><p>
+
+Finally, mentioned above but worth repeating is the idea of getting
+rid of the two stage parsers needed for reading large files.  With
+sufficient analysis of the format expression it should be possible to
+know when no backtracking is possible and discard any text which is no
+longer needed.  Similarly, it should be possible to read data from the
+input stream only when required, so that that overall memory footprint
+stays low.
+
+</p><h3>Status</h3>
+
+Martel has achieved all our major design goals and is in final testing
+stage.  We are in the process of replacing the existing Biopython
+parsers with it.  The biggest tasks now are to identify and hopefully
+fix any outstanding bugs, write format definitions, and write builders
+which convert the SAX events to useful data structures.  Along with
+this we will be identifying common subexpressions which should be
+moved to a common library.  An initial set of these, like
+<tt>Integer</tt> and <tt>Float</tt> are present but others like
+<tt>Date</tt> and <tt>URL</tt> or the more biologically specific
+<tt>E.C. Number</tt> are also needed.
+
+<h3>Availability</h3>
+
+The development version of Martel is available at <a href="http://www.biopython.org/%7Edalke/Martel">http://www.biopython.org/~dalke/Martel/</a>
+and will also soon be available as part of the core Biopython
+distribution.  Discussions about its status, use and capabilities can
+be found on the biopython-dev mailing list at <a href="http://www.biopython.org/">www.biopython.org</a>.
+
+<h3>Acknowledgements</h3>
+
+Thanks go to Jeff Chang who has been a great sounding board over the
+last few years as he and I have explored this topic, to Roger Sayle
+for helping me figure out some of the format and pointing out relevant
+work and to Cayte Lindner and Brad Chapman for providing usability
+feedback.
+
+
+<h3>References</h3>
+
+<a name="biopython_home">
+[1] Biopython home page - </a><a href="http://www.biopython.org/">http://www.biopython.org/</a>
+<br>
+
+<a name="bioperl_home">
+[2] Bioperl home page - </a><a href="http://www.bioperl.org/">http://www.bioperl.org/</a>
+<br>
+
+<a name="biojava_home">
+[3] BioJava home page - </a><a href="http://www.biojava.org/">http://www.biojava.org/</a>
+<br>
+
+<a name="bioxml_home">
+[4] BioXML - </a><a href="http://www.bioxml.org/">http://www.bioxml.org/</a>
+<br>
+
+<a name="biocorba_home">
+[5] BioCORBA - </a><a href="http://www.biocorba.org/">http://www.biocorba.org/</a>
+<br>
+
+<a name="over_200">
+[6] "over 200 database formats" - 
+Baxevanis, A. D.
+<b>The Molecular Biology Database Collection: an online compilation
+of relevant database resources</b>,
+<i>Nuc.Acids.Res.</i> 2000, v28, no.1.:
+</a><a href="http://nar.oupjournals.org/cgi/content/abstract/28/1/1">http://nar.oupjournals.org/cgi/content/abstract/28/1/1</a>
+<br>
+
+<a name="" record_143e_human="">
+[7] "SWISS-PROT record 143E_HUMAN" - </a><a href="http://expasy.cbr.nrc.ca/cgi-bin/get-sprot-entry?P42655">http://expasy.cbr.nrc.ca/cgi-bin/get-sprot-entry?P42655</a>
+<br>
+
+<a name="swiss_definition">
+[8] "SWISS-PROT format definition" - 
+</a><a href="http://expasy.cbr.nrc.ca/txt/userman.txt">http://expasy.cbr.nrc.ca/txt/userman.txt</a>
+<br>
+
+<a name="over_50GB"> [9] "there is about 50 GB of publically available
+sequence data".  This is a conservative estimate made from looking at
+just four databases and rounding up to include TrEMBL, which
+translates EMBL to protein sequence.  The real number is likely
+several times greater, but even getting the numbers for these four
+databases is difficult: </a><ul>
+<a name="over_50GB"> <li>GenBank release 116.0 is over 21 GB:
+ </li></a><a href="http://www.ncbi.nlm.nih.gov/Web/Newsltr/Winter00/briefs.html">http://www.ncbi.nlm.nih.gov/Web/Newsltr/Winter00/briefs.html</a>
+ <li>SWISS-PROT is about 250 MB:
+<a href="ftp://expasy.cbr.nrc.ca/databases/swiss-prot/release/">ftp://expasy.cbr.nrc.ca/databases/swiss-prot/release/</a>
+ </li><li>EMBL doesn't list the size of their databases in bytes (<a href="http://www.ebi.ac.uk/embl/Documentation/Release_notes/current/relnotes.html">http://www.ebi.ac.uk/embl/Documentation/Release_notes/current/relnotes.html</a>).
+ There are 131 compressed data files in release 65 summing up to just under
+6 GB.  Assuming 50% compression gives an estimate of around 12 GB, which
+is in rough agreement with the statement that the database contains 10
+gigabases of nucleotides.
+ </li><li>PDB (<a href="http://www.rcsb.org/">http://www.rcsb.org/</a>) comes compressed on
+five CD-ROMs, which places the distribution at around 5 GB uncompressed.
+<br>
+</li></ul>
+<a name="parser_comparison">
+[10] "I analyzed 19 different SWISS-PROT parsers" - 
+</a><a href="http://www.biopython.org/wiki/html/BioPython/ParserComparison.html">http://www.biopython.org/wiki/html/BioPython/ParserComparison.html</a>
+<br>
+
+<a name="SRS">
+[11] SRS - Etzold, T., Ulyanov, A., Argos, P., <b>SRS: information
+ retrieval system for molecular biology data
+ banks. </b><i>Meth.Enzymol.</i> v266, pp. 114-128.
+</a><a href="http://www.lionbio.co.uk/">http://www.lionbio.co.uk/</a>
+<br>
+
+<a name="swissknife">
+[12] Swissknife - Hermjakob, H., Fleischmann, W., Apweiler, R.,
+ <b>Swissknife - 'lazy parsing' of SWISS-PROT entries</b>
+ <i>Bioinf.</i> 1999, v15, no.9, pp771-772.
+ </a><a href="ftp://ftp.ebi.ac.uk/pub/software/swissprot/">ftp://ftp.ebi.ac.uk/pub/software/swissprot/</a>
+<br>
+
+<a name="biopy">
+[13] Biopy - Ramu, C., Gemünd, C., Gibson, T.,
+ <b>Object-oriented parsing of biological databases with Python</b>
+ <i>Bioinf.</i> 2000, v16, no.7, pp628-638.
+ </a><a href="http://shag.embl-heidelberg.de:8000/Biopy/">http://shag.embl-heidelberg.de:8000/Biopy/</a>
+<br>
+
+<a name="darwin">
+[14] Darwin - </a><a href="http://cbrg.inf.ethz.ch/Darwinshome.html">http://cbrg.inf.ethz.ch/Darwinshome.html</a>
+<br>
+
+<a name="seqio">
+[15] SeqIO - </a><a href="http://www.cs.ucdavis.edu/%7Egusfield/seqio.tar.gz">http://www.cs.ucdavis.edu/~gusfield/seqio.tar.gz</a>
+<br>
+
+<a name="readseq_C">
+[16] readseq (C) -
+ </a><a href="http://iubio.bio.indiana.edu/soft/molbio/readseq/version1/readseq.shar">http://iubio.bio.indiana.edu/soft/molbio/readseq/version1/readseq.shar</a>
+<br>
+
+<a name="readseq_java">
+[17] readseq (Java) -
+ </a><a href="http://iubio.bio.indiana.edu/soft/molbio/readseq/java/readseq-source.zip">http://iubio.bio.indiana.edu/soft/molbio/readseq/java/readseq-source.zip</a>
+<br>
+
+<a name="boulder">
+[18] Boulder - </a><a href="http://stein.cshl.org/software/boulder/">http://stein.cshl.org/software/boulder/</a>
+<br>
+
+<a name="molbio">
+[19] molbio++ - </a><a href="ftp://ftp.ebi.ac.uk/pub/software/unix/molbio.tar.Z">ftp://ftp.ebi.ac.uk/pub/software/unix/molbio.tar.Z</a>
+<br>
+
+<a name="biodb_loader">
+[20] BioDB-Loader -
+ </a><a href="http://www.franz.com/services/conferences_seminars/ismb2000/biodb1.tar.Z">http://www.franz.com/services/conferences_seminars/ismb2000/biodb1.tar.Z</a>
+<br>
+                 
+<a name="gcg">
+[21] GCG - </a><a href="http://www.gcg.com/products/wis-package.html">http://www.gcg.com/products/wis-package.html</a>
+<br>
+
+<a name="sp2fasta">
+[22] sp2fasta - part of WU-BLAST:
+</a><a href="http://blast.wustl.edu/">http://blast.wustl.edu/</a>
+<br>
+
+<a name="sw2xml">
+[23] sw2xml - </a><a href="http://www.vsms.nottingham.ac.uk/biodom/software/protsuite-user-dist/sw2xml-protbot.pl">http://www.vsms.nottingham.ac.uk/biodom/software/protsuite-user-dist/sw2xml-protbot.pl</a>
+<br>
+             
+<a name="niceprot">
+[24] NiceProt - source not available, see an example at
+</a><a href="http://expasy.cbr.nrc.ca/cgi-bin/niceprot.pl?P42655">http://expasy.cbr.nrc.ca/cgi-bin/niceprot.pl?P42655</a>
+<br>
+
+<a name="get_sprot_entry">
+[25] get-sprot-entry - source not available, see an example at
+</a><a href="http://expasy.cbr.nrc.ca/cgi-bin/get-sprot-entry?P42655">http://expasy.cbr.nrc.ca/cgi-bin/get-sprot-entry?P42655</a>
+<br>
+
+<a name="over_150">
+[26] "Definitions are available for over 150 different formats" - 
+</a><a href="http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-page+databanks+-newId">http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-page+databanks+-newId</a>
+<br>
+
+<a name="MAG">
+[27] Molecular Applications Group - sadly no longer exists nor is any
+instance of DiscoveryBase publically available.
+<br>
+
+</a><a name="mxTextTools">
+[28] mxTextTools - 
+</a><a href="http://www.lemburg.com/files/python/mxTextTools.html">http://www.lemburg.com/files/python/mxTextTools.html</a>
+<br>
+
+<a name="plex">
+[29] "Greg Ewing's Plex" - 
+</a><a href="http://www.cosc.canterbury.ac.nz/%7Egreg/python/Plex/">http://www.cosc.canterbury.ac.nz/~greg/python/Plex/</a>
+<br>
+
+<a name="blast">
+[30] BLAST - 
+</a><a href="http://www.ncbi.nlm.nih.gov/BLAST/">http://www.ncbi.nlm.nih.gov/BLAST/</a>
+<br>
+
+<a name="fourthought">
+[31] "Fourthought's XSLT engine" - 
+</a><a href="http://www.fourthought.com/">http://www.fourthought.com/</a>
+<br>
+
+<a name="friedl">
+[32] "Friedl's book" - Friedl, J.E.F., <b>Mastering Regular Expressions</b>, O'Reilly, 1997.
+</a><a href="http://www.oreilly.com/catalog/regex/">http://www.oreilly.com/catalog/regex/</a>
+<br>
+
+<a name="steroids">
+[33] "regular expressions on steroids" - personal communications, September 27, 2000.
+<br>
+
+</a><a name="rax">
+[34] "Sean McGrath's RAX" - 
+</a><a href="http://www.oreillynet.com/%7Erael/data/xml/rax/">http://www.oreillynet.com/~rael/data/xml/rax/</a>
+<br>
+
+
+
+  </body></html>

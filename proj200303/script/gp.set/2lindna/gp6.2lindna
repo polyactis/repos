@@ -1,0 +1,90 @@
+Start	1
+End	1421
+group
+AtSETreg
+label
+Block	1	2	15
+endlabel
+label
+Block	1257	1387	0	H
+SET
+endlabel
+label
+Block	1420	1421	15	H
+  
+endlabel
+endgroup
+
+group
+OspSETreg
+label
+Block	1	2	15
+endlabel
+label
+Block	66	89	8	H
+zf-C2H2
+endlabel
+label
+Block	100	123	8	H
+zf-C2H2
+endlabel
+label
+Block	136	157	8	H
+zf-C2H2
+endlabel
+label
+Block	202	225	8	H
+zf-C2H2
+endlabel
+label
+Block	442	574	1	H
+Pre-SET
+endlabel
+label
+Block	576	745	0	H
+SET
+endlabel
+label
+Block	745	761	14	H
+Post-SET
+endlabel
+label
+Block	747	752	14	H
+Rieske iron-sulfur protein
+endlabel
+label
+Block	760	761	15	H
+  
+endlabel
+endgroup
+
+group
+ZmSDG117
+label
+Block	1	2	15
+endlabel
+label
+Block	527	550	8	H
+zf-C2H2
+endlabel
+label
+Block	561	584	8	H
+zf-C2H2
+endlabel
+label
+Block	662	685	8	H
+zf-C2H2
+endlabel
+label
+Block	902	1034	1	H
+Pre-SET
+endlabel
+label
+Block	1036	1182	0	H
+SET
+endlabel
+label
+Block	1197	1198	15	H
+  
+endlabel
+endgroup

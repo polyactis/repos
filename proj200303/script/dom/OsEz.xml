@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<interpro_matches>
+
+   <protein id="CAD18871" length="895" crc64="BB618FCD0E414FA2" >
+	<interpro id="IPR001214" name="Nuclear protein SET" type="Domain">
+	  <match id="PF00856" name="SET" dbname="PFAM">
+	    <location start="741" end="869" score="6.4e-38" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="SM00317" name="SET" dbname="SMART">
+	    <location start="747" end="868" score="3.1e-29" status="T" evidence="HMMSmart" />
+	  </match>
+	  <match id="PS50280" name="SET" dbname="PROFILE">
+	    <location start="746" end="866" score="29.582" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR008197" name="Whey acidic protein, core region" type="Domain">
+	  <match id="PS00317" name="4_DISULFIDE_CORE" dbname="PROSITE">
+	    <location start="656" end="669" score="NA" status="?" evidence="ScanRegExp" />
+	  </match>
+	</interpro>
+	  <match id="PS50311" name="CYS_RICH" dbname="PROFILE">
+	    <location start="650" end="719" score="20.059" status="T" evidence="ProfileScan" />
+	  </match>
+   </protein>
+
+</interpro_matches>
