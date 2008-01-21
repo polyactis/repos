@@ -10,7 +10,8 @@
 """
 import os, sys
 
-nt2number = {'-': -1,	#deletion
+nt2number = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
+	'-': -1,	#deletion
 	'N': 0,
 	'NA': 0,
 	'A': 1,
@@ -37,7 +38,8 @@ nt2number = {'-': -1,	#deletion
 	'K':10
 	}
 
-number2nt = {-1: '-',
+number2nt = {-2: '|',	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
+	-1: '-',
 	0: 'NA',
 	1:'A',
 	2:'C',
@@ -66,17 +68,21 @@ nt_number_matching_matrix = [[1, 1,1,1,1,1, 1,1,1,1,1],
 	[1, 0,1,0,1,0, 0,0,0,1,0],
 	[1, 0,0,1,1,0, 0,0,0,0,1]]
 
-def get_nt_number2diff_matrix_index(nt2number):
+def get_nt_number2diff_matrix_index(number2nt):
 	"""
 	2008-01-01 copied from CmpAccession2Ecotype.py
-	2007-10-31
-		nucleotide number ranges from -1 to 10.
-		the diff_matrix_index ranges from 0 to 11.
+	2007-10-31/2008-01-07
+		nucleotide number ranges from -2 to 10.
+		the diff_matrix_index ranges from 0 to 12.
 	"""
 	sys.stderr.write("Getting nt_number2diff_matrix_index from nt2number ...")
 	nt_number2diff_matrix_index = {}
-	for nt, number in nt2number.iteritems():
-		nt_number2diff_matrix_index[number] = number+1	#'-'(deletion) is -1
+	number_nt_ls = []
+	for number, nt in number2nt.iteritems():
+		number_nt_ls.append([number,nt])
+	number_nt_ls.sort()
+	for i in range(len(number_nt_ls)):
+		nt_number2diff_matrix_index[number_nt_ls[i][0]] = i
 	sys.stderr.write("Done.\n")
 	return nt_number2diff_matrix_index
 
