@@ -59,6 +59,7 @@ class QCVisualize(gtk.Window):
 		self.treeview = gtk.TreeView(self.liststore)
 		self.treeview.set_rules_hint(True)
 		self.treeselection = self.treeview.get_selection()
+		self.treeselection.set_mode(gtk.SELECTION_MULTIPLE)
 		
 		# matplotlib stuff
 		fig = Figure(figsize=(8,8))
@@ -143,7 +144,9 @@ class QCVisualize(gtk.Window):
 			column = gtk.TreeViewColumn('%s'%header[i], gtk.CellRendererText(), text=i)
 			column.set_sort_column_id(i)
 			self.treeview.append_column(column)
-	
+			self.treeview.set_search_column(i)
+		self.treeview.set_reorderable(True)
+		
 	def create_model(self, id2NA_mismatch_rate, id2info):
 		"""
 		2008-01-02
