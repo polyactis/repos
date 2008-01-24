@@ -1852,185 +1852,308 @@ cross_ocean_cc_set2_atlantic = check_cross_ocean_components(strain_iden_g2_compl
 cross_ocean_cc_set2_eurasia = check_cross_ocean_components(strain_iden_g2_complete, strain_iden_g_cc2_complete, ecotypeid2pos, 60)
 """
 
-"""
-2007-09-26
-	calculate LD (r^2)
-"""
-def group_ordered_snps_into_chr_snp_2layer_ls(curs, snp_acc_list, snp_locus_table='snps'):
+class LD:
 	"""
 	2007-09-26
-		assume snps are already in chromosome, position order, just need to find out
-		where to stop the chromosome
+		calculate LD (r^2)
+	2008-01-15
+		put everything into class
 	"""
-	old_chromosome = -1
-	chr_snp_2layer_ls = []
-	snp_position_ls = []	#no chromosome, just position.
-	chr_ls = []
-	for i in range(len(snp_acc_list)):
-		curs.execute("select chromosome, position from %s where snpid='%s'"%(snp_locus_table, snp_acc_list[i]))
-		rows = curs.fetchall()
-		chromosome, position = rows[0]
-		snp_position_ls.append(position)
-		if old_chromosome == -1:	#1st encounter
-			old_chromosome = chromosome
-		elif chromosome!=old_chromosome:
-			chr_snp_2layer_ls.append(chr_ls)
-			chr_ls = []
-			old_chromosome = chromosome
-		chr_ls.append(i)
-	chr_snp_2layer_ls.append(chr_ls)
-	return chr_snp_2layer_ls, snp_position_ls
-
-def fill_in_snp_allele2index(diploid_allele, allele2index):
-	from common import number2nt, nt2number
-	if diploid_allele>4:
-		nt = number2nt[diploid_allele]
-		allele1 = nt2number[nt[0]]
-		allele2 = nt2number[nt[1]]
-	else:
-		allele1 = allele2 = diploid_allele
-	if allele1 not in allele2index:
-		allele2index[allele1] = len(allele2index)
-	if allele2 not in allele2index:
-		allele2index[allele2] = len(allele2index)
-	return allele1, allele2
-
-def calculate_LD(input_fname, curs, snp_locus_table='snps', debug=0):
-	"""
-	exclude pairs with one or two NAs
-	exclude pairs both of who are heterozygous calls (can't figure out the phase)
-	(only one of pairs is heterozygous is all right)
-	"""
-	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
-	if debug:
-		import pdb
-		pdb.set_trace()
-	no_of_strains = len(strain_acc_list)
-	snp_acc_list = header[2:]
-	chr_snp_2layer_ls, snp_position_ls = group_ordered_snps_into_chr_snp_2layer_ls(curs, snp_acc_list, snp_locus_table)
-	no_of_chrs = len(chr_snp_2layer_ls)
-	r_square_ls = []
-	distance_ls = []
-	allele_freq_ls = []
-	snp_pair_ls = []
-	D_ls = []
-	D_prime_ls = []
-	import Numeric
-	for c in range(no_of_chrs):
-		no_of_snps = len(chr_snp_2layer_ls[c])
-		for i in range(no_of_snps):
-			for j in range(i+1, no_of_snps):
-				snp1_index = chr_snp_2layer_ls[c][i]
-				snp2_index = chr_snp_2layer_ls[c][j]
-				counter_matrix = Numeric.zeros([2,2])
-				snp1_allele2index = {}
-				snp2_allele2index = {}
-				for k in range(no_of_strains):
-					snp1_allele = data_matrix[k][snp1_index]
-					snp2_allele = data_matrix[k][snp2_index]
-					if snp1_allele!=0 and snp2_allele!=0 and not (snp1_allele>4 and snp2_allele>4):
-						snp1_allele1, snp1_allele2 = fill_in_snp_allele2index(snp1_allele, snp1_allele2index)
-						snp2_allele1, snp2_allele2 = fill_in_snp_allele2index(snp2_allele, snp2_allele2index)
-						counter_matrix[snp1_allele2index[snp1_allele1],snp2_allele2index[snp2_allele1]] += 1
-						counter_matrix[snp1_allele2index[snp1_allele2],snp2_allele2index[snp2_allele2]] += 1
-				PA = sum(counter_matrix[0,:])
-				Pa = sum(counter_matrix[1,:])
-				PB = sum(counter_matrix[:,0])
-				Pb = sum(counter_matrix[:,1])
-				total_num = float(PA+Pa)
-				PA = PA/total_num
-				Pa = Pa/total_num
-				PB = PB/total_num
-				Pb = Pb/total_num
-				PAB = counter_matrix[0,0]/total_num
-				D = PAB-PA*PB
-				PAPB = PA*PB
-				PAPb = PA*Pb
-				PaPB = Pa*PB
-				PaPb = Pa*Pb
-				Dmin = max(-PAPB, -PaPb)
-				Dmax = min(PAPb, PaPB)
-				if D<0:
-					D_prime = D/Dmin
-				else:
-					D_prime = D/Dmax
-				r2 = D*D/(PA*Pa*PB*Pb)
-				distance = abs(snp_position_ls[snp1_index]-snp_position_ls[snp2_index])
-				allele_freq = (min(PA, Pa),min(PB, Pb))
-				D_ls.append(D)
-				D_prime_ls.append(D_prime)
-				r_square_ls.append(r2)
-				distance_ls.append(distance)
-				allele_freq_ls.append(allele_freq)
-				snp_pair_ls.append((snp_acc_list[i], snp_acc_list[j]))
-	return D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls
-
-
-def plot_LD(x_ls, y_ls, title, xlabel, ylabel, max_dist=0, output_fname_prefix=None):
-	import pylab
-	import numpy
-	import scipy.interpolate
-	#x_ls = numpy.array(x_ls)
-	#y_ls = numpy.array(y_ls)
-	x_argsort_ls = numpy.argsort(x_ls)
-	new_x_ls = []
-	new_y_ls = []
-	for i in range(len(x_argsort_ls)):
-		if max_dist>0:
-			if x_ls[x_argsort_ls[i]]<=max_dist:
+	def __init__(self):
+		pass
+	
+	def group_ordered_snps_into_chr_snp_2layer_ls(self, curs, snp_acc_list, snp_locus_table='snps'):
+		"""
+		2007-09-26
+			assume snps are already in chromosome, position order, just need to find out
+			where to stop the chromosome
+		"""
+		sys.stderr.write("Grouping ordered snps into chr_snp_2layer_ls ...")
+		old_chromosome = -1
+		chr_snp_2layer_ls = []
+		snp_position_ls = []	#no chromosome, just position.
+		chr_ls = []
+		for i in range(len(snp_acc_list)):
+			curs.execute("select chromosome, position from %s where snpid='%s'"%(snp_locus_table, snp_acc_list[i]))
+			rows = curs.fetchall()
+			chromosome, position = rows[0]
+			snp_position_ls.append(position)
+			if old_chromosome == -1:	#1st encounter
+				old_chromosome = chromosome
+			elif chromosome!=old_chromosome:
+				chr_snp_2layer_ls.append(chr_ls)
+				chr_ls = []
+				old_chromosome = chromosome
+			chr_ls.append(i)
+		chr_snp_2layer_ls.append(chr_ls)
+		sys.stderr.write("Done.\n")
+		return chr_snp_2layer_ls, snp_position_ls
+	
+	def fill_in_snp_allele2index(self, diploid_allele, allele2index):
+		from common import number2nt, nt2number
+		if diploid_allele>4:
+			nt = number2nt[diploid_allele]
+			allele1 = nt2number[nt[0]]
+			allele2 = nt2number[nt[1]]
+		else:
+			allele1 = allele2 = diploid_allele
+		if allele1 not in allele2index:
+			allele2index[allele1] = len(allele2index)
+		if allele2 not in allele2index:
+			allele2index[allele2] = len(allele2index)
+		return allele1, allele2
+	
+	def calculate_LD(self, input_fname, curs, snp_locus_table='snps', debug=0, check_bit_ls=[1,0,0,0,0,0,0,0,0,0], chr_ls=[]):
+		"""
+		exclude pairs with one or two NAs
+		exclude pairs both of who are heterozygous calls (can't figure out the phase)
+		(only one of pairs is heterozygous is all right)
+		2008-01-23 add chr_ls
+		"""
+		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+		if debug:
+			import pdb
+			pdb.set_trace()
+		import random
+		no_of_strains = len(strain_acc_list)
+		snp_acc_list = header[2:]
+		chr_snp_2layer_ls, snp_position_ls = self.group_ordered_snps_into_chr_snp_2layer_ls(curs, snp_acc_list, snp_locus_table)
+		no_of_chrs = len(chr_snp_2layer_ls)
+		if len(chr_ls)==0:	#2008-01-23 if there's nothing in chr_ls
+			chr_ls = range(no_of_chrs)
+		r_square_ls = []
+		distance_ls = []
+		allele_freq_ls = []
+		snp_pair_ls = []
+		D_ls = []
+		D_prime_ls = []
+		import Numeric
+		counter = 0
+		period = len(check_bit_ls)
+		for c in chr_ls:
+			no_of_snps = len(chr_snp_2layer_ls[c])
+			for i in range(no_of_snps):
+				if len(check_bit_ls)>1:	#2008-01-23 no shuffling if there's only 1 bit
+					random.shuffle(check_bit_ls)
+				for j in range(i+1, no_of_snps):
+					snp1_index = chr_snp_2layer_ls[c][i]
+					snp2_index = chr_snp_2layer_ls[c][j]
+					distance = abs(snp_position_ls[snp1_index]-snp_position_ls[snp2_index])
+					if distance>10000:	#2008-01-15 skip SNPs two far
+						continue
+					counter += 1
+					if check_bit_ls[counter%period]==0:	#2008-01-15 skip some portion of them randomly
+						continue
+					counter_matrix = Numeric.zeros([2,2])
+					snp1_allele2index = {}
+					snp2_allele2index = {}
+					for k in range(no_of_strains):
+						snp1_allele = data_matrix[k][snp1_index]
+						snp2_allele = data_matrix[k][snp2_index]
+						if snp1_allele!=0 and snp2_allele!=0 and not (snp1_allele>4 and snp2_allele>4):
+							snp1_allele1, snp1_allele2 = self.fill_in_snp_allele2index(snp1_allele, snp1_allele2index)
+							snp2_allele1, snp2_allele2 = self.fill_in_snp_allele2index(snp2_allele, snp2_allele2index)
+							counter_matrix[snp1_allele2index[snp1_allele1],snp2_allele2index[snp2_allele1]] += 1
+							counter_matrix[snp1_allele2index[snp1_allele2],snp2_allele2index[snp2_allele2]] += 1
+					PA = sum(counter_matrix[0,:])
+					Pa = sum(counter_matrix[1,:])
+					PB = sum(counter_matrix[:,0])
+					Pb = sum(counter_matrix[:,1])
+					total_num = float(PA+Pa)
+					try:
+						PA = PA/total_num
+						Pa = Pa/total_num
+						PB = PB/total_num
+						Pb = Pb/total_num
+						PAB = counter_matrix[0,0]/total_num
+						D = PAB-PA*PB
+						PAPB = PA*PB
+						PAPb = PA*Pb
+						PaPB = Pa*PB
+						PaPb = Pa*Pb
+						Dmin = max(-PAPB, -PaPb)
+						Dmax = min(PAPb, PaPB)
+						if D<0:
+							D_prime = D/Dmin
+						else:
+							D_prime = D/Dmax
+						r2 = D*D/(PA*Pa*PB*Pb)
+					except:	#2008-01-23 exceptions.ZeroDivisionError, Dmin or Dmax could be 0 if one of(-PAPB, -PaPb)  is >0 or <0
+						sys.stderr.write('Unknown except, ignore: %s\n'%repr(sys.exc_info()[0]))
+						continue
+					allele_freq = (min(PA, Pa),min(PB, Pb))
+					D_ls.append(D)
+					D_prime_ls.append(D_prime)
+					r_square_ls.append(r2)
+					distance_ls.append(distance)
+					allele_freq_ls.append(allele_freq)
+					snp_pair_ls.append((snp_acc_list[i], snp_acc_list[j]))
+		return D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls
+	
+	
+	def plot_LD(self, x_ls, y_ls, title, xlabel, ylabel, max_dist=0, output_fname_prefix=None):
+		import pylab
+		import numpy
+		import scipy.interpolate
+		#x_ls = numpy.array(x_ls)
+		#y_ls = numpy.array(y_ls)
+		x_argsort_ls = numpy.argsort(x_ls)
+		new_x_ls = []
+		new_y_ls = []
+		for i in range(len(x_argsort_ls)):
+			if max_dist>0:
+				if x_ls[x_argsort_ls[i]]<=max_dist:
+					new_x_ls.append(x_ls[x_argsort_ls[i]])
+					new_y_ls.append(y_ls[x_argsort_ls[i]])
+			else:
 				new_x_ls.append(x_ls[x_argsort_ls[i]])
 				new_y_ls.append(y_ls[x_argsort_ls[i]])
-		else:
-			new_x_ls.append(x_ls[x_argsort_ls[i]])
-			new_y_ls.append(y_ls[x_argsort_ls[i]])
+		
+		sp = scipy.interpolate.UnivariateSpline(new_x_ls,new_y_ls)
+		step = (new_x_ls[-1]-new_x_ls[0])/100
+		n_x_ls = numpy.arange(new_x_ls[0], new_x_ls[-1], step)
+		n_y_ls = map(sp, n_x_ls)
+		pylab.clf()
+		pylab.title(title)
+		pylab.xlabel(xlabel)
+		pylab.ylabel(ylabel)
+		pylab.plot(new_x_ls, new_y_ls, '.')
+		pylab.plot(n_x_ls, n_y_ls)
+		if output_fname_prefix:
+			if max_dist:
+				output_fname_prefix = '%s_%s'%(output_fname_prefix, max_dist)
+			pylab.savefig('%s.eps'%output_fname_prefix, dpi=450)
+			pylab.savefig('%s.svg'%output_fname_prefix, dpi=450)
+			pylab.savefig('%s.png'%output_fname_prefix, dpi=450)
 	
-	sp = scipy.interpolate.UnivariateSpline(new_x_ls,new_y_ls)
-	step = (new_x_ls[-1]-new_x_ls[0])/100
-	n_x_ls = numpy.arange(new_x_ls[0], new_x_ls[-1], step)
-	n_y_ls = map(sp, n_x_ls)
-	pylab.clf()
-	pylab.title(title)
-	pylab.xlabel(xlabel)
-	pylab.ylabel(ylabel)
-	pylab.plot(new_x_ls, new_y_ls, '.')
-	pylab.plot(n_x_ls, n_y_ls)
-	if output_fname_prefix:
-		if max_dist:
-			output_fname_prefix = '%s_%s'%(output_fname_prefix, max_dist)
-		pylab.savefig('%s.eps'%output_fname_prefix, dpi=450)
-		pylab.savefig('%s.svg'%output_fname_prefix, dpi=450)
-		pylab.savefig('%s.png'%output_fname_prefix, dpi=450)
-
+	def get_snp_acc2LD_data(self, LD_ls, distance_ls, snp_pair_ls):
+		"""
+		2008-01-23
+			process data for linear model fitting
+			r^2 = 1/(a+bx) (page 483 of Hartl2007) => 1/r^2 = a+bx
+		"""
+		sys.stderr.write("Getting snp_acc2LD_data ...")
+		snp_acc2LD_data = {}
+		for i in range(len(snp_pair_ls)):
+			snp_pair = snp_pair_ls[i]
+			for snp_acc in snp_pair:
+				if snp_acc not in snp_acc2LD_data:
+					snp_acc2LD_data[snp_acc] = [[], []]
+				if LD_ls[i]!=0:
+					snp_acc2LD_data[snp_acc][0].append(1/LD_ls[i])
+					snp_acc2LD_data[snp_acc][1].append([1, distance_ls[i]])
+		sys.stderr.write("Done.\n")
+		return snp_acc2LD_data
+	
+	def LD_linear_fitting(self, snp_acc2LD_data):
+		"""
+		2008-01-23
+			actual linear fitting
+		"""
+		sys.stderr.write("Linear fitting for LD ...")
+		from annot.bin.module_cc.linear_model import linear_model
+		linear_model_ins = linear_model()
+		snp_acc2LD_linear_fitting = {}
+		for snp_acc, LD_data in snp_acc2LD_data.iteritems():
+			LD_ls, X_ls = LD_data
+			if len(LD_ls)>5:
+				linear_model_ins.prepare_data(LD_ls, X_ls)
+				linear_model_ins.run()
+				coeff_list = linear_model_ins.coefficients()
+				chisq_tuple = linear_model_ins.chisq_return()
+				snp_acc2LD_linear_fitting[snp_acc] = [coeff_list, chisq_tuple]
+				linear_model_ins.cleanup()
+		del linear_model_ins
+		sys.stderr.write("Done.\n")
+		return snp_acc2LD_linear_fitting
+	
+	def check_one_snp_acc_LD_decay(self, snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc):
+		"""
+		2008-01-23
+			to see whether the theoretical curve (blue line) fits real data (red dots).
+		"""
+		a = snp_acc2LD_linear_fitting[snp_acc][0][0]
+		b = snp_acc2LD_linear_fitting[snp_acc][0][1]
+		LD_func = lambda x: 1.0/(a+b*x)
+		x_ls = range(500,10000,100)
+		y_ls = map(LD_func, x_ls)
+		import pylab
+		pylab.plot(x_ls, y_ls)
+		
+		inverse_func = lambda x: 1.0/x
+		r2_ls = map(inverse_func, snp_acc2LD_data[snp_acc][0])
+		distance_ls = [row[1] for row in snp_acc2LD_data[snp_acc][1]]
+		pylab.plot(distance_ls, r2_ls, 'r.')
+		pylab.show()
 
 """
-input_fname = './script/variation/stock20070919/data_d110_c0_5.tsv'
-D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = calculate_LD(input_fname, curs, snp_locus_table='snps')
+from variation.src.misc import LD
+input_fname = os.path.expanduser('~/script/variation/stock20070919/data_d110_c0_5.tsv')
+snp_locus_table = 'snps'
+LD_ins = LD()
+D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = LD_ins.calculate_LD(input_fname, curs, snp_locus_table)
 
 title = 'LD decay'
 xlabel = 'Distance'
 ylabel = r'$r^2$'
 output_fname_prefix = '%s_LD_r2'%os.path.splitext(input_fname)[0]
-plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 0, output_fname_prefix)
-plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
-plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
-plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 0, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, r_square_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
 
 ylabel = 'D'
 output_fname_prefix = '%s_LD_D'%os.path.splitext(input_fname)[0]
-plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 0, output_fname_prefix)
-plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
-plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
-plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 0, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
 
 ylabel = "D'"
 output_fname_prefix = '%s_LD_D_prime'%os.path.splitext(input_fname)[0]
-plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 0, output_fname_prefix)
-plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
-plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
-plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 0, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 500000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 1000000, output_fname_prefix)
+LD_ins.plot_LD(distance_ls, D_prime_ls, title, xlabel, ylabel, 5000000, output_fname_prefix)
 
+
+#2008-01-15 250k data
+input_fname = os.path.expanduser('~/script/variation/genotyping/250ksnp/data/data_250k.tsv')
+snp_locus_table = 'snps_250k'
+LD_ins = LD()
+#2008-01-23 chromosome 1 and no random skipping
+D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = LD_ins.calculate_LD(input_fname, curs, snp_locus_table, check_bit_ls=[1], chr_ls=[1])
+D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = LD_ins.calculate_LD(input_fname, curs, snp_locus_table, check_bit_ls=[1]+range(100), chr_ls=[2])
+
+import cPickle
+inf = open('.pickle/LD_ins', 'r')
+D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = cPickle.load(inf)
+del inf
+
+snp_acc2LD_data = LD_ins.get_snp_acc2LD_data(r_square_ls, distance_ls, snp_pair_ls)
+snp_acc2LD_linear_fitting = LD_ins.LD_linear_fitting(snp_acc2LD_data)
+
+def check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc):
+	a = snp_acc2LD_linear_fitting[snp_acc][0][0]
+	b = snp_acc2LD_linear_fitting[snp_acc][0][1]
+	LD_func = lambda x: 1.0/(a+b*x)
+	x_ls = range(500,10000,100)
+	y_ls = map(LD_func, x_ls)
+	import pylab
+	pylab.clf()
+	pylab.plot(x_ls, y_ls)
+	
+	inverse_func = lambda x: 1.0/x
+	r2_ls = map(inverse_func, snp_acc2LD_data[snp_acc][0])
+	distance_ls = [row[1] for row in snp_acc2LD_data[snp_acc][1]]
+	pylab.plot(distance_ls, r2_ls, 'r.')
+	pylab.show()
+
+
+check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_10219_T_A')
+check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_3102_A_G')
 """
 
 """
