@@ -1,0 +1,110 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="1224" height="954" viewBox="0 0 1224 954"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<g id="figure1">
+<polygon style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "0.000000,954.900000 0.000000,0.000000 1224.900000,0.000000 1224.900000,954.900000"/>
+<g id="axes1">
+<polygon style="fill: #ffffff; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "153.112500,859.410000 153.112500,95.490000 1102.410000,95.490000 1102.410000,859.410000"/>
+<defs>
+    <clipPath id="5510319931232245619">
+    <rect x="153.112500" y="95.490000" width="949.297500" height="763.920000"
+    style="stroke: gray; fill: none;"/>
+    </clipPath>
+</defs>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "153.112500,859.410000 153.112500,839.357100 193.694968,839.357100 193.694968,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "198.204131,859.410000 198.204131,832.672800 238.786599,832.672800 238.786599,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "243.295762,859.410000 243.295762,826.465950 283.878231,826.465950 283.878231,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "288.387394,859.410000 288.387394,820.259100 328.969862,820.259100 328.969862,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "333.479025,859.410000 333.479025,808.322850 374.061493,808.322850 374.061493,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "378.570656,859.410000 378.570656,818.826750 419.153124,818.826750 419.153124,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "423.662287,859.410000 423.662287,726.201450 464.244756,726.201450 464.244756,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "468.753919,859.410000 468.753919,859.410000 509.336387,859.410000 509.336387,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "513.845550,859.410000 513.845550,859.410000 554.428018,859.410000 554.428018,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "558.937181,859.410000 558.937181,859.410000 599.519649,859.410000 599.519649,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "604.028812,859.410000 604.028812,859.410000 644.611281,859.410000 644.611281,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "649.120444,859.410000 649.120444,859.410000 689.702912,859.410000 689.702912,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "694.212075,859.410000 694.212075,859.410000 734.794543,859.410000 734.794543,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "739.303706,859.410000 739.303706,859.410000 779.886174,859.410000 779.886174,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "784.395337,859.410000 784.395337,859.410000 824.977806,859.410000 824.977806,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "829.486969,859.410000 829.486969,859.410000 870.069437,859.410000 870.069437,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "874.578600,859.410000 874.578600,859.410000 915.161068,859.410000 915.161068,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "919.670231,859.410000 919.670231,859.410000 960.252699,859.410000 960.252699,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "964.761862,859.410000 964.761862,859.410000 1005.344331,859.410000 1005.344331,859.410000"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#5510319931232245619)" points = "1009.853494,859.410000 1009.853494,125.569350 1050.435962,125.569350 1050.435962,859.410000"/>
+<g id="matplotlib.axis1">
+<g id="xtick1">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="150.612500" y="869.410000" >0</text>
+</g>
+<g id="xtick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 390.436875,859.410000 L 390.436875,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 390.436875,100.490000 L 390.436875,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="387.936875" y="869.410000" >5</text>
+</g>
+<g id="xtick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 627.761250,859.410000 L 627.761250,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 627.761250,100.490000 L 627.761250,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="622.761250" y="869.410000" >10</text>
+</g>
+<g id="xtick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 865.085625,859.410000 L 865.085625,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 865.085625,100.490000 L 865.085625,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="860.085625" y="869.410000" >15</text>
+</g>
+<g id="xtick5">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1096.910000" y="869.410000" >20</text>
+</g>
+</g>
+<g id="matplotlib.axis2">
+<g id="ytick1">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="145.112500" y="862.910000" >0</text>
+</g>
+<g id="ytick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 153.112500,763.920000 L 158.112500,763.920000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1097.410000,763.920000 L 1102.410000,763.920000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="133.112500" y="767.420000" >200</text>
+</g>
+<g id="ytick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 153.112500,668.430000 L 158.112500,668.430000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1097.410000,668.430000 L 1102.410000,668.430000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="133.112500" y="671.930000" >400</text>
+</g>
+<g id="ytick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 153.112500,572.940000 L 158.112500,572.940000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1097.410000,572.940000 L 1102.410000,572.940000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="133.112500" y="576.440000" >600</text>
+</g>
+<g id="ytick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 153.112500,477.450000 L 158.112500,477.450000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1097.410000,477.450000 L 1102.410000,477.450000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="133.112500" y="480.950000" >800</text>
+</g>
+<g id="ytick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 153.112500,381.960000 L 158.112500,381.960000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1097.410000,381.960000 L 1102.410000,381.960000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="128.112500" y="385.460000" >1000</text>
+</g>
+<g id="ytick7">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 153.112500,286.470000 L 158.112500,286.470000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1097.410000,286.470000 L 1102.410000,286.470000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="128.112500" y="289.970000" >1200</text>
+</g>
+<g id="ytick8">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 153.112500,190.980000 L 158.112500,190.980000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1097.410000,190.980000 L 1102.410000,190.980000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="128.112500" y="194.480000" >1400</text>
+</g>
+<g id="ytick9">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="128.112500" y="98.990000" >1600</text>
+</g>
+</g>
+<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  d="M 153.112500,859.410000 L 1102.410000,859.410000 L 1102.410000,95.490000 L 153.112500,95.490000 L 153.112500,859.410000 "/>
+<text style="font-size: 14.400000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="537.761250" y="80.211600" >hist of selfing generations</text>
+</g>
+</g>
+</svg>

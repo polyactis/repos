@@ -1,0 +1,799 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="1476" height="954" viewBox="0 0 1476 954"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<g id="figure1">
+<polygon style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "0.000000,954.900000 0.000000,0.000000 1476.000000,0.000000 1476.000000,954.900000"/>
+<g id="axes1">
+<polygon style="fill: #ffffff; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "184.500000,859.410000 184.500000,95.490000 1099.620000,95.490000 1099.620000,859.410000"/>
+<image x="184.500000" y="95.410000" width="915.000000" height="764.000000" xlink:href="data:image/png;base64,
+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
+SmV5pbRm5jmwo13LfWmb62fnba675jdjZShnGe5hJU5zhYs0WsCOzP7De9QVMhNMwkU6CYBrtKNk
+phyTmWASAKjWcoBssA2wJsEkAFDNaiIAPg0CAABANSuTAEA1K5DwHqv4ZCaYZCkaXnikTjCLATK8
+R50gM8EkAFDNABkAwSQAUM3KJAAO4AEAAKCaYBIAAIBqtrmyFNuq4JE6ARCbdprMBJMsRcMLj9QJ
+gNi002T2cTuO75r/4c/372YX//vjn6prlP59yZnfKf0/pVml2/H19O9fx+3p30sNSu3vv1J7DzMb
+uVKaSkaktTafastxSavfOY76fK0tZ2fS1Kq+t8rXUh09jnjPurbtO47X9/dM77bsldp63bvdePX7
+vdug2vLaMj2tyuWZtLZs/2b8/plrtBrTvNKq3484fphVZl5do3Ys17L81aqtv7V9RO2/P476vrdV
+u3imfI9oU54ZES/U+jWzINdeu1VaW95z8bc+Ov/+piJ2aBHLZcRrh6vvJ+rorGf96t+fCd6qrtGo
+LTsOs/PvGPEcqq9d++8n1q0Rv1/uh+a0cSNErLsrlZmIz7q2/vb+96+UfuvzaFMuz5TvaM90Znps
+cwVYWMsVQngm4iReyUpphcxWqosrpTUiwSRLUbGB3gG0dubRSvmxUlohM3VxH1sGkzPfhxkh84pE
+5tmjzPdGP5nre0nve87eR9Tq/d7dmd+aaaW0wkpmvYfINVsGk9k7Atve1pS9XHKeuksG2jjgFUHj
+mrYMJsln11W98mlzdSd5jrDrM2rhVR4JNMksYrtRm6aI9wC1IvY16lYftflaDCZbNZZn/5+a32mp
+Nk0RK1etDB3jrg1Hq9PSRmxjy6zV1pyIdaulzPc3696y9L21157Zb/Xe/TPz+axUNmb2W7Puu2Uf
+W3sPEXe9zRyjtIyTan5nhNprF4PJVoWs9f/TW++OK6IRz7qViGUmg1b5uuvzabU1J+LAtqXM5WPW
+va3U97Z8ZzJiv5WhHV2pjmbI71orleOSme9Oz/w+8krlrJZtrgBAd1kGU5lX2EH5ppZgkqVo5OBR
+xBVIctHuXiP/4O5MuVeHYksdTK60D74lg8s1aSyBiFq1QSO2t0VsR7XhcHemHVCHxqptRz8+v39/
+90wQ74nYAbIP5Q/WlOXbjUAMxgN9zMzX3tdOvTKZQfnTD3t+j6fVaVgtB2ART8OtvUbve6aflZ7F
+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
+MHb3KnIGvnEAAAAASUVORK5CYII=
+" />
+<g id="matplotlib.axis1">
+<g id="xtick1">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="182.000000" y="869.410000" >0</text>
+</g>
+<g id="xtick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 307.334899,859.410000 L 307.334899,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 307.334899,100.490000 L 307.334899,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="301.834899" y="869.410000" >20</text>
+</g>
+<g id="xtick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.169799,859.410000 L 430.169799,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.169799,100.490000 L 430.169799,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="424.669799" y="869.410000" >40</text>
+</g>
+<g id="xtick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 553.004698,859.410000 L 553.004698,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 553.004698,100.490000 L 553.004698,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="547.504698" y="869.410000" >60</text>
+</g>
+<g id="xtick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 675.839597,859.410000 L 675.839597,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 675.839597,100.490000 L 675.839597,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="670.339597" y="869.410000" >80</text>
+</g>
+<g id="xtick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 798.674497,859.410000 L 798.674497,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 798.674497,100.490000 L 798.674497,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="790.674497" y="869.410000" >100</text>
+</g>
+<g id="xtick7">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 921.509396,859.410000 L 921.509396,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 921.509396,100.490000 L 921.509396,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="913.509396" y="869.410000" >120</text>
+</g>
+<g id="xtick8">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1044.344295,859.410000 L 1044.344295,854.410000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1044.344295,100.490000 L 1044.344295,95.490000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1036.344295" y="869.410000" >140</text>
+</g>
+</g>
+<g id="matplotlib.axis2">
+<g id="ytick1">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="176.500000" y="862.910000" >0</text>
+</g>
+<g id="ytick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 184.500000,723.020070 L 189.500000,723.020070"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1094.620000,723.020070 L 1099.620000,723.020070"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="159.500000" y="726.520070" >1000</text>
+</g>
+<g id="ytick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 184.500000,586.630139 L 189.500000,586.630139"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1094.620000,586.630139 L 1099.620000,586.630139"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="158.500000" y="590.130139" >2000</text>
+</g>
+<g id="ytick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 184.500000,450.240209 L 189.500000,450.240209"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1094.620000,450.240209 L 1099.620000,450.240209"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="158.500000" y="453.740209" >3000</text>
+</g>
+<g id="ytick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 184.500000,313.850279 L 189.500000,313.850279"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1094.620000,313.850279 L 1099.620000,313.850279"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="158.500000" y="317.350279" >4000</text>
+</g>
+<g id="ytick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 184.500000,177.460348 L 189.500000,177.460348"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1094.620000,177.460348 L 1099.620000,177.460348"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="158.500000" y="180.960348" >5000</text>
+</g>
+</g>
+<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  d="M 184.500000,859.410000 L 1099.620000,859.410000 L 1099.620000,95.490000 L 184.500000,95.490000 L 184.500000,859.410000 "/>
+<text style="font-size: 14.400000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="476.060000" y="80.211600" >coarse_data_matrix, 0=NA, 1=homo, 2=hetero</text>
+</g>
+<g id="axes2">
+<polygon style="fill: #ffffff; stroke: #ffffff; stroke-width: 0.010000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "1156.815000,859.410000 1156.815000,856.425938 1156.815000,98.474063 1156.815000,95.490000 1195.011000,95.490000 1195.011000,98.474063 1195.011000,856.425938 1195.011000,859.410000 1156.815000,859.410000"/>
+<g id="polycollection1">
+<defs>
+    <clipPath id="-276173392311036240">
+    <rect x="1156.815000" y="95.490000" width="38.196000" height="763.920000"
+    style="stroke: gray; fill: none;"/>
+    </clipPath>
+</defs>
+<polygon style="fill: #000080; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,859.410000 1156.815000,856.425938 1195.011000,856.425938 1195.011000,859.410000"/>
+<polygon style="fill: #000084; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,856.425938 1156.815000,853.441875 1195.011000,853.441875 1195.011000,856.425938"/>
+<polygon style="fill: #000089; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,853.441875 1156.815000,850.457813 1195.011000,850.457813 1195.011000,853.441875"/>
+<polygon style="fill: #00008d; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,850.457813 1156.815000,847.473750 1195.011000,847.473750 1195.011000,850.457813"/>
+<polygon style="fill: #000092; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,847.473750 1156.815000,844.489687 1195.011000,844.489687 1195.011000,847.473750"/>
+<polygon style="fill: #000096; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,844.489687 1156.815000,841.505625 1195.011000,841.505625 1195.011000,844.489687"/>
+<polygon style="fill: #00009b; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,841.505625 1156.815000,838.521562 1195.011000,838.521562 1195.011000,841.505625"/>
+<polygon style="fill: #00009f; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,838.521562 1156.815000,835.537500 1195.011000,835.537500 1195.011000,838.521562"/>
+<polygon style="fill: #0000a4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,835.537500 1156.815000,832.553437 1195.011000,832.553437 1195.011000,835.537500"/>
+<polygon style="fill: #0000a8; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,832.553437 1156.815000,829.569375 1195.011000,829.569375 1195.011000,832.553437"/>
+<polygon style="fill: #0000ad; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,829.569375 1156.815000,826.585312 1195.011000,826.585312 1195.011000,829.569375"/>
+<polygon style="fill: #0000b2; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,826.585312 1156.815000,823.601250 1195.011000,823.601250 1195.011000,826.585312"/>
+<polygon style="fill: #0000b6; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,823.601250 1156.815000,820.617188 1195.011000,820.617188 1195.011000,823.601250"/>
+<polygon style="fill: #0000bb; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,820.617188 1156.815000,817.633125 1195.011000,817.633125 1195.011000,820.617188"/>
+<polygon style="fill: #0000bf; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,817.633125 1156.815000,814.649063 1195.011000,814.649063 1195.011000,817.633125"/>
+<polygon style="fill: #0000c4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,814.649063 1156.815000,811.665000 1195.011000,811.665000 1195.011000,814.649063"/>
+<polygon style="fill: #0000c8; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,811.665000 1156.815000,808.680938 1195.011000,808.680938 1195.011000,811.665000"/>
+<polygon style="fill: #0000cd; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,808.680938 1156.815000,805.696875 1195.011000,805.696875 1195.011000,808.680938"/>
+<polygon style="fill: #0000d1; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,805.696875 1156.815000,802.712812 1195.011000,802.712812 1195.011000,805.696875"/>
+<polygon style="fill: #0000d6; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,802.712812 1156.815000,799.728750 1195.011000,799.728750 1195.011000,802.712812"/>
+<polygon style="fill: #0000da; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,799.728750 1156.815000,796.744688 1195.011000,796.744688 1195.011000,799.728750"/>
+<polygon style="fill: #0000df; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,796.744688 1156.815000,793.760625 1195.011000,793.760625 1195.011000,796.744688"/>
+<polygon style="fill: #0000e3; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,793.760625 1156.815000,790.776562 1195.011000,790.776562 1195.011000,793.760625"/>
+<polygon style="fill: #0000e8; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,790.776562 1156.815000,787.792500 1195.011000,787.792500 1195.011000,790.776562"/>
+<polygon style="fill: #0000ed; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,787.792500 1156.815000,784.808437 1195.011000,784.808437 1195.011000,787.792500"/>
+<polygon style="fill: #0000f1; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,784.808437 1156.815000,781.824375 1195.011000,781.824375 1195.011000,784.808437"/>
+<polygon style="fill: #0000f6; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,781.824375 1156.815000,778.840312 1195.011000,778.840312 1195.011000,781.824375"/>
+<polygon style="fill: #0000fa; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,778.840312 1156.815000,775.856250 1195.011000,775.856250 1195.011000,778.840312"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,775.856250 1156.815000,772.872187 1195.011000,772.872187 1195.011000,775.856250"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,772.872187 1156.815000,769.888125 1195.011000,769.888125 1195.011000,772.872187"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,769.888125 1156.815000,766.904063 1195.011000,766.904063 1195.011000,769.888125"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,766.904063 1156.815000,763.920000 1195.011000,763.920000 1195.011000,766.904063"/>
+<polygon style="fill: #0001ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,763.920000 1156.815000,760.935938 1195.011000,760.935938 1195.011000,763.920000"/>
+<polygon style="fill: #0005ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,760.935938 1156.815000,757.951875 1195.011000,757.951875 1195.011000,760.935938"/>
+<polygon style="fill: #0009ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,757.951875 1156.815000,754.967813 1195.011000,754.967813 1195.011000,757.951875"/>
+<polygon style="fill: #000dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,754.967813 1156.815000,751.983750 1195.011000,751.983750 1195.011000,754.967813"/>
+<polygon style="fill: #0011ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,751.983750 1156.815000,748.999687 1195.011000,748.999687 1195.011000,751.983750"/>
+<polygon style="fill: #0015ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,748.999687 1156.815000,746.015625 1195.011000,746.015625 1195.011000,748.999687"/>
+<polygon style="fill: #0019ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,746.015625 1156.815000,743.031563 1195.011000,743.031563 1195.011000,746.015625"/>
+<polygon style="fill: #001dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,743.031563 1156.815000,740.047500 1195.011000,740.047500 1195.011000,743.031563"/>
+<polygon style="fill: #0021ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,740.047500 1156.815000,737.063437 1195.011000,737.063437 1195.011000,740.047500"/>
+<polygon style="fill: #0025ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,737.063437 1156.815000,734.079375 1195.011000,734.079375 1195.011000,737.063437"/>
+<polygon style="fill: #0029ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,734.079375 1156.815000,731.095312 1195.011000,731.095312 1195.011000,734.079375"/>
+<polygon style="fill: #002dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,731.095312 1156.815000,728.111250 1195.011000,728.111250 1195.011000,731.095312"/>
+<polygon style="fill: #0031ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,728.111250 1156.815000,725.127187 1195.011000,725.127187 1195.011000,728.111250"/>
+<polygon style="fill: #0035ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,725.127187 1156.815000,722.143125 1195.011000,722.143125 1195.011000,725.127187"/>
+<polygon style="fill: #0039ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,722.143125 1156.815000,719.159063 1195.011000,719.159063 1195.011000,722.143125"/>
+<polygon style="fill: #003dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,719.159063 1156.815000,716.175000 1195.011000,716.175000 1195.011000,719.159063"/>
+<polygon style="fill: #0041ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,716.175000 1156.815000,713.190938 1195.011000,713.190938 1195.011000,716.175000"/>
+<polygon style="fill: #0045ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,713.190938 1156.815000,710.206875 1195.011000,710.206875 1195.011000,713.190938"/>
+<polygon style="fill: #0049ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,710.206875 1156.815000,707.222813 1195.011000,707.222813 1195.011000,710.206875"/>
+<polygon style="fill: #004dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,707.222813 1156.815000,704.238750 1195.011000,704.238750 1195.011000,707.222813"/>
+<polygon style="fill: #0051ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,704.238750 1156.815000,701.254688 1195.011000,701.254688 1195.011000,704.238750"/>
+<polygon style="fill: #0055ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,701.254688 1156.815000,698.270625 1195.011000,698.270625 1195.011000,701.254688"/>
+<polygon style="fill: #0059ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,698.270625 1156.815000,695.286562 1195.011000,695.286562 1195.011000,698.270625"/>
+<polygon style="fill: #005dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,695.286562 1156.815000,692.302500 1195.011000,692.302500 1195.011000,695.286562"/>
+<polygon style="fill: #0061ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,692.302500 1156.815000,689.318438 1195.011000,689.318438 1195.011000,692.302500"/>
+<polygon style="fill: #0065ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,689.318438 1156.815000,686.334375 1195.011000,686.334375 1195.011000,689.318438"/>
+<polygon style="fill: #0069ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,686.334375 1156.815000,683.350312 1195.011000,683.350312 1195.011000,686.334375"/>
+<polygon style="fill: #006dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,683.350312 1156.815000,680.366250 1195.011000,680.366250 1195.011000,683.350312"/>
+<polygon style="fill: #0071ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,680.366250 1156.815000,677.382187 1195.011000,677.382187 1195.011000,680.366250"/>
+<polygon style="fill: #0075ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,677.382187 1156.815000,674.398125 1195.011000,674.398125 1195.011000,677.382187"/>
+<polygon style="fill: #0079ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,674.398125 1156.815000,671.414062 1195.011000,671.414062 1195.011000,674.398125"/>
+<polygon style="fill: #007dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,671.414062 1156.815000,668.430000 1195.011000,668.430000 1195.011000,671.414062"/>
+<polygon style="fill: #0081ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,668.430000 1156.815000,665.445938 1195.011000,665.445938 1195.011000,668.430000"/>
+<polygon style="fill: #0085ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,665.445938 1156.815000,662.461875 1195.011000,662.461875 1195.011000,665.445938"/>
+<polygon style="fill: #0089ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,662.461875 1156.815000,659.477813 1195.011000,659.477813 1195.011000,662.461875"/>
+<polygon style="fill: #008dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,659.477813 1156.815000,656.493750 1195.011000,656.493750 1195.011000,659.477813"/>
+<polygon style="fill: #0091ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,656.493750 1156.815000,653.509688 1195.011000,653.509688 1195.011000,656.493750"/>
+<polygon style="fill: #0095ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,653.509688 1156.815000,650.525625 1195.011000,650.525625 1195.011000,653.509688"/>
+<polygon style="fill: #0099ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,650.525625 1156.815000,647.541563 1195.011000,647.541563 1195.011000,650.525625"/>
+<polygon style="fill: #009dff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,647.541563 1156.815000,644.557500 1195.011000,644.557500 1195.011000,647.541563"/>
+<polygon style="fill: #00a1ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,644.557500 1156.815000,641.573437 1195.011000,641.573437 1195.011000,644.557500"/>
+<polygon style="fill: #00a5ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,641.573437 1156.815000,638.589375 1195.011000,638.589375 1195.011000,641.573437"/>
+<polygon style="fill: #00a9ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,638.589375 1156.815000,635.605312 1195.011000,635.605312 1195.011000,638.589375"/>
+<polygon style="fill: #00adff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,635.605312 1156.815000,632.621250 1195.011000,632.621250 1195.011000,635.605312"/>
+<polygon style="fill: #00b1ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,632.621250 1156.815000,629.637187 1195.011000,629.637187 1195.011000,632.621250"/>
+<polygon style="fill: #00b5ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,629.637187 1156.815000,626.653125 1195.011000,626.653125 1195.011000,629.637187"/>
+<polygon style="fill: #00b9ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,626.653125 1156.815000,623.669062 1195.011000,623.669062 1195.011000,626.653125"/>
+<polygon style="fill: #00bdff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,623.669062 1156.815000,620.685000 1195.011000,620.685000 1195.011000,623.669062"/>
+<polygon style="fill: #00c1ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,620.685000 1156.815000,617.700938 1195.011000,617.700938 1195.011000,620.685000"/>
+<polygon style="fill: #00c5ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,617.700938 1156.815000,614.716875 1195.011000,614.716875 1195.011000,617.700938"/>
+<polygon style="fill: #00c9ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,614.716875 1156.815000,611.732813 1195.011000,611.732813 1195.011000,614.716875"/>
+<polygon style="fill: #00cdff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,611.732813 1156.815000,608.748750 1195.011000,608.748750 1195.011000,611.732813"/>
+<polygon style="fill: #00d1ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,608.748750 1156.815000,605.764688 1195.011000,605.764688 1195.011000,608.748750"/>
+<polygon style="fill: #00d5ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,605.764688 1156.815000,602.780625 1195.011000,602.780625 1195.011000,605.764688"/>
+<polygon style="fill: #00d9ff; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,602.780625 1156.815000,599.796563 1195.011000,599.796563 1195.011000,602.780625"/>
+<polygon style="fill: #00ddfe; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,599.796563 1156.815000,596.812500 1195.011000,596.812500 1195.011000,599.796563"/>
+<polygon style="fill: #00e1fb; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,596.812500 1156.815000,593.828438 1195.011000,593.828438 1195.011000,596.812500"/>
+<polygon style="fill: #00e5f8; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,593.828438 1156.815000,590.844375 1195.011000,590.844375 1195.011000,593.828438"/>
+<polygon style="fill: #02e9f4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,590.844375 1156.815000,587.860312 1195.011000,587.860312 1195.011000,590.844375"/>
+<polygon style="fill: #06edf1; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,587.860312 1156.815000,584.876250 1195.011000,584.876250 1195.011000,587.860312"/>
+<polygon style="fill: #09f1ee; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,584.876250 1156.815000,581.892187 1195.011000,581.892187 1195.011000,584.876250"/>
+<polygon style="fill: #0cf5eb; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,581.892187 1156.815000,578.908125 1195.011000,578.908125 1195.011000,581.892187"/>
+<polygon style="fill: #0ff9e7; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,578.908125 1156.815000,575.924062 1195.011000,575.924062 1195.011000,578.908125"/>
+<polygon style="fill: #13fde4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,575.924062 1156.815000,572.940000 1195.011000,572.940000 1195.011000,575.924062"/>
+<polygon style="fill: #16ffe1; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,572.940000 1156.815000,569.955938 1195.011000,569.955938 1195.011000,572.940000"/>
+<polygon style="fill: #19ffde; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,569.955938 1156.815000,566.971875 1195.011000,566.971875 1195.011000,569.955938"/>
+<polygon style="fill: #1cffdb; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,566.971875 1156.815000,563.987813 1195.011000,563.987813 1195.011000,566.971875"/>
+<polygon style="fill: #1fffd7; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,563.987813 1156.815000,561.003750 1195.011000,561.003750 1195.011000,563.987813"/>
+<polygon style="fill: #23ffd4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,561.003750 1156.815000,558.019688 1195.011000,558.019688 1195.011000,561.003750"/>
+<polygon style="fill: #26ffd1; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,558.019688 1156.815000,555.035625 1195.011000,555.035625 1195.011000,558.019688"/>
+<polygon style="fill: #29ffce; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,555.035625 1156.815000,552.051563 1195.011000,552.051563 1195.011000,555.035625"/>
+<polygon style="fill: #2cffca; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,552.051563 1156.815000,549.067500 1195.011000,549.067500 1195.011000,552.051563"/>
+<polygon style="fill: #30ffc7; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,549.067500 1156.815000,546.083438 1195.011000,546.083438 1195.011000,549.067500"/>
+<polygon style="fill: #33ffc4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,546.083438 1156.815000,543.099375 1195.011000,543.099375 1195.011000,546.083438"/>
+<polygon style="fill: #36ffc1; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,543.099375 1156.815000,540.115312 1195.011000,540.115312 1195.011000,543.099375"/>
+<polygon style="fill: #39ffbe; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,540.115312 1156.815000,537.131250 1195.011000,537.131250 1195.011000,540.115312"/>
+<polygon style="fill: #3cffba; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,537.131250 1156.815000,534.147187 1195.011000,534.147187 1195.011000,537.131250"/>
+<polygon style="fill: #40ffb7; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,534.147187 1156.815000,531.163125 1195.011000,531.163125 1195.011000,534.147187"/>
+<polygon style="fill: #43ffb4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,531.163125 1156.815000,528.179062 1195.011000,528.179062 1195.011000,531.163125"/>
+<polygon style="fill: #46ffb1; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,528.179062 1156.815000,525.195000 1195.011000,525.195000 1195.011000,528.179062"/>
+<polygon style="fill: #49ffad; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,525.195000 1156.815000,522.210938 1195.011000,522.210938 1195.011000,525.195000"/>
+<polygon style="fill: #4dffaa; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,522.210938 1156.815000,519.226875 1195.011000,519.226875 1195.011000,522.210938"/>
+<polygon style="fill: #50ffa7; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,519.226875 1156.815000,516.242813 1195.011000,516.242813 1195.011000,519.226875"/>
+<polygon style="fill: #53ffa4; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,516.242813 1156.815000,513.258750 1195.011000,513.258750 1195.011000,516.242813"/>
+<polygon style="fill: #56ffa0; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,513.258750 1156.815000,510.274688 1195.011000,510.274688 1195.011000,513.258750"/>
+<polygon style="fill: #5aff9d; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,510.274688 1156.815000,507.290625 1195.011000,507.290625 1195.011000,510.274688"/>
+<polygon style="fill: #5dff9a; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,507.290625 1156.815000,504.306563 1195.011000,504.306563 1195.011000,507.290625"/>
+<polygon style="fill: #60ff97; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,504.306563 1156.815000,501.322500 1195.011000,501.322500 1195.011000,504.306563"/>
+<polygon style="fill: #63ff94; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,501.322500 1156.815000,498.338438 1195.011000,498.338438 1195.011000,501.322500"/>
+<polygon style="fill: #66ff90; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,498.338438 1156.815000,495.354375 1195.011000,495.354375 1195.011000,498.338438"/>
+<polygon style="fill: #6aff8d; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,495.354375 1156.815000,492.370313 1195.011000,492.370313 1195.011000,495.354375"/>
+<polygon style="fill: #6dff8a; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,492.370313 1156.815000,489.386250 1195.011000,489.386250 1195.011000,492.370313"/>
+<polygon style="fill: #70ff87; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,489.386250 1156.815000,486.402187 1195.011000,486.402187 1195.011000,489.386250"/>
+<polygon style="fill: #73ff83; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,486.402187 1156.815000,483.418125 1195.011000,483.418125 1195.011000,486.402187"/>
+<polygon style="fill: #77ff80; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,483.418125 1156.815000,480.434062 1195.011000,480.434062 1195.011000,483.418125"/>
+<polygon style="fill: #7aff7d; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,480.434062 1156.815000,477.450000 1195.011000,477.450000 1195.011000,480.434062"/>
+<polygon style="fill: #7dff7a; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,477.450000 1156.815000,474.465937 1195.011000,474.465937 1195.011000,477.450000"/>
+<polygon style="fill: #80ff77; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,474.465937 1156.815000,471.481875 1195.011000,471.481875 1195.011000,474.465937"/>
+<polygon style="fill: #83ff73; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,471.481875 1156.815000,468.497813 1195.011000,468.497813 1195.011000,471.481875"/>
+<polygon style="fill: #87ff70; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,468.497813 1156.815000,465.513750 1195.011000,465.513750 1195.011000,468.497813"/>
+<polygon style="fill: #8aff6d; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,465.513750 1156.815000,462.529688 1195.011000,462.529688 1195.011000,465.513750"/>
+<polygon style="fill: #8dff6a; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,462.529688 1156.815000,459.545625 1195.011000,459.545625 1195.011000,462.529688"/>
+<polygon style="fill: #90ff66; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,459.545625 1156.815000,456.561563 1195.011000,456.561563 1195.011000,459.545625"/>
+<polygon style="fill: #94ff63; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,456.561563 1156.815000,453.577500 1195.011000,453.577500 1195.011000,456.561563"/>
+<polygon style="fill: #97ff60; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,453.577500 1156.815000,450.593438 1195.011000,450.593438 1195.011000,453.577500"/>
+<polygon style="fill: #9aff5d; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,450.593438 1156.815000,447.609375 1195.011000,447.609375 1195.011000,450.593438"/>
+<polygon style="fill: #9dff5a; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,447.609375 1156.815000,444.625313 1195.011000,444.625313 1195.011000,447.609375"/>
+<polygon style="fill: #a0ff56; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,444.625313 1156.815000,441.641250 1195.011000,441.641250 1195.011000,444.625313"/>
+<polygon style="fill: #a4ff53; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,441.641250 1156.815000,438.657187 1195.011000,438.657187 1195.011000,441.641250"/>
+<polygon style="fill: #a7ff50; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,438.657187 1156.815000,435.673125 1195.011000,435.673125 1195.011000,438.657187"/>
+<polygon style="fill: #aaff4d; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,435.673125 1156.815000,432.689062 1195.011000,432.689062 1195.011000,435.673125"/>
+<polygon style="fill: #adff49; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,432.689062 1156.815000,429.705000 1195.011000,429.705000 1195.011000,432.689062"/>
+<polygon style="fill: #b1ff46; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,429.705000 1156.815000,426.720937 1195.011000,426.720937 1195.011000,429.705000"/>
+<polygon style="fill: #b4ff43; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,426.720937 1156.815000,423.736875 1195.011000,423.736875 1195.011000,426.720937"/>
+<polygon style="fill: #b7ff40; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,423.736875 1156.815000,420.752813 1195.011000,420.752813 1195.011000,423.736875"/>
+<polygon style="fill: #baff3c; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,420.752813 1156.815000,417.768750 1195.011000,417.768750 1195.011000,420.752813"/>
+<polygon style="fill: #beff39; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,417.768750 1156.815000,414.784688 1195.011000,414.784688 1195.011000,417.768750"/>
+<polygon style="fill: #c1ff36; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,414.784688 1156.815000,411.800625 1195.011000,411.800625 1195.011000,414.784688"/>
+<polygon style="fill: #c4ff33; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,411.800625 1156.815000,408.816563 1195.011000,408.816563 1195.011000,411.800625"/>
+<polygon style="fill: #c7ff30; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,408.816563 1156.815000,405.832500 1195.011000,405.832500 1195.011000,408.816563"/>
+<polygon style="fill: #caff2c; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,405.832500 1156.815000,402.848438 1195.011000,402.848438 1195.011000,405.832500"/>
+<polygon style="fill: #ceff29; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,402.848438 1156.815000,399.864375 1195.011000,399.864375 1195.011000,402.848438"/>
+<polygon style="fill: #d1ff26; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,399.864375 1156.815000,396.880313 1195.011000,396.880313 1195.011000,399.864375"/>
+<polygon style="fill: #d4ff23; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,396.880313 1156.815000,393.896250 1195.011000,393.896250 1195.011000,396.880313"/>
+<polygon style="fill: #d7ff1f; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,393.896250 1156.815000,390.912188 1195.011000,390.912188 1195.011000,393.896250"/>
+<polygon style="fill: #dbff1c; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,390.912188 1156.815000,387.928125 1195.011000,387.928125 1195.011000,390.912188"/>
+<polygon style="fill: #deff19; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,387.928125 1156.815000,384.944062 1195.011000,384.944062 1195.011000,387.928125"/>
+<polygon style="fill: #e1ff16; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,384.944062 1156.815000,381.960000 1195.011000,381.960000 1195.011000,384.944062"/>
+<polygon style="fill: #e4ff13; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,381.960000 1156.815000,378.975937 1195.011000,378.975937 1195.011000,381.960000"/>
+<polygon style="fill: #e7ff0f; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,378.975937 1156.815000,375.991875 1195.011000,375.991875 1195.011000,378.975937"/>
+<polygon style="fill: #ebff0c; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,375.991875 1156.815000,373.007812 1195.011000,373.007812 1195.011000,375.991875"/>
+<polygon style="fill: #eeff09; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,373.007812 1156.815000,370.023750 1195.011000,370.023750 1195.011000,373.007812"/>
+<polygon style="fill: #f1fc06; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,370.023750 1156.815000,367.039688 1195.011000,367.039688 1195.011000,370.023750"/>
+<polygon style="fill: #f4f802; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,367.039688 1156.815000,364.055625 1195.011000,364.055625 1195.011000,367.039688"/>
+<polygon style="fill: #f8f500; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,364.055625 1156.815000,361.071563 1195.011000,361.071563 1195.011000,364.055625"/>
+<polygon style="fill: #fbf100; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,361.071563 1156.815000,358.087500 1195.011000,358.087500 1195.011000,361.071563"/>
+<polygon style="fill: #feed00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,358.087500 1156.815000,355.103438 1195.011000,355.103438 1195.011000,358.087500"/>
+<polygon style="fill: #ffea00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,355.103438 1156.815000,352.119375 1195.011000,352.119375 1195.011000,355.103438"/>
+<polygon style="fill: #ffe600; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,352.119375 1156.815000,349.135313 1195.011000,349.135313 1195.011000,352.119375"/>
+<polygon style="fill: #ffe200; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,349.135313 1156.815000,346.151250 1195.011000,346.151250 1195.011000,349.135313"/>
+<polygon style="fill: #ffde00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,346.151250 1156.815000,343.167187 1195.011000,343.167187 1195.011000,346.151250"/>
+<polygon style="fill: #ffdb00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,343.167187 1156.815000,340.183125 1195.011000,340.183125 1195.011000,343.167187"/>
+<polygon style="fill: #ffd700; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,340.183125 1156.815000,337.199062 1195.011000,337.199062 1195.011000,340.183125"/>
+<polygon style="fill: #ffd300; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,337.199062 1156.815000,334.215000 1195.011000,334.215000 1195.011000,337.199062"/>
+<polygon style="fill: #ffd000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,334.215000 1156.815000,331.230937 1195.011000,331.230937 1195.011000,334.215000"/>
+<polygon style="fill: #ffcc00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,331.230937 1156.815000,328.246875 1195.011000,328.246875 1195.011000,331.230937"/>
+<polygon style="fill: #ffc800; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,328.246875 1156.815000,325.262812 1195.011000,325.262812 1195.011000,328.246875"/>
+<polygon style="fill: #ffc400; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,325.262812 1156.815000,322.278750 1195.011000,322.278750 1195.011000,325.262812"/>
+<polygon style="fill: #ffc100; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,322.278750 1156.815000,319.294688 1195.011000,319.294688 1195.011000,322.278750"/>
+<polygon style="fill: #ffbd00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,319.294688 1156.815000,316.310625 1195.011000,316.310625 1195.011000,319.294688"/>
+<polygon style="fill: #ffb900; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,316.310625 1156.815000,313.326563 1195.011000,313.326563 1195.011000,316.310625"/>
+<polygon style="fill: #ffb600; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,313.326563 1156.815000,310.342500 1195.011000,310.342500 1195.011000,313.326563"/>
+<polygon style="fill: #ffb200; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,310.342500 1156.815000,307.358438 1195.011000,307.358438 1195.011000,310.342500"/>
+<polygon style="fill: #ffae00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,307.358438 1156.815000,304.374375 1195.011000,304.374375 1195.011000,307.358438"/>
+<polygon style="fill: #ffab00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,304.374375 1156.815000,301.390313 1195.011000,301.390313 1195.011000,304.374375"/>
+<polygon style="fill: #ffa700; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,301.390313 1156.815000,298.406250 1195.011000,298.406250 1195.011000,301.390313"/>
+<polygon style="fill: #ffa300; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,298.406250 1156.815000,295.422187 1195.011000,295.422187 1195.011000,298.406250"/>
+<polygon style="fill: #ff9f00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,295.422187 1156.815000,292.438125 1195.011000,292.438125 1195.011000,295.422187"/>
+<polygon style="fill: #ff9c00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,292.438125 1156.815000,289.454062 1195.011000,289.454062 1195.011000,292.438125"/>
+<polygon style="fill: #ff9800; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,289.454062 1156.815000,286.470000 1195.011000,286.470000 1195.011000,289.454062"/>
+<polygon style="fill: #ff9400; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,286.470000 1156.815000,283.485937 1195.011000,283.485937 1195.011000,286.470000"/>
+<polygon style="fill: #ff9100; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,283.485937 1156.815000,280.501875 1195.011000,280.501875 1195.011000,283.485937"/>
+<polygon style="fill: #ff8d00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,280.501875 1156.815000,277.517812 1195.011000,277.517812 1195.011000,280.501875"/>
+<polygon style="fill: #ff8900; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,277.517812 1156.815000,274.533750 1195.011000,274.533750 1195.011000,277.517812"/>
+<polygon style="fill: #ff8600; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,274.533750 1156.815000,271.549688 1195.011000,271.549688 1195.011000,274.533750"/>
+<polygon style="fill: #ff8200; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,271.549688 1156.815000,268.565625 1195.011000,268.565625 1195.011000,271.549688"/>
+<polygon style="fill: #ff7e00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,268.565625 1156.815000,265.581563 1195.011000,265.581563 1195.011000,268.565625"/>
+<polygon style="fill: #ff7a00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,265.581563 1156.815000,262.597500 1195.011000,262.597500 1195.011000,265.581563"/>
+<polygon style="fill: #ff7700; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,262.597500 1156.815000,259.613438 1195.011000,259.613438 1195.011000,262.597500"/>
+<polygon style="fill: #ff7300; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,259.613438 1156.815000,256.629375 1195.011000,256.629375 1195.011000,259.613438"/>
+<polygon style="fill: #ff6f00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,256.629375 1156.815000,253.645313 1195.011000,253.645313 1195.011000,256.629375"/>
+<polygon style="fill: #ff6c00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,253.645313 1156.815000,250.661250 1195.011000,250.661250 1195.011000,253.645313"/>
+<polygon style="fill: #ff6800; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,250.661250 1156.815000,247.677187 1195.011000,247.677187 1195.011000,250.661250"/>
+<polygon style="fill: #ff6400; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,247.677187 1156.815000,244.693125 1195.011000,244.693125 1195.011000,247.677187"/>
+<polygon style="fill: #ff6000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,244.693125 1156.815000,241.709062 1195.011000,241.709062 1195.011000,244.693125"/>
+<polygon style="fill: #ff5d00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,241.709062 1156.815000,238.725000 1195.011000,238.725000 1195.011000,241.709062"/>
+<polygon style="fill: #ff5900; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,238.725000 1156.815000,235.740937 1195.011000,235.740937 1195.011000,238.725000"/>
+<polygon style="fill: #ff5500; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,235.740937 1156.815000,232.756875 1195.011000,232.756875 1195.011000,235.740937"/>
+<polygon style="fill: #ff5200; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,232.756875 1156.815000,229.772812 1195.011000,229.772812 1195.011000,232.756875"/>
+<polygon style="fill: #ff4e00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,229.772812 1156.815000,226.788750 1195.011000,226.788750 1195.011000,229.772812"/>
+<polygon style="fill: #ff4a00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,226.788750 1156.815000,223.804688 1195.011000,223.804688 1195.011000,226.788750"/>
+<polygon style="fill: #ff4700; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,223.804688 1156.815000,220.820625 1195.011000,220.820625 1195.011000,223.804688"/>
+<polygon style="fill: #ff4300; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,220.820625 1156.815000,217.836563 1195.011000,217.836563 1195.011000,220.820625"/>
+<polygon style="fill: #ff3f00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,217.836563 1156.815000,214.852500 1195.011000,214.852500 1195.011000,217.836563"/>
+<polygon style="fill: #ff3b00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,214.852500 1156.815000,211.868438 1195.011000,211.868438 1195.011000,214.852500"/>
+<polygon style="fill: #ff3800; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,211.868438 1156.815000,208.884375 1195.011000,208.884375 1195.011000,211.868438"/>
+<polygon style="fill: #ff3400; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,208.884375 1156.815000,205.900313 1195.011000,205.900313 1195.011000,208.884375"/>
+<polygon style="fill: #ff3000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,205.900313 1156.815000,202.916250 1195.011000,202.916250 1195.011000,205.900313"/>
+<polygon style="fill: #ff2d00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,202.916250 1156.815000,199.932188 1195.011000,199.932188 1195.011000,202.916250"/>
+<polygon style="fill: #ff2900; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,199.932188 1156.815000,196.948125 1195.011000,196.948125 1195.011000,199.932188"/>
+<polygon style="fill: #ff2500; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,196.948125 1156.815000,193.964062 1195.011000,193.964062 1195.011000,196.948125"/>
+<polygon style="fill: #ff2200; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,193.964062 1156.815000,190.980000 1195.011000,190.980000 1195.011000,193.964062"/>
+<polygon style="fill: #ff1e00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,190.980000 1156.815000,187.995937 1195.011000,187.995937 1195.011000,190.980000"/>
+<polygon style="fill: #ff1a00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,187.995937 1156.815000,185.011875 1195.011000,185.011875 1195.011000,187.995937"/>
+<polygon style="fill: #ff1600; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,185.011875 1156.815000,182.027812 1195.011000,182.027812 1195.011000,185.011875"/>
+<polygon style="fill: #ff1300; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,182.027812 1156.815000,179.043750 1195.011000,179.043750 1195.011000,182.027812"/>
+<polygon style="fill: #fa0f00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,179.043750 1156.815000,176.059687 1195.011000,176.059687 1195.011000,179.043750"/>
+<polygon style="fill: #f60b00; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,176.059687 1156.815000,173.075625 1195.011000,173.075625 1195.011000,176.059687"/>
+<polygon style="fill: #f10800; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,173.075625 1156.815000,170.091563 1195.011000,170.091563 1195.011000,173.075625"/>
+<polygon style="fill: #ed0400; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,170.091563 1156.815000,167.107500 1195.011000,167.107500 1195.011000,170.091563"/>
+<polygon style="fill: #e80000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,167.107500 1156.815000,164.123438 1195.011000,164.123438 1195.011000,167.107500"/>
+<polygon style="fill: #e40000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,164.123438 1156.815000,161.139375 1195.011000,161.139375 1195.011000,164.123438"/>
+<polygon style="fill: #df0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,161.139375 1156.815000,158.155313 1195.011000,158.155313 1195.011000,161.139375"/>
+<polygon style="fill: #da0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,158.155313 1156.815000,155.171250 1195.011000,155.171250 1195.011000,158.155313"/>
+<polygon style="fill: #d60000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,155.171250 1156.815000,152.187188 1195.011000,152.187188 1195.011000,155.171250"/>
+<polygon style="fill: #d10000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,152.187188 1156.815000,149.203125 1195.011000,149.203125 1195.011000,152.187188"/>
+<polygon style="fill: #cd0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,149.203125 1156.815000,146.219062 1195.011000,146.219062 1195.011000,149.203125"/>
+<polygon style="fill: #c80000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,146.219062 1156.815000,143.235000 1195.011000,143.235000 1195.011000,146.219062"/>
+<polygon style="fill: #c40000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,143.235000 1156.815000,140.250937 1195.011000,140.250937 1195.011000,143.235000"/>
+<polygon style="fill: #bf0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,140.250937 1156.815000,137.266875 1195.011000,137.266875 1195.011000,140.250937"/>
+<polygon style="fill: #bb0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,137.266875 1156.815000,134.282812 1195.011000,134.282812 1195.011000,137.266875"/>
+<polygon style="fill: #b60000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,134.282812 1156.815000,131.298750 1195.011000,131.298750 1195.011000,134.282812"/>
+<polygon style="fill: #b20000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,131.298750 1156.815000,128.314687 1195.011000,128.314687 1195.011000,131.298750"/>
+<polygon style="fill: #ad0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,128.314687 1156.815000,125.330625 1195.011000,125.330625 1195.011000,128.314687"/>
+<polygon style="fill: #a80000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,125.330625 1156.815000,122.346563 1195.011000,122.346563 1195.011000,125.330625"/>
+<polygon style="fill: #a40000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,122.346563 1156.815000,119.362500 1195.011000,119.362500 1195.011000,122.346563"/>
+<polygon style="fill: #9f0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,119.362500 1156.815000,116.378438 1195.011000,116.378438 1195.011000,119.362500"/>
+<polygon style="fill: #9b0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,116.378438 1156.815000,113.394375 1195.011000,113.394375 1195.011000,116.378438"/>
+<polygon style="fill: #960000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,113.394375 1156.815000,110.410313 1195.011000,110.410313 1195.011000,113.394375"/>
+<polygon style="fill: #920000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,110.410313 1156.815000,107.426250 1195.011000,107.426250 1195.011000,110.410313"/>
+<polygon style="fill: #8d0000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,107.426250 1156.815000,104.442188 1195.011000,104.442188 1195.011000,107.426250"/>
+<polygon style="fill: #890000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,104.442188 1156.815000,101.458125 1195.011000,101.458125 1195.011000,104.442188"/>
+<polygon style="fill: #840000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,101.458125 1156.815000,98.474063 1195.011000,98.474063 1195.011000,101.458125"/>
+<polygon style="fill: #800000; opacity: 1.000000" clip-path="url(#-276173392311036240)" points = "1156.815000,98.474063 1156.815000,95.490000 1195.011000,95.490000 1195.011000,98.474063"/>
+</g>
+<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  d="M 1156.815000,859.410000 L 1156.815000,856.425938 L 1156.815000,98.474063 L 1156.815000,95.490000 L 1195.011000,95.490000 L 1195.011000,98.474063 L 1195.011000,856.425938 L 1195.011000,859.410000 L 1156.815000,859.410000 "/>
+<g id="matplotlib.axis3">
+</g>
+<g id="matplotlib.axis4">
+<g id="ytick7">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="862.910000" >0.0</text>
+</g>
+<g id="ytick8">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,783.018000 L 1195.011000,783.018000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="786.518000" >0.2</text>
+</g>
+<g id="ytick9">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,706.626000 L 1195.011000,706.626000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="710.126000" >0.4</text>
+</g>
+<g id="ytick10">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,630.234000 L 1195.011000,630.234000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="633.734000" >0.6</text>
+</g>
+<g id="ytick11">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,553.842000 L 1195.011000,553.842000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="557.342000" >0.8</text>
+</g>
+<g id="ytick12">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,477.450000 L 1195.011000,477.450000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="480.950000" >1.0</text>
+</g>
+<g id="ytick13">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,401.058000 L 1195.011000,401.058000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="404.558000" >1.2</text>
+</g>
+<g id="ytick14">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,324.666000 L 1195.011000,324.666000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="328.166000" >1.4</text>
+</g>
+<g id="ytick15">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,248.274000 L 1195.011000,248.274000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="251.774000" >1.6</text>
+</g>
+<g id="ytick16">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 1190.011000,171.882000 L 1195.011000,171.882000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="175.382000" >1.8</text>
+</g>
+<g id="ytick17">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="1198.011000" y="98.990000" >2.0</text>
+</g>
+</g>
+</g>
+</g>
+</svg>

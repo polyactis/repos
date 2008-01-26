@@ -1,0 +1,1047 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="585" height="441" viewBox="0 0 585 441"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<g id="figure1">
+<polygon style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "0.000000,441.000000 0.000000,0.000000 585.000000,0.000000 585.000000,441.000000"/>
+<g id="axes1">
+<polygon style="fill: #ffffff; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "73.125000,396.900000 73.125000,44.100000 435.825000,44.100000 435.825000,396.900000"/>
+<image x="73.125000" y="43.900000" width="363.000000" height="353.000000" xlink:href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAWsAAAFhCAYAAAC23YseAAAABHNCSVQICAgIfAhkiAAAFcxJREFU
+eJzt3T+T20aWAPCeq/kCDl3O7qousRzpUke3oTZb28kF42D3EyhTIE7uL3B7gSe4ZC1lVrgXObUy
+ObwrJ/KFTh15NpgB2RAaBIg/BB7x+1W5THFAsAmAXY3Hfq+vnj79zx9T5Y9/efj/9/f7pz7/8X9S
+Sin98G//3ngupZR++N8/PDz3L39PH/rh9g+N59J/ZI+/ar5P7fWP+07/3dxNSil9/vLv7e9T2C6l
+7HP88eqwwfd/fXzw58Nzf8v+Xr1/3vZq39nn3rejcPxSKh+r/Lju5W0rvOe+Pdn71ORtP+arv+4f
+fv7jPz+25/+yDf7cbE/J94X9FM5J/TwU3qfQ7kHH6quO45JdT8VrqPo8f/tLuR3VdZm/T7Xv7Jju
+v0+tbfuv9u3alL4Lpe9r/nmqfeavLb1Pqe35NfZ4rPPzmDt2/eftqV0Hhdfs5ddDoa/oew3VfNX8
+PKXPWFM8Vj3bk1Lan+facx/+LdWutw+v4c8/Tz9cv337y9P9M589/v/tYaOP068PTxWeSymlt781
+n9v/7edC237LNyjv88N9p9J+8ra1/L207/3n+Czb4O0vx9v5c+G50r6r7U44Vvlx3cvbVnjPfXtK
+r217TUn2uT9OHz22p3AsPms+1bmfn5ub1T93xzEvvqbw3qVj1XVcsrYVr6Gqbb81t0spuy7z99k/
+l32uzrb90r5dm58Lz5W+r/l2pe9R6X1Kbc/b+1n9PRovr/bf0Z6u70yxjcU+qd81VG9k9vjIZ+zc
+Z9/2pJT257nrby2fN6WUPv44/f8/HdkLACtxnd7tDv/65txvf5s9/jSllNKbq58OT737ot9u7naH
+xze7tq3aVa/J95MG7OcCPLv/dP/4Tc9oSm5//m6yc1cd128/bWx/mvx6eTlyXx+onfsBngx5/cSf
+IZd/nue7tq0uT34e8r5twX1W36k3V+OuXyNrgAB01gABXC/79vmtwOuU0ge34T+lfoaEPjrbswG1
+W7pXk+zn2acP+3nzdfb3/fl5VXgupXTXMnujYcbzU2vPrm2rD2S3tdUxGBQOmcFk34n1KobsOsMU
+eSiia9u+++zrlOu3aufhNUbWAAHorAECuK7dtm3g1gmms7Gw2crUZo6lP/V8VdxzZmQNEIDOGiCA
+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
+AABJRU5ErkJggg==
+" />
+<g id="matplotlib.axis1">
+<g id="xtick1">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="70.625000" y="406.900000" >0</text>
+</g>
+<g id="xtick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 124.939286,396.900000 L 124.939286,391.900000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 124.939286,49.100000 L 124.939286,44.100000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="119.439286" y="406.900000" >20</text>
+</g>
+<g id="xtick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 176.753571,396.900000 L 176.753571,391.900000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 176.753571,49.100000 L 176.753571,44.100000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="171.253571" y="406.900000" >40</text>
+</g>
+<g id="xtick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 228.567857,396.900000 L 228.567857,391.900000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 228.567857,49.100000 L 228.567857,44.100000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="223.067857" y="406.900000" >60</text>
+</g>
+<g id="xtick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 280.382143,396.900000 L 280.382143,391.900000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 280.382143,49.100000 L 280.382143,44.100000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="274.882143" y="406.900000" >80</text>
+</g>
+<g id="xtick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 332.196429,396.900000 L 332.196429,391.900000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 332.196429,49.100000 L 332.196429,44.100000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="324.196429" y="406.900000" >100</text>
+</g>
+<g id="xtick7">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 384.010714,396.900000 L 384.010714,391.900000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 384.010714,49.100000 L 384.010714,44.100000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="376.010714" y="406.900000" >120</text>
+</g>
+<g id="xtick8">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="427.825000" y="406.900000" >140</text>
+</g>
+</g>
+<g id="matplotlib.axis2">
+<g id="ytick1">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-20.875000" y="401.400000" >4939 (50.40, -4.70)</text>
+</g>
+<g id="ytick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,393.858621 L 78.125000,393.858621"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,393.858621 L 435.825000,393.858621"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-20.875000" y="398.358621" >5798 (53.10, -3.30)</text>
+</g>
+<g id="ytick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,390.817241 L 78.125000,390.817241"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,390.817241 L 435.825000,390.817241"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-20.875000" y="395.317241" >5500 (54.60, -3.20)</text>
+</g>
+<g id="ytick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,387.775862 L 78.125000,387.775862"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,387.775862 L 435.825000,387.775862"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-20.875000" y="392.275862" >7216 (55.70, -2.75)</text>
+</g>
+<g id="ytick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,384.734483 L 78.125000,384.734483"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,384.734483 L 435.825000,384.734483"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-20.875000" y="389.234483" >5810 (50.80, -2.10)</text>
+</g>
+<g id="ytick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,381.693103 L 78.125000,381.693103"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,381.693103 L 435.825000,381.693103"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-20.875000" y="386.193103" >5133 (52.20, -1.70)</text>
+</g>
+<g id="ytick7">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,378.651724 L 78.125000,378.651724"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,378.651724 L 435.825000,378.651724"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="383.151724" >7512 (51.29, 0.06)</text>
+</g>
+<g id="ytick8">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,375.610345 L 78.125000,375.610345"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,375.610345 L 435.825000,375.610345"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="380.110345" >7510 (51.29, 0.06)</text>
+</g>
+<g id="ytick9">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,372.568966 L 78.125000,372.568966"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,372.568966 L 435.825000,372.568966"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="377.068966" >7509 (51.29, 0.06)</text>
+</g>
+<g id="ytick10">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,369.527586 L 78.125000,369.527586"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,369.527586 L 435.825000,369.527586"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="374.027586" >7511 (51.29, 0.06)</text>
+</g>
+<g id="ytick11">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,366.486207 L 78.125000,366.486207"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,366.486207 L 435.825000,366.486207"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="370.986207" >5737 (51.30, 0.10)</text>
+</g>
+<g id="ytick12">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,363.444828 L 78.125000,363.444828"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,363.444828 L 435.825000,363.444828"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="367.944828" >5217 (51.20, 0.30)</text>
+</g>
+<g id="ytick13">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,360.403448 L 78.125000,360.403448"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,360.403448 L 435.825000,360.403448"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="364.903448" >5218 (51.20, 0.30)</text>
+</g>
+<g id="ytick14">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,357.362069 L 78.125000,357.362069"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,357.362069 L 435.825000,357.362069"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="361.862069" >5219 (51.20, 0.30)</text>
+</g>
+<g id="ytick15">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,354.320690 L 78.125000,354.320690"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,354.320690 L 435.825000,354.320690"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="358.820690" >5220 (51.20, 0.30)</text>
+</g>
+<g id="ytick16">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,351.279310 L 78.125000,351.279310"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,351.279310 L 435.825000,351.279310"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="355.779310" >5112 (51.30, 0.40)</text>
+</g>
+<g id="ytick17">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,348.237931 L 78.125000,348.237931"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,348.237931 L 435.825000,348.237931"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="352.737931" >5109 (51.30, 0.40)</text>
+</g>
+<g id="ytick18">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,345.196552 L 78.125000,345.196552"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,345.196552 L 435.825000,345.196552"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="349.696552" >5110 (51.30, 0.40)</text>
+</g>
+<g id="ytick19">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,342.155172 L 78.125000,342.155172"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,342.155172 L 435.825000,342.155172"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="346.655172" >5111 (51.30, 0.40)</text>
+</g>
+<g id="ytick20">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,339.113793 L 78.125000,339.113793"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,339.113793 L 435.825000,339.113793"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="343.613793" >5108 (51.30, 0.40)</text>
+</g>
+<g id="ytick21">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,336.072414 L 78.125000,336.072414"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,336.072414 L 435.825000,336.072414"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="340.572414" >5113 (51.30, 0.40)</text>
+</g>
+<g id="ytick22">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,333.031034 L 78.125000,333.031034"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,333.031034 L 435.825000,333.031034"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="337.531034" >5169 (51.30, 0.40)</text>
+</g>
+<g id="ytick23">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,329.989655 L 78.125000,329.989655"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,329.989655 L 435.825000,329.989655"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="334.489655" >5170 (51.30, 0.40)</text>
+</g>
+<g id="ytick24">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,326.948276 L 78.125000,326.948276"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,326.948276 L 435.825000,326.948276"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="331.448276" >5208 (51.30, 0.40)</text>
+</g>
+<g id="ytick25">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,323.906897 L 78.125000,323.906897"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,323.906897 L 435.825000,323.906897"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="328.406897" >5171 (51.30, 0.40)</text>
+</g>
+<g id="ytick26">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,320.865517 L 78.125000,320.865517"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,320.865517 L 435.825000,320.865517"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="325.365517" >5173 (51.30, 0.40)</text>
+</g>
+<g id="ytick27">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,317.824138 L 78.125000,317.824138"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,317.824138 L 435.825000,317.824138"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="322.324138" >5172 (51.30, 0.40)</text>
+</g>
+<g id="ytick28">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,314.782759 L 78.125000,314.782759"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,314.782759 L 435.825000,314.782759"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="319.282759" >453 (51.30, 0.50)</text>
+</g>
+<g id="ytick29">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,311.741379 L 78.125000,311.741379"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,311.741379 L 435.825000,311.741379"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="316.241379" >5059 (51.30, 0.50)</text>
+</g>
+<g id="ytick30">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,308.700000 L 78.125000,308.700000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,308.700000 L 435.825000,308.700000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="313.200000" >449 (51.30, 0.50)</text>
+</g>
+<g id="ytick31">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,305.658621 L 78.125000,305.658621"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,305.658621 L 435.825000,305.658621"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="310.158621" >447 (51.30, 0.50)</text>
+</g>
+<g id="ytick32">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,302.617241 L 78.125000,302.617241"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,302.617241 L 435.825000,302.617241"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="307.117241" >5054 (51.30, 0.50)</text>
+</g>
+<g id="ytick33">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,299.575862 L 78.125000,299.575862"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,299.575862 L 435.825000,299.575862"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="304.075862" >5053 (51.30, 0.50)</text>
+</g>
+<g id="ytick34">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,296.534483 L 78.125000,296.534483"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,296.534483 L 435.825000,296.534483"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="301.034483" >5052 (51.30, 0.50)</text>
+</g>
+<g id="ytick35">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,293.493103 L 78.125000,293.493103"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,293.493103 L 435.825000,293.493103"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="297.993103" >5051 (51.30, 0.50)</text>
+</g>
+<g id="ytick36">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,290.451724 L 78.125000,290.451724"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,290.451724 L 435.825000,290.451724"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="294.951724" >442 (51.30, 0.50)</text>
+</g>
+<g id="ytick37">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,287.410345 L 78.125000,287.410345"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,287.410345 L 435.825000,287.410345"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="291.910345" >5048 (51.30, 0.50)</text>
+</g>
+<g id="ytick38">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,284.368966 L 78.125000,284.368966"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,284.368966 L 435.825000,284.368966"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="288.868966" >7109 (51.30, 0.50)</text>
+</g>
+<g id="ytick39">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,281.327586 L 78.125000,281.327586"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,281.327586 L 435.825000,281.327586"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="285.827586" >5047 (51.30, 0.50)</text>
+</g>
+<g id="ytick40">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,278.286207 L 78.125000,278.286207"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,278.286207 L 435.825000,278.286207"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="282.786207" >5046 (51.30, 0.50)</text>
+</g>
+<g id="ytick41">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,275.244828 L 78.125000,275.244828"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,275.244828 L 435.825000,275.244828"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="279.744828" >437 (51.30, 0.50)</text>
+</g>
+<g id="ytick42">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,272.203448 L 78.125000,272.203448"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,272.203448 L 435.825000,272.203448"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="276.703448" >436 (51.30, 0.50)</text>
+</g>
+<g id="ytick43">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,269.162069 L 78.125000,269.162069"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,269.162069 L 435.825000,269.162069"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="273.662069" >434 (51.30, 0.50)</text>
+</g>
+<g id="ytick44">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,266.120690 L 78.125000,266.120690"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,266.120690 L 435.825000,266.120690"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="270.620690" >5041 (51.30, 0.50)</text>
+</g>
+<g id="ytick45">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,263.079310 L 78.125000,263.079310"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,263.079310 L 435.825000,263.079310"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="267.579310" >5040 (51.30, 0.50)</text>
+</g>
+<g id="ytick46">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,260.037931 L 78.125000,260.037931"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,260.037931 L 435.825000,260.037931"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="264.537931" >5049 (51.30, 0.50)</text>
+</g>
+<g id="ytick47">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,256.996552 L 78.125000,256.996552"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,256.996552 L 435.825000,256.996552"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="261.496552" >454 (51.30, 0.50)</text>
+</g>
+<g id="ytick48">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,253.955172 L 78.125000,253.955172"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,253.955172 L 435.825000,253.955172"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="258.455172" >5066 (51.30, 0.50)</text>
+</g>
+<g id="ytick49">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,250.913793 L 78.125000,250.913793"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,250.913793 L 435.825000,250.913793"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="255.413793" >5065 (51.30, 0.50)</text>
+</g>
+<g id="ytick50">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,247.872414 L 78.125000,247.872414"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,247.872414 L 435.825000,247.872414"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="252.372414" >433 (51.30, 0.50)</text>
+</g>
+<g id="ytick51">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,244.831034 L 78.125000,244.831034"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,244.831034 L 435.825000,244.831034"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="249.331034" >5107 (51.30, 0.50)</text>
+</g>
+<g id="ytick52">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,241.789655 L 78.125000,241.789655"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,241.789655 L 435.825000,241.789655"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="246.289655" >5103 (51.30, 0.50)</text>
+</g>
+<g id="ytick53">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,238.748276 L 78.125000,238.748276"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,238.748276 L 435.825000,238.748276"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="243.248276" >5101 (51.30, 0.50)</text>
+</g>
+<g id="ytick54">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,235.706897 L 78.125000,235.706897"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,235.706897 L 435.825000,235.706897"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="240.206897" >5099 (51.30, 0.50)</text>
+</g>
+<g id="ytick55">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,232.665517 L 78.125000,232.665517"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,232.665517 L 435.825000,232.665517"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="237.165517" >5097 (51.30, 0.50)</text>
+</g>
+<g id="ytick56">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,229.624138 L 78.125000,229.624138"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,229.624138 L 435.825000,229.624138"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="234.124138" >5096 (51.30, 0.50)</text>
+</g>
+<g id="ytick57">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,226.582759 L 78.125000,226.582759"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,226.582759 L 435.825000,226.582759"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="231.082759" >5092 (51.30, 0.50)</text>
+</g>
+<g id="ytick58">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,223.541379 L 78.125000,223.541379"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,223.541379 L 435.825000,223.541379"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="228.041379" >455 (51.30, 0.50)</text>
+</g>
+<g id="ytick59">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,220.500000 L 78.125000,220.500000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,220.500000 L 435.825000,220.500000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="225.000000" >5089 (51.30, 0.50)</text>
+</g>
+<g id="ytick60">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,217.458621 L 78.125000,217.458621"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,217.458621 L 435.825000,217.458621"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="221.958621" >5077 (51.30, 0.50)</text>
+</g>
+<g id="ytick61">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,214.417241 L 78.125000,214.417241"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,214.417241 L 435.825000,214.417241"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="218.917241" >5076 (51.30, 0.50)</text>
+</g>
+<g id="ytick62">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,211.375862 L 78.125000,211.375862"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,211.375862 L 435.825000,211.375862"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="215.875862" >467 (51.30, 0.50)</text>
+</g>
+<g id="ytick63">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,208.334483 L 78.125000,208.334483"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,208.334483 L 435.825000,208.334483"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="212.834483" >5074 (51.30, 0.50)</text>
+</g>
+<g id="ytick64">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,205.293103 L 78.125000,205.293103"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,205.293103 L 435.825000,205.293103"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="209.793103" >5073 (51.30, 0.50)</text>
+</g>
+<g id="ytick65">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,202.251724 L 78.125000,202.251724"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,202.251724 L 435.825000,202.251724"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="206.751724" >464 (51.30, 0.50)</text>
+</g>
+<g id="ytick66">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,199.210345 L 78.125000,199.210345"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,199.210345 L 435.825000,199.210345"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="203.710345" >5067 (51.30, 0.50)</text>
+</g>
+<g id="ytick67">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,196.168966 L 78.125000,196.168966"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,196.168966 L 435.825000,196.168966"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="200.668966" >5035 (51.30, 0.50)</text>
+</g>
+<g id="ytick68">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,193.127586 L 78.125000,193.127586"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,193.127586 L 435.825000,193.127586"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="197.627586" >5087 (51.30, 0.50)</text>
+</g>
+<g id="ytick69">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,190.086207 L 78.125000,190.086207"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,190.086207 L 435.825000,190.086207"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="194.586207" >5033 (51.30, 0.50)</text>
+</g>
+<g id="ytick70">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,187.044828 L 78.125000,187.044828"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,187.044828 L 435.825000,187.044828"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="191.544828" >5026 (51.30, 0.50)</text>
+</g>
+<g id="ytick71">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,184.003448 L 78.125000,184.003448"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,184.003448 L 435.825000,184.003448"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="188.503448" >5062 (51.30, 0.50)</text>
+</g>
+<g id="ytick72">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,180.962069 L 78.125000,180.962069"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,180.962069 L 435.825000,180.962069"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="185.462069" >4989 (51.30, 0.50)</text>
+</g>
+<g id="ytick73">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,177.920690 L 78.125000,177.920690"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,177.920690 L 435.825000,177.920690"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="182.420690" >4987 (51.30, 0.50)</text>
+</g>
+<g id="ytick74">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,174.879310 L 78.125000,174.879310"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,174.879310 L 435.825000,174.879310"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="179.379310" >4984 (51.30, 0.50)</text>
+</g>
+<g id="ytick75">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,171.837931 L 78.125000,171.837931"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,171.837931 L 435.825000,171.837931"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="176.337931" >4983 (51.30, 0.50)</text>
+</g>
+<g id="ytick76">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,168.796552 L 78.125000,168.796552"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,168.796552 L 435.825000,168.796552"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="173.296552" >4981 (51.30, 0.50)</text>
+</g>
+<g id="ytick77">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,165.755172 L 78.125000,165.755172"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,165.755172 L 435.825000,165.755172"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="170.255172" >4978 (51.30, 0.50)</text>
+</g>
+<g id="ytick78">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,162.713793 L 78.125000,162.713793"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,162.713793 L 435.825000,162.713793"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="167.213793" >4977 (51.30, 0.50)</text>
+</g>
+<g id="ytick79">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,159.672414 L 78.125000,159.672414"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,159.672414 L 435.825000,159.672414"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="164.172414" >4976 (51.30, 0.50)</text>
+</g>
+<g id="ytick80">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,156.631034 L 78.125000,156.631034"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,156.631034 L 435.825000,156.631034"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="161.131034" >4973 (51.30, 0.50)</text>
+</g>
+<g id="ytick81">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,153.589655 L 78.125000,153.589655"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,153.589655 L 435.825000,153.589655"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="158.089655" >4970 (51.30, 0.50)</text>
+</g>
+<g id="ytick82">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,150.548276 L 78.125000,150.548276"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,150.548276 L 435.825000,150.548276"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="155.048276" >4969 (51.30, 0.50)</text>
+</g>
+<g id="ytick83">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,147.506897 L 78.125000,147.506897"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,147.506897 L 435.825000,147.506897"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="152.006897" >4968 (51.30, 0.50)</text>
+</g>
+<g id="ytick84">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,144.465517 L 78.125000,144.465517"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,144.465517 L 435.825000,144.465517"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="148.965517" >4967 (51.30, 0.50)</text>
+</g>
+<g id="ytick85">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,141.424138 L 78.125000,141.424138"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,141.424138 L 435.825000,141.424138"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="145.924138" >5045 (51.30, 0.50)</text>
+</g>
+<g id="ytick86">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,138.382759 L 78.125000,138.382759"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,138.382759 L 435.825000,138.382759"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="142.882759" >439 (51.30, 0.50)</text>
+</g>
+<g id="ytick87">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,135.341379 L 78.125000,135.341379"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,135.341379 L 435.825000,135.341379"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="139.841379" >441 (51.30, 0.50)</text>
+</g>
+<g id="ytick88">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,132.300000 L 78.125000,132.300000"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,132.300000 L 435.825000,132.300000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="136.800000" >5050 (51.30, 0.50)</text>
+</g>
+<g id="ytick89">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,129.258621 L 78.125000,129.258621"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,129.258621 L 435.825000,129.258621"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="133.758621" >465 (51.30, 0.50)</text>
+</g>
+<g id="ytick90">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,126.217241 L 78.125000,126.217241"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,126.217241 L 435.825000,126.217241"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-11.875000" y="130.717241" >445 (51.30, 0.50)</text>
+</g>
+<g id="ytick91">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,123.175862 L 78.125000,123.175862"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,123.175862 L 435.825000,123.175862"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="127.675862" >4990 (51.30, 0.50)</text>
+</g>
+<g id="ytick92">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,120.134483 L 78.125000,120.134483"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,120.134483 L 435.825000,120.134483"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="124.634483" >4993 (51.30, 0.50)</text>
+</g>
+<g id="ytick93">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,117.093103 L 78.125000,117.093103"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,117.093103 L 435.825000,117.093103"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="121.593103" >4994 (51.30, 0.50)</text>
+</g>
+<g id="ytick94">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,114.051724 L 78.125000,114.051724"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,114.051724 L 435.825000,114.051724"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="118.551724" >4995 (51.30, 0.50)</text>
+</g>
+<g id="ytick95">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,111.010345 L 78.125000,111.010345"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,111.010345 L 435.825000,111.010345"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="115.510345" >5025 (51.30, 0.50)</text>
+</g>
+<g id="ytick96">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,107.968966 L 78.125000,107.968966"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,107.968966 L 435.825000,107.968966"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="112.468966" >5024 (51.30, 0.50)</text>
+</g>
+<g id="ytick97">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,104.927586 L 78.125000,104.927586"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,104.927586 L 435.825000,104.927586"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="109.427586" >5021 (51.30, 0.50)</text>
+</g>
+<g id="ytick98">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,101.886207 L 78.125000,101.886207"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,101.886207 L 435.825000,101.886207"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="106.386207" >5018 (51.30, 0.50)</text>
+</g>
+<g id="ytick99">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,98.844828 L 78.125000,98.844828"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,98.844828 L 435.825000,98.844828"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="103.344828" >5017 (51.30, 0.50)</text>
+</g>
+<g id="ytick100">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,95.803448 L 78.125000,95.803448"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,95.803448 L 435.825000,95.803448"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="100.303448" >5016 (51.30, 0.50)</text>
+</g>
+<g id="ytick101">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,92.762069 L 78.125000,92.762069"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,92.762069 L 435.825000,92.762069"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="97.262069" >5015 (51.30, 0.50)</text>
+</g>
+<g id="ytick102">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,89.720690 L 78.125000,89.720690"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,89.720690 L 435.825000,89.720690"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="94.220690" >5014 (51.30, 0.50)</text>
+</g>
+<g id="ytick103">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,86.679310 L 78.125000,86.679310"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,86.679310 L 435.825000,86.679310"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="91.179310" >5013 (51.30, 0.50)</text>
+</g>
+<g id="ytick104">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,83.637931 L 78.125000,83.637931"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,83.637931 L 435.825000,83.637931"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="88.137931" >5027 (51.30, 0.50)</text>
+</g>
+<g id="ytick105">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,80.596552 L 78.125000,80.596552"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,80.596552 L 435.825000,80.596552"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="85.096552" >5012 (51.30, 0.50)</text>
+</g>
+<g id="ytick106">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,77.555172 L 78.125000,77.555172"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,77.555172 L 435.825000,77.555172"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="82.055172" >5007 (51.30, 0.50)</text>
+</g>
+<g id="ytick107">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,74.513793 L 78.125000,74.513793"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,74.513793 L 435.825000,74.513793"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="79.013793" >5006 (51.30, 0.50)</text>
+</g>
+<g id="ytick108">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,71.472414 L 78.125000,71.472414"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,71.472414 L 435.825000,71.472414"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="75.972414" >5005 (51.30, 0.50)</text>
+</g>
+<g id="ytick109">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,68.431034 L 78.125000,68.431034"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,68.431034 L 435.825000,68.431034"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="72.931034" >5003 (51.30, 0.50)</text>
+</g>
+<g id="ytick110">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,65.389655 L 78.125000,65.389655"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,65.389655 L 435.825000,65.389655"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="69.889655" >5002 (51.30, 0.50)</text>
+</g>
+<g id="ytick111">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,62.348276 L 78.125000,62.348276"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,62.348276 L 435.825000,62.348276"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="66.848276" >5001 (51.30, 0.50)</text>
+</g>
+<g id="ytick112">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,59.306897 L 78.125000,59.306897"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,59.306897 L 435.825000,59.306897"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="63.806897" >5000 (51.30, 0.50)</text>
+</g>
+<g id="ytick113">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,56.265517 L 78.125000,56.265517"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,56.265517 L 435.825000,56.265517"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="60.765517" >4999 (51.30, 0.50)</text>
+</g>
+<g id="ytick114">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,53.224138 L 78.125000,53.224138"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,53.224138 L 435.825000,53.224138"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="57.724138" >4996 (51.30, 0.50)</text>
+</g>
+<g id="ytick115">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,50.182759 L 78.125000,50.182759"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,50.182759 L 435.825000,50.182759"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="54.682759" >5008 (51.30, 0.50)</text>
+</g>
+<g id="ytick116">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 73.125000,47.141379 L 78.125000,47.141379"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 430.825000,47.141379 L 435.825000,47.141379"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="-17.875000" y="51.641379" >5011 (51.30, 0.50)</text>
+</g>
+</g>
+<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  d="M 73.125000,396.900000 L 435.825000,396.900000 L 435.825000,44.100000 L 73.125000,44.100000 L 73.125000,396.900000 "/>
+</g>
+<g id="axes2">
+<polygon style="fill: #ffffff; stroke: #ffffff; stroke-width: 0.010000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  points = "458.493750,396.900000 458.493750,395.521875 458.493750,45.478125 458.493750,44.100000 476.133750,44.100000 476.133750,45.478125 476.133750,395.521875 476.133750,396.900000 458.493750,396.900000"/>
+<g id="polycollection1">
+<defs>
+    <clipPath id="5246867341358300824">
+    <rect x="458.493750" y="44.100000" width="17.640000" height="352.800000"
+    style="stroke: gray; fill: none;"/>
+    </clipPath>
+</defs>
+<polygon style="fill: #000080; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,396.900000 458.493750,395.521875 476.133750,395.521875 476.133750,396.900000"/>
+<polygon style="fill: #000084; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,395.521875 458.493750,394.143750 476.133750,394.143750 476.133750,395.521875"/>
+<polygon style="fill: #000089; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,394.143750 458.493750,392.765625 476.133750,392.765625 476.133750,394.143750"/>
+<polygon style="fill: #00008d; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,392.765625 458.493750,391.387500 476.133750,391.387500 476.133750,392.765625"/>
+<polygon style="fill: #000092; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,391.387500 458.493750,390.009375 476.133750,390.009375 476.133750,391.387500"/>
+<polygon style="fill: #000096; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,390.009375 458.493750,388.631250 476.133750,388.631250 476.133750,390.009375"/>
+<polygon style="fill: #00009b; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,388.631250 458.493750,387.253125 476.133750,387.253125 476.133750,388.631250"/>
+<polygon style="fill: #00009f; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,387.253125 458.493750,385.875000 476.133750,385.875000 476.133750,387.253125"/>
+<polygon style="fill: #0000a4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,385.875000 458.493750,384.496875 476.133750,384.496875 476.133750,385.875000"/>
+<polygon style="fill: #0000a8; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,384.496875 458.493750,383.118750 476.133750,383.118750 476.133750,384.496875"/>
+<polygon style="fill: #0000ad; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,383.118750 458.493750,381.740625 476.133750,381.740625 476.133750,383.118750"/>
+<polygon style="fill: #0000b2; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,381.740625 458.493750,380.362500 476.133750,380.362500 476.133750,381.740625"/>
+<polygon style="fill: #0000b6; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,380.362500 458.493750,378.984375 476.133750,378.984375 476.133750,380.362500"/>
+<polygon style="fill: #0000bb; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,378.984375 458.493750,377.606250 476.133750,377.606250 476.133750,378.984375"/>
+<polygon style="fill: #0000bf; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,377.606250 458.493750,376.228125 476.133750,376.228125 476.133750,377.606250"/>
+<polygon style="fill: #0000c4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,376.228125 458.493750,374.850000 476.133750,374.850000 476.133750,376.228125"/>
+<polygon style="fill: #0000c8; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,374.850000 458.493750,373.471875 476.133750,373.471875 476.133750,374.850000"/>
+<polygon style="fill: #0000cd; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,373.471875 458.493750,372.093750 476.133750,372.093750 476.133750,373.471875"/>
+<polygon style="fill: #0000d1; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,372.093750 458.493750,370.715625 476.133750,370.715625 476.133750,372.093750"/>
+<polygon style="fill: #0000d6; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,370.715625 458.493750,369.337500 476.133750,369.337500 476.133750,370.715625"/>
+<polygon style="fill: #0000da; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,369.337500 458.493750,367.959375 476.133750,367.959375 476.133750,369.337500"/>
+<polygon style="fill: #0000df; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,367.959375 458.493750,366.581250 476.133750,366.581250 476.133750,367.959375"/>
+<polygon style="fill: #0000e3; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,366.581250 458.493750,365.203125 476.133750,365.203125 476.133750,366.581250"/>
+<polygon style="fill: #0000e8; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,365.203125 458.493750,363.825000 476.133750,363.825000 476.133750,365.203125"/>
+<polygon style="fill: #0000ed; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,363.825000 458.493750,362.446875 476.133750,362.446875 476.133750,363.825000"/>
+<polygon style="fill: #0000f1; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,362.446875 458.493750,361.068750 476.133750,361.068750 476.133750,362.446875"/>
+<polygon style="fill: #0000f6; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,361.068750 458.493750,359.690625 476.133750,359.690625 476.133750,361.068750"/>
+<polygon style="fill: #0000fa; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,359.690625 458.493750,358.312500 476.133750,358.312500 476.133750,359.690625"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,358.312500 458.493750,356.934375 476.133750,356.934375 476.133750,358.312500"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,356.934375 458.493750,355.556250 476.133750,355.556250 476.133750,356.934375"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,355.556250 458.493750,354.178125 476.133750,354.178125 476.133750,355.556250"/>
+<polygon style="fill: #0000ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,354.178125 458.493750,352.800000 476.133750,352.800000 476.133750,354.178125"/>
+<polygon style="fill: #0001ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,352.800000 458.493750,351.421875 476.133750,351.421875 476.133750,352.800000"/>
+<polygon style="fill: #0005ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,351.421875 458.493750,350.043750 476.133750,350.043750 476.133750,351.421875"/>
+<polygon style="fill: #0009ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,350.043750 458.493750,348.665625 476.133750,348.665625 476.133750,350.043750"/>
+<polygon style="fill: #000dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,348.665625 458.493750,347.287500 476.133750,347.287500 476.133750,348.665625"/>
+<polygon style="fill: #0011ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,347.287500 458.493750,345.909375 476.133750,345.909375 476.133750,347.287500"/>
+<polygon style="fill: #0015ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,345.909375 458.493750,344.531250 476.133750,344.531250 476.133750,345.909375"/>
+<polygon style="fill: #0019ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,344.531250 458.493750,343.153125 476.133750,343.153125 476.133750,344.531250"/>
+<polygon style="fill: #001dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,343.153125 458.493750,341.775000 476.133750,341.775000 476.133750,343.153125"/>
+<polygon style="fill: #0021ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,341.775000 458.493750,340.396875 476.133750,340.396875 476.133750,341.775000"/>
+<polygon style="fill: #0025ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,340.396875 458.493750,339.018750 476.133750,339.018750 476.133750,340.396875"/>
+<polygon style="fill: #0029ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,339.018750 458.493750,337.640625 476.133750,337.640625 476.133750,339.018750"/>
+<polygon style="fill: #002dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,337.640625 458.493750,336.262500 476.133750,336.262500 476.133750,337.640625"/>
+<polygon style="fill: #0031ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,336.262500 458.493750,334.884375 476.133750,334.884375 476.133750,336.262500"/>
+<polygon style="fill: #0035ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,334.884375 458.493750,333.506250 476.133750,333.506250 476.133750,334.884375"/>
+<polygon style="fill: #0039ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,333.506250 458.493750,332.128125 476.133750,332.128125 476.133750,333.506250"/>
+<polygon style="fill: #003dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,332.128125 458.493750,330.750000 476.133750,330.750000 476.133750,332.128125"/>
+<polygon style="fill: #0041ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,330.750000 458.493750,329.371875 476.133750,329.371875 476.133750,330.750000"/>
+<polygon style="fill: #0045ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,329.371875 458.493750,327.993750 476.133750,327.993750 476.133750,329.371875"/>
+<polygon style="fill: #0049ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,327.993750 458.493750,326.615625 476.133750,326.615625 476.133750,327.993750"/>
+<polygon style="fill: #004dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,326.615625 458.493750,325.237500 476.133750,325.237500 476.133750,326.615625"/>
+<polygon style="fill: #0051ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,325.237500 458.493750,323.859375 476.133750,323.859375 476.133750,325.237500"/>
+<polygon style="fill: #0055ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,323.859375 458.493750,322.481250 476.133750,322.481250 476.133750,323.859375"/>
+<polygon style="fill: #0059ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,322.481250 458.493750,321.103125 476.133750,321.103125 476.133750,322.481250"/>
+<polygon style="fill: #005dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,321.103125 458.493750,319.725000 476.133750,319.725000 476.133750,321.103125"/>
+<polygon style="fill: #0061ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,319.725000 458.493750,318.346875 476.133750,318.346875 476.133750,319.725000"/>
+<polygon style="fill: #0065ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,318.346875 458.493750,316.968750 476.133750,316.968750 476.133750,318.346875"/>
+<polygon style="fill: #0069ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,316.968750 458.493750,315.590625 476.133750,315.590625 476.133750,316.968750"/>
+<polygon style="fill: #006dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,315.590625 458.493750,314.212500 476.133750,314.212500 476.133750,315.590625"/>
+<polygon style="fill: #0071ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,314.212500 458.493750,312.834375 476.133750,312.834375 476.133750,314.212500"/>
+<polygon style="fill: #0075ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,312.834375 458.493750,311.456250 476.133750,311.456250 476.133750,312.834375"/>
+<polygon style="fill: #0079ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,311.456250 458.493750,310.078125 476.133750,310.078125 476.133750,311.456250"/>
+<polygon style="fill: #007dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,310.078125 458.493750,308.700000 476.133750,308.700000 476.133750,310.078125"/>
+<polygon style="fill: #0081ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,308.700000 458.493750,307.321875 476.133750,307.321875 476.133750,308.700000"/>
+<polygon style="fill: #0085ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,307.321875 458.493750,305.943750 476.133750,305.943750 476.133750,307.321875"/>
+<polygon style="fill: #0089ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,305.943750 458.493750,304.565625 476.133750,304.565625 476.133750,305.943750"/>
+<polygon style="fill: #008dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,304.565625 458.493750,303.187500 476.133750,303.187500 476.133750,304.565625"/>
+<polygon style="fill: #0091ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,303.187500 458.493750,301.809375 476.133750,301.809375 476.133750,303.187500"/>
+<polygon style="fill: #0095ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,301.809375 458.493750,300.431250 476.133750,300.431250 476.133750,301.809375"/>
+<polygon style="fill: #0099ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,300.431250 458.493750,299.053125 476.133750,299.053125 476.133750,300.431250"/>
+<polygon style="fill: #009dff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,299.053125 458.493750,297.675000 476.133750,297.675000 476.133750,299.053125"/>
+<polygon style="fill: #00a1ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,297.675000 458.493750,296.296875 476.133750,296.296875 476.133750,297.675000"/>
+<polygon style="fill: #00a5ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,296.296875 458.493750,294.918750 476.133750,294.918750 476.133750,296.296875"/>
+<polygon style="fill: #00a9ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,294.918750 458.493750,293.540625 476.133750,293.540625 476.133750,294.918750"/>
+<polygon style="fill: #00adff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,293.540625 458.493750,292.162500 476.133750,292.162500 476.133750,293.540625"/>
+<polygon style="fill: #00b1ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,292.162500 458.493750,290.784375 476.133750,290.784375 476.133750,292.162500"/>
+<polygon style="fill: #00b5ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,290.784375 458.493750,289.406250 476.133750,289.406250 476.133750,290.784375"/>
+<polygon style="fill: #00b9ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,289.406250 458.493750,288.028125 476.133750,288.028125 476.133750,289.406250"/>
+<polygon style="fill: #00bdff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,288.028125 458.493750,286.650000 476.133750,286.650000 476.133750,288.028125"/>
+<polygon style="fill: #00c1ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,286.650000 458.493750,285.271875 476.133750,285.271875 476.133750,286.650000"/>
+<polygon style="fill: #00c5ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,285.271875 458.493750,283.893750 476.133750,283.893750 476.133750,285.271875"/>
+<polygon style="fill: #00c9ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,283.893750 458.493750,282.515625 476.133750,282.515625 476.133750,283.893750"/>
+<polygon style="fill: #00cdff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,282.515625 458.493750,281.137500 476.133750,281.137500 476.133750,282.515625"/>
+<polygon style="fill: #00d1ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,281.137500 458.493750,279.759375 476.133750,279.759375 476.133750,281.137500"/>
+<polygon style="fill: #00d5ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,279.759375 458.493750,278.381250 476.133750,278.381250 476.133750,279.759375"/>
+<polygon style="fill: #00d9ff; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,278.381250 458.493750,277.003125 476.133750,277.003125 476.133750,278.381250"/>
+<polygon style="fill: #00ddfe; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,277.003125 458.493750,275.625000 476.133750,275.625000 476.133750,277.003125"/>
+<polygon style="fill: #00e1fb; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,275.625000 458.493750,274.246875 476.133750,274.246875 476.133750,275.625000"/>
+<polygon style="fill: #00e5f8; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,274.246875 458.493750,272.868750 476.133750,272.868750 476.133750,274.246875"/>
+<polygon style="fill: #02e9f4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,272.868750 458.493750,271.490625 476.133750,271.490625 476.133750,272.868750"/>
+<polygon style="fill: #06edf1; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,271.490625 458.493750,270.112500 476.133750,270.112500 476.133750,271.490625"/>
+<polygon style="fill: #09f1ee; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,270.112500 458.493750,268.734375 476.133750,268.734375 476.133750,270.112500"/>
+<polygon style="fill: #0cf5eb; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,268.734375 458.493750,267.356250 476.133750,267.356250 476.133750,268.734375"/>
+<polygon style="fill: #0ff9e7; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,267.356250 458.493750,265.978125 476.133750,265.978125 476.133750,267.356250"/>
+<polygon style="fill: #13fde4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,265.978125 458.493750,264.600000 476.133750,264.600000 476.133750,265.978125"/>
+<polygon style="fill: #16ffe1; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,264.600000 458.493750,263.221875 476.133750,263.221875 476.133750,264.600000"/>
+<polygon style="fill: #19ffde; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,263.221875 458.493750,261.843750 476.133750,261.843750 476.133750,263.221875"/>
+<polygon style="fill: #1cffdb; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,261.843750 458.493750,260.465625 476.133750,260.465625 476.133750,261.843750"/>
+<polygon style="fill: #1fffd7; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,260.465625 458.493750,259.087500 476.133750,259.087500 476.133750,260.465625"/>
+<polygon style="fill: #23ffd4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,259.087500 458.493750,257.709375 476.133750,257.709375 476.133750,259.087500"/>
+<polygon style="fill: #26ffd1; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,257.709375 458.493750,256.331250 476.133750,256.331250 476.133750,257.709375"/>
+<polygon style="fill: #29ffce; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,256.331250 458.493750,254.953125 476.133750,254.953125 476.133750,256.331250"/>
+<polygon style="fill: #2cffca; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,254.953125 458.493750,253.575000 476.133750,253.575000 476.133750,254.953125"/>
+<polygon style="fill: #30ffc7; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,253.575000 458.493750,252.196875 476.133750,252.196875 476.133750,253.575000"/>
+<polygon style="fill: #33ffc4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,252.196875 458.493750,250.818750 476.133750,250.818750 476.133750,252.196875"/>
+<polygon style="fill: #36ffc1; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,250.818750 458.493750,249.440625 476.133750,249.440625 476.133750,250.818750"/>
+<polygon style="fill: #39ffbe; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,249.440625 458.493750,248.062500 476.133750,248.062500 476.133750,249.440625"/>
+<polygon style="fill: #3cffba; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,248.062500 458.493750,246.684375 476.133750,246.684375 476.133750,248.062500"/>
+<polygon style="fill: #40ffb7; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,246.684375 458.493750,245.306250 476.133750,245.306250 476.133750,246.684375"/>
+<polygon style="fill: #43ffb4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,245.306250 458.493750,243.928125 476.133750,243.928125 476.133750,245.306250"/>
+<polygon style="fill: #46ffb1; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,243.928125 458.493750,242.550000 476.133750,242.550000 476.133750,243.928125"/>
+<polygon style="fill: #49ffad; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,242.550000 458.493750,241.171875 476.133750,241.171875 476.133750,242.550000"/>
+<polygon style="fill: #4dffaa; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,241.171875 458.493750,239.793750 476.133750,239.793750 476.133750,241.171875"/>
+<polygon style="fill: #50ffa7; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,239.793750 458.493750,238.415625 476.133750,238.415625 476.133750,239.793750"/>
+<polygon style="fill: #53ffa4; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,238.415625 458.493750,237.037500 476.133750,237.037500 476.133750,238.415625"/>
+<polygon style="fill: #56ffa0; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,237.037500 458.493750,235.659375 476.133750,235.659375 476.133750,237.037500"/>
+<polygon style="fill: #5aff9d; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,235.659375 458.493750,234.281250 476.133750,234.281250 476.133750,235.659375"/>
+<polygon style="fill: #5dff9a; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,234.281250 458.493750,232.903125 476.133750,232.903125 476.133750,234.281250"/>
+<polygon style="fill: #60ff97; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,232.903125 458.493750,231.525000 476.133750,231.525000 476.133750,232.903125"/>
+<polygon style="fill: #63ff94; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,231.525000 458.493750,230.146875 476.133750,230.146875 476.133750,231.525000"/>
+<polygon style="fill: #66ff90; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,230.146875 458.493750,228.768750 476.133750,228.768750 476.133750,230.146875"/>
+<polygon style="fill: #6aff8d; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,228.768750 458.493750,227.390625 476.133750,227.390625 476.133750,228.768750"/>
+<polygon style="fill: #6dff8a; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,227.390625 458.493750,226.012500 476.133750,226.012500 476.133750,227.390625"/>
+<polygon style="fill: #70ff87; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,226.012500 458.493750,224.634375 476.133750,224.634375 476.133750,226.012500"/>
+<polygon style="fill: #73ff83; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,224.634375 458.493750,223.256250 476.133750,223.256250 476.133750,224.634375"/>
+<polygon style="fill: #77ff80; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,223.256250 458.493750,221.878125 476.133750,221.878125 476.133750,223.256250"/>
+<polygon style="fill: #7aff7d; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,221.878125 458.493750,220.500000 476.133750,220.500000 476.133750,221.878125"/>
+<polygon style="fill: #7dff7a; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,220.500000 458.493750,219.121875 476.133750,219.121875 476.133750,220.500000"/>
+<polygon style="fill: #80ff77; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,219.121875 458.493750,217.743750 476.133750,217.743750 476.133750,219.121875"/>
+<polygon style="fill: #83ff73; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,217.743750 458.493750,216.365625 476.133750,216.365625 476.133750,217.743750"/>
+<polygon style="fill: #87ff70; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,216.365625 458.493750,214.987500 476.133750,214.987500 476.133750,216.365625"/>
+<polygon style="fill: #8aff6d; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,214.987500 458.493750,213.609375 476.133750,213.609375 476.133750,214.987500"/>
+<polygon style="fill: #8dff6a; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,213.609375 458.493750,212.231250 476.133750,212.231250 476.133750,213.609375"/>
+<polygon style="fill: #90ff66; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,212.231250 458.493750,210.853125 476.133750,210.853125 476.133750,212.231250"/>
+<polygon style="fill: #94ff63; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,210.853125 458.493750,209.475000 476.133750,209.475000 476.133750,210.853125"/>
+<polygon style="fill: #97ff60; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,209.475000 458.493750,208.096875 476.133750,208.096875 476.133750,209.475000"/>
+<polygon style="fill: #9aff5d; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,208.096875 458.493750,206.718750 476.133750,206.718750 476.133750,208.096875"/>
+<polygon style="fill: #9dff5a; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,206.718750 458.493750,205.340625 476.133750,205.340625 476.133750,206.718750"/>
+<polygon style="fill: #a0ff56; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,205.340625 458.493750,203.962500 476.133750,203.962500 476.133750,205.340625"/>
+<polygon style="fill: #a4ff53; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,203.962500 458.493750,202.584375 476.133750,202.584375 476.133750,203.962500"/>
+<polygon style="fill: #a7ff50; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,202.584375 458.493750,201.206250 476.133750,201.206250 476.133750,202.584375"/>
+<polygon style="fill: #aaff4d; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,201.206250 458.493750,199.828125 476.133750,199.828125 476.133750,201.206250"/>
+<polygon style="fill: #adff49; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,199.828125 458.493750,198.450000 476.133750,198.450000 476.133750,199.828125"/>
+<polygon style="fill: #b1ff46; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,198.450000 458.493750,197.071875 476.133750,197.071875 476.133750,198.450000"/>
+<polygon style="fill: #b4ff43; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,197.071875 458.493750,195.693750 476.133750,195.693750 476.133750,197.071875"/>
+<polygon style="fill: #b7ff40; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,195.693750 458.493750,194.315625 476.133750,194.315625 476.133750,195.693750"/>
+<polygon style="fill: #baff3c; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,194.315625 458.493750,192.937500 476.133750,192.937500 476.133750,194.315625"/>
+<polygon style="fill: #beff39; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,192.937500 458.493750,191.559375 476.133750,191.559375 476.133750,192.937500"/>
+<polygon style="fill: #c1ff36; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,191.559375 458.493750,190.181250 476.133750,190.181250 476.133750,191.559375"/>
+<polygon style="fill: #c4ff33; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,190.181250 458.493750,188.803125 476.133750,188.803125 476.133750,190.181250"/>
+<polygon style="fill: #c7ff30; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,188.803125 458.493750,187.425000 476.133750,187.425000 476.133750,188.803125"/>
+<polygon style="fill: #caff2c; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,187.425000 458.493750,186.046875 476.133750,186.046875 476.133750,187.425000"/>
+<polygon style="fill: #ceff29; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,186.046875 458.493750,184.668750 476.133750,184.668750 476.133750,186.046875"/>
+<polygon style="fill: #d1ff26; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,184.668750 458.493750,183.290625 476.133750,183.290625 476.133750,184.668750"/>
+<polygon style="fill: #d4ff23; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,183.290625 458.493750,181.912500 476.133750,181.912500 476.133750,183.290625"/>
+<polygon style="fill: #d7ff1f; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,181.912500 458.493750,180.534375 476.133750,180.534375 476.133750,181.912500"/>
+<polygon style="fill: #dbff1c; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,180.534375 458.493750,179.156250 476.133750,179.156250 476.133750,180.534375"/>
+<polygon style="fill: #deff19; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,179.156250 458.493750,177.778125 476.133750,177.778125 476.133750,179.156250"/>
+<polygon style="fill: #e1ff16; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,177.778125 458.493750,176.400000 476.133750,176.400000 476.133750,177.778125"/>
+<polygon style="fill: #e4ff13; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,176.400000 458.493750,175.021875 476.133750,175.021875 476.133750,176.400000"/>
+<polygon style="fill: #e7ff0f; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,175.021875 458.493750,173.643750 476.133750,173.643750 476.133750,175.021875"/>
+<polygon style="fill: #ebff0c; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,173.643750 458.493750,172.265625 476.133750,172.265625 476.133750,173.643750"/>
+<polygon style="fill: #eeff09; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,172.265625 458.493750,170.887500 476.133750,170.887500 476.133750,172.265625"/>
+<polygon style="fill: #f1fc06; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,170.887500 458.493750,169.509375 476.133750,169.509375 476.133750,170.887500"/>
+<polygon style="fill: #f4f802; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,169.509375 458.493750,168.131250 476.133750,168.131250 476.133750,169.509375"/>
+<polygon style="fill: #f8f500; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,168.131250 458.493750,166.753125 476.133750,166.753125 476.133750,168.131250"/>
+<polygon style="fill: #fbf100; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,166.753125 458.493750,165.375000 476.133750,165.375000 476.133750,166.753125"/>
+<polygon style="fill: #feed00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,165.375000 458.493750,163.996875 476.133750,163.996875 476.133750,165.375000"/>
+<polygon style="fill: #ffea00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,163.996875 458.493750,162.618750 476.133750,162.618750 476.133750,163.996875"/>
+<polygon style="fill: #ffe600; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,162.618750 458.493750,161.240625 476.133750,161.240625 476.133750,162.618750"/>
+<polygon style="fill: #ffe200; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,161.240625 458.493750,159.862500 476.133750,159.862500 476.133750,161.240625"/>
+<polygon style="fill: #ffde00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,159.862500 458.493750,158.484375 476.133750,158.484375 476.133750,159.862500"/>
+<polygon style="fill: #ffdb00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,158.484375 458.493750,157.106250 476.133750,157.106250 476.133750,158.484375"/>
+<polygon style="fill: #ffd700; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,157.106250 458.493750,155.728125 476.133750,155.728125 476.133750,157.106250"/>
+<polygon style="fill: #ffd300; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,155.728125 458.493750,154.350000 476.133750,154.350000 476.133750,155.728125"/>
+<polygon style="fill: #ffd000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,154.350000 458.493750,152.971875 476.133750,152.971875 476.133750,154.350000"/>
+<polygon style="fill: #ffcc00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,152.971875 458.493750,151.593750 476.133750,151.593750 476.133750,152.971875"/>
+<polygon style="fill: #ffc800; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,151.593750 458.493750,150.215625 476.133750,150.215625 476.133750,151.593750"/>
+<polygon style="fill: #ffc400; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,150.215625 458.493750,148.837500 476.133750,148.837500 476.133750,150.215625"/>
+<polygon style="fill: #ffc100; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,148.837500 458.493750,147.459375 476.133750,147.459375 476.133750,148.837500"/>
+<polygon style="fill: #ffbd00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,147.459375 458.493750,146.081250 476.133750,146.081250 476.133750,147.459375"/>
+<polygon style="fill: #ffb900; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,146.081250 458.493750,144.703125 476.133750,144.703125 476.133750,146.081250"/>
+<polygon style="fill: #ffb600; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,144.703125 458.493750,143.325000 476.133750,143.325000 476.133750,144.703125"/>
+<polygon style="fill: #ffb200; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,143.325000 458.493750,141.946875 476.133750,141.946875 476.133750,143.325000"/>
+<polygon style="fill: #ffae00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,141.946875 458.493750,140.568750 476.133750,140.568750 476.133750,141.946875"/>
+<polygon style="fill: #ffab00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,140.568750 458.493750,139.190625 476.133750,139.190625 476.133750,140.568750"/>
+<polygon style="fill: #ffa700; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,139.190625 458.493750,137.812500 476.133750,137.812500 476.133750,139.190625"/>
+<polygon style="fill: #ffa300; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,137.812500 458.493750,136.434375 476.133750,136.434375 476.133750,137.812500"/>
+<polygon style="fill: #ff9f00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,136.434375 458.493750,135.056250 476.133750,135.056250 476.133750,136.434375"/>
+<polygon style="fill: #ff9c00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,135.056250 458.493750,133.678125 476.133750,133.678125 476.133750,135.056250"/>
+<polygon style="fill: #ff9800; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,133.678125 458.493750,132.300000 476.133750,132.300000 476.133750,133.678125"/>
+<polygon style="fill: #ff9400; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,132.300000 458.493750,130.921875 476.133750,130.921875 476.133750,132.300000"/>
+<polygon style="fill: #ff9100; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,130.921875 458.493750,129.543750 476.133750,129.543750 476.133750,130.921875"/>
+<polygon style="fill: #ff8d00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,129.543750 458.493750,128.165625 476.133750,128.165625 476.133750,129.543750"/>
+<polygon style="fill: #ff8900; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,128.165625 458.493750,126.787500 476.133750,126.787500 476.133750,128.165625"/>
+<polygon style="fill: #ff8600; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,126.787500 458.493750,125.409375 476.133750,125.409375 476.133750,126.787500"/>
+<polygon style="fill: #ff8200; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,125.409375 458.493750,124.031250 476.133750,124.031250 476.133750,125.409375"/>
+<polygon style="fill: #ff7e00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,124.031250 458.493750,122.653125 476.133750,122.653125 476.133750,124.031250"/>
+<polygon style="fill: #ff7a00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,122.653125 458.493750,121.275000 476.133750,121.275000 476.133750,122.653125"/>
+<polygon style="fill: #ff7700; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,121.275000 458.493750,119.896875 476.133750,119.896875 476.133750,121.275000"/>
+<polygon style="fill: #ff7300; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,119.896875 458.493750,118.518750 476.133750,118.518750 476.133750,119.896875"/>
+<polygon style="fill: #ff6f00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,118.518750 458.493750,117.140625 476.133750,117.140625 476.133750,118.518750"/>
+<polygon style="fill: #ff6c00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,117.140625 458.493750,115.762500 476.133750,115.762500 476.133750,117.140625"/>
+<polygon style="fill: #ff6800; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,115.762500 458.493750,114.384375 476.133750,114.384375 476.133750,115.762500"/>
+<polygon style="fill: #ff6400; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,114.384375 458.493750,113.006250 476.133750,113.006250 476.133750,114.384375"/>
+<polygon style="fill: #ff6000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,113.006250 458.493750,111.628125 476.133750,111.628125 476.133750,113.006250"/>
+<polygon style="fill: #ff5d00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,111.628125 458.493750,110.250000 476.133750,110.250000 476.133750,111.628125"/>
+<polygon style="fill: #ff5900; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,110.250000 458.493750,108.871875 476.133750,108.871875 476.133750,110.250000"/>
+<polygon style="fill: #ff5500; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,108.871875 458.493750,107.493750 476.133750,107.493750 476.133750,108.871875"/>
+<polygon style="fill: #ff5200; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,107.493750 458.493750,106.115625 476.133750,106.115625 476.133750,107.493750"/>
+<polygon style="fill: #ff4e00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,106.115625 458.493750,104.737500 476.133750,104.737500 476.133750,106.115625"/>
+<polygon style="fill: #ff4a00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,104.737500 458.493750,103.359375 476.133750,103.359375 476.133750,104.737500"/>
+<polygon style="fill: #ff4700; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,103.359375 458.493750,101.981250 476.133750,101.981250 476.133750,103.359375"/>
+<polygon style="fill: #ff4300; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,101.981250 458.493750,100.603125 476.133750,100.603125 476.133750,101.981250"/>
+<polygon style="fill: #ff3f00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,100.603125 458.493750,99.225000 476.133750,99.225000 476.133750,100.603125"/>
+<polygon style="fill: #ff3b00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,99.225000 458.493750,97.846875 476.133750,97.846875 476.133750,99.225000"/>
+<polygon style="fill: #ff3800; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,97.846875 458.493750,96.468750 476.133750,96.468750 476.133750,97.846875"/>
+<polygon style="fill: #ff3400; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,96.468750 458.493750,95.090625 476.133750,95.090625 476.133750,96.468750"/>
+<polygon style="fill: #ff3000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,95.090625 458.493750,93.712500 476.133750,93.712500 476.133750,95.090625"/>
+<polygon style="fill: #ff2d00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,93.712500 458.493750,92.334375 476.133750,92.334375 476.133750,93.712500"/>
+<polygon style="fill: #ff2900; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,92.334375 458.493750,90.956250 476.133750,90.956250 476.133750,92.334375"/>
+<polygon style="fill: #ff2500; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,90.956250 458.493750,89.578125 476.133750,89.578125 476.133750,90.956250"/>
+<polygon style="fill: #ff2200; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,89.578125 458.493750,88.200000 476.133750,88.200000 476.133750,89.578125"/>
+<polygon style="fill: #ff1e00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,88.200000 458.493750,86.821875 476.133750,86.821875 476.133750,88.200000"/>
+<polygon style="fill: #ff1a00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,86.821875 458.493750,85.443750 476.133750,85.443750 476.133750,86.821875"/>
+<polygon style="fill: #ff1600; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,85.443750 458.493750,84.065625 476.133750,84.065625 476.133750,85.443750"/>
+<polygon style="fill: #ff1300; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,84.065625 458.493750,82.687500 476.133750,82.687500 476.133750,84.065625"/>
+<polygon style="fill: #fa0f00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,82.687500 458.493750,81.309375 476.133750,81.309375 476.133750,82.687500"/>
+<polygon style="fill: #f60b00; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,81.309375 458.493750,79.931250 476.133750,79.931250 476.133750,81.309375"/>
+<polygon style="fill: #f10800; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,79.931250 458.493750,78.553125 476.133750,78.553125 476.133750,79.931250"/>
+<polygon style="fill: #ed0400; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,78.553125 458.493750,77.175000 476.133750,77.175000 476.133750,78.553125"/>
+<polygon style="fill: #e80000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,77.175000 458.493750,75.796875 476.133750,75.796875 476.133750,77.175000"/>
+<polygon style="fill: #e40000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,75.796875 458.493750,74.418750 476.133750,74.418750 476.133750,75.796875"/>
+<polygon style="fill: #df0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,74.418750 458.493750,73.040625 476.133750,73.040625 476.133750,74.418750"/>
+<polygon style="fill: #da0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,73.040625 458.493750,71.662500 476.133750,71.662500 476.133750,73.040625"/>
+<polygon style="fill: #d60000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,71.662500 458.493750,70.284375 476.133750,70.284375 476.133750,71.662500"/>
+<polygon style="fill: #d10000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,70.284375 458.493750,68.906250 476.133750,68.906250 476.133750,70.284375"/>
+<polygon style="fill: #cd0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,68.906250 458.493750,67.528125 476.133750,67.528125 476.133750,68.906250"/>
+<polygon style="fill: #c80000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,67.528125 458.493750,66.150000 476.133750,66.150000 476.133750,67.528125"/>
+<polygon style="fill: #c40000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,66.150000 458.493750,64.771875 476.133750,64.771875 476.133750,66.150000"/>
+<polygon style="fill: #bf0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,64.771875 458.493750,63.393750 476.133750,63.393750 476.133750,64.771875"/>
+<polygon style="fill: #bb0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,63.393750 458.493750,62.015625 476.133750,62.015625 476.133750,63.393750"/>
+<polygon style="fill: #b60000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,62.015625 458.493750,60.637500 476.133750,60.637500 476.133750,62.015625"/>
+<polygon style="fill: #b20000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,60.637500 458.493750,59.259375 476.133750,59.259375 476.133750,60.637500"/>
+<polygon style="fill: #ad0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,59.259375 458.493750,57.881250 476.133750,57.881250 476.133750,59.259375"/>
+<polygon style="fill: #a80000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,57.881250 458.493750,56.503125 476.133750,56.503125 476.133750,57.881250"/>
+<polygon style="fill: #a40000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,56.503125 458.493750,55.125000 476.133750,55.125000 476.133750,56.503125"/>
+<polygon style="fill: #9f0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,55.125000 458.493750,53.746875 476.133750,53.746875 476.133750,55.125000"/>
+<polygon style="fill: #9b0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,53.746875 458.493750,52.368750 476.133750,52.368750 476.133750,53.746875"/>
+<polygon style="fill: #960000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,52.368750 458.493750,50.990625 476.133750,50.990625 476.133750,52.368750"/>
+<polygon style="fill: #920000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,50.990625 458.493750,49.612500 476.133750,49.612500 476.133750,50.990625"/>
+<polygon style="fill: #8d0000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,49.612500 458.493750,48.234375 476.133750,48.234375 476.133750,49.612500"/>
+<polygon style="fill: #890000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,48.234375 458.493750,46.856250 476.133750,46.856250 476.133750,48.234375"/>
+<polygon style="fill: #840000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,46.856250 458.493750,45.478125 476.133750,45.478125 476.133750,46.856250"/>
+<polygon style="fill: #800000; opacity: 1.000000" clip-path="url(#5246867341358300824)" points = "458.493750,45.478125 458.493750,44.100000 476.133750,44.100000 476.133750,45.478125"/>
+</g>
+<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.000000"  d="M 458.493750,396.900000 L 458.493750,395.521875 L 458.493750,45.478125 L 458.493750,44.100000 L 476.133750,44.100000 L 476.133750,45.478125 L 476.133750,395.521875 L 476.133750,396.900000 L 458.493750,396.900000 "/>
+<g id="matplotlib.axis3">
+</g>
+<g id="matplotlib.axis4">
+<g id="ytick117">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="400.400000" >0</text>
+</g>
+<g id="ytick118">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,357.700000 L 476.133750,357.700000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="361.200000" >1</text>
+</g>
+<g id="ytick119">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,318.500000 L 476.133750,318.500000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="322.000000" >2</text>
+</g>
+<g id="ytick120">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,279.300000 L 476.133750,279.300000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="282.800000" >3</text>
+</g>
+<g id="ytick121">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,240.100000 L 476.133750,240.100000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="243.600000" >4</text>
+</g>
+<g id="ytick122">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,200.900000 L 476.133750,200.900000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="204.400000" >5</text>
+</g>
+<g id="ytick123">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,161.700000 L 476.133750,161.700000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="165.200000" >6</text>
+</g>
+<g id="ytick124">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,122.500000 L 476.133750,122.500000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="126.000000" >7</text>
+</g>
+<g id="ytick125">
+<path style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.000000"  d="M 471.133750,83.300000 L 476.133750,83.300000"/>
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="86.800000" >8</text>
+</g>
+<g id="ytick126">
+<text style="font-size: 9.996000; font-family: Bitstream Vera Serif; font-style: Roman; fill: #000000;" x="479.133750" y="47.600000" >9</text>
+</g>
+</g>
+</g>
+</g>
+</svg>
