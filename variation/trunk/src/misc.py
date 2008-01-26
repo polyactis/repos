@@ -1290,6 +1290,124 @@ def get_ecotypeid_ls_given_popid(curs, popid2ecotypeid_table, popid):
 	return ecotypeid_ls
 
 """
+2008-01-25
+	following functions to investigate how identity spreads against distance in different regions.
+"""
+def find_span_index_out_of_span_ls(pos, longitude_span_ls):
+	"""
+	2008-01-25
+		find the index of the longitude_span in which pos drops in
+	"""
+	span_index = -1
+	for i in range(len(longitude_span_ls)):
+		if pos[1]>=longitude_span_ls[i][0] and pos[1]<=longitude_span_ls[i][1]:
+			span_index = i
+	return span_index
+
+def group_identity_pair_according_to_region_distance(identity_pair_ls, ecotypeid2pos, span_ls, span_label_ls, geo_distance_window_size=100):
+	"""
+	2008-01-25
+		to group the identity_pair_ls into different regions and distance windows.
+		geo_distance_window_size is in unit km
+	"""
+	import math
+	list_of_window_no2count = []
+	#1. get the row labels (label for the span type of each identity_pair)
+	#2. link the span_index_pair to the index of list_of_window_no2count
+	#3. initiate list_of_window_no2count
+	row_label_ls =[] #region designation
+	span_index_pair2list_index = {}
+	for i in range(len(span_ls)):
+		row_label_ls.append(span_label_ls[i])
+		span_index_pair = (i,i)
+		span_index_pair2list_index[span_index_pair] = i
+		list_of_window_no2count.append({})
+	for i in range(len(span_ls)):
+		for j in range(i+1, len(span_ls)):
+			row_label_ls.append('%s - %s'%(span_label_ls[i], span_label_ls[j]))
+			span_index_pair2list_index[(i,j)] = len(row_label_ls)-1 #both order have the same index
+			span_index_pair2list_index[(j,i)] = len(row_label_ls)-1
+			list_of_window_no2count.append({})
+	#record all the counts
+	max_window_no = -1 #used to determine the final maxtrix shape
+	for identity_pair in identity_pair_ls:
+		identity_pair = map(int, identity_pair) #ecotypeid in identity_pair is in string type
+		pos1 = ecotypeid2pos[identity_pair[0]]
+		pos2 = ecotypeid2pos[identity_pair[1]]
+		span_index1 = find_span_index_out_of_span_ls(pos1, span_ls)
+		span_index2 = find_span_index_out_of_span_ls(pos2, span_ls)
+		if span_index1>=0 and span_index2>=0:	#both data are in span_ls
+			geo_dist = cal_great_circle_distance(pos1[0], pos1[1], pos2[0], pos2[1])
+			window_no = math.floor(geo_dist/geo_distance_window_size) #take the floor as the bin number
+			if window_no>max_window_no:
+				max_window_no = window_no
+			list_index = span_index_pair2list_index[(span_index1, span_index2)]
+			window_no2count = list_of_window_no2count[list_index]
+			if window_no not in window_no2count:
+				window_no2count[window_no] = 0
+			window_no2count[window_no] += 1
+	#transform list_of_window_no2count to matrix
+	import numpy
+	if max_window_no>=0: #-1 means nothing recorded
+		matrix_of_counts_by_region_x_geo_dist = numpy.zeros([len(list_of_window_no2count), max_window_no+1], numpy.int) #+1 because window_no starts from 0
+		for i in range(len(list_of_window_no2count)):
+			for j in range(max_window_no+1):
+				if j in list_of_window_no2count[i]:
+					matrix_of_counts_by_region_x_geo_dist[i][j] = list_of_window_no2count[i][j]
+	else:
+		matrix_of_counts_by_region_x_geo_dist = None
+	#generate the labels for the columns of matrix_of_counts_by_region_x_geo_dist
+	col_label_ls = [] #geo distance window designation
+	col_index_ls = [] #the X-axis value
+	for i in range(max_window_no+1):
+		col_index = (i+0.5)*geo_distance_window_size #right in the middle of the window/bin
+		col_index_ls.append(col_index)
+		col_label_ls.append('%skm'%int(col_index)) #km is unit
+	return matrix_of_counts_by_region_x_geo_dist, row_label_ls, col_label_ls, col_index_ls
+
+def draw_table_as_bar_chart(matrix, row_label_ls, col_label_ls, col_index_ls=None):
+	"""
+	2008-01-25
+		originated from http://matplotlib.sourceforge.net/screenshots/table_demo.py
+	"""
+	import matplotlib
+	import pylab
+	from pymodule.colours import get_colours
+	pylab.clf()
+	pylab.axes([0.1, 0.3, 0.8, 0.6])   # leave room below the axes for the table
+	# Get some pastel shades for the colours
+	colours = get_colours(len(row_label_ls))
+	colours = list(colours)
+	#colours.reverse()
+	rows = len(matrix) #matrix.shape[0] will also do, but in case matrix is a 2D list
+	ind = pylab.arange(len(col_label_ls)) + 0.3  # the x locations for the groups
+	cellText = []
+	width = 0.4     # the width of the bars
+	#width = (col_index_ls[1]-col_index_ls[0])/2     # the width of the bars is half the window size
+	yoff = pylab.array([0.0] * len(col_label_ls)) # the bottom values for stacked bar chart
+	bar_ins_ls = []
+	for row in xrange(rows):
+	    bar_ins = pylab.bar(ind, matrix[row], width, bottom=yoff, color=colours[row])
+	    bar_ins_ls.append(bar_ins)
+	    yoff = yoff + matrix[row]
+	    cellText.append(matrix[row])
+	# Add a table at the bottom of the axes
+	colours.reverse()
+	cellText.reverse()
+	row_label_ls_reverse = row_label_ls[:]
+	row_label_ls_reverse.reverse()
+	the_table = pylab.table(cellText=cellText, rowLabels=row_label_ls_reverse, rowColours=colours, colLabels=col_label_ls)
+	pylab.ylabel("Counts")
+	#vals = arange(0, 2500, 500)
+	#pylab.yticks(vals*1000, ['%d' % val for val in vals])
+	pylab.xticks([])
+	pylab.title('Counts of identity pairs by region X geo distance')
+	
+	pylab.legend([bar_ins[0] for bar_ins in bar_ins_ls], row_label_ls, shadow=True)
+	pylab.show()
+
+
+"""
 from misc import *
 
 input_fname = 'script/variation/stock20071008/data_d110_c0_5.tsv'
@@ -1438,6 +1556,17 @@ for for i in range(len(strain_iden_g_cc)):
 		
 		display_matrix_of_component(input_fname, PartitionGraphIntoCliques_ins.clique_ls[j], ecotypeid2pos, output_fname='ecotype_identity_map_cc%sc%s'%(i,j), need_sort=0, need_savefig=1)
 		draw_graph_on_map(site_g, site2weight, site2pos, 'ecotype identity map cc%s clique%s'%(i,j), pic_area=[-130,34,120,65], output_fname_prefix='ecotype_identity_cc%sc%s'%(i,j))
+
+#2008-01-25 to investigate how identity spreads against distance in different regions.
+europe_lon_span = [-12,50]
+norame_lon_span = [-130,-60]
+centralasia_lon_span = [60,90]
+japan_lon_span = [130, 150]
+
+span_ls = [europe_lon_span, norame_lon_span]
+span_label_ls = ['europe', 'nor america']
+matrix_of_counts_by_region_x_geo_dist, row_label_ls, col_label_ls, col_index_ls = group_identity_pair_according_to_region_distance(identity_pair_ls, ecotypeid2pos, span_ls, span_label_ls, geo_distance_window_size=100)
+draw_table_as_bar_chart(matrix_of_counts_by_region_x_geo_dist, row_label_ls, col_label_ls, col_index_ls)
 """
 
 
@@ -2030,20 +2159,27 @@ class LD:
 	
 	def get_snp_acc2LD_data(self, LD_ls, distance_ls, snp_pair_ls):
 		"""
+		2008-01-24
+			the previus model doesn't give good results.
+			curve and real data are quite far apart. it's easily disrupted by points with low LD. axis distance=0 (the separating line) sometimes sits in the middle, like 5kb.
+			so try Alex Platt's suggestion:
+				r^2 = ax^b => log(r^2) = log(a) + b*log(x)
+
 		2008-01-23
 			process data for linear model fitting
 			r^2 = 1/(a+bx) (page 483 of Hartl2007) => 1/r^2 = a+bx
 		"""
 		sys.stderr.write("Getting snp_acc2LD_data ...")
 		snp_acc2LD_data = {}
+		import math
 		for i in range(len(snp_pair_ls)):
 			snp_pair = snp_pair_ls[i]
 			for snp_acc in snp_pair:
 				if snp_acc not in snp_acc2LD_data:
 					snp_acc2LD_data[snp_acc] = [[], []]
-				if LD_ls[i]!=0:
-					snp_acc2LD_data[snp_acc][0].append(1/LD_ls[i])
-					snp_acc2LD_data[snp_acc][1].append([1, distance_ls[i]])
+				if LD_ls[i]>0 and distance_ls[i]>0:
+					snp_acc2LD_data[snp_acc][0].append(math.log(LD_ls[i]))
+					snp_acc2LD_data[snp_acc][1].append([1, math.log(distance_ls[i])])
 		sys.stderr.write("Done.\n")
 		return snp_acc2LD_data
 	
@@ -2071,20 +2207,25 @@ class LD:
 	
 	def check_one_snp_acc_LD_decay(self, snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc):
 		"""
+		2008-01-24
+			follow the model change in get_snp_acc2LD_data()
 		2008-01-23
+			unfold the data processed in snp_acc2LD_data
 			to see whether the theoretical curve (blue line) fits real data (red dots).
 		"""
+		import math
 		a = snp_acc2LD_linear_fitting[snp_acc][0][0]
 		b = snp_acc2LD_linear_fitting[snp_acc][0][1]
-		LD_func = lambda x: 1.0/(a+b*x)
+		theoretical_curve_func = lambda x: math.exp(a)*math.pow(x,b)
 		x_ls = range(500,10000,100)
-		y_ls = map(LD_func, x_ls)
+		y_ls = map(theoretical_curve_func, x_ls)
 		import pylab
+		pylab.clf()
 		pylab.plot(x_ls, y_ls)
 		
-		inverse_func = lambda x: 1.0/x
+		inverse_func = lambda x: math.exp(x)
 		r2_ls = map(inverse_func, snp_acc2LD_data[snp_acc][0])
-		distance_ls = [row[1] for row in snp_acc2LD_data[snp_acc][1]]
+		distance_ls = [math.exp(row[1]) for row in snp_acc2LD_data[snp_acc][1]]
 		pylab.plot(distance_ls, r2_ls, 'r.')
 		pylab.show()
 
@@ -2127,8 +2268,14 @@ LD_ins = LD()
 D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = LD_ins.calculate_LD(input_fname, curs, snp_locus_table, check_bit_ls=[1], chr_ls=[1])
 D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = LD_ins.calculate_LD(input_fname, curs, snp_locus_table, check_bit_ls=[1]+range(100), chr_ls=[2])
 
+pickle_fname = os.path.expanduser('~/.pickle/LD_ins')
+of = open(pickle_fname, 'w')
+cPickle.dump([D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls], of)
+del of
+
+#2008-01-23 load the computed data by cPickle
 import cPickle
-inf = open('.pickle/LD_ins', 'r')
+inf = open(pickle_fname, 'r')
 D_ls, D_prime_ls, r_square_ls, distance_ls, allele_freq_ls, snp_pair_ls = cPickle.load(inf)
 del inf
 
@@ -2136,24 +2283,30 @@ snp_acc2LD_data = LD_ins.get_snp_acc2LD_data(r_square_ls, distance_ls, snp_pair_
 snp_acc2LD_linear_fitting = LD_ins.LD_linear_fitting(snp_acc2LD_data)
 
 def check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc):
+	import math
 	a = snp_acc2LD_linear_fitting[snp_acc][0][0]
 	b = snp_acc2LD_linear_fitting[snp_acc][0][1]
-	LD_func = lambda x: 1.0/(a+b*x)
+	theoretical_curve_func = lambda x: math.exp(a)*math.pow(x,b)
 	x_ls = range(500,10000,100)
-	y_ls = map(LD_func, x_ls)
+	y_ls = map(theoretical_curve_func, x_ls)
 	import pylab
 	pylab.clf()
 	pylab.plot(x_ls, y_ls)
 	
-	inverse_func = lambda x: 1.0/x
+	inverse_func = lambda x: math.exp(x)
 	r2_ls = map(inverse_func, snp_acc2LD_data[snp_acc][0])
-	distance_ls = [row[1] for row in snp_acc2LD_data[snp_acc][1]]
+	distance_ls = [math.exp(row[1]) for row in snp_acc2LD_data[snp_acc][1]]
 	pylab.plot(distance_ls, r2_ls, 'r.')
 	pylab.show()
 
 
-check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_10219_T_A')
-check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_3102_A_G')
+LD_ins.check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_10219_T_A')
+LD_ins.check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_3102_A_G')
+
+for snp_acc in snp_acc2LD_linear_fitting:
+	check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc)
+	print snp_acc2LD_linear_fitting[snp_acc]
+	raw_input(":")
 """
 
 """
