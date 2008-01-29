@@ -32,7 +32,9 @@ create table readme(
 	id	integer auto_increment primary key,
 	name	varchar(2000),
 	description	varchar(60000),
-	date_created	timestamp default current_timestamp
+	username	varchar(200),
+	date_created	timestamp default 0,	--this column can't have "default CURRENT_TIMESTAMP" because there can be only one TIMESTAMP column with CURRENT_TIMESTAMP in DEFAULT or ON UPDATE clause.
+	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
 
 create table magnus_192_vs_accession(
@@ -80,7 +82,7 @@ create table snp_locus(
 	freq	float,
 	name	varchar(200),
 	description	varchar(2000),
-	date_created	timestamp default current_timestamp,
+	date_created	timestamp default CURRENT_TIMESTAMP,
 	position	integer,
 	UEP_DIR	varchar(1),
 	adjacent_sequence	varchar(200),
@@ -93,7 +95,9 @@ create table readme(
 	id	integer auto_increment primary key,
 	name	varchar(2000),
 	description	varchar(60000),
-	date_created	timestamp default current_timestamp
+	username	varchar(200),
+	date_created	timestamp default 0,
+	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
 
 --2007-10-29 a table copying http://naturalsystems.uchicago.edu/naturalvariation/149SNPposII.csv
@@ -152,8 +156,8 @@ create table intensity_250k(
 	probeid	integer,
 	intensity	integer,
 	duplicate	integer,
-	date_created	timestamp default current_timestamp,
-	date_modified	timestamp
+	date_created	timestamp default 0,
+	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
 
 create table calls_250k(
@@ -162,8 +166,8 @@ create table calls_250k(
 	snpid	integer,
 	snpcall	varchar(2),
 	duplicate	integer,
-	date_created	timestamp default current_timestamp,
-	date_modified	timestamp
+	date_created	timestamp default 0,
+	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
 
 create table calls_250k_duplicate_comment(
@@ -171,7 +175,7 @@ create table calls_250k_duplicate_comment(
 	ecotypeid	integer,
 	duplicate	integer,
 	comment	varchar(2000),
-	date_created	timestamp default current_timestamp,
-	date_modified	timestamp
+	date_created	timestamp default 0,
+	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
 
