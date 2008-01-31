@@ -1162,24 +1162,32 @@ def draw_histogram_of_haplotype_size(haplotype_size2number, output_fname_prefix=
 		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
 	pylab.show()
 
-def calGenoDistAndGeoDist(data_matrix_fname, ecotypeid2pos, longitude_span=[-180, 180]):
+def calGenoDistAndGeoDist(data_matrix_fname, ecotypeid2pos, longitude_span=[-180, 180], dist_range=[0.0,1.0]):
 	"""
+	2008-01-30
+		add dist_range to restrict the output pairs within that genotype distance
+	2008-01-29
+		return strain_pair_ls as well
+		add a general cutoff
 	2007-10-03
 		plot to see relationship between genotype distance and geographic distance
 		-cal_great_circle_distance()
 	2007-10-04
 		add longitude_span
 	"""
+	sys.stderr.write("Calculating geno, geo distance ...\n")
 	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
 	import Numeric
+	strain_pair_ls = []
 	geno_dist_ls = []
 	geo_dist_ls = []
 	no_of_NA_pairs = 0
 	no_of_strains = len(data_matrix)
 	no_of_snps = len(data_matrix[0])
 	no_of_pairs = 0
+	no_of_included_pairs = 0
 	for i in range(no_of_strains):
 		for j in range(i+1, no_of_strains):
 			pos1 = ecotypeid2pos[int(strain_acc_list[i])]
@@ -1195,19 +1203,23 @@ def calGenoDistAndGeoDist(data_matrix_fname, ecotypeid2pos, longitude_span=[-180
 							no_of_matching_pairs += 1
 				if no_of_valid_pairs!=0:
 					distance = 1 - no_of_matching_pairs/no_of_valid_pairs
-					geno_dist_ls.append(distance)
-					geo_dist = cal_great_circle_distance(pos1[0], pos1[1], pos2[0], pos2[1])
-					geo_dist_ls.append(geo_dist)
+					if distance>=dist_range[0] and distance<=dist_range[1]:
+						geno_dist_ls.append(distance)
+						geo_dist = cal_great_circle_distance(pos1[0], pos1[1], pos2[0], pos2[1])
+						geo_dist_ls.append(geo_dist)
+						strain_pair_ls.append([int(strain_acc_list[i]), int(strain_acc_list[j])])
+						no_of_included_pairs += 1
 				else:
 					no_of_NA_pairs += 1
-	print "out of %s pairs, %s are NA"%(no_of_pairs, no_of_NA_pairs)
-	return geno_dist_ls, geo_dist_ls
+	print "out of %s pairs, %s are NA, %s pairs' distance is within range(%s)."%(no_of_pairs, no_of_NA_pairs, no_of_included_pairs, dist_range)
+	return strain_pair_ls, geno_dist_ls, geo_dist_ls
 
 def calGenoDistAndGeoDistBetweenTwoAreas(data_matrix_fname, ecotypeid2pos, longitude_span1=[-180, 180], longitude_span2=[-180, 180]):
 	"""
 	2007-10-05
 		modified from calGenoDistAndGeoDist with two longitude spans
 	"""
+	sys.stderr.write("Calculating geno, geo distance ...\n")
 	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
@@ -1304,12 +1316,48 @@ def find_span_index_out_of_span_ls(pos, longitude_span_ls):
 			span_index = i
 	return span_index
 
-def group_identity_pair_according_to_region_distance(identity_pair_ls, ecotypeid2pos, span_ls, span_label_ls, geo_distance_window_size=100):
+def get_span_pair_count_ls(input_fname, ecotypeid2pos, span_ls):
 	"""
+	2008-01-30
+		calculate the number of possible pairs for a specific span type (either single span or two crossing-spans)
+		for normalization purpose in group_identity_pair_according_to_region_distance()
+	"""
+	sys.stderr.write("Getting span_pair_count_ls ...")
+	from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
+	strain_acc_list = map(int, strain_acc_list)
+	#1st check how many strains in each span
+	span_count_ls = [0]*len(span_ls)
+	for ecotypeid in strain_acc_list:
+		pos = ecotypeid2pos[ecotypeid]
+		for i in range(len(span_ls)):
+			if pos[1]>=span_ls[i][0] and pos[1]<=span_ls[i][1]:
+				span_count_ls[i] += 1
+	#2nd calculate the number of pairs in each span
+	span_pair_count_ls = []
+	for i in range(len(span_count_ls)):
+		span_pair_count_ls.append(span_count_ls[i]*span_count_ls[i]/2.0)
+	#3rd calculate the number of pairs crossing two spans
+	#check all combinations of span_ls
+	for i in range(len(span_ls)):
+		for j in range(i+1, len(span_ls)):
+			span_pair_count_ls.append(span_count_ls[i]*span_count_ls[j])
+	sys.stderr.write("Done.\n")
+	return span_pair_count_ls
+
+def group_identity_pair_according_to_region_distance(strain_pair_ls, geno_dist_ls, geo_dist_ls, ecotypeid2pos, span_ls, span_label_ls, geo_distance_window_size=100, max_identity_geno_dist=0.0, span_pair_count_ls=[]):
+	"""
+	2008-01-30
+		add span_pair_count_ls to normalize the counts
+	2008-01-29
+		strain_pair_ls, geno_dist_ls, geo_dist_ls replace identity_pair_ls
+		use max_identity_geno_dist to determine whether to call it identity or not
 	2008-01-25
 		to group the identity_pair_ls into different regions and distance windows.
 		geo_distance_window_size is in unit km
 	"""
+	sys.stderr.write("Grouping identity pairs according to region and geographic distance ...\n")
 	import math
 	list_of_window_no2count = []
 	#1. get the row labels (label for the span type of each identity_pair)
@@ -1328,32 +1376,38 @@ def group_identity_pair_according_to_region_distance(identity_pair_ls, ecotypeid
 			span_index_pair2list_index[(i,j)] = len(row_label_ls)-1 #both order have the same index
 			span_index_pair2list_index[(j,i)] = len(row_label_ls)-1
 			list_of_window_no2count.append({})
+
 	#record all the counts
 	max_window_no = -1 #used to determine the final maxtrix shape
-	for identity_pair in identity_pair_ls:
-		identity_pair = map(int, identity_pair) #ecotypeid in identity_pair is in string type
-		pos1 = ecotypeid2pos[identity_pair[0]]
-		pos2 = ecotypeid2pos[identity_pair[1]]
-		span_index1 = find_span_index_out_of_span_ls(pos1, span_ls)
-		span_index2 = find_span_index_out_of_span_ls(pos2, span_ls)
-		if span_index1>=0 and span_index2>=0:	#both data are in span_ls
-			geo_dist = cal_great_circle_distance(pos1[0], pos1[1], pos2[0], pos2[1])
-			window_no = math.floor(geo_dist/geo_distance_window_size) #take the floor as the bin number
-			if window_no>max_window_no:
-				max_window_no = window_no
-			list_index = span_index_pair2list_index[(span_index1, span_index2)]
-			window_no2count = list_of_window_no2count[list_index]
-			if window_no not in window_no2count:
-				window_no2count[window_no] = 0
-			window_no2count[window_no] += 1
+	for i in range(len(strain_pair_ls)):
+		strain_pair = strain_pair_ls[i]
+		geno_dist = geno_dist_ls[i]
+		geo_dist = geo_dist_ls[i]
+		if geno_dist<=max_identity_geno_dist:
+			pos1 = ecotypeid2pos[strain_pair[0]]
+			pos2 = ecotypeid2pos[strain_pair[1]]
+			span_index1 = find_span_index_out_of_span_ls(pos1, span_ls)
+			span_index2 = find_span_index_out_of_span_ls(pos2, span_ls)
+			if span_index1>=0 and span_index2>=0:	#both data are in span_ls
+				window_no = math.floor(geo_dist/geo_distance_window_size) #take the floor as the bin number
+				if window_no>max_window_no:
+					max_window_no = window_no
+				list_index = span_index_pair2list_index[(span_index1, span_index2)]
+				window_no2count = list_of_window_no2count[list_index]
+				if window_no not in window_no2count:
+					window_no2count[window_no] = 0
+				window_no2count[window_no] += 1
 	#transform list_of_window_no2count to matrix
 	import numpy
 	if max_window_no>=0: #-1 means nothing recorded
-		matrix_of_counts_by_region_x_geo_dist = numpy.zeros([len(list_of_window_no2count), max_window_no+1], numpy.int) #+1 because window_no starts from 0
+		matrix_of_counts_by_region_x_geo_dist = numpy.zeros([len(list_of_window_no2count), max_window_no+1], numpy.float) #+1 because window_no starts from 0
 		for i in range(len(list_of_window_no2count)):
 			for j in range(max_window_no+1):
 				if j in list_of_window_no2count[i]:
-					matrix_of_counts_by_region_x_geo_dist[i][j] = list_of_window_no2count[i][j]
+					if span_pair_count_ls:
+						matrix_of_counts_by_region_x_geo_dist[i][j] = list_of_window_no2count[i][j]/float(span_pair_count_ls[i])	#2008-01-30 normalize
+					else:
+						matrix_of_counts_by_region_x_geo_dist[i][j] = list_of_window_no2count[i][j]
 	else:
 		matrix_of_counts_by_region_x_geo_dist = None
 	#generate the labels for the columns of matrix_of_counts_by_region_x_geo_dist
@@ -1363,13 +1417,17 @@ def group_identity_pair_according_to_region_distance(identity_pair_ls, ecotypeid
 		col_index = (i+0.5)*geo_distance_window_size #right in the middle of the window/bin
 		col_index_ls.append(col_index)
 		col_label_ls.append('%skm'%int(col_index)) #km is unit
+	sys.stderr.write("Done.\n")
 	return matrix_of_counts_by_region_x_geo_dist, row_label_ls, col_label_ls, col_index_ls
 
-def draw_table_as_bar_chart(matrix, row_label_ls, col_label_ls, col_index_ls=None):
+def draw_table_as_bar_chart(matrix, row_label_ls, col_label_ls, col_index_ls=None, output_fname_prefix=None):
 	"""
+	2008-01-30
+		bars from different rows no longer sit on one another. get them on the same ground and one after another.
 	2008-01-25
 		originated from http://matplotlib.sourceforge.net/screenshots/table_demo.py
 	"""
+	sys.stderr.write("Drawing Table as bar char ...")
 	import matplotlib
 	import pylab
 	from pymodule.colours import get_colours
@@ -1380,16 +1438,17 @@ def draw_table_as_bar_chart(matrix, row_label_ls, col_label_ls, col_index_ls=Non
 	colours = list(colours)
 	#colours.reverse()
 	rows = len(matrix) #matrix.shape[0] will also do, but in case matrix is a 2D list
-	ind = pylab.arange(len(col_label_ls)) + 0.3  # the x locations for the groups
+	ind = pylab.arange(len(col_label_ls))  # the x locations for the groups
 	cellText = []
-	width = 0.4     # the width of the bars
+	width = 0.2    # the width of the bars
 	#width = (col_index_ls[1]-col_index_ls[0])/2     # the width of the bars is half the window size
 	yoff = pylab.array([0.0] * len(col_label_ls)) # the bottom values for stacked bar chart
 	bar_ins_ls = []
+	step = 0.32
 	for row in xrange(rows):
-	    bar_ins = pylab.bar(ind, matrix[row], width, bottom=yoff, color=colours[row])
+	    bar_ins = pylab.bar(ind+step*row, matrix[row], width, bottom=yoff, color=colours[row])
 	    bar_ins_ls.append(bar_ins)
-	    yoff = yoff + matrix[row]
+	    #yoff = yoff + matrix[row]
 	    cellText.append(matrix[row])
 	# Add a table at the bottom of the axes
 	colours.reverse()
@@ -1398,14 +1457,18 @@ def draw_table_as_bar_chart(matrix, row_label_ls, col_label_ls, col_index_ls=Non
 	row_label_ls_reverse.reverse()
 	the_table = pylab.table(cellText=cellText, rowLabels=row_label_ls_reverse, rowColours=colours, colLabels=col_label_ls)
 	pylab.ylabel("Counts")
+	pylab.xlabel("Geographic Distance")
 	#vals = arange(0, 2500, 500)
 	#pylab.yticks(vals*1000, ['%d' % val for val in vals])
-	pylab.xticks([])
+	#pylab.xticks([])
 	pylab.title('Counts of identity pairs by region X geo distance')
 	
 	pylab.legend([bar_ins[0] for bar_ins in bar_ins_ls], row_label_ls, shadow=True)
+	if output_fname_prefix:
+		pylab.savefig('%s_identity_bar_char_by_region_x_geo_dist.svg'%output_fname_prefix, dpi=600)
+		pylab.savefig('%s_identity_bar_char_by_region_x_geo_dist.png'%output_fname_prefix, dpi=600)
 	pylab.show()
-
+	sys.stderr.write("Done.\n")
 
 """
 from misc import *
@@ -1495,7 +1558,14 @@ cross_eurasia_cc2lon_pair_set = check_cross_ocean_components(strain_iden_g, orde
 
 #2007-10-03 to see whether geographic distance correlates with genotype distance
 import numpy
-geno_dist_ls, geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos)
+strain_pair_ls, geno_dist_ls, geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos)
+
+#store them into cPickle
+import cPickle
+of = open('%s_strain_pair_geno_dist_geo_dist_ls'%os.path.splitext(input_fname)[0], 'w')
+cPickle.dump([strain_pair_ls, geno_dist_ls, geo_dist_ls], of)
+del of
+
 geo_dist_ls = numpy.array(geo_dist_ls)
 geno_dist_ls = numpy.array(geno_dist_ls)
 
@@ -1529,15 +1599,15 @@ def sample_geno_geo_correlation(geno_dist_ls, geo_dist_ls, output_fname_prefix):
 	geno_dist_selected_ls = geno_dist_ls[index_selected_ls]
 	plot_LD(geo_dist_selected_ls, geno_dist_selected_ls,  title='genotype vs geographic distance', xlabel="geographic dist", ylabel='genotype dist', output_fname_prefix=output_fname_prefix)
 
-eur_geno_dist_ls, eur_geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos, europe_lon_span)
+eur_strain_pair_ls, eur_geno_dist_ls, eur_geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos, europe_lon_span)
 eur_geno_vs_geo_output_fname_prefix = '%s_geno_vs_geo_dist_eur'%output_fname_prefix
 sample_geno_geo_correlation(eur_geno_dist_ls, eur_geo_dist_ls, eur_geno_vs_geo_output_fname_prefix)
 
-noramer_geno_dist_ls, noramer_geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos, norame_lon_span)
+noramer_strain_pair_ls, noramer_geno_dist_ls, noramer_geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos, norame_lon_span)
 noramer_geno_vs_geo_output_fname_prefix = '%s_geno_vs_geo_dist_noramer'%output_fname_prefix
 sample_geno_geo_correlation(noramer_geno_dist_ls, noramer_geo_dist_ls, noramer_geno_vs_geo_output_fname_prefix)
 
-eur_noramer_geno_dist_ls, eur_noramer_geo_dist_ls =  calGenoDistAndGeoDistBetweenTwoAreas(input_fname, ecotypeid2pos, europe_lon_span, norame_lon_span)
+eur_noramer_strain_pair_ls, eur_noramer_geno_dist_ls, eur_noramer_geo_dist_ls =  calGenoDistAndGeoDistBetweenTwoAreas(input_fname, ecotypeid2pos, europe_lon_span, norame_lon_span)
 eur_noramer_geno_vs_geo_output_fname_prefix = '%s_geno_vs_geo_dist_eur_noramer'%output_fname_prefix
 sample_geno_geo_correlation(eur_noramer_geno_dist_ls, eur_noramer_geo_dist_ls, eur_noramer_geno_vs_geo_output_fname_prefix)
 
@@ -1565,7 +1635,23 @@ japan_lon_span = [130, 150]
 
 span_ls = [europe_lon_span, norame_lon_span]
 span_label_ls = ['europe', 'nor america']
-matrix_of_counts_by_region_x_geo_dist, row_label_ls, col_label_ls, col_index_ls = group_identity_pair_according_to_region_distance(identity_pair_ls, ecotypeid2pos, span_ls, span_label_ls, geo_distance_window_size=100)
+
+dist_range = [0.0, 0.4]
+strain_pair_ls, geno_dist_ls, geo_dist_ls =  calGenoDistAndGeoDist(input_fname, ecotypeid2pos, dist_range=dist_range)
+
+def float2str(input):
+	input = repr(input)
+	input = input.replace('.', '_')
+	return input
+
+import cPickle
+output_fname = '%s_strain_pair_geno_dist_%s_%s_geo_dist_ls'%(os.path.splitext(input_fname)[0], dist_range[0], dist_range[1])
+output_fname = output_fname.replace('.', '_')
+of = open(output_fname, 'w')
+cPickle.dump([strain_pair_ls, geno_dist_ls, geo_dist_ls], of)
+del of
+
+matrix_of_counts_by_region_x_geo_dist, row_label_ls, col_label_ls, col_index_ls = group_identity_pair_according_to_region_distance(strain_pair_ls, geno_dist_ls, geo_dist_ls, ecotypeid2pos, span_ls, span_label_ls, geo_distance_window_size=100, max_identity_geno_dist=0.0)
 draw_table_as_bar_chart(matrix_of_counts_by_region_x_geo_dist, row_label_ls, col_label_ls, col_index_ls)
 """
 
@@ -2304,7 +2390,7 @@ LD_ins.check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_
 LD_ins.check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting,'1_3102_A_G')
 
 for snp_acc in snp_acc2LD_linear_fitting:
-	check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc)
+	LD_ins.check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc)
 	print snp_acc2LD_linear_fitting[snp_acc]
 	raw_input(":")
 """
@@ -2491,7 +2577,26 @@ draw_strains_on_map(ecotypeid_ls, ecotypeid2pos, pic_title='192 strains',  pic_a
 """
 
 
+def simulatePvalue(curs, snps_table, output_fname):
+	"""
+	2008-01-30
+		simulate uniform p-values for snps selected from db
+	"""
+	import csv
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	curs.execute("select chromosome, position from %s where chromosome=1"%snps_table)
+	rows = curs.fetchall()
+	import random
+	for row in rows:
+		chromosome, position = row
+		writer.writerow([chromosome, position, random.uniform(0,10)])
+	del writer
 
+"""
+snps_table = 'snps_250k'
+output_fname = '/tmp/simulate.pvalue'
+simulatePvalue(curs, snps_table, output_fname)
+"""
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
