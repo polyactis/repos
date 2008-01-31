@@ -1,0 +1,78 @@
+\documentclass{beamer}
+
+
+\usepackage{default}
+
+\title{Seed Migration}
+\subtitle{identity density vs geographic distance in different regions}
+\author{Yu Huang}
+\institute{MCB USC}
+\date{Jan 30th, 2008}
+
+\begin{document}
+
+\setbeamertemplate{caption}
+{
+\begin{beamercolorbox}{}
+     \vskip3pt \insertcaption \vskip3pt
+  \end{beamercolorbox}
+}
+
+\frame{\titlepage}
+
+\section{149SNP}
+
+\begin{frame}{149SNP world-wide distribution}
+\begin{figure}
+  \includegraphics[width=0.9\textwidth]{../lab_meeting_2007_10_23/data_d110_c0_5_strain_map_with_data.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{dist$<=0$, window size=100km}
+\begin{figure}
+  \includegraphics[width=1.0\textwidth]{../../stock20071008/data_d110_c0_5_strain_pair_geno_dist_0_0_0_4_geo_dist_ls_iden_0_0_geo_window_100_identity_bar_char_by_region_x_geo_dist.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{dist$<=0.05$, window size=100km}
+\begin{figure}
+  \includegraphics[width=1.0\textwidth]{../../stock20071008/data_d110_c0_5_strain_pair_geno_dist_0_0_0_4_geo_dist_ls_iden_0_05_geo_window_100_identity_bar_char_by_region_x_geo_dist.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{dist$<=0.1$, window size=200km}
+\begin{figure}
+  \includegraphics[width=1.0\textwidth]{../../stock20071008/data_d110_c0_5_strain_pair_geno_dist_0_0_0_4_geo_dist_ls_iden_0_1_geo_window_200_0_identity_bar_char_by_region_x_geo_dist.png}
+\end{figure}
+\end{frame}
+
+\section{250K}
+
+
+\begin{frame}{world-wide distribution of 192 250K-strains}
+\begin{figure}
+  \includegraphics[height=1.0\textheight, width=1.0\textwidth]{figures/suzi_192.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{dist$<=0.1$, window size=10km}
+\begin{figure}
+  \includegraphics[width=1.0\textwidth]{../../genotyping/250ksnp/data/data_250k_strain_pair_geno_dist_0_0_0_4_geo_dist_ls_iden_0_1_geo_window_10_0_identity_bar_char_by_region_x_geo_dist.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{dist$<=0.1$, window size=20km}
+\begin{figure}
+  \includegraphics[width=1.0\textwidth]{../../genotyping/250ksnp/data/data_250k_strain_pair_geno_dist_0_0_0_4_geo_dist_ls_iden_0_1_geo_window_20_0_identity_bar_char_by_region_x_geo_dist.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{dist$<=0.2$, window size=50km}
+\begin{figure}
+  \includegraphics[width=1.0\textwidth]{../../genotyping/250ksnp/data/data_250k_strain_pair_geno_dist_0_0_0_4_geo_dist_ls_iden_0_2_geo_window_50_0_identity_bar_char_by_region_x_geo_dist.png}
+\end{figure}
+\end{frame}
+
+
+
+\end{document}
