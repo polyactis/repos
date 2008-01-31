@@ -245,8 +245,9 @@ class QualityControl:
 		sys.stderr.write("Done.\n")
 		return col_id2NA_mismatch_rate
 	
-	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1):
+	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1, need_diff_code_pair_dict=0):
 		"""
+		2008-01-24 add flag need_diff_code_pair_dict to output diff_code_pair2diff_details_ls
 		2008-01-01 derived from cmp_two_matricies() of CmpAccession2Ecotype.py
 		"""
 		import numpy
@@ -267,6 +268,7 @@ class QualityControl:
 				return None, None
 		else:
 			col_id_ls_to_be_checked = col_id12col_id2.keys()
+		diff_code_pair2diff_details_ls = {}
 		diff_details_ls = []
 		for row_id1 in row_id_ls_to_be_checked:
 			row_id2 = row_id12row_id2[row_id1]
@@ -281,11 +283,17 @@ class QualityControl:
 				nt_diff_matrix_index1 = nt_number2diff_matrix_index[nt1]
 				nt_diff_matrix_index2 = nt_number2diff_matrix_index[nt2]
 				diff_matrix[nt_diff_matrix_index1][nt_diff_matrix_index2] += 1
+				if need_diff_code_pair_dict:
+					diff_code_pair = (nt1, nt2)
+					if diff_code_pair not in diff_code_pair2diff_details_ls:
+						diff_code_pair2diff_details_ls[diff_code_pair] = []
+					diff_code_pair2diff_details_ls[diff_code_pair].append([row_id1, col_id1, nt1, row_id2, col_id2, nt2])
 				if nt1!=nt2:
 					diff_details_ls.append([row_id1, col_id1, nt1, row_id2, col_id2, nt2])
 		if self.report or self.debug:
 			sys.stderr.write("Done.\n")
-		return diff_matrix, diff_details_ls
+		extra_data = [diff_code_pair2diff_details_ls]
+		return diff_matrix, diff_details_ls, extra_data
 	
 	def wrap_diff_matrix_with_row_col_names(self, diff_matrix):
 		"""
@@ -339,13 +347,13 @@ class QualityControl:
 		2008-01-11
 			add strain-wise and snp-wise diff output
 		"""
-		self.diff_matrix, self.diff_details_ls = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		self.diff_matrix, self.diff_details_ls, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 		print self.diff_matrix
 		i = 0
 		if self.latex_output_fname:
 			outf = open(self.latex_output_fname, 'w')
 			outf.write('\\section{Summary} \\label{section_summary}\n')
-			from pymodule.latex import outputMatrixInLatexTable
+			from pymodule.latex import outputMatrixInLatexTable, escape_characters
 			wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(self.diff_matrix)
 			table_label = 'table_dm%s'%i
 			outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, '%s vs %s'%(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)), table_label))
@@ -365,7 +373,7 @@ class QualityControl:
 			row_id1_ls.sort()
 			for row_id1 in row_id1_ls:
 				row_id2 = self.row_id12row_id2[row_id1]
-				diff_matrix_for_one_row, diff_details_ls_for_one_row = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, row_id=row_id1)
+				diff_matrix_for_one_row, diff_details_ls_for_one_row, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, row_id=row_id1)
 				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix_for_one_row)
 				table_no += 1
 				table_label = 'table_dm%s'%table_no
@@ -379,7 +387,9 @@ class QualityControl:
 				else:
 					row_id1_info = ''
 				caption = 'row id1=%s (%s) vs row id2=%s'%(row_id1, row_id1_info, row_id2)
-				outf.write('\\subsection{row id1=%s (%s) vs row id2=%s}\n'%(row_id1, row_id1_info, row_id2))
+				subsection_title = '\\subsection{row id1=%s (%s) vs row id2=%s}\n'%(row_id1, row_id1_info, row_id2)
+				subsection_title = escape_characters(subsection_title)
+				outf.write(subsection_title)
 				outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, caption, table_label))
 				if diff_details_ls_for_one_row:
 					bea_diff_details_ls = self.beautify_diff_details_ls(diff_details_ls_for_one_row, self.row_id2info)
@@ -395,12 +405,14 @@ class QualityControl:
 			col_id1_ls.sort()
 			for col_id1 in col_id1_ls:
 				col_id2 = self.col_id12col_id2[col_id1]
-				diff_matrix_for_one_col, diff_details_ls_for_one_col = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, col_id=col_id1)
+				diff_matrix_for_one_col, diff_details_ls_for_one_col, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, col_id=col_id1)
 				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix_for_one_col)
 				table_no += 1
 				table_label = 'table_dm%s'%table_no
 				caption = 'col id1=%s vs col id2=%s'%(col_id1, col_id2)
-				outf.write('\\subsection{col id1=%s vs col id2=%s}\n'%(col_id1, col_id2))
+				subsection_title = '\\subsection{col id1=%s vs col id2=%s}\n'%(col_id1, col_id2)
+				subsection_title = escape_characters(subsection_title)
+				outf.write(subsection_title)
 				outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, caption, table_label))
 				if diff_details_ls_for_one_col:
 					bea_diff_details_ls = self.beautify_diff_details_ls(diff_details_ls_for_one_col, self.row_id2info)
