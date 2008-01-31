@@ -45,7 +45,11 @@ class Cmp250kVs149SNP(QualityControl):
 	2007-12-14
 		QC between 250k and 149snp
 	"""
-	def __init__(self, curs, input_fname1, input_fname2, snp_locus_table_250k, snp_locus_table_149snp, ecotype_duplicate2tg_ecotypeid_table, debug=0):
+	def __init__(self, curs='', input_fname1='', input_fname2='', snp_locus_table_250k='snps_250k', snp_locus_table_149snp='snps', ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', debug=0):
+		"""
+		2008-01-21
+			add default values to all parameters.
+		"""
 		self.curs = curs
 		self.input_fname1 = input_fname1
 		self.input_fname2 = input_fname2
@@ -125,29 +129,29 @@ class Cmp250kVs149SNP(QualityControl):
 		QualityControl.load_dstruc(self)
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header1, strain_acc_list1, category_list1, self.data_matrix1 = FilterStrainSNPMatrix_instance.read_data(self.input_fname1)
-		header2, strain_acc_list2, category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
+		self.header1, self.strain_acc_list1, self.category_list1, self.data_matrix1 = FilterStrainSNPMatrix_instance.read_data(self.input_fname1)
+		self.header2, self.strain_acc_list2, self.category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
 	 	
-		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(header1, header2, self.curs, self.snp_locus_table_250k, self.snp_locus_table_149snp)
-		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(strain_acc_list1, category_list1, strain_acc_list2, self.curs, self.ecotype_duplicate2tg_ecotypeid_table)
+		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.header1, self.header2, self.curs, self.snp_locus_table_250k, self.snp_locus_table_149snp)
+		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.strain_acc_list1, self.category_list1, self.strain_acc_list2, self.curs, self.ecotype_duplicate2tg_ecotypeid_table)
 
-#if __name__ == '__main__':
-hostname='localhost'
-dbname='stock20071008'
-import MySQLdb
-conn = MySQLdb.connect(db=dbname,host=hostname)
-curs = conn.cursor()
-
-input_fname = './script/variation/genotyping/250ksnp/data/data_250k.tsv'
-
-input_fname_250k = './script/variation/genotyping/250ksnp/data/data_250k_x_149SNP.tsv'
-input_fname_149snp = './script/variation/stock20071008/data.tsv'
-snp_locus_table_250k = 'snps_250k'
-snp_locus_table_149snp = 'snps'
-ecotype_duplicate2tg_ecotypeid_table = 'ecotype_duplicate2tg_ecotypeid'
-Cmp250kVs149SNP_ins = Cmp250kVs149SNP(curs, input_fname_250k, input_fname_149snp, snp_locus_table_250k, snp_locus_table_149snp, ecotype_duplicate2tg_ecotypeid_table)
-Cmp250kVs149SNP_ins.load_dstruc()
-
-Cmp250kVs149SNP_ins.plot_row_NA_mismatch_rate('250k vs 149SNP strain-wise')
-#Cmp250kVs149SNP_ins.plot_col_NA_mismatch_rate('250k vs 149SNP snp-wise')
-
+if __name__ == '__main__':
+	hostname='localhost'
+	dbname='stock20071008'
+	import MySQLdb
+	conn = MySQLdb.connect(db=dbname,host=hostname)
+	curs = conn.cursor()
+	
+	input_fname = './script/variation/genotyping/250ksnp/data/data_250k.tsv'
+	
+	input_fname_250k = './script/variation/genotyping/250ksnp/data/data_250k_x_149SNP.tsv'
+	input_fname_149snp = './script/variation/stock20071008/data.tsv'
+	snp_locus_table_250k = 'snps_250k'
+	snp_locus_table_149snp = 'snps'
+	ecotype_duplicate2tg_ecotypeid_table = 'ecotype_duplicate2tg_ecotypeid'
+	Cmp250kVs149SNP_ins = Cmp250kVs149SNP(curs, input_fname_250k, input_fname_149snp, snp_locus_table_250k, snp_locus_table_149snp, ecotype_duplicate2tg_ecotypeid_table)
+	Cmp250kVs149SNP_ins.load_dstruc()
+	
+	Cmp250kVs149SNP_ins.plot_row_NA_mismatch_rate('250k vs 149SNP strain-wise')
+	#Cmp250kVs149SNP_ins.plot_col_NA_mismatch_rate('250k vs 149SNP snp-wise')
+	

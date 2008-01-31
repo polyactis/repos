@@ -45,7 +45,7 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 	2007-12-20
 		compare Tina's 2010 data with mine
 	"""
-	def __init__(self, curs, input_fname1, input_fname2, latex_output_fname, debug=0, report=0):
+	def __init__(self, curs='', input_fname1='', input_fname2='', latex_output_fname='', debug=0, report=0):
 		QualityControl.__init__(self)
 		self.curs = curs
 		self.input_fname1 = input_fname1
@@ -264,11 +264,11 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 		QualityControl.load_dstruc(self)
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header1, strain_acc_list1, category_list1, self.data_matrix1 = self.readTina2010In250kSNPs(self.input_fname1)
-		header2, strain_acc_list2, category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
+		self.header1, self.strain_acc_list1, self.category_list1, self.data_matrix1 = self.readTina2010In250kSNPs(self.input_fname1)
+		self.header2, self.strain_acc_list2, self.category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
 	 	
-		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(header1, header2)
-		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(strain_acc_list1, strain_acc_list2)
+		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.header1, self.header2)
+		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.strain_acc_list1, self.strain_acc_list2)
 	
 	def get_row_id2info(self, row_id_ls, curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype'):
 		"""

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Usage: Cmp149SNPVs2010.py [OPTIONS] -i XXX -j XXX
+Usage: Cmp149SNPVs2010.py [OPTIONS] -i XXX -j XXX -p XXX
 
 Option:
 	-z ..., --hostname=...	the hostname, localhost(default)
@@ -8,10 +8,10 @@ Option:
 	-k ..., --schema=...	which schema in the database, dbsnp(default)
 	-e ...,	ecotype_table, 'stock20071008.ecotype'(default)
 	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession' or 'at.accession2ecotype'
-	-s ...,	sequence table, 'at.sequence'(default)
-	-a ..., alignment table, 'at.alignment'(default)
-	-n ...,	snp_locus_table, 'snp_locus'(default)
-	-l ...,	calls table, 'stock20071008.calls'(default)
+	-s ...,	diff_details_table, specify it to store the diff_details_ls into db
+	-a ..., qc_cross_match_table, specify it to store the cross matching result into db
+	-n ...,	snp_locus_table, 'snp_locus'(IGNORE)
+	-l ...,	calls table, 'stock20071008.calls'(IGNORE)
 	-i ...,	input_fname1, 149SNP data filename
 	-j ...,	input_fname2, 2010 data filename
 	-o ...,	latex_output_fname which stores both the summary and detailed difference tables
@@ -22,7 +22,7 @@ Option:
 
 Examples:
 	#row matching via at.ecotype2accession
-	Cmp149SNPVs2010.py -i ~/script/variation/stock20071008/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.ecotype2accession -o ~/script/variation/genotyping/149snp/analysis/stock20071008_data_y10001101Vs2010_ecotype2accession_diff_matrix.tex
+	Cmp149SNPVs2010.py -i ~/script/variation/stock20071008/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.ecotype2accession -o ~/script/variation/genotyping/149snp/analysis/stock20071008_data_y10001101Vs2010_ecotype2accession_diff_matrix.tex -s QCvs2010_diff_details
 	
 	#row matching via at.accession2ecotype_complete (require is_stockparent_original=1, same stockparent)
 	Cmp149SNPVs2010.py -i ~/script/variation/stock20071008/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.accession2ecotype_complete -o ~/script/variation/genotyping/149snp/analysis/stock20071008_data_y10001101Vs2010_accession2ecotype_complete_diff_matrix.tex
@@ -30,9 +30,9 @@ Examples:
 	#row matching via at.accession2ecotype (similar to at.accession2ecotype_complete, except less coverage. some entries in at.ecotype2accession are not covered by ecotype_duplicate2tg_ecotypeid_table due to no genotyping or no GPS.)
 	Cmp149SNPVs2010.py  -i ~/script/variation/stock20071008/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.accession2ecotype -o ~/script/variation/genotyping/149snp/analysis/stock20071008_data_y10001101Vs2010_accession2ecotype_diff_matrix.tex
 
-	Cmp149SNPVs2010.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.ecotype2accession -o ~/script/variation/genotyping/149snp/analysis/stock20071227_data_y10001101Vs2010_ecotype2accession_diff_matrix.tex
+	Cmp149SNPVs2010.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.ecotype2accession -o ~/script/variation/genotyping/149snp/analysis/stock20071227_data_y10001101Vs2010_ecotype2accession_diff_matrix.tex -s QCvs2010_diff_details_ecotype2accession
 	
-	Cmp149SNPVs2010.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.accession2ecotype_complete -o ~/script/variation/genotyping/149snp/analysis/stock20071227_data_y10001101Vs2010_accession2ecotype_complete_diff_matrix.tex
+	Cmp149SNPVs2010.py -d stock20071227 -i ~/script/variation/stock20071227/data_y10001101.tsv -j ~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv -p at.accession2ecotype_complete -o ~/script/variation/genotyping/149snp/analysis/stock20071227_data_y10001101Vs2010_accession2ecotype_complete_diff_matrix.tex -s QCvs2010_diff_details_accession2ecotype_complete -a QCcross_match_accession2ecotype_complete
 	
 Description:
 	program to compare the 149snp calls based on the common strains in 2010 pcr data and Justin's sequenom data.
@@ -55,16 +55,25 @@ class Cmp149SNPVs2010(QualityControl):
 	2008-01-01
 		QC between 149snp and 2010
 	"""
-	def __init__(self, curs, input_fname1, input_fname2, latex_output_fname, accession2ecotype_table, debug=0, report=0):
+	def __init__(self, curs='', input_fname1='', input_fname2='', latex_output_fname='', accession2ecotype_table='', diff_details_table='', qc_cross_match_table='', debug=0, report=0):
+		"""
+		2008-01-09
+			add diff_details_table
+		2008-01-11
+			add qc_cross_match_table
+		"""
+		QualityControl.__init__(self, debug=0)
 		self.curs = curs
 		self.input_fname1 = input_fname1
 		self.input_fname2 = input_fname2
 		self.latex_output_fname = latex_output_fname
 		self.accession2ecotype_table = accession2ecotype_table
+		self.diff_details_table = diff_details_table
+		self.qc_cross_match_table = qc_cross_match_table
 		self.debug = int(debug)
 		self.report = int(report)
 	
-	def get_row_matching_dstruc(self, strain_acc_list1, category_list1, strain_acc_list2, accession2ecotype_table):
+	def get_row_matching_dstruc(self, curs, strain_acc_list1, category_list1, strain_acc_list2, accession2ecotype_table):
 		"""
 		2008-01-07
 		2008-01-08
@@ -112,11 +121,11 @@ class Cmp149SNPVs2010(QualityControl):
 		QualityControl.load_dstruc(self)
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header1, strain_acc_list1, category_list1, self.data_matrix1 = FilterStrainSNPMatrix_instance.read_data(self.input_fname1)
-		header2, strain_acc_list2, category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
+		self.header1, self.strain_acc_list1, self.category_list1, self.data_matrix1 = FilterStrainSNPMatrix_instance.read_data(self.input_fname1)
+		self.header2, self.strain_acc_list2, self.category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
 	 	
-		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(header1, header2)
-		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(strain_acc_list1, category_list1, strain_acc_list2, self.accession2ecotype_table)
+		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.header1, self.header2)
+		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.curs, self.strain_acc_list1, self.category_list1, self.strain_acc_list2, self.accession2ecotype_table)
 	
 	def get_row_id2info(self, row_id_ls, curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype'):
 		"""
@@ -173,8 +182,8 @@ if __name__ == '__main__':
 	schema = 'dbsnp'
 	ecotype_table = 'stock20071008.ecotype'
 	accession2ecotype_table = None
-	sequence_table = 'at.sequence'
-	alignment_table = 'at.alignment'
+	diff_details_table = ''
+	qc_cross_match_table = ''
 	snp_locus_table = 'stock20071008.snps'
 	calls_table = 'stock20071008.calls'
 	input_fname1 = None
@@ -199,9 +208,9 @@ if __name__ == '__main__':
 		elif opt in ("-p",):
 			accession2ecotype_table = arg
 		elif opt in ("-s",):
-			sequence_table = arg
+			diff_details_table = arg
 		elif opt in ("-a",):
-			alignment_table = arg
+			qc_cross_match_table = arg
 		elif opt in ("-n",):
 			snp_locus_table = arg
 		elif opt in ("-l",):
@@ -217,17 +226,17 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 	
-	if ecotype_table and sequence_table and alignment_table and snp_locus_table and calls_table and input_fname1 and input_fname2 and hostname and dbname and schema:
+	if input_fname1 and input_fname2 and hostname and dbname and schema and accession2ecotype_table:
 		import MySQLdb
 		conn = MySQLdb.connect(db=dbname,host=hostname)
 		curs = conn.cursor()
-		ins= Cmp149SNPVs2010(curs, input_fname1, input_fname2, latex_output_fname, accession2ecotype_table, debug, report)
+		ins= Cmp149SNPVs2010(curs, input_fname1, input_fname2, latex_output_fname, accession2ecotype_table, diff_details_table, qc_cross_match_table, debug, report)
 		ins.load_dstruc()
 		ins.plot_row_NA_mismatch_rate('149SNP vs 2010 strain-wise')
-		#ins.cal_row_id2pairwise_dist()
-		#new_row_id2pairwise_dist = ins.trim_row_id2pairwise_dist(ins.row_id2pairwise_dist, 10)
 		ins.plot_col_NA_mismatch_rate('149SNP vs 2010 snp-wise')
 		ins.output_diff_matrix()
+		ins.cal_row_id2pairwise_dist()
+		#new_row_id2pairwise_dist = ins.trim_row_id2pairwise_dist(ins.row_id2pairwise_dist, 10)
 	else:
 		print __doc__
 		sys.exit(2)
