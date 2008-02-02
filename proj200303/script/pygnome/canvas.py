@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.1
+#! /usr/bin/env python
 
 from gtk import *
 import gnomecanvas
@@ -32,7 +32,9 @@ group.add(gnomecanvas.CanvasPolygon, points=(10,10, 90,10, 90,90, 10,90, 0,50),
 		  width_units=5, fill_color='slategray')
 #group.add('rect',x1=100,y1=100,x2=200,y2=150,fill_color='lightyellow',outline_color='black',width_units=1.0)
 
-canvas.root().add(gnomecanvas.CanvasText,text='SET',x=150,y=125,fill_color='black',font='-adobe-helvetica-bold-r-normal--*-240-75-75-p-*-*-1',anchor=ANCHOR_CENTER)
+w = canvas.root().add(gnomecanvas.CanvasText,text='SET',x=150,y=125,fill_color='black',font='-adobe-helvetica-bold-r-normal--*-240-75-75-p-*-*-1',anchor=ANCHOR_CENTER)
+w.set(weight=800)
+canvas.root().add(gnomecanvas.CanvasText, text='SET', x=200, y=175, fill_color='red', anchor=ANCHOR_E)
 
 
 #file='/tmp/bubbles/B_lectin.png'
