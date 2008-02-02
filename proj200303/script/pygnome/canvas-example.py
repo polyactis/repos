@@ -1,19 +1,17 @@
-#! /usr/bin/env python
-
 #!/usr/bin/env python
 
 # Author: Jesper Skov <jskov@cygnus.co.uk>
 # A rewite of the C canvas example in the GNOME Developer's Information
 
-import GDK
-from gtk import *
-from gnome.ui import *
-from whrandom import *
-import GdkImlib
+import gtk
+import gnomecanvas
+from random import random
+
+def mainquit(*args):
+    gtk.main_quit()
 
 class CanvasExample:
     def __init__(self):
-        self.generator = whrandom()
 
         self.width = 400
         self.height = 400
@@ -30,30 +28,30 @@ class CanvasExample:
 
     def change_item_color(self, item):
         # Pick a random color from the list.
-        n = int(self.generator.random() * len(self.colors)) - 1
+        n = int(random() * len(self.colors)) - 1
         item.set(fill_color = self.colors[n])
 
 
     def item_event(self, widget, event=None):
-        if event.type == GDK.BUTTON_PRESS:
+        if event.type == gtk.gdk.BUTTON_PRESS:
             if event.button == 1:
                 # Remember starting position.
                 self.remember_x = event.x
                 self.remember_y = event.y
-                return TRUE
+                return True
 
             elif event.button == 3:
                 # Destroy the item.
                 widget.destroy()
-                return TRUE
+                return True
 
-        elif event.type == GDK._2BUTTON_PRESS:
+        elif event.type == gtk.gdk._2BUTTON_PRESS:
             #Change the item's color.
             self.change_item_color(widget)
-            return TRUE
+            return True
 
-        elif event.type == GDK.MOTION_NOTIFY:
-            if event.state & GDK.BUTTON1_MASK:
+        elif event.type == gtk.gdk.MOTION_NOTIFY:
+            if event.state & gtk.gdk.BUTTON1_MASK:
                 # Get the new position and move by the difference
                 new_x = event.x
                 new_y = event.y
@@ -63,26 +61,26 @@ class CanvasExample:
                 self.remember_x = new_x
                 self.remember_y = new_y
 
-                return TRUE
+                return True
             
-        elif event.type == GDK.ENTER_NOTIFY:
+        elif event.type == gtk.gdk.ENTER_NOTIFY:
             # Make the outline wide.
             widget.set(width_units=3)
-            return TRUE
+            return True
 
-        elif event.type == GDK.LEAVE_NOTIFY:
+        elif event.type == gtk.gdk.LEAVE_NOTIFY:
             # Make the outline thin.
             widget.set(width_units=1)
-            return TRUE
+            return True
 
-        return FALSE
+        return False
 
 
     def add_object_clicked(self, widget, event=None):
-        x1 = self.generator.random() * self.width
-        y1 = self.generator.random() * self.height
-        x2 = self.generator.random() * self.width
-        y2 = self.generator.random() * self.height
+        x1 = random() * self.width
+        y1 = random() * self.height
+        x2 = random() * self.width
+        y2 = random() * self.height
 
         if x1 > x2:
             x2,x1 = x1,x2
@@ -95,12 +93,14 @@ class CanvasExample:
         if (y2 - y1) < 10:
             y2 = y2 + 10
 
-        if (self.generator.random() > .5):
-            type = 'rect'
+        if (random() > .5):
+            type = gnomecanvas.CanvasRect
         else:
-            type = 'ellipse'
+            # Text names should work as well...
+            #type = gnomecanvas.CanvasEllipse
+            type = 'GnomeCanvasEllipse'
 
-        w = self.canvas.root().add(type, x1=x1, y1=y1, x2=x2, y2=y2, 
+        w = self.acanvas.root().add(type, x1=x1, y1=y1, x2=x2, y2=y2, 
                                    fill_color='white', outline_color='black',
                                    width_units=1.0)
         w.connect("event", self.item_event)
@@ -109,40 +109,40 @@ class CanvasExample:
 
     def main(self):
         # Open window to hold canvas.
-        win = GtkWindow()
+        win = gtk.Window()
         win.connect('destroy', mainquit)
         win.set_title('Canvas Example')
 
         # Create VBox to hold canvas and buttons.
-        vbox = GtkVBox()
+        vbox = gtk.VBox()
         win.add(vbox)
         vbox.show()
 
 	# Some instructions for people using the example:
-	label = GtkLabel("Drag - move object.\n" +
+	label = gtk.Label("Drag - move object.\n" +
 			 "Double click - change colour\n" +
 			 "Right click - delete object")
-	vbox.pack_start(label, expand=FALSE)
+	vbox.pack_start(label, expand=False)
 	label.show()
 
         # Create canvas.
-        self.canvas = GnomeCanvas()
-        self.canvas.set_usize(self.width, self.height)
-        self.canvas.set_scroll_region(0,0, self.width, self.height)
-        vbox.pack_start(self.canvas)
-        self.canvas.show()
+        self.acanvas = gnomecanvas.Canvas(aa=True)
+        self.acanvas.set_size_request(self.width, self.height)
+        self.acanvas.set_scroll_region(0,0, self.width, self.height)
+        vbox.pack_start(self.acanvas)
+        self.acanvas.show()
 
         # Create buttons.
-        hbox = GtkHBox()
-        vbox.pack_start(hbox, expand=FALSE)
+        hbox = gtk.HBox()
+        vbox.pack_start(hbox, expand=False)
         hbox.show()
 
-        b = GtkButton("Add an object")
+        b = gtk.Button("Add an object")
         b.connect("clicked", self.add_object_clicked)
         hbox.pack_start(b)
         b.show()
 
-        b = GtkButton("Quit")
+        b = gtk.Button("Quit")
         b.connect("clicked", mainquit)
         hbox.pack_start(b)
         b.show()
@@ -152,4 +152,4 @@ class CanvasExample:
 if __name__ == '__main__':
     c = CanvasExample()
     c.main()
-    mainloop()
+    gtk.main()
