@@ -27,15 +27,52 @@ create table magnus_192_status(
 	description	varchar(200)
 	);
 
-
+/*
 create table readme(
 	id	integer auto_increment primary key,
 	name	varchar(2000),
 	description	varchar(60000),
-	username	varchar(200),
-	date_created	timestamp default 0,	--this column can't have "default CURRENT_TIMESTAMP" because there can be only one TIMESTAMP column with CURRENT_TIMESTAMP in DEFAULT or ON UPDATE clause.
-	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	created_by	varchar(200) default current_user,
+	modified_by	varchar(200),
+	date_created	timestamp default CURRENT_TIMESTAMP,	--this column can't have "default CURRENT_TIMESTAMP" because there can be only one TIMESTAMP column with CURRENT_TIMESTAMP in DEFAULT or ON UPDATE clause.
+	date_modified	TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
+*/
+
+--2008-02-03 new standard readme table with two triggers
+create table readme(
+	id      integer auto_increment primary key,
+	title    varchar(2000),
+	description     varchar(60000),
+	created_by      varchar(200),
+	updated_by     varchar(200),
+	date_created    timestamp default CURRENT_TIMESTAMP,
+	date_updated   TIMESTAMP default 0
+	);
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_readme BEFORE INSERT ON readme
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_readme BEFORE UPDATE ON readme
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
 
 create table magnus_192_vs_accession(
 	linename	varchar(200),
