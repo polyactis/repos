@@ -100,6 +100,32 @@ def get_chr_id2size(curs, chromosome_table='at.chromosome'):
 	sys.stderr.write("Done.\n")
 	return chr_id2size
 
+def get_chr_id2cumu_size(chr_id2size, chr_gap=None):
+	"""
+	2008-02-04
+		add chr_id_ls
+		turn chr_id all into 'str' form
+	2008-02-01
+		add chr_gap, copied from variation.src.misc
+	2007-10-16
+	"""
+	sys.stderr.write("Getting chr_id2cumu_size ...")
+	#if chr_gap not specified, take the 1/5th of the average chromosome size as its value
+	if chr_gap==None:
+		chr_size_ls = chr_id2size.values()
+		chr_gap = int(sum(chr_size_ls)/(5.0*len(chr_size_ls)))
+	
+	chr_id_ls = chr_id2size.keys()
+	chr_id_ls.sort()
+	chr_id_ls = ['0'] + chr_id_ls	#chromosome 0 is a place holder. 
+	chr_id2cumu_size = {'0':0}	#chr_id_ls might not be continuous integers. so dictionary is better
+	for i in range(1,len(chr_id_ls)):
+		chr_id = chr_id_ls[i]
+		prev_chr_id = chr_id_ls[i-1]
+		chr_id2cumu_size[chr_id] = chr_id2cumu_size[prev_chr_id] + chr_id2size[chr_id] + chr_gap
+	sys.stderr.write("Done.\n")
+	return chr_id2cumu_size, chr_gap, chr_id_ls
+
 def get_pic_area(pos_ls, min_span=30):
 	"""
 	2007-10-02
@@ -218,3 +244,104 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 		pylab.savefig('%s.png'%output_fname_prefix, dpi=600)
 	del fig, m, pylab
 	sys.stderr.write("Done.\n")
+
+def get_chr_pos_from_x_axis_pos(x_axis_pos, chr_gap, chr_id2cumu_size, chr_id_ls):
+	"""
+	2008-02-04
+		split out from variation.src.GenomeBrowser.py
+	2008-02-03
+		get chromosome, position from the x axis position
+		chr_id_ls is the sorted version of the keys of chr_id2cumu_size
+	"""
+	chr_id_chosen = None
+	position = -1
+	for i in range(1, len(chr_id_ls)):	#the 1st in chr_id_ls is fake chromosome 0
+		prev_chr_id = chr_id_ls[i-1]
+		chr_id = chr_id_ls[i]
+		if chr_id2cumu_size[chr_id]>=x_axis_pos:
+			chr_id_chosen = chr_id
+			position = x_axis_pos - chr_id2cumu_size[prev_chr_id]
+			break
+	return chr_id_chosen, position
+
+
+
+#2008-02-04 custom NavigationToolbar
+from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg
+class Cursors:  #namespace
+    HAND, POINTER, SELECT_REGION, MOVE = range(4)
+cursors = Cursors()
+
+class NavigationToolbar2GTKAgg_chromosome(NavigationToolbar2GTKAgg):
+	"""
+	2008-02-04 NavigationToolbar with custom mouse_move()
+	"""
+	def __init__(self, canvas, window):
+		NavigationToolbar2GTKAgg.__init__(self, canvas, window)
+		self.chr_id2size = {}
+		self.chr_id2cumu_size = {}
+		self.chr_gap = None
+		self.chr_id_ls = None
+	
+	def update_chr_info(self, chr_id2size, chr_id2cumu_size, chr_gap, chr_id_ls):
+		"""
+		2008-02-04
+			fill up the chromosome info
+		"""
+		self.chr_id2size = chr_id2size
+		self.chr_id2cumu_size = chr_id2cumu_size
+		self.chr_gap = chr_gap
+		self.chr_id_ls = chr_id_ls
+	
+	def mouse_move(self, event):
+		"""
+		2008-02-04
+			custom the label shown for 'motion_notify_event'
+			self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
+		"""
+		#print 'mouse_move', event.button
+
+		if not event.inaxes or not self._active:
+			if self._lastCursor != cursors.POINTER:
+				self.set_cursor(cursors.POINTER)
+				self._lastCursor = cursors.POINTER
+		else:
+			if self._active=='ZOOM':
+				if self._lastCursor != cursors.SELECT_REGION:
+					self.set_cursor(cursors.SELECT_REGION)
+					self._lastCursor = cursors.SELECT_REGION
+				if self._xypress:
+					x, y = event.x, event.y
+					lastx, lasty, a, ind, lim, trans= self._xypress[0]
+					self.draw_rubberband(event, x, y, lastx, lasty)
+			elif (self._active=='PAN' and
+				  self._lastCursor != cursors.MOVE):
+				self.set_cursor(cursors.MOVE)
+
+				self._lastCursor = cursors.MOVE
+
+		if event.inaxes and event.inaxes.get_navigate():
+
+			try:
+				#2008-02-04 custom here
+				if self.chr_id2size and self.chr_id2cumu_size and self.chr_gap!=None and self.chr_id_ls:
+					x_axis_pos_int = int(round(event.xdata))
+					chr_id, position = get_chr_pos_from_x_axis_pos(x_axis_pos_int, self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
+					chr_perc = -1	#default
+					if chr_id in self.chr_id2size:
+						chr_perc = position/float(self.chr_id2size[chr_id])*100
+						if chr_perc>100 or chr_perc<0:	#out of range
+							chr_perc = -1
+					if position==-1:	#not within any chromosome
+						position = x_axis_pos_int
+					s = 'chr=%s, pos=%i(%.1f%%), y=%s'%(chr_id, position, chr_perc, event.ydata)
+				else:
+					s = event.inaxes.format_coord(event.xdata, event.ydata)
+			except ValueError: pass
+			except OverflowError: pass
+			else:
+				if len(self.mode):
+					self.set_message('%s : %s' % (self.mode, s))
+				else:
+					self.set_message(s)
+		else: self.set_message(self.mode)
