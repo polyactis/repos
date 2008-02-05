@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.0 on Mon Feb  4 01:50:48 2008 -->
+<!--Generated with glade3 3.4.0 on Mon Feb  4 17:02:56 2008 -->
 <glade-interface>
   <requires lib="bonobo"/>
   <requires lib="gnome"/>
@@ -172,6 +172,23 @@
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="label" translatable="yes">_View</property>
                     <property name="use_underline">True</property>
+                    <child>
+                      <widget class="GtkMenu" id="menu5">
+                        <property name="visible">True</property>
+                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <child>
+                          <widget class="GtkImageMenuItem" id="imagemenuitem_cleanup_output">
+                            <property name="visible">True</property>
+                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                            <property name="tooltip" translatable="yes">Cleanup stuff in Output</property>
+                            <property name="label" translatable="yes">gtk-clear</property>
+                            <property name="use_underline">True</property>
+                            <property name="use_stock">True</property>
+                            <signal name="activate" handler="on_imagemenuitem_cleanup_output_activate"/>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
                 <child>
@@ -185,13 +202,13 @@
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <child>
-                          <widget class="GtkImageMenuItem" id="imagemenuitem10">
+                          <widget class="GtkImageMenuItem" id="imagemenuitem_about">
                             <property name="visible">True</property>
                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                             <property name="label" translatable="yes">gtk-about</property>
                             <property name="use_underline">True</property>
                             <property name="use_stock">True</property>
-                            <signal name="activate" handler="on_imagemenuitem10_activate"/>
+                            <signal name="activate" handler="on_imagemenuitem_about_activate"/>
                           </widget>
                         </child>
                       </widget>
@@ -765,7 +782,20 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <widget class="GtkCheckButton" id="checkbutton_draw_gene_symbol">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                <property name="tooltip" translatable="yes">Whether to label the gene when it's cliked</property>
+                <property name="label" translatable="yes">Draw Gene Symbol</property>
+                <property name="response_id">0</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">4</property>
+              </packing>
             </child>
             <child>
               <placeholder/>

@@ -25,7 +25,9 @@ matplotlib.use('GTKAgg')  # or 'GTK'
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
+#from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
+#2008-02-04 use a custom navigation tool bar
+from variation.src.common import NavigationToolbar2GTKAgg_chromosome as NavigationToolbar
 
 import pymodule.gnome as yh_gnome
 
@@ -35,6 +37,7 @@ from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Text
 
 from pymodule.yh_matplotlib_artists import Gene
+from variation.src.common import get_chr_pos_from_x_axis_pos
 
 class GeneModel:
 	def __init__(self, gene_id=None, chromosome=None, symbol = None, description = None, type_of_gene = None, \
@@ -82,8 +85,8 @@ class GenomeBrowser:
 		self.ax = fig.add_subplot(111)
 		
 		# matplotlib toolbar
-		toolbar = NavigationToolbar(self.canvas_matplotlib, self.app1)
-		self.vbox_matplotlib.pack_start(toolbar, False, False)
+		self.toolbar = NavigationToolbar(self.canvas_matplotlib, self.app1)
+		self.vbox_matplotlib.pack_start(self.toolbar, False, False)
 		
 		self.textview_output = xml.get_widget('textview_output')
 		
@@ -124,6 +127,7 @@ class GenomeBrowser:
 		self.checkbutton_stdout = xml.get_widget("checkbutton_stdout")
 		self.checkbutton_stderr = xml.get_widget("checkbutton_stderr")
 		self.entry_gene_width = xml.get_widget("entry_gene_width")
+		self.checkbutton_draw_gene_symbol = xml.get_widget("checkbutton_draw_gene_symbol")
 		
 		self.aboutdialog1 = xml.get_widget("aboutdialog1")
 		self.aboutdialog1.connect("delete_event", yh_gnome.subwindow_hide)
@@ -132,6 +136,8 @@ class GenomeBrowser:
 		
 		self.chr_id2size = None
 		self.chr_id2cumu_size = None
+		self.chr_gap = None
+		self.chr_id_ls = []
 		
 		self.gene_id2artist_object_id = {}
 		self.chr_id2gene_id_ls = {}	#chr_id here is str type (db is varchar type)
@@ -140,10 +146,13 @@ class GenomeBrowser:
 		
 		self.gene_width = 1.0
 		
-		self.debug = 1
+		self.draw_gene_symbol_when_clicked = 0
+		
+		self.debug = 0
 		
 	def load_data(self, input_fname, mysql_curs, postgres_curs):
 		"""
+		2008-02-04 update the info related to chromosome , position in toolbar
 		2008-02-01
 			read the input data
 			
@@ -171,6 +180,18 @@ class GenomeBrowser:
 		#chr_id2cumu_size has an extra fake chromosome (0) compared to chr_id2size
 		data_ls = get_chr_id2cumu_size(self.chr_id2size)
 		self.chr_id2cumu_size, self.chr_gap, self.chr_id_ls = data_ls[:3]
+		#2008-02-04 update the info related to chromosome , position in toolbar
+		if self.debug:
+			print 'self.chr_id2size', self.chr_id2size
+			for chr_id in self.chr_id2size:
+				print type(chr_id)
+			print 'self.chr_id2cumu_size', self.chr_id2cumu_size
+			for chr_id in self.chr_id2cumu_size:
+				print type(chr_id)
+			print 'self.chr_id_ls', self.chr_id_ls
+			for chr_id in self.chr_id_ls:
+				print type(chr_id)
+		self.toolbar.update_chr_info(self.chr_id2size, self.chr_id2cumu_size, self.chr_gap, self.chr_id_ls)
 		
 	def plot(self, ax, canvas, snp_pos_ls, pvalue_ls, chr_id2cumu_size, chr_id2size, chr_gap):
 		"""
@@ -231,8 +252,11 @@ class GenomeBrowser:
 			artist_object_id = id(event.artist)
 			gene_id = self.artist_object_id2artist_gene_id_ls[artist_object_id][1]
 			gene_model = self.gene_id2model[gene_id]
-			print 'gene symbol: %s. description: %s. type_of_gene: %s. chromosome: %s. start: %s. stop: %s. strand: %s.'%\
-				(gene_model.symbol, gene_model.description, gene_model.type_of_gene, gene_model.chromosome, gene_model.start, gene_model.stop, gene_model.strand)
+			print 'gene id: %s. symbol: %s. description: %s. type_of_gene: %s. chromosome: %s. start: %s. stop: %s. strand: %s.'%\
+				(gene_id, gene_model.symbol, gene_model.description, gene_model.type_of_gene, gene_model.chromosome, gene_model.start, gene_model.stop, gene_model.strand)
+			if self.draw_gene_symbol_when_clicked:
+				self.ax.text(event.mouseevent.xdata, event.mouseevent.ydata, gene_model.symbol, size=8)
+				self.canvas_matplotlib.draw()
 	
 	def on_imagemenuitem_quit_activate(self, data=None):
 		"""
@@ -329,23 +353,6 @@ class GenomeBrowser:
 		sys.stderr.write("Done.\n")
 		return gene_id2model, chr_id2gene_id_ls
 	
-	def get_chr_pos_from_x_axis_pos(self, x_axis_pos, chr_gap, chr_id2cumu_size, chr_id_ls):
-		"""
-		2008-02-03
-			get chromosome, position from the x axis position
-			chr_id_ls is the sorted version of the keys of chr_id2cumu_size
-		"""
-		chr_id_chosen = 0
-		position = -1
-		for i in range(1, len(chr_id_ls)):	#the 1st in chr_id_ls is fake chromosome 0
-			prev_chr_id = chr_id_ls[i-1]
-			chr_id = chr_id_ls[i]
-			if chr_id2cumu_size[chr_id]>=x_axis_pos:
-				chr_id_chosen = chr_id
-				position = x_axis_pos - chr_id2cumu_size[prev_chr_id]
-				break
-		return chr_id_chosen, position
-	
 	def plot_one_gene(self, ax, gene_id, gene_id2model, chr_id2cumu_size, chr_id2size, chr_gap, y_value=1, gene_width=1.0):
 		"""
 		2008-02-02
@@ -369,9 +376,9 @@ class GenomeBrowser:
 				this_chr_starting_pos_on_plot = chr_id2cumu_size[chromosome]-chr_id2size[chromosome]-chr_gap
 				if gene_model.strand=="1":
 					g_artist = Gene(c_start_ls, c_end_ls, y=y_value, x_offset=this_chr_starting_pos_on_plot, width=gene_width, alpha=0.3, facecolor='r', picker=True)
-				elif gene_model.strand=="-1":
-					c_start_ls.reverse()
-					c_end_ls.reverse()
+				elif gene_model.strand=="-1":	#to draw opposite strand, 1st is to order c_start_ls and c_end_ls in descending order. 2nd is to swap c_start_ls and c_end_ls.
+					#c_start_ls.reverse()	#2008-02-04 it's already in descending order in db.
+					#c_end_ls.reverse()	#2008-02-04 it's already in descending order in db.
 					g_artist = Gene(c_end_ls, c_start_ls, y=y_value, x_offset=this_chr_starting_pos_on_plot, width=gene_width, alpha=0.3, facecolor='r', picker=True)
 				else:	#no arrow
 					g_artist = Gene(c_start_ls, c_end_ls, y=y_value, is_arrow=False, x_offset=this_chr_starting_pos_on_plot, width=gene_width, alpha=0.3, facecolor='r', picker=True)
@@ -391,8 +398,8 @@ class GenomeBrowser:
 			self.gene_id2model, self.chr_id2gene_id_ls = self.get_gene_id2model(self.postgres_curs, tax_id=3702)
 		from pymodule.yh_matplotlib_artists import Gene
 		xlim = self.ax.get_xlim()
-		left_chr, left_pos = self.get_chr_pos_from_x_axis_pos(xlim[0], self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
-		right_chr, right_pos = self.get_chr_pos_from_x_axis_pos(xlim[1], self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
+		left_chr, left_pos = get_chr_pos_from_x_axis_pos(xlim[0], self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
+		right_chr, right_pos = get_chr_pos_from_x_axis_pos(xlim[1], self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
 		
 		for gene_id in self.chr_id2gene_id_ls[left_chr]:
 			gene_model = self.gene_id2model[gene_id]
@@ -434,6 +441,10 @@ class GenomeBrowser:
 			sys.stdout = self.dummy_out
 		else:
 			sys.stdout = sys.__stdout__
+		if self.checkbutton_draw_gene_symbol.get_active():
+			self.draw_gene_symbol_when_clicked = 1
+		else:
+			self.draw_gene_symbol_when_clicked = 0
 		self.gene_width = float(self.entry_gene_width.get_text())
 	
 	def on_button_dialog_preferences_cancel_clicked(self, widget, data=None):
@@ -443,11 +454,18 @@ class GenomeBrowser:
 		"""
 		self.dialog_preferences.hide()
 	
-	def on_imagemenuitem10_activate(self, widget):
+	def on_imagemenuitem_about_activate(self, widget):
 		"""
 		2008-02-04
 		"""
 		self.aboutdialog1.show_all()
+	
+	def on_imagemenuitem_cleanup_output_activate(self, widget):
+		"""
+		2008-02-04
+			clean up output buffer
+		"""
+		self.textbuffer_output.set_text('')
 	
 prog = gnome.program_init('GenomeBrowser', '0.1')
 instance = GenomeBrowser()
