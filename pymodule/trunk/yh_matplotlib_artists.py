@@ -63,7 +63,7 @@ class Gene(Polygon):
 		if head_width is None:
 			head_width = 2 * width
 		if head_length is None:
-			head_length = 2 * head_width
+			head_length = 1/(2.0 * abs(end_ls[0]-start_ls[0]))
 
 		distance = abs(end_ls[-1]-start_ls[0])
 		if length_includes_head:
@@ -144,6 +144,8 @@ class Gene(Polygon):
 		Polygon.__init__(self, map(tuple, verts), **kwargs)
 	__init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
+
+
 if __name__ == '__main__':
 	import pylab
 	a = pylab.gca()
@@ -159,7 +161,7 @@ if __name__ == '__main__':
 	#draw a opposite strand gene
 	start_ls.reverse()
 	end_ls.reverse()
-	g2 = Gene(end_ls, start_ls, y=0.5,  width=0.1, x_offset=0.5, alpha=0.3, facecolor='r', overhang=0.3)
+	g2 = Gene(end_ls, start_ls, y=0.5,  width=0.1, x_offset=0.5, head_length=1, alpha=0.3, facecolor='r', overhang=0.3)
 	a.add_artist(g2)
 	a.set_xlim(min(start_ls), max(end_ls))
 	a.set_ylim(0,2)
