@@ -71,14 +71,18 @@ class Dummy_File:
 	2008-01-24
 		copied from http://www.daa.com.au/pipermail/pygtk/attachments/20031004/dbb34c38/Py_Shell.py
 	"""
-	def __init__(self, buffer):
+	def __init__(self, buffer, tag=None):
 		"""Implements a file-like object for redirect the stream to the buffer"""
 		self.buffer = buffer
+		self.tag = tag
 	
 	def write(self, text):
 		"""Write text into the buffer and apply self.tag"""
 		iter=self.buffer.get_end_iter()
-		self.buffer.insert(iter,text)
+		if self.tag:
+			self.buffer.insert_with_tags(iter, text, self.tag)
+		else:
+			self.buffer.insert(iter, text)
 	
 	def writelines(self, l):
 		map(self.write, l)
@@ -88,3 +92,7 @@ class Dummy_File:
 	
 	def isatty(self):
 		return 1
+
+def subwindow_hide(widget, event, data=None):
+	widget.hide()
+	return True
