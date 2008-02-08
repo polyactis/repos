@@ -345,3 +345,49 @@ class NavigationToolbar2GTKAgg_chromosome(NavigationToolbar2GTKAgg):
 				else:
 					self.set_message(s)
 		else: self.set_message(self.mode)
+
+def get_accession_id2name(curs, accession_table='at.accession'):
+	"""
+	2008-02-07
+	"""
+	sys.stderr.write("Getting accession_id2name ...")
+	accession_id2name = {}
+	curs.execute("select id, name from %s"%(accession_table))
+	rows = curs.fetchall()
+	for row in rows:
+		accession_id, name = row
+		accession_id2name[accession_id] = name
+	sys.stderr.write("Done.\n")
+	return accession_id2name
+
+def map_perlegen_ecotype_name2accession_id(curs, accession_table='at.accession', perlegen_table='chip.snp_combined_may_9_06_no_van'):
+	"""
+	2008-02-07
+		in perlegen table, ecotype is a name. all but one('sha') matches accession.name due to case-insensitive match in mysql.
+		In fact, perlegen_table.ecotype is all lower-case. accession.name is capitalized on the first-letter.
+	"""
+	sys.stderr.write("Getting perlegen_ecotype_name2accession_id ...")
+	perlegen_ecotype_name2accession_id = {}
+	curs.execute("select distinct a.id, s.ecotype from (select distinct ecotype from %s) as s , %s a where s.ecotype=a.name"%(perlegen_table, accession_table))
+	rows = curs.fetchall()
+	for row in rows:
+		accession_id, ecotype_name = row
+		perlegen_ecotype_name2accession_id[ecotype_name] = accession_id
+	perlegen_ecotype_name2accession_id['sha'] = 89	#this exception
+	sys.stderr.write("Done.\n")
+	return perlegen_ecotype_name2accession_id
+
+def map_accession_id2ecotype_id(curs, accession2ecotype_table='at.ecotype2accession'):
+	"""
+	2008-02-07
+	
+	"""
+	sys.stderr.write("Getting  accession_id2ecotype_id ...")
+	curs.execute("select ecotype_id, accession_id from %s"%(accession2ecotype_table))
+	rows = curs.fetchall()
+	accession_id2ecotype_id = {}
+	for row in rows:
+		ecotype_id, accession_id = row
+		accession_id2ecotype_id[accession_id] = ecotype_id
+	sys.stderr.write("Done.\n")
+	return accession_id2ecotype_id
