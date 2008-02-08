@@ -167,6 +167,8 @@ class FilterStrainSNPMatrix:
 	
 	def write_data_matrix(self, data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=Set(), cols_to_be_tossed_out=Set(), nt_alphabet=0):
 		"""
+		2008-02-06
+			transform the 2D list into array if data_matrix is 2D list.
 		2007-03-06
 		2007-04-27
 			add nt_alphabet
@@ -180,6 +182,8 @@ class FilterStrainSNPMatrix:
 				new_header.append(header[i])
 		writer.writerow(new_header)
 		
+		if type(data_matrix)==list:	#2008-02-06 transform the 2D list into array
+			data_matrix = num.array(data_matrix)
 		no_of_rows, no_of_cols = data_matrix.shape
 		for i in range(no_of_rows):
 			if i not in rows_to_be_tossed_out:
