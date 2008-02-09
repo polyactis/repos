@@ -7,29 +7,54 @@ Option:
 	-d ..., --dbname=...	the database name, stock20071008(default)
 	-k ..., --schema=...	which schema in the database, dbsnp(default)
 	-e ...,	ecotype_table, 'stock20071008.ecotype'(default)
-	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete'/'at.ecotype2accession'
+	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession'(default)
 	-s ...,	sequence table, 'at.sequence'(default)
 	-a ..., alignment table, 'at.alignment'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
 	-o ...,	output_fname
 	-y ...,	processing bits to control which processing step should be turned on.
-		default is 0. for what each bit stands, see Description.
+		default is 0000. for what each bit stands, see Description.
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
 
 Examples:
-	#to output 2010 data in 250k SNPs
-	Output2010InCertainSNPs.py -n snps_250k -o /tmp/data_2010_x_250k.tsv
+	#to output 2010 data in 250k SNPs with ecotype id
+	Output2010InCertainSNPs.py -n snps_250k -o /tmp/data_2010_ecotype_id_x_250k_y00.tsv -r -y00
 	
-	#to output 2010 data in 149SNP
-	Output2010InCertainSNPs.py -o /tmp/data_2010_x_149SNP.tsv
+	#ditto except with accession id
+	Output2010InCertainSNPs.py -n snps_250k -o /tmp/data_2010_accession_id_x_250k_y10.tsv -r -y10
+	
+	#to output 2010 data in 149SNP with ecotype id
+	Output2010InCertainSNPs.py -o /tmp/data_2010_ecotype_id_x_149SNP_y00.tsv -r -y00
+	
+	#ditto except with accession id
+	Output2010InCertainSNPs.py -o /tmp/data_2010_accession_id_x_149SNP_y10.tsv -r -y10
+	
+	#to output perlegen data in 250k SNPs with accession id
+	Output2010InCertainSNPs.py -n snps_250k -o /tmp/data_perlegen_accession_id_x_250k_y11.tsv -y11
+	
+	#to output perlegen data in 250k SNPs with ecotype id
+	Output2010InCertainSNPs.py -n snps_250k -o /tmp/data_perlegen_ecotype_id_x_250k_y01.tsv -y01
+	
+	#to output perlegen data in 149SNP with accession id
+	Output2010InCertainSNPs.py -n snps -o /tmp/data_perlegen_accession_id_x_149SNP_y11.tsv -y11
 
 Description:
-	program to output 2010 data from db at with columns/SNPs from either 250k or 149SNP
+	program to output 2010/Perlegen data from db at with columns/SNPs from either 250k or 149SNP
+	
+	for 2010 data, alignment.version=3, locus.offset=0
+		select g.accession, l.chromosome, l.position, al.base from %s g, %s al, %s l, %s an\
+				where g.allele=al.id and l.id=al.locus and l.alignment=an.id and l.offset=0 and an.version=3"%\
+				(genotype_table, allele_table, locus_table, alignment_table)
+	
+	for perlegen data, select ecotype, chromosome, position, mbml98 from chip.snp_combined_may_9_06_no_van
 
 	definition of each bit in processing_bits (0=off, 1=on), default is 0.
-	1. 0: row id of the output is ecotype id, 1: accession id instead.
+	1st bit. 0: row id of the output is ecotype id(default); 1: accession id instead.
+	2nd bit. 0: 2010 data(default); 1: perlegen data
+	3rd bit controls the 2nd column. duplicate id or strain name. 0: duplicate(default). 1: name
+	4th bit controls the SNP scope. 0: all SNPs from snp_locus_table(default); 1: intersection between snp_locus_table and the SNPs where there's data
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -41,6 +66,15 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import getopt, numpy
 from variation.src.common import nt2number, number2nt
+from sets import Set
+
+class row_dstruc:
+	def __init__(self, row_index=None, name=None, info=None, snp_ls=None, snp_touched_ls=None):
+		self.row_index = row_index
+		self.name = name
+		self.info = info
+		self.snp_ls = snp_ls
+		self.snp_touched_ls = snp_touched_ls
 
 class Output2010InCertainSNPs:
 	"""
@@ -48,7 +82,7 @@ class Output2010InCertainSNPs:
 	"""
 	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', ecotype_table='ecotype',\
 		accession2ecotype_table=None, alignment_table='at.alignment', sequence_table='at.sequence',\
-		snp_locus_table='stock20071008.snps', output_fname=None, processing_bits='0', debug=0, report=0):
+		snp_locus_table='stock20071008.snps', output_fname=None, processing_bits='000', debug=0, report=0):
 		"""
 		2007-12-29
 			add processing_bits
@@ -64,11 +98,14 @@ class Output2010InCertainSNPs:
 		self.snp_locus_table = snp_locus_table
 		self.output_fname = output_fname
 
-		self.processing_bits = [0]
+		self.processing_bits = [0]*len(processing_bits)
 		for i in range(len(processing_bits)):
 			self.processing_bits[i] = int(processing_bits[i])
 		self.debug = int(debug)
 		self.report = int(report)
+		
+		self.data_type2data_table = {0:'at.locus',
+									1:'chip.snp_combined_may_9_06_no_van'}
 	
 	def get_alignment_id2positions_to_be_checked_ls(self, curs, alignment_table):
 		"""
@@ -209,6 +246,97 @@ class Output2010InCertainSNPs:
 		sys.stderr.write("Done.\n")
 		return data_matrix, data_matrix_touched, snp_index2alignment_id
 	
+	def setup_SNP_dstruc2(self, curs, snp_locus_table, cross_linking_table=None):
+		"""
+		2008-02-07
+			2nd version
+		"""
+		sys.stderr.write("Setting up SNP data structure ...")
+		SNPpos_set = Set()
+		if cross_linking_table:
+			curs.execute("select distinct chromosome, position from %s"%cross_linking_table)
+			rows = curs.fetchall()
+			for row in rows:
+				chromosome, position = row
+				SNPpos_set.add((chromosome, position))
+		snp_acc_ls = []
+		SNPpos2col_index = {}
+		curs.execute("select id, snpid, chromosome, position from %s order by chromosome, position"%(snp_locus_table))
+		rows = curs.fetchall()
+		for row in rows:
+			snpid, snp_acc, chromosome, position = row
+			key_tuple = (chromosome, position)
+			if key_tuple in SNPpos_set:
+				snp_acc_ls.append(snp_acc)
+				SNPpos2col_index[key_tuple] = len(SNPpos2col_index)
+		sys.stderr.write("Done.\n")
+		return SNPpos2col_index, snp_acc_ls
+	
+	def setup_row_dstruc(self, curs, SNPpos2col_index, accession_id2name, genotype_table='at.genotype', \
+						allele_table='at.allele', locus_table='at.locus', alignment_table='at.alignment', \
+						perlegen_table='chip.snp_combined_may_9_06_no_van', data_type=0, ecotype_name2accession_id=None):
+		"""
+		2008-02-07
+			get row_dstruc
+			SNPpos2col_index makes sure that SNPs are from snp_locus_table
+			data_type=0  -> 2010
+			data_type=1  -> perlegen
+		"""
+		sys.stderr.write("Getting row data structure and data ...\n")
+		row_id2dstruc = {}
+		if data_type==0:
+			sql_string_func = lambda key_tuple: "select g.accession, al.base from %s g, %s al, %s l, %s an where g.allele=al.id \
+				and l.id=al.locus and l.alignment=an.id and l.offset=0 and an.version=3 and l.chromosome=%s and l.position=%s"%\
+				(genotype_table, allele_table, locus_table, alignment_table, key_tuple[0], key_tuple[1])
+		elif data_type==1 and ecotype_name2accession_id:
+			sql_string_func = lambda key_tuple: "select ecotype, mbml98 from %s where chromosome=%s and position=%s"%\
+				(perlegen_table, key_tuple[0], key_tuple[1])
+		else:
+			sys.stderr("Unsupported data type: %s or no ecotype_name2accession_id specified.\n"%data_type)
+			sys.exit(2)
+		counter = 0
+		snp_counter = 0
+		for SNPpos, col_index in SNPpos2col_index.iteritems():
+			sql_string = sql_string_func(SNPpos)
+			curs.execute(sql_string)
+			rows = curs.fetchall()
+			for row in rows:
+				row_id, base = row
+				if data_type==1:	#in perlegen table, ecotype is a name. all but one('sha') matches accession.name.
+					row_id = ecotype_name2accession_id[row_id]
+				if row_id not in row_id2dstruc:
+					row_id2dstruc[row_id] = row_dstruc()
+					row_id2dstruc[row_id].name = accession_id2name.get(row_id)
+					row_id2dstruc[row_id].snp_ls = [-2]*len(SNPpos2col_index)	#-2 means untouched.
+					row_id2dstruc[row_id].snp_touched_ls = [0]*len(SNPpos2col_index)
+				row_id2dstruc[row_id].snp_ls[col_index] = nt2number[base]
+				row_id2dstruc[row_id].snp_touched_ls[col_index] = 1
+				counter += 1
+			snp_counter += 1
+			if self.report and snp_counter%1000==0:
+				sys.stderr.write("\t%s%s\t%s"%('\x08'*80, snp_counter, counter))
+		if self.report:
+			sys.stderr.write("\t%s%s\t%s"%('\x08'*80, snp_counter, counter))
+		sys.stderr.write("Done.\n")
+		return row_id2dstruc
+	
+	def transform_row_id2dstruc_2_matrix(self, row_id2dstruc):
+		"""
+		2008-02-07
+		"""
+		sys.stderr.write("Getting Row data structure and data ...")
+		row_id_ls = row_id2dstruc.keys()
+		row_id_ls.sort()
+		row_name_ls = []
+		no_of_rows = len(row_id_ls)
+		data_matrix = numpy.zeros([no_of_rows, len(row_id2dstruc[row_id_ls[0]].snp_ls)], numpy.integer)
+		for i in range(no_of_rows):
+			row_id = row_id_ls[i]
+			data_matrix[i] = row_id2dstruc[row_id].snp_ls
+			row_name_ls.append(row_id2dstruc[row_id].name)
+		sys.stderr.write("Done.\n")
+		return row_id_ls, row_name_ls, data_matrix
+	
 	def run(self):
 		import MySQLdb
 		conn = MySQLdb.connect(db=dbname,host=hostname)
@@ -216,23 +344,65 @@ class Output2010InCertainSNPs:
 		if self.debug:
 			import pdb
 			pdb.set_trace()
-
+		"""
+		#2008-02-08 old way to get 2010 data is from raw alignments. didn't realize all SNPs are put into db.
 		alignment_id2positions_to_be_checked_ls, alignment_id2chr_start_end = self.get_alignment_id2positions_to_be_checked_ls(curs, self.alignment_table)
 		SNPpos_snpacc_ls = self.get_SNPpos_snpacc_ls(curs, self.snp_locus_table)
 		SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc(SNPpos_snpacc_ls, alignment_id2chr_start_end)
 
 		ecotype_id2accession_id, ecotype_id2row_index, ecotype_id2info_ls, ecotype_id_ls, accession_id2row_index, accession_id_ls, nativename_ls = self.setup_accession_ecotype_dstruc(curs, self.accession2ecotype_table, self.ecotype_table)
 		accession_X_snp_matrix, accession_X_snp_matrix_touched, snp_index2alignment_id = self.get_accession_X_snp_matrix(curs, accession_id2row_index, SNPpos2col_index, self.sequence_table, self.alignment_table, alignment_id2positions_to_be_checked_ls)
-
+		"""
+		if self.processing_bits[3]==0:
+			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table)
+		else:
+			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table, cross_linking_table=self.data_type2data_table[self.processing_bits[1]])
+		from variation.src.common import get_accession_id2name
+		accession_id2name = get_accession_id2name(curs)
+		if self.processing_bits[1]==0:
+			row_id2dstruc = self.setup_row_dstruc(curs, SNPpos2col_index, accession_id2name)
+		elif self.processing_bits[1]==1:
+			from variation.src.common import map_perlegen_ecotype_name2accession_id
+			ecotype_name2accession_id = map_perlegen_ecotype_name2accession_id(curs)
+			row_id2dstruc = self.setup_row_dstruc(curs, SNPpos2col_index, accession_id2name, data_type=self.processing_bits[1], ecotype_name2accession_id=ecotype_name2accession_id)
+		else:
+			sys.stderr("Unsupported data type: %s or no ecotype_name2accession_id specified.\n"%self.processing_bits[1])
+			sys.exit(2)
+		accession_id_ls, accession_name_ls, data_matrix = self.transform_row_id2dstruc_2_matrix(row_id2dstruc)
+		
 		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+		
+		#2008-02-08 which type of row id/1st column
 		if self.processing_bits[0]==0:
+			from variation.src.common import map_accession_id2ecotype_id
+			accession_id2ecotype_id = map_accession_id2ecotype_id(curs)
+			ecotype_id_ls = []
+			rows_to_be_tossed_out=Set()
+			for i in range(len(accession_id_ls)):
+				ecotype_id = accession_id2ecotype_id.get(accession_id_ls[i])
+				if not ecotype_id:	#mapping failed
+					rows_to_be_tossed_out.add(i)
+				ecotype_id_ls.append(ecotype_id)
 			strain_acc_list = ecotype_id_ls
-			header = ['ecotype_id', 'nativename'] + snp_acc_ls
+			header = ['ecotype_id']	#1st column in the header
 		else:
+			rows_to_be_tossed_out=Set()
 			strain_acc_list = accession_id_ls
-			header = ['accession_id', 'nativename'] + snp_acc_ls
-		FilterStrainSNPMatrix_instance.write_data_matrix(accession_X_snp_matrix, self.output_fname, header, strain_acc_list, nativename_ls)
+			header = ['accession_id']
+		#2008-02-08 which type of 2nd column
+		if self.processing_bits[2]==0:
+			category_list = [1]*len(accession_name_ls)
+			header.append('duplicate')	#2nd column in the header
+		elif self.processing_bits[2]==1:
+			category_list = accession_name_ls
+			header.append('accession_name')
+		else:
+			category_list = accession_name_ls
+			header.append('accession_name')
+		
+		header += snp_acc_ls
+		FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=rows_to_be_tossed_out)
 
 
 
@@ -257,7 +427,7 @@ if __name__ == '__main__':
 	alignment_table = 'at.alignment'
 	snp_locus_table = 'stock20071008.snps'
 	output_fname = None
-	processing_bits = '0'
+	processing_bits = '0000'
 	debug = 0
 	report = 0
 	
