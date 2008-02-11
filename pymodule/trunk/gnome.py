@@ -10,9 +10,20 @@ def foreach_cb(model, path, iter, pathlist):
 		used in gui listview, pathfinding.
 	"""
 	pathlist.append(path)	
-	
-def create_columns(treeview, label_list):
+
+def edited_cb(cell, path, new_text, user_data):
 	"""
+	2008-02-05
+		call back for editable CellRendererText in create_columns()
+	"""
+	liststore, column = user_data
+	liststore[path][column] = new_text
+	return
+	
+def create_columns(treeview, label_list, editable_flag_ls=None, liststore=None):
+	"""
+	2008-02-05
+		add editable_flag_ls and liststore
 	2008-01-21 copied from annot.bin.codense.common
 	04-17-05
 		create columns in the treeview in the first refresh
@@ -32,14 +43,19 @@ def create_columns(treeview, label_list):
 		tvcolumn_dict[i] = gtk.TreeViewColumn(label_list[i])	# create the TreeViewColumn to display the data
 		treeview.append_column(tvcolumn_dict[i])	# add tvcolumn to treeview
 		cell_dict[i] = gtk.CellRendererText()	# create a CellRendererText to render the data
+		if editable_flag_ls and liststore:
+			if editable_flag_ls[i]:
+				cell_dict[i].set_property('editable', True)
+				cell_dict[i].connect('edited', edited_cb, (liststore, i))
 		tvcolumn_dict[i].pack_start(cell_dict[i], True)	# add the cell to the tvcolumn and allow it to expand
 		# set the cell "text" attribute to column 0 - retrieve text
 		# from that column in liststore
 		tvcolumn_dict[i].add_attribute(cell_dict[i], 'text', i)
 		tvcolumn_dict[i].set_sort_column_id(i)	# Allow sorting on the column
 
-def fill_treeview(treeview, liststore, list_2d, reorderable=True):
+def fill_treeview(treeview, liststore, list_2d, reorderable=True, multi_selection=True):
 	"""
+	2008-02-05 add flag multi_selection
 	2008-01-21 copied from annot.bin.codense.common
 	04-17-05
 	05-20-05
@@ -62,9 +78,10 @@ def fill_treeview(treeview, liststore, list_2d, reorderable=True):
 		
 		# Allow drag and drop reordering of rows
 		treeview.set_reorderable(True)
-	#setting the selection mode
-	treeselection = treeview.get_selection()
-	treeselection.set_mode(gtk.SELECTION_MULTIPLE)
+	if multi_selection:
+		#setting the selection mode
+		treeselection = treeview.get_selection()
+		treeselection.set_mode(gtk.SELECTION_MULTIPLE)
 
 class Dummy_File:
 	"""
