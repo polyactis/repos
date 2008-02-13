@@ -216,3 +216,29 @@ create table calls_250k_duplicate_comment(
 	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
 
+--2008-02-12 table for processed/averaged phenotype
+create table phenotype_p(
+	id  integer auto_increment primary key,
+	accession_id  integer  unique,
+	region  varchar(200),
+	LD  float,
+	LD_sample_size  integer,
+	LD_stdev  float,
+	avrPph3  integer,
+	avrRpm1  integer,
+	avrRpt2  integer,
+	avrB  integer,
+	FRI_1Ler_2Col  varchar(1),
+	Rps5  varchar(1),
+	Rpm1  varchar(1),
+	Rps2  varchar(1),
+	LDV  float,
+	SD  float,
+	SDV  float,
+	JIC0W  float,
+	JIC2W  float,
+	JIC4W  float,
+	JIC8W  float,
+	FLC  float,
+	FRI  float);
+
