@@ -9,15 +9,16 @@ Option:
 	-i ...,	input file, snp.RData outputted by write.table() in R
 	-p ...,	probes table, 'probes_250k'(default)
 	-s ...,	snps table, 'snps_250k'(default)
-	-n	both the probes snps tables are new. to be created
+	-n	both the probes snps tables are new. to be created(IGNORE)
 	-c	commit the database submission
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
 
 Examples:
-	Probes2DB_250k.py -i /tmp/snp -n -c
+	Probes2DB_250k.py -i /tmp/snp -c
 	
+	Probes2DB_250k.py -i /tmp/snp -d stock_250k -c -p probes -s snps
 
 Description:
 	program to read the matrix output of snp.RData (250k SNPs, made by Xu Zhang of Justin Borevitz lab)
@@ -82,6 +83,7 @@ class Probes2DB_250k:
 	def get_snps_and_probes(self, input_fname):
 		"""
 		2007-12-10
+			row[1:] => row[1:9] more specific
 		"""
 		sys.stderr.write("Getting snps and probes ...")
 		reader = csv.reader(open(input_fname), delimiter='\t')
@@ -92,7 +94,7 @@ class Probes2DB_250k:
 		reader.next()	#toss out the 1st header row
 		snpid = 0
 		for row in reader:
-			snpacc, seq, chr, position, allele, strand, xpos, ypos = row[1:]
+			snpacc, seq, chr, position, allele, strand, xpos, ypos = row[1:9]
 			chr = int(chr)
 			position = int(position)
 			xpos = int(xpos)
@@ -119,23 +121,31 @@ class Probes2DB_250k:
 		sys.stderr.write("Done.\n")
 	
 	def submit_probes_ls(self, curs, probes_ls, probes_table):
+		"""
+		2008-02-18
+			snpid in probes table is renamed to snps_id
+		"""
 		sys.stderr.write("Submitting probes_ls ...")
 		for snpid, seq, chr, position, allele, strand, xpos, ypos in probes_ls:
-			curs.execute("insert into %s(snpid, seq, chromosome, position, allele, strand, xpos, ypos) values (%s, '%s', %s, %s, '%s', '%s', %s, %s)"%(probes_table, snpid, seq, chr, position, allele, strand, xpos, ypos) )
+			curs.execute("insert into %s(snps_id, seq, chromosome, position, allele, strand, xpos, ypos) values (%s, '%s', %s, %s, '%s', '%s', %s, %s)"%(probes_table, snpid, seq, chr, position, allele, strand, xpos, ypos) )
 		sys.stderr.write("Done.\n")
 
 	def run(self):
+		"""
+		2008-02-18
+			tables are created according to mysql.sql
+		"""
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 		curs = conn.cursor()
 		snps_ls, probes_ls, snpid2allele_ls = self.get_snps_and_probes(self.input_fname)
 		if self.commit:
-			if self.new_table:
-				self.create_probes_table(curs, self.probes_table)
-				self.create_snps_table(curs, self.snps_table)
+			#if self.new_table:
+			#	self.create_probes_table(curs, self.probes_table)
+			#	self.create_snps_table(curs, self.snps_table)
 			self.submit_snps_ls(curs, snps_ls, snpid2allele_ls, self.snps_table)
 			self.submit_probes_ls(curs, probes_ls, self.probes_table)
-
+			curs.execute("commit")
 
 if __name__ == '__main__':
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
