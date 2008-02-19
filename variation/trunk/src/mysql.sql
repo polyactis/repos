@@ -217,6 +217,7 @@ create table calls_250k_duplicate_comment(
 	);
 
 --2008-02-12 table for processed/averaged phenotype
+use at;
 create table phenotype_p(
 	id  integer auto_increment primary key,
 	accession_id  integer  unique,
@@ -242,3 +243,256 @@ create table phenotype_p(
 	FLC  float,
 	FRI  float);
 
+
+
+
+--2008-02-18 database for 250k
+use stock_250k;
+SET storage_engine=INNODB;
+
+create table snps(
+	id integer auto_increment primary key,
+	snpid varchar(200),
+	chromosome integer,
+	position integer,
+	allele1 varchar(1),
+	allele2 varchar(2),
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP default 0
+	);
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_snps BEFORE INSERT ON snps
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_snps BEFORE UPDATE ON snps
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+DELIMITER ;
+
+create table probes(
+	id integer auto_increment primary key,
+	snps_id integer,
+	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
+	seq varchar(200),
+	chromosome integer,
+	position integer,
+	allele varchar(1),
+	strand varchar(10),
+	xpos integer,
+	ypos integer,
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP default 0
+	);
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_probes BEFORE INSERT ON probes
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_probes BEFORE UPDATE ON probes
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+DELIMITER ;
+
+
+create table strain_info(
+	id integer auto_increment primary key,
+	name varchar(40),
+	description varchar(2000),
+	maternal_ecotype_id integer,
+	paternal_ecotype_id integer,
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP default 0
+	);
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_strain_info BEFORE INSERT ON strain_info
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_strain_info BEFORE UPDATE ON strain_info
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
+create table array_info(
+	id integer auto_increment primary key,
+	filename varchar(1000),
+	description varchar(2000),
+	strain_id integer not null,
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP default 0,
+	CONSTRAINT array_info_strain_id_fk_constraint foreign key (strain_id) references strain_info(id) on delete cascade on update cascade
+	)engine=INNODB;
+
+
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_array_info BEFORE INSERT ON array_info
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_array_info BEFORE UPDATE ON array_info
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
+create table array_data(
+	id integer auto_increment primary key,
+	array_id integer,
+	-- foreign key (array_id) references array_info(id) on delete cascade on update cascade,
+	probes_id integer,
+	-- foreign key (probes_id) references probes(id) on delete cascade on update cascade,
+	intensity integer
+	);
+
+create table call_info(
+	id integer auto_increment primary key,
+	filename varchar(1000),
+	description varchar(2000),
+	array_id integer,
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP default 0,
+	foreign key (array_id) references array_info(id) on delete cascade on update cascade
+	);
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_call_info BEFORE INSERT ON call_info
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_call_info BEFORE UPDATE ON call_info
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
+create table call_data(
+	id integer auto_increment primary key,
+	call_info_id integer,
+	-- foreign key (call_info_id) references call_info(id) on delete cascade on update cascade,
+	snps_id integer,
+	-- foreign key (snps_id) references snps(id) on delete cascade on update cascade,
+	snpcall varchar(2)
+	);
+
+--store the method
+create table method(
+	id integer auto_increment primary key,
+	short_name varchar(20),
+	method_description varchar(8000),
+	data_description varchar(8000),
+	comment varchar(8000),
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP default 0
+	);
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_method BEFORE INSERT ON method
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_method BEFORE UPDATE ON method
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
+--store the results
+create table results(
+	id integer auto_increment primary key,
+	chr integer,
+	start_pos integer,
+	stop_pos integer,
+	method_id integer,
+	foreign key (method_id) references method(id) on delete cascade on update cascade,
+	score float
+	);
