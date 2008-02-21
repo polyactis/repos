@@ -17,6 +17,10 @@ class QualityControl:
 		the functionality is to do quality control between different types of SNP data
 	"""
 	def __init__(self, **keywords):
+		if keywords.has_key('report'):
+			self.report = int(keywords['report'])
+		else:
+			self.report = 0
 		if keywords.has_key('debug'):
 			self.debug = int(keywords['debug'])
 		else:
@@ -25,6 +29,7 @@ class QualityControl:
 			self.latex_output_fname = int(keywords['latex_output_fname'])
 		else:
 			self.latex_output_fname = ''
+		
 		self.diff_details_table = ''
 		self.qc_cross_match_table = ''
 	
@@ -542,7 +547,7 @@ class QualityControl:
 		self.row_id2info = self.get_row_id2info(self.row_id2NA_mismatch_rate.keys(), self.curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype')
 		from QCVisualize import QCVisualize
 		import gtk
-		QCVisualize_ins = QCVisualize(self.row_id2NA_mismatch_rate, title, self.row_id2info)
+		QCVisualize_ins = QCVisualize(self.row_id2NA_mismatch_rate, title, id2info=self.row_id2info, id2index=self.row_id2row_index1, id_is_strain=1, header=self.header1, strain_acc_list=self.strain_acc_list1, category_list=self.category_list1, data_matrix=self.data_matrix1)
 		QCVisualize_ins.show_all()
 		gtk.main()
 	
@@ -553,7 +558,7 @@ class QualityControl:
 		self.col_id2NA_mismatch_rate = self.cmp_col_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 		from QCVisualize import QCVisualize
 		import gtk
-		QCVisualize_ins = QCVisualize(self.col_id2NA_mismatch_rate, title)
+		QCVisualize_ins = QCVisualize(self.col_id2NA_mismatch_rate, title, id2info={}, id2index=self.col_id2col_index1, id_is_strain=0, header=self.header1, strain_acc_list=self.strain_acc_list1, category_list=self.category_list1, data_matrix=self.data_matrix1)
 		QCVisualize_ins.show_all()
 		gtk.main()
 	
