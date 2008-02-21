@@ -32,6 +32,7 @@ Description:
 For -y (type):
 
 02-14-08 1: Kruskal_Wallis.py
+02-20-08 2: ProcessPhenotype.py
 """
 
 import sys, os, math
@@ -45,6 +46,7 @@ else:   #32bit
 import getopt, numpy
 from variation.src.common import nt2number, number2nt
 from variation.src import Kruskal_Wallis
+from variation.src import ProcessPhenotype
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
@@ -58,7 +60,8 @@ if __name__ == '__main__':
 		print __doc__
 		sys.exit(2)
 	
-	ClassDict = {1:Kruskal_Wallis.Kruskal_Wallis}
+	ClassDict = {1:Kruskal_Wallis.Kruskal_Wallis,
+				2:ProcessPhenotype.ProcessPhenotype}
 	
 	hostname = 'localhost'
 	dbname = 'stock20071008'
@@ -105,10 +108,16 @@ if __name__ == '__main__':
 	
 	if type!=None:
 		if help:
+			print
+			print "\tClass Type: %s"%type
+			print
 			print ClassDict[type].__doc__
 			sys.exit(2)
 		elif type==1:
 			ins = ClassDict[type](input_fname, argument1, output_fname, argument2, debug=debug, report=report)
+			ins.run()
+		elif type==2:
+			ins = ClassDict[type](hostname, dbname, schema, output_fname, argument1, argument2, debug=debug, report=report)
 			ins.run()
 	else:
 		print __doc__
