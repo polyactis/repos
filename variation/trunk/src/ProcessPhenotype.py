@@ -18,6 +18,7 @@ class ProcessPhenotype:
 	2008-02-13
 		class to process phenotype data from at.phenotype and at.experiment to get flowering time.
 		Flowering time is "time of first flower open" - "date counted as germination"
+		
 	Argument list:
 		-z ..., --hostname=...	the hostname, localhost(default)
 		-d ..., --dbname=...	the database name, stock20071008(default)
@@ -27,6 +28,8 @@ class ProcessPhenotype:
 		-e ..., experiment_table=argument2, at.experiment_table(default)
 		-b,	toggle debug
 		-r, toggle report
+	Examples:
+		main.py -y 2 -o /tmp/phenotype.tsv
 	"""
 	def __init__(self, hostname, dbname, schema, output_fname=None, raw_phenotype_table='at.phenotype', experiment_table='at.experiment', debug=0, report=0):
 		"""
@@ -68,6 +71,9 @@ class ProcessPhenotype:
 	def get_experiment_id2accession_id2reading_ls(self, curs, raw_phenotype_table):
 		"""
 		2008-02-20
+		2008-02-23
+			'long ago' now mapped to 'NA'
+			the reading_error_dict applied before testing whether it's NA or not
 		"""
 		sys.stderr.write("Getting experiment_id2accession_id2reading_ls ...\n")
 		curs.execute("select experiment, accession, replicate, reading from %s where measure='first flower open'"%raw_phenotype_table)
@@ -77,17 +83,17 @@ class ProcessPhenotype:
 							'110/20/03':'11/20/03',
 							'1/12003':'1/1/03',
 							'10//24/03':'10/24/03',
-							'long ago':'DNF'}
+							'long ago':'NA'}
 		for row in rows:
 			experiment_id, accession_id, replicate, reading = row
+			if reading in reading_error_dict:	#correct the typo
+				reading = reading_error_dict[reading]
 			if reading!='NA' and reading!='N':
 				if experiment_id not in experiment_id2accession_id2reading_ls:
 					experiment_id2accession_id2reading_ls[experiment_id] = {}
 				if accession_id not in experiment_id2accession_id2reading_ls[experiment_id]:
 					experiment_id2accession_id2reading_ls[experiment_id][accession_id] = []
 				try:
-					if reading in reading_error_dict:	#correct the typo
-						reading = reading_error_dict[reading]
 					if experiment_id==3 and reading[-2:]=='99':	#wrong year input
 						reading = reading[:-2]+'03'
 					if experiment_id==4 and reading[-2:]=='00':	#wrong year input
@@ -138,6 +144,8 @@ class ProcessPhenotype:
 	def output_experiment_id2accession_id2FT(self, experiment_id2accession_id2FT, experiment_id2data, output_fname):
 		"""
 		2008-02-20
+		2008-02-25
+			stdev and sample size become standalone columns
 		"""
 		sys.stderr.write("outputting experiment_id2accession_id2FT ...")
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
@@ -148,6 +156,8 @@ class ProcessPhenotype:
 		header = ['accession id']
 		for expt_id in expt_id_ls:
 			header.append('%s %s'%(expt_id, experiment_id2data[expt_id][0]))
+			header.append('%s %s (stdev)'%(expt_id, experiment_id2data[expt_id][0]))
+			header.append('%s %s (sample size)'%(expt_id, experiment_id2data[expt_id][0]))
 		writer.writerow(header)
 		matrix = []
 		for accession_id in accession_id_ls:
@@ -155,9 +165,9 @@ class ProcessPhenotype:
 			for expt_id in expt_id_ls:
 				if accession_id in experiment_id2accession_id2FT[expt_id]:
 					avg_FT, std_FT, sample_size = experiment_id2accession_id2FT[expt_id][accession_id]
-					data_row.append('%s,%s,%s'%(avg_FT, std_FT, sample_size))
+					data_row += [avg_FT, std_FT, sample_size]
 				else:
-					data_row.append('NA')
+					data_row += ['NA']*3
 			matrix.append(data_row)
 		for data_row in matrix:
 			writer.writerow(data_row)
