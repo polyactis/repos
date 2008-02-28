@@ -272,10 +272,15 @@ class GenomeBrowser:
 		self.dialog_db_connect.show_all()
 	
 	def on_button_filechooser_ok_clicked(self, widget, data=None):
+		"""
+		2008-02-14
+			set the window title by the input filename
+		"""
 		input_fname = self.filechooserdialog1.get_filename()
 		self.filechooserdialog1.hide()
 		if not self.mysql_conn or not self.mysql_curs or not self.postgres_conn or not self.postgres_curs:
 			self.db_connect()
+		self.app1.set_title("Genome Browser: %s"%input_fname)
 		self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
 		self.plot(self.ax, self.canvas_matplotlib, self.snp_pos_ls, self.pvalue_ls, self.chr_id2cumu_size, self.chr_id2size, self.chr_gap)
 	
