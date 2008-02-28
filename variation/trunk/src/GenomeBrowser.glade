@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.0 on Mon Feb  4 17:02:56 2008 -->
+<!--Generated with glade3 3.4.0 on Wed Feb 27 21:00:28 2008 -->
 <glade-interface>
   <requires lib="bonobo"/>
   <requires lib="gnome"/>
@@ -857,9 +857,9 @@
     <property name="program_name">Genome Browser</property>
     <property name="version">0.1</property>
     <property name="comments" translatable="yes">A browser for genome-wide scan studies.</property>
-    <property name="website">http://www-scf.usc.edu/~yuhuang/</property>
+    <property name="website">http://papaya.usc.edu/Members/yh/yus-genomebrowser-howto</property>
     <property name="license" translatable="yes">GPL</property>
-    <property name="authors">Yu Huang</property>
+    <property name="authors">Yu Huang http://www-scf.usc.edu/~yuhuang/</property>
     <property name="documenters"></property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox4">
