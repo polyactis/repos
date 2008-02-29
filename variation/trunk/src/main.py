@@ -6,13 +6,14 @@ Option:
 	-z ..., --hostname=...	the hostname, localhost(default)
 	-d ..., --dbname=...	the database name, stock20071008(default)
 	-k ..., --schema=...	which schema in the database, dbsnp(default)
-	-i ...,	input_fname
-	-o ...,	output_fname
+	-i ...,	input
+	-o ...,	output
 	-y ..., --type=...	which test case should be invoked.
 	-a ...,	argument 1
 	-e ...,	argument 2
 	-f ...,	argument 3
 	-g ...,	argument 4
+	-c,	commit db transaction
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -33,6 +34,7 @@ For -y (type):
 
 02-14-08 1: Kruskal_Wallis.py
 02-20-08 2: ProcessPhenotype.py
+02-28-08 3: Array2DB_250k.py
 """
 
 import sys, os, math
@@ -47,6 +49,7 @@ import getopt, numpy
 from variation.src.common import nt2number, number2nt
 from variation.src import Kruskal_Wallis
 from variation.src import ProcessPhenotype
+from variation.src import Array2DB_250k
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
@@ -55,13 +58,14 @@ if __name__ == '__main__':
 	
 	long_options_list = ["help", "type=", "debug", "report"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hi:o:y:a:e:f:g:br", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:i:o:y:a:e:f:g:cbr", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
 	
 	ClassDict = {1:Kruskal_Wallis.Kruskal_Wallis,
-				2:ProcessPhenotype.ProcessPhenotype}
+				2:ProcessPhenotype.ProcessPhenotype,
+				3:Array2DB_250k.Array2DB_250k}
 	
 	hostname = 'localhost'
 	dbname = 'stock20071008'
@@ -73,7 +77,9 @@ if __name__ == '__main__':
 	argument2 = None
 	argument3 = None
 	argument4 = None
+	argument5 = None
 	help = 0
+	commit = 0
 	debug = 0
 	report = 0
 	
@@ -97,6 +103,8 @@ if __name__ == '__main__':
 			debug = 1
 		elif opt in ("-r", "--report"):
 			report = 1
+		elif opt in ("-c",):
+			commit = 1
 		elif opt in ("-a",):
 			argument1 = arg
 		elif opt in ("-e",):
@@ -105,6 +113,8 @@ if __name__ == '__main__':
 			argument3 = arg
 		elif opt in ("-g",):
 			argument4 = arg
+		elif opt in ("-j",):
+			argument5 = arg
 	
 	if type!=None:
 		if help:
@@ -118,6 +128,11 @@ if __name__ == '__main__':
 			ins.run()
 		elif type==2:
 			ins = ClassDict[type](hostname, dbname, schema, output_fname, argument1, argument2, debug=debug, report=report)
+			ins.run()
+		elif type==3:
+			ins = ClassDict[type](hostname=hostname, dbname=dbname, schema=schema, input_dir=input_fname, array_data_table=argument1,\
+								probes_table=argument2, strain_info_table=argument3, array_info_table=argument4,\
+								commit=commit, debug=debug, report=report)
 			ins.run()
 	else:
 		print __doc__
