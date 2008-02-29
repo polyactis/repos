@@ -92,6 +92,8 @@ class Array2DB_250k:
 	
 	def get_filename2array_id(self, input_dir, filename2array_id_in_db):
 		"""
+		2008-02-29
+			new_array_id starts from 1 + maximum avaible array_id in db
 		2008-02-28
 		"""
 		sys.stderr.write("Getting filename2array_id ... ")
@@ -118,10 +120,15 @@ class Array2DB_250k:
 				warnings.warn("%s is neither directory nor file. Ignored.\n"%(pathname))
 		
 		filename2array_id = {}
+		if filename2array_id_in_db:	#there are arrays already existing in db.
+			new_array_id = max(filename2array_id_in_db.values())+1
+		else:
+			new_array_id = 1	#auto increment primary key in sql starts from 1. although mistake is already committed.
 		for pathname in filename_ls:
 			file_ext = os.path.splitext(pathname)[1].lower()	#the extension of a filename and lower case
 			if file_ext=='.cel' and pathname not in filename2array_id_in_db:	#make sure it's .cel file and not already in db
-				filename2array_id[pathname] = len(filename2array_id)
+				filename2array_id[pathname] = new_array_id
+				new_array_id += 1
 			else:
 				warnings.warn("%s is either not .cel or already in db. Ignored.\n"%(pathname))
 		sys.stderr.write("Done.\n")
