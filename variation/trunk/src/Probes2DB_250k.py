@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 """
-Usage: Probes2DB_250k.py [OPTIONS] -i input_fname
+Usage: Probes2DB_250k.py [OPTIONS] -i input_fname/array_size
 
 Option:
 	-z ..., --hostname=...	the hostname, localhost(default)
 	-d ..., --dbname=...	the database name, stock20071008(default)
 	-k ..., --schema=...	which schema in the database, dbsnp(default)IGNORE
-	-i ...,	input file, snp.RData outputted by write.table() in R
+	-i ...,	input fname, the R write.table() output of snp.RData
+	-j ...,	jnput_fname, the R write.table() output of atsnptile1.RData
+	-a ...,	array_size, 1612 (default)
 	-p ...,	probes table, 'probes_250k'(default)
 	-s ...,	snps table, specify if the input is derived from snp.RData
-	-n	both the probes snps tables are new. to be created(IGNORE)
 	-c	commit the database submission
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -18,17 +19,20 @@ Option:
 Examples:
 	Probes2DB_250k.py -i /tmp/snp -c
 	
-	Probes2DB_250k.py -i /tmp/snp -d stock_250k -c -p probes -s snps
-	
-	Probes2DB_250k.py -i /tmp/atsnptile1 -d stock_250k -c -p probes
+	#dump snp.RData, 250K SNPs and affiliated probes, atsnptile1, the tiling array probes
+	Probes2DB_250k.py -i /tmp/snp -j /tmp/atsnptile1 -d stock_250k -c -p probes -s snps
 
 Description:
-	1st usage (with snps_table specified, -s xxx): read the R's write.table() output of snp.RData
+	1st function (with snps_table specified, -s xxx): read the R's write.table() output of snp.RData
 	(250k SNPs, made by Xu Zhang of Justin Borevitz lab)
 	and dump them into probes and snps table.
 	
-	2nd usage (with snps_table unspecified, -s ''): dump the R's write.table() output of atsnptile1.RData
-	into table probes
+	2nd function (with snps_table unspecified, -s ''): dump the R's write.table() output of atsnptile1.RData
+	into table probes. 5682 ovaerlapping probes between 1st and 2nd.
+	
+	3rd function. Based on the array size (one dimension, assuming 
+	array is a square), it fills probes table with xypos combos that are not yet in the table.
+	This ensures all full coverage of the array. In this usage, -i specifies the array size.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -45,7 +49,7 @@ class Probes2DB_250k:
 	2007-12-10
 	"""
 	def __init__(self, hostname='localhost', dbname='stock', schema='dbsnp', \
-		input_fname='', probes_table='probes_250k', snps_table='', \
+		input_fname='', jnput_fname='', array_size=1612, probes_table='probes_250k', snps_table='',\
 		new_table=0, commit=0, debug=0, report=0):
 		"""
 		2007-12-10
@@ -54,6 +58,8 @@ class Probes2DB_250k:
 		self.dbname = dbname
 		self.schema = schema
 		self.input_fname = input_fname
+		self.jnput_fname = jnput_fname
+		self.array_size = int(array_size)
 		self.probes_table = probes_table
 		self.snps_table = snps_table
 		self.new_table = int(new_table)
@@ -86,12 +92,14 @@ class Probes2DB_250k:
 			allele2	varchar(2))"%snps_table)
 		sys.stderr.write("Done.\n")
 		
-	def get_snps_and_probes(self, input_fname):
+	def get_snps_and_probes(self, input_fname, xypos2probes_id):
 		"""
+		2008-02-29
+			add argument xypos2probes_id
 		2007-12-10
 			row[1:] => row[1:9] more specific
 		"""
-		sys.stderr.write("Getting snps and probes ...")
+		sys.stderr.write("Getting snps and probes from %s ..."%os.path.basename(input_fname))
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		snps_ls = []
 		probes_ls = []
@@ -99,6 +107,10 @@ class Probes2DB_250k:
 		snpid2allele_ls = {}
 		reader.next()	#toss out the 1st header row
 		snpid = 0
+		if xypos2probes_id:
+			current_max_probes_id = max(xypos2probes_id.values())
+		else:
+			current_max_probes_id = 0
 		for row in reader:
 			snpacc, seq, chr, position, allele, strand, xpos, ypos = row[1:9]	#row[0] is data frame row number. So write.table() of R outputs data row with one more column than its header.
 			chr = int(chr)
@@ -114,19 +126,38 @@ class Probes2DB_250k:
 			if snpid not in snpid2allele_ls:
 				snpid2allele_ls[snpid] = []
 			snpid2allele_ls[snpid].append(allele)	#each allele has two copies (antisense, sense)
-			probes_ls.append([snpid, seq, chr, position, allele, strand, xpos, ypos])
+			xypos = (xpos, ypos)
+			probes_id = xypos2probes_id.get(xypos)
+			if probes_id!=None:
+				sys.stderr.write("Error: %s already exists in db with probes_id=%s.\n"%(repr(xypos), probes_id))
+				sys.exit(2)
+			else:
+				current_max_probes_id += 1
+				probes_ls.append([current_max_probes_id, snpid, seq, chr, position, allele, strand, xpos, ypos])
+				xypos2probes_id[xypos] = current_max_probes_id
 		del reader
 		sys.stderr.write("Done.\n")
 		return snps_ls, probes_ls, snpid2allele_ls
 	
-	def read_atsnptile1(self, input_fname):
+	def read_atsnptile1(self, input_fname, xypos2probes_id):
 		"""
+		2008-02-29
+			add argument xypos2probes_id
+			return probes_ls_with_probes_id, probes_ls_without_probes_id
+		2008-02-28
+			expressedClones is a computational prediction and could be float. so leave it alone. (raw string inserted into sql sentence)
 		2008-02-25
 		"""
 		sys.stderr.write("Read in probes from %s..."%os.path.basename(input_fname))
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		reader.next()	#toss out the 1st header row
-		probes_ls = []
+		probes_ls_with_probes_id = []
+		probes_ls_without_probes_id = []
+		if xypos2probes_id:
+			current_max_probes_id = max(xypos2probes_id.values())
+		else:
+			current_max_probes_id = 0
+		no_of_overlapping_probes = 0
 		for row in reader:
 			xpos, ypos, chr, position, direction, seq, gene, RNA, tu, flank, expressedClones, totalClones,\
 			strand, multiTranscript, LerDel, LerCopy, LerSNPdelL, LerSNPdelR, LerSNPpos, promoter, utr5,\
@@ -135,10 +166,10 @@ class Probes2DB_250k:
 			position = int(position)
 			xpos = int(xpos)
 			ypos = int(ypos)
-			try:
-				expressedClones = int(expressedClones)
-			except:
-				expressedClones = int(round(float(expressedClones)))	#something like 8.001, 8.002, 0.001, 0.003 appear in it. deem it as typo.
+			#try:
+			#	expressedClones = int(expressedClones)
+			#except:
+			#	expressedClones = int(round(float(expressedClones)))	#something like 8.001, 8.002, 0.001, 0.003 appear in it. deem it as typo.
 			totalClones = int(totalClones)
 			vars_need_NULL_transform = [LerCopy, LerSNPdelL, LerSNPdelR, LerSNPpos]	#need to transform 'NA' to 'NULL' in order for db insertion
 			for i in range(len(vars_need_NULL_transform)):
@@ -147,12 +178,22 @@ class Probes2DB_250k:
 				else:
 					vars_need_NULL_transform[i] = int(vars_need_NULL_transform[i])
 			LerCopy, LerSNPdelL, LerSNPdelR, LerSNPpos = vars_need_NULL_transform
-			probes_ls.append([seq, chr, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
+			
+			xypos = (xpos, ypos)
+			probes_id = xypos2probes_id.get(xypos)
+			data_row = [seq, chr, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
 							expressedClones, totalClones, multiTranscript, LerDel, LerCopy, LerSNPdelL,\
-							LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda])
+							LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda]
+			if probes_id!=None:
+				probes_ls_with_probes_id.append([probes_id]+data_row)
+				no_of_overlapping_probes += 1
+			else:
+				current_max_probes_id += 1
+				probes_ls_without_probes_id.append([current_max_probes_id]+data_row)
+				xypos2probes_id[xypos] = current_max_probes_id
 		del reader
-		sys.stderr.write("Done.\n")
-		return probes_ls	
+		sys.stderr.write(" %s overlapping between genotyping and tiling probes. Done.\n"%(no_of_overlapping_probes))
+		return probes_ls_with_probes_id, probes_ls_without_probes_id
 	
 	def submit_snps_ls(self, curs, snps_ls, snpid2allele_ls, snps_table):
 		sys.stderr.write("Submitting snps_ls...")
@@ -167,30 +208,59 @@ class Probes2DB_250k:
 			snpid in probes table is renamed to snps_id
 		"""
 		sys.stderr.write("Submitting probes_ls ...")
-		for snpid, seq, chr, position, allele, strand, xpos, ypos in probes_ls:
-			curs.execute("insert into %s(snps_id, seq, chromosome, position, allele, strand, xpos, ypos) values (%s, '%s', %s, %s, '%s', '%s', %s, %s)"%(probes_table, snpid, seq, chr, position, allele, strand, xpos, ypos) )
+		for probes_id, snpid, seq, chr, position, allele, strand, xpos, ypos in probes_ls:
+			curs.execute("insert into %s(id, snps_id, seq, chromosome, position, allele, strand, xpos, ypos) values (%s, %s, '%s', %s, %s, '%s', '%s', %s, %s)"%\
+						(probes_table, probes_id, snpid, seq, chr, position, allele, strand, xpos, ypos) )
 		sys.stderr.write("Done.\n")
 	
-	def submit_atsnptile1(self, curs, probes_ls, probes_table):
+	def submit_atsnptile1(self, curs, probes_ls_with_probes_id, probes_ls_without_probes_id, probes_table):
 		"""
+		2008-02-29
+			differentiate between probes_ls_with_probes_id, probes_ls_without_probes_id
 		2008-02-25
 			submit atsnptile1
 		"""
 		sys.stderr.write("Submitting probes_ls of atsnptile1 ...")
-		for row in probes_ls:
-			seq, chr, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
+		for row in probes_ls_with_probes_id:	#update the entry in db
+			probes_id, seq, chr, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
 				expressedClones, totalClones, multiTranscript, LerDel, LerCopy, LerSNPdelL,\
 				LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda = row
-			curs.execute("insert into %s(seq, chromosome, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
+			curs.execute("update %s set direction='%s', gene='%s', RNA='%s', tu='%s', flank='%s',\
+					expressedClones=%s, totalClones=%s, multiTranscript='%s', LerDel='%s', LerCopy=%s, LerSNPdelL=%s,\
+					LerSNPdelR=%s, LerSNPpos=%s, promoter=%s, utr5=%s, utr3=%s, intron=%s, intergenic=%s, downstream=%s, cda=%s \
+					where id=%s"%\
+					(probes_table, direction, gene, RNA, tu, flank,\
+					expressedClones, totalClones, multiTranscript, LerDel, LerCopy, LerSNPdelL,\
+					LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda, probes_id) )
+		for row in probes_ls_without_probes_id:	#insert the entry
+			probes_id, seq, chr, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
 				expressedClones, totalClones, multiTranscript, LerDel, LerCopy, LerSNPdelL,\
-				LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda) values \
-				('%s', %s, %s, '%s', %s, %s, '%s', '%s', '%s', '%s', '%s',\
-				%s, %s, '%s', '%s', %s, %s, \
-				%s, %s, %s, %s, %s, %s, %s, %s, %s )"%\
-				(probes_table, seq, chr, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
-				expressedClones, totalClones, multiTranscript, LerDel, LerCopy, LerSNPdelL,\
-				LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda) )
+				LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda = row
+			curs.execute("insert into %s(id, seq, chromosome, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
+					expressedClones, totalClones, multiTranscript, LerDel, LerCopy, LerSNPdelL,\
+					LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda) values \
+					(%s, '%s', %s, %s, '%s', %s, %s, '%s', '%s', '%s', '%s', '%s',\
+					%s, %s, '%s', '%s', %s, %s, \
+					%s, %s, %s, %s, %s, %s, %s, %s, %s )"%\
+					(probes_table, probes_id, seq, chr, position, strand, xpos, ypos, direction, gene, RNA, tu, flank,\
+					expressedClones, totalClones, multiTranscript, LerDel, LerCopy, LerSNPdelL,\
+					LerSNPdelR, LerSNPpos, promoter, utr5, utr3, intron, intergenic, downstream, cda) )
 		sys.stderr.write("Done.\n")
+	
+	def fill_probes_table(self, curs, probes_table, xypos2probes_id, array_size):
+		"""
+		2008-02-29
+		"""
+		sys.stderr.write("Filling probes_table ... ")
+		count = 0
+		for i in range(array_size):
+			for j in range(array_size):
+				xypos = (i,j)
+				if xypos not in xypos2probes_id:
+					curs.execute("insert into %s(xpos, ypos) values (%s, %s)"%\
+								(probes_table, i, j) )
+					count += 1
+		sys.stderr.write("%s more probes added. Done.\n"%count)
 	
 	def run(self):
 		"""
@@ -200,25 +270,23 @@ class Probes2DB_250k:
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 		curs = conn.cursor()
-		if self.snps_table:
-			snps_ls, probes_ls, snpid2allele_ls = self.get_snps_and_probes(self.input_fname)
-		else:
-			probes_ls = self.read_atsnptile1(self.input_fname)
+		self.xypos2probes_id = {}
+		snps_ls, probes_ls, snpid2allele_ls = self.get_snps_and_probes(self.input_fname, self.xypos2probes_id)
+		probes_ls_with_probes_id, probes_ls_without_probes_id = self.read_atsnptile1(self.jnput_fname, self.xypos2probes_id)
 		if self.commit:
 			#if self.new_table:
 			#	self.create_probes_table(curs, self.probes_table)
 			#	self.create_snps_table(curs, self.snps_table)
-			if self.snps_table:
-				self.submit_snps_ls(curs, snps_ls, snpid2allele_ls, self.snps_table)
-				self.submit_probes_ls(curs, probes_ls, self.probes_table)
-			else:
-				self.submit_atsnptile1(curs, probes_ls, self.probes_table)
+			self.submit_snps_ls(curs, snps_ls, snpid2allele_ls, self.snps_table)
+			self.submit_probes_ls(curs, probes_ls, self.probes_table)
+			self.submit_atsnptile1(curs, probes_ls_with_probes_id, probes_ls_without_probes_id, self.probes_table)
+			self.fill_probes_table(curs, self.probes_table, self.xypos2probes_id, self.array_size)
 			curs.execute("commit")
 
 if __name__ == '__main__':
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:p:s:ncbrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:j:a:p:s:ncbrh", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
@@ -227,6 +295,8 @@ if __name__ == '__main__':
 	dbname = 'stock20071008'
 	schema = 'dbsnp'
 	input_fname = ''
+	jnput_fname = ''
+	array_size = 1612
 	probes_table = 'probes_250k'
 	snps_table = ''
 	new_table = 0
@@ -246,6 +316,10 @@ if __name__ == '__main__':
 			schema = arg
 		elif opt in ("-i",):
 			input_fname = arg
+		elif opt in ("-j",):
+			jnput_fname = arg
+		elif opt in ("-a",):
+			array_size = int(arg)
 		elif opt in ("-p",):
 			probes_table = arg
 		elif opt in ("-s",):
@@ -259,8 +333,8 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 	
-	if hostname and dbname and schema and input_fname and probes_table:
-		instance = Probes2DB_250k(hostname, dbname, schema, input_fname,\
+	if hostname and dbname and schema and input_fname and jnput_fname and array_size and probes_table:
+		instance = Probes2DB_250k(hostname, dbname, schema, input_fname, jnput_fname, array_size,\
 			probes_table, snps_table, new_table, commit, debug, report)
 		instance.run()
 	else:
