@@ -302,7 +302,7 @@ create table probes(
 	RNA varchar(50),
 	tu varchar(50),
 	flank varchar(50),
-	expressedClones integer,
+	expressedClones float,
 	totalClones integer,
 	multiTranscript varchar(50),
 	LerDel varchar(50),
@@ -350,6 +350,7 @@ create table strain_info(
 	id integer auto_increment primary key,
 	name varchar(40),
 	description varchar(2000),
+	ecotype_id integer,
 	maternal_ecotype_id integer,
 	paternal_ecotype_id integer,
 	created_by varchar(200),
@@ -383,9 +384,13 @@ DELIMITER ;
 
 create table array_info(
 	id integer auto_increment primary key,
+	name varchar(40),
 	filename varchar(1000),
 	description varchar(2000),
-	strain_id integer not null,
+	ecotype_id integer,
+	maternal_ecotype_id integer,
+	paternal_ecotype_id integer,
+	strain_id integer,
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
@@ -424,7 +429,10 @@ create table array_data(
 	-- foreign key (array_id) references array_info(id) on delete cascade on update cascade,
 	probes_id integer,
 	-- foreign key (probes_id) references probes(id) on delete cascade on update cascade,
-	intensity integer
+	intensity float,
+	--when probes_id is null, xpos and ypos will be used.
+	xpos integer,
+	ypos integer
 	);
 
 create table call_info(
@@ -516,4 +524,15 @@ create table results(
 	method_id integer,
 	foreign key (method_id) references method(id) on delete cascade on update cascade,
 	score float
+	);
+
+--store the averaged phenotype
+create table phenotype_avg(
+	id integer auto_increment primary key,
+	ecotype_id integer not null,
+	value float,
+	stdev float,
+	sample_size integer,
+	method_id integer not null,
+	foreign key (method_id) references method(id) on delete cascade on update cascade
 	);
