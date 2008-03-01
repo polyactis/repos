@@ -43,7 +43,7 @@ class Array2DB_250k:
 		"""
 		argument_default_dict = {('hostname',1, ):'localhost',\
 								('dbname',1, ):'stock_250k',\
-								('schema',1, ):'',\
+								('schema',0, ):'',\
 								('input_dir',1, ):None,\
 								('array_data_table',1, ):'array_data',\
 								('probes_table',1, ):'probes',\
@@ -145,26 +145,34 @@ class Array2DB_250k:
 	
 	def submit_one_array(self, curs, array_data_table, array_id, intensity_array, array_data_with_xypos):
 		"""
+		2008-02-29
+			xpos and ypos are no longer inserted into db if probes_id is avaible.
 		2008-02-28
 			intensity_array is 2D array although the 2nd dimension is only of size 1.
 		"""
 		sys.stderr.write("Submitting one array data ... ")
+		no_of_points_without_probes_id = 0
+		count = 0
 		for i in range(len(intensity_array)):
 			array_data_with_xypos_row = array_data_with_xypos[i]
 			if len(array_data_with_xypos_row)==2:
 				xpos, ypos = array_data_with_xypos_row
 				curs.execute("insert into %s(array_id, intensity, xpos, ypos) values (%s, %s, %s, %s)"%\
 							(array_data_table, array_id, intensity_array[i][0], xpos, ypos))
-			elif len(array_data_with_xypos_row)==3:
-				probes_id, xpos, ypos = array_data_with_xypos_row
-				curs.execute("insert into %s(array_id, probes_id, intensity, xpos, ypos) values (%s, %s, %s, %s, %s)"%\
-							(array_data_table, array_id, probes_id, intensity_array[i][0], xpos, ypos))
+				no_of_points_without_probes_id += 1
+			elif len(array_data_with_xypos_row)==1:
+				probes_id = array_data_with_xypos_row[0]
+				curs.execute("insert into %s(array_id, probes_id, intensity) values (%s, %s, %s)"%\
+							(array_data_table, array_id, probes_id, intensity_array[i][0]))
 			else:
 				warnings.warn("%s is neither 2 nor 3 columns. Ignored."%(array_data_with_xypos_row))
-		sys.stderr.write("Done.\n")
+			count += 1
+		sys.stderr.write("%s/%s have no probes_id. Done.\n"%(no_of_points_without_probes_id, count))
 	
 	def submit_all_array_data(self, filename2array_id, xypos2probes_id, curs, array_data_table):
 		"""
+		2008-02-29
+			xpos and ypos are no longer inserted into db if probes_id is avaible.
 		2008-02-28
 		"""
 		sys.stderr.write("Submitting array data ... \n")
@@ -192,7 +200,7 @@ class Array2DB_250k:
 				xypos = (xpos, ypos)
 				probes_id = xypos2probes_id.get(xypos)
 				if probes_id!=None:
-					array_data_with_xypos.append([probes_id, xpos, ypos])
+					array_data_with_xypos.append([probes_id])
 				else:
 					array_data_with_xypos.append([xpos, ypos])
 			self.submit_one_array(curs, array_data_table, array_id, intensity_array, array_data_with_xypos)
