@@ -77,8 +77,10 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 		sys.stderr.write("Done.\n")
 		return snpid2col_index1, snpid2col_index2, col_id12col_id2
 	
-	def get_row_matching_dstruc(self, strain_acc_list1, strain_acc_list2, ecotype_table='ecotype', batch_ecotype_table='batch_ecotype'):
+	def get_row_matching_dstruc(self, curs, strain_acc_list1, strain_acc_list2, ecotype_table='ecotype', batch_ecotype_table='batch_ecotype'):
 		"""
+		2008-02-07
+			add curs as argument
 		2007-12-20
 		2008-01-18
 			Tina changed the naming format in her new output: /Network/Data/250k/calls/Tina_011708/250K_PERL_2010.csv
@@ -268,7 +270,7 @@ class CmpTina2010VsMy2010In250kSNPs(QualityControl):
 		self.header2, self.strain_acc_list2, self.category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
 	 	
 		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.header1, self.header2)
-		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.strain_acc_list1, self.strain_acc_list2)
+		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.curs, self.strain_acc_list1, self.strain_acc_list2)
 	
 	def get_row_id2info(self, row_id_ls, curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype'):
 		"""
