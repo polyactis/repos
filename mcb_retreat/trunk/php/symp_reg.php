@@ -72,9 +72,6 @@ if ($_POST['_submit_check'])
         </tr>
       
       <tr>
-        <td height="30" colspan="5" align="center" valign="middle"><p class="style8">Abstract</p></td>
-        </tr>
-      <tr>
         <td height="34">&nbsp;</td>
         <td colspan="2" align="left"><strong>Name:</strong></td>
         <td align="left"> <input type="text" name="name" /></td>
@@ -87,7 +84,7 @@ if ($_POST['_submit_check'])
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td height="63" colspan="5"><div class="style7" style="margin:10px 40px 10px 60px">All presentations must be approved by your advisor. We have a limited number of presentation slots but ample space for posters. We will confirm with you by e-mail.</div></td>
+        <td height="63" colspan="5"><div class="style7" style="margin:10px 40px 10px 60px">All presentations must be approved by your advisor. We have a limited number of presentation slots but ample space for posters. We especially encourage graduate students who have graduated recently or are planning to graduate soon to give a talk. If you plan to only attend, please select None below. We will confirm with you by e-mail. </div></td>
         </tr>
      
 	  <tr>
