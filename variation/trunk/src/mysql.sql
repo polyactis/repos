@@ -260,8 +260,8 @@ create table snps(
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP default 0
-	);
+	date_updated TIMESTAMP
+	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
@@ -320,8 +320,8 @@ create table probes(
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP default 0
-	);
+	date_updated TIMESTAMP
+	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
@@ -356,8 +356,8 @@ create table strain_info(
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP default 0
-	);
+	date_updated TIMESTAMP
+	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
@@ -394,7 +394,7 @@ create table array_info(
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP default 0,
+	date_updated TIMESTAMP,
 	CONSTRAINT array_info_strain_id_fk_constraint foreign key (strain_id) references strain_info(id) on delete cascade on update cascade
 	)engine=INNODB;
 
@@ -433,7 +433,7 @@ create table array_data(
 	--when probes_id is null, xpos and ypos will be used.
 	xpos integer,
 	ypos integer
-	);
+	)engine=INNODB;
 
 create table call_info(
 	id integer auto_increment primary key,
@@ -443,9 +443,11 @@ create table call_info(
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP default 0,
-	foreign key (array_id) references array_info(id) on delete cascade on update cascade
-	);
+	date_updated TIMESTAMP,
+	foreign key (array_id) references array_info(id) on delete cascade on update cascade,
+	method_id integer,
+	foreign key (method_id) references method(id) on delete cascade on update cascade
+	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
@@ -477,7 +479,7 @@ create table call_data(
 	snps_id integer,
 	-- foreign key (snps_id) references snps(id) on delete cascade on update cascade,
 	snpcall varchar(2)
-	);
+	)engine=INNODB;
 
 --store the method
 create table method(
@@ -489,8 +491,8 @@ create table method(
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP default 0
-	);
+	date_updated TIMESTAMP
+	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
@@ -524,9 +526,18 @@ create table results(
 	method_id integer,
 	foreign key (method_id) references method(id) on delete cascade on update cascade,
 	score float
-	);
+	)engine=INNODB;
 
---store the averaged phenotype
+--store the phenotype
+create table phenotype(
+	id integer auto_increment primary key,
+	ecotype_id integer not null,
+	value float,
+	replicate integer,
+	method_id integer not null,
+	foreign key (method_id) references method(id) on delete cascade on update cascade
+	)engine=INNODB;
+
 create table phenotype_avg(
 	id integer auto_increment primary key,
 	ecotype_id integer not null,
@@ -535,4 +546,4 @@ create table phenotype_avg(
 	sample_size integer,
 	method_id integer not null,
 	foreign key (method_id) references method(id) on delete cascade on update cascade
-	);
+	)engine=INNODB;
