@@ -13,6 +13,7 @@ Option:
 	-e ...,	argument 2
 	-f ...,	argument 3
 	-g ...,	argument 4
+	-j ...,	argument 5
 	-c,	commit db transaction
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -35,6 +36,7 @@ For -y (type):
 02-14-08 1: Kruskal_Wallis.py
 02-20-08 2: ProcessPhenotype.py
 02-28-08 3: Array2DB_250k.py
+03-11-08 4: LinkArrayId2EcotypeId.py
 """
 
 import sys, os, math
@@ -50,6 +52,7 @@ from variation.src.common import nt2number, number2nt
 from variation.src import Kruskal_Wallis
 from variation.src import ProcessPhenotype
 from variation.src import Array2DB_250k
+from variation.src import LinkArrayId2EcotypeId
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
@@ -58,14 +61,15 @@ if __name__ == '__main__':
 	
 	long_options_list = ["help", "type=", "debug", "report"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:i:o:y:a:e:f:g:cbr", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:i:o:y:a:e:f:g:j:cbr", long_options_list)
 	except:
 		print __doc__
 		sys.exit(2)
 	
 	ClassDict = {1:Kruskal_Wallis.Kruskal_Wallis,
 				2:ProcessPhenotype.ProcessPhenotype,
-				3:Array2DB_250k.Array2DB_250k}
+				3:Array2DB_250k.Array2DB_250k,
+				4:LinkArrayId2EcotypeId.LinkArrayId2EcotypeId}
 	
 	hostname = 'localhost'
 	dbname = 'stock20071008'
@@ -127,11 +131,18 @@ if __name__ == '__main__':
 			ins = ClassDict[type](input_fname, argument1, output_fname, argument2, debug=debug, report=report)
 			ins.run()
 		elif type==2:
-			ins = ClassDict[type](hostname, dbname, schema, output_fname, argument1, argument2, debug=debug, report=report)
+			ins = ClassDict[type](hostname=hostname, dbname=dbname, schema=schema, output_fname=output_fname, raw_phenotype_table=argument1, \
+								experiment_table=argument2, phenotype_table=argument3, phenotype_avg_table=argument4,\
+								method_table=argument5, commit=commit, debug=debug, report=report)
 			ins.run()
 		elif type==3:
 			ins = ClassDict[type](hostname=hostname, dbname=dbname, schema=schema, input_dir=input_fname, array_data_table=argument1,\
 								probes_table=argument2, strain_info_table=argument3, array_info_table=argument4,\
+								commit=commit, debug=debug, report=report)
+			ins.run()
+		elif type==4:
+			ins = ClassDict[type](hostname=hostname, dbname=dbname, schema=schema, array_info_table=input_fname, ecotype_table=argument1,\
+								calls_comment_table=argument2,\
 								commit=commit, debug=debug, report=report)
 			ins.run()
 	else:
