@@ -2478,35 +2478,24 @@ def DrawTwoRowAndSharedBlock(data_matrix, strain_index_pair, strain_acc_list, sn
 	pylab.yticks([2,1,0], ytick_label_ls)	#it's reversed.
 	pylab.show()
 
-def get_chr_id2cumu_size(chr_id2size):
-	"""
-	2007-10-16
-	"""
-	chr_id_ls = chr_id2size.keys()
-	chr_id_ls.sort()
-	chr_id_ls = [0] + chr_id_ls	#chromosome 0 is a place holder. 
-	chr_id2cumu_size = {0:0}	#chr_id_ls might not be continuous integers. so dictionary is better
-	for i in range(1,len(chr_id_ls)):
-		chr_id = chr_id_ls[i]
-		prev_chr_id = chr_id_ls[i-1]
-		chr_id2cumu_size[chr_id] = chr_id2cumu_size[prev_chr_id] + chr_id2size[chr_id]
-	return chr_id2cumu_size
 
 def DrawSharedBlock_ls(shared_block_ls, snp_index2pos, chr_id2cumu_size):
 	"""
+	2008-02-01
+		add comments
 	2007-10-16
 	"""
 	import pylab
 	pylab.clf()
-	#draw the chromosome separator
+	#draw the chromosome separator as green circles
 	for chr_id, cumu_size in chr_id2cumu_size.iteritems():
 		pylab.plot([cumu_size], [1], 'go')
-	#draw the snp first as red circles
+	#draw the snp first as red sticks
 	for snp_index,pos in snp_index2pos.iteritems():
 		chr_id, chr_pos = pos
 		cumu_chr_pos = chr_id2cumu_size[chr_id-1]+chr_pos
 		pylab.plot([cumu_chr_pos], [1], 'r|')
-	#draw the blocks as lines crossing those red circles.
+	#draw the blocks as lines crossing those red sticks
 	for shared_block in shared_block_ls:
 		if len(shared_block)>1:
 			starting_snp_index = shared_block[0]
@@ -2545,9 +2534,10 @@ snp_index2pos = get_snp_index2pos(snp_acc_list, curs, snps_table='stock20071008.
 all_pairs_with_max_shared_block_length_ls = get_all_pairs_with_max_shared_block_length_ls(strain_acc_list, snp_index2pos, data_matrix)
 
 #2007-10-16 test to draw the diagrams
-from common import get_chr_id2size
+from common import get_chr_id2size, get_chr_id2cumu_size
 chr_id2size = get_chr_id2size(curs)
-chr_id2cumu_size = get_chr_id2cumu_size(chr_id2size)
+data_ls = get_chr_id2cumu_size(chr_id2size)
+chr_id2cumu_size, chr_gap = data_ls[:2]
 shared_block_ls = get_shared_block_ls(data_matrix[1], data_matrix[2], snp_index2pos)
 DrawSharedBlock_ls(shared_block_ls, snp_index2pos, chr_id2cumu_size)
 
@@ -2584,12 +2574,12 @@ def simulatePvalue(curs, snps_table, output_fname):
 	"""
 	import csv
 	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-	curs.execute("select chromosome, position from %s where chromosome=1"%snps_table)
+	curs.execute("select chromosome, position from %s order by chromosome, position"%snps_table)
 	rows = curs.fetchall()
 	import random
 	for row in rows:
 		chromosome, position = row
-		writer.writerow([chromosome, position, random.uniform(0,10)])
+		writer.writerow([chromosome, position, random.expovariate(1)])
 	del writer
 
 """
@@ -2598,6 +2588,23 @@ output_fname = '/tmp/simulate.pvalue'
 simulatePvalue(curs, snps_table, output_fname)
 """
 
+def minusLogPvalue(input_fname, output_fname):
+	"""
+	2008-02-14
+		take log of pvalue in input_fname
+	"""
+	import csv
+	reader = csv.reader(open(input_fname), delimiter='\t')
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	import math
+	for row in reader:
+		chromosome, position, pvalue = row
+		pvalue = float(pvalue)
+		if pvalue>0:
+			pvalue = -math.log(float(pvalue))
+			writer.writerow([chromosome, position, pvalue])
+	del writer, reader
+		
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
