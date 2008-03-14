@@ -1,0 +1,3168 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 12">
+<meta name=Originator content="Microsoft Word 12">
+<link rel=Edit-Time-Data href="writing_chp_files_files/editdata.mso">
+<title>Writing Command Console CHP Files</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Luis Jevons</o:Author>
+  <o:LastAuthor>Luis Jevons</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>4</o:TotalTime>
+  <o:Created>2007-09-19T20:49:00Z</o:Created>
+  <o:LastSaved>2007-09-19T20:53:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>1846</o:Words>
+  <o:Characters>10526</o:Characters>
+  <o:Lines>87</o:Lines>
+  <o:Paragraphs>24</o:Paragraphs>
+  <o:CharactersWithSpaces>12348</o:CharactersWithSpaces>
+  <o:Version>12.00</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<link rel=themeData href="writing_chp_files_files/themedata.thmx">
+<link rel=colorSchemeMapping
+href="writing_chp_files_files/colorschememapping.xml">
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:TrackMoves>false</w:TrackMoves>
+  <w:TrackFormatting/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:DoNotPromoteQF/>
+  <w:LidThemeOther>EN-US</w:LidThemeOther>
+  <w:LidThemeAsian>X-NONE</w:LidThemeAsian>
+  <w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+   <w:SplitPgBreakAndParaMark/>
+   <w:DontVertAlignCellWithSp/>
+   <w:DontBreakConstrainedForcedTables/>
+   <w:DontVertAlignInTxbx/>
+   <w:Word11KerningPairs/>
+   <w:CachedColBalance/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+  <m:mathPr>
+   <m:mathFont m:val="Cambria Math"/>
+   <m:brkBin m:val="before"/>
+   <m:brkBinSub m:val="--"/>
+   <m:smallFrac m:val="off"/>
+   <m:dispDef/>
+   <m:lMargin m:val="0"/>
+   <m:rMargin m:val="0"/>
+   <m:defJc m:val="centerGroup"/>
+   <m:wrapIndent m:val="1440"/>
+   <m:intLim m:val="subSup"/>
+   <m:naryLim m:val="undOvr"/>
+  </m:mathPr></w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" DefUnhideWhenUsed="true"
+  DefSemiHidden="true" DefQFormat="false" DefPriority="99"
+  LatentStyleCount="267">
+  <w:LsdException Locked="false" Priority="0" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Normal"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="heading 1"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 2"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 3"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 4"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 5"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 6"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 7"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 8"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 9"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 1"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 2"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 3"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 4"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 5"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 6"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 7"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 8"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 9"/>
+  <w:LsdException Locked="false" Priority="35" QFormat="true" Name="caption"/>
+  <w:LsdException Locked="false" Priority="10" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Title"/>
+  <w:LsdException Locked="false" Priority="1" Name="Default Paragraph Font"/>
+  <w:LsdException Locked="false" Priority="11" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtitle"/>
+  <w:LsdException Locked="false" Priority="22" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Strong"/>
+  <w:LsdException Locked="false" Priority="20" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Emphasis"/>
+  <w:LsdException Locked="false" Priority="59" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Table Grid"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Placeholder Text"/>
+  <w:LsdException Locked="false" Priority="1" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="No Spacing"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 1"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 1"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Revision"/>
+  <w:LsdException Locked="false" Priority="34" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="List Paragraph"/>
+  <w:LsdException Locked="false" Priority="29" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Quote"/>
+  <w:LsdException Locked="false" Priority="30" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Quote"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 1"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 1"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 2"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 2"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 2"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 3"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 3"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 3"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 4"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 4"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 4"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 5"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 5"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 5"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 6"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 6"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 6"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="19" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Emphasis"/>
+  <w:LsdException Locked="false" Priority="21" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Emphasis"/>
+  <w:LsdException Locked="false" Priority="31" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Reference"/>
+  <w:LsdException Locked="false" Priority="32" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Reference"/>
+  <w:LsdException Locked="false" Priority="33" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Book Title"/>
+  <w:LsdException Locked="false" Priority="37" Name="Bibliography"/>
+  <w:LsdException Locked="false" Priority="39" QFormat="true" Name="TOC Heading"/>
+ </w:LatentStyles>
+</xml><![endif]-->
+<link rel=Stylesheet type="text/css" media=all
+href="file_formats/files_files/style.css">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Courier;
+	panose-1:2 7 4 9 2 2 5 2 4 4;
+	mso-font-charset:0;
+	mso-generic-font-family:modern;
+	mso-font-format:other;
+	mso-font-pitch:fixed;
+	mso-font-signature:3 0 0 0 1 0;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;
+	mso-font-charset:1;
+	mso-generic-font-family:roman;
+	mso-font-format:other;
+	mso-font-pitch:variable;
+	mso-font-signature:0 0 0 0 0 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:-520082689 -1073717157 41 0 66047 0;}
+@font-face
+	{font-family:"Univers 45 Light";
+	panose-1:0 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-format:other;
+	mso-font-pitch:variable;
+	mso-font-signature:3 0 0 0 1 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+a:link, span.MsoHyperlink
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	color:#003366;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	color:#003366;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-link:"Balloon Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.black10, li.black10, div.black10
+	{mso-style-name:black10;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.black11, li.black11, div.black11
+	{mso-style-name:black11;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.black12, li.black12, div.black12
+	{mso-style-name:black12;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.blue11, li.blue11, div.blue11
+	{mso-style-name:blue11;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.blue11s, li.blue11s, div.blue11s
+	{mso-style-name:blue11s;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.blue12, li.blue12, div.blue12
+	{mso-style-name:blue12;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:11.25pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.blue13, li.blue13, div.blue13
+	{mso-style-name:blue13;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:11.25pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.blue14, li.blue14, div.blue14
+	{mso-style-name:blue14;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:12.0pt;
+	mso-pagination:widow-orphan;
+	font-size:10.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluecontent, li.bluecontent, div.bluecontent
+	{mso-style-name:bluecontent;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluecontent12, li.bluecontent12, div.bluecontent12
+	{mso-style-name:bluecontent12;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluecontent12bold, li.bluecontent12bold, div.bluecontent12bold
+	{mso-style-name:bluecontent12bold;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.cedesign10, li.cedesign10, div.cedesign10
+	{mso-style-name:cedesign10;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.cedesigngreen10, li.cedesigngreen10, div.cedesigngreen10
+	{mso-style-name:cedesigngreen10;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.graycontent, li.graycontent, div.graycontent
+	{mso-style-name:graycontent;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navblue, li.navblue, div.navblue
+	{mso-style-name:navblue;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.navstockcontent, li.navstockcontent, div.navstockcontent
+	{mso-style-name:navstockcontent;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.navwhite, li.navwhite, div.navwhite
+	{mso-style-name:navwhite;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.red, li.red, div.red
+	{mso-style-name:red;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.red12, li.red12, div.red12
+	{mso-style-name:red12;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.searchblack, li.searchblack, div.searchblack
+	{mso-style-name:searchblack;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.searchred, li.searchred, div.searchred
+	{mso-style-name:searchred;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.underblue11s, li.underblue11s, div.underblue11s
+	{mso-style-name:underblue11s;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.white12, li.white12, div.white12
+	{mso-style-name:white12;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluenote, li.bluenote, div.bluenote
+	{mso-style-name:bluenote;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.buttonheader, li.buttonheader, div.buttonheader
+	{mso-style-name:buttonheader;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.cedesign11, li.cedesign11, div.cedesign11
+	{mso-style-name:cedesign11;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.cedesigngreen11, li.cedesigngreen11, div.cedesigngreen11
+	{mso-style-name:cedesigngreen11;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.content, li.content, div.content
+	{mso-style-name:content;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.contentlink, li.contentlink, div.contentlink
+	{mso-style-name:contentlink;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.divider12, li.divider12, div.divider12
+	{mso-style-name:divider12;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.grayresults, li.grayresults, div.grayresults
+	{mso-style-name:grayresults;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.header2, li.header2, div.header2
+	{mso-style-name:header2;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header3, li.header3, div.header3
+	{mso-style-name:header3;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header4, li.header4, div.header4
+	{mso-style-name:header4;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header4link, li.header4link, div.header4link
+	{mso-style-name:header4link;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header5, li.header5, div.header5
+	{mso-style-name:header5;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.homeblue, li.homeblue, div.homeblue
+	{mso-style-name:homeblue;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:7.5pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.homecontent, li.homecontent, div.homecontent
+	{mso-style-name:homecontent;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.homeheader, li.homeheader, div.homeheader
+	{mso-style-name:homeheader;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.pageheader, li.pageheader, div.pageheader
+	{mso-style-name:pageheader;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:14.25pt;
+	mso-pagination:widow-orphan;
+	font-size:14.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-bidi-font-family:"Times New Roman";
+	font-weight:bold;}
+p.homered, li.homered, div.homered
+	{mso-style-name:homered;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.homeselect, li.homeselect, div.homeselect
+	{mso-style-name:homeselect;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:7.5pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.intro, li.intro, div.intro
+	{mso-style-name:intro;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.introlink, li.introlink, div.introlink
+	{mso-style-name:introlink;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.leftnav, li.leftnav, div.leftnav
+	{mso-style-name:leftnav;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.leftnav2, li.leftnav2, div.leftnav2
+	{mso-style-name:leftnav2;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.leftnav2select, li.leftnav2select, div.leftnav2select
+	{mso-style-name:leftnav2select;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.leftnavheader, li.leftnavheader, div.leftnavheader
+	{mso-style-name:leftnavheader;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.leftnavselect, li.leftnavselect, div.leftnavselect
+	{mso-style-name:leftnavselect;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.libraryimage, li.libraryimage, div.libraryimage
+	{mso-style-name:libraryimage;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.link1, li.link1, div.link1
+	{mso-style-name:link1;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.link2, li.link2, div.link2
+	{mso-style-name:link2;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.link3, li.link3, div.link3
+	{mso-style-name:link3;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navblue2, li.navblue2, div.navblue2
+	{mso-style-name:navblue2;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navbluestockcontent, li.navbluestockcontent, div.navbluestockcontent
+	{mso-style-name:navbluestockcontent;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navboldstockcontent, li.navboldstockcontent, div.navboldstockcontent
+	{mso-style-name:navboldstockcontent;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.results, li.results, div.results
+	{mso-style-name:results;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.resultslink, li.resultslink, div.resultslink
+	{mso-style-name:resultslink;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.search, li.search, div.search
+	{mso-style-name:search;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.searchfield, li.searchfield, div.searchfield
+	{mso-style-name:searchfield;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-bidi-font-family:"Times New Roman";}
+p.sitemapsublink, li.sitemapsublink, div.sitemapsublink
+	{mso-style-name:sitemapsublink;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.whiteheader, li.whiteheader, div.whiteheader
+	{mso-style-name:whiteheader;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.descriptor, li.descriptor, div.descriptor
+	{mso-style-name:descriptor;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.rightnavheader, li.rightnavheader, div.rightnavheader
+	{mso-style-name:rightnavheader;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.tablecontent, li.tablecontent, div.tablecontent
+	{mso-style-name:tablecontent;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.tablelink, li.tablelink, div.tablelink
+	{mso-style-name:tablelink;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.alert, li.alert, div.alert
+	{mso-style-name:alert;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.seq, li.seq, div.seq
+	{mso-style-name:seq;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-bidi-font-family:"Times New Roman";}
+span.header21
+	{mso-style-name:header21;
+	mso-style-unhide:no;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Arial","sans-serif";
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	color:black;
+	mso-text-animation:none;
+	font-weight:bold;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.header41
+	{mso-style-name:header41;
+	mso-style-unhide:no;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Arial","sans-serif";
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	color:#003366;
+	mso-text-animation:none;
+	font-weight:bold;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.BalloonTextChar
+	{mso-style-name:"Balloon Text Char";
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:"Balloon Text";
+	mso-ansi-font-size:8.0pt;
+	mso-bidi-font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";
+	mso-ascii-font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-hansi-font-family:Tahoma;
+	mso-bidi-font-family:Tahoma;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	mso-default-props:yes;
+	font-size:10.0pt;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:504057271;
+	mso-list-template-ids:1324258608;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:1201818816;
+	mso-list-template-ids:868809208;}
+@list l1:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l2
+	{mso-list-id:1538935132;
+	mso-list-template-ids:243702572;}
+@list l2:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l3
+	{mso-list-id:1862160075;
+	mso-list-template-ids:-239939366;}
+@list l3:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:right;
+	text-indent:-.25in;}
+@list l1:level2 lfo3
+	{mso-level-start-at:0;
+	mso-level-number-format:alpha-lower;
+	mso-level-numbering:continue;
+	mso-level-text:"%2\.";
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:0in;
+	text-indent:0in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman","serif";}
+</style>
+<![endif]-->
+<meta
+content="Affymetrix, GeneChip, GeneChip Array, Netaffx, NetAffx Analysis Center, Affymetrics, Affimetrix, Affimetrics, "
+name=keywords>
+<meta
+content="Affymetrix is dedicated to developing state-of-the-art technology for acquiring, analyzing, and managing complex genetic information for use in biomedical research. Affymetrix sells GeneChip® brand arrays."
+name=description>
+<link href="../../../favicon.ico" rel=icon>
+
+<script language="JavaScript">
+</script>
+
+<script language="JavaScript"  src="file_formats/files_files/main.js" type="text/javascript">
+</script>
+<!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white lang=EN-US link="#003366" vlink="#003366" style='tab-interval:
+.5in' onresize="fixIt()" alink="#003366" leftmargin=0 topmargin=0
+onunload="window.focus()" marginheight=0 marginwidth=0>
+
+<div class=Section1>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+ style='mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+display:none;mso-hide:all'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=601
+ style='width:450.75pt;mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:
+ 0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+  <td valign=top style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+  mso-no-proof:yes'><img width=128 height=54 id="_x0000_i1046"
+  src="file_formats/files_files/affymetrix_logo.gif" alt=Affymetrix></span><span
+  style='mso-fareast-font-family:"Times New Roman"'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p style='mso-line-height-alt:14.25pt'><b><span style='font-size:14.5pt;
+  font-family:"Univers 45 Light","sans-serif";color:black;text-transform:uppercase'>AFFYMETRIX
+  DEVELOPER NETWORK<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+display:none;mso-hide:all'><o:p>&nbsp;</o:p></span></p>
+
+</NOINDEX>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=772
+ style='width:579.0pt;mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:
+ 0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes;
+  height:1.5pt'>
+  <td width=772 valign=top style='width:579.0pt;background:#336699;padding:
+  0in 0in 0in 0in;height:1.5pt'>
+  <p class=MsoNormal style='mso-line-height-alt:1.5pt'><span style='mso-fareast-font-family:
+  "Times New Roman";mso-no-proof:yes'><img width=1 height=3 id="_x0000_i1045"
+  src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+  "Times New Roman"'><o:p></o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+display:none;mso-hide:all'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=409
+ style='width:306.75pt;mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:
+ 3.75pt 3.75pt 3.75pt 3.75pt'
+ background="file_formats/files_files/network_background.gif">
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+  <td valign=top style='padding:3.75pt 3.75pt 3.75pt 3.75pt'>
+  <table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+   style='mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in'
+   background="file_formats/files_files/spacer.gif">
+   <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+    <td width=11 valign=top style='width:8.25pt;padding:0in 0in 0in 0in'>
+    <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+    mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1044"
+    src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+    "Times New Roman"'><o:p></o:p></span></p>
+    </td>
+    <td width="100%" valign=top style='width:100.0%;padding:0in 0in 0in 0in'>
+    <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+    mso-no-proof:yes'><img width=1 height=41 id="_x0000_i1043"
+    src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+    "Times New Roman"'><o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+    <td width=11 valign=top style='width:8.25pt;padding:0in 0in 0in 0in'>
+    <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+    mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1042"
+    src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+    "Times New Roman"'><o:p></o:p></span></p>
+    </td>
+    <td valign=top style='padding:0in 0in 0in 0in'>
+    <p style='line-height:10.5pt'><span class=header21><span style='font-size:
+    9.0pt'>Writing Command Console CHP Files</span></span><span
+    style='font-size:9.0pt;font-family:"Arial","sans-serif";color:black'><o:p></o:p></span></p>
+    </td>
+   </tr>
+  </table>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+ style='mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-row-margin-right:31.2pt'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>&nbsp;<o:p></o:p></span></p>
+  </td>
+  <td style='mso-cell-special:placeholder;border:none;padding:0in 0in 0in 0in'
+  width=42 colspan=2><p class='MsoNormal'>&nbsp;</td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  width=11 height=11 id="_x0000_i1041"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1040"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>INTRODUCTION<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1039"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1038"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1037"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>The Command Console CHP file can store a variety of data
+  including expression results and genotyping results.</span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>This document will describe how to use the Fusion SDK to write
+  data to a Command Console CHP file.<o:p>&nbsp; This includes <a href="#MAS5">MAS5 Expression Results</a>, 
+  <a href="#RMA">RMA and PLIER Expression Results</a> and <a href="#BRLMM">BRLMM and Birdseed Genotyping Results</a>.
+	</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1036"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:5'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  width=11 height=11 id="_x0000_i1035"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1034"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'><a name="MAS5" title="MAS5"></a>MAS5 EXPRESSION RESULTS</span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:6'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1033"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:7'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1032"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1031"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>This section will describe how to write MAS5 style expression results to a CHP file. </span></p>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>SDK Objects</span></span><span style='font-size:9.0pt;font-family:
+  "Arial","sans-serif";color:#003366'><o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The main top level SDK objects that are required are:<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l2 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::CHPFileWriter - This object
+       provides the writing capabilities.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l2 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::CHPData - This object provides
+       the storage for the CHP file results.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>Workflow</span></span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'><o:p></o:p></span></p>
+ 
+	 <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The workflow for creating a CHP file with expression results is:<o:p></o:p></span></p>
+ 
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:.5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366'>Create a CHPData
+  object passing in the name of the output CHP file and assay type into the
+  constructor. The assay type is defined in CHPData.h and is:<o:p></o:p></span></p>
+  <p style='margin-left:.5in;line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>affymetrix_calvin_io::CHP_EXPRESSION_ASSAY_TYPE </span></p> 
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the header information. This is done using the following
+  functions:<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.SetAlgName - to set the name of the algorithm.<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.SetAlgVersion - to set the version number of the
+  algorithm<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.SetArrayType - to set the name of the probe array type
+  (e.g. HG-U133A)<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.SetCols - to set the number of columns of features on
+  the array.<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.SetRows - to set the number of rows of features on the
+  array.<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.SetParentCell - to set the name of the parent CEL
+  file.<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.SetProgId - to set the prog id of the COM component
+  implementing the algorithm. This value is not required and is only in the CHP
+  file to support legacy GCOS data.<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.AddAlgParam - to add a parameter to the parameters
+  list. We recommend you add a parameter to describe the company or institution
+  your work for.<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPData.AddChipSum - to add a summary statistics (e.g. MAS5
+  algorithm adds RawQ to this chip summary section).<o:p></o:p></span></p>
+  <p style='margin-left:.5in;line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>Affymetrix recommends you
+  store information about the program in the header of the CHP file. The
+  program information should include the company or institution writing the
+  software, the name of the program and an identifier for the program. These
+  should be stored in the name/value attribute list of the file header. The
+  attributes names should be:<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-name&quot; to identify the
+  name of the program<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-id&quot; to identify the
+  program id<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-company&quot; to identify the
+  name of the company or institution writing the software.<o:p></o:p></span></p>
+  <p style='margin-left:.5in;line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>Use the
+  CHPData::GetGenericData().Header().GetGenericDataHdr()-&gt;AddNameValParam()
+  function to add these and other parameters to the file header.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the number of probe sets to store in the file using the
+  CHPData.SetEntryCount function.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the number of background zones to store in the file using
+  the CHPData.SetBackgroundZoneCnt function. The MAS5 algorithm computed 16
+  zones (4x4) and stored the background value for each zone. If no zones are
+  stored then set this value to 0.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add to the header information about the parent file or files.
+  The Command Console file has the ability to store information about the
+  parent CEL file or files. For each parent file:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a GenericDataHeader object and set the attributes:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>GenericDataHeader.SetFileId - this is a globally unique
+  identifier for the file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>GenericDataHeader.SetFileTypeId - this identifies the type of
+  file. Use the constant affymetrix_calvin_data::INTENSITY_DATA_TYPE to
+  identify a CEL file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add parameters using the GenericDataHeader.AddNameValParam
+  function.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>c.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the GenericDataHeader object to the CHPData object using
+  the CHPData.GetFileHeader()-&gt;GetGenericDataHdr()-&gt;AddParent() function.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a CHPFileWriter object passing in the CHPData object
+  into the constructor.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the CHPFileWriter::SeekToDataSet function to seek to the
+  start position of the results. <o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Loop over each probe set to store in the CHP file. For each
+  probe set:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span
+  style='mso-spacerun:yes'> </span>.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a CHPExpressionEntry object for expression results or
+  CHPGenotypeEntry object for genotyping results. Assign the values to the
+  object using the constructor:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Example: CHPExpressionEntry entry(&quot;probe set name&quot;,
+  detection, detectionPValue, signal, pairs, pairsUsed, hasCompResults, change,
+  changePValue, slr, slrLo, slrHi, commonPairs);<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the CHPFileWriter::WriteExpressionEntry or
+  CHPFileWriter::WriteMappingEntry function to write the entry into the file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the CHPFileWriter::SeekToBgSet function to seek to the
+  start position of the background zones. <o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Loop over each background zone to store in the CHP file. For
+  each zone:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span
+  style='mso-spacerun:yes'> </span>.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a CHPBackgroundZone object passing in the center
+  coordinate, background value and smooth factor.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the CHPFileWriter::WriteBackgroundZone function to write
+  the zone into the file.<o:p></o:p></span></p>
+ 
+  </td>
+ </tr>
+ 
+  <tr style='mso-yfti-irow:8'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1030"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:9'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  width=11 height=11 id="_x0000_i1029"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1028"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'><a name="RMA" title="RMA"></a>RMA AND PLIER EXPRESSION RESULTS<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:10'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1027"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:11'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1026"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1025"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+   <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>This section will describe how to write expression results 
+	generated by RMA and PLIER to a CHP file.&nbsp; </span></p>
+	<p style='line-height:10.5pt'>
+	<span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>Command Console </span>
+	<span style="font-family: Arial,sans-serif; font-size: 9pt; color: #003366">
+	CHP files for expression results generated by RMA and PLIER can </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>be created in two steps.&nbsp; The files can initially be 
+	created with just the header information. The expression (quantification) 
+	results can be set at a later time using the buffer writer technique.</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'> The classes used to create the CHP files are defined 
+	specifically for the quantification results.&nbsp; The workflow below 
+	describes this two step approach.</span></p>
+
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>SDK Objects</span></span><span style='font-size:9.0pt;font-family:
+  "Arial","sans-serif";color:#003366'><o:p></o:p></span></p>
+
+ <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The main top level SDK objects for writing these CHP files are:<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l2 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationFileWriter </span>
+	<span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>&nbsp;- This object
+       provides the writing capabilities.</span></li>
+	<li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l2 level1 lfo1;tab-stops:list .5in'>
+	<span style="font-family: Arial,sans-serif; font-size: 9pt">
+	affymetrix_calvin_io::</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationFileBufferWriter 
+	- This object provides the capability to set and update expression 
+	(quantification) results</span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l2 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData</span><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'> - This object provides
+       the storage for the CHP file results.<o:p></o:p></span></li>
+  </ul>
+    <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>Workflow</span></span></p> 
+  
+	 <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The workflow for creating a CHP file with RMA or PLIER results 
+	is as follows:<o:p></o:p></span></p>
+
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:.5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]>
+	<span
+  style='mso-list:Ignore; font-size:9.0pt; font-family:Arial,sans-serif; mso-fareast-font-family:Arial; color:#003366'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366'>Create a CHPQuantificationData
+  object passing in the name of the output CHP file into the
+  constructor.<o:p></o:p></span></p>
+  <span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366'>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the header information. This is done using the following
+  functions:</span></p>
+   <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData.SetAlgName - to set the name of the algorithm.<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData.SetAlgVersion - to set the version number of the
+  algorithm<o:p></o:p></span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData.SetArrayType - to set the name of the probe array type
+  (e.g. HG-U133A)</span></p>
+  <span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366'>
+	<p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData.SetEntryCount - to set the number of probe sets to store in 
+	the file</span></p>
+	<p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData.</span><span style="font-size: 9.0pt; font-family: Arial,sans-serif; color: #003366">AddAlgParams</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'> - </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>to add a list of 
+	algorithm parameters to the file header as name/value/type attributes.&nbsp; 
+	The list of algorithm parameters must include a parameter named</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'> &quot;exec-guid&quot;. &nbsp; The value of this parameter 
+	identifies CHP files generated by the same analysis run.</span></p>
+  <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData.AddSummaryParams - to add a list summary statistics
+   as name/value/type attributes (e.g. PLIER
+  algorithm adds pm_mean to this chip summary section).<o:p></o:p></span></p>
+
+  <p style='margin-left:.5in;line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>Affymetrix recommends you
+  store information about the program in the header of the CHP file. The
+  program information should include the company or institution writing the
+  software, the name of the program and the version of the program. These
+  should be stored in the name/value attribute list of the file header. The
+  attributes names should be:<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-name&quot; to identify the
+  name of the program<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-version&quot; to identify the
+  version of the program</span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-company&quot; to identify the
+  name of the company or institution writing the software.<o:p></o:p></span></p>
+  <p style='margin-left:.5in;line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>Use the
+  </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData</span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>::GetGenericData().Header().GetGenericDataHdr()-&gt;AddNameValParam()
+  function to add these and other parameters to the file header.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add to the header information about the parent file or files.
+  The Command Console file has the ability to store information about the
+  parent CEL file or files. For each parent file:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a GenericDataHeader object and set the attributes:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>GenericDataHeader.SetFileId - this is a globally unique
+  identifier for the file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>GenericDataHeader.SetFileTypeId - this identifies the type of
+  file. Use the constant affymetrix_calvin_data::INTENSITY_DATA_TYPE to
+  identify a CEL file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add parameters using the GenericDataHeader.AddNameValParam
+  function.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>c.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the GenericDataHeader object to the </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationData</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'> object using
+  the CHPQuantificationData.GetFileHeader()-&gt;GetGenericDataHdr()-&gt;AddParent() function.</span></p>  
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a CHPQuantificationFileWriter object passing in the CHPQuantificationData object
+  into the constructor. This will create the files with the header information.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPQuantificationFileWriter </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>:SeekToDataSet function to seek to the
+  start position of the results. <o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Loop over each probe set to store in the CHP file. For each
+  probe set:</span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a ProbeSetQuantificationData object. Set the name data 
+	member of the ProbeSetQuantificationData to the probe set name.</span></p>
+ 
+	<p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the CHPQuantificationFileWriter::WriteEntry function to write the entry into the file.<o:p></o:p></span></p>
+	<string>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>	Update the expression 
+	(quantification) results using a file buffer writer as shown below:</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>.</span></p>	
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a CHPQuantificationFileBufferWriter and use the 
+	Initialize function to set the name of the CHP file.</span></p> 
+	<p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Loop through the results, using the CHPQuantificationFileBufferWriter::WriteQuantificationEntry function to store them in the CHP 
+	file. The results must be presented in the same order as the probe set names 
+	in the step above.</span></p>
+  	<p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>c.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the CHPQuantificationFileBufferWriter::FlushBuffer function to flush the buffer and close the file.</span></p> 
+	<p style='line-height:10.5pt'>&nbsp;</p>
+  </td>
+ </tr>
+
+ <tr style='mso-yfti-irow:8'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1030"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:9'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  width=11 height=11 id="_x0000_i1029"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1028"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'>
+	<span style="font-size: 9pt; color: #336699"><b>
+	<span style="font-family: Arial,sans-serif"><a name="BRLMM" title="BRLMM"></a>BRLMM AND BIRDSEED GENOTYPING 
+	RESULTS</span></b></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:10'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1027"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:11'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1026"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1025"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+	<p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>Results generated by the BRLMM and Birdseed algorithms are retained in a CHP file object called CHPMultiDataData object.  This flexible file 
+	object has been designed to store&nbsp;  Expression and Genotyping results 
+	as well as those generated by Copy Number and Loss of Heterozygosity analysis.&nbsp; 
+	The CHP files can retain the results for more than one analysis type.  The result columns can be extended to store custom 
+	metrics.&nbsp; See <a href="writing_cnchp_and_lohchp_files.html">How to write Command Console CNCHP and LOHCHP files</a> for 
+	detailed information on writing files with Copy Number and Loss of 
+	Heterozygosity results.</span></p>
+
+
+  <p style='line-height:10.5pt'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The workflow is similar to that defined for RMA and PLIER above in 
+	that the CHP file can be created in two steps using the buffer writer technique.&nbsp;&nbsp; 
+	The CHP file header is&nbsp; created first.&nbsp; The remainder of the file 
+	will be created at a later time.&nbsp; <o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>SDK Objects</span></span><span style='font-size:9.0pt;font-family:
+  "Arial","sans-serif";color:#003366'><o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The main top level SDK object that are required are:<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l0 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::CHPMultiDataFileWriter - This object
+       provides the writing capabilities.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l2 level1 lfo1;tab-stops:list .5in'>
+	 <span style="font-family: Arial,sans-serif; font-size: 9pt">
+	  affymetrix_calvin_io::</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+     color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataFileBufferWriter 
+	 - This object provides the capability to set and update results data</span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l0 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::CHPMultiDataData - This object
+       provides the storage for the CHP file results.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>Workflow</span></span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'><o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The workflow is as follows:</span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a CHPMultiDataData object </span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366'>in the name of the 
+	output CHP file into the
+  constructor.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the header information. This is done using the following
+  functions:</span></p>
+ <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData.SetAlgName - to set the name of the algorithm.<o:p></o:p></span></p>
+		
+ <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData.SetAlgVersion - to set the 
+	version number of the algorithm.<o:p></o:p></span></p>
+
+<p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData.SetArrayType - to set the name of the probe array type
+  (e.g. Genome-Wide&nbsp; Human SNP Array 6.0)<o:p></o:p></span></p>
+
+<p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData.SetEntryCount 
+	- to set the data shown below.&nbsp; This function is called for each analysis 
+	type to be stored in the file.</span></p>
+
+
+<p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>One of the following analysis types: <o:p></o:p></span></p>
+  
+  
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>affymetrix_calvin_io::MultiDataType::GenotypeMultiDataType<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>affymetrix_calvin_io::MultiDataType::GenotypeControlMultiDataType</span></p>
+
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The number of probe sets to store for the analysis</span></p>
+   <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>c.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The maximum length of the names of the probe sets </span></p>
+   <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>d.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'> A vector of affymetrix_calvin_io::ColumnInfo objects containing the definition of additional result columns to include in the file 
+	for the analysis.</span></p>
+	<p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><br> 
+ 	</p>
+
+ <p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData.AddAlgParams - to add a list of algorithm parameters to the file header as 
+	name/value/type attributes .&nbsp; </span>
+  <span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366'>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>The list of algorithm 
+	parameters must include a parameter named</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'> &quot;exec-guid&quot;. &nbsp; The value of this parameter 
+	identifies CHP files generated by the same analysis run.</span></span></p>
+	<p style='margin-top:0in;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in' align="left">
+		<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData.AddSummaryParams - to add a list summary statistics as name/value/type 
+	attributes (e.g. BRLMM algorithm adds call rate to this chip summary section).<o:p></o:p></span></p>
+  <p style='margin-left:.5in;line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>Affymetrix recommends you
+  store information about the program in the header of the CHP file. The
+  program information should include the company or institution writing the
+  software, the name of the program and the version of the program. These
+  should be stored in the name/value attribute list of the file header. The
+  attributes names should be:<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-name&quot; to identify the
+  name of the program<o:p></o:p></span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-version&quot; to identify the
+  version of the program</span></p>
+  <p class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
+  margin-left:1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo2;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:10.0pt;
+  mso-bidi-font-size:9.0pt;font-family:"Courier New";mso-fareast-font-family:
+  "Courier New";color:#003366'><span style='mso-list:Ignore'>o<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'>&quot;program-company&quot; to identify the
+  name of the company or institution writing the software.<o:p></o:p></span></p>
+
+  <p style='margin-left:.5in;line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>Use the
+  </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData</span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>::GetGenericData().Header().GetGenericDataHdr()-&gt;AddNameValParam()
+  function to add these and other parameters to the file header.</span></p>
+	
+<p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo2;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add to the header information about the parent file or files.
+  The Command Console file has the ability to store information about the
+  parent CEL file or files. For each parent file:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a GenericDataHeader object and set the attributes:<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>GenericDataHeader.SetFileId - this is a globally unique
+  identifier for the file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>GenericDataHeader.SetFileTypeId - this identifies the type of
+  file. Use the constant affymetrix_calvin_data::INTENSITY_DATA_TYPE to
+  identify a CEL file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add parameters using the GenericDataHeader.AddNameValParam
+  function.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>c.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the GenericDataHeader object to the CHPMultiDataData object using
+  the </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'>CHPMultiDataData</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>.GetFileHeader()-&gt;GetGenericDataHdr()-&gt;AddParent() function.</span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the file type identifier using the
+  CHPMultiDataData.GenericData.Header().GetGenericDataHdr()-&gt;SetFileTypeId() function. This
+  identifies the type of data to be stored in the CHP file.<o:p></o:p></span></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>CHPMultiDataFileWriter object passing in the CHPMultiDataData object
+  into the constructor.<o:p>&nbsp; This will create the file with the header 
+	information.</o:p></span></p>
+ 
+ 
+   <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level1 lfo3;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>
+	Create the body of the file with results using a file buffer writer object as 
+	described below.
+	</span></p>	
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a CHPMultiDataFileBufferWriter.&nbsp; Use the 
+	CHPMultiDataFileBufferWriter.Initialize function to set the name of the CHP 
+	file, the type of result data to be stored and the maximum length of the 
+	probe set names.</span></p>
+	<string> 
+
+	
+	<p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>To store the analysis results, instantiate a ProbeSetMultiData entry 
+	object that corresponds to </span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Arial'>the MultiDataType used in the 
+	above step.&nbsp; Loop through the results completing the following steps:</span></p>  	
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>i.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the name data member of the entry object with that of the probe set </span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>ii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]>
+	<span style="font-family: Arial,sans-serif; font-size: 9pt">Set the results for the default columns 
+	of the entry object</span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>iii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the results for any additional columns defined when the CHP file header was created to the metrics 
+	vector of the entry object.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>iv.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>Write the results using the GenotypEntryBufferWriter.WriteMulitDataGenotypeEntry function.</span></span><![endif]></p>
+  <p style='margin-top:10.5pt;margin-right:0in;margin-bottom:10.5pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l1 level2 lfo3'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'>c.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Use the GenotypeEntryBufferWriter.FlushBuffer function to flush the buffer and close the file.</span></p>	
+  </td>
+ </tr>
+
+ <tr style='mso-yfti-irow:8'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1030"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:9'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  width=11 height=11 id="_x0000_i1029"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1028"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>GENERIC RESULTS<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:10'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1027"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:11'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1026"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1025"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>The Command Console CHP file format is flexible to store
+  integers, floating point values or strings that can be represented in a
+  matrix (rows &amp; columns) format. As an example the Affymetrix tiling array
+  results which is comprised of a genomic position, signal and p-value for each
+  probe pair on the array will be stored in a CHP file of the Command Console
+  format.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The workflow is very similar to that defined above. The
+  difference is that specific classes where defined for the specific number of
+  columns and column types for the current expression and genotyping data sets.
+  A generic data and writer objects are provided in the Fusion SDK to handle
+  writing any number of columns and column types into a CHP file. This generic
+  file writer and data object are used by the above CHPData and CHPFileWriter
+  classes, but with the added requirements on the number of groups, sets and
+  column definitions.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>SDK Objects</span></span><span style='font-size:9.0pt;font-family:
+  "Arial","sans-serif";color:#003366'><o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The main top level SDK object that are required are:<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l0 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::GenericFileWriter - This object
+       provides the writing capabilities.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l0 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>affymetrix_calvin_io::GenericData - This object
+       provides the storage for the CHP file results.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>Workflow</span></span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'><o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The workflow, again, is very similar to that defined above.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a GenericData object using the default constructor.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the file name using the GenericData.Header().SetFilename()
+  function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the file type identifier using the
+  GenericData.Header().GetGenericDataHdr()-&gt;SetFileTypeId() function. This
+  identifies the type of data to be stored in the CHP file.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add parameters to the generic data header using the
+  GenericData.Header().GetGenericDataHdr()-&gt;AddNameValParam() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a DataGroupHeader object passing in the name of the
+  data group into the constructor.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the DataGroupHeader object to the GenericData object using
+  the GenericData.Header().AddDataGroupHdr() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Repeat the above two steps for each data group to add to the
+  file.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>For each data group:<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create one or more data sets. For each data set:<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>i.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a data set header object (DataSetHeader).<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>ii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the name of the data set header using the
+  DataSetHeader.SetName() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>iii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Set the number of rows in the data set using the
+  DataSetHeader.SetRowCnt() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>iv.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the parameters to the data set using the
+  DataSetHeader.AddNameValParam() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>v.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the columns to the data set using the
+  DataSetHeader.AddXYZColumn() function (XYZ specifies the type, e.g. Float or
+  Int).<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>vi.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Add the data set to the data group using the
+  DataGroupHeader.AddDataSetHdr() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>At this point the data object has the parameters, data groups
+  and data set definitions.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Create a GenericFileWriter object passing in the FileHeader
+  object from the GenericData object into the constructor. The FileHeader
+  object is retrieved using the GenericData.Header() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>11.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Call the GenericFileWriter.WriteHeader function to write the
+  file header.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>12.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>For each data group:<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Write the data group header using the
+  GenericFileWriter.GetDataGroupWriter(index).WriteHeader() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>For each data set in the group:<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>i.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Write the data set header using the
+  DataSetWriter.WriteHeader() function. The data set writers are retrieved
+  using the GenericFileWriter.GetDataGroupWriter(index).GetDataSetWriters()
+  function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>ii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Update the offset of the next data set. Use the following code
+  to do so:<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>int32_t dataSetSz = dataSetWriter-&gt;GetDataSetSize();<br>
+  int32_t offset = writer-&gt;GetFilePos();<br>
+  writer-&gt;SeekFromCurrentPos(dataSetSz + 1);<br>
+  dataSetWriter-&gt;UpdateNextDataSetOffset();<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;line-height:10.5pt'><i><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>dataSetWriter </span></i><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'>is the DataSetWriter object
+  and <i>writer </i>is the GenericFileWriter object.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>c.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Update the next data group position by calling the
+  DataGroupWriter.UpdateNextDataGroupPos() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>13.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Now write the data to the file.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  .5in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level1 lfo5;
+  tab-stops:list .5in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>14.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>For each data group:<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>a.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Get the data group writer using the
+  GenericFileWriter.GetDataGroupWriter() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.0in;text-indent:-.25in;line-height:10.5pt;mso-list:l3 level2 lfo5;
+  tab-stops:list 1.0in'><![if !supportLists]><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:Arial;color:#003366'><span
+  style='mso-list:Ignore'>b.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>For each data set in the group:<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>i.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Get the data set writer using the
+  DataGroupWriter.GetDataSetWriter() function.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>ii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Seek the start of the data set using the
+  GenericFileWriter.SetFromBeginPos() function. The positions may need to be
+  cached from step 12 above.<o:p></o:p></span></p>
+  <p style='margin-top:5.0pt;margin-right:0in;margin-bottom:3.0pt;margin-left:
+  1.5in;text-indent:-1.5in;mso-text-indent-alt:-.25in;line-height:10.5pt;
+  mso-list:l3 level3 lfo5;tab-stops:list 1.5in'><![if !supportLists]><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  Arial;color:#003366'><span style='mso-list:Ignore'><span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>iii.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span></span><![endif]><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Loop over each row in the data set and call the
+  DataSetWriter.Write() function for each column passing in the data to write.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>For reference look at the classes defined in the
+  CalvinCHPFileWriter.h/cpp files. These classes provide the wrappers for
+  writing expression results to a CHP file using the GenericData and
+  GenericFileWriter classes.<o:p></o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:12;mso-yfti-lastrow:yes'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>&nbsp;<o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>&nbsp;<o:p></o:p></span></p>
+  </td>
+ 
+ </tr>
+ <tr style='mso-yfti-irow:8'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1030"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:9'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  width=11 height=11 id="_x0000_i1029"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1028"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'>
+	<span style="font-size: 9pt; color: #336699"><b>
+	<span style="font-family: Arial,sans-serif">Requirements And Recommendations</span></b></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:10'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1027"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:11'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1026"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1025"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <span style='font-size:9.0pt;font-family:
+  "Arial","sans-serif";color:#003366'><o:p></o:p></span></p>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>The code should be placed within a try/catch statement as the
+  writers will throw exceptions upon errors..<o:p></o:p></span></p><br>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>GCOS files did not contain the probe set name in the CHP file.
+  The names were stored in the CDF file. This required that the number of probe
+  sets and their order in the CHP and CDF file be identical.<o:p>&nbsp; </o:p></span>
+	<span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Although the probe set name is in the Command Console CHP
+  files, thus eliminating the absolute requirement that order and number be
+  identical, the convention will be to store as many probe sets in the CHP file
+  as are defined in the CDF file and to store them in the same order.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>It is highly encouraged to add the name of your company or
+  institution to the algorithm parameters section of the CHP file. This way you
+  can track those files created by your software.</span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366; mso-fareast-font-family:Times New Roman'></o:p></span></p>
+</td></tr>
+   <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>&nbsp;<o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>&nbsp;<o:p></o:p></span></p>
+  </td>
+</table>
+
+<p><o:p>&nbsp;</o:p></p>
+
+</div>
+
+</body>
+
+</html>

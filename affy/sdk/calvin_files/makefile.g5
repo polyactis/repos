@@ -1,0 +1,564 @@
+###########################################################################
+##
+## This makefile will compile and run the unit tests on the Apple MacOSX
+## platform.
+##
+###########################################################################
+
+LDFLAGS=-lcppunit
+CPPFLAGS=-g -I./data/src -I./array/src -I./portability/src -I./utils/src -I./exception/src -I./parameter/src -I./parsers/src -I./template/src -I./writers/src -I./fusion/src -I./fusion/src/CalvinAdapter -I./fusion/src/GCOSAdapter -I../file -I../portability -DIS_BIG_ENDIAN -D_USE_MEM_MAPPING_
+CC=g++
+
+SOURCES.fusion=\
+	./fusion/src/CalvinAdapter/CalvinCELDataAdapter.cpp \
+	./fusion/src/CalvinAdapter/CalvinCHPDataAdapter.cpp \
+	./fusion/src/FusionCDFData.cpp \
+	./fusion/src/FusionBARData.cpp \
+	./fusion/src/FusionBPMAPData.cpp \
+	./fusion/src/FusionCDFQCProbeSetNames.cpp \
+	./fusion/src/FusionCELData.cpp \
+	./fusion/src/FusionCHPData.cpp \
+	./fusion/src/FusionGrcFileReader.cpp \
+	./fusion/src/FusionProbeSetResults.cpp \
+	./fusion/src/GCOSAdapter/GCOSCELDataAdapter.cpp \
+	./fusion/src/GCOSAdapter/GCOSCHPDataAdapter.cpp \
+	./fusion/src/FusionCHPLegacyData.cpp\
+	./fusion/src/FusionCHPTilingData.cpp\
+	./fusion/src/FusionCHPGenericData.cpp\
+	./fusion/src/FusionCHPQuantificationData.cpp\
+	./fusion/src/FusionCHPQuantificationDetectionData.cpp\
+	./fusion/src/FusionGRDData.cpp\
+	./fusion/src/FusionMSKData.cpp\
+	./fusion/src/FusionPSIData.cpp\
+	./fusion/src/FusionSMDData.cpp\
+	../file/BARFileData.cpp \
+	../file/BPMAPFileData.cpp \
+	../file/CDFFileData.cpp \
+	../file/CELFileData.cpp \
+	../file/CHPFileData.cpp \
+	../file/EXPFileData.cpp \
+	../file/FileIO.cpp \
+	../file/GRCFileData.cpp \
+	../file/MSKFileData.cpp \
+	./utils/src/AffymetrixGuid.cpp \
+	./array/src/ArrayAttributes.cpp \
+	./array/src/ArrayData.cpp \
+	./data/src/CDFData.cpp \
+	./parsers/src/CDFFileReader.cpp \
+	./parsers/src/CHPTilingFileReader.cpp \
+	./parsers/src/CHPQuantificationFileReader.cpp \
+	./parsers/src/CHPQuantificationDetectionFileReader.cpp \
+	./data/src/CDFProbeGroupInformation.cpp \
+	./data/src/CDFProbeInformation.cpp \
+	./data/src/CDFProbeSetInformation.cpp \
+	./data/src/CDFQCProbeInformation.cpp \
+	./data/src/CDFQCProbeSetInformation.cpp \
+	./data/src/CELData.cpp \
+	./parsers/src/CelFileReader.cpp \
+	./utils/src/checksum.cpp \
+	./data/src/CHPBackgroundZone.cpp \
+	./data/src/CHPData.cpp \
+	./data/src/CHPExpressionEntry.cpp \
+	./data/src/CHPTilingData.cpp \
+	./data/src/CHPQuantificationData.cpp \
+	./data/src/CHPQuantificationDetectionData.cpp \
+	./parsers/src/CHPFileReader.cpp \
+	./data/src/CHPGenotypeEntry.cpp \
+	./data/src/CHPUniversalEntry.cpp \
+	./data/src/DataGroup.cpp \
+	./data/src/DataGroupHeader.cpp \
+	./parsers/src/DataGroupHeaderReader.cpp \
+	./parsers/src/DataGroupReader.cpp \
+	./data/src/DataSet.cpp \
+	./data/src/DataSetHeader.cpp \
+	./parsers/src/DataSetHeaderReader.cpp \
+	./parsers/src/DataSetReader.cpp \
+	./utils/src/DateTime.cpp \
+	./exception/src/ExceptionBase.cpp \
+	./data/src/FileHeader.cpp \
+	./parsers/src/FileHeaderReader.cpp \
+	./parsers/src/FileInput.cpp \
+	./utils/src/FileUtils.cpp \
+	./data/src/GenericData.cpp \
+	./data/src/GenericDataHeader.cpp \
+	./parsers/src/GenericDataHeaderReader.cpp \
+	./parsers/src/GenericFileReader.cpp \
+	./parsers/src/GridControlFileReader.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./utils/src/StringUtils.cpp \
+	./array/src/CreateStep.cpp \
+	./array/src/PATAssignment.cpp \
+	./array/src/ArrayMedia.cpp \
+	./fusion/test/FusionCHPTilingDataTest.cpp\
+	./fusion/test/FusionCHPGenericDataTest.cpp\
+	./fusion/test/FusionCELDataCalvinTest.cpp \
+	./fusion/test/FusionCELDataGCOSTest.cpp \
+	./fusion/test/FusionCHPDataGCOSTest.cpp \
+	./fusion/test/FusionCHPDataCalvinTest.cpp \
+	./fusion/test/FusionCHPQuantificationDataTest.cpp \
+	./fusion/test/FusionCHPQuantificationDetectionDataTest.cpp \
+	./fusion/test/FusionGrcFileTest.cpp \
+	./fusion/test/FusionCDFQCProbeSetNamesTest.cpp\
+	./fusion/test/FusionCdfFileTest.cpp \
+	./fusion/test/test.cpp
+
+OBJECTS.fusion=$(SOURCES.fusion:.cpp=.o)
+TEST.fusion=fusion_test
+PATH.fusion=./fusion/test
+
+SOURCES.array=\
+	./array/src/ArrayAttributes.cpp \
+	./array/src/ArrayAudit.cpp \
+	./array/src/ArrayData.cpp \
+	./array/test/ArrayAttributesTest.cpp \
+	./array/test/ArrayAuditTest.cpp \
+	./array/test/ArrayDataTest.cpp \
+	./array/test/test.cpp \
+	./utils/src/AffymetrixGuid.cpp \
+	./utils/src/checksum.cpp \
+	./utils/src/DateTime.cpp \
+	./utils/src/StringUtils.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./exception/src/ExceptionBase.cpp
+OBJECTS.array=$(SOURCES.array:.cpp=.o)
+TEST.array=array_test
+PATH.array=./array/test
+
+SOURCES.data=\
+	./data/src/BitFlag.cpp\
+	./data/src/CDFData.cpp\
+	./data/src/CDFProbeGroupInformation.cpp\
+	./data/src/CDFProbeInformation.cpp\
+	./data/src/CDFProbeSetInformation.cpp\
+	./data/src/CDFQCProbeInformation.cpp\
+	./data/src/CDFQCProbeSetInformation.cpp\
+	./data/src/CELData.cpp\
+	./data/src/CHPBackgroundZone.cpp\
+	./data/src/CHPData.cpp\
+	./data/src/CHPExpressionEntry.cpp\
+	./data/src/CHPGenotypeEntry.cpp\
+	./data/src/CHPQuantificationData.cpp\
+	./data/src/CHPQuantificationDetectionData.cpp\
+	./data/src/CHPTilingData.cpp\
+	./data/src/CHPUniversalEntry.cpp\
+	./data/src/DataGroup.cpp\
+	./data/src/DataGroupHeader.cpp\
+	./data/src/DataSet.cpp\
+	./data/src/DATData.cpp\
+	./data/src/DataSetHeader.cpp\
+	./data/src/FileHeader.cpp\
+	./data/src/GenericData.cpp\
+	./data/src/GenericDataHeader.cpp\
+	./data/test/BitFlagTest.cpp\
+	./data/test/CDFDataTest.cpp\
+	./data/test/CHPDataTest.cpp\
+	./data/test/CHPTilingDataTest.cpp\
+	./data/test/CHPQuantificationDataTest.cpp\
+	./data/test/CHPQuantificationDetectionDataTest.cpp\
+	./data/test/CelFileDataTest.cpp\
+	./data/test/DataGroupHeaderTest.cpp\
+	./data/test/DataGroupTest.cpp\
+	./data/test/DataGroupTest_FStream.cpp\
+	./data/test/DataSetHeaderTest.cpp\
+	./data/test/DataSetTest.cpp\
+	./data/test/DataSetTest_AllColumnTypes.cpp\
+	./data/test/DataSetTest_DATGridSet.cpp\
+	./data/test/DataSetTest_FStream.cpp\
+	./data/test/DataSetTest_GenericData.cpp\
+	./data/test/DataSetTest_MultipleSets.cpp\
+	./data/test/DataSetTest_MultipleSetsMinDS.cpp\
+	./data/test/DATDataTest.cpp\
+	./data/test/FileHeaderTest.cpp\
+	./data/test/GenericDataFileBasedTest.cpp\
+	./data/test/GenericDataHeaderTest.cpp\
+	./data/test/GenericDataTest.cpp\
+	./data/test/GenericDataTest_FileIndependent.cpp\
+	./data/test/GenericDataTest_MinDPH.cpp\
+	./data/test/test.cpp\
+	./exception/src/ExceptionBase.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./parsers/src/DataGroupHeaderReader.cpp \
+	./parsers/src/DataGroupReader.cpp \
+	./parsers/src/DataSetHeaderReader.cpp \
+	./parsers/src/DataSetReader.cpp \
+	./parsers/src/FileHeaderReader.cpp \
+	./parsers/src/FileInput.cpp \
+	./parsers/src/GenericDataHeaderReader.cpp \
+	./parsers/src/GenericFileReader.cpp \
+	./utils/src/AffymetrixGuid.cpp \
+	./utils/src/checksum.cpp \
+	./utils/src/DateTime.cpp \
+	./utils/src/StringUtils.cpp
+OBJECTS.data=$(SOURCES.data:.cpp=.o)
+TEST.data=data_test
+PATH.data=./data/test
+
+SOURCES.exception=\
+	./utils/src/DateTime.cpp \
+	./utils/src/StringUtils.cpp \
+	./exception/src/ExceptionBase.cpp \
+	./exception/test/ExceptionBaseTest.cpp \
+	./exception/test/test.cpp
+OBJECTS.exception=$(SOURCES.exception:.cpp=.o)
+TEST.exception=exception_test
+PATH.exception=./exception/test
+
+SOURCES.parameters=\
+	./exception/src/ExceptionBase.cpp \
+	./utils/src/DateTime.cpp \
+	./utils/src/StringUtils.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./parameter/test/MIMEValueTest.cpp \
+	./parameter/test/ParameterNameValueControlVocabularyTest.cpp \
+	./parameter/test/ParameterNameValuePairTest.cpp \
+	./parameter/test/ParameterNameValueTypeTest.cpp \
+	./parameter/test/test.cpp
+OBJECTS.parameters=$(SOURCES.parameters:.cpp=.o)
+TEST.parameters=parameters_test
+PATH.parameters=./parameter/test
+
+SOURCES.portability=\
+	./portability/test/AffymetrixBaseTypesTest.cpp \
+	./portability/test/test.cpp
+OBJECTS.portability=$(SOURCES.portability:.cpp=.o)
+TEST.portability=portability_test
+PATH.portability=./portability/test
+
+SOURCES.utils=\
+	./exception/src/ExceptionBase.cpp \
+	./utils/src/AffymetrixGuid.cpp \
+	./utils/src/DateTime.cpp \
+	./utils/src/FileUtils.cpp \
+	./utils/src/checksum.cpp \
+	./utils/src/StringUtils.cpp \
+	./utils/test/AffymetrixGuidTest.cpp \
+	./utils/test/CoordsTest.cpp \
+	./utils/test/DateTimeTest.cpp \
+	./utils/test/FileUtilsTest.cpp \
+	./utils/test/checksumTest.cpp \
+	./utils/test/StringUtilsTest.cpp \
+	./utils/test/test.cpp
+OBJECTS.utils=$(SOURCES.utils:.cpp=.o)
+TEST.utils=utils_test
+PATH.utils=./utils/test
+
+SOURCES.template=\
+	./utils/src/StringUtils.cpp \
+	./utils/src/DateTime.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./array/src/ArrayAttributes.cpp \
+	./array/src/ArrayAudit.cpp \
+	./array/src/ArrayData.cpp \
+	./exception/src/ExceptionBase.cpp \
+	./template/src/TemplateData.cpp \
+	./template/test/TemplateDataTest.cpp \
+	./template/test/test.cpp
+OBJECTS.template=$(SOURCES.template:.cpp=.o)
+TEST.template=template_test
+PATH.template=./template/test
+
+SOURCES.parsers=\
+	./parsers/src/ArrayFileReader.cpp \
+	./parsers/src/AuditFileReader.cpp \
+	./parsers//src/CDFFileReader.cpp \
+	./parsers/src/CelFileReader.cpp \
+	./parsers/src/CHPFileReader.cpp \
+	./parsers/src/CHPQuantificationFileReader.cpp \
+	./parsers/src/CHPQuantificationDetectionFileReader.cpp \
+	./parsers/src/CHPTilingFileReader.cpp \
+	./parsers/src/TemplateFileReader.cpp \
+	./parsers/src/DataGroupHeaderReader.cpp \
+	./parsers/src/DataGroupReader.cpp \
+	./parsers/src/DataSetHeaderReader.cpp \
+	./parsers/src/DataSetReader.cpp \
+	./parsers/src/DATFileReader.cpp \
+	./parsers/src/FileHeaderReader.cpp \
+	./parsers/src/FileInput.cpp \
+	./parsers/src/GenericDataHeaderReader.cpp \
+	./parsers/src/GenericFileReader.cpp \
+	./parsers/src/GridControlFileReader.cpp \
+	./parsers/src/SAXArrayHandlers.cpp \
+	./parsers/src/SAXTemplateHandlers.cpp \
+	./parsers/src/TextFileReader.cpp \
+	./array/src/ArrayAttributes.cpp \
+	./array/src/ArrayAudit.cpp \
+	./array/src/ArrayData.cpp \
+	./array/src/CreateStep.cpp \
+	./array/src/PATAssignment.cpp \
+	./array/src/ArrayMedia.cpp \
+	./template/src/TemplateData.cpp \
+	./data/src/CDFData.cpp \
+	./data/src/CDFProbeGroupInformation.cpp \
+	./data/src/CDFProbeInformation.cpp \
+	./data/src/CDFProbeSetInformation.cpp \
+	./data/src/CDFQCProbeInformation.cpp \
+	./data/src/CDFQCProbeSetInformation.cpp \
+	./data/src/CELData.cpp \
+	./data/src/CHPBackgroundZone.cpp \
+	./data/src/CHPData.cpp \
+	./data/src/CHPExpressionEntry.cpp \
+	./data/src/CHPTilingData.cpp \
+	./data/src/CHPQuantificationData.cpp \
+	./data/src/CHPQuantificationDetectionData.cpp \
+	./data/src/CHPGenotypeEntry.cpp \
+	./data/src/CHPUniversalEntry.cpp \
+	./data/src/DataGroup.cpp \
+	./data/src/DataGroupHeader.cpp \
+	./data/src/DataSet.cpp \
+	./data/src/DataSetHeader.cpp \
+	./data/src/DATData.cpp\
+	./data/src/FileHeader.cpp \
+	./data/src/GenericData.cpp \
+	./data/src/GenericDataHeader.cpp \
+	./exception/src/ExceptionBase.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./utils/src/DateTime.cpp \
+	./utils/src/StringUtils.cpp \
+	./parsers/test/ArrayFileReaderTest.cpp \
+	./parsers/test/AuditFileReaderTest.cpp \
+	./parsers/test/DataGroupHeaderReaderTest.cpp \
+	./parsers/test/DataGroupReaderTest.cpp \
+	./parsers/test/DataSetHeaderReaderTest.cpp \
+	./parsers/test/DataSetReaderTest.cpp \
+	./parsers/test/FileExceptionTest.cpp \
+	./parsers/test/FileInputTest.cpp \
+	./parsers/test/GenericFileReaderTest.cpp \
+	./parsers/test/GridControlFileReaderTest.cpp \
+	./parsers/test/SAXArrayHandlersTest.cpp \
+	./parsers/test/TemplateFileReaderTest.cpp \
+	./parsers/test/TextFileReaderTest.cpp \
+	./parsers/test/CHPFileReaderTest.cpp \
+	./parsers/test/CHPQuantificationFileReaderTest.cpp \
+	./parsers/test/CHPQuantificationDetectionFileReaderTest.cpp \
+	./parsers/test/CHPTilingFileReaderTest.cpp \
+	./parsers/test/CDFFileReaderTest.cpp \
+	./parsers/test/CelFileReaderTest.cpp \
+	./parsers/test/DATFileReaderTest.cpp \
+	./parsers/test/test.cpp
+OBJECTS.parsers=$(SOURCES.parsers:.cpp=.o)
+TEST.parsers=parsers_test
+PATH.parsers=./parsers/test
+
+SOURCES.writers=\
+	./writers/src/ArrayFileWriter.cpp \
+	./writers/src/AuditFileWriter.cpp \
+	./writers/src/CDFCntrlFileWriter.cpp \
+	./writers/src/CDFCntrlProbeSetWriter.cpp \
+	./writers/src/CDFFileWriter.cpp \
+	./writers/src/CDFProbeSetWriter.cpp \
+	./writers/src/CalvinCelFileWriter.cpp \
+	./writers/src/CalvinCHPFileWriter.cpp \
+	./writers/src/CalvinCHPQuantificationFileUpdater.cpp \
+	./writers/src/CalvinCHPQuantificationFileWriter.cpp \
+	./writers/src/CalvinCHPQuantificationDetectionFileUpdater.cpp \
+	./writers/src/CalvinCHPQuantificationDetectionFileWriter.cpp \
+	./writers/src/CalvinCHPTilingFileWriter.cpp \
+	./writers/src/DataGroupHeaderWriter.cpp \
+	./writers/src/DataGroupWriter.cpp \
+	./writers/src/DataSetHeaderWriter.cpp \
+	./writers/src/DataSetWriter.cpp \
+	./writers/src/DataSetUpdater.cpp \
+	./writers/src/DATFileWriter.cpp \
+	./writers/src/DATFileUpdater.cpp \
+	./writers/src/FileHeaderWriter.cpp \
+	./writers/src/FileHeaderUpdater.cpp \
+	./writers/src/FileOutput.cpp \
+	./writers/src/GenericDataHeaderWriter.cpp \
+	./writers/src/GenericDataHeaderUpdater.cpp \
+	./writers/src/GenericFileWriter.cpp \
+	./writers/src/GridControlFileWriter.cpp \
+	./writers/src/TemplateFileWriter.cpp \
+	./writers/src/TextFileWriter.cpp \
+	./array/src/ArrayAttributes.cpp \
+	./array/src/ArrayAudit.cpp \
+	./array/src/ArrayData.cpp \
+	./array/src/CreateStep.cpp \
+	./array/src/PATAssignment.cpp \
+	./array/src/ArrayMedia.cpp \
+	./data/src/CDFData.cpp \
+	./data/src/CDFProbeGroupInformation.cpp \
+	./data/src/CDFProbeInformation.cpp \
+	./data/src/CDFProbeSetInformation.cpp \
+	./data/src/CDFQCProbeInformation.cpp \
+	./data/src/CDFQCProbeSetInformation.cpp \
+	./data/src/CELData.cpp \
+	./data/src/CHPBackgroundZone.cpp \
+	./data/src/CHPData.cpp \
+	./data/src/CHPExpressionEntry.cpp \
+	./data/src/CHPTilingData.cpp \
+	./data/src/CHPGenotypeEntry.cpp \
+	./data/src/CHPUniversalEntry.cpp \
+	./data/src/CHPQuantificationData.cpp\
+	./data/src/CHPQuantificationDetectionData.cpp\
+	./data/src/DataGroup.cpp \
+	./data/src/DataGroupHeader.cpp \
+	./data/src/DataSet.cpp \
+	./data/src/DataSetHeader.cpp \
+	./data/src/DATData.cpp \
+	./data/src/FileHeader.cpp \
+	./data/src/GenericData.cpp \
+	./data/src/GenericDataHeader.cpp \
+	./exception/src/ExceptionBase.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./parsers/src/ArrayFileReader.cpp \
+	./parsers/src/AuditFileReader.cpp \
+	./parsers/src/CelFileReader.cpp \
+	./parsers/src/CHPFileReader.cpp \
+	./parsers/src/CHPQuantificationFileReader.cpp \
+	./parsers/src/CHPQuantificationDetectionFileReader.cpp \
+	./parsers/src/CHPTilingFileReader.cpp \
+	./parsers/src/DataGroupHeaderReader.cpp \
+	./parsers/src/DataGroupReader.cpp \
+	./parsers/src/DataSetHeaderReader.cpp \
+	./parsers/src/DataSetReader.cpp \
+	./parsers/src/FileHeaderReader.cpp \
+	./parsers/src/FileInput.cpp \
+	./parsers/src/GenericDataHeaderReader.cpp \
+	./parsers/src/GenericFileReader.cpp \
+	./parsers/src/GridControlFileReader.cpp \
+	./parsers/src/SAXArrayHandlers.cpp \
+	./parsers/src/SAXTemplateHandlers.cpp \
+	./parsers/src/TemplateFileReader.cpp \
+	./parsers/src/TextFileReader.cpp \
+	./parsers/src/DATFileReader.cpp \
+	./utils/src/AffymetrixGuid.cpp \
+	./utils/src/checksum.cpp \
+	./utils/src/DateTime.cpp \
+	./utils/src/StringUtils.cpp \
+	./template/src/TemplateData.cpp \
+	./writers/test/ArrayFileWriterTest.cpp \
+	./writers/test/AuditFileWriterTest.cpp \
+	./writers/test/CDFCntrlFileWriterTest.cpp \
+	./writers/test/CDFCntrlProbeSetWriterTest.cpp \
+	./writers/test/CDFFileWriterTest.cpp \
+	./writers/test/CDFProbeSetWriterTest.cpp \
+	./writers/test/CelFileWriterTest.cpp \
+	./writers/test/CalvinCHPFileWriterTest.cpp \
+	./writers/test/CalvinCHPQuantificationFileUpdaterTest.cpp \
+	./writers/test/CalvinCHPQuantificationFileWriterTest.cpp \
+	./writers/test/CalvinCHPQuantificationDetectionFileUpdaterTest.cpp \
+	./writers/test/CalvinCHPQuantificationDetectionFileWriterTest.cpp \
+	./writers/test/CalvinCHPTilingFileWriterTest.cpp \
+	./writers/test/DataGroupHeaderWriterTest.cpp \
+	./writers/test/DataGroupWriterTest.cpp \
+	./writers/test/DataSetHeaderWriterTest.cpp \
+	./writers/test/DataSetWriterTest.cpp \
+	./writers/test/DataSetUpdaterTest.cpp \
+	./writers/test/DATFileWriterTest.cpp \
+	./writers/test/FileHeaderWriterTest.cpp \
+	./writers/test/FileOutputTest.cpp \
+	./writers/test/FileWriteExceptionTest.cpp \
+	./writers/test/GenericDataHeaderUpdaterTest.cpp \
+	./writers/test/GenericDataHeaderWriterTest.cpp \
+	./writers/test/GenericFileWriterTest.cpp \
+	./writers/test/GridControlFileWriterTest.cpp \
+	./writers/test/TemplateFileWriterTest.cpp \
+	./writers/test/TextFileWriterTest.cpp \
+	./writers/test/DATFileUpdaterTest.cpp \
+	./writers/test/TestFileGenerator.cpp \
+	./writers/test/test.cpp
+
+OBJECTS.writers=$(SOURCES.writers:.cpp=.o)
+TEST.writers=writers_test
+PATH.writers=./writers/test
+
+
+all: $(TEST.writers) $(TEST.array) $(TEST.data) $(TEST.exception) $(TEST.parameters) $(TEST.portability) $(TEST.utils) $(TEST.template) $(TEST.parsers) $(TEST.fusion)
+
+run_tests: 
+	cd $(PATH.array) && ./$(TEST.array)
+	cd $(PATH.data) && ./$(TEST.data)
+	cd $(PATH.exception) && ./$(TEST.exception)
+	cd $(PATH.parameters) && ./$(TEST.parameters)
+	cd $(PATH.portability) && ./$(TEST.portability)
+	cd $(PATH.utils) && ./$(TEST.utils)
+	cd $(PATH.template) && ./$(TEST.template)
+	cd $(PATH.parsers) && ./$(TEST.parsers)
+	cd $(PATH.writers) && ./$(TEST.writers)
+	cd $(PATH.fusion) && ./$(TEST.fusion) -i ../../../TestDataFiles
+
+$(TEST.fusion): $(OBJECTS.fusion)
+	$(CC) $(CPPFLAGS) $(OBJECTS.fusion) $(LDFLAGS) -o $(PATH.fusion)/$@
+	cd $(PATH.fusion) && ./$(TEST.fusion) -i ../../../TestDataFiles
+
+$(TEST.array): $(OBJECTS.array)
+	$(CC) $(CPPFLAGS) $(OBJECTS.array) $(LDFLAGS) -o $(PATH.array)/$@
+	cd $(PATH.array) && ./$(TEST.array)
+
+$(TEST.data): $(OBJECTS.data)
+	$(CC) $(CPPFLAGS) $(OBJECTS.data) $(LDFLAGS) -o $(PATH.data)/$@
+	cd $(PATH.data) && ./$(TEST.data)
+
+$(TEST.exception): $(OBJECTS.exception)
+	$(CC) $(CPPFLAGS) $(OBJECTS.exception) $(LDFLAGS) -o $(PATH.exception)/$@
+	cd $(PATH.exception) && ./$(TEST.exception)
+
+$(TEST.parameters): $(OBJECTS.parameters)
+	$(CC) $(CPPFLAGS) $(OBJECTS.parameters) $(LDFLAGS) -o $(PATH.parameters)/$@
+	cd $(PATH.parameters) && ./$(TEST.parameters)
+
+$(TEST.portability): $(OBJECTS.portability)
+	$(CC) $(CPPFLAGS) $(OBJECTS.portability) $(LDFLAGS) -o $(PATH.portability)/$@
+	cd $(PATH.portability) && ./$(TEST.portability)
+
+$(TEST.utils): $(OBJECTS.utils)
+	$(CC) $(CPPFLAGS) $(OBJECTS.utils) $(LDFLAGS) -o $(PATH.utils)/$@
+	cd $(PATH.utils) && ./$(TEST.utils)
+
+$(TEST.template): $(OBJECTS.template)
+	$(CC) $(CPPFLAGS) $(OBJECTS.template) $(LDFLAGS) -o $(PATH.template)/$@
+	cd $(PATH.template) && ./$(TEST.template)
+
+$(TEST.parsers): $(OBJECTS.parsers)
+	$(CC) $(CPPFLAGS) $(OBJECTS.parsers) $(LDFLAGS) -o $(PATH.parsers)/$@
+	cd $(PATH.parsers) && ./$(TEST.parsers)
+
+$(TEST.writers): $(OBJECTS.writers)
+	$(CC) $(CPPFLAGS) $(OBJECTS.writers) $(LDFLAGS) -o $(PATH.writers)/$@
+	cd $(PATH.writers) && ./$(TEST.writers)
+
+
+CLEAN.array=clean_array
+CLEAN.data=clean_data
+CLEAN.exception=clean_exception
+CLEAN.parameters=clean_parameters
+CLEAN.portability=clean_portability
+CLEAN.utils=clean_utils
+CLEAN.template=clean_template
+CLEAN.parsers=clean_parsers
+CLEAN.writers=clean_writers
+CLEAN.fusion=clean_fusion
+
+clean: $(CLEAN.fusion) $(CLEAN.array) $(CLEAN.data) $(CLEAN.exception) $(CLEAN.parameters) $(CLEAN.portability) $(CLEAN.utils) $(CLEAN.template) $(CLEAN.parsers) $(CLEAN.writers)
+
+$(CLEAN.array):
+	-rm -rf $(OBJECTS.array) $(PATH.array)/$(TEST.array)
+
+$(CLEAN.data):
+	-rm -rf $(OBJECTS.data) $(PATH.data)/$(TEST.data)
+
+$(CLEAN.exception):
+	-rm -rf $(OBJECTS.exception) $(PATH.exception)/$(TEST.exception)
+
+$(CLEAN.parameters):
+	-rm -rf $(OBJECTS.parameters) $(PATH.parameters)/$(TEST.parameters)
+
+$(CLEAN.portability):
+	-rm -rf $(OBJECTS.portability) $(PATH.portability)/$(TEST.portability)
+
+$(CLEAN.utils):
+	-rm -rf $(OBJECTS.utils) $(PATH.utils)/$(TEST.utils)
+
+$(CLEAN.template):
+	-rm -rf $(OBJECTS.template) $(PATH.template)/$(TEST.template)
+
+$(CLEAN.parsers):
+	-rm -rf $(OBJECTS.parsers) $(PATH.parsers)/$(TEST.parsers)
+
+$(CLEAN.writers):
+	-rm -rf $(OBJECTS.writers) $(PATH.writers)/$(TEST.writers)
+
+$(CLEAN.fusion):
+	-rm -rf $(OBJECTS.fusion) $(PATH.fusion)/$(TEST.fusion)
+
+

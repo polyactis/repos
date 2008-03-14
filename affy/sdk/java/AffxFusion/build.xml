@@ -1,0 +1,64 @@
+<!--
+	Build file for AffxFusion.jar.
+	Copyright (c) 2008 Affymetrix, Inc.
+	@author Garret Wilson
+	@see http://java.sun.com/blueprints/code/projectconventions.html
+	@see http://java.sun.com/blueprints/code/namingconventions.html
+	@see http://www.jajakarta.org/turbine/en/turbine/maven/reference/naming-conventions.html
+-->
+
+<project name="affx-fusion" default="jar-all" basedir=".">
+
+	<target name="init" description="Initializes variables.">
+		<tstamp/>
+		<property name="name" value="AffxFusion"/>
+		<echo message="----------- ${name} ------------"/>
+
+		<!-- compiler options -->
+		<property name="debug" value="false"/>
+		<property name="optimize" value="on"/>
+		<property name="deprecation" value="off"/>
+
+		<!-- directories -->
+		<property name="root.dir" value="."/>
+		<property name="src.dir" value="${root.dir}/src"/>
+		<property name="build.dir" value="${root.dir}/build"/>
+		<property name="dist.dir" value="${root.dir}/dist"/>
+
+		<!-- output files -->
+		<property name="affx-fusion.jar" value="${dist.dir}/AffxFusion.jar"/>
+
+	</target>
+
+	<target name="clean" depends="init" description="Deletes build files.">
+    <delete dir="${build.dir}"/>
+	</target>
+
+	<target name="compile" depends="init" description="Compiles AffxFusion.">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<javac destdir="${build.dir}"
+           debug="${debug}"
+           deprecation="${deprecation}" 
+           optimize="${optimize}"
+           source="1.5"
+           target="1.5"
+           >
+			<src path="${src.dir}"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Creates the AffxFusion.jar file.">
+		<jar jarfile="${affx-fusion.jar}">
+			<fileset dir="${build.dir}"/>
+		</jar>
+	</target>
+
+	<target name="jar-all" depends="compile" description="Creates the AffxFusion.jar file with source included.">
+		<jar jarfile="${affx-fusion.jar}">
+			<fileset dir="${build.dir}"/>
+			<fileset dir="${src.dir}"/>
+		</jar>
+	</target>
+
+</project>

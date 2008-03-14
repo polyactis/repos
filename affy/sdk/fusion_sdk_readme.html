@@ -1,0 +1,3750 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 12">
+<meta name=Originator content="Microsoft Word 12">
+<link rel=Edit-Time-Data href="fusion_sdk_readme_files/editdata.mso">
+<title>Affymetrix Fusion SDK</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Luis Jevons</o:Author>
+  <o:LastAuthor>Luis Jevons</o:LastAuthor>
+  <o:Revision>6</o:Revision>
+  <o:TotalTime>59</o:TotalTime>
+  <o:Created>2007-09-19T19:39:00Z</o:Created>
+  <o:LastSaved>2007-09-19T20:47:00Z</o:LastSaved>
+  <o:Pages>3</o:Pages>
+  <o:Words>3212</o:Words>
+  <o:Characters>18314</o:Characters>
+  <o:Lines>152</o:Lines>
+  <o:Paragraphs>42</o:Paragraphs>
+  <o:CharactersWithSpaces>21484</o:CharactersWithSpaces>
+  <o:Version>12.00</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<link rel=themeData href="fusion_sdk_readme_files/themedata.thmx">
+<link rel=colorSchemeMapping
+href="fusion_sdk_readme_files/colorschememapping.xml">
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:TrackMoves>false</w:TrackMoves>
+  <w:TrackFormatting/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:DoNotPromoteQF/>
+  <w:LidThemeOther>EN-US</w:LidThemeOther>
+  <w:LidThemeAsian>X-NONE</w:LidThemeAsian>
+  <w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+   <w:SplitPgBreakAndParaMark/>
+   <w:DontVertAlignCellWithSp/>
+   <w:DontBreakConstrainedForcedTables/>
+   <w:DontVertAlignInTxbx/>
+   <w:Word11KerningPairs/>
+   <w:CachedColBalance/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+  <m:mathPr>
+   <m:mathFont m:val="Cambria Math"/>
+   <m:brkBin m:val="before"/>
+   <m:brkBinSub m:val="--"/>
+   <m:smallFrac m:val="off"/>
+   <m:dispDef/>
+   <m:lMargin m:val="0"/>
+   <m:rMargin m:val="0"/>
+   <m:defJc m:val="centerGroup"/>
+   <m:wrapIndent m:val="1440"/>
+   <m:intLim m:val="subSup"/>
+   <m:naryLim m:val="undOvr"/>
+  </m:mathPr></w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" DefUnhideWhenUsed="true"
+  DefSemiHidden="true" DefQFormat="false" DefPriority="99"
+  LatentStyleCount="267">
+  <w:LsdException Locked="false" Priority="0" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Normal"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="heading 1"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 2"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 3"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 4"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 5"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 6"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 7"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 8"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 9"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 1"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 2"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 3"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 4"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 5"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 6"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 7"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 8"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 9"/>
+  <w:LsdException Locked="false" Priority="35" QFormat="true" Name="caption"/>
+  <w:LsdException Locked="false" Priority="10" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Title"/>
+  <w:LsdException Locked="false" Priority="1" Name="Default Paragraph Font"/>
+  <w:LsdException Locked="false" Priority="11" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtitle"/>
+  <w:LsdException Locked="false" Priority="22" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Strong"/>
+  <w:LsdException Locked="false" Priority="20" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Emphasis"/>
+  <w:LsdException Locked="false" Priority="59" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Table Grid"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Placeholder Text"/>
+  <w:LsdException Locked="false" Priority="1" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="No Spacing"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 1"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 1"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Revision"/>
+  <w:LsdException Locked="false" Priority="34" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="List Paragraph"/>
+  <w:LsdException Locked="false" Priority="29" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Quote"/>
+  <w:LsdException Locked="false" Priority="30" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Quote"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 1"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 1"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 2"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 2"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 2"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 3"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 3"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 3"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 4"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 4"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 4"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 5"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 5"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 5"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 6"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 6"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 6"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="19" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Emphasis"/>
+  <w:LsdException Locked="false" Priority="21" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Emphasis"/>
+  <w:LsdException Locked="false" Priority="31" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Reference"/>
+  <w:LsdException Locked="false" Priority="32" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Reference"/>
+  <w:LsdException Locked="false" Priority="33" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Book Title"/>
+  <w:LsdException Locked="false" Priority="37" Name="Bibliography"/>
+  <w:LsdException Locked="false" Priority="39" QFormat="true" Name="TOC Heading"/>
+ </w:LatentStyles>
+</xml><![endif]-->
+<link rel=Stylesheet type="text/css" media=all
+href="file_formats/files_files/style.css">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Courier;
+	panose-1:2 7 4 9 2 2 5 2 4 4;
+	mso-font-charset:0;
+	mso-generic-font-family:modern;
+	mso-font-format:other;
+	mso-font-pitch:fixed;
+	mso-font-signature:3 0 0 0 1 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;
+	mso-font-charset:1;
+	mso-generic-font-family:roman;
+	mso-font-format:other;
+	mso-font-pitch:variable;
+	mso-font-signature:0 0 0 0 0 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:-520082689 -1073717157 41 0 66047 0;}
+@font-face
+	{font-family:"Univers 45 Light";
+	panose-1:0 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-format:other;
+	mso-font-pitch:variable;
+	mso-font-signature:3 0 0 0 1 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+a:link, span.MsoHyperlink
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	color:#003366;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	color:#003366;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-link:"Balloon Text Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+span.BalloonTextChar
+	{mso-style-name:"Balloon Text Char";
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:"Balloon Text";
+	mso-ansi-font-size:8.0pt;
+	mso-bidi-font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";
+	mso-ascii-font-family:Tahoma;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-hansi-font-family:Tahoma;
+	mso-bidi-font-family:Tahoma;}
+p.black10, li.black10, div.black10
+	{mso-style-name:black10;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.black11, li.black11, div.black11
+	{mso-style-name:black11;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.black12, li.black12, div.black12
+	{mso-style-name:black12;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.blue11, li.blue11, div.blue11
+	{mso-style-name:blue11;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.blue11s, li.blue11s, div.blue11s
+	{mso-style-name:blue11s;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.blue12, li.blue12, div.blue12
+	{mso-style-name:blue12;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:11.25pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.blue13, li.blue13, div.blue13
+	{mso-style-name:blue13;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:11.25pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.blue14, li.blue14, div.blue14
+	{mso-style-name:blue14;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:12.0pt;
+	mso-pagination:widow-orphan;
+	font-size:10.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluecontent, li.bluecontent, div.bluecontent
+	{mso-style-name:bluecontent;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluecontent12, li.bluecontent12, div.bluecontent12
+	{mso-style-name:bluecontent12;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluecontent12bold, li.bluecontent12bold, div.bluecontent12bold
+	{mso-style-name:bluecontent12bold;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.cedesign10, li.cedesign10, div.cedesign10
+	{mso-style-name:cedesign10;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.cedesigngreen10, li.cedesigngreen10, div.cedesigngreen10
+	{mso-style-name:cedesigngreen10;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.graycontent, li.graycontent, div.graycontent
+	{mso-style-name:graycontent;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navblue, li.navblue, div.navblue
+	{mso-style-name:navblue;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.navstockcontent, li.navstockcontent, div.navstockcontent
+	{mso-style-name:navstockcontent;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.navwhite, li.navwhite, div.navwhite
+	{mso-style-name:navwhite;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.red, li.red, div.red
+	{mso-style-name:red;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.red12, li.red12, div.red12
+	{mso-style-name:red12;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.searchblack, li.searchblack, div.searchblack
+	{mso-style-name:searchblack;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.searchred, li.searchred, div.searchred
+	{mso-style-name:searchred;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.underblue11s, li.underblue11s, div.underblue11s
+	{mso-style-name:underblue11s;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.white12, li.white12, div.white12
+	{mso-style-name:white12;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.bluenote, li.bluenote, div.bluenote
+	{mso-style-name:bluenote;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.buttonheader, li.buttonheader, div.buttonheader
+	{mso-style-name:buttonheader;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.cedesign11, li.cedesign11, div.cedesign11
+	{mso-style-name:cedesign11;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.cedesigngreen11, li.cedesigngreen11, div.cedesigngreen11
+	{mso-style-name:cedesigngreen11;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.content, li.content, div.content
+	{mso-style-name:content;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.contentlink, li.contentlink, div.contentlink
+	{mso-style-name:contentlink;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.divider12, li.divider12, div.divider12
+	{mso-style-name:divider12;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.grayresults, li.grayresults, div.grayresults
+	{mso-style-name:grayresults;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.header2, li.header2, div.header2
+	{mso-style-name:header2;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header3, li.header3, div.header3
+	{mso-style-name:header3;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header4, li.header4, div.header4
+	{mso-style-name:header4;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header4link, li.header4link, div.header4link
+	{mso-style-name:header4link;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.header5, li.header5, div.header5
+	{mso-style-name:header5;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.homeblue, li.homeblue, div.homeblue
+	{mso-style-name:homeblue;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:7.5pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.homecontent, li.homecontent, div.homecontent
+	{mso-style-name:homecontent;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.homeheader, li.homeheader, div.homeheader
+	{mso-style-name:homeheader;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.pageheader, li.pageheader, div.pageheader
+	{mso-style-name:pageheader;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:14.25pt;
+	mso-pagination:widow-orphan;
+	font-size:14.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-bidi-font-family:"Times New Roman";
+	font-weight:bold;}
+p.homered, li.homered, div.homered
+	{mso-style-name:homered;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.homeselect, li.homeselect, div.homeselect
+	{mso-style-name:homeselect;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:7.5pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.intro, li.intro, div.intro
+	{mso-style-name:intro;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.introlink, li.introlink, div.introlink
+	{mso-style-name:introlink;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.leftnav, li.leftnav, div.leftnav
+	{mso-style-name:leftnav;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.leftnav2, li.leftnav2, div.leftnav2
+	{mso-style-name:leftnav2;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.leftnav2select, li.leftnav2select, div.leftnav2select
+	{mso-style-name:leftnav2select;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.leftnavheader, li.leftnavheader, div.leftnavheader
+	{mso-style-name:leftnavheader;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.leftnavselect, li.leftnavselect, div.leftnavselect
+	{mso-style-name:leftnavselect;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.0pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.libraryimage, li.libraryimage, div.libraryimage
+	{mso-style-name:libraryimage;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.link1, li.link1, div.link1
+	{mso-style-name:link1;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.link2, li.link2, div.link2
+	{mso-style-name:link2;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.link3, li.link3, div.link3
+	{mso-style-name:link3;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navblue2, li.navblue2, div.navblue2
+	{mso-style-name:navblue2;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navbluestockcontent, li.navbluestockcontent, div.navbluestockcontent
+	{mso-style-name:navbluestockcontent;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.navboldstockcontent, li.navboldstockcontent, div.navboldstockcontent
+	{mso-style-name:navboldstockcontent;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.results, li.results, div.results
+	{mso-style-name:results;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.resultslink, li.resultslink, div.resultslink
+	{mso-style-name:resultslink;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.search, li.search, div.search
+	{mso-style-name:search;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-line-height-alt:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.searchfield, li.searchfield, div.searchfield
+	{mso-style-name:searchfield;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-bidi-font-family:"Times New Roman";}
+p.sitemapsublink, li.sitemapsublink, div.sitemapsublink
+	{mso-style-name:sitemapsublink;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:8.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.whiteheader, li.whiteheader, div.whiteheader
+	{mso-style-name:whiteheader;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:10.5pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.descriptor, li.descriptor, div.descriptor
+	{mso-style-name:descriptor;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:8.25pt;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.rightnavheader, li.rightnavheader, div.rightnavheader
+	{mso-style-name:rightnavheader;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.tablecontent, li.tablecontent, div.tablecontent
+	{mso-style-name:tablecontent;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.tablelink, li.tablelink, div.tablelink
+	{mso-style-name:tablelink;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	line-height:9.75pt;
+	mso-pagination:widow-orphan;
+	font-size:9.0pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+p.alert, li.alert, div.alert
+	{mso-style-name:alert;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	font-weight:bold;}
+p.seq, li.seq, div.seq
+	{mso-style-name:seq;
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:7.5pt;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;
+	mso-bidi-font-family:"Times New Roman";}
+span.header21
+	{mso-style-name:header21;
+	mso-style-unhide:no;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Arial","sans-serif";
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	color:black;
+	mso-text-animation:none;
+	font-weight:bold;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+span.header41
+	{mso-style-name:header41;
+	mso-style-unhide:no;
+	mso-ansi-font-size:9.0pt;
+	mso-bidi-font-size:9.0pt;
+	font-family:"Arial","sans-serif";
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	color:#003366;
+	mso-text-animation:none;
+	font-weight:bold;
+	text-decoration:none;
+	text-underline:none;
+	text-decoration:none;
+	text-line-through:none;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	mso-default-props:yes;
+	font-size:10.0pt;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:359820780;
+	mso-list-template-ids:-1626059906;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1
+	{mso-list-id:375936611;
+	mso-list-template-ids:-634868978;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l1:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2
+	{mso-list-id:499857505;
+	mso-list-template-ids:1331493150;}
+@list l2:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l2:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l2:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3
+	{mso-list-id:700858018;
+	mso-list-template-ids:537174984;}
+@list l3:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l3:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l3:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4
+	{mso-list-id:812061906;
+	mso-list-template-ids:-673176230;}
+@list l4:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l4:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5
+	{mso-list-id:1200557522;
+	mso-list-template-ids:-515753316;}
+@list l5:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l5:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6
+	{mso-list-id:1265310305;
+	mso-list-template-ids:1748250098;}
+@list l6:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l6:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l6:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7
+	{mso-list-id:1348484644;
+	mso-list-template-ids:1914754082;}
+@list l7:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l7:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8
+	{mso-list-id:1476407141;
+	mso-list-template-ids:-542356072;}
+@list l8:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l8:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9
+	{mso-list-id:1744600297;
+	mso-list-template-ids:-1335052688;}
+@list l9:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l9:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10
+	{mso-list-id:1944268262;
+	mso-list-template-ids:-58698460;}
+@list l10:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l10:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l10:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11
+	{mso-list-id:1967423476;
+	mso-list-template-ids:1196968174;}
+@list l11:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l11:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l11:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman","serif";}
+</style>
+<![endif]-->
+<meta
+content="Affymetrix, GeneChip, GeneChip Array, Netaffx, NetAffx Analysis Center, Affymetrics, Affimetrix, Affimetrics, "
+name=keywords>
+<meta
+content="Affymetrix is dedicated to developing state-of-the-art technology for acquiring, analyzing, and managing complex genetic information for use in biomedical research. Affymetrix sells GeneChip® brand arrays."
+name=description>
+<link href="../../../favicon.ico" rel=icon>
+
+<script language="JavaScript">
+</script>
+
+<script language="JavaScript"  src="file_formats/files_files/main.js" type="text/javascript">
+</script>
+<!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white lang=EN-US link="#003366" vlink="#003366" style='tab-interval:
+.5in' onresize="fixIt()" alink="#003366" leftmargin=0 topmargin=0
+onunload="window.focus()" marginheight=0 marginwidth=0>
+
+<div class=Section1>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+ style='mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman"'>&nbsp;<o:p></o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+display:none;mso-hide:all'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=601
+ style='width:450.75pt;mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:
+ 0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+  <td valign=top style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+  mso-no-proof:yes'><img width=128 height=54 id="_x0000_i1076"
+  src="file_formats/files_files/affymetrix_logo.gif" alt=Affymetrix></span><span
+  style='mso-fareast-font-family:"Times New Roman"'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p style='mso-line-height-alt:14.25pt'><b><span style='font-size:14.5pt;
+  font-family:"Univers 45 Light","sans-serif";color:black;text-transform:uppercase'>AFFYMETRIX
+  DEVELOPER NETWORK<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+display:none;mso-hide:all'><o:p>&nbsp;</o:p></span></p>
+
+</NOINDEX>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=772
+ style='width:579.0pt;mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:
+ 0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes;
+  height:1.5pt'>
+  <td width=772 valign=top style='width:579.0pt;background:#336699;padding:
+  0in 0in 0in 0in;height:1.5pt'>
+  <p class=MsoNormal style='mso-line-height-alt:1.5pt'><span style='mso-fareast-font-family:
+  "Times New Roman";mso-no-proof:yes'><img width=1 height=3 id="_x0000_i1075"
+  src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+  "Times New Roman"'><o:p></o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+display:none;mso-hide:all'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=409
+ style='width:306.75pt;mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:
+ 3.75pt 3.75pt 3.75pt 3.75pt'
+ background="file_formats/files_files/network_background.gif">
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+  <td valign=top style='padding:3.75pt 3.75pt 3.75pt 3.75pt'>
+  <table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+   style='mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in'
+   background="file_formats/files_files/spacer.gif">
+   <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+    <td width=11 valign=top style='width:8.25pt;padding:0in 0in 0in 0in'>
+    <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+    mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1074"
+    src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+    "Times New Roman"'><o:p></o:p></span></p>
+    </td>
+    <td width="100%" valign=top style='width:100.0%;padding:0in 0in 0in 0in'>
+    <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+    mso-no-proof:yes'><img width=1 height=41 id="_x0000_i1073"
+    src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+    "Times New Roman"'><o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:1;mso-yfti-lastrow:yes'>
+    <td width=11 valign=top style='width:8.25pt;padding:0in 0in 0in 0in'>
+    <p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman";
+    mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1072"
+    src="file_formats/files_files/spacer.gif"></span><span style='mso-fareast-font-family:
+    "Times New Roman"'><o:p></o:p></span></p>
+    </td>
+    <td valign=top style='padding:0in 0in 0in 0in'>
+    <p style='line-height:10.5pt'><span class=header21><span style='font-size:
+    9.0pt'>Affymetrix® Fusion SDK - Release 1.0.10a (December 2007)</span></span><span
+    style='font-size:9.0pt;font-family:"Arial","sans-serif";color:black'><o:p></o:p></span></p>
+    </td>
+   </tr>
+  </table>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span style='mso-fareast-font-family:"Times New Roman"'><o:p>&nbsp;</o:p></span></p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0
+ style='mso-cellspacing:0in;mso-yfti-tbllook:1184;mso-padding-alt:0in 0in 0in 0in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-row-margin-right:31.2pt'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>&nbsp;<o:p></o:p></span></p>
+  </td>
+  <td style='mso-cell-special:placeholder;border:none;padding:0in 0in 0in 0in'
+  width=42 colspan=2><p class='MsoNormal'>&nbsp;</td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  width=11 height=11 id="_x0000_i1071"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1070"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>INTRODUCTION<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=1 height=10 id="_x0000_i1069"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=11 height=1 id="_x0000_i1068"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img width=5 height=1 id="_x0000_i1067"
+  src="file_formats/files_files/spacer.gif"></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>The Fusion SDK provides ANSI C++ source code for parsing data
+  files generated and managed by the GCOS 1.x software and the new Affymetrix
+  GeneChip Command Console software (newsletters and recorded WebTalks are
+  available on the Affymetrix <a
+  href="http://www.affymetrix.com/support/developer/adn_news.affx">DevNet web site</a>
+  for more information on the Command Console software). Using the Fusion SDK
+  provides backwards and forward flexibility by providing the ability to parse
+  both types of data files.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The SDK was developed using the ANSI C++ language and tested
+  using the Microsoft Visual C++ 2005 compiler on a Windows XP system, G++ 3.3
+  compiler on a Apple OSX 10.3 system and G++ 3.3 on a Sun Solaris system. The
+  Java code in the Fusion SDK required JRE 1.5 or above.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The documentation provided and source code in the Fusion SDK
+  contains references to the project code named &quot;Calvin&quot;. This code
+  name is used to refer to the Affymetrix GeneChip Command Console software. <o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The source code in the Fusion SDK is licensed under the <a
+  href="fusion_sdk_license.html">GNU Lesser General Public License (LGPL)</a>.<o:p></o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1066" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:5'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  border=0 width=11 height=11 id="_x0000_i1065"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1064" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>RELEASE NOTES<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:6'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1063" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:7'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=11 height=1
+  id="_x0000_i1062" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1061" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>Version 1.0 Updates after pre-release<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l11 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>The Command Console generic data file format has been
+       modified to include the addition of column names for the columns in a
+       data set.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l11 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Support for resequencing CHP files was added.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l11 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Support for tiling CHP files was added.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l11 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>A flag was added to indicate if absolute or
+       comparison expression values are stored in the CHP file.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l11 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>The method for reading CHP files now uses the static
+       method FusionCHPDataReg::CreateObject. This method determines the type
+       of CHP file (expression, genotyping, tiling, etc.) and returns a pointer
+       to the specific CHP data file object.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l11 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>The parameter names in the CHP file for algorithm and
+       chip summary parameters have been changed to be more consistent with the
+       CEL file parameter names.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l11 level1 lfo1;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>CHP and Array file writing classes have been added.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.03 Update (December 2005)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l3 level1 lfo2;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Updates to the pure Java implementation. Souce code,
+       javadocs and a pre-built JAR file are included.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l3 level1 lfo2;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>New COM implementation (beta). This is provided as
+       C++ code and a pre-built COM DLL.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l3 level1 lfo2;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Additional interfaces to the Fusion CEL and CHP layer
+       to expose the file identifier and the generic data object for
+       &quot;Command Console&quot; files.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.04 Updates (February 2006)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added a method to update the data in a CHP file after
+       written (DataSetUpdater class).<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Performance improvements were added to the CHP file
+       writers.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added class to read a CHP file with only a probe set
+       name and signal value (FusionCHPSignalData class).<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added a method to retrieve the GenericData object
+       from the fusion layer in the CEL and CHP parsers.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added a method to retrieve the file identifier from
+       the fusion layer in the CEL and CHP parsers.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added a method to add a floating point and integer
+       value to the chip summary section of the expression CHP object.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added the library package name, media file and guid
+       to the array set file DTD. The new DTD is documented in the file formats
+       document.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Fixed compile errors with the Mac platform.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Bug fix with the CHP parser when reading the various
+       types of CHP files.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l7 level1 lfo3;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Bug fix with the GenericDataHeaderUpdater class on
+       the Mac platform.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.05 Updates (March 2006)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l9 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Bug fix with the
+       FusionExpressionProbeSetResults::GetNumUsedPairs() function. The
+       function was returning the number of pairs.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l9 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Documentation update for writing CHP files. The
+       document was updated to reflex new functions that must be called when
+       writing CHP files. The functions
+       &quot;CHPFileWriter::SeekToDataSet&quot; and
+       &quot;CHPFileWriter::SeekToBgSet&quot; were added in version 1.04 of the
+       Fusion SDK to improve performance of writing CHP files. This update is
+       with the documentation only.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l9 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Changed the method for creating CHP files to take in
+       the maximum length of a probe set name. Previously the maximum length
+       was hard coded to 32 characters.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l9 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Changed the probe set name type from wstring (16 bit)
+       to string (8 bit).<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l9 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added support to compile the code under the Solaris
+       platform using G++ 3.3.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l9 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Updated the Java samples to use the pure Java
+       implementation rather than the SWIG generated wrappers.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l9 level1 lfo4;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>The CustomerBarcode entry from the array set file DTD
+       was removed.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.06 Updates (May 2006)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l4 level1 lfo5;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Bug fix in the Java CEL parser for Command Console
+       CEL files. The identifier for the number of rows and columns was
+       incorrect.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l4 level1 lfo5;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added interfaces to the CEL parsers (C++ and Java) to
+       retrieve the library package and master file name. These are new items
+       being captured by the Command Console software.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l4 level1 lfo5;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Replaced the use of the WIN32 macro with the _MSC_VER
+       macro. This is to isolate code specific to the Microsoft compiler.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.07 Updates (July 2006)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l2 level1 lfo6;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>The classes for reading Expression Console CHP files
+       (non-MAS5 algorithm generated CHP files) has changed. The update was to
+       change the name of the classes to use &quot;Quantification&quot; instead
+       of &quot;Signal&quot;. The new classes are:<o:p></o:p></span></li>
+   <ul type=circle>
+    <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;
+        mso-margin-bottom-alt:auto;line-height:10.5pt;mso-list:l2 level2 lfo6;
+        tab-stops:list 1.0in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+        mso-fareast-font-family:"Times New Roman"'>FusionCHPQuantificationData
+        (replacing &quot;FusionCHPSignalData&quot;)<o:p></o:p></span></li>
+    <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;
+        mso-margin-bottom-alt:auto;line-height:10.5pt;mso-list:l2 level2 lfo6;
+        tab-stops:list 1.0in'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+        mso-fareast-font-family:"Times New Roman"'>FusionCHPQuantificationDetectionData
+        (new class for Exon CHP files generated from the Expression Console
+        software)<o:p></o:p></span></li>
+   </ul>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.08 Updates (September 2006)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l6 level1 lfo7;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Modified the DataSet class to handle retrieval of
+       more than 200MB of data.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l6 level1 lfo7;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Bug fix with reading Expression Console generated CHP
+       files (with was released as patch 1.0.7.1). <o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.09 Updates (February 2007)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added support for new genotyping format CHP files
+       (&quot;multi-data&quot; CHP file).<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added support for more probe set&nbsp; types in the
+       CDF file<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Changed the method of reading CDF file to reduce the
+       amount of memory required. The new method does not memory map the entire
+       file.<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.10 Updates (November 2007)<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added support for copy number format CHP files (using
+       the &quot;multi-data&quot; CHP file format). These have CNCHP and LOHCHP
+       extensions.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Updated the Java source to utilize “generics”. The
+       Java code now requires JRE1.5 and above.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added support in the Java code for writing CHP files.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Added example C++ code for writing expression and
+       genotyping CHP files.<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Removed the SWIG wrappers.</span><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif"'>&nbsp;</span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.10a Updates (December 2007)<o:p></o:p></span></p>
+  <ul type=disc>  
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Modified the Java source to exclude colons from 
+	Affymetrix GUIDS.</span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Changed the Unicode encoding scheme for the Java Array writer to UTF-16.</span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Modification to the Java source to be JRE1.5 
+	compliant.</span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Version 1.0.10b Updates (January 2008)<o:p></o:p></span></p>
+  <ul type=disc>  
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'>
+	<span style="font-family: Arial,sans-serif; font-size: 9pt">Bug fix in Java class for handling
+	C++ unsigned integers.</span></li>  
+	 <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l1 level1 lfo8;tab-stops:list .5in'>
+	<span style="font-family: Arial,sans-serif; font-size: 9pt">Updated Ant build file for Java SDK.</span></li> 
+  </ul>
+  <p>&nbsp;</td>
+ </tr>
+ <tr style='mso-yfti-irow:8'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1060" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:9'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  border=0 width=11 height=11 id="_x0000_i1059"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1058" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>GETTING STARTED<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:10'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1057" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:11'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=11 height=1
+  id="_x0000_i1056" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1055" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>Three tutorials are provided to document using the fusion 
+	classes to read and write the data files. This documentation and the samples 
+	programs supplied is the easiest way to get started using the Fusion SDK.&nbsp; </span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>C++ and Java sample programs in the </span>
+	<span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><a href="parser_examples">affy/sdk/parser_examples/</a>&nbsp;
+  directory provide examples for reading CEL, CDF and
+  CHP files.&nbsp; Sample C++ code for writing expression and genotyping CHP files can be 
+  found in the <a href="parser_examples">affy/sdk/calvin_files/converters/</a>
+  directory. <o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Tutorials include:<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l10 level1 lfo9;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'><a href="reading_data_files.html">How to read a
+       Command Console or GCOS data file</a><o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l10 level1 lfo9;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'><a href="writing_chp_files.html">How to write a
+       Command Console CHP file</a><o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l10 level1 lfo9;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'><a href="writing_cnchp_and_lohchp_files.html">How to write 
+       Command Console CNCHP and LOHCHP files</a><o:p></o:p></span></li>  
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l10 level1 lfo9;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'><a href="writing_array_files.html">How to write a
+       Command Console Array file</a><o:p></o:p></span></li>     
+  </ul> 
+   <p>&nbsp;</p></td>
+ </tr>
+ <tr style='mso-yfti-irow:12'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1054" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:13'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  border=0 width=11 height=11 id="_x0000_i1053"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1052" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>FUSION PARSING OBJECTS<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:14'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1051" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:15'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=11 height=1
+  id="_x0000_i1050" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1049" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>The following table defines the top level Fusion SDK objects
+  to use for parsing the Affymetrix files. For a description of the contents
+  and format of each file type please refer to the <a
+  href="file_formats/index.html">file formats documentation.</a><o:p></o:p></span></p>
+  <table class=MsoNormalTable border=1 cellpadding=0 width="80%"
+   style='width:80.0%;mso-cellspacing:1.5pt;mso-yfti-tbllook:1184;mso-padding-alt:
+   0in 5.4pt 0in 5.4pt'>
+   <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:
+    9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>File Type</span></b><span style='font-size:9.0pt;font-family:
+    "Arial","sans-serif";mso-fareast-font-family:"Times New Roman";color:#003366'><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:
+    9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>SDK Object (class)</span></b><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:
+    9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>File</span></b><span style='font-size:9.0pt;font-family:
+    "Arial","sans-serif";mso-fareast-font-family:"Times New Roman";color:#003366'><o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:1'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>ARRAY<br>
+    EXP<br>
+    DTT 1.1 XML<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionArrayFileReader<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionArrayFileReader.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:2'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>BAR<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionBARFile<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionBARData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:3'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>BED<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionBEDFile <o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionBEDData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:4'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>BPMAP<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionBPMAPFile<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionBPMAPData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:5'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>CDF<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionCDFData <o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionCDFData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:6'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>CEL<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionCELData<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionCELData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:7'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>CHP<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionCHPData<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionCHPData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:8'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>GRC<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionGrcFileReader<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionGrcFileReader.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:9'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>GRD<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionGRDFile<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionGRDData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:10'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>MSK<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionMSKFile<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionMSKData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:11'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>PSI<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionPSIFile<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionPSIData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:12'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>SMD<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_fusion_io::FusionSMDFile<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/fusion/src/FusionSMDData.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:13;mso-yfti-lastrow:yes'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>TEMPLATE<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affymetrix_calvin_io::TemplateFileReader<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/calvin_files/parsers/src/TemplateFileReader.h<o:p></o:p></span></p>
+    </td>
+   </tr>
+  </table>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:16'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1048" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:17'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  border=0 width=11 height=11 id="_x0000_i1047"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1046" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>DIRECTORY TABLE OF CONTENTS<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:18'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1045" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:19'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=11 height=1
+  id="_x0000_i1044" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1043" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>The following directories are provided within the Fusion SDK.<o:p></o:p></span></p>
+  <table class=MsoNormalTable border=1 cellpadding=0 width="80%"
+   style='width:80.0%;mso-cellspacing:1.5pt;mso-yfti-tbllook:1184;mso-padding-alt:
+   0in 5.4pt 0in 5.4pt'>
+   <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:
+    9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Directory</span></b><span style='font-size:9.0pt;font-family:
+    "Arial","sans-serif";mso-fareast-font-family:"Times New Roman";color:#003366'><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:
+    9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Description</span></b><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:1'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="file">affy/sdk/file/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for the GCOS 1.x file parsers.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:2'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="file_formats">affy/sdk/file_formats/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Documentation on the file formats, including the new Command
+    Console file formats.<o:p></o:p></span></p>
+    </td>
+   </tr>  
+   <tr style='mso-yfti-irow:4'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="portability">affy/sdk/portability/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Type definitions for the GCOS 1.x file parsers to assist in
+    portability.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:5'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin">affy/sdk/calvin_files/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for the Command Console file parsers and the
+    Fusion interfaces.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:6'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/array">affy/sdk/calvin_files/array/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for storing the &quot;array&quot; file
+    contents.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:20'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/converters">affy/sdk/calvin_files/converters/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Example C++ code for writing expression and genotyping CHP
+    files.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:7'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/data">affy/sdk/calvin_files/data/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for storing the Command Console data files.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:8'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/exception">affy/sdk/calvin_files/exception/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for exception classes for the SDK.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:9'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/fusion">affy/sdk/calvin_files/fusion/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for the fusion layer of the SDK.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:10'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/fusion/com">affy/sdk/calvin_files/fusion/com</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Source code for an in-process COM object wrapping the CEL,
+    CDF, PSI and CHP parsers.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:11'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/parameter">affy/sdk/calvin_files/parameter/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for classes to store a name/value parameter.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:12'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/parsers">affy/sdk/calvin_files/parsers/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for the Command Console data file and array
+    file parsers.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:13'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/portability">affy/sdk/calvin_files/portability/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Type definitions for the SDK to assist in portability.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:14'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/template">affy/sdk/calvin_files/template/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for storing the &quot;template&quot; file
+    contents.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:15'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/utils">affy/sdk/calvin_files/utils/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for utility functions used by the SDK.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:16'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="calvin_files/utils">affy/sdk/calvin_files/writers</a>/<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>C++ source code for writing Command Console data files.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:17'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="parser_examples/cpp">affy/sdk/parser_examples/cpp/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Example C++ code for demonstrating the use of the Fusion
+    SDK. These examples include reading intensity data and array layout
+    information from a CEL and CDF file and reading the expression signal
+    results from a CHP file.<o:p></o:p></span></p>
+    </td>
+   </tr>  
+   <tr style='mso-yfti-irow:19'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="parser_examples/java">affy/sdk/parser_examples/java/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Example Java code for demonstrating the use of the Fusion
+    SDK. These examples include reading intensity data and array layout
+    information from a CEL and CDF file and reading the expression signal
+    results from a CHP file.<o:p></o:p></span></p>
+    </td>
+   </tr>
+ 
+   <tr style='mso-yfti-irow:21'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="interface_docs">affy/sdk/interface_docs/</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Documentation for the application programming interfaces.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:22'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><a href="libraries_and_tools">affy/sdk/libraries_and_tools</a><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>This directory contains EXE's for the data viewer and
+    extractor programs.<o:p></o:p></span></p>
+    <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:
+    "Arial","sans-serif";color:#003366'>These tools were built with Microsoft
+    Visual Studio 2005.&nbsp; To execute the tools or utilize the pre-build
+    libraries, the Microsoft .NET Framework 2.0 <a
+    href="http://www.microsoft.com/downloads/details.aspx?FamilyId=7ABD8C8F-287E-4C7E-9A4A-A4ECFF40FC8E&amp;displaylang=en">redistributable
+    package</a> must be installed on the system.<o:p></o:p></span></p>
+    <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:
+    "Arial","sans-serif";color:#003366'>The source code may be recompiled using
+    a different compiler, such as Microsoft Visual Studio 2003, which does not
+    have dependencies on the .NET framework. To do so requires that you
+    generate the required project file or makefile.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:23'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/TestDataFiles<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Large data files for fusion testing.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:24'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/java<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>This is a pure Java implementation of the Fusion parsers for
+    CEL, CHP, PSI and CDF files.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:25'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>affy/sdk/sample_data<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Sample CEL and CHP files in both Command Console and
+    GCOS&nbsp; format.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:26'>
+    <td style='padding:.75pt .75pt .75pt .75pt'></td>
+    <td style='padding:.75pt .75pt .75pt .75pt'></td>
+   </tr>
+   <tr style='mso-yfti-irow:27'>
+    <td style='padding:.75pt .75pt .75pt .75pt'></td>
+    <td style='padding:.75pt .75pt .75pt .75pt'></td>
+   </tr>
+   <tr style='mso-yfti-irow:28;mso-yfti-lastrow:yes'>
+    <td style='padding:.75pt .75pt .75pt .75pt'></td>
+    <td style='padding:.75pt .75pt .75pt .75pt'></td>
+   </tr>
+  </table>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:20'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1042" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:21'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  border=0 width=11 height=11 id="_x0000_i1041"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1040" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#336699'>COMPILING THE CODE<o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:22'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1039" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:23'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=11 height=1
+  id="_x0000_i1038" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1037" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>There are several macros that may need to be defined, using
+  the &quot;-D&quot; compiler switch, to enable compilation and execution on
+  specific operating systems. These are:<o:p></o:p></span></p>
+  <table class=MsoNormalTable border=1 cellpadding=0 width="80%"
+   style='width:80.0%;mso-cellspacing:1.5pt;mso-yfti-tbllook:1184;mso-padding-alt:
+   0in 5.4pt 0in 5.4pt'>
+   <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:
+    9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Macro Definition</span></b><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><b><span style='font-size:
+    9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Description</span></b><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'><o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:1'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>IS_BIG_ENDIAN<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Define this value if the machine represents its data in big ENDIAN
+    format. If the machine is a little ENDIAN machine (such as an Intel system)
+    then omit this macro.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:2'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>_INCLUDE_UNISTD_HEADER_<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Define this value if the UNISTD.H header file is used by the
+    C++ compiler on your machine.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:3'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>WIN32 <o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>Define this value if using the MS VC++ compilers.<o:p></o:p></span></p>
+    </td>
+   </tr>
+   <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>_USE_MEM_MAPPING_<o:p></o:p></span></p>
+    </td>
+    <td style='padding:.75pt .75pt .75pt .75pt'>
+    <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+    font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+    color:#003366'>This value is used to indicate if memory mapping should be
+    used by the GCOS 1.x BAR, BPMAP and CDF file parsers. Memory mapping is
+    automatically used for CEL file parsing and by the Command Console file
+    parsers.<o:p></o:p></span></p>
+    </td>
+   </tr>
+  </table>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:24'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1036" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:25'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  border=0 width=11 height=11 id="_x0000_i1035"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1034" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><a name="third_party_tools"><b><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#336699'>3RD PARTY TOOLS</span></b></a><b><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#336699'><o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:26'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1033" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:27'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=11 height=1
+  id="_x0000_i1032" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1031" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span class=header41><span
+  style='font-size:9.0pt;mso-fareast-font-family:"Times New Roman"'>XERCES</span></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The SDK uses the XERCES library for parsing XML files. Source
+  code for this library is not included as part of the Fusion SDK.&nbsp;
+  Current Command Console formatted XML files are:<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l8 level1 lfo10;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Array Files<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l8 level1 lfo10;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>Templates Files<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l8 level1 lfo10;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>DTT 1.1 XML MAGE Files<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The XERCES library is available at: <a
+  href="http://xml.apache.org/xerces-c/">http://xml.apache.org/xerces-c/</a>.
+  You must download and build this library to use the XML parsing objects of
+  the Fusion SDK. The Fusion SDK was tested with XERCES version 2.7.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>CPPUNIT</span></span><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'><o:p></o:p></span></p>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>The Fusion SDK contains a set of unit test cases to test each
+  class within the SDK. These unit tests were developed using the <a
+  href="http://sourceforge.net/projects/cppunit/">CPPUNIT</a> Framework version
+  1.10.2. Test case source and Visual Studio Projects are located in the
+  &quot;affy/sdk/calvin_files/*/test&quot; folders. Each Visual Studio Project
+  (located in the test directory - e.g. affy/sdk/calvin_files/array/test) will
+  compile, build and execute the test cases. The test cases will run giving a
+  &quot;.&quot; for each test when it completes. If a &quot;F&quot; is
+  displayed instead of an &quot;.&quot;, then that test case failed. When all
+  the test cases were attempted and failed or passed, those that failed will be
+  indicated with the source line and file where the error occurred. The number
+  of passed and failed test cases will be indicated as well. If all test cases
+  pass, then an &quot;OK&quot; is indicated along with the test case count. The
+  test cases may also be performed inside the development environment in debug
+  mode. Stepping through code during debug is also supported (Visual Studio).<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Test data is provided in the data folder one level up from the
+  test folders - e.g. affy/sdk/calvin_files/parsers/data. An additional test
+  data folder is provided for larger files and that is in common to both GCOS
+  1.x File SDK and Fusion. This test data is located in the
+  &quot;affy/sdk/TestDataFiles&quot; folder.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span class=header41><span style='font-size:
+  9.0pt'>Installation Directories</span></span><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";color:#003366'><o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The 3rd party tools must be installed at the same level as
+  &quot;affy&quot; directory. The folder names must be &quot;<a
+  href="http://xml.apache.org/xerces-c/"><span style='text-decoration:none;
+  text-underline:none'>xerces-c</span></a>&quot; and &quot;cppunit&quot;. These
+  names and relative locations to the affy directory are assumed within each
+  Visual Studio project.<o:p></o:p></span></p>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>Example:<o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l0 level1 lfo11;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>/development/affy/sdk/...<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l0 level1 lfo11;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>/development/cppunit<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l0 level1 lfo11;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>/development/xerces-c<o:p></o:p></span></li>
+  </ul>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:28'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1030" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:29'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal align=right style='text-align:right;mso-line-height-alt:
+  10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#003366;mso-no-proof:yes'><img
+  border=0 width=11 height=11 id="_x0000_i1029"
+  src="file_formats/files_files/bullet2.gif"></span><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1028" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><a
+  name="INTERFACE_DOCUMENTATION"><b><span style='font-size:9.0pt;font-family:
+  "Arial","sans-serif";mso-fareast-font-family:"Times New Roman";color:#336699'>INTERFACE
+  DOCUMENTATION</span></b></a><b><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  mso-fareast-font-family:"Times New Roman";color:#336699'><o:p></o:p></span></b></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:30'>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=1 height=10
+  id="_x0000_i1027" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'></td>
+  <td style='padding:0in 0in 0in 0in'></td>
+ </tr>
+ <tr style='mso-yfti-irow:31;mso-yfti-lastrow:yes'>
+  <td width=17 style='width:12.75pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=11 height=1
+  id="_x0000_i1026" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td width=7 style='width:5.25pt;padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='mso-line-height-alt:10.5pt'><span style='font-size:
+  9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366;mso-no-proof:yes'><img border=0 width=5 height=1
+  id="_x0000_i1025" src="file_formats/files_files/spacer.gif"></span><span
+  style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+  "Times New Roman";color:#003366'><o:p></o:p></span></p>
+  </td>
+  <td style='padding:0in 0in 0in 0in'>
+  <p class=MsoNormal style='line-height:10.5pt'><span style='font-size:9.0pt;
+  font-family:"Arial","sans-serif";mso-fareast-font-family:"Times New Roman";
+  color:#003366'>Interface documentation was generated using the <a
+  href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a> (version 1.4.3)
+  documentation system. This system generates on-line documentation (in HTML)
+  from the set of source code files. You may regenerate the documentation using
+  the Doxygen tool using different parameters to customize the contents. In
+  future releases, these additional formats will be provided by way of Doxygen
+  configuration files. One for each type of format supported by Doxygen. <o:p></o:p></span></p>
+  <ul type=disc>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l5 level1 lfo12;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>LaTex<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l5 level1 lfo12;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>RTF<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l5 level1 lfo12;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>MAN<o:p></o:p></span></li>
+   <li class=MsoNormal style='color:#003366;mso-margin-top-alt:auto;mso-margin-bottom-alt:
+       auto;line-height:10.5pt;mso-list:l5 level1 lfo12;tab-stops:list .5in'><span
+       style='font-size:9.0pt;font-family:"Arial","sans-serif";mso-fareast-font-family:
+       "Times New Roman"'>XML<o:p></o:p></span></li>
+  </ul>
+  <p style='line-height:10.5pt'><span style='font-size:9.0pt;font-family:"Arial","sans-serif";
+  color:#003366'>The documents are available in the
+  &quot;affy/sdk/interface_docs/&quot; directory. Click <a
+  href="interface_docs/index.html">here</a> to view the interface documentation
+  (HTML format).<o:p></o:p></span></p>
+  </td>
+ </tr>
+</table>
+
+<p><o:p>&nbsp;</o:p></p>
+
+</div>
+
+</body>
+
+</html>

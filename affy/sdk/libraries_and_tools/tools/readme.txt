@@ -1,0 +1,1 @@
+These tools were build using Microsoft Visual C++ 2005 beta 2. This requires the .NET 2.0 framework to be installed.

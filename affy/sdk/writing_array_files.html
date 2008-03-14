@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Writing Command Console Array Files</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<META 
+content="Affymetrix, GeneChip, GeneChip Array, Netaffx, NetAffx Analysis Center, Affymetrics, Affimetrix, Affimetrics, " 
+name=keywords>
+<META 
+content="Affymetrix is dedicated to developing state-of-the-art technology for acquiring, analyzing, and managing complex genetic information for use in biomedical research. Affymetrix sells GeneChip® brand arrays." 
+name=description>
+<SCRIPT language=JavaScript>
+</SCRIPT>
+
+<SCRIPT language=JavaScript src="file_formats/files_files/main.js" 
+type=text/javascript></SCRIPT>
+<LINK href="file_formats/files_files/style.css" type=text/css rel=stylesheet><LINK 
+href="/favicon.ico" rel=icon>
+<META content="Microsoft FrontPage 6.0" name=GENERATOR>
+<style>
+</style>
+</HEAD>
+<BODY onresize=fixIt() vLink=#003366 aLink=#003366 link=#003366 bgColor=#ffffff 
+leftMargin=0 topMargin=0 onunload=window.focus() marginheight="0" 
+marginwidth="0">
+
+<NOINDEX>
+
+<TABLE cellSpacing=0 cellPadding=0 border=0> 
+<TBODY>
+<TR>
+	<TD vAlign=center align=left>&nbsp;</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<TABLE cellSpacing=0 cellPadding=0 border=0 width="601"> 
+<TBODY>
+<TR>
+	<TD vAlign=top align=left><IMG height=54 alt=Affymetrix src="file_formats/files_files/affymetrix_logo.gif" width=128 border=0></TD>
+	<TD></TD>
+	<TD vAlign=center align=left class=pageheader><p>AFFYMETRIX DEVELOPER NETWORK</p></TD>
+</TR>
+</TBODY>
+</TABLE>
+
+</NOINDEX>
+
+<TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=772 BORDER=0>
+<TBODY>
+<TR>
+	<TD VALIGN=top ALIGN=left WIDTH=772 BGCOLOR=#336699 HEIGHT="2"><IMG height=3 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+</TR> 
+</TBODY>
+</TABLE>
+
+<TABLE cellSpacing=0 cellPadding=5 width=409 background=file_formats/files_files/network_background.gif border=0>
+<TBODY>
+<TR>
+	<TD vAlign=top align=left> 
+	<TABLE cellSpacing=0 cellPadding=0 background=file_formats/files_files/spacer.gif border=0>
+	<TBODY>
+	<TR>
+	    <TD vAlign=top align=left width=11" ><IMG HEIGHT=1 ALT="" SRC="file_formats/files_files/spacer.gif" WIDTH=11 BORDER=0></TD>
+		<TD vAlign=top align=left width="100%"><IMG height=41 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+	</TR>
+	<TR> 
+		<TD vAlign=top align=left width=11" ><IMG HEIGHT=1 ALT="" SRC="file_formats/files_files/spacer.gif" WIDTH=11 BORDER=0></TD>
+		<TD class=intro vAlign=top align=left><P><span class="header2">Writing 
+		Command Console Array Files</span></P></TD>
+	</TR>
+	</TBODY>
+	</TABLE>
+	</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<br>
+
+<TABLE cellSpacing=0 cellPadding=0 border=0 class="content"> <TBODY>
+<tr>
+	<TD>&nbsp;</TD>
+</tr>
+<tr>
+	<TD width="17" align="right"><IMG height=11 alt="" src="file_formats/files_files/bullet2.gif" width=11 border=0></TD>
+	<TD width="7"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=5 border=0></TD>
+	<TD class=header3>INTRODUCTION</TD>
+</tr>
+<tr>
+	<TD><IMG height=10 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+</tr>
+<tr>
+	<TD width="17"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=11 border=0></TD>
+	<TD width="7"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=5 border=0></P></TD>
+	<TD class=content">
+		The Command Console array file (or array set file) is an XML file to store array and user 
+		attributes for one or more arrays of an array set.<p>This file must 
+		exist prior to processing an array within the Command Console system. 
+		The equivalent process is the sample/experiment registration in the GCOS 
+		system or creating an EXP file in the MAS5 software.</p>
+		<p>The array file will store information such as array type and end user 
+		attributes using one or more templates.</td>
+</tr>
+<tr>
+	<TD><IMG height=10 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+</tr>
+<tr>
+	<TD width="17" align="right"><IMG height=11 alt="" src="file_formats/files_files/bullet2.gif" width=11 border=0></TD>
+	<TD width="7"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=5 border=0></TD>
+	<TD class=header3>SDK OBJECTS</TD>
+</tr>
+<tr>
+	<TD><IMG height=10 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+</tr>
+<tr>
+	<TD width="17"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=11 border=0></TD>
+	<TD width="7"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=5 border=0></P></TD>
+	<TD class=content">
+		The object to store the array file contents is the <b>
+		affymetrix_calvin_array.ArrayData </b>class (affy/sdk/calvin_files/array/src/ArrayData.h/cpp 
+		files).<p>The object to read the contents of an array file is the <b>
+		affymetrix_calvin_io.ArrayFileReader </b>class (affy/sdk/calvin_files/parsers/src/ArrayFileReader.h/cpp 
+		files).</p>
+		<p>The object used to write the array object to the array file is the <b>
+		affymetrix_calvin_io.ArrayFileWriter</b> class (affy/sdk/calvin_files/writers/src/ArrayFileWriter.h/cpp 
+		files).</td>
+</tr>
+<tr>
+	<TD><IMG height=10 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+</tr>
+<tr>
+	<TD width="17" align="right"><IMG height=11 alt="" src="file_formats/files_files/bullet2.gif" width=11 border=0></TD>
+	<TD width="7"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=5 border=0></TD>
+	<TD class=header3>WORKFLOW</TD>
+</tr>
+<tr>
+	<TD><IMG height=10 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+</tr>
+<tr>
+	<TD width="17"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=11 border=0></TD>
+	<TD width="7"><IMG height=1 alt="" src="file_formats/files_files/spacer.gif" width=5 border=0></P></TD>
+	<TD class=content">
+		The workflow for writing an array file is:<ol>
+			<li>Create an ArrayData object and set the properties.</li>
+			<li>Resize the ArrayData.PhysicalArraysAttributes vector to hold 
+			information for each of the physical arrays to be added to the file. 
+			Initial array files that have not yet been assigned a physical array 
+			should leave this blank.</li>
+			<li>For each physical array defined, set the properties and 
+			parameters.</li>
+			<li>Add user attributes to the ArrayData.UserAttributes object. This 
+			is an array of name/type/value parameters. There can be as many 
+			parameters as desired. Unlike the GCOS system, there is no 
+			requirement that the parameters come from a template nor do they 
+			need to match what is in a template. A template file is simply an 
+			easy method of storing one or more attribute definitions.</li>
+			<li>Create an ArrayFileWriter object.</li>
+			<li>Write the array file by calling the ArrayFileWriter.Write() 
+			function passing in the name of the array file and the ArrayData 
+			object.</li>
+		</ol>
+		<p>The Fusion SDK uses the Apache Xerces XML SDK for its XML parsing and 
+		witing capabilities. Source code for Xerces must be obtains from the 
+		Apache web site and compiled together with the Fusion SDK.</tr>
+<tr>
+	<TD><IMG height=10 alt="" src="file_formats/files_files/spacer.gif" width=1 border=0></TD>
+</tr>
+  
+	
+</TABLE></TD></TR></TBODY>
+<p><BR> 
+</p>
+</BODY></HTML>
