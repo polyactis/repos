@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Usage: CmpAccession2Ecotype.py [OPTIONS] -p XXX -o OUTPUT_FNAME -j XXX
+Usage: Cmp250kVs2010.py [OPTIONS] -p XXX -o OUTPUT_FNAME -j XXX
 
 Option:
 	-z ..., --hostname=...	the hostname, localhost(default)
@@ -22,13 +22,12 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	./src/CmpAccession2Ecotype.py -p at.ecotype2accession -o 2010pcr_with_sequenom_149snps_ecotype2accession.csv -j sequenom_with_strains_matched_to_2010pcr_ecotype2accession.csv -r
 	
-	./src/CmpAccession2Ecotype.py -p at.accession2ecotype_complete -o 2010pcr_with_sequenom_149snps_accession2ecotype_complete.csv -j  sequenom_with_strains_matched_to_2010pcr_accession2ecotype_complete.csv -r -f 2010pcr_vs_sequenom_diff.tex
-
 Description:
 	program to compare the 149snp calls based on the common strains inn 2010 pcr data and Justin's sequenom data.
-	
+
+	input_fname1 = os.path.expanduser('~/script/variation/genotyping/250ksnp/data/data_250k.tsv')
+	input_fname2 = os.path.expanduser('~/script/variation/data/2010/data_2010_x_250k.tsv')
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -51,6 +50,7 @@ class Cmp250kVs2010(QualityControl):
 		2008-01-21
 			ecotype_duplicate2tg_ecotypeid_table, snp_locus_table1 and snp_locus_table2 are useless
 		"""
+		QualityControl.__init__(self, debug=int(debug))
 		self.curs = curs
 		self.input_fname1 = input_fname1
 		self.input_fname2 = input_fname2
@@ -83,6 +83,9 @@ class Cmp250kVs2010(QualityControl):
 	
 	def get_row_matching_dstruc(self, strain_acc_list1, category_list1, strain_acc_list2):
 		"""
+		2008-02-12
+			2010 accession_id=75/ecotype_id=8315 (Kas-2) should be mapped to 250k/149SNP ecotype_id=8424(Kas-1)
+			so add it in strain_acc2row_index2
 		2007-12-19
 		"""
 		sys.stderr.write("Getting row matching dstruc ...\n")
@@ -104,6 +107,9 @@ class Cmp250kVs2010(QualityControl):
 			ecotypeid, duplicate = strain_acc
 			if ecotypeid in strain_acc2row_index2:
 				row_id12row_id2[strain_acc] = ecotypeid
+			elif ecotypeid==8424:	#2010 accession_id=75/ecotype_id=8315 (Kas-2) should be mapped to 250k/149SNP ecotype_id=8424(Kas-1)
+				if 8315 in strain_acc2row_index2:
+					row_id12row_id2[strain_acc] = 8315
 			else:
 				print 'Failure:', strain_acc
 		sys.stderr.write("Done.\n")
