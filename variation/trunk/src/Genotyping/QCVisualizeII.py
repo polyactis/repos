@@ -56,10 +56,10 @@ class QCVisualizeII:
 		self.canvas_diff_matrix.set_data("item_selected", None)	#to designate the item clicked by the user.
 		
 		self.combobox_color_scheme = xml.get_widget('combobox_color_scheme')
-		self.radiobutton_allele1 = xml.get_widget('radiobutton_allele1')
-		self.radiobutton_allele2 = xml.get_widget('radiobutton_allele2')
-		self.radiobutton_het = xml.get_widget('radiobutton_het')
-		self.radiobutton_na = xml.get_widget('radiobutton_na')
+		self.checkbutton_allele1 = xml.get_widget('checkbutton_allele1')
+		self.checkbutton_allele2 = xml.get_widget('checkbutton_allele2')
+		self.checkbutton_het = xml.get_widget('checkbutton_het')
+		self.checkbutton_na = xml.get_widget('checkbutton_na')
 		self.treeview_diff_details = xml.get_widget('treeview_diff_details')
 		self.button_draw_cluster_plot = xml.get_widget('button_draw_cluster_plot')
 		
@@ -132,9 +132,20 @@ class QCVisualizeII:
 		source_id2 = gobject.io_add_watch(stderr_fr, gobject.IO_IN, self.update_textview_class_doc)
 		"""
 		#2008-01-24 redirect stdout and stderr to the textbuffer_class_doc
-		dummy_file = yh_gnome.Dummy_File(self.textbuffer_class_doc)
-		sys.stdout = dummy_file
-		sys.stderr = dummy_file
+		t_table=self.textbuffer_class_doc.get_tag_table()
+		tag_err=gtk.TextTag("error")
+		tag_err.set_property("foreground","red")
+		#tag_err.set_property("font","monospace 10")
+		t_table.add(tag_err)
+		tag_out=gtk.TextTag("output")
+		tag_out.set_property("foreground","blue")
+		#tag_out.set_property("font","monospace 10")
+		t_table.add(tag_out)
+		
+		self.dummy_out = yh_gnome.Dummy_File(self.textbuffer_class_doc, tag_out)
+		self.dummy_err = yh_gnome.Dummy_File(self.textbuffer_class_doc, tag_err)
+		sys.stdout = self.dummy_out
+		sys.stderr = self.dummy_err
 	
 	def update_textview_class_doc(self, source, condition):
 		"""
@@ -158,11 +169,17 @@ class QCVisualizeII:
 	def on_combobox_qc_class_choice_changed(self, widget, event=None, data=None):
 		self.class_chosen = self.combobox_qc_class_choice.get_active()
 		self.qc_class_doc = self.qc_parent_class_dict[self.class_chosen].__doc__
+		self.app1.set_title(self.combobox_qc_class_choice.get_active_text())
+		self.app_input.set_title(self.combobox_qc_class_choice.get_active_text())
 	
 	def on_button_check_class_doc_clicked(self, widget, data=None):
-		startiter, enditer = self.textbuffer_class_doc.get_bounds()
-		#self.textbuffer_class_doc.set_text('')
-		if self.class_chosen:
+		"""
+		2008-02-06
+			fix a bug. self.class_chosen could be 0
+		"""
+		if self.class_chosen!=None:
+			startiter, enditer = self.textbuffer_class_doc.get_bounds()
+			#self.textbuffer_class_doc.set_text('')
 			#self.textbuffer_class_doc.set_text(self.qc_class_doc)
 			self.textbuffer_class_doc.insert(enditer, self.qc_class_doc)
 			self.app_input_appbar.push('Class doc shown in Output.')
@@ -173,7 +190,11 @@ class QCVisualizeII:
 		self.textbuffer_class_doc.set_text('')
 	
 	def on_button_input_run_clicked(self, widget, event=None, data=None):
-		if self.class_chosen:
+		"""
+		2008-02-06
+			fix a bug. self.class_chosen could be 0
+		"""
+		if self.class_chosen!=None:
 			self.hostname = self.entry_hostname.get_text()
 			self.dbname = self.entry_dbname.get_text()
 			self.schema = self.entry_schema.get_text()
@@ -187,6 +208,9 @@ class QCVisualizeII:
 			self.diff_details_table = self.entry_diff_details_table.get_text()
 			self.qc_cross_match_table = self.entry_qc_cross_match_table.get_text()
 			self.latex_output_fname = os.path.expanduser(self.entry_latex_output_fname.get_text())
+			if self.qc_class_ins!=None:
+				del self.qc_class_ins	#release memory (maybe it works by 'del')
+				self.qc_class_ins = None
 			if self.class_chosen == 2:
 				self.qc_class_ins = self.qc_class_dict[self.class_chosen](self.curs, self.input_fname1, self.input_fname2, self.latex_output_fname, self.ecotype2accession_table, self.diff_details_table, self.qc_cross_match_table)
 			else:
@@ -258,7 +282,8 @@ class QCVisualizeII:
 			cell_unit_width = self.canvas_diff_matrix.props.width_request/float(no_of_cols)
 			for i in range(no_of_rows):
 				for j in range(no_of_cols):
-					w = canvas_root.add(gnomecanvas.CanvasText,text=repr(diff_matrix[i][j]),x=i*cell_unit_height,y=j*cell_unit_width,fill_color='black',anchor=gtk.ANCHOR_W)
+					w = canvas_root.add(gnomecanvas.CanvasText,text=repr(diff_matrix[i][j]), y=i*cell_unit_height, x=j*cell_unit_width, fill_color='black', anchor=gtk.ANCHOR_W)
+					#in canvas, x is horizontal/column, y is vertical/row.
 					w.set_data('name', (i,j))
 					self.canvas_diff_matrix.get_data('children_ls').append(w)
 					w.connect("event", self.canvas_diff_matrix_item_event)
@@ -287,6 +312,25 @@ class QCVisualizeII:
 			widget.set(weight=original_weight)
 			return True
 		return False
+	
+	def on_button_row_rate_clicked(self, widget, data=None):
+		"""
+		2008-02-06
+		"""
+		if self.qc_class_ins:
+			self.qc_class_ins.plot_row_NA_mismatch_rate('%s strain-wise'%self.combobox_qc_class_choice.get_active_text())
+		else:
+			self.app_input_appbar.push("Error: Instantiate Class First!")
+	
+	def on_button_col_rate_clicked(self, widget, data=None):
+		"""
+		2008-02-06
+		"""
+		if self.qc_class_ins:
+			self.qc_class_ins.plot_col_NA_mismatch_rate('%s snp-wise'%self.combobox_qc_class_choice.get_active_text())
+		else:
+			self.app_input_appbar.push("Error: Instantiate Class First!")
+		
 
 prog = gnome.program_init('QCVisualizeII', '0.1')
 #prog.set_property('app-datadir', '/usr/share')
