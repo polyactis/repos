@@ -35,6 +35,8 @@ class ProcessPhenotype:
 		-r, toggle report
 	Examples:
 		main.py -y 2 -o /tmp/phenotype.tsv
+		# dump all data into db
+		main.py -y 2 -c
 	"""
 	def __init__(self,  **keywords):
 		"""
