@@ -11,7 +11,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import csv, numpy, stat, rpy
-import warnings, traceback, gc
+import traceback, gc
 from pymodule import process_function_arguments
 
 class Array2DB_250k:
@@ -96,7 +96,7 @@ class Array2DB_250k:
 			new_array_id starts from 1 + maximum avaible array_id in db
 		2008-02-28
 		"""
-		sys.stderr.write("Getting filename2array_id ... ")
+		sys.stderr.write("Getting filename2array_id ... \n")
 		file_dir_ls = os.listdir(input_dir)
 		if self.debug:
 			sys.stderr.write("\n\tTotally, %d 1st-order file/dir's to be processed.\n"%len(file_dir_ls))
@@ -113,11 +113,11 @@ class Array2DB_250k:
 					if os.path.isfile(sub_pathname):
 						filename_ls.append(sub_pathname)
 					else:
-						warnings.warn("%s is not file. (might be 2nd directory). Ignored.\n"%(sub_pathname))
+						sys.stderr.write("%s is not file. (might be 2nd directory). Ignored.\n"%(sub_pathname))
 			elif os.path.isfile(pathname):
 				filename_ls.append(pathname)
 			else:
-				warnings.warn("%s is neither directory nor file. Ignored.\n"%(pathname))
+				sys.stderr.write("%s is neither directory nor file. Ignored.\n"%(pathname))
 		
 		filename2array_id = {}
 		if filename2array_id_in_db:	#there are arrays already existing in db.
@@ -130,7 +130,7 @@ class Array2DB_250k:
 				filename2array_id[pathname] = new_array_id
 				new_array_id += 1
 			else:
-				warnings.warn("%s is either not .cel or already in db. Ignored.\n"%(pathname))
+				sys.stderr.write("%s is either not .cel or already in db. Ignored.\n"%(pathname))
 		sys.stderr.write("Done.\n")
 		return filename2array_id
 	
@@ -165,7 +165,7 @@ class Array2DB_250k:
 				curs.execute("insert into %s(array_id, probes_id, intensity) values (%s, %s, %s)"%\
 							(array_data_table, array_id, probes_id, intensity_array[i][0]))
 			else:
-				warnings.warn("%s is neither 2 nor 3 columns. Ignored."%(array_data_with_xypos_row))
+				sys.stderr.write("%s is neither 2 nor 3 columns. Ignored.\n"%(array_data_with_xypos_row))
 			count += 1
 		sys.stderr.write("%s/%s have no probes_id. Done.\n"%(no_of_points_without_probes_id, count))
 	
