@@ -6,7 +6,11 @@
 ###########################################################################
 
 LDFLAGS=-lcppunit
-CPPFLAGS=-g -I./data/src -I./array/src -I./portability/src -I./utils/src -I./exception/src -I./parameter/src -I./parsers/src -I./template/src -I./writers/src -I./fusion/src -I./fusion/src/CalvinAdapter -I./fusion/src/GCOSAdapter -I../file -I../portability -DIS_BIG_ENDIAN -D_USE_MEM_MAPPING_
+#CPPFLAGS=-g -I./data/src -I./array/src -I./portability/src -I./utils/src -I./exception/src -I./parameter/src -I./parsers/src -I./template/src -I./writers/src -I./fusion/src -I./fusion/src/CalvinAdapter -I./fusion/src/GCOSAdapter -I../file -I../portability -DIS_BIG_ENDIAN -D_USE_MEM_MAPPING_
+#2008-03-13 yh
+CPPFLAGS=-O3 -fPIC -I./data/src -I./array/src -I./portability/src -I./utils/src -I./exception/src -I./parameter/src -I./parsers/src -I./template/src -I./writers/src -I./fusion/src -I./fusion/src/CalvinAdapter -I./fusion/src/GCOSAdapter -I../file -I../ -DIS_BIG_ENDIAN -D_USE_MEM_MAPPING_
+SharedLibFlags	= -shared -fPIC
+
 CC=g++
 
 SOURCES.fusion=\
@@ -124,8 +128,10 @@ OBJECTS.array=$(SOURCES.array:.cpp=.o)
 TEST.array=array_test
 PATH.array=./array/test
 
+#	./data/test/BitFlagTest.cpp\
+#	./data/src/BitFlag.cpp\
+
 SOURCES.data=\
-	./data/src/BitFlag.cpp\
 	./data/src/CDFData.cpp\
 	./data/src/CDFProbeGroupInformation.cpp\
 	./data/src/CDFProbeInformation.cpp\
@@ -149,7 +155,6 @@ SOURCES.data=\
 	./data/src/FileHeader.cpp\
 	./data/src/GenericData.cpp\
 	./data/src/GenericDataHeader.cpp\
-	./data/test/BitFlagTest.cpp\
 	./data/test/CDFDataTest.cpp\
 	./data/test/CHPDataTest.cpp\
 	./data/test/CHPTilingDataTest.cpp\
@@ -462,20 +467,116 @@ OBJECTS.writers=$(SOURCES.writers:.cpp=.o)
 TEST.writers=writers_test
 PATH.writers=./writers/test
 
+SOURCES.fusion_lib=\
+	./fusion/src/CalvinAdapter/CalvinCELDataAdapter.cpp \
+	./fusion/src/CalvinAdapter/CalvinCHPDataAdapter.cpp \
+	./fusion/src/FusionCDFData.cpp \
+	./fusion/src/FusionBARData.cpp \
+	./fusion/src/FusionBPMAPData.cpp \
+	./fusion/src/FusionCDFQCProbeSetNames.cpp \
+	./fusion/src/FusionCELData.cpp \
+	./fusion/src/FusionCHPData.cpp \
+	./fusion/src/FusionGrcFileReader.cpp \
+	./fusion/src/FusionProbeSetResults.cpp \
+	./fusion/src/GCOSAdapter/GCOSCELDataAdapter.cpp \
+	./fusion/src/GCOSAdapter/GCOSCHPDataAdapter.cpp \
+	./fusion/src/FusionCHPLegacyData.cpp\
+	./fusion/src/FusionCHPTilingData.cpp\
+	./fusion/src/FusionCHPGenericData.cpp\
+	./fusion/src/FusionCHPQuantificationData.cpp\
+	./fusion/src/FusionCHPQuantificationDetectionData.cpp\
+	./fusion/src/FusionGRDData.cpp\
+	./fusion/src/FusionMSKData.cpp\
+	./fusion/src/FusionPSIData.cpp\
+	./fusion/src/FusionSMDData.cpp\
+	../file/BARFileData.cpp \
+	../file/BPMAPFileData.cpp \
+	../file/CDFFileData.cpp \
+	../file/CELFileData.cpp \
+	../file/CHPFileData.cpp \
+	../file/EXPFileData.cpp \
+	../file/FileIO.cpp \
+	../file/GRCFileData.cpp \
+	../file/MSKFileData.cpp \
+	./utils/src/AffymetrixGuid.cpp \
+	./array/src/ArrayAttributes.cpp \
+	./array/src/ArrayData.cpp \
+	./data/src/CDFData.cpp \
+	./parsers/src/CDFFileReader.cpp \
+	./parsers/src/CHPTilingFileReader.cpp \
+	./parsers/src/CHPQuantificationFileReader.cpp \
+	./parsers/src/CHPQuantificationDetectionFileReader.cpp \
+	./data/src/CDFProbeGroupInformation.cpp \
+	./data/src/CDFProbeInformation.cpp \
+	./data/src/CDFProbeSetInformation.cpp \
+	./data/src/CDFQCProbeInformation.cpp \
+	./data/src/CDFQCProbeSetInformation.cpp \
+	./data/src/CELData.cpp \
+	./parsers/src/CelFileReader.cpp \
+	./utils/src/checksum.cpp \
+	./data/src/CHPBackgroundZone.cpp \
+	./data/src/CHPData.cpp \
+	./data/src/CHPExpressionEntry.cpp \
+	./data/src/CHPTilingData.cpp \
+	./data/src/CHPQuantificationData.cpp \
+	./data/src/CHPQuantificationDetectionData.cpp \
+	./parsers/src/CHPFileReader.cpp \
+	./data/src/CHPGenotypeEntry.cpp \
+	./data/src/CHPUniversalEntry.cpp \
+	./data/src/DataGroup.cpp \
+	./data/src/DataGroupHeader.cpp \
+	./parsers/src/DataGroupHeaderReader.cpp \
+	./parsers/src/DataGroupReader.cpp \
+	./data/src/DataSet.cpp \
+	./data/src/DataSetHeader.cpp \
+	./parsers/src/DataSetHeaderReader.cpp \
+	./parsers/src/DataSetReader.cpp \
+	./utils/src/DateTime.cpp \
+	./exception/src/ExceptionBase.cpp \
+	./data/src/FileHeader.cpp \
+	./parsers/src/FileHeaderReader.cpp \
+	./parsers/src/FileInput.cpp \
+	./utils/src/FileUtils.cpp \
+	./data/src/GenericData.cpp \
+	./data/src/GenericDataHeader.cpp \
+	./parsers/src/GenericDataHeaderReader.cpp \
+	./parsers/src/GenericFileReader.cpp \
+	./parsers/src/GridControlFileReader.cpp \
+	./parameter/src/ParameterNameValueType.cpp \
+	./utils/src/StringUtils.cpp \
+	./array/src/CreateStep.cpp \
+	./array/src/PATAssignment.cpp \
+	./array/src/ArrayMedia.cpp
 
-all: $(TEST.writers) $(TEST.array) $(TEST.data) $(TEST.exception) $(TEST.parameters) $(TEST.portability) $(TEST.utils) $(TEST.template) $(TEST.parsers) $(TEST.fusion)
+OBJECTS.fusion_lib=$(SOURCES.fusion_lib:.cpp=.o)
+
+SOURCES.read_cel=\
+	./read_cel.cpp
+
+OBJECTS.read_cel=$(SOURCES.read_cel:.cpp=.o)
+
+
+#all: $(TEST.writers) $(TEST.array) $(TEST.data) $(TEST.exception) $(TEST.parameters) $(TEST.portability) $(TEST.utils) $(TEST.template) $(TEST.parsers) $(TEST.fusion)
+all: libfusion.so read_cel
 
 run_tests: 
-	cd $(PATH.array) && ./$(TEST.array)
-	cd $(PATH.data) && ./$(TEST.data)
-	cd $(PATH.exception) && ./$(TEST.exception)
-	cd $(PATH.parameters) && ./$(TEST.parameters)
-	cd $(PATH.portability) && ./$(TEST.portability)
-	cd $(PATH.utils) && ./$(TEST.utils)
-	cd $(PATH.template) && ./$(TEST.template)
-	cd $(PATH.parsers) && ./$(TEST.parsers)
-	cd $(PATH.writers) && ./$(TEST.writers)
-	cd $(PATH.fusion) && ./$(TEST.fusion) -i ../../../TestDataFiles
+	-cd $(PATH.array) && ./$(TEST.array)
+	-cd $(PATH.data) && ./$(TEST.data)
+	-cd $(PATH.exception) && ./$(TEST.exception)
+	-cd $(PATH.parameters) && ./$(TEST.parameters)
+	-cd $(PATH.portability) && ./$(TEST.portability)
+	-cd $(PATH.utils) && ./$(TEST.utils)
+	-cd $(PATH.template) && ./$(TEST.template)
+	-cd $(PATH.parsers) && ./$(TEST.parsers)
+	-cd $(PATH.writers) && ./$(TEST.writers)
+	-cd $(PATH.fusion) && ./$(TEST.fusion) -i ../../../TestDataFiles
+
+read_cel:	$(OBJECTS.read_cel) libfusion.so
+	-$(CC) $(CPPFLAGS) -R ~/script/affy/sdk/calvin_files/libfusion.so $(OBJECTS.read_cel)  -o $@
+	#-$(CC) $(CPPFLAGS) -L./ -lfusion $(OBJECTS.read_cel)  -o $@
+
+libfusion.so:	$(OBJECTS.fusion_lib)
+	-$(CC) $(SharedLibFlags) $(OBJECTS.fusion_lib) -o $@
 
 $(TEST.fusion): $(OBJECTS.fusion)
 	$(CC) $(CPPFLAGS) $(OBJECTS.fusion) $(LDFLAGS) -o $(PATH.fusion)/$@
@@ -517,7 +618,6 @@ $(TEST.writers): $(OBJECTS.writers)
 	$(CC) $(CPPFLAGS) $(OBJECTS.writers) $(LDFLAGS) -o $(PATH.writers)/$@
 	cd $(PATH.writers) && ./$(TEST.writers)
 
-
 CLEAN.array=clean_array
 CLEAN.data=clean_data
 CLEAN.exception=clean_exception
@@ -529,7 +629,10 @@ CLEAN.parsers=clean_parsers
 CLEAN.writers=clean_writers
 CLEAN.fusion=clean_fusion
 
-clean: $(CLEAN.fusion) $(CLEAN.array) $(CLEAN.data) $(CLEAN.exception) $(CLEAN.parameters) $(CLEAN.portability) $(CLEAN.utils) $(CLEAN.template) $(CLEAN.parsers) $(CLEAN.writers)
+CLEAN.read_cel=clean_read_cel
+
+
+clean: $(CLEAN.read_cel) $(CLEAN.fusion) $(CLEAN.array) $(CLEAN.data) $(CLEAN.exception) $(CLEAN.parameters) $(CLEAN.portability) $(CLEAN.utils) $(CLEAN.template) $(CLEAN.parsers) $(CLEAN.writers)
 
 $(CLEAN.array):
 	-rm -rf $(OBJECTS.array) $(PATH.array)/$(TEST.array)
@@ -561,4 +664,6 @@ $(CLEAN.writers):
 $(CLEAN.fusion):
 	-rm -rf $(OBJECTS.fusion) $(PATH.fusion)/$(TEST.fusion)
 
-
+$(CLEAN.read_cel):
+	#-rm -rf $(OBJECTS.read_cel) read_cel
+	-rm -rf read_cel
