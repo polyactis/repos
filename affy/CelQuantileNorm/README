@@ -1,0 +1,39 @@
+This bundle consists of three utilities, cel_qnorm_pass1, cel_p1readtest and gtype_cel_to_pq.
+All of them can process gz'ed/bz2'ed CEL files directly where applicable.
+
+DESCRIPTION
+===========
+
+cel_qnorm_pass1:
+   usage:     cel_qnorm_pass1 -o refintfile *.CEL.bz2
+   purpose:    Generates a reference intensity array from mean quantile 
+
+cel_p1readtest:
+   usage:     cel_p1readtest -i refintfile
+   purpose:   (for testing) print the reference intensity array in human 
+              readable form.
+gtype_cel_to_pq:
+   It is the same tool from Affymetrix, except with two changes (in addition to 
+   being able to process gz'ed/bz'ed CEL files):
+   (1) (incompatible change) it also outputs the stdv, next to the individual
+        probe intensities.
+   (2) (compatible change) new option "-refintensity <file>" to load
+       the reference array and output quantile-normalized intensities.
+
+CAVEAT
+======
+The refintfile is essentially a memory dump of an array of doubles, and is highly
+non-portable between endian's and architecture. Please do not try running pass 1 and
+pass 2 on different platforms (yet).
+
+KNOWN LIMITATION
+================
+The tool for first pass currently uses shell-expansion for multiple cel files
+and therefore limited by max command length. (in the most optimal cases, over 
+1000, so should be enough for the time being) - will probably change/add to read 
+file list from file instead in the future.
+
+Hin-Tak Leung (hin-tak.leung@cimr.cam.ac.uk)
+July 2006
+
+
