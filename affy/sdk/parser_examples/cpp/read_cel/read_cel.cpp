@@ -37,6 +37,7 @@ int main(int argc, char **argv)
         }
         
         int nsets = cdf.GetHeader().GetNumProbeSets();
+        cout << cdfFileName << " has " << nsets << " probesets." << endl;
 		std::string name;
         for (int iset=0; iset<nsets; iset++)
         {
@@ -45,11 +46,13 @@ int main(int argc, char **argv)
             FusionCDFProbeSetInformation set;
             cdf.GetProbeSetInformation(iset, set);
             int ngroups = set.GetNumGroups();
+            cout << "probe " << name << " has " << ngroups << " groups." << endl;
             for (int igroup=0; igroup<ngroups; igroup++)
             {
                 FusionCDFProbeGroupInformation group;
                 set.GetGroupInformation(igroup, group);
                 int ncells = group.GetNumCells();
+                cout << "probe " << name << " group " << igroup << " has " << ncells << " cells." << endl;
                 for (int icell=0; icell<ncells; icell++)
                 {
                     FusionCDFProbeInformation probe;
