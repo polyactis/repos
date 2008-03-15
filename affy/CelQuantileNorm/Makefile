@@ -20,7 +20,8 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-#
+# 
+# 2008-03-15 Yu Huang. Small changes.
 
 EXE = cel_qnorm_pass1 cel_p1readtest gtype_cel_to_pq cel_p1merge
 
@@ -31,7 +32,7 @@ BOOST_OBJS = file_descriptor.o mapped_file.o zlib.o bzip2.o
 CXXFLAGS ?=
 LDFLAGS ?=
 CXXFLAGS += -I. -DHAVE_BOOST -O2 -Wall -pipe -fno-strict-aliasing
-LDFLAGS += -lz -lbz2
+LDFLAGS += -lz -lbz2 -lboost_iostreams
 
 
 .PHONY : default clean
@@ -40,7 +41,7 @@ default: $(EXE)
 
 all: $(EXE) $(THE_REST)
 
-cel_qnorm_pass1 : cel_qnorm_pass1.o stable_compare.o CELFileData.o FileIO.o $(BOOST_OBJS) 
+cel_qnorm_pass1 : cel_qnorm_pass1.o stable_compare.o CELFileData.o FileIO.o
 	$(CXX) -o $@ $^ $(LDFLAGS) 
 
 cel_p1readtest : cel_p1readtest.o
@@ -49,7 +50,7 @@ cel_p1readtest : cel_p1readtest.o
 cel_p1merge : cel_p1merge.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-gtype_cel_to_pq : gtype_cel_to_pq.o CDFFileData.o stable_compare_rank.o hash.o log_average.o CELFileData.o FileIO.o $(BOOST_OBJS)
+gtype_cel_to_pq : gtype_cel_to_pq.o CDFFileData.o stable_compare_rank.o hash.o log_average.o CELFileData.o FileIO.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 cdfimage : cdfimage.o CDFFileData.o FileIO.o 
