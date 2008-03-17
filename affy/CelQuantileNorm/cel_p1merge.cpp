@@ -24,7 +24,9 @@
 
 #include <iostream>
 
-#define CEL_INTENSITY_ARRAY_SIZE 6553600
+//2008-03-15 yh: CEL_INTENSITY_ARRAY_SIZE defined in common.h
+#include "common.h"
+//#define CEL_INTENSITY_ARRAY_SIZE 6553600
 
 using namespace std;
 
