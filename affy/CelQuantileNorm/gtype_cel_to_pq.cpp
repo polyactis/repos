@@ -25,53 +25,18 @@
 //
 /////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <cmath>
-#include <cassert>
-#include "hash.h"
-#include "CELFileData.h"
-#include "CDFFileData.h"
 
-#include "stable_compare.h"
-
-using namespace std;
 
 #include "gtype_cel_to_pq.h"
-#include "log_average.h"
 
-enum MATCH_TYPES {MATCH_PM, MATCH_MM};
-
-struct opt
+GtypeCelToPQ::GtypeCelToPQ()
 {
-	int help;
-	int debug;
-	int subset;
-	int no_header;
-	int n_random;
-	std::string cdfFileName;
-	std::string outDirName;
-	std::string subsetFileName;
-	std::string outFileSuffix;
-	bool with_stdv;
-	bool log_average;
-	int n_cel;
-	char *celFile[MAX_CEL];
-	FILE *intfile;
-	FILE *single;
-	FILE *split;
-};
-
-#include "intensity_rank.h"
-
-int process_args(int argc, char *argv[], struct opt *o);
-void usage(char *argv[]);
-std::string getOutFileName(std::string celName, struct opt *o);
-std::string getStem(std::string celName);
-int getMatchType (char x, char y);
-int base2int (char b);
+	refintensity = NULL;
+	reforder = NULL;
+	ranks = NULL;
+	Alog = NULL, Blog = NULL;
+	snp_idx = 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -140,7 +105,7 @@ int main(int argc, char *argv[])
 				}
 				else if(o.debug)
 				{
-					cout << "inserted value " << snpID << " into hash table\n";
+					cerr << "inserted value " << snpID << " into hash table\n";
 				}
 			}
 		}
@@ -162,7 +127,7 @@ int main(int argc, char *argv[])
 	affxcdf::CCDFFileData cdf;
 	cdf.SetFileName(o.cdfFileName.c_str());
 	if(o.debug)
-		cout << "reading cdf file " << o.cdfFileName << "\n";
+		cerr << "reading cdf file " << o.cdfFileName << "\n";
 	if(!(cdf.Exists()))
 	{
 		cerr << "ERROR: CDF file " << o.cdfFileName << " not found\n";
@@ -190,17 +155,20 @@ int main(int argc, char *argv[])
 		std::string SNP_ID = cdf.GetProbeSetName(probeset_index);
 		char SNP_ID_cstr[MAX_LINE_LEN];
 		strcpy(SNP_ID_cstr,SNP_ID.c_str());
+		//03/16/08 yh: check if it's in subset
 		if((o.subset) && (NULL==hashtab_lookup(SNP_ID_cstr,subsetHash)))
 			continue;
 		affxcdf::CCDFProbeGroupInformation probesetBlock;
 		int nGroups = probeSet.GetNumGroups();
 		if(o.debug)
-			cout << "On probeset " << SNP_ID << " index " << probeset_index << " (" << nGroups <<" groups)\n";
+			cerr << "On probeset " << SNP_ID << " index " << probeset_index << " (" << nGroups <<" groups)\n";
 		// Loop over all each block in the probeset to count the number of probes for each allele and of each type (PM/MM)
 		for(int group_index=0; group_index < nGroups; group_index++)
 		{
 			probeSet.GetGroupInformation(group_index, probesetBlock);
 			int nCell = probesetBlock.GetNumCells();
+			if(o.debug)
+				cerr << "Group " << group_index << " has " << nCell << "cells. \n";
 			if(nCell >= (MAX_PQ/nGroups))
 			{
 				cerr << argv[0] << ": " << nCell << " probes in "<< nGroups <<
@@ -218,9 +186,12 @@ int main(int argc, char *argv[])
 			{
 				probesetBlock.GetCell(probe_index, feature);
 				int matchType = getMatchType(feature.GetPBase(),feature.GetTBase());
+				if(o.debug)
+					cerr << "Match Type of Cell " << probe_index << " is " << matchType << ".\n";
 				count[allele][matchType] += 1;
 			}
 		}
+		//03/16/08 yh: check that each (allele, match_type) combo has same counts.
 		bool is_in_quartet_structure = true;
 		for(int a=0; a < N_ALLELES; a++)
 			for(int m=0; m < N_MATCH_TYPES; m++)
@@ -242,7 +213,7 @@ int main(int argc, char *argv[])
 	std::vector <int> probeset_indices;
 	int n_available = gtype_psets.size();
 	if(o.debug)
-		cout << "Found " << n_available << " eligible psets\n";
+		cerr << "Found " << n_available << " eligible psets\n";
 	if(o.n_random > 0)
 	{
 		if(o.n_random > n_available)
@@ -267,9 +238,9 @@ int main(int argc, char *argv[])
 
 	if(o.debug)
 	{
-		cout << "Working on " << probeset_indices.size() << " probesets\n";
+		cerr << "Working on " << probeset_indices.size() << " probesets\n";
 		for(unsigned int i=0; i<probeset_indices.size(); i++)
-			cout << "  " << probeset_indices[i] << "\n";
+			cerr << "  " << probeset_indices[i] << "\n";
 	}
 
 	// read each CEL file and open a file for output intensities
@@ -308,14 +279,14 @@ int main(int argc, char *argv[])
 		{
 			std::string outFileName = getOutFileName(celFileName,&o);
 			if(o.debug)
-				cout << "opening file " << outFileName << "\t(" << (1+cel_index) << " of " << o.n_cel << ")\n";
+				cerr << "opening file " << outFileName << "\t(" << (1+cel_index) << " of " << o.n_cel << ")\n";
 			outFile.open(outFileName.c_str());
 		}
 		if(cel.GetChipType() != cdf.GetChipType())
 		{
-			cerr << "cel Chip type: " << cel.GetChipType() << "cdf Chip Type: " << cdf.GetChipType() << "\n";
-			cerr << "ERROR: mismatch between CHP file type and CDF file type for " << celFileName << "\n";
-			exit(EXIT_FAILURE);
+			cerr << "\tWarning: mismatch between Cel chip type and CDF chip type.\n";
+			cerr << "\tcel Chip type: " << cel.GetChipType() << ". cdf Chip Type: " << cdf.GetChipType() << "\n";
+			//exit(EXIT_FAILURE);	//03/16/08 yh: the 250k chip CDF file gives a different chip type due to tiling array CDF is split off.
 		}
 
 		// Loop over all probeset and write out intensities
@@ -324,12 +295,19 @@ int main(int argc, char *argv[])
 		int count[N_ALLELES][N_MATCH_TYPES];
 		for(int i=0; i < (int) probeset_indices.size(); i++)
 		{
+			//2008-03-15 yh: debug mode. only top 10.
 			if(o.debug && i==10)
 				break;
 			// We assume that we are iterating over only genotyping probesets as that was checked earlier
 			int probeset_index = probeset_indices[i];
 			affxcdf::CCDFProbeSetInformation probeSet;
 			cdf.GetProbeSetInformation(probeset_index, probeSet);
+			//2008-03-15 yh: copied from original gtype_cel_to_pq.cpp. probe set type check. useless here though.
+			if(probeSet.GetProbeSetType() != affxcdf::GenotypingProbeSetType)
+			{
+				continue;
+				cerr << "\tWarning: probeset=" << cdf.GetProbeSetName(probeset_index) << " index=" << probeset_index << " is not genotyping probeset. ignored!" << endl;
+			}
 			for(int a=0; a < N_ALLELES; a++)
 				for(int m=0; m < N_MATCH_TYPES; m++)
 					count[a][m] = 0;
@@ -339,7 +317,7 @@ int main(int argc, char *argv[])
 			affxcdf::CCDFProbeGroupInformation probesetBlock;
 			int nGroups = probeSet.GetNumGroups();
 			if(o.debug)
-				cout << "On probeset " << SNP_ID << " (" << nGroups <<" groups)\n";
+				cerr << "On probeset " << SNP_ID << " (" << nGroups <<" groups)\n";
 			for(int group_index=0; group_index < nGroups; group_index++)
 			{
 				probeSet.GetGroupInformation(group_index, probesetBlock);
@@ -350,6 +328,8 @@ int main(int argc, char *argv[])
 				{
 					probesetBlock.GetCell(probe_index, feature);
 					int matchType = getMatchType(feature.GetPBase(),feature.GetTBase());
+					if(o.debug)
+						cerr << "MatchType for group "<< group_index << ", allele " << allele << ", Cell " << probe_index << " is " << matchType << ".\n";
 					int x = feature.GetX();
 					int y = feature.GetY();
 
@@ -367,7 +347,7 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			if (o.single || o.split)
+			if (o.single || o.split)	//03/16/08 yh: if either is available
 			{
 				double A_il = 0.0, B_il = 0.0;
 				unsigned long idx = (hashtab_lookup(SNP_ID_cstr,subsetHash))->value;
@@ -375,7 +355,7 @@ int main(int argc, char *argv[])
 				Alog[idx * (size_t) o.n_cel + cel_index] = A_il; /* the product can go over 32-bit */
 				Blog[idx * (size_t) o.n_cel + cel_index] = B_il; /* the product can go over 32-bit */
 			}
-			else
+			else	//03/16/08 yh: otherwise output goes to the file corresponding to each celFileName
 			{
 				outFile << SNP_ID;
 				if(o.log_average)
@@ -757,7 +737,7 @@ int process_args(int argc, char *argv[], struct opt *o)
 
 /* Translates call codes in genotyping CHP file to AA/AB/BB/NN */
 // Looks for .CEL or .cel suffix in celName and replaces it by the suffix as specified in the opt struct
-// If expected suffix not found, just appends .txt
+// If expected suffix not found, just appends .txt (03/16/08 yh: not txt. it's o.outFileSuffix)
 std::string getOutFileName(std::string celName, struct opt *o)
 {
 	int n;
