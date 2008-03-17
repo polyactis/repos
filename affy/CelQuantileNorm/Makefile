@@ -50,8 +50,10 @@ cel_p1readtest : cel_p1readtest.o
 cel_p1merge : cel_p1merge.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-gtype_cel_to_pq : gtype_cel_to_pq.o CDFFileData.o stable_compare_rank.o hash.o log_average.o CELFileData.o FileIO.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+OBJECTS_gtype_cel_to_pq = gtype_cel_to_pq.o CDFFileData.o stable_compare_rank.o hash.o log_average.o CELFileData.o FileIO.o
+
+gtype_cel_to_pq : $(OBJECTS_gtype_cel_to_pq) gtype_cel_to_pq.h
+	$(CXX) -o $@ $(OBJECTS_gtype_cel_to_pq) $(LDFLAGS)
 
 cdfimage : cdfimage.o CDFFileData.o FileIO.o 
 	$(CXX) -o $@ $^ $(LDFLAGS)
