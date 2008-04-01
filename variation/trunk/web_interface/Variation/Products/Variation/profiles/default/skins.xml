@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<object name="portal_skins" allow_any="False" cookie_persistence="False"
+   default_skin="variation">
+
+ <object name="Variation_images"
+    meta_type="Filesystem Directory View"
+    directory="Variation/skins/Variation_images"/>
+ <object name="Variation_custom_images"
+    meta_type="Filesystem Directory View"
+    directory="Variation/skins/Variation_custom_images"/>
+ <object name="Variation_styles"
+    meta_type="Filesystem Directory View"
+    directory="Variation/skins/Variation_styles"/>
+ <object name="Variation_custom_styles"
+    meta_type="Filesystem Directory View"
+    directory="Variation/skins/Variation_custom_styles"/>
+ <object name="Variation_templates"
+    meta_type="Filesystem Directory View"
+    directory="Variation/skins/Variation_templates"/>
+ <object name="Variation_custom_templates"
+    meta_type="Filesystem Directory View"
+    directory="Variation/skins/Variation_custom_templates"/>
+
+ <skin-path name="variation">
+  <layer name="custom"/>
+  <layer name="Variation_styles"/>
+  <layer name="kupu_tests"/>
+  <layer name="CMFPlacefulWorkflow"/>
+  <layer name="PasswordReset"/>
+  <layer name="kupu_plone"/>
+  <layer name="kupu"/>
+  <layer name="ATContentTypes"/>
+  <layer name="ATReferenceBrowserWidget"/>
+  <layer name="archetypes"/>
+  <layer name="mimetypes_icons"/>
+  <layer name="ResourceRegistries"/>
+  <layer name="gruf"/>
+  <layer name="plone_ecmascript"/>
+  <layer name="plone_wysiwyg"/>
+  <layer name="plone_prefs"/>
+  <layer name="plone_portlets"/>
+  <layer name="plone_templates"/>
+  <layer name="plone_styles"/>
+  <layer name="plone_form_scripts"/>
+  <layer name="plone_scripts"/>
+  <layer name="plone_forms"/>
+  <layer name="plone_images"/>
+  <layer name="plone_content"/>
+  <layer name="plone_login"/>
+  <layer name="plone_deprecated"/>
+  <layer name="plone_3rdParty"/>
+  <layer name="cmf_legacy"/>
+ </skin-path>
+
+ <skin-path name="*">
+  <layer name="Variation_images"
+     insert-after="custom"/>
+  <layer name="Variation_templates"
+     insert-after="Variation_images"/>
+ </skin-path>
+
+ <skin-path name="variation">
+  <layer name="Variation_custom_images"
+      insert-before="Variation_images"/>
+  <layer name="Variation_custom_templates"
+      insert-after="Variation_custom_images"/>
+  <layer name="Variation_custom_styles"
+      insert-after="Variation_custom_templates"/>
+ </skin-path>
+
+</object>

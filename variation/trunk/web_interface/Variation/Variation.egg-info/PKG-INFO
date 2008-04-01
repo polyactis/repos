@@ -1,0 +1,27 @@
+Metadata-Version: 1.0
+Name: Variation
+Version: 0.1dev
+Summary: Polymorphism DB frontend
+Home-page: http://www-scf.usc.edu/~yuhuang/
+Author: Yu Huang
+Author-email: yuhuang@usc.edu
+License: GPL
+Description: Introduction
+        ============
+        
+        
+        
+        Changelog
+        =========
+        
+        0.1 - Unreleased
+        ----------------
+        
+        * Initial release
+        
+        
+Keywords: web zope plone theme variation polymorphism
+Platform: UNKNOWN
+Classifier: Framework :: Plone
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

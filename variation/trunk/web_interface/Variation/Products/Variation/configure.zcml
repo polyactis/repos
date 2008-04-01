@@ -1,0 +1,21 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="Products.Variation" >
+
+  <include package="Products.GenericSetup" file="meta.zcml" />
+
+  <five:registerPackage package="." initialize=".initialize" />
+
+  <include file="profiles.zcml" />
+	<!-- Register the screening and reservation utilities -->
+	<!-- utility factory=".dbphenotype.PhenotypeLocator" / -->
+	
+	<!-- Register database configuration utilities -->
+	<!-- utility
+	    provides="collective.lead.interfaces.IDatabase"
+	    factory=".db.StockDatabase"
+	    name="variation.stockdatabase"
+	    / -->
+</configure>

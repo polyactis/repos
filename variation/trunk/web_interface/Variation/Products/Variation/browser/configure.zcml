@@ -1,0 +1,34 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="Products.Variation">
+
+    <!-- Define the main views of each content type. The 'for' attribute
+         specifies which type of content the view will be available for,
+         and since these are all different, we do not get conflicts even
+         though they all share the same 'name'. The 'permission' is a
+         permission which is required to access the view. The 'class'
+         attribute specifies a view class which will be used to render
+         the page.
+         
+         We also define an icon for each type, and a shared stylesheet. The
+         stylesheet is included in various templates explicitly.
+         
+         Note that the Film Folder type uses only standard Plone templates
+         for its views, so no additional views are defined here.
+    -->
+    <browser:page
+        for="..interfaces.IPhenotype"
+        name="view"
+        class=".phenotype.PhenotypeView"
+        permission="zope2.View"
+        />
+    
+    <browser:page
+        for="..interfaces.IPhenotype"
+        name="edit"
+        class=".phenotype.CheckoutPhenotypeForm"
+        permission="cmf.ModifyPortalContent"
+        />
+        
+</configure>
