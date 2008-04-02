@@ -435,6 +435,41 @@ create table array_data(
 	ypos integer
 	)engine=INNODB;
 
+create table call_method(
+	id integer auto_increment primary key,
+	short_name varchar(20),
+	method_description varchar(8000),
+	data_description varchar(8000),
+	comment varchar(8000),
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_c_method BEFORE INSERT ON call_method
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_c_method BEFORE UPDATE ON call_method
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
 create table call_info(
 	id integer auto_increment primary key,
 	filename varchar(1000),
@@ -446,7 +481,7 @@ create table call_info(
 	date_updated TIMESTAMP,
 	foreign key (array_id) references array_info(id) on delete cascade on update cascade,
 	method_id integer,
-	foreign key (method_id) references method(id) on delete cascade on update cascade
+	foreign key (method_id) references call_method(id) on delete cascade on update cascade
 	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
@@ -482,7 +517,7 @@ create table call_data(
 	)engine=INNODB;
 
 --store the method
-create table method(
+create table results_method(
 	id integer auto_increment primary key,
 	short_name varchar(20),
 	method_description varchar(8000),
@@ -496,7 +531,7 @@ create table method(
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
-CREATE TRIGGER before_insert_method BEFORE INSERT ON method
+CREATE TRIGGER before_insert_r_method BEFORE INSERT ON results_method
   FOR EACH ROW BEGIN
         if NEW.created_by is null then
                set NEW.created_by = USER();
@@ -504,7 +539,7 @@ CREATE TRIGGER before_insert_method BEFORE INSERT ON method
   END;
 |
 
-CREATE TRIGGER before_update_method BEFORE UPDATE ON method
+CREATE TRIGGER before_update_r_method BEFORE UPDATE ON results_method
   FOR EACH ROW BEGIN
         if NEW.updated_by is null then
                 set NEW.updated_by = USER();
@@ -518,15 +553,52 @@ CREATE TRIGGER before_update_method BEFORE UPDATE ON method
 DELIMITER ;
 
 --store the results
-create table results(
+create table if not exists results(
 	id integer auto_increment primary key,
 	chr integer,
 	start_pos integer,
 	stop_pos integer,
 	method_id integer,
-	foreign key (method_id) references method(id) on delete cascade on update cascade,
+	foreign key (method_id) references results_method(id) on delete cascade on update cascade,
+	phenotype_method_id integer,
+	foreign key (phenotype_method_id) references phenotype_method(id) on delete cascade on update cascade,
 	score float
 	)engine=INNODB;
+
+create table phenotype_method(
+	id integer auto_increment primary key,
+	short_name varchar(20),
+	method_description varchar(8000),
+	data_description varchar(8000),
+	comment varchar(8000),
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_p_method BEFORE INSERT ON phenotype_method
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_p_method BEFORE UPDATE ON phenotype_method
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
 
 --store the phenotype
 create table phenotype(
@@ -535,7 +607,7 @@ create table phenotype(
 	value float,
 	replicate integer,
 	method_id integer not null,
-	foreign key (method_id) references method(id) on delete cascade on update cascade
+	foreign key (method_id) references phenotype_method(id) on delete cascade on update cascade
 	)engine=INNODB;
 
 create table phenotype_avg(
@@ -545,5 +617,5 @@ create table phenotype_avg(
 	stdev float,
 	sample_size integer,
 	method_id integer not null,
-	foreign key (method_id) references method(id) on delete cascade on update cascade
+	foreign key (method_id) references phenotype_method(id) on delete cascade on update cascade
 	)engine=INNODB;
