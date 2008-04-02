@@ -95,9 +95,7 @@ class CheckoutPhenotypeForm(formbase.PageForm):
 		Cancel the phenotype checkout
 		"""
 		context = aq_inner(self.context)
-        
-        confirm = u"Phenotype Checkout cancelled."
-        IStatusMessage(self.request).addStatusMessage(confirm, type='info')
-        
-        self.request.response.redirect(context.absolute_url())
-        return ''
+		confirm = u"Phenotype Checkout cancelled."
+		IStatusMessage(self.request).addStatusMessage(confirm, type='info')
+		self.request.response.redirect(context.absolute_url())
+		return self.state.set(context=context, portal_status_message="Phenotype Checkout Cancelled.")

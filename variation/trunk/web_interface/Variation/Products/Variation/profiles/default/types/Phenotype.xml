@@ -6,7 +6,7 @@
  <property name="description"
      i18n:translate="">Phenotype Data.</property>
  <property name="content_meta_type">Phenotype</property>
- <property name="product">Products.Variation</property>
+ <property name="product">Variation</property>
  <property name="factory">addPhenotype</property>
  <property name="immediate_view">atct_edit</property>
  <property name="global_allow">False</property>
