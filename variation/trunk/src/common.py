@@ -391,3 +391,18 @@ def map_accession_id2ecotype_id(curs, accession2ecotype_table='at.ecotype2access
 		accession_id2ecotype_id[accession_id] = ecotype_id
 	sys.stderr.write("Done.\n")
 	return accession_id2ecotype_id
+
+def get_ecotypeid2nativename(curs, ecotype_table='ecotype'):
+	"""
+	2008-04-04
+	
+	"""
+	sys.stderr.write("Getting ecotypeid2nativename ...")
+	ecotypeid2nativename = {}
+	curs.execute("select id, nativename from %s"%(ecotype_table))
+	rows = curs.fetchall()
+	for row in rows:
+		ecotypeid, nativename = row
+		ecotypeid2nativename[ecotypeid] = nativename
+	sys.stderr.write("Done.\n")
+	return ecotypeid2nativename
