@@ -77,3 +77,30 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 			writer.writerow(new_row)
 	del writer
 	sys.stderr.write("Done.\n")
+
+def dict_map(dict, ls, type=1):
+	"""
+	2008-04-03 copied from annot.codense.common
+	10-13-05
+		add type 2 to return item itself if mapping is not available
+	2006-12-21
+		add type 3 to extract a smaller map
+	2007-05-14
+		bug, "if value" could miss 0
+	"""
+	if type==3:
+		new_list = {}	#it's a dictionary
+		for item in ls:
+			value = dict.get(item)
+			if value is not None:
+				new_list[item] = value
+	else:
+		new_list = []
+		for item in ls:
+			value = dict.get(item)
+			if value is not None:
+				new_list.append(value)
+			elif type==2:
+				new_list.append(item)
+	
+	return new_list
