@@ -32,15 +32,15 @@ import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
 	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/')))
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
 import getopt, csv, math
 import Numeric as num
 from sets import Set
 from common import number2nt, nt2number
-from codense.common import dict_map
+from pymodule import dict_map
 
 class FilterStrainSNPMatrix:
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
