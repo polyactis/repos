@@ -8,7 +8,7 @@
 LDFLAGS=-lcppunit
 #CPPFLAGS=-g -I./data/src -I./array/src -I./portability/src -I./utils/src -I./exception/src -I./parameter/src -I./parsers/src -I./template/src -I./writers/src -I./fusion/src -I./fusion/src/CalvinAdapter -I./fusion/src/GCOSAdapter -I../file -I../portability -DIS_BIG_ENDIAN -D_USE_MEM_MAPPING_
 #2008-03-13 yh
-CPPFLAGS=-O3 -fPIC -I./data/src -I./array/src -I./portability/src -I./utils/src -I./exception/src -I./parameter/src -I./parsers/src -I./template/src -I./writers/src -I./fusion/src -I./fusion/src/CalvinAdapter -I./fusion/src/GCOSAdapter -I../file -I../ -DIS_BIG_ENDIAN -D_USE_MEM_MAPPING_
+CPPFLAGS= -D DEBUG -I `python-config --includes` -O3 -fPIC -I./data/src -I./array/src -I./portability/src -I./utils/src -I./exception/src -I./parameter/src -I./parsers/src -I./template/src -I./writers/src -I./fusion/src -I./fusion/src/CalvinAdapter -I./fusion/src/GCOSAdapter -I../file -I../ -DIS_BIG_ENDIAN -D_USE_MEM_MAPPING_
 SharedLibFlags	= -shared -fPIC
 
 CC=g++
@@ -555,9 +555,16 @@ SOURCES.read_cel=\
 
 OBJECTS.read_cel=$(SOURCES.read_cel:.cpp=.o)
 
+SOURCES.ReadatSNPtilgeno=\
+	./ReadatSNPtilgeno.cpp\
+	$(SOURCES.fusion_lib)
+
+OBJECTS.ReadatSNPtilgeno=$(SOURCES.ReadatSNPtilgeno:.cpp=.o)
+
+BoostPythonLib  = -lboost_python `python-config --libs`
 
 #all: $(TEST.writers) $(TEST.array) $(TEST.data) $(TEST.exception) $(TEST.parameters) $(TEST.portability) $(TEST.utils) $(TEST.template) $(TEST.parsers) $(TEST.fusion)
-all: libfusion.so read_cel
+all: libfusion.so read_cel ReadatSNPtilgeno.so ReadatSNPtilgeno
 
 run_tests: 
 	-cd $(PATH.array) && ./$(TEST.array)
@@ -577,6 +584,12 @@ read_cel:	$(OBJECTS.read_cel) libfusion.so
 
 libfusion.so:	$(OBJECTS.fusion_lib)
 	-$(CC) $(SharedLibFlags) $(OBJECTS.fusion_lib) -o $@
+
+ReadatSNPtilgeno.so: $(OBJECTS.ReadatSNPtilgeno)
+	-$(CC) $(CPPFLAGS) $(SharedLibFlags) $(OBJECTS.ReadatSNPtilgeno) $(BoostPythonLib) -o $@
+
+ReadatSNPtilgeno: $(OBJECTS.ReadatSNPtilgeno)
+	-$(CC) $(CPPFLAGS) $(LDFLAGS) $(OBJECTS.ReadatSNPtilgeno) $(BoostPythonLib) -o $@
 
 $(TEST.fusion): $(OBJECTS.fusion)
 	$(CC) $(CPPFLAGS) $(OBJECTS.fusion) $(LDFLAGS) -o $(PATH.fusion)/$@
