@@ -37,6 +37,7 @@ For -y (type):
 02-20-08 2: ProcessPhenotype.py
 02-28-08 3: Array2DB_250k.py
 03-11-08 4: LinkArrayId2EcotypeId.py
+03-11-08 5: DB_250k2Array.py
 """
 
 import sys, os, math
@@ -53,6 +54,7 @@ from variation.src import Kruskal_Wallis
 from variation.src import ProcessPhenotype
 from variation.src import Array2DB_250k
 from variation.src import LinkArrayId2EcotypeId
+from variation.src import DB_250k2Array
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
@@ -69,7 +71,8 @@ if __name__ == '__main__':
 	ClassDict = {1:Kruskal_Wallis.Kruskal_Wallis,
 				2:ProcessPhenotype.ProcessPhenotype,
 				3:Array2DB_250k.Array2DB_250k,
-				4:LinkArrayId2EcotypeId.LinkArrayId2EcotypeId}
+				4:LinkArrayId2EcotypeId.LinkArrayId2EcotypeId,
+				5:DB_250k2Array.DB_250k2Array}
 	
 	hostname = 'localhost'
 	dbname = 'stock20071008'
@@ -144,6 +147,11 @@ if __name__ == '__main__':
 			ins = ClassDict[type](hostname=hostname, dbname=dbname, schema=schema, array_info_table=input_fname, ecotype_table=argument1,\
 								calls_comment_table=argument2,\
 								commit=commit, debug=debug, report=report)
+			ins.run()
+		elif type==5:
+			ins = ClassDict[type](hostname=hostname, dbname=dbname, schema=schema, output_dir=output_fname, snps_table=argument1, \
+								probes_table=argument2, array_info_table=argument3,\
+								debug=debug, report=report)
 			ins.run()
 	else:
 		print __doc__
