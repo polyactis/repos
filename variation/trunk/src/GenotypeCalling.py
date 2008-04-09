@@ -379,10 +379,11 @@ output_fname = 'script/variation/doc/PeakDataReport/tables_figures.tex'
 fig_output_dir = 'script/variation/doc/PeakDataReport/figures'
 outputClusterPlotsForAllSNPs(ordered_snpid_ls, snpid2name, snpid2peak1_peak2_color_ls, fig_output_dir, output_fname)
 
-#check only the ones overlapping with 2010 strains
+#check only data overlapping with 2010 data
 snpid2peak1_peak2_color_ls = get_snpid2peak1_peak2_color_ls(curs, snpid2allele, calls_table, data_type=3)
 drawClusterPlotForOneSNP(snpid2peak1_peak2_color_ls[2], 2, '/tmp/2')
 
+#check only data overlapping with 2010 data but also use 2010 calls to color data points
 input_fname_2010 = os.path.expanduser('~/script/variation/data/2010/data_2010_x_149SNP_y1.tsv')
 snp_acc2col_index, accession_id2row_index, data_matrix_2010 = read_2010_x_149SNP(input_fname_2010)
 data_2010=[snp_acc2col_index, accession_id2row_index, data_matrix_2010]
