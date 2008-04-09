@@ -61,20 +61,22 @@ import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
 	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/')))
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import psycopg, sys, getopt, csv, re
-from codense.common import db_connect, org_short2long, org2tax_id
-from common import nt2number, number2nt
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
+
+import psycopg2, sys, getopt, csv, re
+from annot.bin.codense.common import db_connect, org_short2long, org2tax_id
+from variation.src.common import nt2number, number2nt
 import Numeric as num
 from sets import Set
+
 def createEcotypeid2duplicate_view(curs, stock_db):
 	"""
 	2007-10-22
 	"""
-	curs.execute("create or replace view %s.ecotypeid2duplicate_view as select distinct ecotypeid, duplicate from %s.calls order by ecotypeid, duplicate"%(stock_db, stock_db))
+	curs.execute("create or replace view %s.ecotypeid2duplicate_view as select distinct ecotypeid, replicate from %s.calls order by ecotypeid, replicate"%(stock_db, stock_db))
 
 def createNoGenotypingEcotypeView(curs, stock_db):
 	"""
@@ -93,7 +95,7 @@ def createGenotypingAllNAEcotypeTable(curs, stock_db, table_name='genotyping_all
 	2007-10-22
 		create a table to store all ecotypeid which have been genotyped (in table calls) but all results are NA.
 	"""
-	curs.execute("select distinct ecotypeid, duplicate, call1 from %s.calls"%(stock_db))
+	curs.execute("select distinct ecotypeid, replicate, call1 from %s.calls"%(stock_db))
 	rows = curs.fetchall()
 	genotype_run2call_ls = {}
 	for row in rows:
@@ -138,7 +140,10 @@ def get_no_gps_ecotypeid_set(curs, stock_db, no_gps_ecotype_view_name='no_gps_ec
 	return no_gps_ecotypeid_set
 	
 
-def createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set, genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=0):
+def createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set,\
+			genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', \
+			nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', \
+			ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=0):
 	"""
 	2007-10-22
 		map (nativename, stockparent) to an ecotypeid (AKA tg_ecotypeid)
@@ -151,7 +156,7 @@ def createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid
 	sys.stderr.write("Getting nativename_stkparent2ecotypeid_duplicate_ls...")
 	nativename_stkparent2ecotypeid_duplicate_ls = {}
 	ecotypeid2nativename_stockparent = {}
-	curs.execute("select e.nativename, e.stockparent, ed.ecotypeid, ed.duplicate from %s.ecotype e, %s.%s ed where ed.ecotypeid=e.id order by nativename, stockparent, ecotypeid, duplicate"%(stock_db, stock_db, ecotypeid2duplicate_view_name))
+	curs.execute("select e.nativename, e.stockparent, ed.ecotypeid, ed.replicate from %s.ecotype e, %s.%s ed where ed.ecotypeid=e.id order by nativename, stockparent, ecotypeid, replicate"%(stock_db, stock_db, ecotypeid2duplicate_view_name))
 	rows = curs.fetchall()
 	for row in rows:
 		nativename, stockparent, ecotypeid, duplicate = row
@@ -315,6 +320,7 @@ functions to understand the duplication structure inside the database
 
 hostname='localhost'
 dbname='stock20071008'
+dbname = 'stock'
 import MySQLdb
 conn = MySQLdb.connect(db=dbname,host=hostname)
 curs = conn.cursor()
@@ -325,13 +331,18 @@ createNoGenotypingEcotypeView(curs, stock_db)
 
 createNoGPSEcotypeView(curs, stock_db)
 
-genotyping_all_na_ecotypeid_duplicate_ls, genotype_run2call_ls = createGenotypingAllNAEcotypeTable(curs, stock_db, table_name='genotyping_all_na_ecotype', commit=1)
+genotyping_all_na_ecotypeid_duplicate_ls, genotype_run2call_ls = createGenotypingAllNAEcotypeTable(curs, stock_db, \
+	table_name='genotyping_all_na_ecotype', commit=1)
 
 no_genotyping_ecotypeid_set = get_no_genotyping_ecotypeid_set(curs, stock_db, no_genotyping_ecotype_view_name='no_genotyping_ecotype_view')
 
 no_gps_ecotypeid_set = get_no_gps_ecotypeid_set(curs, stock_db, no_gps_ecotype_view_name='no_gps_ecotype_view')
 
-nativename_stkparent2ecotypeid_duplicate_ls, nativename_stkparent2tg_ecotypeid, ecotype_duplicate2tg_ecotypeid = createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set, genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=0)
+nativename_stkparent2ecotypeid_duplicate_ls, nativename_stkparent2tg_ecotypeid, ecotype_duplicate2tg_ecotypeid = \
+createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set, \
+genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', \
+nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', \
+ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=1)
 
 
 ##2007-10-23 to output tables
