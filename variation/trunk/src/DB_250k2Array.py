@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 2008-04-08
 """
@@ -10,7 +11,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import csv, numpy, rpy
+import csv, numpy, getopt
 import traceback, gc
 from pymodule import process_function_arguments
 
@@ -76,8 +77,8 @@ class snps_class:
 
 class DB_250k2Array(object):
 	"""
-	2008-04-08
-		
+	Usage: DB_250k2Array.py [OPTIONS] -o OUTPUT_DIR
+	
 	Argument list:
 		-z ..., --hostname=...	the hostname, localhost(default)
 		-d ..., --dbname=...	the database name, stock20071008(default)
@@ -89,7 +90,7 @@ class DB_250k2Array(object):
 		-b,	toggle debug
 		-r, toggle report
 	Examples:
-		main.py -y 3 -o /tmp/arrays/
+		DB_250k2Array.py -o /tmp/arrays/
 	Description:
 		output all .cel array files (according to array_info_table) as intensity matrices in output_dir
 	
@@ -152,6 +153,7 @@ class DB_250k2Array(object):
 		2008-04-08
 		"""
 		sys.stderr.write("Outputting arrays ... \n")
+		import rpy
 		rpy.r.library('affy')
 		array_size = None
 		if not os.path.isdir(output_dir):
@@ -199,3 +201,70 @@ class DB_250k2Array(object):
 		snps = self.get_snps(curs, self.snps_table)
 		probes = self.get_probes(curs, self.probes_table, snps)
 		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes)
+
+if __name__ == '__main__':
+	if len(sys.argv) == 1:
+		print DB_250k2Array.__doc__
+		sys.exit(2)
+	
+	long_options_list = ["help", "type=", "debug", "report"]
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:i:o:y:a:e:f:g:j:cbr", long_options_list)
+	except:
+		print DB_250k2Array.__doc__
+		sys.exit(2)
+	
+	hostname = 'localhost'
+	dbname = 'stock20071008'
+	schema = 'dbsnp'
+	input_fname = None
+	output_fname = None
+	type = None
+	argument1 = None
+	argument2 = None
+	argument3 = None
+	argument4 = None
+	argument5 = None
+	help = 0
+	commit = 0
+	debug = 0
+	report = 0
+	
+	for opt, arg in opts:
+		if opt in ("-h", "--help"):
+			help = 1
+			print __doc__
+		elif opt in ("-z", "--hostname"):
+			hostname = arg
+		elif opt in ("-d", "--dbname"):
+			dbname = arg
+		elif opt in ("-k", "--schema"):
+			schema = arg
+		elif opt in ("-i",):
+			input_fname = arg
+		elif opt in ("-o",):
+			output_fname = arg
+		elif opt in ("-y", "--type"):
+			type = int(arg)
+		elif opt in ("-b", "--debug"):
+			debug = 1
+		elif opt in ("-r", "--report"):
+			report = 1
+		elif opt in ("-c",):
+			commit = 1
+		elif opt in ("-a",):
+			argument1 = arg
+		elif opt in ("-e",):
+			argument2 = arg
+		elif opt in ("-f",):
+			argument3 = arg
+		elif opt in ("-g",):
+			argument4 = arg
+		elif opt in ("-j",):
+			argument5 = arg
+	
+		ins = DB_250k2Array(hostname=hostname, dbname=dbname, schema=schema, output_dir=output_fname, snps_table=argument1, \
+					probes_table=argument2, array_info_table=argument3,\
+					debug=debug, report=report)
+		ins.run()
+		
