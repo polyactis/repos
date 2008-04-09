@@ -455,16 +455,22 @@ class QualityControl:
 		row_id2info = {}
 		for row_id in row_id_ls:
 			ecotypeid, duplicate = row_id
-			curs.execute("SELECT c.comment, e.nativename, e.stockparent FROM %s c, %s e where e.id=c.ecotypeid and e.id=%s and c.duplicate=%s"%(calls_250k_duplicate_comment_table, ecotype_table, ecotypeid, duplicate))
-			rows = curs.fetchall()
-			if rows:
-				comment, nativename, stockparent = rows[0]
-				directory = os.path.split(comment)[0]	#take the 1st
-				directory = os.path.split(directory)[-1]	#take the last
-				row_id2info[row_id] = '%s,%s'%(nativename,directory)
-				row_id2info[row_id] = row_id2info[row_id].decode('utf-8', 'ignore')
-				#ecotypeid_duplicate2info[key_pair] = ecotypeid_duplicate2info[key_pair].decode('latin10')
-			else:
+			try:
+				curs.execute("SELECT c.comment, e.nativename, e.stockparent FROM %s c, %s e where e.id=c.ecotypeid and e.id=%s and c.duplicate=%s"%(calls_250k_duplicate_comment_table, ecotype_table, ecotypeid, duplicate))
+				rows = curs.fetchall()
+				if rows:
+					comment, nativename, stockparent = rows[0]
+					directory = os.path.split(comment)[0]	#take the 1st
+					directory = os.path.split(directory)[-1]	#take the last
+					row_id2info[row_id] = '%s,%s'%(nativename,directory)
+					row_id2info[row_id] = row_id2info[row_id].decode('utf-8', 'ignore')
+					#ecotypeid_duplicate2info[key_pair] = ecotypeid_duplicate2info[key_pair].decode('latin10')
+				else:
+					row_id2info[row_id] = '%s'%repr(row_id)
+			except:
+				import traceback
+				traceback.print_exc()
+				print sys.exc_info()
 				row_id2info[row_id] = '%s'%repr(row_id)
 		return row_id2info
 	
