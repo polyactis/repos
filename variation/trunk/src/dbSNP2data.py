@@ -66,14 +66,15 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import psycopg, sys, getopt, csv, re
+import psycopg2 as psycopg
+import sys, getopt, csv, re
 from codense.common import db_connect, org_short2long, org2tax_id
 from common import nt2number, number2nt
 import Numeric as num
 from sets import Set
 
 
-class dbSNP2data:
+class dbSNP2data(object):
 	"""
 	2007-02-19
 	"""
@@ -392,8 +393,10 @@ class dbSNP2data:
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
-	def get_majority_call_number(self, call_counter_ls):
+	def get_majority_call_number(cls, call_counter_ls):
 		"""
+		2008-04-04
+			make it class method
 		2007-09-22
 			return the call with maximum vote or NA
 		"""
@@ -404,6 +407,7 @@ class dbSNP2data:
 					index_with_max_value = 0
 					break
 		return index_with_max_value
+	get_majority_call_number = classmethod(get_majority_call_number)
 	
 	def get_nativename_snpid2call_m(self, curs, ecotype_table, calls_table):
 		"""
