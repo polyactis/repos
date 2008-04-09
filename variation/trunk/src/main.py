@@ -37,7 +37,7 @@ For -y (type):
 02-20-08 2: ProcessPhenotype.py
 02-28-08 3: Array2DB_250k.py
 03-11-08 4: LinkArrayId2EcotypeId.py
-03-11-08 5: DB_250k2Array.py
+04-08-08 5: DB_250k2Array.py
 """
 
 import sys, os, math
