@@ -1,5 +1,5 @@
 """
-2008-02-26
+2008-04-08
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -74,9 +74,9 @@ class snps_class:
 	def get_one_snp(self, snps_id):
 		return self.snps_id2snps_info[snps_id]
 
-class DB_250k2Array:
+class DB_250k2Array(object):
 	"""
-	2008-02-26
+	2008-04-08
 		
 	Argument list:
 		-z ..., --hostname=...	the hostname, localhost(default)
@@ -96,7 +96,7 @@ class DB_250k2Array:
 	"""
 	def __init__(self, **keywords):
 		"""
-		2008-02-28
+		2008-04-08
 		"""
 		argument_default_dict = {('hostname',1, ):'localhost',\
 								('dbname',1, ):'stock20071008',\
@@ -161,13 +161,19 @@ class DB_250k2Array:
 		for row in rows:
 			array_id, filename = row
 			sys.stderr.write("\t%s ... \n"%(filename))
+			
+			output_fname = os.path.join(output_dir, '%s_array_intensity.tsv'%(array_id))
+			if os.path.isfile(output_fname):
+				sys.stderr.write("\t%s already outputted as %s. Ignore.\n"%(array_id, output_fname))
+				continue
+			
+			#read array by calling R
 			array = rpy.r.read_affybatch(filenames=filename)
 			intensity_array = rpy.r.intensity(array)	#return a lengthX1 2-Dimensional array.
 			intensity_array_size = len(intensity_array)
 			if array_size == None:
 				array_size = int(math.sqrt(intensity_array_size))	#assume it's square array
 			
-			output_fname = os.path.join(output_dir, '%s_array_intensity.tsv'%(array_id))
 			writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
 			header = [ 'sense1', 'sense2', 'antisense1', 'antisense2']
 			func = lambda x: '%s_%s'%(array_id, x)
@@ -182,6 +188,7 @@ class DB_250k2Array:
 					intensity_array_index = array_size*(array_size - one_probe.xpos - 1) + one_probe.ypos
 					output_row.append(intensity_array[intensity_array_index][0])
 				writer.writerow(output_row)
+			del writer
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
