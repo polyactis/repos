@@ -480,14 +480,11 @@ class SimpleCall(object):
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
 		file_ls = os.listdir(input_dir)
-		if self.debug:
-			sys.stderr.write("\n\tTotally, %d files to be processed.\n"%len(file_ls))
-		filename_ls = []
+		sys.stderr.write("\n\tTotally, %d files to be processed.\n"%len(file_ls))
 		for i in range(len(file_ls)):
 			filename = file_ls[i]
 			array_id = filename.split('_')[0]
-			if self.debug:
-				sys.stderr.write("%d/%d:\t%s\n"%(i+1,len(file_ls),filename))
+			sys.stderr.write("%d/%d:\t%s\n"%(i+1,len(file_ls),filename))
 			input_fname = os.path.join(input_dir, filename)
 			output_fname = os.path.join(output_dir, '%s_call.tsv'%array_id)
 			self._simpleCall(input_fname, array_id, output_fname)
