@@ -391,11 +391,155 @@ snpid2peak1_peak2_color_ls = get_snpid2peak1_peak2_color_ls(curs, snpid2allele, 
 drawClusterPlotForOneSNP(snpid2peak1_peak2_color_ls[2], 2, '/tmp/2')
 
 
-"""
 
-#if __name__ == '__main__':
 hostname='localhost'
 dbname='stock20071227'
 import MySQLdb
 conn = MySQLdb.connect(db=dbname,host=hostname)
 curs = conn.cursor()
+	
+"""
+
+import getopt, csv
+import traceback, gc
+from pymodule import process_function_arguments
+
+class SimpleCall(object):
+	"""
+	2008-04-08
+		
+	Argument list:
+		-z ..., --hostname=...	the hostname, localhost(default)
+		-d ..., --dbname=...	the database name, stock(default)
+		-k ..., --schema=...	which schema in the database, (IGNORE)
+		-i ...,	input_dir*
+		-o ...,	output_dir*
+		-b,	toggle debug
+		-r, toggle report
+	Examples:
+		GenotypeCalling.py -i /tmp/arrays -o /tmp/simplecalls
+	Description:
+		apply simple calling algorithm on intensity matrices in input_dir outputted by DB_250k2Array (main.py -y 5)
+	
+	"""
+	def __init__(self, **keywords):
+		"""
+		2008-04-08
+		"""
+		argument_default_dict = {('hostname',1, ):'localhost',\
+								('dbname',1, ):'stock',\
+								('schema',0, ):'',\
+								('input_dir',1, ):None,\
+								('output_dir',1, ):None,\
+								('snps_table',1, ):'stock_250k.snps',\
+								('probes_table',1, ):'stock_250k.probes',\
+								('array_info_table',1, ):'stock_250k.array_info',\
+								('commit',0, int):0,\
+								('debug',0, int):0,\
+								('report',0, int):0}
+		"""
+		2008-02-28
+			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
+			argument_type is optional
+		"""
+		#argument dictionary
+		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+	
+	def _simpleCall(self, input_fname, array_id, output_fname):
+		"""
+		2008-04-08
+		"""
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		header = reader.next()
+		writer_header = header[:2]
+		writer_header[1] = array_id
+		writer.writerow(writer_header)
+		for row in reader:
+			snpid = row[0]
+			int_ls = row[1:]
+			int_ls = map(float, int_ls)
+			sense1_int, sense2_int, antisense1_int, antisense2_int = int_ls
+			snpid_split = snpid.split('_')
+			allele1 = snpid_split[-2]
+			allele2 = snpid_split[-1]
+			
+			if sense1_int>sense2_int and antisense1_int>antisense2_int:
+				call = allele1
+			elif sense1_int<sense2_int and antisense1_int<antisense2_int:
+				call = allele2
+			else:
+				call = 'NA'
+			writer.writerow([snpid, call])
+		del reader, writer
+	
+	def call_one_dir(self, input_dir, output_dir):
+		"""
+		2008-04-08
+		"""
+		if not os.path.isdir(output_dir):
+			os.makedirs(output_dir)
+		file_ls = os.listdir(input_dir)
+		if self.debug:
+			sys.stderr.write("\n\tTotally, %d files to be processed.\n"%len(file_ls))
+		filename_ls = []
+		for i in range(len(file_ls)):
+			filename = file_ls[i]
+			array_id = filename.split('_')[0]
+			if self.debug:
+				sys.stderr.write("%d/%d:\t%s\n"%(i+1,len(file_ls),filename))
+			input_fname = os.path.join(input_dir, filename)
+			output_fname = os.path.join(output_dir, '%s_call.tsv'%array_id)
+			self._simpleCall(input_fname, array_id, output_fname)
+	
+	def run(self):
+		"""
+		"""
+		self.call_one_dir(self.input_dir, self.output_dir)
+		
+		
+if __name__ == '__main__':
+	if len(sys.argv) == 1:
+		print SimpleCall.__doc__
+		sys.exit(2)
+	
+	long_options_list = ["help", "type=", "debug", "report"]
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:i:o:br", long_options_list)
+	except:
+		traceback.print_exc()
+		print sys.exc_info()
+		print SimpleCall.__doc__
+		sys.exit(2)
+	
+	
+	hostname = 'localhost'
+	dbname = 'stock'
+	schema = None
+	input_dir = None
+	output_dir = None
+	debug = None
+	report = None
+	
+	for opt, arg in opts:
+		if opt in ("-h", "--help"):
+			help = 1
+			print __doc__
+		elif opt in ("-z", "--hostname"):
+			hostname = arg
+		elif opt in ("-d", "--dbname"):
+			dbname = arg
+		elif opt in ("-k", "--schema"):
+			schema = arg
+		elif opt in ("-i",):
+			input_dir = arg
+		elif opt in ("-o",):
+			output_dir = arg
+		elif opt in ("-b", "--debug"):
+			debug = 1
+		elif opt in ("-r", "--report"):
+			report = 1
+	
+	instance = SimpleCall(hostname=hostname, dbname=dbname, schema=schema, input_dir=input_dir, output_dir=output_dir,
+					debug=debug, report=report)
+	instance.run()
