@@ -29,7 +29,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import time, csv, numpy, getopt
+import time, csv, getopt
 import traceback
 from pymodule import process_function_arguments, write_data_matrix
 
@@ -98,11 +98,16 @@ class OutputPhenotype:
 	
 	def get_matrix(self, curs, phenotype_avg_table, ecotype_id2index, phenotype_method_id2index):
 		"""
+		2008-04-09
+			no longer uses numpy matrix. just simple 2-d list.
 		2008-4-2
 		"""
 		sys.stderr.write("Getting matrix ... " )
-		data_matrix = numpy.zeros([len(ecotype_id2index), len(phenotype_method_id2index)], numpy.float)
-		data_matrix[:] = numpy.nan
+		#data_matrix = numpy.zeros([len(ecotype_id2index), len(phenotype_method_id2index)], numpy.float)
+		data_matrix = [[]]*len(ecotype_id2index)
+		for i in range(len(ecotype_id2index)):
+			data_matrix[i] = ['NA']*len(phenotype_method_id2index)
+		#data_matrix[:] = numpy.nan
 		curs.execute("select ecotype_id, method_id, value from %s"%phenotype_avg_table)
 		rows = curs.fetchall()
 		for row in rows:
