@@ -17,9 +17,6 @@ from pymodule import process_function_arguments
 class Array2DB_250k:
 	"""
 	2008-02-26
-		class to process phenotype data from at.phenotype and at.experiment to get flowering time.
-		Flowering time is "time of first flower open" - "date counted as germination"
-		
 	Argument list:
 		-z ..., --hostname=...	the hostname, localhost(default)
 		-d ..., --dbname=...	the database name, stock20071008(default)
@@ -58,7 +55,7 @@ class Array2DB_250k:
 			argument_type is optional
 		"""
 		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__)
+		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		self.debug = self.ad['debug']
 		self.report = self.ad['report']
 		
