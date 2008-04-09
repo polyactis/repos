@@ -39,10 +39,10 @@ else:   #32bit
 import getopt, csv, math
 import Numeric as num
 from sets import Set
-from common import number2nt, nt2number
+from variation.src.common import number2nt, nt2number
 from pymodule import dict_map
 
-class FilterStrainSNPMatrix:
+class FilterStrainSNPMatrix(object):
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
 		filtering_bits='111', nt_alphabet_bits='00', debug=0, report=0):
 		"""
@@ -198,7 +198,7 @@ class FilterStrainSNPMatrix:
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def read_data(self, input_fname, input_alphabet=0, turn_into_integer=1):
+	def read_data(cls, input_fname, input_alphabet=0, turn_into_integer=1):
 		"""
 		2007-03-06
 			different from the one from SelectStrains.py is map(int, data_row)
@@ -229,6 +229,8 @@ class FilterStrainSNPMatrix:
 		del reader
 		sys.stderr.write("Done.\n")
 		return header, strain_acc_list, category_list, data_matrix
+	
+	read_data = classmethod(read_data)
 	
 	def run(self):
 		"""
