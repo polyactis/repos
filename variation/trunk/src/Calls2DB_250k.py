@@ -32,7 +32,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import sys, getopt, csv
 
-class Calls2DB_250k:
+class Calls2DB_250k_old:
 	"""
 	2007-12-11
 	"""
@@ -197,25 +197,171 @@ class Calls2DB_250k:
 			self.submit_comment(curs, ecotypeid, duplicate_id, self.comment, self.calls_comment_table)
 			self.submit_calls_ls(curs, calls_ls, ecotypeid, duplicate_id, self.calls_table)
 
-
+import getopt, csv
+import traceback, gc
+from pymodule import process_function_arguments
+class Calls2DB_250k(object):
+	"""
+	2008-04-08
+		
+	Argument list:
+		-z ..., --hostname=...	the hostname, localhost(default)
+		-d ..., --dbname=...	the database name, stock(default)
+		-k ..., --schema=...	which schema in the database, (IGNORE)
+		-i ...,	input_dir*	The directory containing calling algorithm output files.
+		-m ...,	method_id*
+		-o ...,	output_dir to store the renamed call files. '/Network/Data/250k/db/calls/'(default)
+		-t ...,	call_info_table, 'stock_250k.call_info'(default)
+		-a ...,	call_method_table, 'stock_250k.call_method'(default)
+		-c,	commit db transaction
+		-b,	toggle debug
+		-r, toggle report
+	Examples:
+		Calls2DB_250k.py -i /tmp/simplecalls -m 1 -c
+	Description:
+		Turn calling algorithm's results into db and associated filesystem directory.
+		
+		Each file in input_dir shall be named like 'array_id'_call.tsv.
+		
+		The format is 2-column and tab-delimited. example:
+			SNP_ID	'array_id'
+			1_657_C_T	C
+	
+	"""
+	def __init__(self, **keywords):
+		"""
+		2008-04-08
+		"""
+		argument_default_dict = {('hostname',1, ):'localhost',\
+								('dbname',1, ):'stock',\
+								('schema',0, ):'',\
+								('input_dir',1, ):None,\
+								('output_dir',1, ):'/Network/Data/250k/db/calls/',\
+								('method_id',1,):None,\
+								('call_info_table',1, ):'stock_250k.call_info',\
+								('call_method_table',1, ):'stock_250k.call_method',\
+								('array_info_table',1, ):'stock_250k.array_info',\
+								('commit',0, int):0,\
+								('debug',0, int):0,\
+								('report',0, int):0}
+		"""
+		2008-02-28
+			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
+			argument_type is optional
+		"""
+		#argument dictionary
+		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		self.cur_max_call_id = None
+	
+	def get_cur_max_call_id(self, curs, call_info_table):
+		"""
+		get current maximum call id in db
+		"""
+		sys.stderr.write("Getting current maximum call id in db.\n")
+		curs.execute("select max(id) from %s"%(call_info_table))
+		rows = curs.fetchall()
+		cur_max_call_id = rows[0][0]
+		if cur_max_call_id!=None:
+			return cur_max_call_id
+		else:
+			return 0
+	
+	def check_method_id_exists(self, curs, call_method_table, method_id):
+		"""
+		"""
+		curs.execute("select id from %s where id=%s"%(call_method_table, method_id))
+		rows = curs.fetchall()
+		if len(rows)==0:
+			return 0
+		else:
+			return 1
+	
+	def get_new_call_id(self, curs, call_info_table, array_id, method_id):
+		"""
+		"""
+		if self.cur_max_call_id==None:
+			self.cur_max_call_id = self.get_cur_max_call_id(curs, call_info_table)
+		curs.execute("select id from %s where array_id=%s and method_id=%s"%(call_info_table, array_id, method_id))
+		rows = curs.fetchall()
+		if len(rows)>0:
+			sys.stderr.write("\tarray_id=%s and method_id=%s already exists in %s. Ignored.\n"%(array_id, method_id, call_info_table))
+			return -1
+		else:
+			self.cur_max_call_id += 1
+			return self.cur_max_call_id
+	
+	def submit_one_call_entry(self, curs, call_info_table, call_id, filename, array_id, method_id):
+		"""
+		2008-04-08
+			not used right now.
+		"""
+		pass
+	
+	def submit_call_dir2db(self, curs, input_dir, call_info_table, output_dir, method_id):
+		"""
+		"""
+		if not os.path.isdir(output_dir):
+			os.makedirs(output_dir)
+		file_ls = os.listdir(input_dir)
+		sys.stderr.write("\n\tTotally, %d files to be processed.\n"%len(file_ls))
+		file_ls.sort()
+		for i in range(len(file_ls)):
+			filename = file_ls[i]
+			array_id = filename.split('_')[0]
+			sys.stderr.write("%d/%d:\t%s\n"%(i+1,len(file_ls),filename))
+			new_call_id = self.get_new_call_id(curs, call_info_table, array_id, method_id)
+			if new_call_id!=-1:
+				output_fname = os.path.join(output_dir, '%s_call.tsv'%new_call_id)
+				curs.execute("insert into %s(id, filename, array_id, method_id) values (%s, '%s', %s, %s)"%\
+						(call_info_table, new_call_id, output_fname, array_id, method_id))
+				input_fname = os.path.join(input_dir, filename)
+				pipe_f = os.popen('cp %s %s'%(input_fname, output_fname))
+				pipe_f_out = pipe_f.read()
+				if pipe_f_out:
+					sys.stderr.write("\tcp output: %s\n"%pipe_f_out)
+	
+	def run(self):
+		"""
+		2008-04-08
+			-check_method_id_exists()
+			-submit_call_dir2db()
+				-get_new_call_id()
+					-get_cur_max_call_id()
+		"""
+		
+		import MySQLdb
+		conn = MySQLdb.connect(db=self.ad['dbname'], host=self.ad['hostname'])
+		curs = conn.cursor()
+		if not self.check_method_id_exists(curs, self.call_method_table, self.method_id):
+			sys.stderr.write("Error: method_id=%s not in %s. The method has to be put into db beforehand.\n"%\
+							(self.method_id, self.call_method_table))
+			sys.exit(2)
+		if self.commit:
+			self.submit_call_dir2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id)
+			curs.execute("commit")
+	
 if __name__ == '__main__':
+	if len(sys.argv) == 1:
+		print Calls2DB_250k.__doc__
+		sys.exit(2)
+	
 	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:l:a:s:n:e:cbrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:m:o:t:a:cbrh", long_options_list)
 	except:
-		print __doc__
+		traceback.print_exc()
+		print sys.exc_info()
+		print Calls2DB_250k.__doc__
 		sys.exit(2)
 	
 	hostname = 'localhost'
 	dbname = 'stock20071008'
 	schema = 'dbsnp'
-	input_fname = ''
-	calls_table = 'calls_250k'
-	calls_comment_table = 'calls_250k_duplicate_comment'
-	snps_table = 'snps_250k'
-	strain_name = None
-	comment = ''
-	new_table = 0
+	input_dir = None
+	method_id = None
+	output_dir = None
+	call_info_table = None
+	call_method_table = None
 	commit = 0
 	debug = 0
 	report = 0
@@ -231,17 +377,15 @@ if __name__ == '__main__':
 		elif opt in ("-k", "--schema"):
 			schema = arg
 		elif opt in ("-i",):
-			input_fname = arg
-		elif opt in ("-l",):
-			calls_table = arg
+			input_dir = arg
+		elif opt in ("-m",):
+			method_id = arg
+		elif opt in ("-o",):
+			output_dir = arg
+		elif opt in ("-t",):
+			call_info_table = arg
 		elif opt in ("-a",):
-			calls_comment_table = arg
-		elif opt in ("-s",):
-			snps_table = arg
-		elif opt in ("-n",):
-			strain_name = arg
-		elif opt in ("-e",):
-			comment = arg
+			call_method_table = arg
 		elif opt in ("-c",):
 			commit = 1
 		elif opt in ("-b", "--debug"):
@@ -249,10 +393,7 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 	
-	if hostname and dbname and schema and input_fname and calls_table and calls_comment_table and snps_table and strain_name:
-		instance = Calls2DB_250k(hostname, dbname, schema, input_fname,\
-			calls_table, calls_comment_table, snps_table, strain_name, comment, commit, debug, report)
-		instance.run()
-	else:
-		print __doc__
-		sys.exit(2)
+	instance = Calls2DB_250k(hostname=hostname, dbname=dbname, schema=schema, input_dir=input_dir, output_dir=output_dir,
+					method_id=method_id, call_info_table=call_info_table, call_method_table=call_method_table,\
+					commit=commit, debug=debug, report=report)
+	instance.run()
