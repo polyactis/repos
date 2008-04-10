@@ -4,6 +4,8 @@
 
 def process_function_arguments(keywords, argument_default_dict, error_doc='', class_to_have_attr=None):
 	"""
+	2008-04-09
+		if required argument is not given, prompt the user to get it.
 	2008-04-02
 		add class_to_have_attr to assign the argument and values
 	2008-02-28
@@ -16,7 +18,11 @@ def process_function_arguments(keywords, argument_default_dict, error_doc='', cl
 	"""
 	import sys
 	ad = {}
-	for argument_key, default_value in argument_default_dict.iteritems():
+	argument_key_ls = argument_default_dict.keys()
+	argument_key_ls.sort()
+	argument_key_ls.reverse()	#to keep 'user' appearing in front of 'password'.
+	for argument_key in argument_key_ls:
+		default_value = argument_default_dict[argument_key]
 		argument, is_argument_required = argument_key[0:2]
 		if len(argument_key)>2:
 			argument_type = argument_key[2]
@@ -29,14 +35,22 @@ def process_function_arguments(keywords, argument_default_dict, error_doc='', cl
 				else:
 					default_value = keywords[argument]
 		if is_argument_required==1 and (default_value=='' or default_value==None):
+			if argument=='passwd' or argument=='Passwd' or argument=='password':
+				import getpass
+				default_value = getpass.getpass("%s: "%argument)
+			else:
+				default_value = raw_input("%s: "%argument)
+			"""
 			if error_doc:
 				sys.stderr.write(error_doc)
 			sys.stderr.write('Error: %s is required but %s given.\n'%(argument, default_value))
 			sys.exit(2)
-		else:
-			if class_to_have_attr:
-				setattr(class_to_have_attr, argument, default_value)
-			ad[argument] = default_value
+			"""
+		if argument_type!=None:	#cast to the desired type
+			default_value = argument_type(default_value)
+		if class_to_have_attr:
+			setattr(class_to_have_attr, argument, default_value)
+		ad[argument] = default_value
 	return ad
 
 
