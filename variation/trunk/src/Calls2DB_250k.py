@@ -203,11 +203,13 @@ from pymodule import process_function_arguments
 class Calls2DB_250k(object):
 	"""
 	2008-04-08
-		
+	Calls2DB_250k.py [OPTIONS] -i INPUT_DIR -m METHOD_ID
+	
 	Argument list:
-		-z ..., --hostname=...	the hostname, localhost(default)
-		-d ..., --dbname=...	the database name, stock(default)
-		-k ..., --schema=...	which schema in the database, (IGNORE)
+		-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
+		-d ..., --dbname=...	the database name, stock_250k(default)
+		-u ..., --user=...	the username, (otherwise it will ask for it).
+		-p ..., --password=...	the password, (otherwise it will ask for it).
 		-i ...,	input_dir*	The directory containing calling algorithm output files.
 		-m ...,	method_id*
 		-o ...,	output_dir to store the renamed call files. '/Network/Data/250k/db/calls/'(default)
@@ -218,6 +220,7 @@ class Calls2DB_250k(object):
 		-r, toggle report
 	Examples:
 		Calls2DB_250k.py -i /tmp/simplecalls -m 1 -c
+	
 	Description:
 		Turn calling algorithm's results into db and associated filesystem directory.
 		
@@ -232,9 +235,10 @@ class Calls2DB_250k(object):
 		"""
 		2008-04-08
 		"""
-		argument_default_dict = {('hostname',1, ):'localhost',\
-								('dbname',1, ):'stock',\
-								('schema',0, ):'',\
+		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
+								('dbname',1, ):'stock_250k',\
+								('user',1, ):None,\
+								('passwd',1, ):None,\
 								('input_dir',1, ):None,\
 								('output_dir',1, ):'/Network/Data/250k/db/calls/',\
 								('method_id',1,):None,\
@@ -297,9 +301,14 @@ class Calls2DB_250k(object):
 		"""
 		pass
 	
-	def submit_call_dir2db(self, curs, input_dir, call_info_table, output_dir, method_id):
+	def submit_call_dir2db(self, curs, input_dir, call_info_table, output_dir, method_id, user):
 		"""
+		2008-04-09
+			add method_id as sub-directory
+			submit user into table as 'created_by'
+		2008-04-08
 		"""
+		output_dir = os.path.join(output_dir, '%s'%method_id)
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
 		file_ls = os.listdir(input_dir)
@@ -312,8 +321,8 @@ class Calls2DB_250k(object):
 			new_call_id = self.get_new_call_id(curs, call_info_table, array_id, method_id)
 			if new_call_id!=-1:
 				output_fname = os.path.join(output_dir, '%s_call.tsv'%new_call_id)
-				curs.execute("insert into %s(id, filename, array_id, method_id) values (%s, '%s', %s, %s)"%\
-						(call_info_table, new_call_id, output_fname, array_id, method_id))
+				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
+						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
 				input_fname = os.path.join(input_dir, filename)
 				pipe_f = os.popen('cp %s %s'%(input_fname, output_fname))
 				pipe_f_out = pipe_f.read()
@@ -330,14 +339,14 @@ class Calls2DB_250k(object):
 		"""
 		
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.ad['dbname'], host=self.ad['hostname'])
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		if not self.check_method_id_exists(curs, self.call_method_table, self.method_id):
 			sys.stderr.write("Error: method_id=%s not in %s. The method has to be put into db beforehand.\n"%\
 							(self.method_id, self.call_method_table))
 			sys.exit(2)
 		if self.commit:
-			self.submit_call_dir2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id)
+			self.submit_call_dir2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
 			curs.execute("commit")
 	
 if __name__ == '__main__':
@@ -345,18 +354,19 @@ if __name__ == '__main__':
 		print Calls2DB_250k.__doc__
 		sys.exit(2)
 	
-	long_options_list = ["hostname=", "dbname=", "schema=", "debug", "report", "help"]
+	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:k:i:m:o:t:a:cbrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:d:u:p:i:m:o:t:a:cbrh", long_options_list)
 	except:
 		traceback.print_exc()
 		print sys.exc_info()
 		print Calls2DB_250k.__doc__
 		sys.exit(2)
 	
-	hostname = 'localhost'
-	dbname = 'stock20071008'
-	schema = 'dbsnp'
+	hostname = None
+	dbname = None
+	user = None
+	passwd = None
 	input_dir = None
 	method_id = None
 	output_dir = None
@@ -374,8 +384,10 @@ if __name__ == '__main__':
 			hostname = arg
 		elif opt in ("-d", "--dbname"):
 			dbname = arg
-		elif opt in ("-k", "--schema"):
-			schema = arg
+		elif opt in ("-u", "--user"):
+			user = arg
+		elif opt in ("-p", "--passwd"):
+			passwd = arg
 		elif opt in ("-i",):
 			input_dir = arg
 		elif opt in ("-m",):
@@ -393,7 +405,7 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 	
-	instance = Calls2DB_250k(hostname=hostname, dbname=dbname, schema=schema, input_dir=input_dir, output_dir=output_dir,
+	instance = Calls2DB_250k(hostname=hostname, dbname=dbname, user=user, passwd=passwd, input_dir=input_dir, output_dir=output_dir,
 					method_id=method_id, call_info_table=call_info_table, call_method_table=call_method_table,\
 					commit=commit, debug=debug, report=report)
 	instance.run()
