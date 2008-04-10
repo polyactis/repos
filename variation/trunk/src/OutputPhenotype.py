@@ -6,7 +6,7 @@ Option:
 	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
 	-d ..., --dbname=...	the database name, stock_250k(default)
 	-u ..., --user=...	the db username, (otherwise it will ask for it).
-	-p ..., --password=...	the db password, (otherwise it will ask for it).
+	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
 	-k ..., --schema=...	which schema in the database
 	-o ...,	output file
 	-e ...,	ecotype table 'stock.ecotype'(default)

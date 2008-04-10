@@ -208,8 +208,8 @@ class Calls2DB_250k(object):
 	Argument list:
 		-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
 		-d ..., --dbname=...	the database name, stock_250k(default)
-		-u ..., --user=...	the username, (otherwise it will ask for it).
-		-p ..., --password=...	the password, (otherwise it will ask for it).
+		-u ..., --user=...	the db username, (otherwise it will ask for it).
+		-p ..., --passwd=...	the db password, (otherwise it will ask for it).
 		-i ...,	input_dir*	The directory containing calling algorithm output files.
 		-m ...,	method_id*
 		-o ...,	output_dir to store the renamed call files. '/Network/Data/250k/db/calls/'(default)
