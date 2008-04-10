@@ -149,7 +149,8 @@ if __name__ == '__main__':
 	
 	hostname = None
 	dbname = None
-	schema = None
+	user = None
+	passwd = None
 	output_fname = None
 	ecotype_table = None
 	phenotype_avg_table = None
@@ -165,8 +166,10 @@ if __name__ == '__main__':
 			hostname = arg
 		elif opt in ("-d", "--dbname"):
 			dbname = arg
-		elif opt in ("-k", "--schema"):
-			schema = arg
+		elif opt in ("-u", "--user"):
+			user = arg
+		elif opt in ("-p", "--passwd"):
+			passwd = arg
 		elif opt in ("-o",):
 			output_fname = arg
 		elif opt in ("-e",):
@@ -181,7 +184,7 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 	
-	instance = OutputPhenotype(hostname=hostname, dbname=dbname, schema=schema, output_fname=output_fname,
+	instance = OutputPhenotype(hostname=hostname, dbname=dbname, user=user, passwd=passwd, output_fname=output_fname,
 					ecotype_table=ecotype_table, phenotype_avg_table=phenotype_avg_table, \
 					phenotype_method_table = phenotype_method_table, debug=debug, report=report)
 	instance.run()
