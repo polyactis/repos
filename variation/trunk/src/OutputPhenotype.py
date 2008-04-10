@@ -3,8 +3,10 @@
 Usage: OutputPhenotype.py [OPTIONS] -o OUTPUT_FILE
 
 Option:
-	-z ..., --hostname=...	the hostname, localhost(default)
-	-d ..., --dbname=...	the database name, stock(default)
+	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
+	-d ..., --dbname=...	the database name, stock_250k(default)
+	-u ..., --user=...	the db username, (otherwise it will ask for it).
+	-p ..., --password=...	the db password, (otherwise it will ask for it).
 	-k ..., --schema=...	which schema in the database
 	-o ...,	output file
 	-e ...,	ecotype table 'stock.ecotype'(default)
@@ -41,9 +43,10 @@ class OutputPhenotype:
 		"""
 		2008-4-2
 		"""
-		argument_default_dict = {('hostname',1, ):'localhost',\
-								('dbname',1, ):'stock',\
-								('schema',0, ):'',\
+		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
+								('dbname',1, ):'stock_250k',\
+								('user',1, ):None,\
+								('passwd',1, ):None,\
 								('output_fname',1, ):None,\
 								('ecotype_table',1, ):'stock.ecotype',\
 								('phenotype_avg_table',1, ):'stock_250k.phenotype_avg',\
@@ -118,7 +121,7 @@ class OutputPhenotype:
 	
 	def run(self):
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		
 		
@@ -134,9 +137,9 @@ if __name__ == '__main__':
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["help", "type=", "debug", "report"]
+	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "help", "type=", "debug", "report"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:o:e:p:m:br", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:u:p:o:e:p:m:br", long_options_list)
 	except:
 		traceback.print_exc()
 		print sys.exc_info()
@@ -144,8 +147,8 @@ if __name__ == '__main__':
 		sys.exit(2)
 	
 	
-	hostname = 'localhost'
-	dbname = 'stock'
+	hostname = None
+	dbname = None
 	schema = None
 	output_fname = None
 	ecotype_table = None
