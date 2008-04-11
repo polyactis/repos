@@ -2,8 +2,10 @@
 2007-10-15. __init__.py for pymodule. pymodule is a concatenation of all common functions/classes.
 """
 
-def process_function_arguments(keywords, argument_default_dict, error_doc='', class_to_have_attr=None):
+def process_function_arguments(keywords, argument_default_dict, error_doc='', class_to_have_attr=None, howto_deal_with_required_none=1):
 	"""
+	2008-04-10
+		add argument: howto_deal_with_required_none. if =1, prompt user to enter. else, terminate the program.
 	2008-04-09
 		if required argument is not given, prompt the user to get it.
 	2008-04-02
@@ -35,17 +37,17 @@ def process_function_arguments(keywords, argument_default_dict, error_doc='', cl
 				else:
 					default_value = keywords[argument]
 		if is_argument_required==1 and (default_value=='' or default_value==None):
-			if argument=='passwd' or argument=='Passwd' or argument=='password':
-				import getpass
-				default_value = getpass.getpass("%s: "%argument)
+			if howto_deal_with_required_none==1:
+				if argument=='passwd' or argument=='Passwd' or argument=='password':
+					import getpass
+					default_value = getpass.getpass("%s: "%argument)
+				else:
+					default_value = raw_input("%s: "%argument)
 			else:
-				default_value = raw_input("%s: "%argument)
-			"""
-			if error_doc:
-				sys.stderr.write(error_doc)
-			sys.stderr.write('Error: %s is required but %s given.\n'%(argument, default_value))
-			sys.exit(2)
-			"""
+				if error_doc:
+					sys.stderr.write(error_doc)
+				sys.stderr.write('Error: %s is required but %s given.\n'%(argument, default_value))
+				sys.exit(2)
 		if argument_type!=None:	#cast to the desired type
 			default_value = argument_type(default_value)
 		if class_to_have_attr:
