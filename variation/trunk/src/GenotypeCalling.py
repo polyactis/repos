@@ -407,11 +407,9 @@ from pymodule import process_function_arguments
 class SimpleCall(object):
 	"""
 	2008-04-08
+	Usage:	GenotypeCalling.py [OPTIONS] -i INPUT_DIR -o OUTPUT_DIR
 		
 	Argument list:
-		-z ..., --hostname=...	the hostname, localhost(default)
-		-d ..., --dbname=...	the database name, stock(default)
-		-k ..., --schema=...	which schema in the database, (IGNORE)
 		-i ...,	input_dir*
 		-o ...,	output_dir*
 		-b,	toggle debug
@@ -510,8 +508,8 @@ if __name__ == '__main__':
 		sys.exit(2)
 	
 	
-	hostname = 'localhost'
-	dbname = 'stock'
+	hostname = ''
+	dbname = ''
 	schema = None
 	input_dir = None
 	output_dir = None
