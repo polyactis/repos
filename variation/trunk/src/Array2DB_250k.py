@@ -386,6 +386,7 @@ if __name__ == '__main__':
 		if opt in ("-h", "--help"):
 			help = 1
 			print __doc__
+			sys.exit(2)
 		elif opt in ("-z", "--hostname"):
 			hostname = arg
 		elif opt in ("-d", "--dbname"):
