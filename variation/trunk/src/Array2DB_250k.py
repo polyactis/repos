@@ -18,7 +18,9 @@ Examples:
 
 Description:
 	Dump .cel array files from input_dir (files in up to 2-level directories) into db and associated file-system storage (output-dir).
-
+	
+	This program requires the machine to have a standalone program, md5sum in PATH.
+	md5sum is used to calculate a checksum for each array cel file to avoid redundant arrays.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
