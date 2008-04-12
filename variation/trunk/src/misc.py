@@ -2604,7 +2604,111 @@ def minusLogPvalue(input_fname, output_fname):
 			pvalue = -math.log(float(pvalue))
 			writer.writerow([chromosome, position, pvalue])
 	del writer, reader
-		
+
+"""
+2008-03-18
+	check chiamo output
+"""
+def convertChiamoOutput(chiamo_infname, chiamo_outfname, ref_250k_infname, output_fname, posterior_min=0.95):
+	from variation.src.common import nt2number
+	import csv
+	import numpy
+	
+	reader = csv.reader(open(ref_250k_infname), delimiter='\t')
+	SNP_acc_ls = reader.next()[2:]
+	del reader
+	
+	SNP_id2allele_ls = {}
+	SNP_id2info = {}
+	for SNP_acc in SNP_acc_ls:
+		chr, pos, alleleA, alleleB = SNP_acc.split('_')
+		SNP_id = '%s_%s'%(chr, pos)
+		SNP_id2allele_ls[SNP_id] = [alleleA, alleleB]
+		SNP_id2info[SNP_id] = [SNP_acc, len(SNP_id2allele_ls)-1]	#[name, index]
+	
+	reader = csv.reader(open(chiamo_infname), delimiter='\t')
+	strain_id_dup_ls = reader.next()[5:]
+	strain_id_ls = []
+	for i in range(0, len(strain_id_dup_ls), 2):
+		strain_id_ls.append(strain_id_dup_ls[i][:-2])
+	del reader
+	
+	sys.stderr.write("Reading chiamo output ...\n")
+	reader = csv.reader(open(chiamo_outfname), delimiter=' ')
+	snp_acc_ls = []
+	data_matrix = numpy.zeros([len(strain_id_ls), len(SNP_id2allele_ls)], numpy.integer)
+	counter = 0
+	for row in reader:
+		SNP_id = row[0]
+		if SNP_id not in SNP_id2allele_ls:
+			continue
+		allele_ls = SNP_id2allele_ls[SNP_id]
+		snp_acc, col_index = SNP_id2info[SNP_id]
+		snp_acc_ls.append(snp_acc)
+		for i in range(5, len(row)-1, 3):
+			posterior_ls = [float(row[i]), float(row[i+1]), float(row[i+2])]	#posterior for 3 classes
+			max_posterior_index = numpy.argmax(posterior_ls)
+			if posterior_ls[max_posterior_index]>=posterior_min:
+				if max_posterior_index==2:	#heterozygous
+					call = '%s%s'%(allele_ls[0], allele_ls[1])
+				else:
+					call = allele_ls[max_posterior_index]
+				row_index = (i-5)/3
+				try:
+					data_matrix[row_index][col_index] = nt2number[call]
+				except:
+					print SNP_id, snp_acc, col_index, allele_ls, row_index, strain_id_ls[row_index], call
+					return
+		counter += 1
+		if counter%2000==0:
+			sys.stderr.write("%s%s"%('\x08'*40, counter))
+				
+	del reader
+	sys.stderr.write("Done.\n")
+	
+	from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
+	FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+	header = ['ecotypeid', 'ecotypeid'] + snp_acc_ls
+	FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, output_fname, header, strain_id_ls, [1]*len(strain_id_ls))
+	sys.stderr.write("Finished.\n")
+	
+chiamo_infname = os.path.expanduser('~/script/affy/250k_test/yanli8-29-07_chiamo_14SNPs.in')
+chiamo_outfname = os.path.expanduser('~/script/affy/250k_test/yanli8-29-07_chiamo.out_0_mcmc')
+ref_250k_infname = os.path.expanduser('~/script/variation/genotyping/250ksnp/data/data_250k.tsv')
+output_fname = os.path.expanduser('~/script/affy/250k_test/yanli8-29-07_chiamo_out.tsv')
+
+convertChiamoOutput(chiamo_infname, chiamo_outfname, ref_250k_infname, output_fname, posterior_min=0.95)
+
+"""
+2008-04-11
+	this is a one-time 250k pipeline fix to avoid memory-hefty intensity re-output.
+	
+	form 2 lists of intensity matrix filenames based on the new and old array_info_table
+	output them as two-column (old_fname, new_fname) into a output_fname.
+	shell/file_batch_move.py reads the output_fname and handle name changing.
+
+2008-04-11
+	turns out to be useless because the header in each intensity matrix file has array_id embedded.
+	have to output each array into intensity matrix.
+"""
+def output_intensity_fname(curs, new_array_info_table, old_array_info_table, output_fname):
+	"""
+	"""
+	import csv
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	curs.execute("select n.id, o.id from %s n, %s o where n.original_filename=o.filename"%(new_array_info_table, old_array_info_table))
+	rows = curs.fetchall()
+	for row in rows:
+		new_array_id, old_array_id = row
+		new_fname = '%s_array_intensity.tsv'%new_array_id
+		old_fname = '%s_array_intensity.tsv'%old_array_id
+		writer.writerow([old_fname, new_fname])
+	del writer
+
+new_array_info_table='stock_250k.array_info'
+old_array_info_table='stock_250k.array_info_2008_04_11'
+output_fname = '/tmp/intensity_fname.rename.tsv'
+output_intensity_fname(curs, new_array_info_table, old_array_info_table, output_fname)
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
