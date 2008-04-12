@@ -1,7 +1,29 @@
 #!/usr/bin/env python
 """
-2008-04-08
+Usage: DB_250k2Array.py [OPTIONS] -o OUTPUT_DIR
+
+Argument list:
+	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
+	-d ..., --dbname=...	the database name, stock_250k(default)
+	-u ..., --user=...	the db username, (otherwise it will ask for it).
+	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
+	-o ...,	output_dir*
+	-a ...,	snps_table, 'stock_250k.snps'(default)
+	-e ...,	probes_table, 'stock_250k.probes'(default)
+	-g ...,	array_info_table, 'stock_250k.array_info'(default)
+	-b,	toggle debug
+	-r, toggle report
+Examples:
+	#put intensity matrices into designated file-system storage
+	DB_250k2Array.py -o /Network/Data/250k/db/intensity/
+	
+	#put them in some temporary directory
+	DB_250k2Array.py -o /tmp/arrays
+Description:
+	output all .cel array files (according to array_info_table) as intensity matrices in output_dir
+
 """
+
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
@@ -76,32 +98,15 @@ class snps_class:
 		return self.snps_id2snps_info[snps_id]
 
 class DB_250k2Array(object):
-	"""
-	Usage: DB_250k2Array.py [OPTIONS] -o OUTPUT_DIR
-	
-	Argument list:
-		-z ..., --hostname=...	the hostname, localhost(default)
-		-d ..., --dbname=...	the database name, stock20071008(default)
-		-k ..., --schema=...	which schema in the database, (IGNORE)
-		-o ...,	output_dir*
-		-a ...,	snps_table, 'stock_250k.snps'(default)
-		-e ...,	probes_table, 'stock_250k.probes'(default)
-		-g ...,	array_info_table, 'stock_250k.array_info'(default)
-		-b,	toggle debug
-		-r, toggle report
-	Examples:
-		DB_250k2Array.py -o /tmp/arrays/
-	Description:
-		output all .cel array files (according to array_info_table) as intensity matrices in output_dir
-	
-	"""
+	__doc__ = __doc__
 	def __init__(self, **keywords):
 		"""
 		2008-04-08
 		"""
-		argument_default_dict = {('hostname',1, ):'localhost',\
-								('dbname',1, ):'stock20071008',\
-								('schema',0, ):'',\
+		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
+								('dbname',1, ):'stock_250k',\
+								('user',1, ):None,\
+								('passwd',1, ):None,\
 								('output_dir',1, ):None,\
 								('snps_table',1, ):'stock_250k.snps',\
 								('probes_table',1, ):'stock_250k.probes',\
@@ -160,13 +165,14 @@ class DB_250k2Array(object):
 			os.makedirs(output_dir)
 		curs.execute("select id, filename from %s"%(array_info_table))
 		rows = curs.fetchall()
-		for row in rows:
-			array_id, filename = row
-			sys.stderr.write("\t%s ... \n"%(filename))
+		no_of_objects = len(rows)
+		for i in range(no_of_objects):
+			array_id, filename = rows[i]
+			sys.stderr.write("\t%d/%d: Extracting intensity from %s ... \n"%(i+1, no_of_objects, filename))
 			
 			output_fname = os.path.join(output_dir, '%s_array_intensity.tsv'%(array_id))
 			if os.path.isfile(output_fname):
-				sys.stderr.write("\t%s already outputted as %s. Ignore.\n"%(array_id, output_fname))
+				sys.stderr.write("\tFile %s already exists. Ignore.\n"%(output_fname))
 				continue
 			
 			#read array by calling R
@@ -190,12 +196,12 @@ class DB_250k2Array(object):
 					intensity_array_index = array_size*(array_size - one_probe.xpos - 1) + one_probe.ypos
 					output_row.append(intensity_array[intensity_array_index][0])
 				writer.writerow(output_row)
-			del writer
+			del writer, intensity_array, array
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.dbname, host=self.hostname)
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		
 		snps = self.get_snps(curs, self.snps_table)
@@ -207,16 +213,19 @@ if __name__ == '__main__':
 		print DB_250k2Array.__doc__
 		sys.exit(2)
 	
-	long_options_list = ["help", "type=", "debug", "report"]
+	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "help", "type=", "debug", "report"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:i:o:y:a:e:f:g:j:cbr", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:u:p:i:o:y:a:e:f:g:j:cbr", long_options_list)
 	except:
-		print DB_250k2Array.__doc__
+		traceback.print_exc()
+		print sys.exc_info()
+		print __doc__
 		sys.exit(2)
 	
-	hostname = 'localhost'
-	dbname = 'stock20071008'
-	schema = 'dbsnp'
+	hostname = None
+	dbname = None
+	user = None
+	passwd = None
 	input_fname = None
 	output_fname = None
 	type = None
@@ -238,8 +247,10 @@ if __name__ == '__main__':
 			hostname = arg
 		elif opt in ("-d", "--dbname"):
 			dbname = arg
-		elif opt in ("-k", "--schema"):
-			schema = arg
+		elif opt in ("-u", "--user"):
+			user = arg
+		elif opt in ("-p", "--passwd"):
+			passwd = arg
 		elif opt in ("-i",):
 			input_fname = arg
 		elif opt in ("-o",):
@@ -263,8 +274,8 @@ if __name__ == '__main__':
 		elif opt in ("-j",):
 			argument5 = arg
 	
-		ins = DB_250k2Array(hostname=hostname, dbname=dbname, schema=schema, output_dir=output_fname, snps_table=argument1, \
-					probes_table=argument2, array_info_table=argument3,\
-					debug=debug, report=report)
-		ins.run()
+	ins = DB_250k2Array(hostname=hostname, dbname=dbname, user=user, passwd=passwd, output_dir=output_fname, snps_table=argument1, \
+				probes_table=argument2, array_info_table=argument3,\
+				debug=debug, report=report)
+	ins.run()
 		
