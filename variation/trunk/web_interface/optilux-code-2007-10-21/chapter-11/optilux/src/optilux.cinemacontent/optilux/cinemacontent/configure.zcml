@@ -1,0 +1,32 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="optilux.cinemacontent">
+
+    <!-- We need annotation support for the ratings to work -->
+    <include package="zope.annotation" />
+
+    <!-- Make this package a Zope 2 product so that it calls the
+         initialize() function on startup
+      -->
+    <five:registerPackage package="." initialize=".initialize" />
+
+    <!-- Include the sub-packages that use their own configure.zcml files. -->
+    <include package=".browser" />
+    <include package=".content" />
+    <include package=".portlets" />
+
+    <!-- Register the installation GenericSetup extension profile -->
+    <genericsetup:registerProfile
+      name="default"
+      title="Optilux Cinema Content Types"
+      directory="profiles/default"
+      description="Content types to describe Optilux Cinemas"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+      
+    <!-- Register the ratings adapter -->
+    <adapter factory=".ratings.FilmRatings" />
+
+</configure>

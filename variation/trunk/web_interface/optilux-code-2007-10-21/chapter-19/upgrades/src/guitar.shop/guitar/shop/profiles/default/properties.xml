@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!-- Pretend like this was a setting made in version 1.0, which we now want
+  to upgrade from.
+  -->
+<site>
+ <!-- oops... -->
+ <property name="title">Gitar Shop</property>
+</site>

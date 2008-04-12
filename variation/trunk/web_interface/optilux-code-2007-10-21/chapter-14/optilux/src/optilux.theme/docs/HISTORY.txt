@@ -1,0 +1,9 @@
+Changelog for optilux.theme
+
+    (name of developer listed in brackets)
+
+optilux.theme - 1.0.08 Unreleased
+
+    - Initial package structure.
+      [zopeskel]
+

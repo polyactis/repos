@@ -1,0 +1,269 @@
+==================================
+Examples of using Zope 3 utilities
+==================================
+
+This is a Zope 3 doctest that performs rudimentary configuration of the
+component architecture during setup and tear-down.
+
+Singletons in global utilities
+------------------------------
+
+The utility registry can be used to manage singletons (objects for which
+there is only a single instance, shared across an application), looked up
+by interface. Such components are called global, unnamed utilities.
+
+    >>> from zope.interface import Interface
+    >>> class IBroadcaster(Interface):
+    ...     """A component capable of broadcasting a message to the world
+    ...     """
+    ...
+    ...     def __call__(message):
+    ...         """Broadcast the given message
+    ...         """
+    
+    >>> from zope.interface import implements
+    >>> class RadioBroadcaster(object):
+    ...     implements(IBroadcaster)
+    ... 
+    ...     def __call__(self, message):
+    ...         print "And now for a special announcement:", message
+    
+For the broadcaster to be a global utility, we need to register it. In a
+package, we may do so with ZCML, like:
+
+    <utility factory=".broadcaster.RadioBroadcaster" />
+    
+We can also specify the interface being provided directly. This is necessary
+if the object implements more than one interface.
+
+    <utility 
+        provides=".interfaces.IBroadcaster"
+        factory=".broadcaster.RadioBroadcaster"
+        />
+        
+In tests such as this one, we may instead use the Python API to provide the
+global utility. In this case, we actually instantiate the singleton object.
+
+    >>> from zope.component import provideUtility
+    >>> provideUtility(component=RadioBroadcaster())
+
+We can now up this utility by interface anywhere:
+
+    >>> from zope.component import getUtility
+    >>> broadcaster = getUtility(IBroadcaster)
+    >>> broadcaster("Jimi Hendrix played a Stratocaster")
+    And now for a special announcement: Jimi Hendrix played a Stratocaster
+
+If we are not certain that the utility has been registered, we can use
+queryUtility() instead, which returns None should the interface not be found.
+By contrast, getUtility() will raise a ComponentLookpError.
+
+    >>> class IChannel(Interface):
+    ...     """A channel through which a message could be transmitted
+    ...     """
+    ...
+    ...     def transmit(source, destination, message):
+    ...         """Transmit a message between two destinations
+    ...         """
+    
+    >>> from zope.component import queryUtility
+    >>> queryUtility(IChannel) is None
+    True
+    >>> getUtility(IChannel)
+    Traceback (most recent call last):
+    ...
+    ComponentLookupError: (<InterfaceClass __builtin__.IChannel>, '')
+    
+In addition to being used to look up shared services, global utilities are
+also sometimes used to store configuration or policies. Here is another
+common pattern:
+
+    >>> from zope.interface import Attribute
+    >>> class ITransmissionPolicy(Interface):
+    ...     """Settings about the transmission
+    ...     """
+    ...
+    ...     retries = Attribute("Number of retries before giving up")
+    ...     signature = Attribute("Signature to send with each transmission")
+    
+    >>> from persistent import Persistent
+    >>> class TransmissionPolicy(Persistent):
+    ...     implements(ITransmissionPolicy)
+    ...     
+    ...     def __init__(self, retries, signature):
+    ...         self.retries = retries
+    ...         self.signature = signature
+    
+    >>> default_transmission_policy = TransmissionPolicy(5, "Bye!")
+    >>> provideUtility(component=default_transmission_policy, provides=ITransmissionPolicy)
+
+Because we derive from Persistent (you'll discover why soon), which in turn
+implements some interfaces, there is no longer a non-ambiguous interface,
+so we need to specify the interface being provided by the utility explicitly.
+
+In ZCML, we would reference a component (object) rather than a factory in
+this case, using:
+    
+    <utility
+        provides=".interfaces.ITransmissionPolicy"
+        component=".transmission.default_transmission_policy"
+        />
+
+Here is how such a component may get used to make policy decisions at run 
+time:
+
+    >>> class Channel(object):
+    ...     implements(IChannel)
+    ...
+    ...     def __init__(self, port):
+    ...         self.port = port
+    ...         
+    ...     def transmit(self, source, destination, message):
+    ...         policy = getUtility(ITransmissionPolicy)
+    ...         attempts = 0
+    ...         while attempts < policy.retries:
+    ...             if self._send(self.port, source, destination, message, policy.signature):
+    ...                 break
+    ...             attempts += 1
+    ...     
+    ...     def _send(self, port, source, destination, message, signature):
+    ...         print "Sending", message, "from", source, "to", destination, "on", port
+    ...         print signature
+    ...         return True
+    
+Registries in named utilities
+-----------------------------
+
+In the examples above, there was only one utility corresponding to the given
+interface. This is said to be the default, unnamed utility (in fact, it does
+have a name - an empty string).
+
+It is also possible to register several named utilities for the same 
+interface. In this case, the utility registry is acting like a generic
+registry of similar components. Let us register a few channels:
+
+    >>> provideUtility(component=Channel(80),   provides=IChannel, name=u"http")
+    >>> provideUtility(component=Channel(21),   provides=IChannel, name=u"ftp")
+    >>> provideUtility(component=Channel(2473), provides=IChannel, name=u"avian")
+
+In ZCML, this might be:
+
+    <utility
+        provides=".interfaces.IChannel"
+        component=".channel.http"
+        name="http"
+        />
+
+and so on. It is possible to use 'factory' as well, but 'component' is more 
+common when defining named utilities since we normally want to register 
+different instantiations of the same class, configured with different 
+parameters. So long as the interface is fulfilled, of course, it really 
+doesn't matter.
+
+We can iterate over all available channels like so:
+
+    >>> from zope.component import getUtilitiesFor
+    >>> sorted([name for name, channel in getUtilitiesFor(IChannel)])
+    [u'avian', u'ftp', u'http']
+
+Here is a function that uses the registry.
+
+    >>> def transmit_using_selected_channel(channel, source, destination, message):
+    ...     channel = getUtility(IChannel, name=channel)
+    ...     channel.transmit(source, destination, message)
+    
+    >>> transmit_using_selected_channel(u'avian', 'rooftop', 'world', 'Tele Customs are great!')
+    Sending Tele Customs are great! from rooftop to world on 2473
+    Bye!
+
+Local utilities
+---------------
+
+All the utilities above are global. They are registered once, at Zope startup,
+and are created in memory. It is also possible to register components locally,
+to a "site". In Zope 3 speak, a "site" is simply a place where local utilities
+can be registered. When using Plone, the root Plone site object is a Zope 3
+site, and has its own component registry.
+
+Local utilities can override global ones. It is possible for sites to be
+nested, in which case the "most local" site that can provide the requested
+component takes precedence. Also, local components are persistent, stored
+in the ZODB. Unlike CMF tools, they are not usually kept in content space 
+(although they can be - some CMF tools are now registered as local utilities, 
+but are kept in content space for backwards compatibility).
+
+For the purposes of this test, we will use a Zope 3 root folder as the
+site and attach a component registry to it. We will then explicitly activate
+the component registry so that subsequent calls to getUtillity() and friends
+will know to look in this site first, before falling back on the global 
+component registry. When using Plone, this is all done during site setup.
+The site is activated (or "set") during traversal "over" the Plone site root.
+In other words, you shouldn't need to worry.
+
+    >>> from zope.app.folder import rootFolder
+    >>> root = rootFolder()
+    
+    >>> from zope.app.component.interfaces import ISite
+    >>> from zope.component.persistentregistry import PersistentComponents
+    >>> from zope.component.globalregistry import base as siteManagerBase
+    >>> from zope.component import getSiteManager
+
+    >>> local_component_registry = PersistentComponents()
+    >>> local_component_registry.__bases__ = (siteManagerBase,)
+    >>> root.setSiteManager(local_component_registry)
+    >>> ISite.providedBy(root)
+    True
+
+This is the bit that happens once per thread during traversal over a Plone
+site (i.e. when a page in the site is called up):
+
+    >>> from zope.app.component.hooks import setSite, setHooks
+    >>> setSite(root)
+    >>> setHooks()
+
+We can now register a local component. We will override the transmission
+policy with a local version. We do so not with the global function
+provideUtility(), but by referencing the site manager explicitly.
+
+    >>> sm = getSiteManager()
+    >>> sm is local_component_registry
+    True
+    
+    >>> local_transmission_policy = TransmissionPolicy(3, "Thanks!")
+    >>> sm.registerUtility(component=local_transmission_policy, provided=ITransmissionPolicy)
+
+We can now call a function that uses both global and local utilities:
+
+    >>> transmit_using_selected_channel(u'http', 'fender.com', 'guitarmag.com', 'Please talk us up!')
+    Sending Please talk us up! from fender.com to guitarmag.com on 80
+    Thanks!
+    
+Although they are less common, you can register local named utilities as
+well, by passing a name parameter to registerUtility().
+
+When using Plone, local utilities can be registered on product installation
+using GenericSetup. Here are two examples from Plone's componentregistry.xml
+import step:
+
+    <componentregistry>
+     ...
+     <utilities>
+      <utility
+         interface="plone.app.redirector.interfaces.IRedirectionStorage"
+         factory="plone.app.redirector.storage.RedirectionStorage"/>
+      ...
+      <utility
+         interface="Products.CMFCore.interfaces.ICatalogTool"
+         object="/portal_catalog"/>
+     </utilities>
+     ...
+    </componentregistry>
+
+The first creates a new object that lives only within the site manager's
+persistent component registry. The latter references an existing object
+in content space, in this case the portal_catalog tool. To learn more
+about how this works, you may want to take a look at 
+Products.GenericSetup.components.
+
+Another common pattern is to register local utilities in response to an
+IObjectAddedEvent, e.g. for the site itself.

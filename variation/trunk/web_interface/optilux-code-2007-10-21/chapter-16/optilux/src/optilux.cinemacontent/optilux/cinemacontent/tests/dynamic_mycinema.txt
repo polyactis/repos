@@ -1,0 +1,124 @@
+============================================
+ Test dynamic/KSS 'my cinema' functionality
+============================================
+
+First, let us create two cinemas.
+
+    >>> self.loginAsPortalOwner()
+    >>> _ = self.portal.invokeFactory('Cinema Folder', 'cinemas')
+    >>> _ = self.portal.cinemas.invokeFactory('Cinema', 'cinema1')
+    >>> _ = self.portal.cinemas.invokeFactory('Cinema', 'cinema2')
+
+    >>> cinema1 = self.portal.cinemas.cinema1
+    >>> cinema1.cinema_code = 'C01'
+    >>> cinema1.name = 'Cinema one'
+    >>> cinema1.address = 'Address of cinema one'
+    >>> cinema1.reindexObject()
+
+    >>> cinema2 = self.portal.cinemas.cinema2
+    >>> cinema2.cinema_code = 'C02'
+    >>> cinema2.name = 'Cinema two'
+    >>> cinema2.address = 'Address of cinema two'
+    >>> cinema2.reindexObject()
+
+    >>> from Products.CMFCore.utils import getToolByName
+    >>> portal_membership = getToolByName(self.portal, 'portal_membership')
+
+    >>> member = portal_membership.getAuthenticatedMember()
+    >>> member.getProperty('home_cinemas')
+    ()
+
+Initially, let's say this member has cinema1 as their home cinema
+
+    >>> member.setProperties(home_cinemas=['C01'])
+
+Since zope.testbrowser isn't JavaScript aware, we can't test the end-to-end
+process, unless we use a browser-based solution such as Selenium. However,
+we can make sure that the logic inside the KSS handler makes sense and that
+the commands that come back are appropriate.
+
+This command, from kss.core.tests.base, causes KSS commands returned from
+KSS actions to be rendered as dicts rather than an XML string. This makes
+them easier to introspect in tests.
+
+    >>> self.setDebugRequest()
+
+Let us add cinema2 as a home cinema. To avoid a security error when the
+cinema portlet template tries to access it, we need to provide an acquisition 
+context (via __of__()) for the view.
+
+    >>> view = cinema2.restrictedTraverse('@@toggleMyCinema')
+    >>> result = view()
+    >>> [(r['name'], r['selector']) for r in result]
+    [('replaceHTML', 'my-cinema-toggle'), 
+     ('setStyle', '.portalMessage'),
+     ('replaceInnerHTML', 'kssPortalMessage'),
+     ('setAttribute', 'kssPortalMessage'),
+     ('setStyle', 'kssPortalMessage'),
+     ('replaceHTML', '.portletMyCinema')]
+    
+The 'replaceInnerHTML' command has a parameter 'html' containing the HTML
+to be replaced.
+    
+    >>> print result[0]['params']['html']
+    <div id="my-cinema-toggle">...This is not my home cinema...
+
+    >>> print result[-1]['params']['html']
+    <dl class="portlet portletMyCinema">...Cinema one...Cinema two...
+
+This should now be stored for the user:
+
+    >>> member.getProperty('home_cinemas')
+    ['C01', 'C02']
+    
+Let us toggle it back off again:
+
+    >>> view = cinema2.restrictedTraverse('@@toggleMyCinema')
+    >>> result = view()
+    >>> [(r['name'], r['selector']) for r in result]
+    [('replaceHTML', 'my-cinema-toggle'), 
+     ('setStyle', '.portalMessage'),
+     ('replaceInnerHTML', 'kssPortalMessage'),
+     ('setAttribute', 'kssPortalMessage'),
+     ('setStyle', 'kssPortalMessage'),
+     ('replaceHTML', '.portletMyCinema')]
+    
+The 'replaceInnerHTML' command has a parameter 'html' containing the HTML
+to be replaced.
+    
+    >>> print result[0]['params']['html']
+    <div id="my-cinema-toggle">...This is my home cinema...
+
+    >>> print result[-1]['params']['html']
+    <dl class="portlet portletMyCinema">...Cinema one...
+
+This should now be stored for the user:
+
+    >>> member.getProperty('home_cinemas')
+    ['C01']
+    
+If we also toggle off cinema one, we should get an empty portlet:
+
+    >>> view = cinema1.restrictedTraverse('@@toggleMyCinema')
+    >>> result = view()
+    >>> [(r['name'], r['selector']) for r in result]
+    [('replaceHTML', 'my-cinema-toggle'), 
+     ('setStyle', '.portalMessage'),
+     ('replaceInnerHTML', 'kssPortalMessage'),
+     ('setAttribute', 'kssPortalMessage'),
+     ('setStyle', 'kssPortalMessage'),
+     ('replaceHTML', '.portletMyCinema')]
+    
+The 'replaceInnerHTML' command has a parameter 'html' containing the HTML
+to be replaced.
+    
+    >>> print result[0]['params']['html']
+    <div id="my-cinema-toggle">...This is my home cinema...
+
+    >>> print result[-1]['params']['html']
+    <div class="portletMyCinema"></div>
+
+This should now be stored for the user:
+
+    >>> member.getProperty('home_cinemas')
+    []

@@ -1,0 +1,9 @@
+Changelog for optilux.cinemacontent
+
+    (name of developer listed in brackets)
+
+optilux.cinemacontent - 1.0 Unreleased
+
+    - Initial package structure.
+      [zopeskel]
+

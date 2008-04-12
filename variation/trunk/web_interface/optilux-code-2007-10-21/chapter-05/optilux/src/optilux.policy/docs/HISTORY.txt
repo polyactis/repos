@@ -1,0 +1,9 @@
+Changelog for optilux.policy
+
+    (name of developer listed in brackets)
+
+optilux.policy - 1.0 Unreleased
+
+    - Initial package structure.
+      [zopeskel]
+

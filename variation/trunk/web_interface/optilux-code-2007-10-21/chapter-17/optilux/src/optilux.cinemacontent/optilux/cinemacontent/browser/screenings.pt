@@ -1,0 +1,65 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="optilux.cinemacontent">
+<body>
+
+<metal:css fill-slot="css_slot">
+    <style type="text/css" media="all"
+            tal:content="string: @import url(${context/++resource++optilux-cinemacontent.css});"></style>
+</metal:css>
+
+<metal:main fill-slot="main">
+    <tal:main-macro metal:define-macro="main"
+           tal:define="film view/film;
+                       film_code film/getFilmCode;
+                       cinema_url context/absolute_url;">
+
+        <h1 class="documentFirstHeading"
+            i18n:translate="header_cinema_screenings">
+          Screenings of
+          <span i18n:name="film_title" tal:content="film/Title" />
+              at <span i18n:name="cinema_title" tal:content="context/Title" />
+        </h1>
+
+        <p i18n:translate="description_cinema_screenings">
+            This film is being shown at the following times. Click on a
+            time to reserve tickets.
+        </p>
+            
+        <table class="listing">
+            <thead>
+                <tr>
+                    <th i18n:translate="heading_time">Date/time</th>
+                    <th i18n:translate="tickets_remaining">Tickets remaining</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr tal:repeat="screening view/upcoming_screenings">
+                    <tal:block define="reserve_url string:${cinema_url}/@@reserve?screening_id=${screening/screening_id}">
+                        <td>
+                            <a tal:attributes="href reserve_url"
+                               tal:omit-tag="not:screening/can_reserve">
+                               <tal:block content="screening/show_time" />
+                             </a>
+                        </td>
+                        <td>
+                            <a tal:attributes="href reserve_url"
+                               tal:omit-tag="not:screening/can_reserve">
+                               <tal:block content="screening/remaining_tickets" />
+                            </a>
+                        </td>
+                    </tal:block>
+                </tr>
+            </tbody>
+        </table>
+
+    </tal:main-macro>
+</metal:main>
+
+</body>
+</html>
+

@@ -1,0 +1,78 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="optilux.cinemacontent">
+<body>
+    
+<metal:css fill-slot="css_slot">
+    <style type="text/css" media="all"
+            tal:content="string: @import url(${context/++resource++optilux-cinemacontent.css});"></style>
+</metal:css>
+
+<metal:main fill-slot="main">
+    <tal:main-macro metal:define-macro="main"
+           tal:define="teaser context/teaser;">
+
+        <div tal:replace="structure provider:plone.abovecontenttitle" />
+
+        <h1 class="documentFirstHeading">
+            <span metal:use-macro="python:context.widget('title', mode='view')" />
+        </h1>
+
+        <div tal:replace="structure provider:plone.belowcontenttitle" />
+
+        <div class="documentDescription">
+            <span metal:use-macro="python:context.widget('description', mode='view')" />
+        </div>
+        
+        <div>
+            <label for="parent-fieldname-startDate" i18n:translate="label_promotion_shown_from">Shown from:</label>
+            <div metal:use-macro="python:context.widget('startDate', mode='view')" />
+        </div>
+        
+        <div>
+            <label for="parent-fieldname-endDate" i18n:translate="label_promotion_shown_until">Shown until:</label>
+            <div metal:use-macro="python:context.widget('endDate', mode='view')" />
+        </div>
+        
+        <div tal:replace="structure provider:plone.abovecontentbody" />
+        
+        <div class="film-banner">
+            <img tal:replace="structure view/banner_tag" />
+        </div>
+
+        <p tal:condition="python: not teaser and is_editable"
+           i18n:translate="no_body_text"
+           class="discreet">
+            This item does not have any body text, click the edit tab to change it.
+        </p>
+
+        <div tal:condition="teaser" metal:use-macro="python:context.widget('teaser', mode='view')" />
+        
+        <div class="visualClear"><!----></div>
+        
+        <h2 i18n:translate="title_film_showing_at">Now showing at</h2>
+        <dl>
+            <tal:block repeat="cinema view/cinemas">
+                <dt>
+                    <a tal:attributes="href cinema/url" tal:content="cinema/name" />
+                </dt>
+                <dd tal:content="cinema/address" />
+            </tal:block>
+        </dl>
+        
+        <div metal:use-macro="context/document_relateditems/macros/relatedItems">
+            show related items if they exist
+        </div>
+    
+        <div tal:replace="structure provider:plone.belowcontentbody" />
+
+    </tal:main-macro>
+</metal:main>
+
+</body>
+</html>
+

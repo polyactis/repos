@@ -1,0 +1,107 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    i18n_domain="optilux.cinemacontent">
+
+    <!-- Declare security for the field properties of the various content
+         types, and register other components, such as validation subscription
+         adapters, event subscribers (for adding a portlet to a newly created
+         cinema folder), and adapter factories.
+        
+      -->
+
+    <!-- Cinema folders: -->
+    
+    <class class=".cinemafolder.CinemaFolder">
+        <require
+            permission="zope2.View"
+            interface="..interfaces.ICinemaFolder"
+            />
+        <require
+            permission="cmf.ModifyPortalContent"
+            set_schema="..interfaces.ICinemaFolder"
+            />
+    </class>
+    
+    <subscriber handler=".cinemafolder.add_promotions_portlet" />
+    
+    <!-- Cinemas: -->
+    
+    <class class=".cinema.Cinema">
+        <require
+            permission="zope2.View"
+            interface="..interfaces.ICinema"
+            />
+        <require
+            permission="cmf.ModifyPortalContent"
+            set_schema="..interfaces.ICinema"
+            />
+    </class>
+    
+    <subscriber 
+        provides="Products.Archetypes.interfaces.IObjectPostValidation"
+        factory=".cinema.ValidateCinemaCodeUniqueness" 
+        />
+    
+    <!-- Film folders: -->
+    
+    <class class=".filmfolder.FilmFolder">
+        <require
+            permission="zope2.View"
+            interface="..interfaces.IFilmFolder"
+            />
+        <require
+            permission="cmf.ModifyPortalContent"
+            set_schema="..interfaces.IFilmFolder"
+            />
+    </class>
+    
+    <!-- Films: -->
+    
+    <class class=".film.Film">
+        <require
+            permission="zope2.View"
+            interface="..interfaces.IFilm"
+            />
+        <require
+            permission="cmf.ModifyPortalContent"
+            set_schema="..interfaces.IFilm"
+            />
+        <require
+            permission="zope2.View"
+            attributes="tag"
+            />
+    </class>
+    
+    <adapter factory=".film.BannerProvider" />
+    
+    <subscriber 
+        provides="Products.Archetypes.interfaces.IObjectPostValidation"
+        factory=".film.ValidateFilmCodeUniqueness" 
+        />
+        
+    <utility
+        component=".film.CurrentFilmsVocabularyFactory"
+        name="optilux.cinemacontent.CurrentFilms"
+        />
+    
+    <!-- Promotions: -->
+    
+    <class class=".promotion.Promotion">
+        <require
+            permission="zope2.View"
+            interface="..interfaces.IPromotion"
+            />
+        <require
+            permission="cmf.ModifyPortalContent"
+            set_schema="..interfaces.IPromotion"
+            />
+        <require
+            permission="zope2.View"
+            attributes="tag"
+            />
+    </class>
+    
+    <adapter factory=".promotion.BannerProvider" />
+    
+</configure>

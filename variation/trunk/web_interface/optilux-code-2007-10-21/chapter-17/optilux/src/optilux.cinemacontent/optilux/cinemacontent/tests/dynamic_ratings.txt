@@ -1,0 +1,54 @@
+==========================
+ Test dynamic/KSS ratings
+==========================
+
+Since zope.testbrowser isn't JavaScript aware, we can't test the end-to-end
+process, unless we use a browser-based solution such as Selenium. However,
+we can make sure that the logic inside the KSS handler makes sense and that
+the commands that come back are appropriate.
+
+First, let us create a rateable film.
+
+    >>> self.loginAsPortalOwner()
+    >>> _ = self.portal.invokeFactory('Film Folder', 'films')
+    >>> _ = self.portal.films.invokeFactory('Film', 'film')
+
+    >>> from optilux.cinemacontent.interfaces import IRatings
+    >>> film = self.portal.films.film
+    >>> ratings = IRatings(film)
+
+    >>> from Products.CMFCore.utils import getToolByName
+    >>> portal_membership = getToolByName(self.portal, 'portal_membership')
+
+    >>> member = portal_membership.getAuthenticatedMember()
+    >>> ratings.available(member.getId())
+    True
+    >>> ratings.score is None
+    True
+
+This command, from kss.core.tests.base, causes KSS commands returned from
+KSS actions to be rendered as dicts rather than an XML string. This makes
+them easier to introspect in tests.
+
+    >>> self.setDebugRequest()
+
+Let's say we liked this film. This should cause a change in the ratings,
+and return a command to render the ratings viewlet without the buttons.
+
+    >>> view = film.restrictedTraverse('@@rateFilm')
+    >>> result = view(vote="yes")
+    >>> [(r['name'], r['selector']) for r in result]
+    [('replaceHTML', 'film-rating-box')]
+    
+The 'replaceInnerHTML' command has a parameter 'html' containing the HTML
+to be replaced.
+    
+    >>> print result[0]['params']['html']
+    <dl id="film-rating-box" class="portalMessage info">...100%...
+
+And let's check that the rating was indeed changed:    
+
+    >>> ratings.available(member.getId())
+    False
+    >>> ratings.score
+    100

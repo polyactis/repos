@@ -1,0 +1,40 @@
+==============================
+Examples of object containment
+==============================
+
+This doctest uses PloneTestCase to set up a Plone site. The variable
+self.folder refers to a folder.
+
+First, we create a Document object inside the folder, with id 'guitars'. We 
+ignore the return value.
+
+    >>> _ = self.folder.invokeFactory('Document', 'favorites', title=u"Favorite guitars")
+
+Then, let's verify that it is inside the object:
+
+    >>> 'favorites' in self.folder.objectIds()
+    True
+    
+We can now retrieve the object, using attribute access:
+
+    >>> obj = getattr(self.folder, 'favorites', None)
+    >>> obj.getId()
+    'favorites'
+    
+Let us also use the aq_parent function to verify that the object knows its
+parent:
+
+    >>> from Acquisition import aq_parent
+    >>> aq_parent(obj) is self.folder
+    True
+    >>> obj.aq_parent is self.folder
+    True
+    
+In fact, when looking for the containment parent, it is safer to use
+aq_inner, which makes sure we get the innermost acquisition chain:
+
+    >>> from Acquisition import aq_inner
+    >>> containment_parent = aq_parent(aq_inner(obj))
+    >>> also_containment_parent = obj.aq_inner.aq_parent
+    >>> containment_parent is also_containment_parent
+    True

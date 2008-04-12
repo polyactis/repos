@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<import-steps>
+ <import-step id="optilux-various" version="20070308-01"
+              handler="optilux.policy.setuphandlers.importVarious"
+              title="Additional Optilux site policy setup">
+  <dependency step="rolemap" />
+  Optilux site policy
+ </import-step>
+</import-steps>

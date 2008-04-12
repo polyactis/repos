@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!-- This profile step is applied during migration only
+  -->
+
+<site>
+ <property name="title">The All New Guitar Shop</property>
+</site>

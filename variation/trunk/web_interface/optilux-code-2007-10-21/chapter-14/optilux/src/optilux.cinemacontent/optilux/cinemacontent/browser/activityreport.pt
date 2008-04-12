@@ -1,0 +1,101 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="optilux.cinemacontent">
+<body>
+
+<metal:css fill-slot="css_slot">
+    <style type="text/css" media="all"
+            tal:content="string: @import url(${context/++resource++optilux-cinemacontent.css});"></style>
+</metal:css>
+
+<metal:main fill-slot="main">
+    <tal:main-macro metal:define-macro="main"
+           tal:define="films view/recently_modified_films;
+                       cinemas view/recently_modified_cinemas">
+
+        <h1 class="documentFirstHeading"
+            i18n:translate="header_recent_activity_report">
+          Recent activity
+        </h1>
+
+        <p i18n:translate="description_recent_activity_report">
+            This report shows recently modified films and cinemas.
+        </p>
+        
+        <form method="get"
+              tal:attributes="action string:${context/absolute_url}/${view/__name__}">
+              
+            <div i18n:translate="activity_report_days_searched">
+                Show changes in the the last
+                <input type="text" size="2" name="days"
+                    tal:attributes="value view/days"
+                    i18n:name="num_days" />
+                days.
+                <input type="submit" class="context" name="form.button.UpdateDays"
+                    value="Refresh"
+                    i18n:name="submit_button"
+                    i18n:attributes="value" />
+            </div>
+              
+        </form>
+        
+        <h2 i18n:translate="header_recently_modified_films">Films</h2>
+        
+        <p tal:condition="not:films" i18n:translate="description_no_films_found">
+            No films found.
+        </p>
+        
+        <table class="listing" tal:condition="films">
+            <thead>
+                <tr>
+                    <th i18n:translate="column_label_title">Title</th>
+                    <th i18n:translate="column_label_modified">Modified</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr tal:repeat="film films">
+                    <td>
+                        <a tal:attributes="title film/description;
+                                           href film/url"
+                            tal:content="film/title" />
+                    </td>
+                    <td tal:content="film/modified" />
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2 i18n:translate="header_recently_modified_cinemas">Cinemas</h2>
+        
+        <p tal:condition="not:cinemas" i18n:translate="description_no_cinemas_found">
+            No cinemas found.
+        </p>
+        
+        <table class="listing" tal:condition="cinemas">
+            <thead>
+                <tr>
+                    <th i18n:translate="column_label_title">Title</th>
+                    <th i18n:translate="column_label_modified">Modified</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr tal:repeat="cinema cinemas">
+                    <td>
+                        <a tal:attributes="title cinema/description;
+                                           href cinema/url"
+                            tal:content="cinema/title" />
+                    </td>
+                    <td tal:content="cinema/modified" />
+                </tr>
+            </tbody>
+        </table>
+
+    </tal:main-macro>
+</metal:main>
+
+</body>
+</html>
+

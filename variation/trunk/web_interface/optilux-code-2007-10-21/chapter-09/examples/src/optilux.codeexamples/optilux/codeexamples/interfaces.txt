@@ -1,0 +1,113 @@
+===================================
+Examples of using Zope 3 interfaces
+===================================
+
+This is a plain doctest that requires no particular setup or state.
+
+Interfaces are classes that derive from zope.interface.Interface. We will
+first define a "marker interface", i.e. one which only describes the type
+of a component without making promises about attributes and methods.
+
+    >>> from zope.interface import Interface
+    
+    >>> class IBelievable(Interface):
+    ...     """An item which can be believed
+    ...     """
+    
+Notice how, by convention, interface names start with the letter 'I'. We are
+also careful to document it properly.
+
+We can model a specialization of the interface using inheritance:
+
+    >>> class IUndeniable(IBelievable):
+    ...     """Something that is so believable it cannot be denied
+    ...     """
+
+Interfaces frequently also describe attributes and methods. Notice how the
+methods do not have a 'self' parameter - that only applies when the interfaces
+are implemented.
+
+    >>> from zope.interface import Attribute
+
+    >>> class IMessage(Interface):
+    ...    """A message being communicated
+    ...    """
+    ...
+    ...    def shout(noise_level=1):
+    ...        """Shout the message
+    ...        """
+    ...
+    ...    content = Attribute("The actual text of the message")
+
+Let us now create two different objects that implement the IMessage interface,
+one which is always believable.
+
+    >>> from zope.interface import implements
+ 
+    >>> class StandardMessage(object):
+    ...     implements(IMessage)
+    ...     
+    ...     def __init__(self, content):
+    ...         self.content = content
+    ...     
+    ...     def shout(noise_level=1):
+    ...         print self.content * noise_level
+    
+    >>> class StrongMessage(StandardMessage):
+    ...     implements(IBelievable)
+
+We can now make various assertions about the interfaces of an object, using
+the utility functions in zope.interface.
+
+    >>> IMessage.implementedBy(StandardMessage)
+    True
+    >>> IMessage.implementedBy(StrongMessage)
+    True
+    
+    >>> IBelievable.implementedBy(StandardMessage)
+    False
+    >>> IBelievable.implementedBy(StrongMessage)
+    True
+
+    >>> fender = StandardMessage("All Fender guitars rock")
+    >>> strats = StrongMessage("Stratocasters are great!")
+    >>> telecaster = StrongMessage("Telecasters are awesome!")
+
+    >>> IMessage.providedBy(fender)
+    True
+    >>> IMessage.providedBy(strats)
+    True
+    
+    >>> IBelievable.providedBy(fender)
+    False
+    >>> IBelievable.providedBy(strats)
+    True
+    
+    >>> from zope.interface import alsoProvides
+    >>> alsoProvides(telecaster, IUndeniable)
+    
+    >>> IUndeniable.providedBy(fender)
+    False
+    >>> IUndeniable.providedBy(telecaster)
+    True
+
+Here is an example of making assertions about a class, rather than about
+objects of that class, by letting the *class itself* provide an interface
+(as opposed to implementing it, which means objects of that class provide
+the interface).
+
+    >>> class ICommunicationFactory(Interface):
+    ...     """Callable (e.g. classes) which are able to provide communication
+    ...     devices (e.g. messages).
+    ...     """
+    
+    >>> alsoProvides(StandardMessage, ICommunicationFactory)
+    >>> alsoProvides(StrongMessage, ICommunicationFactory)
+    
+    >>> ICommunicationFactory.implementedBy(StandardMessage)
+    False
+    
+    >>> ICommunicationFactory.providedBy(StandardMessage)
+    True
+    >>> ICommunicationFactory.providedBy(StrongMessage)
+    True

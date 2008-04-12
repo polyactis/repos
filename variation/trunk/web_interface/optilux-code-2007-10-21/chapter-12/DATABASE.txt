@@ -1,0 +1,5 @@
+From here on, the code examples require a live MySQL connection.
+
+We depend on SQLAlchemy 0.3.
+
+See README.txt in the parent directory for more information.

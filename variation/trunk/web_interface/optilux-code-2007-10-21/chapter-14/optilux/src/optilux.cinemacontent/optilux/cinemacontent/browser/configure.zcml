@@ -1,0 +1,225 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="optilux.cinemacontent">
+
+    <include package="plone.app.contentmenu" />
+
+    <!--
+        Create a resource for the KSS stylesheet
+      -->
+      
+    <browser:resource
+        name="cinemacontent.kss"
+        file="cinemacontent.kss"
+        />
+
+    <!-- Define the main views of each content type. The 'for' attribute
+         specifies which type of content the view will be available for,
+         and since these are all different, we do not get conflicts even
+         though they all share the same 'name'. The 'permission' is a
+         permission which is required to access the view. The 'class'
+         attribute specifies a view class which will be used to render
+         the page.
+         
+         We also define an icon for each type, and a shared stylesheet. The
+         stylesheet is included in various templates explicitly.
+         
+         Note that the Film Folder type uses only standard Plone templates
+         for its views, so no additional views are defined here.
+    -->
+
+    <browser:resource
+        name="optilux-cinemacontent.css"
+        file="cinemacontent.css"
+        />
+
+    <browser:resource
+        name="cinemafolder_icon.gif"
+        image="cinemafolder_icon.gif"
+        />
+        
+    <browser:page
+        for="..interfaces.ICinemaFolder"
+        name="view"
+        class=".cinemafolder.CinemaFolderView"
+        permission="zope2.View"
+        />
+        
+    <browser:menuItem
+        for="..interfaces.ICinemaFolder"
+        menu="plone_displayviews"
+        title="Cinema folder view"
+        action="@@view"
+        description="Default representation of a cinema folder"
+        />
+        
+    <browser:resource
+        name="cinema_icon.gif"
+        image="cinema_icon.gif"
+        />
+        
+    <browser:page
+        for="..interfaces.ICinema"
+        name="view"
+        class=".cinema.CinemaView"
+        permission="zope2.View"
+        />
+        
+    <browser:page
+        for="..interfaces.ICinema"
+        name="screenings"
+        class=".screenings.CinemaScreeningsView"
+        permission="zope2.View"
+        />
+        
+        
+    <!-- The reservation view uses a sub-page form. We register named template
+         adapter for this particular view so that zope.formlib uses a 
+         different template to render the view. This template uses a macro
+         to pull in the standard form fields.
+      -->
+      
+    <adapter
+        for=".reserve.ReserveScreeningView"
+        factory=".reserve.reserve_screening_formview"
+        name="default"
+        provides="zope.formlib.namedtemplate.INamedTemplate"
+        />
+      
+    <browser:page
+        for="..interfaces.ICinema"
+        name="reserve"
+        class=".reserve.ReserveScreeningView"
+        permission="optilux.MakeReservation"
+        />
+        
+    <browser:menuItem
+        for="..interfaces.ICinema"
+        menu="plone_displayviews"
+        title="Cinema view"
+        action="@@view"
+        description="Default representation of a cinema"
+        />
+        
+    <browser:resource
+        name="filmfolder_icon.gif"
+        image="filmfolder_icon.gif"
+        />
+        
+    <browser:resource
+        name="film_icon.gif"
+        image="film_icon.gif"
+        />
+        
+    <browser:page
+        for="..interfaces.IFilm"
+        name="view"
+        class=".film.FilmView"
+        permission="zope2.View"
+        />
+        
+    <browser:menuItem
+        for="..interfaces.IFilm"
+        menu="plone_displayviews"
+        title="Film view"
+        action="@@view"
+        description="Default representation of a film"
+        />
+        
+    <browser:resource
+        name="promotion_icon.gif"
+        image="promotion_icon.gif"
+        />
+        
+    <browser:page
+        for="..interfaces.IPromotion"
+        name="view"
+        class=".promotion.PromotionView"
+        permission="zope2.View"
+        />
+        
+    <browser:menuItem
+        for="..interfaces.IPromotion"
+        menu="plone_displayviews"
+        title="Promotion view"
+        action="@@view"
+        description="Default representation of a promotion"
+        />
+        
+    <!-- Register the viewlet for ratings -->
+    <browser:viewlet
+        name="optilux.cinemacontent.ratings"
+        for="optilux.cinemacontent.interfaces.IFilm"
+        view="plone.app.layout.globals.interfaces.IViewView"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class=".ratings.RatingsViewlet"
+        permission="zope2.View" 
+        />
+        
+    <!-- Register the KSS view to perform ratings without a page reload -->
+    <browser:page
+        for="optilux.cinemacontent.interfaces.IFilm"
+        name="rateFilm"
+        class=".ratings.DynamicRatings"
+        attribute="rate_film"
+        permission="zope2.View"
+        />
+        
+    <!-- Register the viewlet for "home" cinemas -->
+    <browser:viewlet
+        name="optilux.cinemacontent.mycinema"
+        for="optilux.cinemacontent.interfaces.ICinema"
+        view="plone.app.layout.globals.interfaces.IViewView"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+        class=".mycinema.MyCinemaViewlet"
+        permission="zope2.View" 
+        />
+        
+    <!-- Register the KSS view to set "my cinema" without a page reload -->
+    <browser:page
+        for="optilux.cinemacontent.interfaces.ICinema"
+        name="toggleMyCinema"
+        class=".mycinema.DynamicMyCinema"
+        attribute="toggle"
+        permission="zope2.View"
+        />
+        
+    <!-- The enquiries page -->
+    <browser:page
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        name="make-an-enquiry"
+        class=".enquiry.EnquiryForm"
+        permission="zope2.View"
+        />
+        
+    <!-- The activity report page -->
+    <browser:page
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        name="recent-cinema-film-activity"
+        class=".activityreport.ActivityReportView"
+        permission="cmf.ManagePortal"
+        />
+        
+    <!-- Register the control panel for database settings -->
+    
+    <browser:resource
+        name="optilux_dbsettings_icon.gif"
+        image="dbsettings_icon.gif"
+        />
+    
+    <browser:page
+        name="reservations-database-controlpanel"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".dbsettings.ReservationsDatabaseControlPanel"
+        permission="cmf.ManagePortal"
+        />
+        
+    <adapter
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        provides="optilux.cinemacontent.interfaces.IDatabaseSettings"
+        factory=".dbsettings.reservations_database_settings" 
+        />
+
+        
+</configure>

@@ -1,0 +1,277 @@
+================ 
+ Database tests
+================ 
+
+This doctest demonstrates the database-integration functionality in db.py,
+screening.py and reservation.py. It depends on a MySQL database called
+optilux_text being available on localhost, accessible as user "root" with
+no password. This database should be empty. Because the test framework will 
+roll back the transaction before at the end of the test, it should remain
+empty.
+
+We will not explicitly clear the database before commencing execution, 
+just in case there is data there that shouldn't be deleted. However, if
+the database is not empty, you will probably get test failures!
+
+Connecting to the database
+--------------------------
+
+First, we must configure the local utility which stores the database 
+connection settings.
+
+    >>> self.loginAsPortalOwner()
+
+    >>> from zope.component import getUtility
+    >>> from optilux.cinemacontent.interfaces import IDatabaseSettings
+ 
+    >>> settings = getUtility(IDatabaseSettings)
+
+    >>> settings.drivername = 'mysql'
+    >>> settings.username = 'root'
+    >>> settings.hostname = 'localhost'
+    >>> settings.database = 'optilux_test'
+ 
+We should now be able to make a connection.
+
+    >>> from collective.lead.interfaces import IDatabase
+    >>> db = getUtility(IDatabase, name='optilux.reservations')
+
+
+Sample content
+--------------
+
+Ultimately, screenings relate cinemas and films. Therefore, let us create
+some Cinema and Film objects. The cinema_code and film_code fields are 
+important - they relate cinemas and films to screenings in the database.
+
+    >>> from datetime import datetime, timedelta
+    >>> yesterday = datetime.now() - timedelta(1)
+    >>> tomorrow = datetime.now() + timedelta(1)
+
+    >>> _ = self.portal.invokeFactory('Film Folder', 'films')
+    
+    >>> _ = self.portal.films.invokeFactory('Film', 'film1')
+    >>> film1 = self.portal.films.film1
+    >>> film1.film_code = "F1"
+    >>> film1.title = "Film 1"
+    >>> film1.summary = "Film One"
+    >>> film1.teaser = "The first film"
+    >>> film1.shown_from = yesterday
+    >>> film1.shown_until = tomorrow
+    >>> film1.reindexObject()
+
+    >>> _ = self.portal.films.invokeFactory('Film', 'film2')
+    >>> film2 = self.portal.films.film2
+    >>> film2.film_code = "F2"
+    >>> film2.title = "Film 2"
+    >>> film2.summary = "Film Two"
+    >>> film2.teaser = "The second film"
+    >>> film2.shown_from = yesterday
+    >>> film2.shown_until = tomorrow
+    >>> film2.reindexObject()
+
+    >>> _ = self.portal.invokeFactory('Cinema Folder', 'cinemas')
+
+    >>> _ = self.portal.cinemas.invokeFactory('Cinema', 'cinema1')
+    >>> cinema1 = self.portal.cinemas.cinema1
+    >>> cinema1.cinema_code = 'C1'
+    >>> cinema1.name = 'Cinema One'
+    >>> cinema1.phone = '12345'
+    >>> cinema1.address = 'Cinema one address'
+    >>> cinema1.text = 'Cinema one description'
+    >>> cinema1.highlighted_films = []
+    >>> cinema1.reindexObject()
+
+    >>> _ = self.portal.cinemas.invokeFactory('Cinema', 'cinema2')
+    >>> cinema2 = self.portal.cinemas.cinema2
+    >>> cinema2.cinema_code = 'C2'
+    >>> cinema2.name = 'Cinema Two'
+    >>> cinema2.phone = '67890'
+    >>> cinema2.address = 'Cinema two address'
+    >>> cinema2.text = 'Cinema two description'
+    >>> cinema2.highlighted_films = []
+    >>> cinema2.reindexObject()
+
+Adding test screenings
+----------------------
+
+We can now add a few screenings which relate to these cinemas and films.
+In real life, this would not be done from within Plone - screenings come
+from the reservations database and are read-only as far as the Optilux web
+system is concerned.
+
+The model which is set up in db.py associates the Screening class with the
+'screening' table. 
+
+    >>> from optilux.cinemacontent.screening import Screening
+    
+We can now use an SQLAlchemy session to store these screenings. We need to
+explicitly set the film_code and cinema_code on the screening object. As
+we will see later, when screenings are loaded from the database, we will
+associate them with the full Film and Cinema objects explicitly.
+
+    >>> show_time1 = datetime.now()
+    >>> screening1 = Screening(cinema1, film1, show_time1, 100)
+    >>> screening1.film_code = screening1.film.film_code
+    >>> screening1.cinema_code = screening1.cinema.cinema_code
+    
+    >>> show_time2 = datetime.now()
+    >>> screening2 = Screening(cinema2, film1, show_time2, 200)
+    >>> screening2.film_code = screening2.film.film_code
+    >>> screening2.cinema_code = screening2.cinema.cinema_code
+    
+    >>> show_time3 = datetime.now()
+    >>> screening3 = Screening(cinema1, film2, show_time3, 300)
+    >>> screening3.film_code = screening3.film.film_code
+    >>> screening3.cinema_code = screening3.cinema.cinema_code
+    
+    >>> show_time4 = datetime.now()
+    >>> screening4 = Screening(cinema1, film1, show_time4, 400)
+    >>> screening4.film_code = screening4.film.film_code
+    >>> screening4.cinema_code = screening4.cinema.cinema_code
+    
+    >>> db.session.save(screening1)
+    >>> db.session.save(screening2)
+    >>> db.session.save(screening3)
+    >>> db.session.save(screening4)
+    >>> db.session.flush()
+
+The screening locator
+---------------------
+
+We can now ask the screening locator what films are showing at a particular
+cinema:
+
+    >>> from optilux.cinemacontent.interfaces import IScreeningLocator
+    >>> locator = getUtility(IScreeningLocator)
+    
+    >>> locator.films_at_cinema(cinema1, yesterday, tomorrow)
+    [{'url': 'http://nohost/plone/films/film1', 
+      'title': 'Film 1',
+      'summary': 'Film One', 
+      'film_code': 'F1'}, 
+     {'url': 'http://nohost/plone/films/film2', 
+      'title': 'Film 2',
+      'summary': 'Film Two', 
+      'film_code': 'F2'}]
+
+    >>> locator.films_at_cinema(cinema2, yesterday, tomorrow)
+    [{'url': 'http://nohost/plone/films/film1', 
+      'title': 'Film 1',
+      'summary': 'Film One', 
+      'film_code': 'F1'}]
+    
+    >>> locator.films_at_cinema(cinema1, tomorrow, tomorrow + timedelta(1))
+    []
+    
+Similarly, we can get cinemas showing a particular film
+
+    >>> locator.cinemas_for_film(film1, yesterday, tomorrow)
+    [{'url': 'http://nohost/plone/cinemas/cinema1', 
+      'cinema_code': 'C1',
+      'name': 'Cinema One', 
+      'address': 'Cinema one address'}, 
+     {'url': 'http://nohost/plone/cinemas/cinema2', 
+      'cinema_code': 'C2',
+      'name': 'Cinema Two', 
+      'address': 'Cinema two address'}]
+
+    >>> locator.cinemas_for_film(film2, yesterday, tomorrow)
+    [{'url': 'http://nohost/plone/cinemas/cinema1', 
+      'cinema_code': 'C1',
+       'name': 'Cinema One', 
+       'address': 'Cinema one address'}]
+    
+    >>> locator.cinemas_for_film(film1, tomorrow, tomorrow + timedelta(1))
+    []
+    
+More importantly, we can find the screening times for a particular film at a
+particular cinema.
+
+    >>> screenings = locator.screenings(film1, cinema1, yesterday, tomorrow)
+    >>> len(screenings)
+    2
+    
+    >>> screenings[0].film is film1
+    True
+    >>> screenings[0].cinema is cinema1
+    True
+    >>> screenings[0].show_time == show_time1
+    True
+    >>> screenings[0].remaining_tickets
+    100
+
+    >>> screenings[1].film is film1
+    True
+    >>> screenings[1].cinema is cinema1
+    True
+    >>> screenings[1].show_time == show_time4
+    True
+    >>> screenings[1].remaining_tickets
+    400
+    
+    >>> locator.screenings(film1, cinema1, tomorrow, tomorrow + timedelta(1))
+    []
+    
+And finally, if we have a screening id (e.g. from a request parameter), we can
+load a screening from the database.
+
+    >>> found_screening = locator.screening_by_id(screening2.screening_id)
+    >>> found_screening.screening_id == screening2.screening_id
+    True
+    >>> found_screening.film == screening2.film
+    True
+    >>> found_screening.cinema == screening2.cinema
+    True
+
+Ticket reservations
+-------------------
+
+We can now make reservations for these screenings.
+
+    >>> from optilux.cinemacontent.interfaces import ITicketReservations
+    >>> reservations = getUtility(ITicketReservations)
+
+    >>> from optilux.cinemacontent.reservation import Reservation
+    >>> reservations(Reservation("Movie Lover", 10, screening1))
+
+This should have inserted a record for the reservation in the database and
+decreased the count of remaining tickets for this showing:
+
+    >>> new_reservations = db.session.query(Reservation).select_by(screening=screening1)
+    >>> len(new_reservations)
+    1
+    >>> new_reservations[0].customer_name
+    'Movie Lover'
+    >>> new_reservations[0].num_tickets
+    10
+    >>> new_reservations[0].screening is screening1
+    True
+    >>> db.session.query(Screening).load(screening1.screening_id).remaining_tickets
+    90L
+    
+Let us gobble up the remaining tickets:
+
+    >>> reservations(Reservation("Greedy Movie Lover", 90, screening1))
+    >>> len(db.session.query(Reservation).select_by(screening=screening1))
+    2
+    
+So far, so good. But now:
+
+    >>> reservations(Reservation("Poor Movie Lover", 1, screening1))
+    Traceback (most recent call last):
+    ...
+    ReservationError: This screening is sold out!
+    
+Shame... let's try another one, but go a little overboard:
+
+    >>> reservations(Reservation("Poor Movie Lover", 201, screening2))
+    Traceback (most recent call last):
+    ...
+    ReservationError: Not enough tickets remaining!
+    
+Actually, we only need one ticket, so that should work.
+
+    >>> reservations(Reservation("Poor Movie Lover", 1, screening2))
+    >>> db.session.query(Screening).load(screening2.screening_id).remaining_tickets
+    199L

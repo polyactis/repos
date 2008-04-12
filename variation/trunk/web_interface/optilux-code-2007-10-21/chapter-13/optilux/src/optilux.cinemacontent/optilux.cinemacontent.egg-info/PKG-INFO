@@ -1,0 +1,14 @@
+Metadata-Version: 1.0
+Name: optilux.cinemacontent
+Version: 1.0dev-r84
+Summary: Cinema content types for the Optilux example application
+Home-page: http://packtpub.com
+Author: Martin Aspeli
+Author-email: optilude@gmx.net
+License: GPL
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Framework :: Zope2
+Classifier: Framework :: Zope3
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

@@ -1,0 +1,45 @@
+import unittest
+from optilux.policy.tests.base import OptiluxPolicyTestCase
+
+from Products.CMFCore.utils import getToolByName
+
+class TestSetup(OptiluxPolicyTestCase):
+    
+    def afterSetUp(self):
+        self.workflow = getToolByName(self.portal, 'portal_workflow')
+        self.acl_users = getToolByName(self.portal, 'acl_users')
+        self.types = getToolByName(self.portal, 'portal_types')
+    
+    def test_portal_title(self):
+        self.assertEquals("Optilux Cinemas", self.portal.getProperty('title'))
+        
+    def test_portal_description(self):
+        self.assertEquals("Welcome to Optilux Cinemas", self.portal.getProperty('description'))
+        
+    def test_role_added(self):
+        self.failUnless("StaffMember", self.portal.validRoles())
+        
+    def test_workflow_installed(self):
+        self.failUnless('optilux_sitecontent_workflow' in self.workflow.objectIds())
+        
+    def test_workflows_mapped(self):
+        self.assertEquals(('optilux_sitecontent_workflow',), self.workflow.getDefaultChain())
+        for portal_type, chain in self.workflow.listChainOverrides():
+            if portal_type in ('File', 'Image',):
+                self.assertEquals(('optilux_sitecontent_workflow',), chain)
+        
+    def test_view_permisison_for_staffmember(self):
+        # The API of the permissionsOfRole() function sucks - it is bound too
+        # closely up in the permission management screen's user interface
+        self.failUnless('View' in [r['name'] for r in 
+                                self.portal.permissionsOfRole('Reader') if r['selected']])
+        self.failUnless('View' in [r['name'] for r in 
+                                self.portal.permissionsOfRole('StaffMember') if r['selected']])
+        
+    def test_staffmember_group_added(self):
+        self.assertEquals(1, len(self.acl_users.searchGroups(name='Staff')))
+
+def test_suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(TestSetup))
+    return suite

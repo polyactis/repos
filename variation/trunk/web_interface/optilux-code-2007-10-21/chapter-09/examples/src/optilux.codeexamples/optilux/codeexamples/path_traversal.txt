@@ -1,0 +1,29 @@
+==========================
+Examples of path traversal
+==========================
+
+This doctest uses PloneTestCase to set up a Plone site. The variable
+self.folder refers to a folder.
+
+Explicit traversal starts at an object and uses a path-like expression. The
+unrestrictedTraverse() function is faster, but does not take security into
+account. The restrictedTraverse() function is available from through-the-web
+page templates and scripts and does security checks for each step of the
+traversal.
+
+    >>> self.setRoles(('Manager',))
+    >>> _ = self.portal.invokeFactory('Folder', 'guitars')
+    >>> _ = self.portal.guitars.invokeFactory('Document', 'fender')
+    
+    >>> self.portal.unrestrictedTraverse('guitars/fender')
+    <ATDocument at /plone/guitars/fender>
+    
+The 'plone' part of the path refers to the Plone instance that is set up by
+the unit testing framework.
+    
+    >>> fender_path = '/'.join(self.portal.guitars.fender.getPhysicalPath())
+    >>> fender_path
+    '/plone/guitars/fender'
+    
+    >>> self.portal.unrestrictedTraverse(fender_path)
+    <ATDocument at /plone/guitars/fender>

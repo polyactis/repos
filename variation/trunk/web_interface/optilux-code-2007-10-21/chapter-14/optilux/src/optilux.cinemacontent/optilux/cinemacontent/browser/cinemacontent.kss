@@ -1,0 +1,26 @@
+
+/* Rating a film without a page reload 
+ *
+ * The evt-click-preventdefault parameter makes sure that the browser doesn't
+ * submit the form after the server-side action has done its magic.
+ *
+ * The rateFilm-vote parameter passes a value to 'vote' parameter of the
+ * server-side function. It takes its value from the control being clicked,
+ * which has a line like class="kssattr-vote-yes".
+ */
+ 
+#film-rating-box input:click {
+    evt-click-preventdefault: True;
+    action-server: rateFilm;
+    rateFilm-vote: kssAttr('vote');
+}
+
+/* Similarly, toggle the "my/home cinema" button without a reload.
+ *
+ * This will also refresh the "my cinema" portlet
+ */
+ 
+#my-cinema-toggle input:click {
+    evt-click-preventdefault: True;
+    action-server: toggleMyCinema;
+}

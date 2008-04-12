@@ -1,0 +1,10 @@
+This folder holds stylesheet files that are registered for the 'Optilux Theme'
+Skin Selection only.
+
+It is a repository for customizations of the default Plone stylesheets,
+as well as for stylesheets that contain DTML code.
+
+
+Note
+    Stylesheet files that don't use DTML should be stored in the 'browser'
+    package and accessed as Zope 3 file resources.

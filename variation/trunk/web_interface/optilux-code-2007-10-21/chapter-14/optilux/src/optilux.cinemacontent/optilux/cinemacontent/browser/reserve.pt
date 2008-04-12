@@ -1,0 +1,61 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="optilux.cinemacontent">
+<body>
+    
+<metal:css fill-slot="css_slot">
+    <style type="text/css" media="all"
+            tal:content="string: @import url(${context/++resource++optilux-cinemacontent.css});"></style>
+</metal:css>
+
+<metal:main fill-slot="main">
+    <tal:main-macro metal:define-macro="main"
+                    tal:define="screening view/screening">
+
+        <form action="."
+              tal:attributes="action request/URL" method="post"
+              class="edit-form" enctype="multipart/form-data"
+              id="zc.page.browser_form">
+          
+            <input type="hidden"
+                 name="screening_id"
+                 tal:attributes="value request/screening_id" />
+            
+            <div metal:use-macro="context/@@base-pageform.html/macros/form">
+                <div metal:fill-slot="extra_info">
+                  
+                  <table class="listing vertical reservation-info">
+                      <tr>
+                          <th i18n:translate="label_reservation_cinema">Cinema</th>
+                          <td tal:content="context/Title" />
+                      </tr>
+                      <tr>
+                          <th i18n:translate="label_reservation_film">Film</th>
+                          <td tal:content="screening/film/Title" />
+                      </tr>
+                      <tr>
+                          <th i18n:translate="label_reservation_screening">Screening</th>
+                          <td tal:content="python:context.toLocalizedTime(screening.show_time.isoformat(), True)" />
+                      </tr>
+                      <tr>
+                          <th i18n:translate="label_reservation_remaining">Tickets remaning</th>
+                          <td tal:content="screening/remaining_tickets" />
+                      </tr>
+                  </table>
+                  
+                  <p i18n:translate="description_reservations">
+                      Please enter your name and the number of tickets
+                      you would like to reserve. 
+                  </p>
+                  
+                </div>
+            </div>
+        </form>
+    </tal:main-macro>    
+</metal:main>
+</body>
+</html>

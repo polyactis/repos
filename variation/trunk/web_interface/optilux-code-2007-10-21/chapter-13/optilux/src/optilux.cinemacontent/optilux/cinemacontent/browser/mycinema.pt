@@ -1,0 +1,21 @@
+<div i18n:domain="optilux.cinemacontent">
+    <form method="get"
+          tal:attributes="action context/absolute_url">
+            <input
+                tal:condition="not:view/is_home"
+                class="context"
+                type="submit"
+                name="optilux.cinemacontent.mycinema.Toggle"
+                value="This is my home cinema"
+                i18n:attributes="value"
+                />
+            <input
+                tal:condition="view/is_home"
+                class="context"
+                type="submit"
+                name="optilux.cinemacontent.mycinema.Toggle"
+                value="This is not my home cinema"
+                i18n:attributes="value"
+                />
+    </form>
+</div>
