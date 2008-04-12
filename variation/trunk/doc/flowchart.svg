@@ -9,17 +9,73 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="744.09448819"
-   height="1052.3622047"
+   width="1396.1124"
+   height="2554.2483"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.45"
-   sodipodi:docbase="/home/crocea/script/variation/doc"
+   inkscape:version="0.45.1"
+   sodipodi:docbase="/usr/local/home_ubuntu/crocea/script/variation/doc"
    sodipodi:docname="flowchart.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:modified="true">
+   version="1.0"
+   inkscape:export-filename="/usr/local/home_ubuntu/crocea/script/variation/doc/flowchart.png"
+   inkscape:export-xdpi="100.00774"
+   inkscape:export-ydpi="100.00774">
   <defs
-     id="defs4" />
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Mstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mstart"
+       style="overflow:visible">
+      <path
+         id="path4561"
+         d="M 0,0 L 5,-5 L -12.5,0 L 5,5 L 0,0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(0.4,0,0,0.4,4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend"
+       style="overflow:visible">
+      <path
+         id="path4564"
+         d="M 0,0 L 5,-5 L -12.5,0 L 5,5 L 0,0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible">
+      <path
+         id="path4459"
+         d="M 0,0 L 5,-5 L -12.5,0 L 5,5 L 0,0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="StopL"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="StopL"
+       style="overflow:visible">
+      <path
+         id="path4355"
+         d="M 0,5.65 L 0,-5.65"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="scale(0.8,0.8)" />
+    </marker>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -30,15 +86,17 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.0107657"
-     inkscape:cx="359.51074"
-     inkscape:cy="563.7323"
+     inkscape:zoom="0.76601716"
+     inkscape:cx="679.23433"
+     inkscape:cy="417.20937"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     inkscape:window-width="1076"
+     inkscape:window-width="1388"
      inkscape:window-height="1067"
-     inkscape:window-x="151"
-     inkscape:window-y="79" />
+     inkscape:window-x="321"
+     inkscape:window-y="79"
+     showguides="true"
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -53,7 +111,19 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(242.8685,8.9535303)">
+    <text
+       xml:space="preserve"
+       style="font-size:15.99999046px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="26.835493"
+       y="2278.5718"
+       id="text5725"
+       transform="matrix(0.9998535,-1.7113998e-2,1.7113998e-2,0.9998535,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan5727"
+         x="26.835493"
+         y="2278.5718">Probes2DB_250k.py</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -63,35 +133,38 @@
          id="textPath9330"><tspan
    id="tspan5776">data2dbSNP.py</tspan></textPath></text>
     <path
-       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.09006381;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.09006381;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 109.70403,218.63407 L 247.71296,218.40887"
        id="path8351"
        sodipodi:nodetypes="cc" />
-    <rect
-       style="opacity:1;fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-       id="rect16486"
-       width="54.827038"
-       height="55.842354"
-       x="264.41534"
-       y="188.18002"
-       ry="19.290995"
-       rx="19.290995" />
-    <flowRoot
-       xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       id="flowRoot18436"
-       transform="translate(12,22)"><flowRegion
-         id="flowRegion18438"><use
-           x="0"
-           y="0"
-           xlink:href="#rect16486"
-           id="use18440"
-           width="744.09448"
-           height="1052.3622"
-           transform="translate(-10,-18)" /></flowRegion><flowPara
-         id="flowPara18442">DB</flowPara><flowPara
-         id="flowPara2300">Postgres</flowPara><flowPara
-         id="flowPara2302">/MySQL</flowPara></flowRoot>    <g
+    <g
+       id="g4610">
+      <rect
+         rx="19.290995"
+         ry="19.290995"
+         y="188.18002"
+         x="264.41534"
+         height="55.842354"
+         width="54.827038"
+         id="rect16486"
+         style="opacity:1;fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+      <flowRoot
+         transform="translate(12,22)"
+         id="flowRoot18436"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><flowRegion
+           id="flowRegion18438"><use
+             transform="translate(-10,-18)"
+             height="1052.3622"
+             width="744.09448"
+             id="use18440"
+             xlink:href="#rect16486"
+             y="0"
+             x="0" /></flowRegion><flowPara
+           id="flowPara18442">DB</flowPara><flowPara
+           id="flowPara2300">Postgres</flowPara><flowPara
+           id="flowPara2302">/MySQL</flowPara></flowRoot>    </g>
+    <g
        id="g19454"
        transform="translate(30,148)">
       <text
@@ -182,7 +255,7 @@
        sodipodi:nodetypes="cc"
        id="path20446"
        d="M 287.83987,89.341377 L 288.19685,180.29027"
-       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.01422274;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.01422274;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;writing-mode:lr-tb;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -204,63 +277,114 @@
        d="M 328.46872,214.32768 L 466.47765,214.10248"
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.09006381;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <g
-       id="g21432"
-       transform="translate(465.20929,135.67075)">
+       id="g2498">
       <g
          id="g21448"
-         transform="translate(2,0)">
-        <text
-           xml:space="preserve"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           x="17.290993"
-           y="69.103462"
-           id="text21434"><tspan
-             sodipodi:role="line"
-             id="tspan21436"
+         transform="translate(467.20929,135.67075)">
+        <g
+           id="g9619"
+           transform="translate(267.61803,-45.690882)">
+          <text
+             id="text21434"
+             y="69.103462"
              x="17.290993"
-             y="69.103462">Data</tspan><tspan
-             id="tspan21444"
-             sodipodi:role="line"
+             style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+             xml:space="preserve"><tspan
+               y="69.103462"
+               x="17.290993"
+               id="tspan21436"
+               sodipodi:role="line">Data</tspan><tspan
+               y="84.103462"
+               x="17.290993"
+               sodipodi:role="line"
+               id="tspan21444">Matrix</tspan><tspan
+               y="99.103462"
+               x="17.290993"
+               sodipodi:role="line"
+               id="tspan21446">File</tspan></text>
+          <rect
+             ry="0"
+             rx="5.0765758"
+             y="33.296978"
+             x="4.5957642"
+             height="88.650368"
+             width="60.247501"
+             id="rect21438"
+             style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+        </g>
+        <g
+           id="g9626"
+           transform="translate(10.114751,5.710153)">
+          <text
+             id="text9628"
+             y="69.103462"
              x="17.290993"
-             y="84.103462">Matrix</tspan><tspan
-             id="tspan21446"
-             sodipodi:role="line"
+             style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+             xml:space="preserve"><tspan
+               y="69.103462"
+               x="17.290993"
+               id="tspan9630"
+               sodipodi:role="line">Data</tspan><tspan
+               y="84.103462"
+               x="17.290993"
+               sodipodi:role="line"
+               id="tspan9632">Matrix</tspan><tspan
+               y="99.103462"
+               x="17.290993"
+               sodipodi:role="line"
+               id="tspan9634">File</tspan></text>
+          <rect
+             ry="0"
+             rx="5.0765758"
+             y="33.296978"
+             x="4.5957642"
+             height="88.650368"
+             width="60.247501"
+             id="rect9636"
+             style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+        </g>
+        <g
+           transform="translate(-390.22302,1215.6866)"
+           id="g5648">
+          <text
+             id="text5650"
+             y="69.103462"
              x="17.290993"
-             y="99.103462">File</tspan></text>
-        <rect
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-           id="rect21438"
-           width="47.71983"
-           height="75.133347"
-           x="4.4288325"
-           y="46.98093"
-           rx="5.0765758"
-           ry="0" />
-        <rect
-           ry="0"
-           rx="5.0765758"
-           y="41.904346"
-           x="11.597304"
-           height="75.133347"
-           width="47.71983"
-           id="rect21440"
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
-        <rect
-           ry="0"
-           rx="5.0765758"
-           y="36.827785"
-           x="18.735142"
-           height="75.133347"
-           width="47.71983"
-           id="rect21442"
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+             style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+             xml:space="preserve"><tspan
+               y="69.103462"
+               x="17.290993"
+               id="tspan5652"
+               sodipodi:role="line">Data</tspan><tspan
+               y="84.103462"
+               x="17.290993"
+               sodipodi:role="line"
+               id="tspan5654">Matrix</tspan><tspan
+               y="99.103462"
+               x="17.290993"
+               sodipodi:role="line"
+               id="tspan5656">File</tspan></text>
+          <rect
+             ry="0"
+             rx="5.0765758"
+             y="33.296978"
+             x="4.5957642"
+             height="88.650368"
+             width="60.247501"
+             id="rect5658"
+             style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+        </g>
+        <path
+           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="M -312.20093,1296.5324 C 117.50626,1296.5324 117.50626,1296.5324 117.50626,1296.5324"
+           id="path5660" />
       </g>
       <g
          id="g21477"
-         transform="translate(-8,2)">
+         transform="translate(726.13277,86.758052)">
         <g
            id="g21506"
-           transform="matrix(0.9702829,-0.2419735,0.2419735,0.9702829,-5.684509,8.4049504)">
+           transform="matrix(0.9702829,-0.2419735,0.2419735,0.9702829,-21.684509,12.40495)">
           <path
              style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
              d="M 11.93889,24.40711 C -25.56743,8.59583 -20.8586,-41.881395 11.94251,-39.726128 C 41.08111,-37.811514 50.03326,2.22046 31.90288,20.58713"
@@ -279,7 +403,7 @@
         </g>
         <g
            id="g21488"
-           transform="matrix(0.5693744,0.8220783,-0.8220783,0.5693744,45.091419,-107.97587)">
+           transform="matrix(0.5693744,0.8220783,-0.8220783,0.5693744,39.091419,-107.97587)">
           <path
              sodipodi:nodetypes="csc"
              id="path21482"
@@ -297,7 +421,7 @@
                sodipodi:role="line">RestoreHeterozygousCalls.py</tspan></text>
         </g>
         <g
-           transform="matrix(0.5693744,0.8220783,-0.8220783,0.5693744,51.981645,20.354597)"
+           transform="matrix(0.5693744,0.8220783,-0.8220783,0.5693744,67.981645,46.354597)"
            id="g21493">
           <g
              id="g21501"
@@ -308,20 +432,21 @@
                d="M 131.65657,43.355233 C 94.150254,27.543953 98.859083,-22.933272 131.66019,-20.778005 C 160.79879,-18.863391 169.75094,21.168583 151.62056,39.535253"
                style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
             <text
-               x="82.158859"
-               y="-26.808386"
+               x="-155.0844"
+               y="-46.718796"
                id="text21497"
-               style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-               xml:space="preserve"><tspan
-                 y="-26.808386"
-                 x="82.158859"
+               style="font-size:12.0000124px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+               xml:space="preserve"
+               transform="matrix(-0.7938891,0.6080626,-0.6080626,-0.7938891,0,0)"><tspan
+                 y="-46.718796"
+                 x="-155.0844"
                  id="tspan21499"
                  sodipodi:role="line">SelectStrains.py</tspan></text>
           </g>
         </g>
         <g
            id="g2304"
-           transform="matrix(0.5693744,0.8220783,-0.8220783,0.5693744,-115.96762,50.499337)">
+           transform="matrix(0.5693744,0.8220783,-0.8220783,0.5693744,-31.96762,50.499337)">
           <g
              transform="matrix(-0.9596611,-0.2811594,0.2811594,-0.9596611,165.47485,165.44569)"
              id="g2306">
@@ -338,249 +463,154 @@
                  y="6.4887042">CreatePopulations.py</tspan></text>
           </g>
         </g>
+        <path
+           sodipodi:nodetypes="csc"
+           id="path4754"
+           d="M -485.64637,2243.2698 C -480.69453,2283.6703 -526.8202,2304.7072 -541.27503,2275.184 C -554.11587,2248.9575 -519.93244,2229.1025 -488.45152,2222.633"
+           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1" />
       </g>
       <g
-         transform="translate(-0.5838349,254.93838)"
-         id="g2226">
-        <text
-           id="text2228"
-           y="69.103462"
-           x="17.290993"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           xml:space="preserve"><tspan
-             y="69.103462"
-             x="17.290993"
-             id="tspan2230"
-             sodipodi:role="line">Data</tspan><tspan
-             y="84.103462"
-             x="17.290993"
-             sodipodi:role="line"
-             id="tspan2232">Matrix</tspan><tspan
-             y="99.103462"
-             x="17.290993"
-             sodipodi:role="line"
-             id="tspan2234">File</tspan></text>
-        <rect
-           ry="0"
-           rx="5.0765758"
-           y="46.98093"
-           x="4.4288325"
-           height="75.133347"
-           width="47.71983"
-           id="rect2236"
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
-        <rect
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-           id="rect2238"
-           width="47.71983"
-           height="75.133347"
-           x="11.597304"
-           y="41.904346"
-           rx="5.0765758"
-           ry="0" />
-        <rect
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-           id="rect2240"
-           width="47.71983"
-           height="75.133347"
-           x="18.735142"
-           y="36.827785"
-           rx="5.0765758"
-           ry="0" />
-      </g>
-      <g
-         transform="translate(4.5548868,509.01547)"
-         id="g2248">
-        <text
-           id="text2250"
-           y="69.103462"
-           x="17.290993"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           xml:space="preserve"><tspan
-             y="69.103462"
-             x="17.290993"
-             id="tspan2252"
-             sodipodi:role="line">Data</tspan><tspan
-             y="84.103462"
-             x="17.290993"
-             sodipodi:role="line"
-             id="tspan2254">Matrix</tspan><tspan
-             y="99.103462"
-             x="17.290993"
-             sodipodi:role="line"
-             id="tspan2256">File</tspan></text>
-        <rect
-           ry="0"
-           rx="5.0765758"
-           y="46.98093"
-           x="4.4288325"
-           height="75.133347"
-           width="47.71983"
-           id="rect2258"
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
-        <rect
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-           id="rect2260"
-           width="47.71983"
-           height="75.133347"
-           x="11.597304"
-           y="41.904346"
-           rx="5.0765758"
-           ry="0" />
-        <rect
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-           id="rect2262"
-           width="47.71983"
-           height="75.133347"
-           x="18.735142"
-           y="36.827785"
-           rx="5.0765758"
-           ry="0" />
-      </g>
-      <g
-         id="g2264"
-         transform="translate(1.9710519,763.95385)">
-        <text
-           xml:space="preserve"
-           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-           x="17.290993"
-           y="69.103462"
-           id="text2266"><tspan
-             sodipodi:role="line"
-             id="tspan2268"
-             x="17.290993"
-             y="69.103462">Data</tspan><tspan
-             id="tspan2270"
-             sodipodi:role="line"
-             x="17.290993"
-             y="84.103462">Matrix</tspan><tspan
-             id="tspan2272"
-             sodipodi:role="line"
-             x="17.290993"
-             y="99.103462">File</tspan></text>
-        <rect
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-           id="rect2274"
-           width="47.71983"
-           height="75.133347"
-           x="4.4288325"
-           y="46.98093"
-           rx="5.0765758"
-           ry="0" />
-        <rect
-           ry="0"
-           rx="5.0765758"
-           y="41.904346"
-           x="11.597304"
-           height="75.133347"
-           width="47.71983"
-           id="rect2276"
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
-        <rect
-           ry="0"
-           rx="5.0765758"
-           y="36.827785"
-           x="18.735142"
-           height="75.133347"
-           width="47.71983"
-           id="rect2278"
-           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
-      </g>
-      <g
-         id="g2314"
-         transform="translate(-215.04213,564.42448)">
-        <g
-           id="g2348"
-           transform="translate(0,-4)">
-          <text
-             id="text2316"
-             y="69.103462"
-             x="21.290993"
-             style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-             xml:space="preserve"><tspan
-               y="69.103462"
-               x="21.290993"
-               sodipodi:role="line"
-               id="tspan2320">Data</tspan><tspan
-               y="84.103462"
-               x="21.290993"
-               sodipodi:role="line"
-               id="tspan2322">File</tspan></text>
-          <rect
-             ry="0"
-             rx="5.0765758"
-             y="46.98093"
-             x="4.4288325"
-             height="75.133347"
-             width="47.71983"
-             id="rect2324"
-             style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
-          <rect
-             style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-             id="rect2326"
-             width="47.71983"
-             height="75.133347"
-             x="11.597304"
-             y="41.904346"
-             rx="5.0765758"
-             ry="0" />
-          <rect
-             style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
-             id="rect2328"
-             width="47.71983"
-             height="75.133347"
-             x="18.735142"
-             y="36.827785"
-             rx="5.0765758"
-             ry="0" />
-        </g>
-      </g>
+         transform="translate(464.62546,390.60913)"
+         id="g2226" />
       <path
          style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="M 541.74405,210.03201 C 545.65637,213.01018 549.09133,207.4307 549.48115,229.84296 C 549.87096,251.39394 551.61996,273.79393 551.8469,291.00448 C 552.90805,371.47827 552.00184,502.79484 550.72386,625.18879 C 550.61829,635.29956 560.84515,638.49326 560.73577,657.0273 C 560.63139,674.71573 550.18083,674.98585 550.06948,684.65347 C 548.71807,801.99083 547.25852,900.72338 547.26627,921.8404 C 547.28308,967.64803 537.5263,946.95372 537.43766,952.4539"
+         d="M 619.74405,210.03201 C 623.65637,213.01018 627.09133,207.4307 627.48115,229.84296 C 627.87096,251.39394 629.61996,273.79393 629.8469,291.00448 C 630.90805,371.47827 630.00184,502.79484 628.72386,625.18879 C 628.61829,635.29956 638.84515,638.49326 638.73577,657.0273 C 638.63139,674.71573 628.18083,674.98585 628.06948,684.65347 C 626.71807,801.99083 625.25852,900.72338 625.26627,921.8404 C 625.28308,967.64803 615.5263,946.95372 615.43766,952.4539"
          id="path2312"
-         transform="translate(-465.20929,-135.67075)"
          sodipodi:nodetypes="czsszszc" />
+      <g
+         transform="translate(467.02953,645.43593)"
+         id="g9638">
+        <text
+           id="text9640"
+           y="69.103462"
+           x="17.290993"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><tspan
+             y="69.103462"
+             x="17.290993"
+             id="tspan9642"
+             sodipodi:role="line">Data</tspan><tspan
+             y="84.103462"
+             x="17.290993"
+             sodipodi:role="line"
+             id="tspan9644">Matrix</tspan><tspan
+             y="99.103462"
+             x="17.290993"
+             sodipodi:role="line"
+             id="tspan9646">File</tspan></text>
+        <rect
+           ry="0"
+           rx="5.0765758"
+           y="33.296978"
+           x="4.5957642"
+           height="88.650368"
+           width="60.247501"
+           id="rect9648"
+           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+      </g>
+      <g
+         transform="translate(252.59642,697.72231)"
+         id="g9650">
+        <text
+           id="text9652"
+           y="69.103462"
+           x="17.290993"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><tspan
+             y="69.103462"
+             x="17.290993"
+             id="tspan9654"
+             sodipodi:role="line">Data</tspan><tspan
+             y="84.103462"
+             x="17.290993"
+             sodipodi:role="line"
+             id="tspan9656">Matrix</tspan><tspan
+             y="99.103462"
+             x="17.290993"
+             sodipodi:role="line"
+             id="tspan9658">File</tspan></text>
+        <rect
+           ry="0"
+           rx="5.0765758"
+           y="33.296978"
+           x="4.5957642"
+           height="88.650368"
+           width="60.247501"
+           id="rect9660"
+           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+      </g>
+      <g
+         transform="translate(465.97627,902.64536)"
+         id="g9662">
+        <text
+           id="text9664"
+           y="69.103462"
+           x="17.290993"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><tspan
+             y="69.103462"
+             x="17.290993"
+             id="tspan9666"
+             sodipodi:role="line">Data</tspan><tspan
+             y="84.103462"
+             x="17.290993"
+             sodipodi:role="line"
+             id="tspan9668">Matrix</tspan><tspan
+             y="99.103462"
+             x="17.290993"
+             sodipodi:role="line"
+             id="tspan9670">File</tspan></text>
+        <rect
+           ry="0"
+           rx="5.0765758"
+           y="33.296978"
+           x="4.5957642"
+           height="88.650368"
+           width="60.247501"
+           id="rect9672"
+           style="fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+      </g>
     </g>
     <path
-       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.11855114;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 498.90521,263.37175 L 499.15787,419.67348"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.12422419;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 422.22152,343.95754 L 583.73939,343.71055"
        id="path2217"
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
        id="text2219"
-       transform="translate(8,0)"><textPath
+       transform="translate(-1.7264749,-8)"><textPath
          xlink:href="#path2217"
          id="textPath2223"><tspan
    id="tspan2221">FilterStrainSNPMatrix.py</tspan></textPath></text>
     <g
-       id="g2332">
+       id="g2332"
+       transform="translate(-10.269607,-206)">
       <path
          style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.11855114;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="M 501.48904,515.72629 L 501.7417,672.02802"
+         d="M 432.48829,603.02727 L 588.79002,602.77461"
          id="path2242"
          sodipodi:nodetypes="cc" />
       <text
-         transform="matrix(7.2460668e-3,0.9999737,-0.9999737,7.2460668e-3,0,0)"
+         transform="matrix(0.9999737,-7.2460671e-3,7.2460671e-3,0.9999737,0,0)"
          id="text2244"
-         y="-506.83749"
-         x="537.43469"
-         style="font-size:11.99999905px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         y="597.04669"
+         x="446.19547"
+         style="font-size:11.99999809px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
          xml:space="preserve"><tspan
-           y="-506.83749"
-           x="537.43469"
+           y="597.04669"
+           x="446.19547"
            id="tspan2246"
            sodipodi:role="line">RemoveBadSNPs.py</tspan></text>
     </g>
     <path
        sodipodi:nodetypes="cc"
        id="path2280"
-       d="M 501.4601,772.38722 L 501.71276,928.68895"
+       d="M 422.21868,446.48636 L 578.52041,446.2337"
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.11855114;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <text
-       transform="translate(10.554887,509.01547)"
+       transform="translate(-1.7264749,94.83741)"
        id="text2282"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
        xml:space="preserve"><textPath
@@ -714,12 +744,12 @@
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="566.98163"
+       x="644.98163"
        y="655.92566"
        id="text2297"><tspan
          sodipodi:role="line"
          id="tspan2299"
-         x="566.98163"
+         x="644.98163"
          y="655.92566">misc.py/display_snp_matrix()</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -743,51 +773,858 @@
          x="607.02991"
          y="740.51111">EcotypeIdentity.py</tspan></text>
     <rect
-       style="opacity:1;fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:2.49418664;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
+       style="opacity:1;fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
        id="rect27425"
-       width="138.93086"
-       height="59.808914"
-       x="185.78661"
-       y="862.67792"
+       width="184.58435"
+       height="80.728691"
+       x="145.64624"
+       y="863.10089"
        ry="19.290995"
        rx="19.290995" />
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="200.85915"
+       x="162.85915"
        y="874.25806"
        id="text27427"><tspan
          sodipodi:role="line"
          id="tspan27429"
-         x="200.85915"
+         x="162.85915"
          y="874.25806">tables:</tspan><tspan
          sodipodi:role="line"
-         x="200.85915"
+         x="162.85915"
          y="889.25806"
          id="tspan27431">eoctype_identity</tspan><tspan
          sodipodi:role="line"
-         x="200.85915"
+         x="162.85915"
          y="904.25806"
          id="tspan27433">component2clique</tspan><tspan
          sodipodi:role="line"
-         x="200.85915"
+         x="162.85915"
          y="919.25806"
-         id="tspan27435">clique2ecotype</tspan></text>
+         id="tspan27435">clique2ecotype</tspan><tspan
+         sodipodi:role="line"
+         x="162.85915"
+         y="934.25806"
+         id="tspan27451">latex: StockIdentityReport</tspan></text>
     <path
        sodipodi:nodetypes="cc"
        id="path27437"
-       d="M 47.080475,380.23503 L 248.7229,246.3233"
-       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.53119469;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       d="M 15.572707,412.73215 L 248.5715,246.4747"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-size:11.2290659px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-169.71284"
+       y="332.99603"
+       id="text27439"
+       transform="matrix(0.7878933,-0.5765383,0.5048389,0.8997932,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan27441"
+         x="-169.71284"
+         y="332.99603">            functions from</tspan><tspan
+         sodipodi:role="line"
+         x="-169.71284"
+         y="347.03237"
+         id="tspan5442">Classify2010AccessionsIntoAlignmentGroup.py </tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#0a0203;stroke-width:0.97096169;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.96097568"
+       id="rect27455"
+       width="186.972"
+       height="66.271416"
+       x="-79.332153"
+       y="418.58041"
+       rx="19.290995"
+       ry="19.290995" />
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="-189.66713"
-       y="334.08789"
-       id="text27439"
-       transform="matrix(0.8419864,-0.5394988,0.5394988,0.8419864,0,0)"><tspan
+       x="-71.488754"
+       y="432.50903"
+       id="text27457"><tspan
          sodipodi:role="line"
-         id="tspan27441"
-         x="-189.66713"
-         y="334.08789">Classify2010AccessionsIntoAlignmentGroup.py </tspan></text>
+         x="-71.488754"
+         y="432.50903"
+         id="tspan5464">accession2alignment_type</tspan><tspan
+         sodipodi:role="line"
+         x="-71.488754"
+         y="447.50903"
+         id="tspan5470">alignment_type2alignment</tspan><tspan
+         sodipodi:role="line"
+         x="-71.488754"
+         y="462.50903"
+         id="tspan5472" /><tspan
+         sodipodi:role="line"
+         x="-71.488754"
+         y="477.50903"
+         id="tspan5468">latex: 2010SequenceReport</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-200.77634"
+       y="1138.6912"
+       id="text2312"><tspan
+         sodipodi:role="line"
+         id="tspan2314"
+         x="-200.77634"
+         y="1138.6912">no_gps_ecotype_view</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-200.77634"
+       y="1098.1278"
+       id="text2317"><tspan
+         sodipodi:role="line"
+         id="tspan2319"
+         x="-200.77634"
+         y="1098.1278">no_genotyping_ecotype_view</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-200.34859"
+       y="1179.2545"
+       id="text2321"><tspan
+         sodipodi:role="line"
+         id="tspan2323"
+         x="-200.34859"
+         y="1179.2545">genotyping_all_na_ecotype</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="76.986954"
+       y="1125.8296"
+       id="text2325"><tspan
+         sodipodi:role="line"
+         id="tspan2327"
+         x="76.986954"
+         y="1125.8296">nativename_stkparent2tg_ecotypeid</tspan><tspan
+         sodipodi:role="line"
+         x="76.986954"
+         y="1140.8296"
+         id="tspan2329" /><tspan
+         sodipodi:role="line"
+         x="76.986954"
+         y="1155.8296"
+         id="tspan2331">ecotype_duplicate2tg_ecotypeid</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="405.12183"
+       y="1139.6805"
+       id="text2333"><tspan
+         sodipodi:role="line"
+         id="tspan2335"
+         x="405.12183"
+         y="1139.6805">nativename_stkparent2resolved_duplicated_calls</tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ea0f0f;stroke-width:0.95599997;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2325"
+       width="210.73132"
+       height="127.62601"
+       x="-215.61656"
+       y="1078.3408"
+       rx="19.290995"
+       ry="19.290995" />
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ea0f0f;stroke-width:0.95599997;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3296"
+       width="236.45441"
+       height="76.179871"
+       x="70.816544"
+       y="1104.064"
+       rx="19.290995"
+       ry="19.290995" />
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ea0f0f;stroke-width:0.95599997;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3298"
+       width="321.53842"
+       height="44.520702"
+       x="388.90881"
+       y="1117.9148"
+       rx="19.290995"
+       ry="19.290995" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.51643229px;stroke-linecap:butt;stroke-linejoin:miter;marker-mid:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M -4.11576,1138.7125 C 66.60093,1138.7125 66.60093,1138.7125 66.60093,1138.7125"
+       id="path3300" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.56503558px;stroke-linecap:butt;stroke-linejoin:miter;marker-mid:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 309.08008,1140.6698 C 384.69491,1140.6698 384.69491,1140.6698 384.69491,1140.6698"
+       id="path5440" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="0.31242371"
+       y="1095.1598"
+       id="text5444"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan7603"
+         x="0.31242371"
+         y="1095.1598">GroupDuplicateEcotype.py</tspan></text>
+    <g
+       id="g4653"
+       transform="translate(-4,102)">
+      <text
+         transform="translate(451.52478,146.07571)"
+         id="text2398"
+         y="1292.175"
+         x="-680.2348"
+         style="font-size:12.00000763px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-size:24.00001526px"
+           y="1292.175"
+           x="-680.2348"
+           id="tspan2400"
+           sodipodi:role="line">Link ecotype 2 accession</tspan></text>
+      <g
+         id="g2558">
+        <text
+           xml:space="preserve"
+           style="font-size:12.00014687px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="-193.65729"
+           y="1593.4423"
+           id="text5448"><tspan
+             sodipodi:role="line"
+             id="tspan5450"
+             x="-193.65729"
+             y="1593.4423">ecotype2accession</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:12.00017452px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="-193.71588"
+           y="1699.4652"
+           id="text5452"><tspan
+             sodipodi:role="line"
+             id="tspan5454"
+             x="-193.71588"
+             y="1699.4652">accession2ecotype_complete</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:12.00014019px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="-193.65729"
+           y="1535.0837"
+           id="text5456"><tspan
+             sodipodi:role="line"
+             id="tspan5458"
+             x="-193.65729"
+             y="1535.0837">ecotype2accession_all</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:12.00013924px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="-193.65729"
+           y="1490.8907"
+           id="text5460"><tspan
+             sodipodi:role="line"
+             id="tspan5462"
+             x="-193.65729"
+             y="1490.8907">ecotype_192_vs_accession_192</tspan></text>
+        <path
+           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.51643229px;stroke-linecap:butt;stroke-linejoin:miter;marker-mid:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+           d="M -125.84546,1599.3849 C -126.96401,1670.0927 -126.96401,1670.0927 -126.96401,1670.0927"
+           id="path5474" />
+        <text
+           xml:space="preserve"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="-114.48996"
+           y="1630.845"
+           id="text5476"><tspan
+             sodipodi:role="line"
+             id="tspan5478"
+             x="-114.48996"
+             y="1630.845">Accession2EcotypeComplete.py</tspan></text>
+      </g>
+    </g>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.02864814px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 248.31226,229.23817 C -37.580937,367.71837 -37.580937,367.71837 -37.580937,367.71837"
+       id="path5486" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.58507645;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.99024389"
+       id="rect5488"
+       width="196.26202"
+       height="39.944885"
+       x="-242.57596"
+       y="356.6644"
+       rx="19.290995"
+       ry="19.290995" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-213.63547"
+       y="376.91376"
+       id="text6461"><tspan
+         sodipodi:role="line"
+         id="tspan6463"
+         x="-213.63547"
+         y="376.91376">pcr_vs_sequenom.tex</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:11.99999809px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-114.9109"
+       y="308.97153"
+       id="text6465"
+       transform="matrix(0.9014074,-0.4329719,0.4329719,0.9014074,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan6467"
+         x="-114.9109"
+         y="308.97153">CmpAccession2Ecotype.py</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 258.22008,196.57533 L -23.744375,140.18244"
+       id="path8409" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="93.774567"
+       y="137.7597"
+       id="text8411"
+       transform="matrix(0.9838829,0.1788139,-0.1788139,0.9838829,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan8413"
+         x="93.774567"
+         y="137.7597">GenotypeCalling.py</tspan></text>
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.58507645;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.99024389"
+       id="rect8415"
+       width="196.26202"
+       height="39.944885"
+       x="-224.72508"
+       y="116.2526"
+       rx="19.290995"
+       ry="19.290995" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-189.78458"
+       y="138.50197"
+       id="text8417"><tspan
+         sodipodi:role="line"
+         id="tspan8419"
+         x="-189.78458"
+         y="138.50197">PeakDataReport.tex</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 316.59167,185.69249 C 397.71828,43.226237 397.71828,43.226237 397.71828,43.226237"
+       id="path9674" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="3.8675287"
+       y="360.75647"
+       id="text9676"
+       transform="matrix(0.5028001,-0.8644027,0.8644027,0.5028001,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan9678"
+         x="3.8675287"
+         y="360.75647">Output2010InCertainSNPs.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-233.59286"
+       y="1048.3835"
+       id="text2368"><tspan
+         sodipodi:role="line"
+         id="tspan2370"
+         x="-233.59286"
+         y="1048.3835">Untangle Duplication Status of 149SNP data</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-232.62482"
+       y="1257.2852"
+       id="text2372"><tspan
+         sodipodi:role="line"
+         id="tspan2374"
+         x="-232.62482"
+         y="1257.2852">Quality Control</tspan></text>
+    <g
+       id="g2571">
+      <text
+         id="text2376"
+         y="1270.019"
+         x="221.79883"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1270.019"
+           x="221.79883"
+           id="tspan2378"
+           sodipodi:role="line">QualityControl.py</tspan></text>
+      <text
+         id="text2380"
+         y="1328.6888"
+         x="-46.33844"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1328.6888"
+           x="-46.33844"
+           id="tspan2382"
+           sodipodi:role="line">Cmp250kVs149SNP.py</tspan></text>
+      <text
+         id="text2384"
+         y="1328.6888"
+         x="122.84024"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1328.6888"
+           x="122.84024"
+           id="tspan2386"
+           sodipodi:role="line">Cmp250kVs2010.py</tspan></text>
+      <text
+         id="text2388"
+         y="1328.6888"
+         x="557.97632"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1328.6888"
+           x="557.97632"
+           id="tspan2390"
+           sodipodi:role="line">CmpAccession2Ecotype.py</tspan></text>
+      <text
+         id="text2392"
+         y="1328.6888"
+         x="283.76089"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1328.6888"
+           x="283.76089"
+           id="tspan2394"
+           sodipodi:role="line">CmpTina2010VsMy2010In250kSNPs.py</tspan></text>
+      <path
+         id="path2402"
+         d="M 268.94836,1275.8861 L 268.94836,1315.46"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1" />
+      <g
+         transform="translate(468,-14)"
+         id="g4668">
+        <text
+           transform="translate(-660.2101,1234.5142)"
+           id="text2658"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><textPath
+             id="textPath2660"
+             xlink:href="#path8351"><tspan
+   id="tspan2662">dbSNP2data.py</tspan></textPath></text>
+        <path
+           sodipodi:nodetypes="cc"
+           id="path2664"
+           d="M -572.50607,1463.1482 L -434.49714,1462.923"
+           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      </g>
+      <g
+         transform="matrix(0.5,0.8660254,-0.8660254,0.5,1402.2354,1195.994)"
+         id="g5643">
+        <path
+           style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="M -584.27805,1434.408 C -484.61988,1264.569 -484.61988,1264.569 -484.61988,1264.569"
+           id="path2666" />
+        <text
+           xml:space="preserve"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="-1528.6266"
+           y="209.85854"
+           id="text2668"
+           transform="matrix(0.5028001,-0.8644027,0.8644027,0.5028001,0,0)"><tspan
+             sodipodi:role="line"
+             id="tspan2670"
+             x="-1528.6266"
+             y="209.85854">Output2010InCertainSNPs.py</tspan></text>
+      </g>
+      <g
+         transform="translate(-480.50173,1210.644)"
+         id="g4619">
+        <rect
+           style="opacity:1;fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568"
+           id="rect4621"
+           width="54.827038"
+           height="55.842354"
+           x="264.41534"
+           y="188.18002"
+           ry="19.290995"
+           rx="19.290995" />
+        <flowRoot
+           xml:space="preserve"
+           style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           id="flowRoot4623"
+           transform="translate(12,22)"><flowRegion
+             id="flowRegion4625"><use
+               x="0"
+               y="0"
+               xlink:href="#rect16486"
+               id="use4627"
+               width="744.09448"
+               height="1052.3622"
+               transform="translate(-10,-18)" /></flowRegion><flowPara
+             id="flowPara4629">DB</flowPara><flowPara
+             id="flowPara4631">Postgres</flowPara><flowPara
+             id="flowPara4633">/MySQL</flowPara></flowRoot>      </g>
+      <text
+         id="text7605"
+         y="1328.484"
+         x="734.11951"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1328.484"
+           x="734.11951"
+           id="tspan7607"
+           sodipodi:role="line">Cmp149SNPVs2010.py</tspan></text>
+      <path
+         sodipodi:nodetypes="cs"
+         id="path7609"
+         d="M 39.41929,1345.5245 C 184.11158,1344.7825 248.91393,1350.966 265.9802,1413.7896"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="cs"
+         id="path7611"
+         d="M 535.5778,1345.5245 C 390.88551,1344.7825 326.08316,1350.966 309.01689,1413.7896"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <text
+         id="text7613"
+         y="1296.5249"
+         x="273.85239"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1296.5249"
+           x="273.85239"
+           id="tspan7615"
+           sodipodi:role="line">Class Inheritance</tspan></text>
+      <text
+         id="text2417"
+         y="1394.1722"
+         x="600.31628"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1394.1722"
+           x="600.31628"
+           id="tspan2419"
+           sodipodi:role="line">mismatch vs NA plot (strain/snp wise)/<tspan
+   id="tspan2432"
+   style="font-weight:bold">QCVisualize.py</tspan></tspan><tspan
+           id="tspan2427"
+           y="1409.1722"
+           x="600.31628"
+           sodipodi:role="line" /><tspan
+           id="tspan2421"
+           y="1424.1722"
+           x="600.31628"
+           sodipodi:role="line">cross matching result (to detect swaps)/<tspan
+   id="tspan2430"
+   style="font-weight:bold">QCVisualize.py</tspan></tspan><tspan
+           id="tspan2423"
+           y="1439.1722"
+           x="600.31628"
+           sodipodi:role="line" /><tspan
+           id="tspan2429"
+           y="1454.1722"
+           x="600.31628"
+           sodipodi:role="line">difference matrix, detailed difference/<tspan
+   id="tspan2428"
+   style="font-weight:bold">QCVisualize.py</tspan></tspan><tspan
+           id="tspan2425"
+           y="1469.1722"
+           x="600.31628"
+           sodipodi:role="line" /><tspan
+           id="tspan2431"
+           y="1484.1722"
+           x="600.31628"
+           sodipodi:role="line">(ditto) but strain/snp wise/<tspan
+   id="tspan2434"
+   style="font-weight:bold">QCVisualize.py</tspan></tspan></text>
+      <text
+         id="text2436"
+         y="1433.7273"
+         x="967.66296"
+         style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="1433.7273"
+           x="967.66296"
+           id="tspan2438"
+           sodipodi:role="line"
+           style="font-weight:bold">QCVisualizeII.py</tspan></text>
+      <path
+         id="path2441"
+         d="M 341.28558,1266.1138 L 380.85948,1266.1138"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-232.62482"
+       y="1898.4908"
+       id="text2621"><tspan
+         sodipodi:role="line"
+         id="tspan2623"
+         x="-232.62482"
+         y="1898.4908">Genome-wide scan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="53.829494"
+       y="1895.7861"
+       id="text2625"><tspan
+         sodipodi:role="line"
+         id="tspan2627"
+         x="53.829494"
+         y="1895.7861">GenomeBrowser.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="388.44385"
+       y="1269.8629"
+       id="text2437"><tspan
+         sodipodi:role="line"
+         id="tspan2439"
+         x="388.44385"
+         y="1269.8629">QCVisualize.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-19.265745"
+       y="2056.166"
+       id="text2768"
+       inkscape:export-xdpi="100.00774"
+       inkscape:export-ydpi="100.00774"><tspan
+         sodipodi:role="line"
+         id="tspan2770"
+         x="-19.265745"
+         y="2056.166">250k Data pipeline</tspan></text>
+    <path
+       style="font-size:16px;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 288.72799,2127.7166 L 288.49545,2243.1964"
+       id="path2612"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:15.99999905px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="800.24109"
+       y="2180.7471"
+       id="text5719"
+       transform="matrix(0.9999748,-7.1050145e-3,7.1050145e-3,0.9999748,0,0)"
+       inkscape:transform-center-x="-1475.7003"
+       inkscape:transform-center-y="-516.68755"><tspan
+         sodipodi:role="line"
+         x="800.24109"
+         y="2180.7471"
+         id="tspan5723">Calls2DB_250k.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="296.28391"
+       y="2183.5205"
+       id="text2782"><tspan
+         sodipodi:role="line"
+         id="tspan2784"
+         x="296.28391"
+         y="2183.5205">Array2DB_250k.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="62.298584"
+       y="2400.1426"
+       id="text2786"><tspan
+         sodipodi:role="line"
+         id="tspan2788"
+         x="62.298584"
+         y="2400.1426">LinkArrayId2EcotypeId.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-208.79221"
+       y="2156.7168"
+       id="text2790"><tspan
+         sodipodi:role="line"
+         id="tspan2792"
+         x="-208.79221"
+         y="2156.7168">ProcessPhenotype.py</tspan><tspan
+         sodipodi:role="line"
+         x="-208.79221"
+         y="2176.7168"
+         id="tspan2794">  Enter the method 1st</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="357.05475"
+       y="2271.6804"
+       id="text2796"><tspan
+         sodipodi:role="line"
+         id="tspan2798"
+         x="357.05475"
+         y="2271.6804">DB_250k2Array.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="383.74933"
+       y="2362.3677"
+       id="text2800"><tspan
+         sodipodi:role="line"
+         id="tspan2802"
+         x="383.74933"
+         y="2362.3677">DB_250k2Calls.py</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="294.95728"
+       y="2449.2283"
+       id="text2788"><tspan
+         sodipodi:role="line"
+         id="tspan2790"
+         x="294.95728"
+         y="2449.2283">OutputPhenotype.py</tspan></text>
+    <g
+       id="g2792"
+       transform="translate(-2.6280054,2068.7491)"
+       style="font-size:16px">
+      <rect
+         rx="19.290995"
+         ry="19.290995"
+         y="188.18002"
+         x="264.41534"
+         height="55.842354"
+         width="54.827038"
+         id="rect2794"
+         style="font-size:16px;opacity:1;fill:none;fill-opacity:0.9593023;stroke:#0a0203;stroke-width:1.51400006;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96097568" />
+      <flowRoot
+         transform="translate(12,22)"
+         id="flowRoot2796"
+         style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><flowRegion
+           id="flowRegion2798"><use
+             transform="translate(-10,-18)"
+             height="1052.3622"
+             width="744.09448"
+             id="use2800"
+             xlink:href="#rect16486"
+             y="0"
+             x="0" /></flowRegion><flowPara
+           id="flowPara2802">DB</flowPara><flowPara
+           id="flowPara2804">Postgres</flowPara><flowPara
+           id="flowPara2806">/MySQL</flowPara></flowRoot>    </g>
+    <path
+       style="font-size:16px;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 285.66911,2316.052 L 285.27241,2513.0512"
+       id="path2808"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="font-size:16px;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 336.53709,2292.2985 L 533.53626,2292.6952"
+       id="path2810"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 50.642715,2290.993 L 247.64188,2291.3897"
+       id="path4750"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="font-size:16px;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 1009.2581,2268.0265 L 970.69165,2203.5302 L 775.70623,2203.6626"
+       id="path4752"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="font-size:16px;fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 306.89611,2319.9345 L 477.30404,2418.7777"
+       id="path4756"
+       sodipodi:nodetypes="cc" />
+    <path
+       sodipodi:nodetypes="cc"
+       id="path9071"
+       d="M 422.21868,492.85581 L 578.52041,492.60315"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1.11855114;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       transform="translate(-1.7264749,141.20686)"
+       id="text9073"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       xml:space="preserve"><textPath
+         id="textPath9075"
+         xlink:href="#path2217">MergeDuplicatedCall.spy</textPath></text>
+    <path
+       style="font-size:16px;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.1292274px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 777.56647,2291.0685 L 1004.5862,2291.0685"
+       id="path9079" />
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="777.13452"
+       y="2317.9812"
+       id="text10050"><tspan
+         sodipodi:role="line"
+         x="777.13452"
+         y="2317.9812"
+         id="tspan14924">any genotype calling algorithm</tspan><tspan
+         sodipodi:role="line"
+         x="777.13452"
+         y="2337.9812"
+         id="tspan14930" /><tspan
+         sodipodi:role="line"
+         x="777.13452"
+         y="2357.9812"
+         id="tspan14934">GenotypeCalling.py is simple calling algortihm.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="541.37463"
+       y="2292.4575"
+       id="text11023"><tspan
+         sodipodi:role="line"
+         id="tspan11025"
+         x="541.37463"
+         y="2292.4575">array_id_array_intensity.tsv</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="1010.0653"
+       y="2293.6792"
+       id="text11029"><tspan
+         sodipodi:role="line"
+         id="tspan11031"
+         x="1010.0653"
+         y="2293.6792">array_id_call.tsv</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="652.89093"
+       y="2206.9084"
+       id="text11033"><tspan
+         sodipodi:role="line"
+         id="tspan11035"
+         x="652.89093"
+         y="2206.9084"
+         style="font-size:16px">call_id_call.tsv</tspan></text>
+    <path
+       style="font-size:16px;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 1212.7666,2213.8621 L 659.25416,2250.4148"
+       id="path11037"
+       transform="translate(-242.8685,-8.9535303)" />
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="245.56393"
+       y="2116.1377"
+       id="text12008"><tspan
+         sodipodi:role="line"
+         id="tspan12010"
+         x="245.56393"
+         y="2116.1377"
+         style="font-size:16px">array .cel files</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="488.62924"
+       y="2428.8357"
+       id="text14920"><tspan
+         sodipodi:role="line"
+         id="tspan14922"
+         x="488.62924"
+         y="2428.8357"
+         style="font-size:16px">call matrix file</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="201.28757"
+       y="2541.9666"
+       id="text14936"><tspan
+         sodipodi:role="line"
+         id="tspan14938"
+         x="201.28757"
+         y="2541.9666">Phenotype Matrix</tspan></text>
   </g>
 </svg>
