@@ -1,27 +1,5 @@
 #!/usr/bin/env python
-"""
-Usage: Calls2DB_250k.py [OPTIONS] -i input_fname -n strain_name
 
-Option:
-	-z ..., --hostname=...	the hostname, localhost(default)
-	-d ..., --dbname=...	the database name, stock20071008(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)IGNORE
-	-i ...,	input file, snp.RData outputted by write.table() in R
-	-l ...,	calls_table, 'calls_250k'(default)
-	-a ...,	calls_comment_table, 'calls_250k_duplicate_comment'(default)
-	-s ...,	250k snp table, to find out which snpid based on chr+position, 'snps_250k'(default)
-	-n ...,	strain name, it'll be used to match nativename and name to get ecotype id.
-	-e ...,	comment for this loading
-	-c	commit the database submission
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
-
-Examples:
-	Calls2DB_250k.py -i /Network/Data/250k/yanli9-11-07/Tamm2B_base-calls.txt -n Tamm  -e "yanli9-11-07/Tamm2B_base-calls.txt" -c
-Description:
-
-"""
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
@@ -35,6 +13,26 @@ import sys, getopt, csv
 class Calls2DB_250k_old:
 	"""
 	2007-12-11
+	Usage: Calls2DB_250k.py [OPTIONS] -i input_fname -n strain_name
+	
+	Option:
+		-z ..., --hostname=...	the hostname, localhost(default)
+		-d ..., --dbname=...	the database name, stock20071008(default)
+		-k ..., --schema=...	which schema in the database, dbsnp(default)IGNORE
+		-i ...,	input file, snp.RData outputted by write.table() in R
+		-l ...,	calls_table, 'calls_250k'(default)
+		-a ...,	calls_comment_table, 'calls_250k_duplicate_comment'(default)
+		-s ...,	250k snp table, to find out which snpid based on chr+position, 'snps_250k'(default)
+		-n ...,	strain name, it'll be used to match nativename and name to get ecotype id.
+		-e ...,	comment for this loading
+		-c	commit the database submission
+		-b, --debug	enable debug
+		-r, --report	enable more progress-related output
+		-h, --help	show this help
+	
+	Examples:
+		Calls2DB_250k.py -i /Network/Data/250k/yanli9-11-07/Tamm2B_base-calls.txt -n Tamm  -e "yanli9-11-07/Tamm2B_base-calls.txt" -c
+	Description:
 	"""
 	def __init__(self, hostname='localhost', dbname='stock', schema='dbsnp', \
 		input_fname='', calls_table='calls_250k', calls_comment_table='calls_250k_duplicate_comment', snps_table='snps_250k', strain_name=None, \
@@ -197,7 +195,7 @@ class Calls2DB_250k_old:
 			self.submit_comment(curs, ecotypeid, duplicate_id, self.comment, self.calls_comment_table)
 			self.submit_calls_ls(curs, calls_ls, ecotypeid, duplicate_id, self.calls_table)
 
-import getopt, csv
+import getopt, csv, subprocess
 import traceback, gc
 from pymodule import process_function_arguments
 class Calls2DB_250k(object):
@@ -303,12 +301,16 @@ class Calls2DB_250k(object):
 	
 	def submit_call_dir2db(self, curs, input_dir, call_info_table, output_dir, method_id, user):
 		"""
+		2008-04-11
+			check if output_fname exists already or not. if yes, ignore.
+			use subprocess.Popen to do cp
+			add method_ in front of the method_id sub-directory
 		2008-04-09
 			add method_id as sub-directory
 			submit user into table as 'created_by'
 		2008-04-08
 		"""
-		output_dir = os.path.join(output_dir, '%s'%method_id)
+		output_dir = os.path.join(output_dir, 'method_%s'%method_id)
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
 		file_ls = os.listdir(input_dir)
@@ -321,13 +323,20 @@ class Calls2DB_250k(object):
 			new_call_id = self.get_new_call_id(curs, call_info_table, array_id, method_id)
 			if new_call_id!=-1:
 				output_fname = os.path.join(output_dir, '%s_call.tsv'%new_call_id)
+				if os.path.isfile(output_fname):
+					sys.stderr.write("%s already exists. Ignore.\n"%output_fname)
+					continue
+				input_fname = os.path.join(input_dir, filename)
+				cp_p = subprocess.Popen(['cp', input_fname, output_fname], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+				cp_p_stdout_out = cp_p.stdout.read()
+				cp_p_stderr_out = cp_p.stderr.read()
+				if cp_p_stdout_out:
+					sys.stderr.write("\tcp stdout: %s\n"%cp_p_stdout_out)
+				if cp_p_stderr_out:
+					sys.stderr.write("\tcp stderr: %s\n"%cp_p_stderr_out)
+					continue	#error in cp. skip the db insertion.
 				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
 						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
-				input_fname = os.path.join(input_dir, filename)
-				pipe_f = os.popen('cp %s %s'%(input_fname, output_fname))
-				pipe_f_out = pipe_f.read()
-				if pipe_f_out:
-					sys.stderr.write("\tcp output: %s\n"%pipe_f_out)
 	
 	def run(self):
 		"""
