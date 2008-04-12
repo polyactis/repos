@@ -10,7 +10,7 @@ Option:
 	-k ..., --schema=...	which schema in the database
 	-o ...,	output file
 	-e ...,	ecotype table 'stock.ecotype'(default)
-	-p ...,	phenotype_avg_table, 'stock_250k.phenotype_avg'(default)
+	-q ...,	phenotype_avg_table, 'stock_250k.phenotype_avg'(default)
 	-m ...,	phenotype_method_table, 'stock_250k.phenotype_method'(default)
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -21,6 +21,7 @@ Examples:
 	
 Description:
 	program to output phenotype_avg table.
+	The output format is roughly a ecotype_id X phenotype(shortname) matrix.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -139,7 +140,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "help", "type=", "debug", "report"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hz:d:u:p:o:e:p:m:br", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:u:p:o:e:q:m:br", long_options_list)
 	except:
 		traceback.print_exc()
 		print sys.exc_info()
@@ -174,7 +175,7 @@ if __name__ == '__main__':
 			output_fname = arg
 		elif opt in ("-e",):
 			ecotype_table = arg
-		elif opt in ("-p",):
+		elif opt in ("-q",):
 			phenotype_avg_table = arg
 		elif opt in ("-m",):
 			phenotype_method_table = arg
