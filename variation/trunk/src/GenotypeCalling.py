@@ -415,9 +415,11 @@ class SimpleCall(object):
 		-b,	toggle debug
 		-r, toggle report
 	Examples:
-		GenotypeCalling.py -i /tmp/arrays -o /tmp/simplecalls
+		GenotypeCalling.py -i /Network/Data/250k/db/intensity/ -o /tmp/simplecalls
 	Description:
-		apply simple calling algorithm on intensity matrices in input_dir outputted by DB_250k2Array (main.py -y 5)
+		apply simple calling algorithm on intensity matrices in input_dir outputted by DB_250k2Array.
+		
+		The output file is named like 'array_id'_array_call.tsv. The 'array_id' is extracted from input filename.
 	
 	"""
 	def __init__(self, **keywords):
@@ -473,6 +475,9 @@ class SimpleCall(object):
 	
 	def call_one_dir(self, input_dir, output_dir):
 		"""
+		2008-04-11
+			insert 'array' into output filename to make the 'array_id' in the beginning of the filename more obvious.
+			check if output_fname exists or not. if yes, skip.
 		2008-04-08
 		"""
 		if not os.path.isdir(output_dir):
@@ -484,7 +489,10 @@ class SimpleCall(object):
 			array_id = filename.split('_')[0]
 			sys.stderr.write("%d/%d:\t%s\n"%(i+1,len(file_ls),filename))
 			input_fname = os.path.join(input_dir, filename)
-			output_fname = os.path.join(output_dir, '%s_call.tsv'%array_id)
+			output_fname = os.path.join(output_dir, '%s_array_call.tsv'%array_id)
+			if os.path.isfile(output_fname):
+				sys.stderr.write("Output %s already exists. Ignore.\n"%output_fname)
+				continue
 			self._simpleCall(input_fname, array_id, output_fname)
 	
 	def run(self):
