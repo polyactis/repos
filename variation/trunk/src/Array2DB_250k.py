@@ -21,6 +21,7 @@ Examples:
 	
 	Array2DB_250k.py -i /Network/Data/250k/raw_data/yanli8-8-07/ -m /tmp/array_filename.map -e yanli -c
 	
+	#put all cel files (even in sub-directory) into db. Redundant files would be identified thru md5sum and ignored.
 	Array2DB_250k.py -i /Network/Data/250k/raw_data/ -m /tmp/array_all.map -c
 	
 Description:
