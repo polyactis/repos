@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 """
-Usage:	Array2DB_250k.py [OPTIONS] -i INPUT_DIR
+Usage:	Array2DB_250k.py [OPTIONS] -i INPUT_DIR -m MAPPING_FILE
 
 Argument list:
 	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
 	-d ..., --dbname=...	the database name, stock_250k(default)
 	-u ..., --user=...	the db username, (otherwise it will ask for it).
 	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
+	-e ...,	experimenter. if it's not supplied, db username (-u) is regarded same as experimenter.
+	-m ...,	mapping file* a file mapping filename in input_dir to ecotypeid.
 	-i ...,	input_dir*	where all the .cel files sit
 	-o ...,	output_dir	to store the renamed .cel files. '/Network/Data/250k/db/raw_data/'(default)
 	-g ...,	array_info_table, 'array_info'(default)
@@ -14,13 +16,23 @@ Argument list:
 	-b,	toggle debug
 	-r, toggle report
 Examples:
-	Array2DB_250k.py -i /Network/Data/250k/raw_data/ -d stock_250k -c
-
+	#test run without commiting database (no records in database)
+	Array2DB_250k.py -i /Network/Data/250k/raw_data/yanli8-8-07/ -m /tmp/array_filename.map -e yanli
+	
+	Array2DB_250k.py -i /Network/Data/250k/raw_data/yanli8-8-07/ -m /tmp/array_filename.map -e yanli -c
+	
+	Array2DB_250k.py -i /Network/Data/250k/raw_data/ -m /tmp/array_all.map -c
+	
 Description:
 	Dump .cel array files from input_dir (files in up to 2-level directories) into db and associated file-system storage (output-dir).
 	
 	This program requires the machine to have a standalone program, md5sum in PATH.
 	md5sum is used to calculate a checksum for each array cel file to avoid redundant arrays.
+	
+	The format of mapping_file is tab-delimited, 2/3-column text file.
+	  1st column is filename (either full path or base filename, like /Network/Data/250k/raw_data/yanli8-8-07/Col-0A.CEL or Col-0A.CEL).
+	  2nd column is ecotypeid. 3rd column is optional.
+	  If 3rd column is available, it is treated as paternal ecotypeid and 2nd column becomes maternal ecotypeid.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -36,10 +48,16 @@ import traceback, gc, subprocess
 
 class ArrayInfo(object):
 	def __init__(self, **keywords):
+		"""
+		2008-04-12
+			add experimenter, mapping_file
+		"""
 		from pymodule import process_function_arguments
 		argument_default_dict = {('curs',1, ): None,\
 								('array_info_table',1, ):None,\
 								('user',1, ):None,\
+								('experimenter',0,):None,\
+								('mapping_file',1,):None,\
 								('debug',0, int):0,\
 								('report',0, int):0}
 		"""
@@ -49,9 +67,13 @@ class ArrayInfo(object):
 		"""
 		#argument dictionary
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
-		self.md5sum2array_id, self.max_array_id = self.get_md5sum2array_id(self.curs, self.array_info_table)
 		
-	def get_md5sum2array_id(self, curs, array_info_table):
+		if not self.experimenter:
+			self.experimenter = self.user
+		self.md5sum2array_id, self.max_array_id = self.get_md5sum2array_id(self.curs, self.array_info_table)
+		self.array_file_basename2ecotypeid_tuple = self.readMappingFile(self.mapping_file)
+		
+	def get_md5sum2array_id(cls, curs, array_info_table):
 		"""
 		2008-04-10
 		"""
@@ -73,7 +95,32 @@ class ArrayInfo(object):
 	
 	get_md5sum2array_id = classmethod(get_md5sum2array_id)
 	
-	def get_md5sum(self, filename):
+	def readMappingFile(cls, mapping_file):
+		"""
+		2008-04-12
+			read in a dictionary from array filename to ecotypeid (maternal/paternal)
+		"""
+		sys.stderr.write("Reading the mapping between array and ecotypeid from %s ... "%mapping_file)
+		list_f = csv.reader(file(mapping_file), delimiter='\t')
+		array_file_basename2ecotypeid_tuple = {}
+		for row in list_f:
+			array_file_basename = os.path.basename(row[0])
+			if len(row)==2:
+				maternal_ecotype_id = int(row[1])
+				paternal_ecotype_id = maternal_ecotype_id
+			elif len(row)==3:
+				maternal_ecotype_id = int(row[1])
+				paternal_ecotype_id = int(row[2])
+			elif len(row)==1:
+				sys.stderr.write("Error: requires at least 2-column in %s.\n"%(mapping_file))
+				sys.exit(5)
+			array_file_basename2ecotypeid_tuple[array_file_basename] = (maternal_ecotype_id, paternal_ecotype_id)
+		sys.stderr.write("Done.\n")
+		return array_file_basename2ecotypeid_tuple
+	
+	readMappingFile = classmethod(readMappingFile)
+	
+	def get_md5sum(cls, filename):
 		"""
 		"""
 		md5sum_command = 'md5sum'
@@ -89,6 +136,15 @@ class ArrayInfo(object):
 	get_md5sum = classmethod(get_md5sum)
 	
 	def assignNewIdToThisArray(self, array_filename, output_dir):
+		"""
+		2008-04-12
+			maternal_ecotype_id, paternal_ecotype_id, experimenter are also submitted into db.
+			create the output_dir if it doesn't exist
+		"""
+		
+		if not os.path.isdir(output_dir):
+			os.makedirs(output_dir)
+		
 		md5sum = self.get_md5sum(array_filename)
 		if md5sum in self.md5sum2array_id:
 			sys.stderr.write("%s already exists in db with md5sum=%s and array_id=%s. ignored.\n"%\
@@ -98,6 +154,14 @@ class ArrayInfo(object):
 			new_array_id = self.max_array_id + 1
 			output_fname = os.path.join(output_dir, '%s_raw_data.cel'%new_array_id)
 			
+			#check whether the array_filename has maternal_ecotype_id, paternal_ecotype_id associated with.
+			array_file_basename = os.path.basename(array_filename)
+			if array_file_basename in self.array_file_basename2ecotypeid_tuple:
+				maternal_ecotype_id, paternal_ecotype_id = self.array_file_basename2ecotypeid_tuple[array_file_basename]
+			else:
+				sys.stderr.write("%s not in mapping_file. Ignored.\n"%array_file_basename)
+				return -1
+			
 			cp_p = subprocess.Popen(['cp', array_filename, output_fname], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 			cp_p_stdout_out = cp_p.stdout.read()
 			cp_p_stderr_out = cp_p.stderr.read()
@@ -105,8 +169,11 @@ class ArrayInfo(object):
 				sys.stderr.write("copy error: %s\n"%cp_p_stderr_out)
 				return -1
 			else:
-				self.curs.execute("insert into %s(id, filename, original_filename, md5sum, created_by) values (%s, '%s', '%s', '%s', '%s')"%\
-							(self.array_info_table, new_array_id, output_fname, array_filename, md5sum, self.user))
+
+				self.curs.execute("insert into %s(id, filename, original_filename, md5sum, maternal_ecotype_id, paternal_ecotype_id, experimenter, created_by)\
+					 	values (%s, '%s', '%s', '%s', %s, %s, '%s', '%s')"%\
+						(self.array_info_table, new_array_id, output_fname, array_filename, \
+						md5sum, maternal_ecotype_id, paternal_ecotype_id, self.experimenter, self.user))
 				self.md5sum2array_id[md5sum] = new_array_id
 				self.max_array_id += 1
 				return new_array_id
@@ -115,6 +182,8 @@ class Array2DB_250k(object):
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
 	def __init__(self, **keywords):
 		"""
+		2008-04-12
+			add experimenter, mapping_file
 		2008-04-09
 			array_data_table, probes_table, strain_info_table are no longer required. but leave them in the argument_default_dict.
 		2008-02-28
@@ -124,6 +193,8 @@ class Array2DB_250k(object):
 								('dbname',1, ):'stock_250k',\
 								('user',1, ):None,\
 								('passwd',1, ):None,\
+								('experimenter',0,):None,\
+								('mapping_file',1,):None,\
 								('input_dir',1, ):None,\
 								('output_dir',1, ):'/Network/Data/250k/db/raw_data/',\
 								('array_data_table',0, ):'array_data',\
@@ -143,6 +214,8 @@ class Array2DB_250k(object):
 		
 	def get_xypos2probes_id(self, curs, probes_table):
 		"""
+		2008-04-11
+			deprecated
 		2008-02-28
 		"""
 		sys.stderr.write("Getting xypos2probes_id ... ")
@@ -157,6 +230,8 @@ class Array2DB_250k(object):
 	
 	def get_filename2array_id_in_db(self, curs, array_info_table):
 		"""
+		2008-04-11
+			deprecated
 		2008-02-28
 		"""
 		sys.stderr.write("Getting filename2array_id_in_db ... ")
@@ -199,6 +274,8 @@ class Array2DB_250k(object):
 			
 	def get_filename2array_id(self, input_dir, filename2array_id_in_db):
 		"""
+		2008-04-11
+			deprecated
 		2008-02-29
 			new_array_id starts from 1 + maximum avaible array_id in db
 		2008-02-28
@@ -243,6 +320,8 @@ class Array2DB_250k(object):
 	
 	def submit_filename2array_id(self, curs, filename2array_id, array_info_table):
 		"""
+		2008-04-11
+			deprecated
 		2008-02-28
 		"""
 		sys.stderr.write("Submitting filename2array_id ... ")
@@ -252,6 +331,8 @@ class Array2DB_250k(object):
 	
 	def submit_one_array(self, curs, array_data_table, array_id, intensity_array, array_data_with_xypos):
 		"""
+		2008-04-11
+			deprecated
 		2008-02-29
 			xpos and ypos are no longer inserted into db if probes_id is avaible.
 		2008-02-28
@@ -278,6 +359,8 @@ class Array2DB_250k(object):
 	
 	def submit_all_array_data(self, filename2array_id, xypos2probes_id, curs, array_data_table):
 		"""
+		2008-04-11
+			deprecated
 		2008-02-29
 			xpos and ypos are no longer inserted into db if probes_id is avaible.
 		2008-02-28
@@ -343,7 +426,8 @@ class Array2DB_250k(object):
 		xypos2probes_id = self.get_xypos2probes_id(curs, self.probes_table)
 		self.submit_all_array_data(filename2array_id, xypos2probes_id, curs, self.array_data_table)
 		"""
-		arrayInfo = ArrayInfo(curs=curs, array_info_table=self.array_info_table, user=self.user)
+		arrayInfo = ArrayInfo(curs=curs, array_info_table=self.array_info_table, user=self.user, \
+							experimenter=self.experimenter, mapping_file=self.mapping_file)
 		input_fname_ls = self.get_all_files_in_input_dir(self.input_dir)
 		for filename in input_fname_ls:
 			sys.stderr.write("Assigning new id to %s ... "%filename)
@@ -363,7 +447,7 @@ if __name__ == '__main__':
 	
 	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "help", "type=", "debug", "report"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hz:d:u:p:i:o:g:cbr", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "hz:d:u:p:e:m:i:o:g:cbr", long_options_list)
 	except:
 		traceback.print_exc()
 		print sys.exc_info()
@@ -375,6 +459,8 @@ if __name__ == '__main__':
 	dbname = None
 	user = None
 	passwd = None
+	experimenter =None
+	mapping_file = None
 	input_dir = None
 	output_dir = None
 	array_info_table = None
@@ -395,6 +481,10 @@ if __name__ == '__main__':
 			user = arg
 		elif opt in ("-p", "--passwd"):
 			passwd = arg
+		elif opt in ("-e", ):
+			experimenter = arg
+		elif opt in ("-m", ):
+			mapping_file = arg
 		elif opt in ("-i",):
 			input_dir = arg
 		elif opt in ("-o",):
@@ -410,7 +500,8 @@ if __name__ == '__main__':
 		elif opt in ("-r", "--report"):
 			report = 1
 	
-	instance = Array2DB_250k(hostname=hostname, dbname=dbname, user=user, passwd=passwd, input_dir=input_dir, output_dir=output_dir,
-					array_info_table=array_info_table, \
-					commit=commit, debug=debug, report=report)
+	instance = Array2DB_250k(hostname=hostname, dbname=dbname, user=user, passwd=passwd, experimenter=experimenter, \
+							mapping_file=mapping_file, input_dir=input_dir, output_dir=output_dir,
+							array_info_table=array_info_table, \
+							commit=commit, debug=debug, report=report)
 	instance.run()
