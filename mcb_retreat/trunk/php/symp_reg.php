@@ -188,7 +188,7 @@ if ($_POST['_submit_check'])
       </tr>
       <tr>
         <td height="33">&nbsp;</td>
-        <td colspan="2" align="left"><strong><span class="style3">OR</span> Abstract File (doc, pdf, txt or rtf): </strong></td>
+        <td colspan="2" align="left"><strong><span class="style3">OR</span> Abstract File: </strong></td>
         <td align="left"> <input TYPE="FILE" NAME="abs_file" SIZE="55"></td>
         <td>&nbsp;</td>
       </tr>
