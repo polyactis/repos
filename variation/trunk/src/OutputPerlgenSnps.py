@@ -15,7 +15,7 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	OutputPerlgenSNPs.py -o /tmp/phenotype.tsv
+	OutputPerlgenSNPs.py -o /tmp/perlgen.csv
 	
 Description:
 	Output Perlgen SNPs data, in a csv format (or with another deliminator separated format).
@@ -50,6 +50,7 @@ def _run_():
 	useAccessionName = False
 	debug = None
 	report = None
+	help = 0
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -74,12 +75,20 @@ def _run_():
 		elif opt in ("-r", "--report"):
 			report = 1
 	
+
+	if not output_fname:
+		output_fname
+		if help==0:
+			print "Output file missing!!\n"
+			print __doc__
+		sys.exit(2)
+
 	import dataParsers
 	snpsds = dataParsers.getPerlgenDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], user=user, passwd=passwd)
 	
 	accDecoder=None
 	if useAccessionName:
-		accDecoder = dataParsers.accessionId2Name
+		accDecoder = dataParsers.ecotypeId2Name
 	import snpsdata
 	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, accDecoder=accDecoder)
 

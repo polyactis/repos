@@ -14,13 +14,128 @@ resultsdir = ""
 
 
 
-
+# A couple of useful dictionaries:
 accessionName2Id = {'Ms-0': 92, 'Mt-0': 79, 'HR-10': 34, 'Knox-18': 4, 'Spr1-6': 20, 'Knox-10': 3, 'Spr1-2': 19, 'Nok-3': 80, 'Wa-1': 81, 'RRS-10': 2, 'C24': 57, 'Wt-5': 74, 'Ra-0': 69, 'Gu-0': 54, 'Mz-0': 73, 'Tsu-1': 78, 'Fei-0': 82, 'Bur-0': 93, 'Omo2-3': 22, 'Pu2-23': 30, 'Rmx-A180': 6, 'Kondara': 88, 'Tamm-2': 41, 'CS22491': 58, 'Zdr-6': 26, 'Ren-11': 48, 'Zdr-1': 25, 'Ren-1': 47, 'Ler-1': 55, 'Fab-2': 13, 'Yo-0': 61, 'Wei-0': 59, 'Got-7': 45, 'Tamm-27': 42, 'Kas-2': 75, 'Ts-5': 85, 'Ts-1': 84, 'Pu2-7': 29, 'Mr-0': 77, 'Ei-2': 53, 'Mrk-0': 72, 'Lz-0': 52, 'Bil-7': 16, 'Bil-5': 15, 'Sq-8': 38, 'Fab-4': 14, 'Sq-1': 37, 'Omo2-1': 21, 'Var2-1': 17, 'Var2-6': 18, 'Shahdara': 89, 'Uod-7': 50, 'Uod-1': 49, 'Lov-5': 12, 'Lov-1': 11, 'Gy-0': 68, 'Col-0': 62, 'Kin-0': 91, 'NFA-8': 35, 'Nd-1': 56, 'Got-22': 46, 'Br-0': 65, 'HR-5': 33, 'Ull2-3': 24, 'Ull2-5': 23, 'Est-1': 66, 'CIBC-17': 40, 'Ct-1': 76, 'Cvi-0': 51, 'Oy-0': 95, 'LL-0': 87, 'Bor-4': 28, 'Bor-1': 27, 'Pna-10': 8, 'Pna-17': 7, 'Ga-0': 71, 'Bay-0': 70, 'Eden-2': 10, 'Eden-1': 9, 'Pro-0': 86, 'Kz-1': 43, 'RRS-7': 1, 'Kz-9': 44, 'Edi-0': 94, 'An-1': 63, 'CIBC-5': 39, 'Ws-0': 60, 'Ws-2': 96, 'Van-0': 64, 'Rmx-A02': 5, 'Se-0': 83, 'Lp2-2': 31, 'Lp2-6': 32, 'NFA-10': 36, 'Ag-0': 67, 'Sorbo': 90}
 
 accessionId2Name = {1: 'RRS-7', 2: 'RRS-10', 3: 'Knox-10', 4: 'Knox-18', 5: 'Rmx-A02', 6: 'Rmx-A180', 7: 'Pna-17', 8: 'Pna-10', 9: 'Eden-1', 10: 'Eden-2', 11: 'Lov-1', 12: 'Lov-5', 13: 'Fab-2', 14: 'Fab-4', 15: 'Bil-5', 16: 'Bil-7', 17: 'Var2-1', 18: 'Var2-6', 19: 'Spr1-2', 20: 'Spr1-6', 21: 'Omo2-1', 22: 'Omo2-3', 23: 'Ull2-5', 24: 'Ull2-3', 25: 'Zdr-1', 26: 'Zdr-6', 27: 'Bor-1', 28: 'Bor-4', 29: 'Pu2-7', 30: 'Pu2-23', 31: 'Lp2-2', 32: 'Lp2-6', 33: 'HR-5', 34: 'HR-10', 35: 'NFA-8', 36: 'NFA-10', 37: 'Sq-1', 38: 'Sq-8', 39: 'CIBC-5', 40: 'CIBC-17', 41: 'Tamm-2', 42: 'Tamm-27', 43: 'Kz-1', 44: 'Kz-9', 45: 'Got-7', 46: 'Got-22', 47: 'Ren-1', 48: 'Ren-11', 49: 'Uod-1', 50: 'Uod-7', 51: 'Cvi-0', 52: 'Lz-0', 53: 'Ei-2', 54: 'Gu-0', 55: 'Ler-1', 56: 'Nd-1', 57: 'C24', 58: 'CS22491', 59: 'Wei-0', 60: 'Ws-0', 61: 'Yo-0', 62: 'Col-0', 63: 'An-1', 64: 'Van-0', 65: 'Br-0', 66: 'Est-1', 67: 'Ag-0', 68: 'Gy-0', 69: 'Ra-0', 70: 'Bay-0', 71: 'Ga-0', 72: 'Mrk-0', 73: 'Mz-0', 74: 'Wt-5', 75: 'Kas-2', 76: 'Ct-1', 77: 'Mr-0', 78: 'Tsu-1', 79: 'Mt-0', 80: 'Nok-3', 81: 'Wa-1', 82: 'Fei-0', 83: 'Se-0', 84: 'Ts-1', 85: 'Ts-5', 86: 'Pro-0', 87: 'LL-0', 88: 'Kondara', 89: 'Shahdara', 90: 'Sorbo', 91: 'Kin-0', 92: 'Ms-0', 93: 'Bur-0', 94: 'Edi-0', 95: 'Oy-0', 96: 'Ws-2'}
 
 
-def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", dataVersion="3", user = None,passwd = None):
+ecotypeId2Name = {'8251': 'Ag-0', '8253': 'An-1', '8385': 'Sq-8', '8384': 'Sq-1', '8383': 'Spr1-6', '8382': 'Spr1-2', '8381': 'Sorbo', '8429': 'CS22491', '8302': 'Gy-0', '8301': 'Gu-0', '8309': 'HR-5', '8308': 'HR-10', '6009': 'Eden-1', '8332': 'Lp2-2', '8333': 'Lp2-6', '8336': 'Lz-0', '8338': 'Mr-0', '8339': 'Mrk-0', '8349': 'Omo2-1', '8328': 'LL-0', '8342': 'Mz-0', '8324': 'Ler-1', '8320': 'Kz-1', '8322': 'Kz-9', '8358': 'Pna-10', '8359': 'Pna-17', '8280': 'Ct-1', '8281': 'Cvi-0', '8350': 'Omo2-3', '8352': 'Oy-0', '8288': 'Edi-0', '8289': 'Ei-2', '8287': 'Eden-2', '8316': 'Kin-0', '8291': 'Est-1', '8293': 'Fab-4', '8292': 'Fab-2', '8295': 'Ga-0', '8294': 'Fei-0', '8299': 'Got-7', '8298': 'Got-22', '8341': 'Mt-0', '8340': 'Ms-0', '8347': 'Nok-3', '8346': 'NFA-8', '8345': 'NFA-10', '8344': 'Nd-1', '6043': 'Lov-1', '6046': 'Lov-5', '8372': 'RRS-10', '8373': 'RRS-7', '8370': 'Rmx-A02', '8371': 'Rmx-A180', '8379': 'Se-0', '8268': 'Bor-4', '8269': 'Br-0', '8260': 'Bay-0', '8262': 'Bil-5', '8263': 'Bil-7', '8409': 'Zdr-1', '8361': 'Pu2-23', '8360': 'Pro-0', '8362': 'Pu2-7', '8364': 'Ra-0', '8367': 'Ren-1', '8368': 'Ren-11', '8408': 'Yo-0', '8400': 'Van-0', '8279': 'Col-0', '8401': 'Var2-1', '8277': 'CIBC-5', '8276': 'CIBC-17', '8402': 'Var2-6', '8403': 'Wa-1', '8273': 'C24', '8272': 'Bur-0', '8406': 'Ws-2', '8407': 'Wt-5', '8404': 'Wei-0', '8405': 'Ws-0', '8398': 'Uod-1', '8399': 'Uod-7', '8394': 'Tsu-1', '8396': 'Ull2-3', '8397': 'Ull2-5', '8390': 'Tamm-2', '8391': 'Tamm-27', '8392': 'Ts-1', '8393': 'Ts-5', '8315': 'Kas-2', '8248': 'Shahdara', '8317': 'Knox-10', '8410': 'Zdr-6', '8318': 'Knox-18', '8319': 'Kondara', '5837': 'Bor-1'}
+
+accessionName2EcotypeId = {'Ms-0': '8340', 'Mt-0': '8341', 'HR-10': '8308', 'Knox-18': '8318', 'Spr1-6': '8383', 'Knox-10': '8317', 'Spr1-2': '8382', 'Nok-3': '8347', 'Wa-1': '8403', 'RRS-10': '8372', 'C24': '8273', 'Wt-5': '8407', 'Ra-0': '8364', 'Gu-0': '8301', 'Mz-0': '8342', 'Tsu-1': '8394', 'Fei-0': '8294', 'Bur-0': '8272', 'Omo2-3': '8350', 'Pu2-23': '8361', 'Rmx-A180': '8371', 'Kondara': '8319', 'Tamm-2': '8390', 'CS22491': '8429', 'Zdr-6': '8410', 'Ren-11': '8368', 'Zdr-1': '8409', 'Ren-1': '8367', 'Ler-1': '8324', 'Fab-2': '8292', 'Yo-0': '8408', 'Wei-0': '8404', 'Got-7': '8299', 'Tamm-27': '8391', 'Kas-2': '8315', 'Ts-5': '8393', 'Ts-1': '8392', 'Pu2-7': '8362', 'Mr-0': '8338', 'Ei-2': '8289', 'Mrk-0': '8339', 'Lz-0': '8336', 'Bil-7': '8263', 'Bil-5': '8262', 'Sq-8': '8385', 'Fab-4': '8293', 'Sq-1': '8384', 'Omo2-1': '8349', 'Var2-1': '8401', 'Var2-6': '8402', 'Shahdara': '8248', 'Uod-7': '8399', 'Uod-1': '8398', 'Lov-5': '6046', 'Lov-1': '6043', 'Gy-0': '8302', 'Col-0': '8279', 'Kin-0': '8316', 'NFA-8': '8346', 'Nd-1': '8344', 'Got-22': '8298', 'Br-0': '8269', 'HR-5': '8309', 'Ull2-3': '8396', 'Ull2-5': '8397', 'Est-1': '8291', 'CIBC-17': '8276', 'Ct-1': '8280', 'Cvi-0': '8281', 'Oy-0': '8352', 'LL-0': '8328', 'Bor-4': '8268', 'Bor-1': '5837', 'Pna-10': '8358', 'Pna-17': '8359', 'Ga-0': '8295', 'Bay-0': '8260', 'Eden-2': '8287', 'Eden-1': '6009', 'Pro-0': '8360', 'Kz-1': '8320', 'RRS-7': '8373', 'Kz-9': '8322', 'Edi-0': '8288', 'An-1': '8253', 'CIBC-5': '8277', 'Ws-0': '8405', 'Ws-2': '8406', 'Van-0': '8400', 'Rmx-A02': '8370', 'Se-0': '8379', 'Lp2-2': '8332', 'Lp2-6': '8333', 'NFA-10': '8345', 'Ag-0': '8251', 'Sorbo': '8381'}
+
+
+
+def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stock_250k", withArrayIds=False, methodId=None, user = None, passwd = None):  #REMEMBER TO IMPLEMENT methodId
+    """
+    Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
+    
+    withArrayInfo: if True, then a row of array used to genotype is added before the accession row.
+    
+    methodId: Specify the (base-calling/imputation) method.
+
+    """
+    rt = time.time()
+    decoder = RawDecoder()  #Other unused informative letters are ['R','Y','S','M','K','W']!!
+    
+    print "Connecting to db, host="+host
+    if not user:
+        import sys
+        sys.stdout.write("Username: ")
+        user = sys.stdin.readline().rstrip()
+    if not passwd:
+        import getpass
+        passwd = getpass.getpass()
+    try:
+        conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = db)
+    except MySQLdb.Error, e:
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        sys.exit (1)
+    cursor = conn.cursor ()
+    #Get distinct accessions and their id.
+    #Generate an internal dictionary using their id.
+    print "Fetching data"
+    numRows = int(cursor.execute("select distinct ai.maternal_ecotype_id, ai.paternal_ecotype_id, ci.filename, ai.id from call_info ci, array_info ai where ci.array_id=ai.id order by ai.id"))
+
+    dict = {}
+    accessions = []
+    arrayIds = []
+    dataFiles = []
+    i = 0
+    while(1):
+        row = cursor.fetchone()
+        if not row:
+            break;
+        if int(row[0])==int(row[1]):
+            accession = str(int(row[0]))
+        else:
+            accession = str(int(row[0]))+"_"+str(int(row[1]))
+        dict[accession]=i
+        accessions.append(accession)
+        dataFiles.append(row[2])
+        arrayIds.append(str(int(row[3])))
+        i = i+1    
+
+    f = open(dataFiles[0],"r")
+    lines = f.readlines()
+    f.close()
+    numSnps = len(lines)
+
+    line = lines[1].split()
+    
+    
+    linesList = []
+    for i in range(0,len(accessions)): #Checking files
+        f = open(dataFiles[i],"r")
+        newLines = f.readlines()
+        f.close()
+        if len(newLines)!=numSnps:
+            raise Exception("Data files are not equal in length.")
+        linesList.append(newLines)
+
+    chromosomes = []
+    positionsList = []
+    snpsList = []
+    i = 1
+    
+    newChr = int(line[0].split("_")[0])
+    while i < len(lines):
+        chromosomes.append(int(newChr))
+        oldChr = newChr
+        positions = []
+        snps =[]
+        while i < len(lines) and newChr == oldChr:
+            line = lines[i].split()
+            chrPos = line[0].split("_")
+            oldChr = int(chrPos[0])
+            positions.append(int(chrPos[1]))
+            snp = []
+            for j in range(0,len(accessions)):
+                l = linesList[j][i].split() 
+                snp.append(l[1].rstrip())
+            snps.append(snp)
+            i += 1
+            if i < len(lines):
+                line = lines[i].split()
+                newChr = int(line[0].split("_")[0])
+            else:
+                break
+        
+        print "Fetched ",i,"SNPs of",len(lines)
+        positionsList.append(positions)
+        snpsList.append(snps)
+
+    snpsds = []
+    for i in chromosomes:
+        snpsds.append(RawSnpsData(snpsList[i-1], positionsList[i-1], accessions=accessions, arrayIds=arrayIds))
+    dif = int(time.time() - rt)
+    print "It took "+str(dif/60)+" min. and "+str(dif%60)+" sec. to fetch data."
+    return snpsds
+
+  
+
+
+def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", dataVersion="3", only96accessions=False, user = None,passwd = None):
     """
     Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
 
@@ -28,10 +143,10 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
     rt = time.time()
     decoder = RawDecoder()  #Other unused informative letters are ['R','Y','S','M','K','W']:
     
-    print "Connecting to db."
+    print "Connecting to db, host="+host
     if not user:
         import sys
-        print "Username:"
+        sys.stdout.write("Username: ")
         user = sys.stdin.readline().rstrip()
     if not passwd:
         import getpass
@@ -44,7 +159,11 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
     cursor = conn.cursor ()
         #Get distinct accessions and their id.
         #Generate an internal dictionary using their id.
-    numRows = int(cursor.execute("select distinct g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id<97 order by acc.name"))
+    #numRows = int(cursor.execute("select distinct e2a.ecotype_id, g.accession, acc.name from at.ecotype2accession_all e2a, at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id = e2a.accession_id and acc.id<97 order by acc.name"))
+    if only96accessions:
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome=1 order by acc.name"))
+    else:
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome=1 order by acc.name"))
 
     dict = {}
     accessions = []
@@ -53,16 +172,20 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
         row = cursor.fetchone()
         if not row:
             break;
-        dict[int(row[0])]=i
-        accessions.append(int(row[0]))
+        dict[int(row[1])]=i
+        accessions.append(str(int(row[0])))
         i = i+1
 
+    print len(accessions)," accessions found."
 
-    print "Fetching 2010 data:"
+    print "Fetching 2010 data (version "+dataVersion+"):"
     snpsds=[]
     for chromosome in chromosomes:
         print "    Chromosome",chromosome
-        numRows = int(cursor.execute("select distinct l.position, g.accession, acc.name, al.base from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version=3 and l.offset=0 and g.accession=acc.id and acc.id<97 and l.chromosome="+str(chromosome)+" order by l.position, acc.name"))
+        if only96accessions:
+            numRows = int(cursor.execute("select distinct l.position, g.accession, acc.name, al.base from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome="+str(chromosome)+" order by l.position, acc.name"))
+        else:
+            numRows = int(cursor.execute("select distinct l.position, g.accession, acc.name, al.base from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome="+str(chromosome)+" order by l.position, acc.name"))
         print "    ",numRows,"rows retrieved."
         positions = []
         snps = []
@@ -74,7 +197,7 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
                     break;
                 positions.append(newPosition)
                 oldPosition = newPosition
-                snp = ['NA']*96  #Initialize to missing data.
+                snp = ['NA']*len(accessions)  #Initialize to missing data.
                 while(oldPosition==newPosition):
                     snp[dict[int(row[1])]]=decoder[row[3]]
                     row = cursor.fetchone()
@@ -112,10 +235,10 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     
 
     decoder = {'N':'NA','A':'A','C':'C','G':'G','T':'T'} 
-    print "Connecting to db."
+    print "Connecting to db, host="+host
     if not user:
         import sys
-        print "Username:"
+        sys.stdout.write("Username: ")
         user = sys.stdin.readline().rstrip()
     if not passwd:
         import getpass
@@ -136,7 +259,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
         if not row:
             break;
         dict[row[0]]=i
-        accessions.append(accessionName2Id[perlgenTo2010[row[0]]])
+        accessions.append(accessionName2EcotypeId[perlgenTo2010[row[0]]])
         i = i+1
 
     print "Fetching Perlgen data:"
@@ -171,6 +294,76 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     dif = int(time.time() - rt)
     print "It took "+str(dif/60)+" min. and "+str(dif%60)+" sec. to fetch data."
     return snpsds
+
+
+def parseCSVData(datafile=None, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
+    """
+    Parses raw CSV SNPs data files into a RawSnpsData.
+
+    format=1: the function return a RawSnpsData object list
+    format=0: the function return a SnpsData object list
+    """
+    decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T'}
+    
+    positions = [] #list[chr][position_index]
+    genotypes = [] #list[chr][position_index][acces]
+    accessions = []
+    
+    #Reading column data
+    f = open(datafile, 'r')
+    lines = f.readlines()
+    f.close()
+        
+    chromosomes = []
+    positionsList = []
+    snpsList = []
+    accessions = []
+    arrayIds = None
+    i=0
+    if withArrayIds:
+        line = lines[i].split(deliminator)
+        arrayIds = []
+        for arrayId in line[2:]:
+            arrayIds.append(arrayId.rstrip())
+        i += 1
+    line = lines[i].split(deliminator)
+    for acc in line[2:]:
+        accessions.append(acc.rstrip())
+    i += 1
+    line = lines[i].split(deliminator)
+    newChr = line[0]
+    while i < len(lines):
+        chromosomes.append(int(newChr))
+        oldChr = newChr
+        positions = []
+        snps =[]
+        while i < len(lines) and newChr == oldChr:
+            line = lines[i].split(deliminator)
+            oldChr = int(line[0])
+            positions.append(int(line[1]))
+            snp = []
+            for nt in line[2:]:
+                snp.append(decoder[nt.rstrip()])
+            snps.append(snp)
+            i += 1
+            if i < len(lines):
+                line = lines[i].split(deliminator)
+                newChr = int(line[0])
+            else:
+                break
+        
+        print i, len(lines)
+        positionsList.append(positions)
+        snpsList.append(snps)
+
+    snpsds = []
+    for i in range(0,len(chromosomes)):
+        snpsds.append(RawSnpsData(snpsList[i],positionsList[i],accessions=accessions,arrayIds=arrayIds))
+    if format==0:
+        for i in range(0,len(chromosomes)):
+            snpsds[i] = snpsds[i].getSnpsData()
+    return(snpsds)
+
 
 def parse2010Data(datafile=None):
     """
@@ -482,10 +675,6 @@ def parse250KDataFiles(imputed = True):
 
 
 
-def parseRawDataFile(filename):
-    f = open(filename, 'r')
-    lines = f.readlines()
-    f.close()
 
 
 """
@@ -500,7 +689,7 @@ def parseDataFile(filename, missingDataLimit = 0, filterProb=1):
     num = len(accessions)	
     decoder	= {'N':-1}
     i =1
-    while i	< len(lines) and lines[i][0].isdigit():
+    while i < len(lines) and lines[i][0].isdigit():
         if random.random()<=filterProb:
             line = (lines[i].rstrip()).split()
             snp = line[1:num+1]
@@ -883,5 +1072,14 @@ def _testDBParser_():
     """
 
 if __name__ == "__main__":
-    pass
+
+    snpsds = get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", dataVersion="3", user = "bvilhjal",passwd = "bamboo123")
+    print len(snpsds)
+    for i in range(0,len(snpsds)):
+        print len(snpsds[i].snps)
+
+    
+    #get250KDataFromDb(user="bvilhjal", passwd="bamboo123")
+    
+    #pass
     #_testDBParser_()

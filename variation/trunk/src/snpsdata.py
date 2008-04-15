@@ -11,17 +11,16 @@ class _SnpsData_:
     An abstract superclass.
     """
     accessions = [] #list[accession_index]
+    arrayIds = None #list[accession_index]
     snps = []  #list[position_index][accession_index]
     positions = [] #list[position_index]
-    freqs = [] #list[position_index1][position_index2-position_index1+1] Linkage frequencies. 
-    baseScale = 1 #Scaling for positions
-    def __init__(self,snps,positions,baseScale=None,accessions=None):
+    def __init__(self,snps,positions,baseScale=None,accessions=None,arrayIds=None):
         self.snps = snps
         self.positions = positions
-        if baseScale:
-            self.scalePositions(baseScale)
         if accessions: 
             self.accessions=accessions
+        if arrayIds: 
+            self.arrayIds=arrayIds
 
     def scalePositions(self,baseScale):
         for i in range(0,len(self.positions)):
@@ -51,11 +50,13 @@ class RawSnpsData(_SnpsData_):
 
     """
     
-    def writeToFile(self,filename,chromosome):
+    def writeToFile(self,filename,chromosome, withArrayId=False):
         """
         Writes data to a file.  1 file for each chromosome.
+
+        WARNING OLD, outdated!
         """
-        outStr = "NumSnps: "+str(len(self.positions))+", NumAcc: "+str(len(self.accessions))+"\n"
+        outStr = ""
         fieldStrings = ["Chromosome", "Positions"]
         for acc in self.accessions:
             fieldStrings.append(str(acc))
@@ -67,27 +68,67 @@ class RawSnpsData(_SnpsData_):
         f.close()
 
 
-    def mergeData(self,snpsd):
+    def mergeData(self,snpsd, multIdenticalAcc=False):
         """
         Merges two RawSnpsData objects.
 
-        If snps disagree, then the snps from the object called from is used.
+        If snps disagree, then the snps from the object called from is used.        
         """
         print "Merging datas"
         print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
 	# Find common accession indices
         accessionsIndices = []
-        commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
-        allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
-        for i in range(0,len(allAccessions)):
-            acc = allAccessions[i]
-            index1 = -1
-            index2 = -1
-            if self.accessions.count(acc):
-                index1 = self.accessions.index(acc)
-            if snpsd.accessions.count(acc):
-                index2 = snpsd.accessions.index(acc)
-            accessionsIndices.append([i,index1,index2])
+        commonAccessions = []
+        allAccessions = []
+        if not multIdenticalAcc:            
+            commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
+            allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
+            for i in range(0,len(allAccessions)):
+                acc = allAccessions[i]
+                index1 = -1
+                index2 = -1
+                if self.accessions.count(acc):
+                    index1 = self.accessions.index(acc)
+                if snpsd.accessions.count(acc):
+                    index2 = snpsd.accessions.index(acc)
+                accessionsIndices.append([i,index1,index2])
+        else:
+            i = 0
+            for j in range(0,len(self.accessions)):
+                acc1 = self.accessions[j]
+                count = 0
+                for k in range(0,len(snpsd.accessions)):
+                    acc2 = snpsd.accessions[k]
+                    if acc1==acc2:
+                        count += 1
+                        accessionsIndices.append([i,j,k])
+                        acc = acc1
+                        if count >1:
+                            acc = acc1+"_"+str(count)
+                        commonAccessions.append(acc)
+                        allAccessions.append(acc)
+                        i += 1
+
+            for j in range(0,len(self.accessions)):
+                acc = self.accessions[j]
+                if not acc in snpsd.accessions:
+                    allAccessions.append(acc)
+                    accessionsIndices.append([i,j,-1])
+                    i += 1
+
+            for j in range(0,len(snpsd.accessions)):
+                acc = snpsd.accessions[j]
+                if not acc in self.accessions:
+                    allAccessions.append(acc)
+                    accessionsIndices.append([i,-1,j])                        
+                    i += 1
+
+        print "Common accessions:", len(commonAccessions)
+        print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
+        print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
+        print "All accessions:",len(allAccessions)
+        print snpsd.accessions
+        print len(snpsd.accessions), len(list(set(snpsd.accessions)))
             
         commonSnpsPos = []
         snpErrorRate = []
@@ -183,34 +224,48 @@ class RawSnpsData(_SnpsData_):
         print "Number of SNPs in merged data:",len(newPositions)
         print "Number of SNPs in merged data:",len(newSnpsd.snps)
         print "Number of accessions in merged data:",len(newSnpsd.accessions)
-
         return newSnpsd
 
 
 
-        
-        
+    def compareWith(self,snpsd, withArrayIds=0):
+        """
+        This function performs QC on two datasets.
 
-    def compareWith(self,snpsd):
-        """Requires accessions to be defined."""
+        Requires accessions to be defined.
+
+        withArrayIds = 0 (no array IDs), =1 the object called from has array IDs, =2 both objects have array IDs 
+        """
         print "Comparing datas"
         print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
 	# Find common accession indices
         accessionsIndices = []
         accessionErrorRate = []
+        accessionCallRates = [[],[]]
         accessionCounts = []
         commonAccessions = []
+        arrayIds = []
         for i in range(0,len(self.accessions)):
             acc = self.accessions[i]
             if snpsd.accessions.count(acc):
-                accessionsIndices.append([i,snpsd.accessions.index(acc)])
+                j = snpsd.accessions.index(acc)
+                accessionsIndices.append([i,j])
                 accessionErrorRate.append(0)
                 accessionCounts.append(0)
+                accessionCallRates[0].append(0)
+                accessionCallRates[1].append(0)
                 commonAccessions.append(acc)
+                if withArrayIds>0:
+                    if withArrayIds==1:
+                        aId = self.arrayIds[i]
+                    elif withArrayIds==2:
+                        aId = (self.arrayIds[i], snpsd.arrayIds[j])
+                    arrayIds.append(aId)                
 
 
         commonSnpsPos = []
         snpErrorRate = []
+        snpCallRate = [[],[]]
         goodSnpsCounts = []
         i = 0
         j = 0
@@ -227,6 +282,8 @@ class RawSnpsData(_SnpsData_):
                 commonSnpsPos.append(pos1)
                 fails = 0
                 counts = 0
+                missing1 = 0
+                missing2 = 0
                 for k in range(0,len(accessionsIndices)):
                     accIndices = accessionsIndices[k]
                     snp1 = self.snps[i][accIndices[0]]
@@ -237,11 +294,19 @@ class RawSnpsData(_SnpsData_):
                         if snp1!=snp2:
                             fails = fails+1
                             accessionErrorRate[k] += 1
+                    elif snp1=='NA':
+                        accessionCallRates[0][k]+=1
+                        missing1 += 1
+                    elif snp2=='NA':
+                        accessionCallRates[1][k]+=1
+                        missing2 += 1
                 goodSnpsCounts.append(counts)
                 error = 0
                 if counts>0:
                     error = float(fails)/float(counts)
-                snpErrorRate.append(error)                                        
+                snpErrorRate.append(error) 
+                snpCallRate[0].append(missing1/float(len(accessionsIndices)))                                       
+                snpCallRate[1].append(missing2/float(len(accessionsIndices)))                                       
                 i = i+1
                 j = j+1
             else: 
@@ -252,6 +317,9 @@ class RawSnpsData(_SnpsData_):
         for i in range(0,len(accessionErrorRate)):
             if accessionCounts[i]>0:
                 accessionErrorRate[i] = accessionErrorRate[i]/float(accessionCounts[i])
+            accessionCallRates[0][i] = accessionCallRates[0][i]/float(len(commonSnpsPos))
+            accessionCallRates[1][i] = accessionCallRates[1][i]/float(len(commonSnpsPos))
+
         print "In all",len(snpErrorRate),"common snps found"
         print "In all",len(commonAccessions),"common accessions found"
         print "Common accessions IDs :",commonAccessions
@@ -261,13 +329,125 @@ class RawSnpsData(_SnpsData_):
         print "SNP error rates",snpErrorRate
         print "Average Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
 
-        return snpErrorRate
+        return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate]
 
 
+    def getSnpsData(self):
+        """
+        Returns a SnpsData object correspoding to this RawSnpsData object.
+
+        Note that some of the SnpsData attributes are a shallow copy of the RawSnpsData obj.
+        """
+        decoder = {'NA':-1}
+        snps = []
+        for i in range(0,len(self.snps)):
+            k = 0
+            for nt in ['A','C','G','T']:
+                if nt in self.snps[i]:
+                    decoder[nt]=k
+                    k = k+1
+            snp = []
+            for nt in self.snps[i]:
+                snp.append(decoder[nt])
+            snps.append(snp)
+
+        accessions = self.accessions
+        positions = self.positions
+        baseScale = self.baseScale
+        return SnpsData(snps,positions,baseScale=baseScale,accessions=accessions)
+
+
+    def filterMissingSnps(self,maxNumMissing=0):
+        """
+        Removes SNPs from the data which have more than maxNumMissing missing values.
+        """
+        newPositions = []
+        newSnps = []
+        for i in range(0,len(self.positions)):
+            missingCount = 0
+            for nt in self.snps[i]:
+                if nt =='NA':
+                    missingCount += 1
+            if missingCount<=maxNumMissing:
+                newSnps.append(self.snps[i])
+                newPositions.append(self.positions[i])
+        numRemoved = len(self.positions)-len(newPositions)
+        self.snps = newSnps
+        self.positions = newPositions
+        return numRemoved
+
+    def filterMonoMorphicSnps(self):
+        """
+        Removes SNPs from the data which are monomorphic.
+        """
+        newPositions = []
+        newSnps = []
+        for i in range(0,len(self.positions)):
+            count = 0
+            for nt in ['A','C','G','T']:
+                if nt in self.snps[i]:
+                    count += 1
+            if count>1:
+                newSnps.append(self.snps[i])
+                newPositions.append(self.positions[i])
+        numRemoved = len(self.positions)-len(newPositions)
+        self.snps = newSnps
+        self.positions = newPositions
+        return numRemoved
+
+    def removeAccession(self,accession):
+        """
+        Removes an accession from the data.
+        """
+        pass
+
+
+    def mergeIdenticalAccessions(self,accessionIndexList, priority):
+        """
+        The priority argument gives particular accessions in the list priority
+        if priority is set to 0, then majority (if any) rules.
+        """
+        pass
+
+
+    def filterMissingAccessions(self,maxMissingFraction=0.8):
+        """
+        Removes Accessions from the data which have are monomorphic.
+        """
+        pass
+
+
+    def getStatString(self):
+        st = "Number of accessions: "+str(len(self.accessions))+"\n"
+        st += "Number of SNPs: "+str(len(self.snps))+"\n"
+        uniqueAccessions = list(set(self.accessions))
+        if len(uniqueAccessions)<len(self.accessions):
+            st += "Not all accessions are unique. \n"+"Number of unique accessions: "+str(len(uniqueAccessions))+"\n"
+            for acc in uniqueAccessions:
+                count = self.accessions.count(acc)
+                if count>1:
+                    st += acc+" has "+str(count)+" occurrences.\n\n"
+        return st
+
+ 
 class SnpsData(_SnpsData_):
     """
+    A class for SNPs data.  It uses 0, 1 (and 2, 3 if there are more than 2 alleles) to represent SNPs.  
+    -1 is used if the allele data is missing.
+
+    Contains various functions that aid the analysis of the data.
     """
-		
+    freqs = [] #list[position_index1][position_index2-position_index1+1] Linkage frequencies. 
+    baseScale = 1 #Scaling for positions
+    def __init__(self,snps,positions,baseScale=None,accessions=None):
+        self.snps = snps
+        self.positions = positions
+        if baseScale:
+            self.scalePositions(baseScale)
+        if accessions: 
+            self.accessions=accessions
+
+
     def calcFreqs(self,windowSize, innerWindowSize = 0): # Returns a list of two loci comparison frequencies with in a window.
         freqs =	[]
         delta =0
@@ -518,7 +698,7 @@ class SnpsData(_SnpsData_):
         return [ehh,ehhcount]
 
 
-def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None):
+def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False):
     """
     Writes data to a file. 
     """
@@ -538,6 +718,10 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
     decoder['NA']=missingVal
 
     #outStr = "NumSnps: "+str(numSnps)+", NumAcc: "+str(len(accessions))+"\n"
+    if withArrayIds:
+        outStr = "-, -, "+", ".join(snpsds[0].arrayIds)+"\n"
+    else:
+        outStr = ""
     fieldStrings = ["Chromosome", "Positions"]
     if accDecoder:
         for acc in snpsds[i].accessions:
@@ -545,7 +729,7 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
     else:
         for acc in snpsds[i].accessions:
             fieldStrings.append(str(acc))
-    outStr = deliminator.join(fieldStrings)+"\n"
+    outStr += deliminator.join(fieldStrings)+"\n"
     for i in range(0,len(chromosomes)):
         for j in range(0,len(snpsds[i].positions)):
             outStr += str(chromosomes[i])+deliminator+str(snpsds[i].positions[j])
