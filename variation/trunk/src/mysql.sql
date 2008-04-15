@@ -243,7 +243,38 @@ create table phenotype_p(
 	FLC  float,
 	FRI  float);
 
+--2008-04-14 add auto-updated created, modified, created_by, modified_by columns to at.phenotype
+use at;
 
+alter table phenotype add created_by varchar(200)  AFTER modified;
+
+alter table phenotype add modified_by varchar(200) AFTER created_by;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_phenotype BEFORE INSERT ON phenotype
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+        if NEW.created is null then
+               set NEW.created = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_phentoype BEFORE UPDATE ON phenotype
+  FOR EACH ROW BEGIN
+        if NEW.modified_by is null then
+                set NEW.modified_by = USER();
+        end if;
+        if NEW.modified=0 then
+                set NEW.modified = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
 
 
 --2008-02-18 database for 250k
