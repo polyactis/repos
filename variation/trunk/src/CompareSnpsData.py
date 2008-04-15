@@ -102,10 +102,13 @@ def _run_():
 	accErrorRate = [0]*len(res[0][2])
 	
 
-
-	for r in res:
+	rstr = "par(mfrow=c(5,1));\n"
+	snpsErrorRate = []
+	for i in range(0,len(res)):
+		r = res[i]
+		snpsErrorRate +=r[1]
 		totalCommonPos += len(r[0])
-		print rfun.plotOverlayingVectors(r[0],[r[1],r[7][0]],xlab="Position",ylab="Error rate",type="b")
+		rstr += rfun.plotOverlayingVectors(r[0],[r[1],r[7][0]],xlab="Position, chr. "+str(i+1),ylab="Error (red)/Missing (green) rate",type="b")+"\n\n"
 		#print rfun.plotVectors(r[0],[r[1]],xlab="Position",ylab="Error rate",type="b")
 		#print rfun.plotVectors(r[0],[r[7][0]],xlab="Position",ylab="Missing rate",type="b")
 		for i in range(0,len(r[2])):
@@ -113,6 +116,11 @@ def _run_():
 			accCallRate[0][i]+=r[4][0][i]*float(len(r[0]))
 			accCallRate[1][i]+=r[4][1][i]*float(len(r[0]))
 			accErrorRate[i]+=r[3][i]*float(r[6][i])
+	
+        print "In all",len(res[0][2]),"common accessions found"
+        print "In all",totalCommonPos,"common snps found"
+	print "Average Snp Error:",sum(snpsErrorRate)/float(len(snpsErrorRate))
+
 
 
 	for i in range(0,len(r[2])):
@@ -120,17 +128,41 @@ def _run_():
 		accCallRate[1][i]=accCallRate[1][i]/totalCommonPos
 		accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
 
+	accErrAndID = []
+	accMissAndID = [[],[]]
+	for i in range(0,len(r[2])):
+		accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
+       		accMissAndID[0].append((accCallRate[0][i], r[2][i], r[5][i]))
+       		accMissAndID[1].append((accCallRate[1][i], r[2][i], r[5][i]))
+	accErrAndID.sort(reverse=True)
+        print "Sorted list, based on error rates: ",accErrAndID,'\n'
+        accMissAndID[0].sort(reverse=True)
+        print "Sorted list, based on missing rates (1st file): ",accMissAndID[0],'\n'
+        accMissAndID[1].sort(reverse=True)
+        print "Sorted list, based on missing rates (2nd file): ",accMissAndID[1],'\n'
 
-	print rfun.plotVectors(accCallRate[0],[accErrorRate],xlab="Accession missing value rate",ylab="Accession error rate")
-	print rfun.plotVectors(accCallRate[1],[accErrorRate],xlab="Accession missing value rate",ylab="Accession error rate")
+		
 
-
-	rstr = 'z<-c("'+str(r[2][0])+"_ai"+str(r[5][0])+'"'
+	rstr += 'z<-c("'+str(r[2][0])+"_ai"+str(r[5][0])+'"'
 	for i in range(1, len(r[2])):
 		rstr += ',"'+str(r[2][i])+"_ai"+str(r[5][i])+'"'			
-	print rstr+")"
-	print "text(x+0.0045,y-0.0004,z)"
-			
+	rstr +=")\n"
+	rstr += "par(mfrow=c(2,1));\n"
+	rstr += rfun.plotVectors(accCallRate[0],[accErrorRate],xlab="Accession missing value rate",ylab="Accession error rate")+"\n"
+	rstr += "text(x+0.0045,y-0.0004,z)\n"
+	rstr += rfun.plotVectors(accCallRate[1],[accErrorRate],xlab="Accession missing value rate",ylab="Accession error rate")+"\n"
+	rstr += "text(x+0.0045,y-0.0004,z)\n"
+
+
+	rstr += 'z<-c("'+str(r[2][0])+"_ai"+str(r[5][0])+'"'
+	for i in range(1, len(r[2])):
+		rstr += ',"'+str(r[2][i])+"_ai"+str(r[5][i])+'"'			
+	rstr +=")\n"
+	rstr += "text(x+0.0045,y-0.0004,z)\n"
+
+	f = open(output_fname,"w")
+	f.write(rstr)
+	f.close()
 			
 
 if __name__ == '__main__':
