@@ -27,6 +27,10 @@ create table abstract(
 	title	varchar,
 	author_list	varchar,
 	abstract	varchar,
+	abstract_file_data text,
+	abstract_file_content_type text,
+	abstract_filename text,
+	abstract_file_size integer,
 	date_created	timestamp default current_timestamp);
 
 create table carpool(
