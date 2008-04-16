@@ -24,6 +24,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from Products.Variation.interfaces import IPhenotype, IPhenotypeLocator
 #from optilux.cinemacontent.interfaces import IScreeningLocator
+from Products.Variation import VariationMessageFactory as _
 
 class PhenotypeView(BrowserView):
 	"""Default view of a film
@@ -55,7 +56,7 @@ def YesNoWidget(field, request):
    
    
 class CheckoutPhenotypeForm(formbase.PageForm):
-	form_fields = form.FormFields(interfaces.IPhenotype).omit('short_name_ls', 'method_description_ls', 'data_matrix')
+	form_fields = form.FormFields(IPhenotype).omit('short_name_ls', 'method_description_ls', 'data_matrix')
 	#result_template = pagetemplatefile.ZopeTwoPageTemplateFile('search-results.pt')
 	
 	@form.action(_(u"save"))

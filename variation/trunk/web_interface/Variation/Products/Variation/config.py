@@ -1,2 +1,2 @@
 GLOBALS = globals()
-PROJECTNAME = "Variation"
+PROJECTNAME = "Products.Variation"

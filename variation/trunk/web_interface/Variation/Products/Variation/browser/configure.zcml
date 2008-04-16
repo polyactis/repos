@@ -1,7 +1,7 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
-    i18n_domain="Variation">
+    i18n_domain="Products.Variation">
 
     <!-- Define the main views of each content type. The 'for' attribute
          specifies which type of content the view will be available for,
@@ -19,6 +19,7 @@
     -->
     <browser:page
         for="..interfaces.IPhenotype"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
         name="view"
         class=".phenotype.PhenotypeView"
         permission="zope2.View"
@@ -26,6 +27,7 @@
     
     <browser:page
         for="..interfaces.IPhenotype"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
         name="edit"
         class=".phenotype.CheckoutPhenotypeForm"
         permission="cmf.ModifyPortalContent"

@@ -3,7 +3,7 @@ import os
 
 version = '0.1'
 
-setup(name='Variation',
+setup(name='Products.Variation',
       version=version,
       description="Polymorphism DB frontend",
       long_description=open("README.txt").read() + "\n" +

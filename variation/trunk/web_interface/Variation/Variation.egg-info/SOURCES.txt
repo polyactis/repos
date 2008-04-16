@@ -16,8 +16,6 @@ Products/Variation/refresh.txt
 Products/Variation/setuphandlers.py
 Products/Variation/tests.py
 Products/Variation/version.txt
-Products/Variation/Extensions/Install.py
-Products/Variation/Extensions/__init__.py
 Products/Variation/browser/__init__.py
 Products/Variation/browser/configure.zcml
 Products/Variation/browser/phenotype.pt

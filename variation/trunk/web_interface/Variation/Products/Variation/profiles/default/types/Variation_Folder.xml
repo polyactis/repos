@@ -6,7 +6,7 @@
  <property name="description"
      i18n:translate="">A folder which can contain phenotype, results, cel data, genotype calls ...</property>
  <property name="content_meta_type">Variation Folder</property>
- <property name="product">Variation</property>
+ <property name="product">Products.Variation</property>
  <property name="factory">addVariationFolder</property>
  <property name="immediate_view">atct_edit</property>
  <property name="global_allow">True</property>

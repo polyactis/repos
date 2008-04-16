@@ -7,13 +7,14 @@ from Products.Archetypes.public import listTypes
 
 from config import PROJECTNAME, GLOBALS
 
+from Products.CMFCore import utils
 
 from content import *
 # Import the content types permissions
 from permissions import ADD_CONTENT_PERMISSIONS
-#from zope.i18nmessageid import MessageFactory
+from zope.i18nmessageid import MessageFactory
 
-#VariationMessageFactory = MessageFactory('Products.Variation')
+VariationMessageFactory = MessageFactory(PROJECTNAME)
 
 registerDirectory('skins', GLOBALS)
 

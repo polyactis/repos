@@ -72,7 +72,7 @@ class IPhenotype(Interface):
 	
 	method_id_ls = schema.Choice(title=u'Method ID',
 						 description=u'Phentoype Method ID in phenotype_method',
-						 required=True, vocabulary=MethodIDVocabulary)
+						 required=True, values=['8499','8257'])
 	
 	#method_id_short_name = schema.TextLine(title=u'Method ID Short Name',
 	#					 description=u'Phentoype Method ID and Short Name',
@@ -171,7 +171,7 @@ class PhenotypeError(Exception):
 		Exception.__init__(self, message)
 		self.error_message = message
 
-class IDatabaseSettings(Interface):
+class IStockDatabaseSettings(Interface):
 	"""Database connection settings.
 	"""
 	

@@ -9,7 +9,7 @@ from Products.Archetypes import atapi
 from Products.ATContentTypes.content import folder
 from Products.ATContentTypes.content.schemata import finalizeATCTSchema
 
-from Products.Variation.interfaces import IFilmFolder
+from Products.Variation.interfaces import IVariationFolder
 from Products.Variation.config import PROJECTNAME
 
 #from Products.Variation import VariationMessageFactory as _

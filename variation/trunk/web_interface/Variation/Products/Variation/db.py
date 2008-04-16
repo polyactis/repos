@@ -4,7 +4,7 @@ from zope.interface import implements
 from zope.component import getUtility
 
 from collective.lead import Database
-from Products.Variation.interfaces import IDatabaseSettings
+from Products.Variation.interfaces import IStockDatabaseSettings
 
 from sqlalchemy.engine.url import URL
 from sqlalchemy import Table, mapper, relation
@@ -21,7 +21,7 @@ class StockDatabaseSettings(Persistent):
 	then used by collective.lead.interfaces.IDatabase to find connection settings.
 	"""
 	
-	implements(IDatabaseSettings)
+	implements(IStockDatabaseSettings)
 	
 	drivername = 'mysql'
 	hostname = 'banyan.usc.edu'
@@ -37,7 +37,7 @@ class StockDatabase(Database):
 	
 	@property
 	def _url(self):
-		settings = getUtility(IDatabaseSettings)
+		settings = getUtility(IStockDatabaseSettings)
 		return URL(drivername=settings.drivername, username=settings.username,
 				   password=settings.password, host=settings.hostname,
 				   port=settings.port, database=settings.database)
