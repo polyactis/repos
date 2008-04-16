@@ -564,7 +564,7 @@ create table call_data(
 --store the method
 create table results_method(
 	id integer auto_increment primary key,
-	short_name varchar(20),
+	short_name varchar(30) unique,
 	method_description varchar(8000),
 	data_description varchar(8000),
 	comment varchar(8000),
