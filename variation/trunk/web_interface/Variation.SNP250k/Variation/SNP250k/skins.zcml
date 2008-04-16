@@ -1,0 +1,14 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:cmf="http://namespaces.zope.org/cmf"
+    i18n_domain="Variation.SNP250k">
+
+   <!-- File System Directory Views registration -->
+   <cmf:registerDirectory
+       name="Variation_SNP250k_custom_images"/>
+   <cmf:registerDirectory
+       name="Variation_SNP250k_custom_templates"/>
+   <cmf:registerDirectory
+       name="Variation_SNP250k_styles"/>
+
+</configure>
