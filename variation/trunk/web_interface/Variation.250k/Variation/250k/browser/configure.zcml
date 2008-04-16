@@ -1,0 +1,45 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="Variation.250k">
+
+    <!-- '' Zope 3 browser layer -->
+    <interface
+        interface=".interfaces.IThemeSpecific"
+        type="zope.publisher.interfaces.browser.IBrowserSkinType"
+        name=""
+        />
+
+    <!-- Viewlets registration -->
+    <!-- Zope 3 browser resources -->
+
+    <!-- Resource directory for images -->
+    <browser:resourceDirectory
+        name="Variation.250k.images"
+        directory="images"
+        layer=".interfaces.IThemeSpecific"
+        />
+
+    <!-- Resource directory for stylesheets -->
+    <browser:resourceDirectory
+        name="Variation.250k.stylesheets"
+        directory="stylesheets"
+        layer=".interfaces.IThemeSpecific"
+        />
+	
+    <browser:page
+        for="..interfaces.IPhenotype"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
+        name="view"
+        class=".phenotype.PhenotypeView"
+        permission="zope2.View"
+        />
+    
+    <browser:page
+        for="..interfaces.IPhenotype"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
+        name="edit"
+        class=".phenotype.CheckoutPhenotypeForm"
+        permission="cmf.ModifyPortalContent"
+        />
+</configure>

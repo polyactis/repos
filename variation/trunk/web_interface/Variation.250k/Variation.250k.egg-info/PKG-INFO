@@ -1,0 +1,27 @@
+Metadata-Version: 1.0
+Name: Variation.250k
+Version: 0.1dev
+Summary: Variation 250k web portal
+Home-page: http://papaya.usc.edu/
+Author: Yu Huang
+Author-email: yuhuang@usc.edu
+License: GPL
+Description: Introduction
+        ============
+        
+        This is a web portal for the 250k db.
+        
+        Changelog
+        =========
+        
+        0.1 - Unreleased
+        ----------------
+        
+        * Initial release
+        
+        
+Keywords: SNP polymorphism 250k DB
+Platform: UNKNOWN
+Classifier: Framework :: Plone
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

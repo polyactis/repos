@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<import-steps>
+  <import-step id="Variation.250k.various"
+               version="20080415-01"
+               handler="Variation.250k.setuphandlers.setupVarious"
+               title=": miscellaneous import steps">
+    <dependency step="skins" />
+    Various import steps that are not handled by GS import/export
+    handlers.
+  </import-step>
+</import-steps>
