@@ -82,7 +82,11 @@ def _run_():
 			debug = 1
 		elif opt in ("-r", "--report"):
 			report = 1
-	
+		else:
+			if help==0:
+				print "Unkown option!!\n"
+				print __doc__
+			sys.exit(2)
 
 	if not output_fname:
 		output_fname
@@ -93,21 +97,27 @@ def _run_():
 
 	waid1 = withArrayIds==1 or withArrayIds==2
 	waid2 = withArrayIds==2
-	
+
 	import dataParsers
 	snpsds = dataParsers.parseCSVData(inputFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
-	#Filtering monomorphic
+	
+        #Filtering monomorphic
 	if monomorphic:
+		print "Filtering monomorphic SNPs"
 		for snpsd in snpsds:
-			snpsd.filterMonoMorphicSnps()
+			print "Removed", str(snpsd.filterMonoMorphicSnps()),"Snps"
+
 	
 	#Filtering missing values
 	if maxMissing<1.0 and maxMissing>=0.0:
+		print "Filtering SNPs with missing values"
 		numAccessions = len(snpsds[0].accessions)
 		for snpsd in snpsds:
-			snpsd.filterMissingSnps(int(maxMissing*numAccessions))
+			print "Removed", str(snpsd.filterMissingSnps(int(maxMissing*numAccessions))),"Snps"
 
+	#Filtering bad SNPs
 	if comparisonFile and maxError<1.0:
+		print "Filtering bad SNPs"
 		snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
 		for i in range(0,len(snpsds)):
 			snpsds[i].filterBadSnps(snpsds2[i],maxError)
