@@ -8,28 +8,34 @@ import util
 def plotVectorsOnSameGraph(x,vectorList, main="", xlab="", ylab="",type=None):
     pass
 
-def plotVectors(x, vectorList, main="", xlab="", ylab="",type=None):
+def plotVectors(x, vectorList, main="", xlab="", ylab="",type=None, xname="x", ynames=None):
     """
     Writes out a simple R string to plot the vectors..
     """
+    if not ynames:
+        ynames = ["y"]*len(vectorList)
+
     x = util.valListToStrList(x)
+    rstr =""
     rstr = "par(mfrow=c("+str(len(vectorList))+",1));\n"
-    rstr += "x <- c("+",".join(x)+");\n"
-    for y in vectorList:
-        y = util.valListToStrList(y)
-        rstr += "y <- c("+",".join(y)+");\n"
+    rstr += xname+" <- c("+",".join(x)+");\n"
+    for i in range(0,len(vectorList)):
+        y = util.valListToStrList(vectorList[i])
+        rstr += ynames[i]+" <- c("+",".join(y)+");\n"
+        rstr += 'plot('+xname+','+ynames[i]+',pch=20, main="'+main+'",xlab="'+xlab+'",ylab="'+ylab+'"'
         if type:
-            rstr += 'plot(x,y,pch=20, main="'+main+'",xlab="'+xlab+'",ylab="'+ylab+'", type="'+type+'")\n'
-        else:
-            rstr += 'plot(x,y,pch=20, main="'+main+'",xlab="'+xlab+'",ylab="'+ylab+'")\n'
+            rstr += ', type="'+type+'"'
+        rstr += ')\n'
             
     return rstr
 
 
-def plotOverlayingVectors(x, vectorList, main="", xlab="", ylab="",type=None, pch='20'):
+def plotOverlayingVectors(x, vectorList, main="", xlab="", ylab="",type=None, pch='20', xname="x", ynames=None):
     """
     Writes out a simple R string to plot the vectors..
     """
+    if not ynames:
+        ynames = ["y"]*len(vectorList)
     maxVal=[]
     minVal=[]
     for v in vectorList:
@@ -42,15 +48,16 @@ def plotOverlayingVectors(x, vectorList, main="", xlab="", ylab="",type=None, pc
     xmin = min(x)
 
     x = util.valListToStrList(x)
-    rstr = "par(mfrow=c(1,1));\n"
-    rstr += "x <- c("+",".join(x)+");\n"
+    rstr =""
+    #rstr = "par(mfrow=c(1,1));\n"
+    rstr += xname+" <- c("+",".join(x)+");\n"
     for i in range(0,len(vectorList)):
         y = vectorList[i]
         y = util.valListToStrList(y)
-        rstr += "y <- c("+",".join(y)+");\n"
+        rstr += ynames[i]+" <- c("+",".join(y)+");\n"
         if i!=0:
             rstr += "par(new=T);\n"
-        rstr += 'plot(x,y,main="'+main+'",xlab="'+xlab+'",ylab="'+ylab+'", xlim=c('+str(xmin)+','+str(xmax)+'), ylim=c('+str(minVal)+','+str(maxVal)+'), col='+str(i+2)
+        rstr += 'plot('+xname+','+ynames[i]+',main="'+main+'",xlab="'+xlab+'",ylab="'+ylab+'", xlim=c('+str(xmin)+','+str(xmax)+'), ylim=c('+str(minVal)+','+str(maxVal)+'), col='+str(i+2)
         if type:
             rstr +=', type="'+type+'"'
         if pch:
