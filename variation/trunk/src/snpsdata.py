@@ -228,7 +228,7 @@ class RawSnpsData(_SnpsData_):
 
 
 
-    def compareWith(self,snpsd, withArrayIds=0):
+    def compareWith(self,snpsd, withArrayIds=0, verbose=True):
         """
         This function performs QC on two datasets.
 
@@ -236,8 +236,9 @@ class RawSnpsData(_SnpsData_):
 
         withArrayIds = 0 (no array IDs), =1 the object called from has array IDs, =2 both objects have array IDs 
         """
-        print "Comparing datas"
-        print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
+        if verbose:
+            print "Comparing datas"
+            print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
 	# Find common accession indices
         accessionsIndices = []
         accessionErrorRate = []
@@ -465,12 +466,45 @@ class RawSnpsData(_SnpsData_):
         return numRemoved
 
 
-    def removeAccession(self,accession):
+    def removeAccessions(self,accessions,arrayIds=None):
         """
-        Removes an accession from the data.
+        Removes accessions from the data.
         """
-        pass
+        if arrayIds:
+            accPair = []
+            for i in range(0,len(accessions)):
+                accPair.append((accessions[i],arrayIds[i]))
+            
+            for i in range(0,len(self.snps)):
+                snp = self.snps[i]
+                newSnp = []
+                for j in range(0,len(self.accessions)):
+                    if not (self.accessions[j],self.arrayIds[j]) in accPair:
+                        newSnp.append(snp[j])
+                self.snps[i] = newSnp
+            newAccessions = []
+            newArrayIds = []
+            for j in range(0,len(self.accessions)):
+                if not (self.accessions[j],self.arrayIds[j]) in accPair:
+                    newAccessions.append(self.accessions[j])
+                    newArrayIds.append(self.arrayIds[j])
+            self.accessions = newAccessions
+            self.arrayIds = newArrayIds
 
+        else:
+            for i in range(0,len(self.snps)):
+                snp = self.snps[i]
+                newSnp = []
+                for j in range(0,len(self.accessions)):
+                    if not self.accessions[j] in accessions:
+                        newSnp.append(snp[j])
+                self.snps[i] = newSnp
+            newAccessions = []
+            for j in range(0,len(self.accessions)):
+                if not self.accessions[j] in accessions:
+                    newAccessions.append(self.accessions[j])
+            self.accessions = newAccessions
+        
 
     def mergeIdenticalAccessions(self,accessionIndexList, priority):
         """
@@ -773,7 +807,7 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
     Writes data to a file. 
     """
     
-    print "Writing data to a file."
+    print "Writing data to file:",filename
     numSnps = 0
     for i in range(0,len(chromosomes)):
         numSnps += len(snpsds[i].positions)

@@ -1,0 +1,244 @@
+#!/usr/bin/env python2.5
+"""
+Usage: FilterAccessions.py [OPTIONS] -o OUTPUT_FILE INPUT_FILE
+
+Option:
+
+        -o ...,	output file
+	-d ..., --delim=...         default is \", \"      
+        -m ..., --missingval=...    default is \"NA\"
+	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info, 2 if comparison file also.
+	--maxError=...              maximum allowed error percentage (requires a comparison file).
+        --comparisonFile=...        a file which is used to claculate the SNPs error.
+	--maxMissing=...            maximum allowed missing percentage.
+        --removeEcotypeId=...       removes all accessions with the given ecotype ID. 
+        --removeArrayId=...         removes an accessions with the given array ID. 
+	--removeIdentical           removes redundant accessions picking the one with the least error (requires a comparison file).
+	-b, --debug	enable debug
+	-r, --report	enable more progress-related output
+	-h, --help	show this help
+
+Examples:
+	FilterAccessions.py --maxMissing=0.5 -o /tmp/2010_filtered.csv 2010.csv
+	
+Description:
+	Filter a csv formatted file with respect to various criteria.  
+	Note that this script only removes Accessions not SNPs. 
+
+	Requires MySQLdb to be installed, as well as util.py, rfun.py, snpsdata.py and dataParsers.py.
+"""
+
+import sys, getopt, traceback
+
+def _removeColumns_(inputFile, outputFile, columns):
+    """
+    Use cut functionality
+    """
+    pass
+
+def _locateColumns_(inputFile,ecotypeIDs,arrayIDs):
+    """
+    Returns the indices with the ecotypeIDs and arrayIDs.
+    """
+    
+    pass
+
+def _run_():
+    if len(sys.argv) == 1:
+        print __doc__
+        sys.exit(2)
+	
+    long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "removeEcotypeId=", "removeArrayId=", "removeIdentical", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
+
+    except:
+        traceback.print_exc()
+        print sys.exc_info()
+        print __doc__
+        sys.exit(2)
+	
+	
+    inputFile = args[0]
+    output_fname = None
+    delim = ", "
+    missingVal = "NA"
+    comparisonFile = None
+    maxMissing = 1.0
+    maxError = 1.0
+    removeEcotype = None
+    removeArray = None
+    removeIdentical = False
+    debug = None
+    report = None
+    help = 0
+    withArrayIds = 0
+
+	
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            help = 1
+            print __doc__
+        elif opt in ("-a","--withArrayId"):
+            withArrayIds = int(arg)
+        elif opt in ("--comparisonFile"):
+            comparisonFile = arg
+        elif opt in ("--maxError"):
+            maxError = float(arg)
+        elif opt in ("--maxMissing"):
+            maxMissing = float(arg)
+        elif opt in ("--removeEcotypeId"):
+            removeEcotype = float(arg)
+        elif opt in ("--removeArrayId"):
+            removeArray = float(arg)
+        elif opt in ("--removeIdentical"):
+            removeIdentical = True
+        elif opt in ("-o",):
+            output_fname = arg
+        elif opt in ("-d","--delim"):
+            delim = arg
+        elif opt in ("-m","--missingval"):
+            missingVal = arg
+        elif opt in ("-b", "--debug"):
+            debug = 1
+        elif opt in ("-r", "--report"):
+            report = 1
+        else:
+            if help==0:
+                print "Unkown option!!\n"
+                print __doc__
+            sys.exit(2)
+
+    if not output_fname:
+        output_fname
+        if help==0:
+            print "Output file missing!!\n"
+            print __doc__
+        sys.exit(2)
+
+    waid1 = withArrayIds==1 or withArrayIds==2
+    waid2 = withArrayIds==2
+
+    import dataParsers
+    snpsds = dataParsers.parseCSVData(inputFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
+	
+    accessionsToRemove = []
+    arraysToRemove = None
+
+    #Retrieve comparison list of accessions.
+    if (removeIdentical or maxError<1.0) and comparisonFile:
+        print("Loading comparison file:")
+        sys.stdout.flush()
+        snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
+        res = []
+        sys.stdout.write("Comparing accessions.")
+        for i in range(0,len(snpsds)):
+            res.append(snpsds[i].compareWith(snpsds2[i],withArrayIds=withArrayIds,verbose=False))
+            sys.stdout.write(".")
+            sys.stdout.flush()
+        print ""
+
+        totalAccessionCounts = [0]*len(res[0][2])
+	accErrorRate = [0]*len(res[0][2])
+        for i in range(0,len(snpsds)):
+            r = res[i]
+            for j in range(0,len(r[2])):
+		totalAccessionCounts[j] += r[6][j]
+                accErrorRate[j]+=r[3][j]*float(r[6][j])
+        
+        for i in range(0,len(accErrorRate)):
+            accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
+
+        accErrAndID = []
+	if withArrayIds:
+            for i in range(0,len(r[2])):
+                accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
+	else:
+            for i in range(0,len(r[2])):
+                accErrAndID.append((accErrorRate[i], r[2][i]))
+	accErrAndID.sort(reverse=True)
+	
+
+    if maxError<1.0 and comparisonFile:
+        if withArrayIds:
+            arraysToRemove = []
+            for (error,ecotype,array) in accErrAndID:
+                if error> maxError:
+                    accessionsToRemove.append(ecotype)
+                    arraysToRemove.append(array)
+
+	else:
+            for (error,ecotype) in accErrAndID:
+                if error> maxError:
+                    accessionsToRemove.append(ecotype)
+
+
+    if removeIdentical and comparisonFile and withArrayIds:
+        print "Locating identical accessions"
+        accErrAndID.sort()
+        if not arraysToRemove:
+            arraysToRemove = []
+        for accession in set(snpsds[0].accessions):
+            if snpsds[0].accessions.count(accession)>1:
+                found = 0
+                for (error,ecotype,array) in accErrAndID:
+                    if ecotype==accession:
+                        if found>0:
+                            accessionsToRemove.append(ecotype)
+                            arraysToRemove.append(array)
+                        found += 1
+        print accessionsToRemove, arraysToRemove
+
+
+    if maxMissing<1.0:
+      print "maxMissing hasn't been implemented yet"
+
+
+    if removeEcotype:
+        accessionsToRemove.append(removeEcotype)
+    if removeArray:
+        if not arraysToRemove:
+            arraysToRemove = []
+        arraysToRemove.append(removeArray)
+        
+    if maxMissing<1:
+        "Calculate list.."
+        print "maxMissing hasn't been implemented yet"
+
+
+
+    numAccessions = len(snpsds[0].accessions)
+    sys.stdout.write("Removing accessions.")
+    sys.stdout.flush()
+    for snpsd in snpsds:
+        snpsd.removeAccessions(accessionsToRemove,arrayIds=arraysToRemove)
+        sys.stdout.write(".")
+        sys.stdout.flush()
+    print "\n", (numAccessions-len(snpsds[0].accessions)), "accessions were removed."
+        
+
+    """
+    #Filtering missing values
+    if maxMissing<1.0 and maxMissing>=0.0:
+        print "Filtering SNPs with missing values"
+        numAccessions = len(snpsds[0].accessions)
+        for snpsd in snpsds:
+            print "Removed", str(snpsd.filterMissingSnps(int(maxMissing*numAccessions))),"Snps"
+
+    #Filtering bad SNPs
+    if comparisonFile and maxError<1.0:
+        print "Filtering bad SNPs"
+        snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
+        for i in range(0,len(snpsds)):
+            snpsds[i].filterBadSnps(snpsds2[i],maxError)
+		
+    import snpsdata
+    snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+    """
+    import snpsdata
+    snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+
+if __name__ == '__main__':
+    _run_()
+
+

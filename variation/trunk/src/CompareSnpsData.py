@@ -110,11 +110,11 @@ def _run_():
 		xname = "commonPos_ch"+str(i+1)
 		ynames = ["errorRates_ch"+str(i+1)]
 		rstr += rfun.plotOverlayingVectors(r[0],[r[1]],xlab="Position, chr. "+str(i+1),ylab="Error (red)",type="b",xname=xname,ynames=ynames)+"\n\n"
-		for i in range(0,len(r[2])):
-			totalAccessionCounts[i] += r[6][i]
-			accCallRate[0][i]+=r[4][0][i]*float(len(r[0]))
-			accCallRate[1][i]+=r[4][1][i]*float(len(r[0]))
-			accErrorRate[i]+=r[3][i]*float(r[6][i])
+		for j in range(0,len(r[2])):
+			totalAccessionCounts[j] += r[6][j]
+			accCallRate[0][j]+=r[4][0][j]*float(len(r[0]))
+			accCallRate[1][j]+=r[4][1][j]*float(len(r[0]))
+			accErrorRate[j]+=r[3][j]*float(r[6][j])
 
 	statstr += "#Number of common SNPs positions:\n"
 	statstr += str(totalCommonPos)+"\n"
@@ -156,17 +156,25 @@ def _run_():
 
 	accErrAndID = []
 	accMissAndID = [[],[]]
-	for i in range(0,len(r[2])):
-		accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
-       		accMissAndID[0].append((accCallRate[0][i], r[2][i], r[5][i]))
-       		accMissAndID[1].append((accCallRate[1][i], r[2][i], r[5][i]))
+	if withArrayIds:
+		for i in range(0,len(r[2])):
+			accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
+			accMissAndID[0].append((accCallRate[0][i], r[2][i], r[5][i]))
+			accMissAndID[1].append((accCallRate[1][i], r[2][i], r[5][i]))
+	else:
+		for i in range(0,len(r[2])):
+			accErrAndID.append((accErrorRate[i], r[2][i]))
+			accMissAndID[0].append((accCallRate[0][i], r[2][i]))
+			accMissAndID[1].append((accCallRate[1][i], r[2][i]))
 	accErrAndID.sort(reverse=True)
+	accMissAndID[0].sort(reverse=True)
+	accMissAndID[1].sort(reverse=True)
 	statstr += "#Sorted list, based on error rates (Error rate, ecotype id, array id):\n"
 	statstr += str(accErrAndID)+'\n'
 	statstr += "#Sorted list, based on missing rates of 1st file, (Missing rate, ecotype id, array id):\n"
 	statstr += str(accMissAndID[0])+'\n'
 	statstr += "#Sorted list, based on missing rates of 2nd file, (Missing rate, ecotype id, array id):\n"
-	statstr += str(accMissAndID[0])+'\n'
+	statstr += str(accMissAndID[1])+'\n'
  
 	"""
 	print "Sorted list, based on error rates: ",accErrAndID,'\n'
