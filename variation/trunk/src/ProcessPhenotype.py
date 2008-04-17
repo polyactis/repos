@@ -83,6 +83,10 @@ class ProcessPhenotype:
 	
 	def get_experiment_id2accession_id2reading_ls(self, curs, raw_phenotype_table):
 		"""
+		2008-04-16
+			also get germination date from the same table. glenda added germination date for each strain.
+			glenda fixed lots of errors in the phenotype table. but the automatic fix for the old errors in this function
+			shouldn't be affected.
 		2008-02-29
 			replicate gets converted to arabic and included in the returning results
 		2008-02-23
@@ -91,7 +95,7 @@ class ProcessPhenotype:
 		2008-02-20
 		"""
 		sys.stderr.write("Getting experiment_id2accession_id2reading_ls ...\n")
-		curs.execute("select experiment, accession, replicate, reading from %s where measure='first flower open'"%raw_phenotype_table)
+		curs.execute("select experiment, accession, replicate, reading, measure from %s where measure='first flower open' or measure='germination date'"%raw_phenotype_table)
 		rows = curs.fetchall()
 		experiment_id2accession_id2reading_ls = {}
 		reading_error_dict = {'1/14/2003+C41':'1/14/03',
@@ -101,34 +105,42 @@ class ProcessPhenotype:
 							'long ago':'NA'}
 		from pymodule.roman import fromRoman
 		for row in rows:
-			experiment_id, accession_id, replicate, reading = row
+			experiment_id, accession_id, replicate, reading, measure = row
 			if reading in reading_error_dict:	#correct the typo
 				reading = reading_error_dict[reading]
-			if reading!='NA' and reading!='N':
+			if reading!='NA' and reading!='N' and reading!='' and reading!=None:
 				if experiment_id not in experiment_id2accession_id2reading_ls:
 					experiment_id2accession_id2reading_ls[experiment_id] = {}
 				if accession_id not in experiment_id2accession_id2reading_ls[experiment_id]:
-					experiment_id2accession_id2reading_ls[experiment_id][accession_id] = []
+					experiment_id2accession_id2reading_ls[experiment_id][accession_id] = {}
 				try:
 					if experiment_id==3 and reading[-2:]=='99':	#wrong year input
 						reading = reading[:-2]+'03'
 					if experiment_id==4 and reading[-2:]=='00':	#wrong year input
 						reading = reading[:-2]+'02'
 					if reading!='DNF':
-						time_first_flower_open = time.strptime(reading, '%m/%d/%y')	#transform it into a time tuple
+						time_tuple = time.strptime(reading, '%m/%d/%y')	#transform it into a time tuple
 					else:
-						time_first_flower_open = 'DNF'
+						time_tuple = 'DNF'
 				except:
 					print "reading:",reading
 					traceback.print_exc()
 					print sys.exc_info()
 					sys.exit(2)
-				experiment_id2accession_id2reading_ls[experiment_id][accession_id].append((time_first_flower_open, fromRoman(replicate)))
+				replicate = fromRoman(replicate)
+				if replicate not in experiment_id2accession_id2reading_ls[experiment_id][accession_id]:
+					experiment_id2accession_id2reading_ls[experiment_id][accession_id][replicate] = [None, None]	#1st is germination date, 2nd is first flower open
+				if measure=='first flower open':
+					experiment_id2accession_id2reading_ls[experiment_id][accession_id][replicate][1] = time_tuple
+				elif measure=='germination date':
+					experiment_id2accession_id2reading_ls[experiment_id][accession_id][replicate][0] = time_tuple
 		sys.stderr.write("Done.\n")
 		return experiment_id2accession_id2reading_ls
 	
 	def get_experiment_id2accession_id2FT(self, experiment_id2data, experiment_id2accession_id2reading_ls):
 		"""
+		2008-04-16
+			germination date from experiment_id2data is not used anymore. experiment_id2accession_id2reading_ls contains germination date as well.
 		2008-03-01
 			move the average/stdev operation to output_experiment_id2accession_id2FT()
 		2008-02-20
@@ -138,13 +150,15 @@ class ProcessPhenotype:
 		for experiment_id, accession_id2reading_ls in experiment_id2accession_id2reading_ls.iteritems():
 			description, time_germination = experiment_id2data[experiment_id]
 			experiment_id2accession_id2FT[experiment_id] = {}
-			for accession_id, reading_ls in accession_id2reading_ls.iteritems():
+			for accession_id, replicate2reading_ls in accession_id2reading_ls.iteritems():
 				FT_rep_ls = []
-				for reading, replicate in reading_ls:
-					if reading!='DNF':
-						FT = (time.mktime(reading)-time.mktime(time_germination))/(3600.0*24)	#counted as days
-					else:
+				for replicate, reading in replicate2reading_ls.iteritems():
+					if reading[1]!=None and reading[0]!=None and reading[1]!='DNF':
+						FT = (time.mktime(reading[1])-time.mktime(reading[0]))/(3600.0*24)	#counted as days
+					elif reading[1]=='DNF':
 						FT = 200
+					else:
+						continue
 					if FT<0:
 						warnings.warn("Warning: experiment_id=%s, accession_id=%s, FT is negative: %s, reading is %s, time_germination is %s.\n"%\
 										(experiment_id, accession_id, FT, reading, time_germination))
