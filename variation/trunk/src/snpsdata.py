@@ -319,7 +319,8 @@ class RawSnpsData(_SnpsData_):
                 accessionErrorRate[i] = accessionErrorRate[i]/float(accessionCounts[i])
             accessionCallRates[0][i] = accessionCallRates[0][i]/float(len(commonSnpsPos))
             accessionCallRates[1][i] = accessionCallRates[1][i]/float(len(commonSnpsPos))
-
+        
+        """
         print "In all",len(snpErrorRate),"common snps found"
         print "In all",len(commonAccessions),"common accessions found"
         print "Common accessions IDs :",commonAccessions
@@ -328,7 +329,8 @@ class RawSnpsData(_SnpsData_):
         print "Average Accession SNP Error:",sum(accessionErrorRate)/float(len(accessionErrorRate))
         print "SNP error rates",snpErrorRate
         print "Average Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
-
+        """
+        
         return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate]
 
 
@@ -355,6 +357,73 @@ class RawSnpsData(_SnpsData_):
         positions = self.positions
         baseScale = self.baseScale
         return SnpsData(snps,positions,baseScale=baseScale,accessions=accessions)
+
+
+    def filterBadSnps(self,snpsd,maxNumError=0):
+        """
+        Filters snps with high rate mismatches, when compared against another snpsd.
+        """
+
+        newSnps = []
+        newPositions = []
+        print "Comparing datas"
+        print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
+	# Find common accession indices
+        accessionsIndices = []
+        commonAccessions = []
+        for i in range(0,len(self.accessions)):
+            acc = self.accessions[i]
+            if snpsd.accessions.count(acc):
+                j = snpsd.accessions.index(acc)
+                accessionsIndices.append([i,j])
+                commonAccessions.append(acc)         
+
+
+        commonSnpsPos = []
+        i = 0
+        j = 0
+        while i <= len(self.positions) and j <= len(snpsd.positions):
+            if i < len(self.positions):
+                pos1 = self.positions[i]
+            if j < len(snpsd.positions):
+                pos2 = snpsd.positions[j] 
+            if i < len(self.positions) and pos1 < pos2:
+                newSnps.append(self.snps[i])
+                newPositions.append(self.positions[i])
+                i = i+1
+            elif j < len(snpsd.positions) and pos2 < pos1:
+                j = j+1
+            elif i < len(self.positions) and j < len(snpsd.positions) and pos1==pos2:
+                commonSnpsPos.append(pos1)
+                fails = 0
+                counts = 0
+                for k in range(0,len(accessionsIndices)):
+                    accIndices = accessionsIndices[k]
+                    snp1 = self.snps[i][accIndices[0]]
+                    snp2 = snpsd.snps[j][accIndices[1]]
+                    if snp1!='NA' and snp2!='NA':
+                        counts += 1
+                        if snp1!=snp2:
+                            fails = fails+1
+                error = 0
+                if counts>0:
+                    error = float(fails)/float(counts)
+                if error<=maxNumError:
+                    newSnps.append(self.snps[i])
+                    newPositions.append(self.positions[i])                
+                i = i+1
+                j = j+1
+            else: 
+                # One pointer has reached and the end and the other surpassed it.
+                break
+        
+
+        print len(self.snps)-len(newSnps),"were filtered"
+        self.snps = newSnps
+        self.positions = newPositions
+        
+
+
 
 
     def filterMissingSnps(self,maxNumMissing=0):
@@ -394,6 +463,7 @@ class RawSnpsData(_SnpsData_):
         self.snps = newSnps
         self.positions = newPositions
         return numRemoved
+
 
     def removeAccession(self,accession):
         """

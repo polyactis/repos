@@ -161,9 +161,9 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
         #Generate an internal dictionary using their id.
     #numRows = int(cursor.execute("select distinct e2a.ecotype_id, g.accession, acc.name from at.ecotype2accession_all e2a, at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id = e2a.accession_id and acc.id<97 order by acc.name"))
     if only96accessions:
-        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome=1 order by acc.name"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome=1 order by acc.name"))
     else:
-        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome=1 order by acc.name"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome=1 order by acc.name"))
 
     dict = {}
     accessions = []
@@ -303,6 +303,7 @@ def parseCSVData(datafile=None, format=1, deliminator=", ", missingVal='NA', wit
     format=1: the function return a RawSnpsData object list
     format=0: the function return a SnpsData object list
     """
+    print "Loading file:",datafile
     decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T'}
     
     positions = [] #list[chr][position_index]
@@ -352,7 +353,7 @@ def parseCSVData(datafile=None, format=1, deliminator=", ", missingVal='NA', wit
             else:
                 break
         
-        print i, len(lines)
+        print "Loaded", i, "of", len(lines), "SNPs."
         positionsList.append(positions)
         snpsList.append(snps)
 
@@ -362,6 +363,7 @@ def parseCSVData(datafile=None, format=1, deliminator=", ", missingVal='NA', wit
     if format==0:
         for i in range(0,len(chromosomes)):
             snpsds[i] = snpsds[i].getSnpsData()
+    print ""
     return(snpsds)
 
 
