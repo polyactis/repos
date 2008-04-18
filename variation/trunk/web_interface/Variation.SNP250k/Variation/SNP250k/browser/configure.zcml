@@ -27,4 +27,17 @@
         layer=".interfaces.IThemeSpecific"
         />
 
+    <browser:page
+        for="..interfaces.IPhenotype"
+        name="view"
+        class=".phenotype.PhenotypeView"
+        permission="zope2.View"
+        />
+    
+    <browser:page
+        for="..interfaces.IPhenotype"
+        name="edit"
+        class=".phenotype.CheckoutPhenotypeForm"
+        permission="cmf.ModifyPortalContent"
+        />
 </configure>

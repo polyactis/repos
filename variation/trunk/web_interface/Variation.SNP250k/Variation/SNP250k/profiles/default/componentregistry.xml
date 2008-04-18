@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!-- Register the local database settings utility. This is modified via
+     a control panel page in browser/dbsettings.py.
+  -->
+<componentregistry>
+ <utilities>  
+  <utility
+     interface="Variation.SNP250k.interfaces.IStockDatabaseSettings"
+     factory="Variation.SNP250k.db.StockDatabaseSettings"
+     />
+ </utilities>
+</componentregistry>

@@ -3,12 +3,35 @@
     xmlns:five="http://namespaces.zope.org/five"
     xmlns:cmf="http://namespaces.zope.org/cmf"
     i18n_domain="Variation.SNP250k">
-
+    
+   <!-- We also need support for SQLAlchemy database connections -->
+   <!-- include package="collective.lead" / -->
+   
    <five:registerPackage package="." initialize=".initialize" />
 
    <include package=".browser" />
-
+   <include package=".content" />
+   
    <include file="skins.zcml" />
    <include file="profiles.zcml" />
-
+    
+	
+	<!-- Register the screening and reservation utilities -->
+	<utility factory=".dbphenotype.PhenotypeLocator" />
+	
+	<!-- Register database configuration utilities -->
+	<utility
+	    provides="collective.lead.interfaces.IDatabase"
+	    factory=".db.StockDatabase"
+	    name="variation.stockdatabase"
+	    />
+	<utility
+		provides="Variation.SNP250k.interfaces.IStockDatabaseSettings"
+		factory="Variation.SNP250k.db.StockDatabaseSettings"
+		name="variation.stockdatabasesettings"
+		/>
+	<utility
+		component=".interfaces.MethodIDVocabulary"
+		name="Variation.SNP250k.MethodIDVocabulary"
+		/>
 </configure>

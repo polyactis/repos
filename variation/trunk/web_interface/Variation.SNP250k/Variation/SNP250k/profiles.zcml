@@ -5,9 +5,9 @@
 
   <genericsetup:registerProfile
       name="default"
-      title=""
+      title="Variation SNP250k Content Types"
       directory="profiles/default"
-      description='Extension profile for the "" Plone theme.'
+      description='Content types to describe Variation SNP250k'
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 

@@ -1,0 +1,49 @@
+================ 
+ Database tests
+================ 
+
+This doctest demonstrates the database-integration functionality in db.py,
+screening.py and reservation.py. It depends on a MySQL database called
+optilux_text being available on localhost, accessible as user "root" with
+no password. This database should be empty. Because the test framework will 
+roll back the transaction before at the end of the test, it should remain
+empty.
+
+We will not explicitly clear the database before commencing execution, 
+just in case there is data there that shouldn't be deleted. However, if
+the database is not empty, you will probably get test failures!
+
+Connecting to the database
+--------------------------
+
+First, we must configure the local utility which stores the database 
+connection settings.
+
+    >>> self.loginAsPortalOwner()
+
+    >>> from zope.component import getUtility
+    >>> from Variation.SNP250k.interfaces import IStockDatabaseSettings
+ 
+    >>> settings = getUtility(IStockDatabaseSettings, name='variation.stockdatabasesettings')
+
+    >>> settings.drivername = 'mysql'
+    >>> settings.username = 'nordborglab'
+    >>> settings.password = 'papaya'
+    >>> settings.hostname = 'papaya.usc.edu'
+    >>> settings.database = 'stock_250k'
+ 
+We should now be able to make a connection.
+
+    >>> from collective.lead.interfaces import IDatabase
+    >>> db = getUtility(IDatabase, name='variation.stockdatabase')
+    
+    >>> from zope.interface import implements
+    >>> from Variation.SNP250k.interfaces import IPhenotypeLocator
+    >>> locator = getUtility(IPhenotypeLocator)
+    
+    >>> v = locator.get_phenotype_method_id_ls()
+	>>> v
+	[u'1 LD-V', u'2 LD+V', u'3 ShD-V', u'4 ShD+V', u'5 FT_10C', u'6 FT_16C', u'7 FT_22C', u'8 Seeddorm', u'9 Emco5', u'10 Emwa1', u'11 Emoy*', u'12 Hiks1', u'13 Noco2', u'14 Li7', u'15 B11', u'16 Na23', u'17 Mg25', u'18 P31', u'19 S34', u'20 K39', u'21 Ca43', u'22 Mn55', u'23 Fe56', u'24 Co59', u'25 Ni60', u'26 Cu65', u'27 Zn66', u'28 As75', u'29 Se82', u'30 Mo98', u'31 Cd114', u'32 avrPph3', u'33 avrRpm1', u'34 avrRpt2', u'35 avrB', u'36 Rps5', u'37 Rpm1', u'38 Rps2', u'39 JIC0W', u'40 JIC2W', u'41 JIC4W', u'42 JIC8W', u'43 FLC', u'44 FRI', u'45 JIC8W GH+V', u'46 JIC8W GH+V', u'47 JIC8W GH-V', u'48 JIC8W GH-V']
+
+Sample content
+--------------

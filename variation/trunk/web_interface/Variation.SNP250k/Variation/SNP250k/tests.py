@@ -13,42 +13,46 @@ ptc.setupPloneSite()
 import Variation.SNP250k
 
 class TestCase(ptc.PloneTestCase):
-    class layer(PloneSite):
-        @classmethod
-        def setUp(cls):
-            fiveconfigure.debug_mode = True
-            zcml.load_config('configure.zcml',
-                             Variation.SNP250k)
-            fiveconfigure.debug_mode = False
+	class layer(PloneSite):
+		@classmethod
+		def setUp(cls):
+			fiveconfigure.debug_mode = True
+			zcml.load_config('configure.zcml',
+							 Variation.SNP250k)
+			fiveconfigure.debug_mode = False
+			
+			ztc.installPackage('Variation.SNP250k')
 
-        @classmethod
-        def tearDown(cls):
-            pass
+		@classmethod
+		def tearDown(cls):
+			pass
 
 
 def test_suite():
-    return unittest.TestSuite([
+	return unittest.TestSuite([
 
-        # Unit tests
-        #doctestunit.DocFileSuite(
-        #    'README.txt', package='Variation.SNP250k',
-        #    setUp=testing.setUp, tearDown=testing.tearDown),
+		# Unit tests
+		#doctestunit.DocFileSuite(
+		#	'README.txt', package='Variation.SNP250k',
+		#	setUp=testing.setUp, tearDown=testing.tearDown),
 
-        #doctestunit.DocTestSuite(
-        #    module='Variation.SNP250k.mymodule',
-        #    setUp=testing.setUp, tearDown=testing.tearDown),
+		#doctestunit.DocTestSuite(
+		#	module='Variation.SNP250k.mymodule',
+		#	setUp=testing.setUp, tearDown=testing.tearDown),
 
 
-        # Integration tests that use PloneTestCase
-        #ztc.ZopeDocFileSuite(
-        #    'README.txt', package='Variation.SNP250k',
-        #    test_class=TestCase),
+		# Integration tests that use PloneTestCase
+		ztc.FunctionalDocFileSuite(
+			'README.txt', package='Variation.SNP250k',
+			test_class=TestCase),
+		ztc.ZopeDocFileSuite(
+			'database.txt', package='Variation.SNP250k',
+			test_class=TestCase),
+		#ztc.FunctionalDocFileSuite(
+		#	'browser.txt', package='Variation.SNP250k',
+		#	test_class=TestCase),
 
-        #ztc.FunctionalDocFileSuite(
-        #    'browser.txt', package='Variation.SNP250k',
-        #    test_class=TestCase),
-
-        ])
+		])
 
 if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')
+	unittest.main(defaultTest='test_suite')
