@@ -11,7 +11,7 @@
         
       -->
 
-    <!-- Cinema folders: -->
+    <!-- Variation folders: -->
     
     <class class=".variationfolder.VariationFolder">
         <require
@@ -24,7 +24,7 @@
             />
     </class>
     
-    <!-- Cinemas: -->
+    <!-- Phenotype: -->
     
     <class class=".phenotype.Phenotype">
         <require
@@ -36,6 +36,10 @@
             set_schema="..interfaces.IPhenotype"
             />
     </class>
-    
+	<subscriber
+      for="..interfaces.IPhenotype
+           zope.app.event.interfaces.IObjectModifiedEvent"
+      handler=".phenotype.catalog_content"
+      />
     
 </configure>
