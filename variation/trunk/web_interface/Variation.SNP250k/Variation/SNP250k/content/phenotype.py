@@ -76,8 +76,8 @@ class Phenotype(atapi.BaseContent):
 	"""
 	implements(IPhenotype)
 	
-	#portal_type = "Phenotype"
-	#_at_rename_after_creation = True
+	portal_type = "Phenotype"
+	_at_rename_after_creation = True
 	#schema = PhenotypeSchema
 	title = fieldproperty.FieldProperty(IPhenotype['title'])
 	description = fieldproperty.FieldProperty(IPhenotype['description'])
@@ -91,6 +91,10 @@ class Phenotype(atapi.BaseContent):
 	#	return ['1/LD-V', '2/LD+V', '3/ShD-V'] + map(repr, range(4,46))
 
 atapi.registerType(Phenotype, PROJECTNAME)
+
+#04/18/08 not in Archetypes anymore. need this to reindex catalog
+def catalog_content(obj, event):
+	obj.reindexObject()
 
 # This simple adapter uses Archetypes' ImageField to extract an HTML tag
 # for the banner image. This is used in the promotions portlet to avoid
