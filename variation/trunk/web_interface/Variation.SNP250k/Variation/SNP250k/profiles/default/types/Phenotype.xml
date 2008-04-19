@@ -8,7 +8,7 @@
  <property name="content_meta_type">Phenotype</property>
  <property name="product">Variation.SNP250k</property>
  <property name="factory">addPhenotype</property>
- <property name="immediate_view">atct_edit</property>
+ <property name="immediate_view">edit</property>
  <property name="global_allow">False</property>
  <property name="filter_content_types">False</property>
  <property name="allowed_content_types" />
@@ -17,12 +17,11 @@
  <property name="view_methods">
   <element value="view"/>
  </property>
- <alias from="(Default)" to="(dynamic view)"/>
- <alias from="edit" to="atct_edit"/>
+ <alias from="(Default)" to="view"/>
+ <alias from="edit" to="pheno_edit"/>
  <alias from="sharing" to="@@sharing"/>
- <alias from="view" to="(selected layout)"/>
  <action title="View" action_id="view" category="object" condition_expr=""
-    url_expr="string:${object_url}" visible="True">
+    url_expr="string:${object_url}/view" visible="True">
   <permission value="View"/>
  </action>
  <action title="Edit" action_id="edit" category="object" condition_expr=""
