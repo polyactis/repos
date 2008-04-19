@@ -137,11 +137,13 @@ class PhenotypeLocator(object):
 							sort_on='sortable_title')
 			   ]
 		"""
-		vocabulary = [('%s %s'%(row[0], row[1])) for row in results]	#(token, value)
+		vocabulary = [('%s %s'%(row[0], row[1]), row[0]) for row in results]	#(token, value)
 		return vocabulary
 	
 	def get_short_name_description_ls(self, method_id_ls):
 		"""
+		2008-04-18
+			method_id_ls is only one long integer (not a list, zope.schema.Choice)
 		2008-03-28
 		"""
 		short_name_ls = []
@@ -149,6 +151,8 @@ class PhenotypeLocator(object):
 		db = getUtility(IDatabase, name='variation.stockdatabase')
 		connection = db.connection
 		session = db.session
+		if type(method_id_ls)!=list:
+			method_id_ls = [method_id_ls]
 		method_id_ls.sort()
 		for method_id in method_id_ls:
 			phenotype_method = session.query(PhenotypeMethod).get(method_id)
