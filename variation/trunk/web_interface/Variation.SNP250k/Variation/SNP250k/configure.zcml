@@ -31,6 +31,7 @@
 		name="variation.stockdatabasesettings"
 		/>
 	<utility
+		provides="zope.schema.interfaces.IVocabularyFactory"
 		component=".interfaces.MethodIDVocabulary"
 		name="Variation.SNP250k.MethodIDVocabulary"
 		/>
