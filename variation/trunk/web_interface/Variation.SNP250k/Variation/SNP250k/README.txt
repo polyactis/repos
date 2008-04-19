@@ -92,6 +92,12 @@ end of the tests - otherwise, we may mess up other tests running later!
     >>> v = locator.get_phenotype_method_id_ls()
 	>>> print v
 
+Clean Up
+--------
+We need to undo the damage we did so that it doesn't affect other tests!
+
+    >>> provideUtility(_old_screening_locator)
+
 Finally, we need to log in as the portal owner, i.e. an administrator user. We
 do this from the login page.
 
@@ -102,10 +108,60 @@ do this from the login page.
     >>> browser.getControl(name='__ac_name').value = portal_owner
     >>> browser.getControl(name='__ac_password').value = default_password
     >>> browser.getControl(name='submit').click()
- 
-Clean up
---------
+    >>> "You are now logged in" in browser.contents
+    True
+    >>> print browser.url
 
-We need to undo the damage we did so that it doesn't affect other tests!
+Addable content
+---------------
 
-    >>> provideUtility(_old_screening_locator)
+04/18/08 Play with the optilux.cinemacontent to ensure this doctest works.
+Cinema content is managed inside two root content types: A "Cinema Folder"
+contains cinemas and information about them. A "Film Folder" contains films.
+
+    >>> browser.open(portal_url)
+    >>> browser.getLink(id='cinema-folder').url.endswith("createObject?type_name=Cinema+Folder")
+    True
+    >>> browser.getLink(id='film-folder').click()
+    >>> browser.getControl(name='title').value = "Films"
+    >>> browser.getControl(name='form_submit').click()
+
+    >>> 'films' in self.portal.objectIds()
+    True
+    >>> films = self.portal['films']
+    >>> films_url = films.absolute_url()
+    >>> print films_url
+
+Verify that we have the links to create cinema and film folders, from the add
+item menu:
+
+	>>> browser.open(portal_url)
+	>>> browser.getLink(id='variation-folder').url.endswith("createObject?type_name=Variation+Folder")
+	True
+	>>> browser.getLink(id='variation-folder').click()
+	>>> browser.getControl(name='title').value = "variation3"
+    >>> browser.getControl(name='form_submit').click()
+    >>> 'variation3' in self.portal.objectIds()
+    True
+    >>> variation3 = self.portal['variation3']
+    >>> variation3.title
+    'variation3'
+    >>> variation3_url = variation3.absolute_url()
+    >>> browser.open(variation3_url)
+
+Create a phenotype in variation3 folder.
+04/18/08 Watch: the custom edit form (inherited from zope.formlib.form) has prefix 'form' attached to each widget name.
+
+    >>> from zope.publisher.browser import TestRequest, BrowserResponse
+    >>> request = TestRequest(response=BrowserResponse())
+    >>> from Variation.SNP250k.browser.phenotype import CheckoutPhenotypeForm
+    >>> print CheckoutPhenotypeForm(None, request)() # doctest: +NORMALIZE_WHITESPACE
+    >>> browser.open(variation3_url)
+    >>> browser.getLink(id='phenotype').click()
+    >>> browser.getControl(name='form.title').value = "first phenotype"
+    >>> browser.getControl(name='form.description').value = "first phenotype"
+    >>> browser.getControl(name='form.method_id_ls').value = [1]
+    >>> browser.getControl(name='form.actions.save').click()
+    >>> 'first-phenotype' in self.portal.objectIds()
+    True
+
