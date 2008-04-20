@@ -68,7 +68,163 @@ class RawSnpsData(_SnpsData_):
         f.close()
 
 
-    def mergeData(self,snpsd, multIdenticalAcc=False):
+    def mergeDataUnion(self, snpsd, priority=1, unionType=2):
+        """
+        Merges two data, where the resulting data has the union of the SNPs or/and accessions
+
+        unionType=
+        1: All SNPs are included in the dataset  (not implemented)
+        2: All accessions are included in the merged dataset 
+        3: Both all SNPs and accessions are included in the merged dataset (not implemented)
+        
+        It doesn't deal with multiple identical ecotypes/accession
+        """
+        
+        print "Merging datas"
+        print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
+
+	#Find new accession indices
+        newAccessions = []
+        accessionsIndices = []
+        commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
+        allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
+        
+        if unionType==2 or unionType==3:
+            newAccessions = allAccessions
+        elif unionType==1:
+            newAccessions = self.accessions
+
+        for acc in newAccessions:
+            index1=-1
+            index2=-1
+            if self.accessions.count(acc):
+                index1=self.accessions.index(acc)
+            if snpsd.accessions.count(acc):
+                index2=snpsd.accessions.index(acc)
+            accessionsIndices.append([index1, index2])
+            
+            
+        print "Common accessions:", len(commonAccessions)
+        print "All accessions:",len(allAccessions)
+        print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
+        print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
+        print snpsd.accessions
+        print len(snpsd.accessions), len(list(set(snpsd.accessions)))
+            
+        snpErrorRate = []
+        newSnps = []
+        newPositions = []
+        i = 0
+        j = 0 
+        while i <= len(self.positions) and j <= len(snpsd.positions):
+            if i < len(self.positions):
+                pos1 = self.positions[i]
+            if j < len(snpsd.positions):
+                pos2 = snpsd.positions[j] 
+            if i < len(self.positions) and pos1 < pos2:
+                newPositions.append(pos1)
+                newSnp = []
+                oldSnp = self.snps[i]
+                for index in accessionsIndices:
+                    if index[0]!=-1:
+                        newSnp.append(oldSnp[index[0]])                   
+                    else:
+                        newSnp.append('NA')
+                newSnps.append(newSnp)
+                i = i+1
+            elif j < len(snpsd.positions) and pos2 < pos1:
+                if unionType==1 or unionType==3:
+                    newPositions.append(pos2)
+                    newSnp = []
+                    oldSnp = snpsd.snps[j]
+                    for index in accessionsIndices:
+                        if index[1]!=-1:
+                            newSnp.append(oldSnp[index[1]])                   
+                        else:
+                            newSnp.append('NA')
+                    newSnps.append(newSnp)
+                j = j+1
+            elif i < len(self.positions) and j < len(snpsd.positions) and pos1==pos2:
+                counts = 0
+                fails = 0
+                for index in accessionsIndices:
+                    if index[0]!=-1 and index[1]!=-1:
+                        snp1 = self.snps[i][index[0]]
+                        snp2 = snpsd.snps[j][index[1]]
+                        if snp1!='NA' and snp2!='NA':
+                            counts += 1
+                            if snp1!=snp2:
+                                fails = fails+1
+                error = 0
+                if counts>0:
+                    error = float(fails)/float(counts)
+                snpErrorRate.append(error)                                        
+
+                newPositions.append(pos1)
+                newSnp = []
+                oldSnp1 = self.snps[i]
+                oldSnp2 = snpsd.snps[j]
+                if priority ==1:
+                    for index in accessionsIndices:
+                        if index[0] != -1:
+                            newSnp.append(oldSnp1[index[0]])
+                        else:
+                            newSnp.append(oldSnp2[index[1]])
+                elif priority == 2:
+                    for index in accessionsIndices:
+                        if index[1] != -1:
+                            newSnp.append(oldSnp2[index[1]])
+                        else:
+                            newSnp.append(oldSnp1[index[0]])
+                newSnps.append(newSnp)
+                i = i+1
+                j = j+1
+
+            else: 
+                # One pointer has reached the end and the end and the other surpassed it, i.e. we only need to copy the remaining one..
+                while i<len(self.positions):
+                    newPositions.append(self.positions[i])
+                    newSnp = []
+                    oldSnp = self.snps[i]
+                    for index in accessionsIndices:
+                        if index[0]!=-1:
+                            newSnp.append(oldSnp[index[0]])                   
+                        else:
+                            newSnp.append('NA')
+                    newSnps.append(newSnp)
+                    i = i+1
+
+                while j<len(snpsd.positions):
+                    if unionType==1 or unionType==3:
+                        newPositions.append(snpsd.positions[j])
+                        newSnp = []
+                        oldSnp = snpsd.snps[j]
+                        for index in accessionsIndices:
+                            if index[1]!=-1:
+                                newSnp.append(oldSnp[index[1]])                   
+                            else:
+                                newSnp.append('NA')
+                        newSnps.append(newSnp)
+                    j = j+1
+                 
+                break
+        
+        
+        print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
+        print "Number of SNPs in merged data:",len(newPositions)
+        print "Number of SNPs in merged data:",len(newSnps)
+        print "Number of accessions in merged data:",len(newAccessions)
+
+        self.snps = newSnps
+        self.positions = newPositions
+        self.accessions = newAccessions
+        self.arrayIds = None
+
+
+
+
+
+    def mergeData(self,snpsd, priority=1):
         """
         Merges two RawSnpsData objects.
 
@@ -78,109 +234,53 @@ class RawSnpsData(_SnpsData_):
         print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
 	# Find common accession indices
         accessionsIndices = []
-        commonAccessions = []
-        allAccessions = []
-        if not multIdenticalAcc:            
-            commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
-            allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
-            for i in range(0,len(allAccessions)):
-                acc = allAccessions[i]
-                index1 = -1
-                index2 = -1
-                if self.accessions.count(acc):
-                    index1 = self.accessions.index(acc)
-                if snpsd.accessions.count(acc):
-                    index2 = snpsd.accessions.index(acc)
-                accessionsIndices.append([i,index1,index2])
-        else:
-            i = 0
-            for j in range(0,len(self.accessions)):
-                acc1 = self.accessions[j]
-                count = 0
-                for k in range(0,len(snpsd.accessions)):
-                    acc2 = snpsd.accessions[k]
-                    if acc1==acc2:
-                        count += 1
-                        accessionsIndices.append([i,j,k])
-                        acc = acc1
-                        if count >1:
-                            acc = acc1+"_"+str(count)
-                        commonAccessions.append(acc)
-                        allAccessions.append(acc)
-                        i += 1
+        commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
+        allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
 
-            for j in range(0,len(self.accessions)):
-                acc = self.accessions[j]
-                if not acc in snpsd.accessions:
-                    allAccessions.append(acc)
-                    accessionsIndices.append([i,j,-1])
-                    i += 1
-
-            for j in range(0,len(snpsd.accessions)):
-                acc = snpsd.accessions[j]
-                if not acc in self.accessions:
-                    allAccessions.append(acc)
-                    accessionsIndices.append([i,-1,j])                        
-                    i += 1
+        for i in range(0,len(self.accessions)):
+            acc1 = self.accessions[i]
+            for k in range(0,len(snpsd.accessions)):
+                acc2 = snpsd.accessions[k]
+                if acc1==acc2:
+                    accessionsIndices.append([i,k])
+   
 
         print "Common accessions:", len(commonAccessions)
-        print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
-        print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
         print "All accessions:",len(allAccessions)
+        #print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
+        #print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
         print snpsd.accessions
         print len(snpsd.accessions), len(list(set(snpsd.accessions)))
             
         commonSnpsPos = []
         snpErrorRate = []
         goodSnpsCounts = []
-        newSnps = []
-        newPositions = []
         i = 0
         j = 0 
-        action = ""
         while i <= len(self.positions) and j <= len(snpsd.positions):
             if i < len(self.positions):
                 pos1 = self.positions[i]
             if j < len(snpsd.positions):
                 pos2 = snpsd.positions[j] 
-            if i < len(self.positions) and pos1 < pos2:
-                newPositions.append(pos1)
-                newSnp = ['NA']*len(allAccessions)
-                oldSnp = self.snps[i]
-                for index in accessionsIndices:
-                    newSnp[index[0]]=oldSnp[index[1]]                   
-                newSnps.append(newSnp)
+            if i < len(self.positions) and pos1 < pos2: #Do nothing
                 i = i+1
-                action ="pos1<pos2"
-            elif j < len(snpsd.positions) and pos2 < pos1:
-                newPositions.append(pos2)
-                newSnp = ['NA']*len(allAccessions)
-                oldSnp = snpsd.snps[j]
-                for index in accessionsIndices:
-                    newSnp[index[0]]=oldSnp[index[2]]                   
-                newSnps.append(newSnp)
+            elif j < len(snpsd.positions) and pos2 < pos1:  #Do nothing
                 j = j+1
-                action ="pos2<pos1"
             elif i < len(self.positions) and j < len(snpsd.positions) and pos1==pos2:
-                newPositions.append(pos1)
-                newSnp = ['NA']*len(allAccessions)
-                for index in accessionsIndices:
-                    if index[1] !=-1 and self.snps[index[1]] != 'NA':
-                        newSnp[index[0]]=self.snps[i][index[1]]            
-                    elif index[2] !=-1:
-                        newSnp[index[0]]=snpsd.snps[j][index[2]]            
-                newSnps.append(newSnp)
                 commonSnpsPos.append(pos1)
-                fails = 0
                 counts = 0
-                for k in range(0,len(accessionsIndices)):
-                    accIndices = accessionsIndices[k]
-                    snp1 = self.snps[i][accIndices[1]]
-                    snp2 = snpsd.snps[j][accIndices[2]]
+                fails = 0
+                for index in accessionsIndices:
+                    snp1 = self.snps[i][index[0]]
+                    snp2 = snpsd.snps[j][index[1]]
                     if snp1!='NA' and snp2!='NA':
                         counts += 1
                         if snp1!=snp2:
                             fails = fails+1
+
+                    if self.snps[index[0]] == 'NA' or priority==2 and self.snps[index[1]] != 'NA':
+                        self.snps[i][index[0]]=snpsd.snps[j][index[1]]           
+
                 goodSnpsCounts.append(counts)
                 error = 0
                 if counts>0:
@@ -190,41 +290,13 @@ class RawSnpsData(_SnpsData_):
                 j = j+1
                 action ="pos2=pos1"
             else: 
-                # One pointer has reached the end and the end and the other surpassed it, i.e. we only need to copy the remaining one..
-                #print len(self.positions) -i-1, len(snpsd.positions) -j-1
-                #print "last action:",action
-                while i<len(self.positions):
-                    newPositions.append(self.positions[i])
-                    newSnp = ['NA']*len(allAccessions)
-                    oldSnp = self.snps[i]
-                    for index in accessionsIndices:
-                        newSnp[index[0]]=oldSnp[index[1]]                   
-                    newSnps.append(newSnp)
-                    i = i+1
-                while j<len(snpsd.positions):
-                    newPositions.append(snpsd.positions[j])
-                    newSnp = ['NA']*len(allAccessions)
-                    oldSnp = snpsd.snps[j]
-                    for index in accessionsIndices:
-                        newSnp[index[0]]=oldSnp[index[2]]                   
-                    newSnps.append(newSnp)
-                    j = j+1
-                 
+                # One pointer has reached the end so we're done...
                 break
         
-        #print newPositions[-10:]
-        #print len(newPositions)
-        #print len(set(newPositions))
-        newSnpsd = RawSnpsData(newSnps,newPositions,accessions=allAccessions)
-
 
         print "In all",len(commonSnpsPos),"common snps found"
         print "In all",len(commonAccessions),"common accessions found"
         print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
-        print "Number of SNPs in merged data:",len(newPositions)
-        print "Number of SNPs in merged data:",len(newSnpsd.snps)
-        print "Number of accessions in merged data:",len(newSnpsd.accessions)
-        return newSnpsd
 
 
 

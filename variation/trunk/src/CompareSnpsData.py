@@ -185,18 +185,25 @@ def _run_():
 	"""
 		
 
-	rstr += 'accessions<-c("'+str(r[2][0])+"_ai"+str(r[5][0])+'"'
+	if withArrayIds:
+		rstr += 'accessions<-c("'+str(r[2][0])+"_ai"+str(r[5][0])+'"'
+	else:
+		rstr += 'accessions<-c("'+str(r[2][0])+'"'		
 	for i in range(1, len(r[2])):
-		rstr += ',"'+str(r[2][i])+"_ai"+str(r[5][i])+'"'			
+		if withArrayIds:
+			rstr += ',"'+str(r[2][i])+"_ai"+str(r[5][i])+'"'			
+		else:
+			rstr += ',"'+str(r[2][i])+'"'
 	rstr +=")\n"
 	rstr += rfun.plotVectors(accCallRate[0],[accErrorRate],xlab="Accession missing value rate",ylab="Accession error rate",xname="accMissingRate1",ynames=["accErrorRate"])
 	rstr += "text(accMissingRate1+0.0045,accErrorRate-0.0004,accessions)\n\n"
 	rstr += rfun.plotVectors(accCallRate[1],[accErrorRate],xlab="Accession missing value rate",ylab="Accession error rate",xname="accMissingRate2",ynames=["accErrorRate"])
 	rstr += "text(accMissingRate2+0.0045,accErrorRate-0.0004,accessions)\n\n"
 
-	f = open(rFile,"w")
-	f.write(rstr)
-	f.close()
+	if rFile:
+		f = open(rFile,"w")
+		f.write(rstr)
+		f.close()
 	if verbose:
 		print statstr
 	if statFile:

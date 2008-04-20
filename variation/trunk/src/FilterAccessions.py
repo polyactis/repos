@@ -13,7 +13,10 @@ Option:
 	--maxMissing=...            maximum allowed missing percentage.
         --removeEcotypeId=...       removes all accessions with the given ecotype ID. 
         --removeArrayId=...         removes an accessions with the given array ID. 
-	--removeIdentical           removes redundant accessions picking the one with the least error (requires a comparison file).
+	--removeIdentical           removes redundant accessions picking the one with the least error (requires a comparison 
+                                    file).
+        --onlyCommon                removes all accessions which are not both in the input file and the comparison file,
+                                    (requires a comparison file).
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -48,7 +51,7 @@ def _run_():
         print __doc__
         sys.exit(2)
 	
-    long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "removeEcotypeId=", "removeArrayId=", "removeIdentical", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
+    long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "removeEcotypeId=", "removeArrayId=", "removeIdentical", "onlyCommon", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
     try:
         opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
 
@@ -69,6 +72,7 @@ def _run_():
     removeEcotype = None
     removeArray = None
     removeIdentical = False
+    onlyCommon = False
     debug = None
     report = None
     help = 0
@@ -76,7 +80,9 @@ def _run_():
 
 	
     for opt, arg in opts:
-        if opt in ("-h", "--help"):
+        if opt in ('-o'):
+            output_fname = arg
+        elif opt in ("-h", "--help"):
             help = 1
             print __doc__
         elif opt in ("-a","--withArrayId"):
@@ -93,8 +99,8 @@ def _run_():
             removeArray = float(arg)
         elif opt in ("--removeIdentical"):
             removeIdentical = True
-        elif opt in ("-o",):
-            output_fname = arg
+        elif opt in ("--onlyCommon"):
+            onlyCommon = True
         elif opt in ("-d","--delim"):
             delim = arg
         elif opt in ("-m","--missingval"):
@@ -108,6 +114,7 @@ def _run_():
                 print "Unkown option!!\n"
                 print __doc__
             sys.exit(2)
+
 
     if not output_fname:
         output_fname
@@ -187,6 +194,20 @@ def _run_():
                             accessionsToRemove.append(ecotype)
                             arraysToRemove.append(array)
                         found += 1
+        print accessionsToRemove, arraysToRemove
+
+
+    if onlyCommon and comparisonFile:
+        print "Locating accessions which are not shared"
+        snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
+        if not arraysToRemove:
+            arraysToRemove = []
+        for i in range(0,len(snpsds[0].accessions)):
+            acc = snpsds[0].accessions[i]
+            if not acc in snpsds2[0].accessions:
+                accessionsToRemove.append(acc)
+                if withArrayIds:
+                    arraysToRemove.append(snpsds[0].arrayIds[i])
         print accessionsToRemove, arraysToRemove
 
 
