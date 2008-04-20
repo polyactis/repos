@@ -10,7 +10,7 @@ else:   #32bit
 
 from variation.src.common import get_nt_number2diff_matrix_index, nt2number, number2nt
 
-class QualityControl:
+class QualityControl(object):
 	"""
 	2007-12-19
 		an abstract class for more specific classes to inherit
@@ -126,7 +126,7 @@ class QualityControl:
 		sys.stderr.write("Done.\n")
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
-	def cmp_row_wise(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
+	def cmp_row_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
 		2007-12-18
 			strain wise
@@ -164,6 +164,8 @@ class QualityControl:
 				sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
 		sys.stderr.write("Done.\n")
 		return row_id2NA_mismatch_rate
+	
+	cmp_row_wise = classmethod(cmp_row_wise)
 	
 	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
