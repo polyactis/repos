@@ -30,7 +30,8 @@ Examples:
 	
 Description:
 	QC for 250k call data from call_info_table against 2010, perlegen, 149SNP data.
-	It fills the call_QC_table with NA_rate, mismatch_rate and etc.
+	It will select the call_info entries that haven't been QCed for a particular QC method.
+	The output is in the call_QC_table with NA_rate, mismatch_rate and etc.
 	
 	QC_method_id:
 		Except 0, it corresponds to field/column id in table QC_method.
