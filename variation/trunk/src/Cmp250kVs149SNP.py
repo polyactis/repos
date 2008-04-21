@@ -59,8 +59,10 @@ class Cmp250kVs149SNP(QualityControl):
 
 		self.debug = int(debug)
 	
-	def get_col_matching_dstruc(self, header_250k, header_149, curs, snp_locus_table_250k, snp_locus_table_149snp):
+	def get_col_matching_dstruc(cls, header_250k, header_149, curs, snp_locus_table_250k, snp_locus_table_149snp):
 		"""
+		2008-04-20
+			change the one snpid by one sql matching to a full sql matching first, then link among the sql results
 		2007-12-18
 		2007-12-21
 			snpid_250k2snpid_149 replaces col_index_250k2col_index_149
@@ -77,15 +79,17 @@ class Cmp250kVs149SNP(QualityControl):
 			snpid2col_index_149[snpid] = i-2
 		
 		snpid_250k2snpid_149 = {}
-		for snpid in snpid2col_index_250k:
-			curs.execute("select s2.snpid from %s s1, %s s2 where s1.chromosome=s2.chromosome and s1.position=s2.position and s1.snpid='%s'"%(snp_locus_table_250k, snp_locus_table_149snp, snpid))
-			rows = curs.fetchall()
-			if rows:	#could be no match
-				snpid_149 = rows[0][0]
-				snpid_250k2snpid_149[snpid] = snpid_149
+		curs.execute("select s1.snpid, s2.snpid from %s s1, %s s2 where s1.chromosome=s2.chromosome and s1.position=s2.position"%\
+					(snp_locus_table_250k, snp_locus_table_149snp))
+		rows = curs.fetchall()
+		for row in rows:
+			snpid_250k, snpid_149 = row
+			if snpid_250k in snpid2col_index_250k and snpid_149 in snpid2col_index_149:
+				snpid_250k2snpid_149[snpid_250k] = snpid_149
 		sys.stderr.write("Done.\n")
 		return snpid2col_index_250k, snpid2col_index_149, snpid_250k2snpid_149
 	
+	get_col_matching_dstruc = classmethod(get_col_matching_dstruc)
 	def get_row_matching_dstruc(self, strain_acc_list_250k, category_list_250k, strain_acc_list_149, curs, ecotype_duplicate2tg_ecotypeid_table):
 		"""
 		2007-12-18
