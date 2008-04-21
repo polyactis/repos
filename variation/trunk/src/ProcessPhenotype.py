@@ -1,5 +1,26 @@
+#!/usr/bin/env python
 """
 2008-02-13
+	class to process phenotype data from at.phenotype and at.experiment to get flowering time.
+	Flowering time is "time of first flower open" - "date counted as germination"
+	
+Argument list:
+	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)*
+	-d ..., --dbname=...	the database name, stock_250k(default)*
+	-k ..., --schema=...	which schema in the database, dbsnp(default)
+	-o ..., output_fname (if wanna output)
+	-a ..., raw_phenotype_table=argument1, at.phenotype(default)*
+	-e ..., experiment_table=argument2, at.experiment_table(default)*
+	-f ...,	phenotype_table to store results=argument3, stock_250k.phenotype(default)*
+	-g ...,	phenotype_avg_table=argument4, stock_250k.phenotype_avg(default)*
+	-j ...,	method_table=argument5, stock_250k.phenotype_method(default)*
+	-c,	commit db transaction
+	-b,	toggle debug
+	-r, toggle report
+Examples:
+	main.py -y 2 -o /tmp/phenotype.tsv
+	# dump all data into db
+	main.py -y 2 -c
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -15,42 +36,22 @@ import warnings, traceback
 from pymodule import process_function_arguments
 
 class ProcessPhenotype:
-	"""
-	2008-02-13
-		class to process phenotype data from at.phenotype and at.experiment to get flowering time.
-		Flowering time is "time of first flower open" - "date counted as germination"
-		
-	Argument list:
-		-z ..., --hostname=...	the hostname, localhost(default)*
-		-d ..., --dbname=...	the database name, stock20071008(default)*
-		-k ..., --schema=...	which schema in the database, dbsnp(default)
-		-o ..., output_fname (if wanna output)
-		-a ..., raw_phenotype_table=argument1, at.phenotype(default)*
-		-e ..., experiment_table=argument2, at.experiment_table(default)*
-		-f ...,	phenotype_table to store results=argument3, stock_250k.phenotype(default)*
-		-g ...,	phenotype_avg_table=argument4, stock_250k.phenotype_avg(default)*
-		-j ...,	method_table=argument5, stock_250k.method(default)*
-		-c,	commit db transaction
-		-b,	toggle debug
-		-r, toggle report
-	Examples:
-		main.py -y 2 -o /tmp/phenotype.tsv
-		# dump all data into db
-		main.py -y 2 -c
-	"""
+	__doc__ = __doc__
 	def __init__(self,  **keywords):
 		"""
 		2008-02-28
 		"""
-		argument_default_dict = {('hostname',1, ):'localhost',\
-								('dbname',1, ):'stock20071008',\
+		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
+								('dbname',1, ):'stock_250k',\
 								('schema',0, ):'',\
+								('user',1, ):None,\
+								('passwd',1, ):None,\
 								('output_fname',0, ):None,\
 								('raw_phenotype_table',1, ):'at.phenotype',\
 								('experiment_table',1, ):'at.experiment',\
 								('phenotype_table',1, ):'stock_250k.phenotype',\
 								('phenotype_avg_table',1, ):'stock_250k.phenotype_avg',\
-								('method_table',1, ):'stock_250k.method',\
+								('method_table',1, ):'stock_250k.phenotype_method',\
 								('commit',0, int):0,\
 								('debug',0, int):0,\
 								('report',0, int):0}
@@ -60,7 +61,7 @@ class ProcessPhenotype:
 			argument_type is optional
 		"""
 		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__)
+		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		self.debug = self.ad['debug']
 		self.report = self.ad['report']
 	
@@ -170,14 +171,21 @@ class ProcessPhenotype:
 	
 	def submit2db(self, curs, experiment_id2accession_id2FT, experiment_id2data, method_table, phenotype_table, phenotype_avg_table):
 		"""
+		2008-04-20
+			check if a method is already in method_table before insertion.
 		2008-03-01
 			submit to method_table and phenotype_table
 			... need the accession_id2ecotype_id ...
 		"""
 		sys.stderr.write("Submitting experiment_id2data to %s ... "%method_table)
+		no_of_methods_submitted = 0
 		for experiment_id, data in experiment_id2data.iteritems():
-			curs.execute("insert into %s(id, short_name) values (%s, '%s')"%(method_table, experiment_id, data[0]))
-		sys.stderr.write("Done.\n")
+			curs.execute("select id, short_name from %s where id=%s and short_name='%s'"%(method_table, experiment_id, data[0]))
+			rows = curs.fetchall()
+			if not rows:	#only insert if the method_table doesn't have these data.
+				curs.execute("insert into %s(id, short_name) values (%s, '%s')"%(method_table, experiment_id, data[0]))
+				no_of_methods_submitted += 1
+		sys.stderr.write("%s methods inserted. Done.\n"%(no_of_methods_submitted))
 		
 		sys.stderr.write("Submitting experiment_id2accession_id2FT to %s and %s ... "%(phenotype_table, phenotype_avg_table))
 		from variation.src.common import map_accession_id2ecotype_id
@@ -245,14 +253,14 @@ class ProcessPhenotype:
 			import pdb
 			pdb.set_trace()
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.ad['dbname'], host=self.ad['hostname'])
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
-		experiment_id2data = self.get_experiment_id2data(curs, self.ad['experiment_table'])
-		experiment_id2accession_id2reading_ls = self.get_experiment_id2accession_id2reading_ls(curs, self.ad['raw_phenotype_table'])
+		experiment_id2data = self.get_experiment_id2data(curs, self.experiment_table)
+		experiment_id2accession_id2reading_ls = self.get_experiment_id2accession_id2reading_ls(curs, self.raw_phenotype_table)
 		experiment_id2accession_id2FT = self.get_experiment_id2accession_id2FT(experiment_id2data, experiment_id2accession_id2reading_ls)
-		if self.ad['output_fname']:
-			self.output_experiment_id2accession_id2FT(experiment_id2accession_id2FT, experiment_id2data, self.ad['output_fname'])
-		if self.ad['commit']:
-			self.submit2db(curs, experiment_id2accession_id2FT, experiment_id2data, self.ad['method_table'], \
-						self.ad['phenotype_table'], self.ad['phenotype_avg_table'])
+		if self.output_fname:
+			self.output_experiment_id2accession_id2FT(experiment_id2accession_id2FT, experiment_id2data, self.output_fname)
+		if self.commit:
+			self.submit2db(curs, experiment_id2accession_id2FT, experiment_id2data, self.method_table, \
+						self.phenotype_table, self.phenotype_avg_table)
 			curs.execute("commit")
