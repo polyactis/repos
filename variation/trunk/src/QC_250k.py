@@ -41,7 +41,7 @@ else:   #32bit
 
 import time, csv, getopt
 import warnings, traceback
-from pymodule import process_function_arguments
+from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict, process_options
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 
@@ -117,29 +117,34 @@ class TwoSNPData(QualityControl):
 
 class QC_250k(object):
 	__doc__ = __doc__
+	option_default_dict = {('hostname', 'z', 1, 1, ): 'papaya.usc.edu',\
+							('dbname', 'd', 1, 1, ): 'stock_250k',\
+							('user', 'u', 1, 1, ):None,\
+							('passwd', 'p', 1, 1, ):None,\
+							('call_info_table', 't', 1, 1, ): 'call_info',\
+							('cmp_data_filename', 'i', 1, 1, ): None,\
+							('call_QC_table', 'q', 1, 1, ): 'call_QC',\
+							('QC_method_id', 'm', 1, 1, int): None,\
+							('update_all_call', 'e', 0, 0, int): 0,\
+							('commit', 'c', 0, 0, int):0,\
+							('debug', 'b', 0, 0, int):0,\
+							('report', 'r', 0, 0, int):0}
+	
+	"""
+	2008-04-40
+		option_default_dict is a dictionary for option handling, including argument_default_dict info
+		the key is a tuple, ('long_option', 'short_option', has_argument, is_option_required, argument_type)
+		argument_type is optional
+	"""
 	def __init__(self,  **keywords):
 		"""
-		2008-02-28
+		2008-04-20
 		"""
-		argument_default_dict = {('hostname', 1, ): 'papaya.usc.edu',\
-								('dbname', 1, ): 'stock_250k',\
-								('user',1, ):None,\
-								('passwd',1, ):None,\
-								('call_info_table',1, ): 'call_info',\
-								('cmp_data_filename',1, ): None,\
-								('call_QC_table', 1, ): 'call_QC',\
-								('QC_method_id', 1, int): None,\
-								('update_all_call', 0, int): 0,\
-								('experiment_table',1, ):'at.experiment',\
-								('phenotype_table',1, ):'stock_250k.phenotype',\
-								('phenotype_avg_table',1, ):'stock_250k.phenotype_avg',\
-								('method_table',1, ):'stock_250k.method',\
-								('commit',0, int):0,\
-								('debug',0, int):0,\
-								('report',0, int):0}
+		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
 		"""
 		2008-02-28
-			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
+			argument_default_dict is a dictionary of default arguments
+			the key is a tuple, ('argument_name', is_argument_required, argument_type)
 			argument_type is optional
 		"""
 		#argument dictionary
@@ -234,61 +239,7 @@ class QC_250k(object):
 
 
 if __name__ == '__main__':
-	if len(sys.argv) == 1:
-		print __doc__
-		sys.exit(2)
+	opts_dict = process_options(sys.argv, QC_250k.option_default_dict, error_doc=QC_250k.__doc__)
 	
-	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "debug", "report", "help"]
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:u:p:i:t:q:m:cbrh", long_options_list)
-	except:
-		traceback.print_exc()
-		print sys.exc_info()
-		print __doc__
-		sys.exit(2)
-	
-	hostname = None
-	dbname = None
-	user = None
-	passwd = None
-	call_info_table =None
-	cmp_data_filename = None
-	call_QC_table = None
-	QC_method_id = None
-	update_all_call = 0
-	commit = 0
-	debug = 0
-	report = 0
-	
-	for opt, arg in opts:
-		if opt in ("-h", "--help"):
-			print __doc__
-			sys.exit(2)
-		elif opt in ("-z", "--hostname"):
-			hostname = arg
-		elif opt in ("-d", "--dbname"):
-			dbname = arg
-		elif opt in ("-u", "--user"):
-			user = arg
-		elif opt in ("-p", "--passwd"):
-			passwd = arg
-		elif opt in ("-i",):
-			cmp_data_filename = arg
-		elif opt in ("-m",):
-			QC_method_id = arg
-		elif opt in ("-t",):
-			call_info_table = arg
-		elif opt in ("-q",):
-			call_QC_table = arg
-		elif opt in ("-c",):
-			commit = 1
-		elif opt in ("-b", "--debug"):
-			debug = 1
-		elif opt in ("-r", "--report"):
-			report = 1
-	
-	instance = QC_250k(hostname=hostname, dbname=dbname, user=user, passwd=passwd, call_info_table=call_info_table,\
-					cmp_data_filename=cmp_data_filename,\
-					call_QC_table=call_QC_table, QC_method_id=QC_method_id, update_all_call=update_all_call,\
-					commit=commit, debug=debug, report=report)
+	instance = QC_250k(**opts_dict)
 	instance.run()
