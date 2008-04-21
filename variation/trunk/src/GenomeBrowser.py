@@ -27,7 +27,7 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 from matplotlib.figure import Figure
 #from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 #2008-02-04 use a custom navigation tool bar
-from variation.src.common import NavigationToolbar2GTKAgg_chromosome as NavigationToolbar
+from pymodule.gnome import NavigationToolbar2GTKAgg_chromosome as NavigationToolbar
 
 import pymodule.gnome as yh_gnome
 
