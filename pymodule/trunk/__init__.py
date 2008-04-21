@@ -55,7 +55,72 @@ def process_function_arguments(keywords, argument_default_dict, error_doc='', cl
 		ad[argument] = default_value
 	return ad
 
+def process_options(argv_list, option_default_dict, error_doc=''):
+	"""
+	2008-04-20
+		wraps the option handling (getopt), the usual block underneath "if __name__ == '__main__':"
+	"""
+	import sys
+	if len(argv_list) == 1:
+		print error_doc
+		sys.exit(2)
+	
+	#prepare long_options_list and short_options_str for getopt
+	long_options_list = []
+	short_options_list = []
+	short_option2long_option = {}
+	long_option2has_argument = {}
+	for option_key in option_default_dict:
+		long_option, short_option, has_argument = option_key[0:3]
+		long_options_list.append(long_option)
+		if has_argument:
+			short_options_list.append('%s:'%short_option)
+		else:
+			short_options_list.append(short_option)
+		short_option2long_option[short_option] = long_option
+		long_option2has_argument[long_option] = has_argument
+	short_options_str  = ''.join(short_options_list)
+	
+	#handle options
+	import getopt, traceback
+	try:
+		opts, args = getopt.getopt(argv_list[1:], short_options_str, long_options_list)
+		opts_dict = {}	#a dictionary 
+		for opt, arg in opts:
+			if opt[1]=='-':	#it's long option
+				long_option = opt[2:]
+			else:	#it's short option
+				short_option = opt[1:]
+				long_option = short_option2long_option[short_option]
+			if long_option2has_argument[long_option]:
+				opts_dict[long_option] = arg
+			else:	#toggle the bit for options which don't have arguments
+				opts_dict[long_option] = 1
+	except:
+		traceback.print_exc()
+		print sys.exc_info()
+		print error_doc
+		sys.exit(2)
+	
+	return opts_dict
 
+def turn_option_default_dict2argument_default_dict(option_default_dict):
+	"""
+	2008-04-20
+		option_default_dict contains the info of argument_default_dict.
+		to avoid repetitive code
+	"""
+	argument_default_dict = {}
+	for option_key, default_value in option_default_dict.iteritems():
+		long_option, short_option, has_argument, is_option_required = option_key[0:4]
+		if len(option_key)==5:
+			argument_type = option_key[4]
+			argument_key = (long_option, is_option_required, argument_type)
+		else:
+			argument_key = (long_option, is_option_required, )
+		argument_default_dict[argument_key] = default_value
+	return argument_default_dict
+	
 def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=None, cols_to_be_tossed_out=None, nt_alphabet=0):
 	"""
 	2008-04-02
