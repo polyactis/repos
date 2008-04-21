@@ -16,13 +16,13 @@ Argument list:
 	-r, toggle report
 
 Examples:
-	#QC between 250k and 2010
+	#test run (without -c) QC between 250k and 2010
 	QC_250k.py -i /home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv -m 1
 	
-	#QC between 250k and perlegen
+	#test run (without -c) QC between 250k and perlegen
 	QC_250k.py -i /home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv -m 2
 	
-	#QC between 250k and 149SNP
+	#test run (without -c) QC between 250k and 149SNP
 	QC_250k.py -i /home/crocea/script/variation/stock20080403/data_y10001101.tsv -m 3
 	
 Description:
@@ -53,7 +53,7 @@ class SNPData(object):
 								('data_matrix', 1, ): None}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 
-		
+
 
 class TwoSNPData(QualityControl):
 	"""
@@ -61,7 +61,11 @@ class TwoSNPData(QualityControl):
 	"""
 	def __init__(self, **keywords):
 		argument_default_dict = {('SNPData1', 1, ): None,\
-								('SNPData2', 1, ): None}
+								('SNPData2', 1, ): None,\
+								('curs', 0, ): None,\
+								('snp_locus_table_250k', 0, ): 'stock_250k.snps',\
+								('snp_locus_table_149snp', 0, ): 'stock.snps',\
+								('QC_method_id', 1, int):1}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		self.update_row_col_matching()
 	
@@ -96,7 +100,14 @@ class TwoSNPData(QualityControl):
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
 	def update_row_col_matching(self):
-		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.header, self.SNPData2.header)
+		if self.QC_method_id==3:	#149SNP data is SNPData2. use database to find out which SNP matches which
+			if self.curs==None:
+				sys.stderr.write("Error: no database connection but it's required to link SNP ids.\n")
+				sys.exit(3)
+			from variation.src.Cmp250kVs149SNP import Cmp250kVs149SNP
+			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = Cmp250kVs149SNP.get_col_matching_dstruc(self.SNPData1.header, self.SNPData2.header, self.curs, self.snp_locus_table_250k, self.snp_locus_table_149snp)
+		else:	#use the default from QualityControl
+			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.header, self.SNPData2.header)
 		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.strain_acc_list, self.SNPData1.category_list, self.SNPData2.strain_acc_list)
 		
 	def cmp_row_wise(self):
@@ -213,7 +224,7 @@ class QC_250k(object):
 		
 		header, strain_acc_list, category_list, data_matrix = self.read_call_matrix(call_info_id2fname)
 		snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
-		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2)
+		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id)
 		
 		row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
 		
