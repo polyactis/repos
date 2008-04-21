@@ -74,9 +74,9 @@ if __name__ == '__main__':
 				4:LinkArrayId2EcotypeId.LinkArrayId2EcotypeId,
 				5:DB_250k2Array.DB_250k2Array}
 	
-	hostname = 'localhost'
-	dbname = 'stock20071008'
-	schema = 'dbsnp'
+	hostname = None
+	dbname = None
+	schema = None
 	input_fname = None
 	output_fname = None
 	type = None
