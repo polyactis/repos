@@ -14,15 +14,19 @@ Examples:
 	#test run (without -c) QC between 250k and 149SNP
 	QC_250k.py -i /home/crocea/script/variation/stock20080403/data_y10001101.tsv -m 3
 	
+	#QC for the call files (input for Calls2DB_250k.py) against 149SNP
+	QC_250k.py -i /home/crocea/script/variation/stock20080403/data_y10001101.tsv -m 3 -n /Network/Data/250k/tmp-jr/calls-oligo/ -o /tmp/tmp-jr_calls-oligo_149SNP_QC.tsv
+	
 Description:
 	QC for 250k call data from call_info_table against 2010, perlegen, 149SNP data.
 	It will select the call_info entries that haven't been QCed for a particular QC method.
 	The output is in the call_QC_table with NA_rate, mismatch_rate and etc.
 	
 	QC_method_id:
-		Except 0, it corresponds to field/column id in table QC_method.
+		All but 0 correspond to field/column id in table QC_method.
 		0 is not a real QC method id. It calculates NA rate for call_info entries whose NA_rates haven't been calculated.
 	
+
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -113,10 +117,13 @@ class QC_250k(object):
 	__doc__ = __doc__
 	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
 							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
-							('u', 'user', 1, '', 1, ):None,\
-							('p', 'passwd', 1, '', 1, ):None,\
+							('u', 'user', 1, 'database username', 1, ):None,\
+							('p', 'passwd', 1, 'database password', 1, ):None,\
 							('t', 'call_info_table', 1, '', 1, ): 'call_info',\
+							('n', 'input_dir', 1, 'If given, call files would be read from this directory rather than from call info table. \
+								Does not work for QC_method_id=0. The data is sorted according to array_id. No call_info_id available. No db submission.', 0, ): None,\
 							('i', 'cmp_data_filename', 1, 'the data file to be compared with.', 1, ): None,\
+							('o', 'output_fname', 1, 'if given, QC results will be outputed into it.', 0, ): None,\
 							('q', 'call_QC_table', 1, '', 1, ): 'call_QC',\
 							('m', 'QC_method_id', 1, 'id in table QC_method', 1, int): None,\
 							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
@@ -169,6 +176,39 @@ class QC_250k(object):
 		return call_info_id2fname
 	
 	get_call_info_id2fname = classmethod(get_call_info_id2fname)
+	
+	def get_array_id2fname(cls, curs, input_dir, array_info_table='array_info'):
+		"""
+		2008-04-21
+			the call files in input_dir are named like 'array_id'_call.tsv
+		"""
+		sys.stderr.write("Getting array_id2fname ... \n")
+		file_dir_ls = os.listdir(input_dir)
+
+		array_id2fname = {}
+		for  i in range(len(file_dir_ls)):
+			file_dir = file_dir_ls[i]
+			#sys.stderr.write("%d/%d:\t%s\n"%(i+1,len(file_dir_ls),file_dir))
+			pathname = os.path.join(input_dir, file_dir)
+			array_id = int(file_dir.split('_')[0])
+			curs.execute("select maternal_ecotype_id, paternal_ecotype_id from %s where id=%s"%(array_info_table, array_id))
+			rows = curs.fetchall()
+			if len(rows)>0:	#assuming array_id is unique and return only one entry if there's one
+				maternal_ecotype_id, paternal_ecotype_id = rows[0]
+				if maternal_ecotype_id==None and paternal_ecotype_id==None:
+					sys.stderr.write("%s doesn't have corresponding ecotypeids. Ignored.\n"%(pathname))
+					continue
+				if maternal_ecotype_id!=paternal_ecotype_id:
+					sys.stderr.write("%s is a cross with maternal_ecotype_id=%s and paternal_ecotype_id=%s. No QC now. Ignored.\n"%(pathname, maternal_ecotype_id, paternal_ecotype_id))
+					continue
+				array_id2fname[array_id] = [maternal_ecotype_id, pathname]
+			else:
+				sys.stderr.write("%s doesn't have entries in %s. Ignored.\n"%(pathname, array_info_table))
+				continue
+		sys.stderr.write("%s call files. Done.\n"%(len(array_id2fname)))
+		return array_id2fname
+	
+	get_array_id2fname = classmethod(get_array_id2fname)
 	
 	def read_call_matrix(cls, call_info_id2fname):
 		"""
@@ -247,6 +287,22 @@ class QC_250k(object):
 					(NA_rate, call_info_id))
 		sys.stderr.write("Done.\n")
 	
+	def output_row_id2NA_mismatch_rate(self, row_id2NA_mismatch_rate, output_fname):
+		"""
+		2008-04-22
+		"""
+		sys.stderr.write("Outputting row_id2NA_mismatch_rate to %s ..."%(output_fname))
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		header = ['array_id', 'ecotypeid', 'NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
+		writer.writerow(header)
+		row_id_ls = row_id2NA_mismatch_rate.keys()
+		row_id_ls.sort()	#try to keep them in call_info_id order
+		for row_id in row_id_ls:
+			NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
+			writer.writerow(list(row_id) + NA_mismatch_ls)
+		del writer
+		sys.stderr.write("Done.\n")
+		
 	def run(self):
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
@@ -261,14 +317,25 @@ class QC_250k(object):
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.cmp_data_filename)
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
 			
-			call_info_id2fname = self.get_call_info_id2fname(curs, self.call_info_table, self.call_QC_table, self.QC_method_id)
+			if self.input_dir:
+				#04/22/08 Watch: call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
+				#no submission to db
+				call_info_id2fname = self.get_array_id2fname(curs, self.input_dir)
+			else:
+				call_info_id2fname = self.get_call_info_id2fname(curs, self.call_info_table, self.call_QC_table, self.QC_method_id)
 			header, strain_acc_list, category_list, data_matrix = self.read_call_matrix(call_info_id2fname)
 			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
+			
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id)
 			
 			row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
 			
-			self.submit_to_call_QC(curs, row_id2NA_mismatch_rate, self.call_QC_table, self.QC_method_id, self.user)
+			if self.output_fname:
+				self.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname)
+			
+			if self.commit and not self.input_dir:	#if self.input_dir is given, call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
+				#no submission to db
+				self.submit_to_call_QC(curs, row_id2NA_mismatch_rate, self.call_QC_table, self.QC_method_id, self.user)
 		if self.commit:
 			curs.execute("commit")
 
