@@ -104,12 +104,10 @@ class RawSnpsData(_SnpsData_):
             accessionsIndices.append([index1, index2])
             
             
-        print "Common accessions:", len(commonAccessions)
-        print "All accessions:",len(allAccessions)
-        print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
-        print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
-        print snpsd.accessions
-        print len(snpsd.accessions), len(list(set(snpsd.accessions)))
+        print "Number of common accessions:", len(commonAccessions)
+        print "Total number of accessions:",len(allAccessions)
+        #print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
+        #print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
             
         snpErrorRate = []
         newSnps = []
@@ -422,14 +420,29 @@ class RawSnpsData(_SnpsData_):
                     decoder[nt]=k
                     k = k+1
             snp = []
+            if k > 1:
+                max1 = 0
+                maxnt1 = ''
+                max2 = 0
+                maxnt2 = ''
+                for nt in ['A','C','G','T']:
+                    c = self.snps[i].count(nt)
+                    if c>max1:
+                        max1 = c
+                        maxnt1 = nt
+                    elif c>max2:
+                        max2 = c
+                        maxnt2 = nt
+                    decoder[nt]=-1
+                decoder[maxnt1]=0
+                decoder[maxnt2]=1
             for nt in self.snps[i]:
                 snp.append(decoder[nt])
             snps.append(snp)
 
         accessions = self.accessions
         positions = self.positions
-        baseScale = self.baseScale
-        return SnpsData(snps,positions,baseScale=baseScale,accessions=accessions)
+        return SnpsData(snps,positions,accessions=accessions)
 
 
     def filterBadSnps(self,snpsd,maxNumError=0):
@@ -586,9 +599,9 @@ class RawSnpsData(_SnpsData_):
         pass
 
 
-    def filterMissingAccessions(self,maxMissingFraction=0.8):
+    def accessionsMissingRates(self):
         """
-        Removes Accessions from the data which have are monomorphic.
+        Returns a list of accessions and their missing value rates.
         """
         pass
 

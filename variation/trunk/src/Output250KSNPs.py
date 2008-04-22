@@ -7,7 +7,7 @@ Option:
 	-u ..., --user=...	the username, (otherwise it will ask for it).
 	-p ..., --passwd=...	the password, (otherwise it will ask for it).
         -o ...,	output file
-        -t ..., --method=...    Currently not implemented (since there is still only one method)
+        -t ..., --method=...    (1 is default)
         -d ..., --delim=...         default is ", "      
         -m ..., --missingval=...    default is "NA"
 	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info.
@@ -46,7 +46,7 @@ def _run_():
 	user = None
 	passwd = None
 	output_fname = None
-	method = None #TO BE IMPLEMENTED
+	method = 1 
 	delim = ", "
 	missingVal = "NA"
 	debug = None
@@ -67,7 +67,7 @@ def _run_():
 		elif opt in ("-o",):
 			output_fname = arg
 		elif opt in ("-t","--method"):
-			version = arg
+			method = int(arg)
 		elif opt in ("-d","--delim"):
 			delim = arg
 		elif opt in ("-m","--missingval"):
@@ -88,7 +88,7 @@ def _run_():
 
 
 	import dataParsers
-	snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5],  user=user, passwd=passwd, withArrayIds=withArrayId)
+	snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId)
 	
 	import snpsdata
 	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds=withArrayId)
