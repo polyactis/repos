@@ -1,19 +1,5 @@
 #!/usr/bin/env python
 """
-Usage: QC_250k.py -i DATA_FILE -m QC_method_id
-
-Argument list:
-	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
-	-d ..., --dbname=...	the database name, stock_250k(default)
-	-u ..., --user=...	the db username, (otherwise it will ask for it).
-	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
-	-t ...,	call_info_table, 'call_info'(default)
-	-i ...,	cmp_data_filename*, the data file to be compared with
-	-q ..., call_QC_table, 'call_QC'(default)
-	-m ....,	QC_method_id*, check the id in table QC_method
-	-c,	commit db transaction
-	-b,	toggle debug
-	-r, toggle report
 
 Examples:
 	#test run (without -c) calculate missing rate for call_info entries. no need for cmp_data_filename. 'nothing' is a place holder.
@@ -49,7 +35,7 @@ else:   #32bit
 
 import time, csv, getopt
 import warnings, traceback
-from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict, process_options
+from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 
@@ -125,23 +111,22 @@ class TwoSNPData(QualityControl):
 
 class QC_250k(object):
 	__doc__ = __doc__
-	option_default_dict = {('hostname', 'z', 1, 1, ): 'papaya.usc.edu',\
-							('dbname', 'd', 1, 1, ): 'stock_250k',\
-							('user', 'u', 1, 1, ):None,\
-							('passwd', 'p', 1, 1, ):None,\
-							('call_info_table', 't', 1, 1, ): 'call_info',\
-							('cmp_data_filename', 'i', 1, 1, ): None,\
-							('call_QC_table', 'q', 1, 1, ): 'call_QC',\
-							('QC_method_id', 'm', 1, 1, int): None,\
-							('update_all_call', 'e', 0, 0, int): 0,\
-							('commit', 'c', 0, 0, int):0,\
-							('debug', 'b', 0, 0, int):0,\
-							('report', 'r', 0, 0, int):0}
+	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
+							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
+							('u', 'user', 1, '', 1, ):None,\
+							('p', 'passwd', 1, '', 1, ):None,\
+							('t', 'call_info_table', 1, '', 1, ): 'call_info',\
+							('i', 'cmp_data_filename', 1, 'the data file to be compared with.', 1, ): None,\
+							('q', 'call_QC_table', 1, '', 1, ): 'call_QC',\
+							('m', 'QC_method_id', 1, 'id in table QC_method', 1, int): None,\
+							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
+							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
+							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
 	
 	"""
 	2008-04-40
 		option_default_dict is a dictionary for option handling, including argument_default_dict info
-		the key is a tuple, ('long_option', 'short_option', has_argument, is_option_required, argument_type)
+		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
 		argument_type is optional
 	"""
 	def __init__(self,  **keywords):
@@ -277,7 +262,6 @@ class QC_250k(object):
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
 			
 			call_info_id2fname = self.get_call_info_id2fname(curs, self.call_info_table, self.call_QC_table, self.QC_method_id)
-			
 			header, strain_acc_list, category_list, data_matrix = self.read_call_matrix(call_info_id2fname)
 			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id)
@@ -290,7 +274,8 @@ class QC_250k(object):
 
 
 if __name__ == '__main__':
-	opts_dict = process_options(sys.argv, QC_250k.option_default_dict, error_doc=QC_250k.__doc__)
+	from pymodule import process_options, generate_program_doc
+	opts_dict = process_options(sys.argv, QC_250k.option_default_dict, error_doc=generate_program_doc(sys.argv[0], QC_250k.option_default_dict)+QC_250k.__doc__)
 	
 	instance = QC_250k(**opts_dict)
 	instance.run()
