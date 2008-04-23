@@ -302,8 +302,8 @@ class QC_250k(object):
 			writer.writerow(list(row_id) + NA_mismatch_ls)
 		del writer
 		sys.stderr.write("Done.\n")
-		
-	def run(self):
+	
+	def plone_run(self):
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
@@ -329,13 +329,17 @@ class QC_250k(object):
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id)
 			
 			row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
+		return row_id2NA_mismatch_rate
+	
+	def run(self):
+		row_id2NA_mismatch_rate = self.plone_run()
 			
-			if self.output_fname:
-				self.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname)
+		if self.output_fname:
+			self.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname)
 			
-			if self.commit and not self.input_dir:	#if self.input_dir is given, call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
-				#no submission to db
-				self.submit_to_call_QC(curs, row_id2NA_mismatch_rate, self.call_QC_table, self.QC_method_id, self.user)
+		if self.commit and not self.input_dir:	#if self.input_dir is given, call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
+			#no submission to db
+			self.submit_to_call_QC(curs, row_id2NA_mismatch_rate, self.call_QC_table, self.QC_method_id, self.user)
 		if self.commit:
 			curs.execute("commit")
 
