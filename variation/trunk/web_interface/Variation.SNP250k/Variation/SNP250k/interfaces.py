@@ -207,3 +207,63 @@ class IStockDatabaseSettings(Interface):
 	database = schema.ASCIILine(title=u"Database name", 
 								description=u"The name of the database on this server", 
 								required=True)
+
+class IQCMethod(Interface):
+	"""
+	QCMethod Interface
+	"""
+	id = schema.Int(title=u"QC Method identifier",
+							  description=u"A unique id for this QC method",
+							  required=True,
+							  readonly=True)
+	
+	short_name = schema.TextLine(title=u"Short Name",
+                            required=True)
+	
+	method_description = schema.SourceText(title=u"QC Method Description",
+						   readonly=True)
+	data_description = schema.SourceText(title=u"Data Description",
+						   readonly=True)
+	comment = schema.SourceText(title=u"Comment",
+						   readonly=True)
+	created_by = schema.TextLine(title=u"Created By",
+                            readonly=True)
+	updated_by = schema.TextLine(title=u"Updated By",
+                            readonly=True)
+	date_created = schema.Datetime(title=u"Date Created",
+							readonly=True)
+	date_updated = schema.Datetime(title=u"Date Updated",
+							readonly=True)
+								
+def QCMethodIDVocabulary(context):
+	locator = getUtility(IPhenotypeLocator)
+	v = locator.get_QC_method_id_ls()
+	return SimpleVocabulary.fromItems(v)
+directlyProvides(QCMethodIDVocabulary, IVocabularyFactory)
+
+class IQCOnDirectory(Interface):
+	"""
+	Phenotype Interface
+	"""
+	title = schema.TextLine(title=u"Title", 
+							required=True)
+							
+	description = schema.TextLine(title=u"Description", 
+								  description=u"A short summary for this QC.",
+								  required=False)
+	
+	QC_method_id = schema.Choice(title=u'QC Method ID',
+						 description=u'QC Method Identifier',
+						 required=True, vocabulary="Variation.SNP250k.QCMethodIDVocabulary")
+	
+	input_dir = schema.TextLine(title=u'Input Directory',
+						 description=u'Directory Containing Call Files',
+						 required=True)
+	
+	short_name = schema.TextLine(title=u'Short Name',
+							   description=u"short name for this QC Method",
+							   required=True)
+	
+	row_id2NA_mismatch_rate = schema.Dict(title=u"QC results. NA_rate and mismatch_rate",
+							description=u"dictionary storing results",
+							required = True)

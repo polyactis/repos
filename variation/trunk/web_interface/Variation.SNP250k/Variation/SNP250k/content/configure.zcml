@@ -41,5 +41,20 @@
            zope.app.event.interfaces.IObjectModifiedEvent"
       handler=".phenotype.catalog_content"
       />
-    
+
+	 <class class=".qcondirectory.QCOnDirectory">
+        <require
+            permission="zope2.View"
+            interface="..interfaces.IQCOnDirectory"
+            />
+        <require
+            permission="cmf.ModifyPortalContent"
+            set_schema="..interfaces.IQCOnDirectory"
+            />
+    </class>
+	<subscriber
+      for="..interfaces.IQCOnDirectory
+           zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+      handler=".phenotype.catalog_content"
+      />
 </configure>

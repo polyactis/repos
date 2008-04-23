@@ -1,7 +1,7 @@
 from zope.interface import implements
 from zope.component import getUtility
 
-from Variation.SNP250k.interfaces import IPhenotypeMethod, IPhenotypeAvg
+from Variation.SNP250k.interfaces import IPhenotypeMethod, IPhenotypeAvg,  IQCMethod
 from Variation.SNP250k.interfaces import IPhenotypeLocator
 #from optilux.cinemacontent.interfaces import ITicketReservations
 #from optilux.cinemacontent.interfaces import ReservationError
@@ -59,7 +59,31 @@ class PhenotypeAvg(object):
 		self.sample_size = sample_size
 		self.method_id = method_id
 
-
+class QCMethod(object):
+	"""QCMethod for ORM mapping
+	"""
+	
+	implements(IQCMethod)
+	
+	short_name = None
+	method_description = u""
+	data_description = u""
+	comment = u""
+	created_by = None
+	updated_by = None
+	date_created = None
+	date_updated = None
+	
+	def __init__(self, id, short_name, method_description, data_description, comment, created_by, updated_by, date_created, date_updated):
+		self.id = id
+		self.short_name = short_name
+		self.method_description = method_description
+		self.data_description = data_description
+		self.comment = comment
+		self.created_by = created_by
+		self.updated_by = updated_by
+		self.date_created = date_created
+		self.date_updated = date_updated
 
 #class TicketReservations(object):
 #	"""Make reservations in the reservations database
@@ -137,6 +161,24 @@ class PhenotypeLocator(object):
 							sort_on='sortable_title')
 			   ]
 		"""
+		vocabulary = [('%s %s'%(row[0], row[1]), row[0]) for row in results]	#(token, value)
+		return vocabulary
+
+	def get_QC_method_id_ls(self):
+		"""
+		2008-04-23
+		"""
+		
+		# Set up and issue the query, making sure we use the same transaction
+		# context as SQLAlchemy's session. 
+		
+		db = getUtility(IDatabase, name='variation.stockdatabase')
+		connection = db.connection
+				
+		statement = sql.select([QCMethod.c.id, QCMethod.c.short_name],
+							   distinct=True)
+		
+		results = connection.execute(statement).fetchall()
 		vocabulary = [('%s %s'%(row[0], row[1]), row[0]) for row in results]	#(token, value)
 		return vocabulary
 	

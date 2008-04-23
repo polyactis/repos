@@ -9,7 +9,7 @@ from Variation.SNP250k.interfaces import IStockDatabaseSettings
 from sqlalchemy.engine.url import URL
 from sqlalchemy import Table, mapper, relation
 
-from Variation.SNP250k.dbphenotype import PhenotypeAvg, PhenotypeMethod
+from Variation.SNP250k.dbphenotype import PhenotypeAvg, PhenotypeMethod, QCMethod
 #from optilux.cinemacontent.reservation import Results
 
 class StockDatabaseSettings(Persistent):
@@ -48,6 +48,7 @@ class StockDatabase(Database):
 			
 		tables['phenotype_avg'] = Table('phenotype_avg', metadata, autoload=True)
 		tables['phenotype_method'] = Table('phenotype_method', metadata, autoload=True)
+		tables['QC_method'] = Table('QC_method', metadata, autoload=True)
 		#tables['reservation'] = Table('reservation', metadata, autoload=True)
 	
 	def _setup_mappers(self, tables, mappers):
@@ -57,6 +58,7 @@ class StockDatabase(Database):
 		mappers['phenotype_method'] = mapper(PhenotypeMethod, tables['phenotype_method'])
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
 										properties={'method_id': relation(PhenotypeMethod),}, allow_column_override=True)
+		mappers['QC_method'] = mapper(QCMethod, tables['QC_method'])
 		#mappers['reservation'] = mapper(Reservation, tables['reservation'],
 		#							   properties = {
 		#									'screening' : relation(Screening),

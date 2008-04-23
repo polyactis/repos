@@ -66,4 +66,19 @@
     	provides="..interfaces.IStockDatabaseSettings"
     	factory=".dbsettings.stock_database_settings"
     	/>
+
+    <browser:page
+        for="..interfaces.IQCOnDirectory"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
+        name="view"
+        class=".qcondirectory.QCOnDirectoryView"
+        permission="zope2.View"
+        />
+    <browser:page
+        for="..interfaces.IQCOnDirectory"
+        name="qcondirectory_edit"
+        class=".qcondirectory.EditQCOnDirectoryForm"
+        permission="cmf.ModifyPortalContent"
+        />
+
 </configure>

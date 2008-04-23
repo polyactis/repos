@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<object name="QCOnDirectory"
+   meta_type="Factory-based Type Information with dynamic views"
+   xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+ <property name="title" i18n:translate="">QCOnDirectory</property>
+ <property name="description"
+     i18n:translate="">QCOnDirectory Data.</property>
+ <property name="content_meta_type">QCOnDirectory</property>
+ <property name="product">Variation.SNP250k</property>
+ <property name="factory">addQCOnDirectory</property>
+ <property name="immediate_view">edit</property>
+ <property name="global_allow">False</property>
+ <property name="filter_content_types">False</property>
+ <property name="allowed_content_types" />
+ <property name="allow_discussion">True</property>
+ <property name="default_view">view</property>
+ <property name="view_methods">
+  <element value="view"/>
+ </property>
+ <alias from="(Default)" to="view"/>
+ <alias from="edit" to="qcondirectory_edit"/>
+ <alias from="sharing" to="@@sharing"/>
+ <action title="View" action_id="view" category="object" condition_expr=""
+    url_expr="string:${object_url}/view" visible="True">
+  <permission value="View"/>
+ </action>
+ <action title="Edit" action_id="edit" category="object" condition_expr=""
+    url_expr="string:${object_url}/edit" visible="True">
+  <permission value="Modify portal content"/>
+ </action>
+</object>

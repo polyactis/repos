@@ -35,4 +35,9 @@
 		component=".interfaces.MethodIDVocabulary"
 		name="Variation.SNP250k.MethodIDVocabulary"
 		/>
+	<utility
+		provides="zope.schema.interfaces.IVocabularyFactory"
+		component=".interfaces.QCMethodIDVocabulary"
+		name="Variation.SNP250k.QCMethodIDVocabulary"
+		/>
 </configure>

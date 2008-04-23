@@ -26,7 +26,7 @@ from Products.CMFCore.utils import getToolByName
 from Variation.SNP250k.interfaces import IPhenotype
 from Variation.SNP250k.config import PROJECTNAME
 
-#from Products.Variation import VariationMessageFactory as _
+from Variation.SNP250k import VariationMessageFactory as _
 
 """
 PhenotypeSchema = schemata.ATContentTypeSchema.copy() + atapi.Schema((

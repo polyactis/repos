@@ -11,5 +11,6 @@
  <factorytypes>
   <type portal_type="Variation Folder"/>
   <type portal_type="Phenotype"/>
+  <type portal_type="QCOnDirectory"/>
  </factorytypes>
 </object>
