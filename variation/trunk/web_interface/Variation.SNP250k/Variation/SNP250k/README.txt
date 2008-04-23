@@ -115,23 +115,6 @@ do this from the login page.
 Addable content
 ---------------
 
-04/18/08 Play with the optilux.cinemacontent to ensure this doctest works.
-Cinema content is managed inside two root content types: A "Cinema Folder"
-contains cinemas and information about them. A "Film Folder" contains films.
-
-    >>> browser.open(portal_url)
-    >>> browser.getLink(id='cinema-folder').url.endswith("createObject?type_name=Cinema+Folder")
-    True
-    >>> browser.getLink(id='film-folder').click()
-    >>> browser.getControl(name='title').value = "Films"
-    >>> browser.getControl(name='form_submit').click()
-
-    >>> 'films' in self.portal.objectIds()
-    True
-    >>> films = self.portal['films']
-    >>> films_url = films.absolute_url()
-    >>> print films_url
-
 Verify that we have the links to create cinema and film folders, from the add
 item menu:
 
@@ -160,7 +143,7 @@ Create a phenotype in variation3 folder.
     >>> browser.getLink(id='phenotype').click()
     >>> browser.getControl(name='form.title').value = "first phenotype"
     >>> browser.getControl(name='form.description').value = "first phenotype"
-    >>> browser.getControl(name='form.method_id_ls').value = [1]
+    >>> browser.getControl(name='form.method_id_ls-empty-marker').value = "1"
     >>> browser.getControl(name='form.actions.save').click()
     >>> 'first-phenotype' in self.portal.objectIds()
     True

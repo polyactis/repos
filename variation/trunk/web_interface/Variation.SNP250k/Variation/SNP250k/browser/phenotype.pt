@@ -39,7 +39,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr tal:repeat="short_name context/short_name_ls">
+                <tr tal:repeat="short_name view/short_name_ls">
                     <td tal:content="short_name" />
                     <td tal:content="short_name" />
                 </tr>

@@ -29,6 +29,7 @@
 
     <browser:page
         for="..interfaces.IPhenotype"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
         name="view"
         class=".phenotype.PhenotypeView"
         permission="zope2.View"
@@ -36,8 +37,14 @@
     
     <browser:page
         for="..interfaces.IPhenotype"
-        name="edit"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
+        name="pheno_edit"
         class=".phenotype.CheckoutPhenotypeForm"
         permission="cmf.ModifyPortalContent"
         />
+    <subscriber
+      for="..interfaces.IPhenotype
+           zope.app.event.interfaces.IObjectModifiedEvent"
+      handler=".phenotype.fill_phenotype_content"
+      />
 </configure>

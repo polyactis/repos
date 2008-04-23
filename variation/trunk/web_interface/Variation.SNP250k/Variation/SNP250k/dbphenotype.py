@@ -155,9 +155,15 @@ class PhenotypeLocator(object):
 			method_id_ls = [method_id_ls]
 		method_id_ls.sort()
 		for method_id in method_id_ls:
-			phenotype_method = session.query(PhenotypeMethod).get(method_id)
-			short_name_ls.append(phenotype_method.short_name)
-			method_description_ls.append(phenotype_method.method_description)
+			#phenotype_method = session.query(PhenotypeMethod).get(method_id)
+			statement = sql.select([PhenotypeMethod.c.short_name, PhenotypeMethod.c.method_description],
+							   sql.and_(
+									PhenotypeMethod.c.id == method_id),
+							   distinct=True)
+			results = connection.execute(statement).fetchall()
+			#cinema_codes = [row['cinema_code'] for row in results]
+			short_name_ls += [row['short_name'] for row in results]
+			method_description_ls += [row['method_description'] for row in results]
 		
 		return short_name_ls, method_description_ls
 	

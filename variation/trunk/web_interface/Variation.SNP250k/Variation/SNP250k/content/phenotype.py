@@ -76,9 +76,11 @@ class Phenotype(atapi.BaseContent):
 	"""
 	implements(IPhenotype)
 	
+	#04/19/08 these three attributes are used by Archetypes
 	portal_type = "Phenotype"
-	_at_rename_after_creation = True
+	#_at_rename_after_creation = True
 	#schema = PhenotypeSchema
+	
 	title = fieldproperty.FieldProperty(IPhenotype['title'])
 	description = fieldproperty.FieldProperty(IPhenotype['description'])
 	

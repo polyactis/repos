@@ -74,7 +74,8 @@ class IPhenotype(Interface):
 							required=True)
 							
 	description = schema.SourceText(title=u"Description", 
-								  description=u"A short summary for this phenotype checking out.")
+								  description=u"A short summary for this phenotype checking out.",
+								  required=False)
 	
 	method_id_ls = schema.Choice(title=u'Method ID',
 						 description=u'Phentoype Method ID in phenotype_method',

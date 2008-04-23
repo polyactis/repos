@@ -20,18 +20,15 @@ from Products.Five.formlib import formbase
 
 from Products.statusmessages.interfaces import IStatusMessage
 
-#from plone.memoize.instance import memoize
+from plone.memoize.instance import memoize
 
 from Variation.SNP250k.interfaces import IPhenotype, IPhenotypeLocator
-#from optilux.cinemacontent.interfaces import IScreeningLocator
 from Variation.SNP250k import VariationMessageFactory as _
 
 class PhenotypeView(BrowserView):
-	"""Default view of a film
 	"""
+	Default view of a film
 	
-	__call__ = pagetemplatefile.ViewPageTemplateFile('phenotype.pt')
-	"""
 	#@memoize
 	def cinemas(self, days=14):
 		context = aq_inner(self.context)
@@ -46,51 +43,105 @@ class PhenotypeView(BrowserView):
 		banner_provider = IBannerProvider(context)
 		return banner_provider.tag
 	"""
+	
+	__call__ = pagetemplatefile.ViewPageTemplateFile('phenotype.pt')
+	
+	@memoize
+	def short_name_ls(self):
+		context = aq_inner(self.context)
+		ls_to_return = [short_name for short_name in context.short_name_ls]
+		return ls_to_return
+		
 
-def YesNoWidget(field, request):
-	locator = getUtility(IPhenotypeLocator)
-	v = locator.get_phenotype_method_id_ls()
-	vocabulary = vocabulary.SimpleVocabulary.fromItems(v)
-	#vocabulary = vocabulary.SimpleVocabulary.fromItems(((true, True), (false, False)))
-	return zope.app.form.browser.MultiSelectWidget(field, vocabulary, request)
-   
-   
 class CheckoutPhenotypeForm(formbase.EditForm):
 	form_fields = form.FormFields(IPhenotype).omit('short_name_ls', 'method_description_ls', 'data_matrix')
 	#result_template = pagetemplatefile.ZopeTwoPageTemplateFile('search-results.pt')
-	
+	def __init__(self, *args, **kwargs):
+		formbase.EditForm.__init__(self, *args, **kwargs)
+		
+		# a hack to make the content tab work
+		#self.template.getId = lambda: 'edit'
+
 	@form.action(_(u"save"))
 	def action_save(self, action, data):
-		method_id_ls = data['method_id_ls']
-		#method_id = method_id_short_name.split(' ')[0]
-		#method_id = int(method_id)
-		context = aq_inner(self.context)
-		newId = data['title'].replace(' ','-')
-		newId = id.replace('/', '-')
-		#newId = context.generateNewId()
-		context.invokeFactory(newId, type_name='Phenotype')
-		new_context = getattr(context, newId)
-		
-		#phenotype.generateNewId()
-		#new_context = context.portal_factory.doCreate(context, id)
-		locator = getUtility(IPhenotypeLocator)
-		phenotype.short_name_ls, phenotype.method_description_ls = locator.get_short_name_description_ls(method_id_ls)
-		"""
-		catalog = cmfutils.getToolByName(self.context, 'portal_catalog')
-		
-		kwargs = {}
-		if data['text']:
-			kwargs['SearchableText'] = data['text']
-		if data['description']:
-			kwargs['description'] = data['description']
-		
-		self.search_results = catalog(**kwargs)
-		self.search_results_count = len(self.search_results)
-		return self.result_template()
-		"""
-		return self.state.set(context=new_context, portal_status_message="Phenotype Checked out.")
+		if form.applyChanges(
+			self.context, self.form_fields, data, self.adapters):
+			method_id_ls = data['method_id_ls']
+			#method_id = method_id_short_name.split(' ')[0]
+			#method_id = int(method_id)
+			context = aq_inner(self.context)
+			newId = data['title'].replace(' ','-')
+			newId = newId.replace('/', '-')
+			#newId = context.generateNewId()
+			#context.invokeFactory(id=newId, type_name='Phenotype')
+			#new_context = getattr(context, newId)
+			
+			#import sys
+			#sys.stderr.write("id: %s, title: %s, newId: %s.\n"%(context.id, context.title, newId))
+			#sys.stderr.write("type(newId): %s, dir(newId): %s.\n"%(repr(type(newId)), repr(dir(newId)) ))
+			
+			context.setId(str(newId))	#type of newId is unicode. and str is required for catalog
+			#phenotype.generateNewId()
+			#new_context = context.portal_factory.doCreate(context, id)
+			locator = getUtility(IPhenotypeLocator)
+			context.short_name_ls, context.method_description_ls = locator.get_short_name_description_ls(method_id_ls)
+			
+			zope.event.notify(
+				zope.app.event.objectevent.ObjectModifiedEvent(self.context)
+				)
+			# TODO: Needs locale support. See also Five.form.EditView.
+			self.status = _(
+				"Phenotype Updated on ${date_time}", 
+				mapping={'date_time': str(datetime.utcnow())}
+				)
+			#confirm = u"Phenotype Checked Out."
+			#IStatusMessage(self.request).addStatusMessage(confirm, type='info')
+			
+			#04/18/08 old way of handling from the (The Definitive Guide to Plone)
+			#self.state.set(context=new_context, portal_status_message="Phenotype Checked out.")
+			
+			self.request.response.redirect(context.absolute_url())
+		else:
+			context = aq_inner(self.context)
+			confirm = u"Phenotype Unchanged."
+			IStatusMessage(self.request).addStatusMessage(confirm, type='info')
+			self.request.response.redirect(context.absolute_url())
+			
+			#self.status = _('No changes')
+
+	"""
+	def update(self):
+		if form.applyChanges(
+			self.context, self.form_fields, data, self.adapters):
+			method_id_ls = data['method_id_ls']
+			#method_id = method_id_short_name.split(' ')[0]
+			#method_id = int(method_id)
+			context = aq_inner(self.context)
+			newId = data['title'].replace(' ','-')
+			newId = id.replace('/', '-')
+			#newId = context.generateNewId()
+			context.invokeFactory(newId, type_name='Phenotype')
+			new_context = getattr(context, newId)
+			
+			#phenotype.generateNewId()
+			#new_context = context.portal_factory.doCreate(context, id)
+			locator = getUtility(IPhenotypeLocator)
+			new_context.short_name_ls, new_context.method_description_ls = locator.get_short_name_description_ls(method_id_ls)
+			
+			zope.event.notify(
+				zope.app.event.objectevent.ObjectModifiedEvent(self.context)
+				)
+			# TODO: Needs locale support. See also Five.form.EditView.
+			self.status = _(
+				"Updated on ${date_time}", 
+				mapping={'date_time': str(datetime.utcnow())}
+				)
+			
+		else:
+			self.status = _('No changes')
+	"""
 	
-	@form.action(_(u"cancel"))
+	@form.action(_(u"Cancel"), name='cancel')
 	def action_cancel(self, action, data):
 		"""
 		Cancel the phenotype checkout
@@ -99,4 +150,8 @@ class CheckoutPhenotypeForm(formbase.EditForm):
 		confirm = u"Phenotype Checkout cancelled."
 		IStatusMessage(self.request).addStatusMessage(confirm, type='info')
 		self.request.response.redirect(context.absolute_url())
-		return self.state.set(context=context, portal_status_message="Phenotype Checkout Cancelled.")
+		return ''
+
+def fill_phenotype_content(obj, event):
+	locator = getUtility(IPhenotypeLocator)
+	obj.short_name_ls, obj.method_description_ls = locator.get_short_name_description_ls(obj.method_id_ls)
