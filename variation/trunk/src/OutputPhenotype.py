@@ -102,6 +102,8 @@ class OutputPhenotype:
 	
 	def get_matrix(self, curs, phenotype_avg_table, ecotype_id2index, phenotype_method_id2index):
 		"""
+		2008-04-23
+			#some db entries (phenotype_avg.value) have nothing there. convert None to 'NA'
 		2008-04-09
 			no longer uses numpy matrix. just simple 2-d list.
 		2008-4-2
@@ -116,6 +118,8 @@ class OutputPhenotype:
 		rows = curs.fetchall()
 		for row in rows:
 			ecotype_id, phenotype_method_id, value = row
+			if value==None:	#some db entries have nothing there. convert None to 'NA'
+				value = 'NA'
 			data_matrix[ecotype_id2index[ecotype_id]][phenotype_method_id2index[phenotype_method_id]] = value
 		sys.stderr.write("Done\n")
 		return data_matrix
