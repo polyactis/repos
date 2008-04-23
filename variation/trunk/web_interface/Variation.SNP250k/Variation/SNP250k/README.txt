@@ -132,19 +132,22 @@ item menu:
     >>> variation3_url = variation3.absolute_url()
     >>> browser.open(variation3_url)
 
-Create a phenotype in variation3 folder.
-04/18/08 Watch: the custom edit form (inherited from zope.formlib.form) has prefix 'form' attached to each widget name.
+Play around a bit according to /usr/lib/zope2.10/lib/python/zope/formlib/form.txt
 
     >>> from zope.publisher.browser import TestRequest, BrowserResponse
     >>> request = TestRequest(response=BrowserResponse())
-    >>> from Variation.SNP250k.browser.phenotype import CheckoutPhenotypeForm
-    >>> print CheckoutPhenotypeForm(None, request)() # doctest: +NORMALIZE_WHITESPACE
+    >>> from Variation.SNP250k.browser.phenotype import AddPhenotypeForm
+    >>> print AddPhenotypeForm(None, request)() # doctest: +NORMALIZE_WHITESPACE
+
+Create a phenotype in variation3 folder.
+04/18/08 Watch: the custom edit form (inherited from zope.formlib.form) has prefix 'form' attached to each widget name.:
+
     >>> browser.open(variation3_url)
     >>> browser.getLink(id='phenotype').click()
     >>> browser.getControl(name='form.title').value = "first phenotype"
     >>> browser.getControl(name='form.description').value = "first phenotype"
     >>> browser.getControl(name='form.method_id_ls-empty-marker').value = "1"
     >>> browser.getControl(name='form.actions.save').click()
-    >>> 'first-phenotype' in self.portal.objectIds()
+    >>> 'first-phenotype' in variation3.objectIds()
     True
 

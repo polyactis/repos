@@ -39,7 +39,14 @@
         for="..interfaces.IPhenotype"
         layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
         name="pheno_edit"
-        class=".phenotype.CheckoutPhenotypeForm"
+        class=".phenotype.EditPhenotypeForm"
+        permission="cmf.ModifyPortalContent"
+        />
+    <browser:page
+        for="..interfaces.IPhenotype"
+        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
+        name="pheno_add"
+        class=".phenotype.AddPhenotypeForm"
         permission="cmf.ModifyPortalContent"
         />
     <subscriber
@@ -47,4 +54,16 @@
            zope.app.event.interfaces.IObjectModifiedEvent"
       handler=".phenotype.fill_phenotype_content"
       />
+    
+    <browser:page
+    	name = "stock-database-settings-form"
+    	for= "..interfaces.IVariationFolder"
+    	class=".dbsettings.StockDatabaseSettingsForm"
+    	permission="cmf.ModifyPortalContent"
+    	/>
+    <adapter
+    	for="..interfaces.IVariationFolder"
+    	provides="..interfaces.IStockDatabaseSettings"
+    	factory=".dbsettings.stock_database_settings"
+    	/>
 </configure>

@@ -1,0 +1,6 @@
+<object name="portal_catalog" meta_type="Plone Catalog Tool">
+    <index name="short_name_ls" meta_type="FieldIndex">
+        <indexed_attr value="short_name_ls"/>
+    </index>
+    <column value="short_name_ls"/>
+</object>

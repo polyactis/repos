@@ -16,6 +16,11 @@
      <element value="Results" />
      <element value="CelData" />
      <element value="Genotype" />
+     <element value="Document" />
+     <element value="File" />
+     <element value="Folder" />
+     <element value="Image" />
+     <element value="Link" />
  </property>
  <property name="allow_discussion">False</property>
  <property name="default_view">folder_summary_view</property>
@@ -35,6 +40,10 @@
  </action>
  <action title="Edit" action_id="edit" category="object" condition_expr=""
     url_expr="string:${object_url}/edit" visible="True">
+  <permission value="Modify portal content"/>
+ </action>
+ <action title="DBSetting" action_id="dbsettings" category="object" condition_expr=""
+    url_expr="string:${object_url}/@@stock-database-settings-form" visible="True">
   <permission value="Modify portal content"/>
  </action>
 </object>

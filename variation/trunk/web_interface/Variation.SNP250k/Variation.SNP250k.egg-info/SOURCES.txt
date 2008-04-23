@@ -30,6 +30,7 @@ Variation/SNP250k/tests.py
 Variation/SNP250k/version.txt
 Variation/SNP250k/browser/__init__.py
 Variation/SNP250k/browser/configure.zcml
+Variation/SNP250k/browser/dbsettings.py
 Variation/SNP250k/browser/interfaces.py
 Variation/SNP250k/browser/phenotype.pt
 Variation/SNP250k/browser/phenotype.py
@@ -43,6 +44,7 @@ Variation/SNP250k/content/configure.zcml
 Variation/SNP250k/content/phenotype.py
 Variation/SNP250k/content/variationfolder.py
 Variation/SNP250k/profiles/default/Variation.SNP250k_various.txt
+Variation/SNP250k/profiles/default/catalog.xml
 Variation/SNP250k/profiles/default/componentregistry.xml
 Variation/SNP250k/profiles/default/cssregistry.xml
 Variation/SNP250k/profiles/default/factorytool.xml
@@ -57,9 +59,6 @@ Variation/SNP250k/profiles/default/types/Variation_Folder.xml
 Variation/SNP250k/skins/Variation_SNP250k_custom_images/CONTENT.txt
 Variation/SNP250k/skins/Variation_SNP250k_custom_templates/CONTENT.txt
 Variation/SNP250k/skins/Variation_SNP250k_styles/CONTENT.txt
-Variation/SNP250k/skins/Variation_SNP250k_styles/base.css.dtml
-Variation/SNP250k/skins/Variation_SNP250k_styles/portlets.css.dtml
-Variation/SNP250k/skins/Variation_SNP250k_styles/public.css.dtml
 docs/HISTORY.txt
 docs/INSTALL.txt
 docs/LICENSE.GPL

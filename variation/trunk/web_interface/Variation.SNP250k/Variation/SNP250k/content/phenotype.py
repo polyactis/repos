@@ -77,7 +77,7 @@ class Phenotype(atapi.BaseContent):
 	implements(IPhenotype)
 	
 	#04/19/08 these three attributes are used by Archetypes
-	portal_type = "Phenotype"
+	#portal_type = "Phenotype"
 	#_at_rename_after_creation = True
 	#schema = PhenotypeSchema
 	

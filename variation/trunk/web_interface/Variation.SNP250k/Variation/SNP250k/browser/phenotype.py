@@ -12,7 +12,7 @@ import zope
 #from zope.app.form import browser
 
 
-from Acquisition import aq_inner
+from Acquisition import aq_inner, aq_parent
 
 from Products.Five.browser import BrowserView
 from Products.Five.browser import pagetemplatefile
@@ -24,6 +24,8 @@ from plone.memoize.instance import memoize
 
 from Variation.SNP250k.interfaces import IPhenotype, IPhenotypeLocator
 from Variation.SNP250k import VariationMessageFactory as _
+from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
+#zope.app.event.objectevent.ObjectModifiedEvent is the old one
 
 class PhenotypeView(BrowserView):
 	"""
@@ -53,20 +55,20 @@ class PhenotypeView(BrowserView):
 		return ls_to_return
 		
 
-class CheckoutPhenotypeForm(formbase.EditForm):
+class EditPhenotypeForm(formbase.EditForm):
 	form_fields = form.FormFields(IPhenotype).omit('short_name_ls', 'method_description_ls', 'data_matrix')
 	#result_template = pagetemplatefile.ZopeTwoPageTemplateFile('search-results.pt')
-	def __init__(self, *args, **kwargs):
-		formbase.EditForm.__init__(self, *args, **kwargs)
 		
 		# a hack to make the content tab work
 		#self.template.getId = lambda: 'edit'
 
-	@form.action(_(u"save"))
+	@form.action(_(u"Save"), name='save')
 	def action_save(self, action, data):
+		"""
+		2008-04-22 one question remains. how to use the portal factory tool. need to move the object out of the portal_factory
+		"""
 		if form.applyChanges(
 			self.context, self.form_fields, data, self.adapters):
-			method_id_ls = data['method_id_ls']
 			#method_id = method_id_short_name.split(' ')[0]
 			#method_id = int(method_id)
 			context = aq_inner(self.context)
@@ -80,14 +82,35 @@ class CheckoutPhenotypeForm(formbase.EditForm):
 			#sys.stderr.write("id: %s, title: %s, newId: %s.\n"%(context.id, context.title, newId))
 			#sys.stderr.write("type(newId): %s, dir(newId): %s.\n"%(repr(type(newId)), repr(dir(newId)) ))
 			
-			context.setId(str(newId))	#type of newId is unicode. and str is required for catalog
-			#phenotype.generateNewId()
-			#new_context = context.portal_factory.doCreate(context, id)
+			#use below to decide if this is first time being created by portal_factory or followup editing
+			grandpa = aq_parent(aq_parent(context))
+			if grandpa.id=='portal_factory':
+				#phenotype.generateNewId()
+				
+				#2008-04-23. below is probably a simpler line. don't know where i got it.
+				#new_context = context.portal_factory.doCreate(context, id)
+				
+				#2008-04-23. got the clue from FactoryTool.doCreate() of Products/CMFPlone/FactoryTool.py
+				type_name = aq_parent(context).id  # get the ID of the TempFolder
+				folder = aq_parent(aq_parent(aq_parent(context)))
+				folder.invokeFactory(id=newId, type_name=type_name)
+				
+				new_context = getattr(folder, newId)
+				new_context.setId(str(newId))	#type of newId is unicode. and str is required for catalog
+
+				#manually set all these properties
+				new_context.title = data['title']
+				new_context.description = data['description']
+				new_context.method_id_ls = data['method_id_ls']
+			else:
+				new_context = context
+				new_context.setId(str(newId))
+			
 			locator = getUtility(IPhenotypeLocator)
-			context.short_name_ls, context.method_description_ls = locator.get_short_name_description_ls(method_id_ls)
+			new_context.short_name_ls, new_context.method_description_ls = locator.get_short_name_description_ls(new_context.method_id_ls)
 			
 			zope.event.notify(
-				zope.app.event.objectevent.ObjectModifiedEvent(self.context)
+				ObjectModifiedEvent(new_context)
 				)
 			# TODO: Needs locale support. See also Five.form.EditView.
 			self.status = _(
@@ -100,9 +123,14 @@ class CheckoutPhenotypeForm(formbase.EditForm):
 			#04/18/08 old way of handling from the (The Definitive Guide to Plone)
 			#self.state.set(context=new_context, portal_status_message="Phenotype Checked out.")
 			
-			self.request.response.redirect(context.absolute_url())
+			self.request.response.redirect(new_context.absolute_url())
 		else:
+			#use below to decide if this is first time being created by portal_factory or followup editing
 			context = aq_inner(self.context)
+			grandpa = aq_parent(aq_parent(context))
+			if grandpa.id=='portal_factory':
+				context = aq_parent(aq_parent(aq_parent(aq_inner(self.context))))
+			
 			confirm = u"Phenotype Unchanged."
 			IStatusMessage(self.request).addStatusMessage(confirm, type='info')
 			self.request.response.redirect(context.absolute_url())
@@ -146,12 +174,69 @@ class CheckoutPhenotypeForm(formbase.EditForm):
 		"""
 		Cancel the phenotype checkout
 		"""
+		#use below to decide if this is first time being created by portal_factory or followup editing
 		context = aq_inner(self.context)
-		confirm = u"Phenotype Checkout cancelled."
+		grandpa = aq_parent(aq_parent(context))
+		if grandpa.id=='portal_factory':
+			context = aq_parent(aq_parent(aq_parent(aq_inner(self.context))))
+			
+		confirm = u"Phenotype Unchanged."
 		IStatusMessage(self.request).addStatusMessage(confirm, type='info')
 		self.request.response.redirect(context.absolute_url())
 		return ''
 
 def fill_phenotype_content(obj, event):
-	locator = getUtility(IPhenotypeLocator)
-	obj.short_name_ls, obj.method_description_ls = locator.get_short_name_description_ls(obj.method_id_ls)
+	"""
+	2008-04-23 EditPhenotypeForm already does this. Omits them.
+	"""
+	pass
+	#locator = getUtility(IPhenotypeLocator)
+	#obj.short_name_ls, obj.method_description_ls = locator.get_short_name_description_ls(obj.method_id_ls)
+
+class AddPhenotypeForm(formbase.AddForm):
+	form_fields = form.FormFields(IPhenotype).omit('short_name_ls', 'method_description_ls', 'data_matrix')
+	
+	
+	@form.action(_("Save"), name='save', condition=form.haveInputWidgets)
+	def handle_add(self, action, data):
+		if form.applyChanges(
+			self.context, self.form_fields, data, self.adapters):
+			method_id_ls = data['method_id_ls']
+			context = aq_inner(self.context)
+			newId = data['title'].replace(' ','-')
+			newId = newId.replace('/', '-')
+			#newId = context.generateNewId()
+			obj = Phenotype(newId)
+			context.add(obj)
+			#context.invokeFactory(id=newId, type_name='Phenotype')
+			new_context = getattr(context, newId)
+			
+			#import sys
+			#sys.stderr.write("id: %s, title: %s, newId: %s.\n"%(context.id, context.title, newId))
+			#sys.stderr.write("type(newId): %s, dir(newId): %s.\n"%(repr(type(newId)), repr(dir(newId)) ))
+			
+			#new_context.setId(str(newId))	#type of newId is unicode. and str is required for catalog
+			
+			#phenotype.generateNewId()
+			#new_context = context.portal_factory.doCreate(context, id)
+			locator = getUtility(IPhenotypeLocator)
+			new_context.short_name_ls, new_context.method_description_ls = locator.get_short_name_description_ls(method_id_ls)
+			zope.event.notify(ObjectCreatedEvent(obj))
+			self._finished_add = True	#a flag to decide whether the object is added or not
+			return obj	#AddForm.render() will handle the redirect
+		else:
+			confirm = u"No Phenotype Added."
+			IStatusMessage(self.request).addStatusMessage(confirm, type='info')
+			return None
+	
+	 
+	@form.action(_(u"Cancel"), name='cancel')
+	def action_cancel(self, action, data):
+		"""
+		Cancel the phenotype checkout
+		"""
+		parent = aq_parent(aq_inner(self.context))
+		confirm = u"Phenotype Checkout cancelled."
+		IStatusMessage(self.request).addStatusMessage(confirm, type='info')
+		self.request.response.redirect(parent.absolute_url())
+		return ''
