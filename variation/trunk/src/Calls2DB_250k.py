@@ -200,22 +200,7 @@ import traceback, gc
 from pymodule import process_function_arguments
 class Calls2DB_250k(object):
 	"""
-	2008-04-08
-	Calls2DB_250k.py [OPTIONS] -i INPUT_DIR -m METHOD_ID
-	
-	Argument list:
-		-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
-		-d ..., --dbname=...	the database name, stock_250k(default)
-		-u ..., --user=...	the db username, (otherwise it will ask for it).
-		-p ..., --passwd=...	the db password, (otherwise it will ask for it).
-		-i ...,	input_dir*	The directory containing calling algorithm output files.
-		-m ...,	method_id*
-		-o ...,	output_dir to store the renamed call files. '/Network/Data/250k/db/calls/'(default)
-		-t ...,	call_info_table, 'stock_250k.call_info'(default)
-		-a ...,	call_method_table, 'stock_250k.call_method'(default)
-		-c,	commit db transaction
-		-b,	toggle debug
-		-r, toggle report
+
 	Examples:
 		Calls2DB_250k.py -i /tmp/simplecalls -m 1 -c
 	
@@ -223,34 +208,37 @@ class Calls2DB_250k(object):
 		Turn calling algorithm's results into db and associated filesystem directory.
 		
 		Each file in input_dir shall be named like 'array_id'_call.tsv.
+		The file would be ignored if a call with same array_id and same method_id exists in database.
 		
 		The format is 2-column and tab-delimited. example:
 			SNP_ID	'array_id'
 			1_657_C_T	C
 	
 	"""
+	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
+							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
+							('u', 'user', 1, 'database username', 1, ):None,\
+							('p', 'passwd', 1, 'database password', 1, ):None,\
+							('i', 'input_dir', 1, 'directory containing output files of any calling algorithm', 1, ): None,\
+							('m', 'method_id',1, 'the id of the calling method. It must be in table call_method beforehand.', 1, ): None,\
+							('o', 'output_dir',1, 'file system storage for the call files. call_info_table would point each entry to this.', 1, ):'/Network/Data/250k/db/calls/' ,\
+							('a', 'call_method_table', 1, 'table storing the calling methods', 1, ): 'call_method',\
+							('t', 'call_info_table', 1, 'table to store final call file entries', 1, ): 'call_info',\
+							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
+							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
+							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
+	"""
+	2008-04-40
+		option_default_dict is a dictionary for option handling, including argument_default_dict info
+		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
+		argument_type is optional
+	"""
 	def __init__(self, **keywords):
 		"""
 		2008-04-08
 		"""
-		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
-								('dbname',1, ):'stock_250k',\
-								('user',1, ):None,\
-								('passwd',1, ):None,\
-								('input_dir',1, ):None,\
-								('output_dir',1, ):'/Network/Data/250k/db/calls/',\
-								('method_id',1,):None,\
-								('call_info_table',1, ):'stock_250k.call_info',\
-								('call_method_table',1, ):'stock_250k.call_method',\
-								('array_info_table',1, ):'stock_250k.array_info',\
-								('commit',0, int):0,\
-								('debug',0, int):0,\
-								('report',0, int):0}
-		"""
-		2008-02-28
-			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
-			argument_type is optional
-		"""
+		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
+		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
 		#argument dictionary
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		self.cur_max_call_id = None
@@ -359,62 +347,9 @@ class Calls2DB_250k(object):
 			curs.execute("commit")
 	
 if __name__ == '__main__':
-	if len(sys.argv) == 1:
-		print Calls2DB_250k.__doc__
-		sys.exit(2)
+	from pymodule import process_options, generate_program_doc
+	main_class = Calls2DB_250k
+	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
 	
-	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "debug", "report", "help"]
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:d:u:p:i:m:o:t:a:cbrh", long_options_list)
-	except:
-		traceback.print_exc()
-		print sys.exc_info()
-		print Calls2DB_250k.__doc__
-		sys.exit(2)
-	
-	hostname = None
-	dbname = None
-	user = None
-	passwd = None
-	input_dir = None
-	method_id = None
-	output_dir = None
-	call_info_table = None
-	call_method_table = None
-	commit = 0
-	debug = 0
-	report = 0
-	
-	for opt, arg in opts:
-		if opt in ("-h", "--help"):
-			print __doc__
-			sys.exit(2)
-		elif opt in ("-z", "--hostname"):
-			hostname = arg
-		elif opt in ("-d", "--dbname"):
-			dbname = arg
-		elif opt in ("-u", "--user"):
-			user = arg
-		elif opt in ("-p", "--passwd"):
-			passwd = arg
-		elif opt in ("-i",):
-			input_dir = arg
-		elif opt in ("-m",):
-			method_id = arg
-		elif opt in ("-o",):
-			output_dir = arg
-		elif opt in ("-t",):
-			call_info_table = arg
-		elif opt in ("-a",):
-			call_method_table = arg
-		elif opt in ("-c",):
-			commit = 1
-		elif opt in ("-b", "--debug"):
-			debug = 1
-		elif opt in ("-r", "--report"):
-			report = 1
-	
-	instance = Calls2DB_250k(hostname=hostname, dbname=dbname, user=user, passwd=passwd, input_dir=input_dir, output_dir=output_dir,
-					method_id=method_id, call_info_table=call_info_table, call_method_table=call_method_table,\
-					commit=commit, debug=debug, report=report)
+	instance = main_class(**opts_dict)
 	instance.run()
