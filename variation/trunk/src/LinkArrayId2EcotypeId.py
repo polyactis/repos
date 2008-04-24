@@ -1,5 +1,14 @@
+#!/usr/bin/env python
 """
-2008-03-11
+
+Examples:
+	LinkArrayId2EcotypeId.py -i stock_250k.array_info -c
+	
+Description:
+	2008-03-11
+	Link 250k's array id to ecotype id. Either by matching strains already linked to ecotype id or de novo db querying.
+	
+	calls_comment_table has two columns, ecotypeid and comment (array filename). If not supplied, it's skipped.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -10,50 +19,37 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import csv, numpy, stat, rpy
+import csv
 import traceback, gc
-from pymodule import process_function_arguments
 
-class LinkArrayId2EcotypeId:
+class LinkArrayId2EcotypeId(object):
+	__doc__ = __doc__
+	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
+							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
+							('u', 'user', 1, 'database username', 1, ):None,\
+							('p', 'passwd', 1, 'database password', 1, ):None,\
+							('e', 'ecotype_table', 1, 'Query this table to get ecotypeid', 1, ): 'stock.ecotype',\
+							('m', 'mapping_file',1, 'a file mapping filename in input_dir to ecotypeid', 0, ): None,\
+							('a', 'calls_comment_table', 1, 'table from which to retrieve existing array-ecotypeid mapping.', 0, ): None,\
+							('i', 'array_info_table', 1, 'Table where all arrays are', 1, ): 'array_info',\
+							('s', 'stock_149SNP_db', 1, 'database name for 149SNP data', 1, ): 'stock',\
+							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
+							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
+							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
 	"""
-	Argument list:
-		-z ..., --hostname=...	the hostname, localhost(default)
-		-d ..., --dbname=...	the database name, stock20071008(default)
-		-k ..., --schema=...	which schema in the database, (IGNORE)
-		-i ...,	array_info_table, stock_250k.array_info(default)*
-		-a ...,	calls_comment_table, stock20071008.calls_250k_duplicate_comment(default)(argument1)*
-		-e ...,	ecotype_table, 'stock20071008.ecotype'(default)(argument2)*
-		-c,	commit db transaction
-		-b,	toggle debug
-		-r, toggle report
-	Examples:
-		main.py -y 4 -i stock_250k.array_info -c
-	Description:
-		2008-03-11
-		Link 250k's array id to ecotype id. Either by matching strains already linked to ecotype id or de novo db querying.
+	2008-04-40
+		option_default_dict is a dictionary for option handling, including argument_default_dict info
+		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
+		argument_type is optional
 	"""
 	def __init__(self, **keywords):
 		"""
 		2008-03-11
 		"""
-		argument_default_dict = {('hostname',1, ):'localhost',\
-								('dbname',1, ):'stock20071008',\
-								('schema',0, ):'',\
-								('ecotype_table',1, ):'stock20071008.ecotype',\
-								('array_info_table',1, ):'stock_250k.array_info',\
-								('calls_comment_table',1, ):'stock20071008.calls_250k_duplicate_comment',\
-								('commit',0, int):0,\
-								('debug',0, int):0,\
-								('report',0, int):0}
-		"""
-		2008-02-28
-			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
-			argument_type is optional
-		"""
+		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
+		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
 		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__)
-		self.debug = self.ad['debug']
-		self.report = self.ad['report']
+		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def get_array_id_filename_ls(self, curs, array_info_table):
 		"""
@@ -132,7 +128,41 @@ class LinkArrayId2EcotypeId:
 		sys.stderr.write("%s matched and %s left.\n"%(len(array_id2ecotype_id_pair), len(array_id_filename_left_ls)))
 		return array_id2ecotype_id_pair, array_id_filename_left_ls
 	
-	def denovo_link_array_id(self, curs, array_id_filename_ls, ecotype_table, array_id2ecotype_id_pair):
+	def link_array_id_using_original_filename(self, array_id_filename_ls, curs, array_info_table, ecotype_table, stock_149SNP_db):
+		"""
+		2008-04-24
+			query ecotype's nativename, name, alias, stockparent via the original filename of the array. only valid when the db returns only 1 entry.
+		"""
+		sys.stderr.write("Linking array id to ecotype id using original filename ... ")
+		array_id2ecotype_id_pair = {}
+		array_id_filename_left_ls = []
+		for array_id, pathname in array_id_filename_ls:
+			curs.execute("select id, original_filename from %s where id=%s"%(array_info_table, array_id))
+			rows = curs.fetchall()
+			original_filename = rows[0][1]
+			dir, filename = os.path.split(original_filename)
+			filename_pre, filename_ext = os.path.splitext(filename)
+			strain_name = filename_pre
+			curs.execute("select e.id, e.name, e.stockparent, e.nativename, e.alias, s.name, c.abbr from %s e, %s.site s, %s.address a, %s.country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and (e.nativename rlike '%s'or e.name rlike '%s' or e.alias rlike '%s' or e.stockparent rlike '%s')"%\
+						(ecotype_table, stock_149SNP_db, stock_149SNP_db, stock_149SNP_db, strain_name, strain_name, strain_name, strain_name))
+			rows = curs.fetchall()
+			if len(rows)==1:	#exactly one entry, not less, not more
+				ecotype_id = rows[0][0]
+				if self.debug:
+					print original_filename
+					print rows[0]
+					yes_or_no = raw_input("confirm?")
+					yes_or_no = yes_or_no.lower()
+					if yes_or_no=='y' or yes_or_no =='yes':
+						array_id2ecotype_id_pair[array_id] = [ecotype_id, ecotype_id]
+				else:
+					array_id2ecotype_id_pair[array_id] = [ecotype_id, ecotype_id]
+			else:
+				array_id_filename_left_ls.append([array_id, pathname])
+		sys.stderr.write("%s matched and %s left.\n"%(len(array_id2ecotype_id_pair), len(array_id_filename_left_ls)))
+		return array_id2ecotype_id_pair, array_id_filename_left_ls
+	
+	def denovo_link_array_id(self, curs, array_id_filename_ls, ecotype_table, array_id2ecotype_id_pair, stock_149SNP_db):
 		"""
 		2008-03-11
 			modelled after find_out_ecotypeid_given_strain_name() from Calls2DB_250k.py
@@ -145,7 +175,7 @@ class LinkArrayId2EcotypeId:
 			strain_name_pair = strain_name_pair.split(',')
 			ecotype_id_pair = []
 			for strain_name in strain_name_pair:
-				ecotype_id = self.find_out_ecotypeid_given_strain_name(curs, strain_name, ecotype_table)
+				ecotype_id = self.find_out_ecotypeid_given_strain_name(curs, strain_name, ecotype_table, stock_149SNP_db)
 				if ecotype_id!=None:
 					ecotype_id_pair.append(ecotype_id)
 			if ecotype_id_pair:
@@ -154,20 +184,21 @@ class LinkArrayId2EcotypeId:
 				array_id2ecotype_id_pair[array_id] = ecotype_id_pair
 		sys.stderr.write("Done.\n")
 	
-	def find_out_ecotypeid_given_strain_name(self, curs, strain_name, ecotype_table='ecotype'):
+	def find_out_ecotypeid_given_strain_name(self, curs, strain_name, ecotype_table='ecotype', stock_149SNP_db='stock'):
 		"""
 		2008-03-11
 			modelled after find_out_ecotypeid_given_strain_name() from Calls2DB_250k.py
 		"""
 		while 1:
-			curs.execute("select e.id, e.name, e.stockparent, e.nativename, s.name, c.abbr from %s e, site s, address a, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and (e.nativename rlike '%s'or e.name rlike '%s')"%(ecotype_table, strain_name, strain_name))
+			curs.execute("select e.id, e.name, e.stockparent, e.nativename, e.alias, s.name, c.abbr from %s e, %s.site s, %s.address a, %s.country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id and (e.nativename rlike '%s'or e.name rlike '%s' or e.alias rlike '%s' or e.stockparent rlike '%s')"%\
+						(ecotype_table, stock_149SNP_db, stock_149SNP_db, stock_149SNP_db, strain_name, strain_name, strain_name, strain_name))
 			rows = curs.fetchall()
 			choice_id2ecotypeid = {}
 			choice_id = 0
-			header_ls = ['', 'ecotypeid', 'name', 'stockparent', 'nativename', 'site_name', 'country']
+			header_ls = ['', 'ecotypeid', 'name', 'stockparent', 'nativename', 'alias', 'site_name', 'country']
 			sys.stderr.write("%s\n"%('\t'.join(header_ls)))
 			for row in rows:
-				ecotypeid, name, stockparent, nativename, site_name, country = row
+				ecotypeid, name, stockparent, nativename, alias, site_name, country = row
 				choice_id += 1
 				choice_id2ecotypeid[repr(choice_id)] = ecotypeid
 				ls = ['%s:'%choice_id]
@@ -212,12 +243,27 @@ class LinkArrayId2EcotypeId:
 			import pdb
 			pdb.set_trace()
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.ad['dbname'], host=self.ad['hostname'])
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
-		array_id_filename_ls = self.get_array_id_filename_ls(curs, self.ad['array_info_table'])
-		known_filename2ecotype_id = self.get_known_filename2ecotype_id(curs, self.ad['calls_comment_table'])
+		array_id_filename_ls = self.get_array_id_filename_ls(curs, self.array_info_table)
+		if self.calls_comment_table:
+			known_filename2ecotype_id = self.get_known_filename2ecotype_id(curs, self.calls_comment_table)
+		else:	#no calls_comment_table, empty dictionary
+			known_filename2ecotype_id = {}
+		#1st round automatic id linking via old mapping
 		array_id2ecotype_id_pair, array_id_filename_left_ls = self.link_array_id_using_old_map(array_id_filename_ls, known_filename2ecotype_id)
-		self.denovo_link_array_id(curs, array_id_filename_left_ls, self.ad['ecotype_table'], array_id2ecotype_id_pair)
-		if self.ad['commit']:
-			self.update_array_info_table(curs, self.ad['array_info_table'], array_id2ecotype_id_pair)
+		#2nd round automatic id linking
+		array_id2ecotype_id_pair2, array_id_filename_left_ls = self.link_array_id_using_original_filename(array_id_filename_left_ls, curs, self.array_info_table, self.ecotype_table, self.stock_149SNP_db)
+		array_id2ecotype_id_pair.update(array_id2ecotype_id_pair2)
+		self.denovo_link_array_id(curs, array_id_filename_left_ls, self.ecotype_table, array_id2ecotype_id_pair, self.stock_149SNP_db)
+		if self.commit:
+			self.update_array_info_table(curs, self.array_info_table, array_id2ecotype_id_pair)
 			curs.execute("commit")
+
+if __name__ == '__main__':
+	from pymodule import process_options, generate_program_doc
+	main_class = LinkArrayId2EcotypeId
+	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
+	
+	instance = main_class(**opts_dict)
+	instance.run()
