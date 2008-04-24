@@ -162,6 +162,8 @@ def turn_option_default_dict2argument_default_dict(option_default_dict):
 
 def generate_program_doc(program_name, option_default_dict):
 	"""
+	2008-04-24
+		generates better doc
 	2008-04-21
 		automatically generate documentation like "Usage: ... \n Argument List: ... " from option_default_dict
 	
@@ -183,7 +185,7 @@ def generate_program_doc(program_name, option_default_dict):
 		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
 		argument_type is optional
 	"""
-	usage_str = 'Usage: %s'%program_name
+	usage_str = 'Usage: %s [OPTIONS]'%program_name
 	argument_list_str_ls = ['Argument List:']
 	option_key_ls = option_default_dict.keys()
 	option_key_ls.sort()
@@ -201,9 +203,12 @@ def generate_program_doc(program_name, option_default_dict):
 			this_argument_ls.append('-%s,\t--%s'%(short_option, long_option))
 		if need_star:
 			this_argument_ls.append('*')
-		this_argument_ls.append('\t%s '%description_for_option)
+		if description_for_option:
+			this_argument_ls.append('\t%s. '%description_for_option)
+		else:
+			this_argument_ls.append('\t')
 		if has_argument and default_value!=None and default_value!='':
-			this_argument_ls.append('%s(default)'%default_value)
+			this_argument_ls.append('"%s"(default)'%default_value)
 		argument_list_str_ls.append(''.join(this_argument_ls))
 	argument_list_str_ls.append("\nFor required(*) options, if no argument is given, you'll be prompted.")
 	program_doc = '\n%s\n\n'%usage_str
