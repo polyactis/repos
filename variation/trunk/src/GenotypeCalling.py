@@ -406,42 +406,34 @@ from pymodule import process_function_arguments
 
 class SimpleCall(object):
 	"""
-	2008-04-08
-	Usage:	GenotypeCalling.py [OPTIONS] -i INPUT_DIR -o OUTPUT_DIR
-		
-	Argument list:
-		-i ...,	input_dir*
-		-o ...,	output_dir*
-		-b,	toggle debug
-		-r, toggle report
+
 	Examples:
 		GenotypeCalling.py -i /Network/Data/250k/db/intensity/ -o /tmp/simplecalls
+
 	Description:
 		apply simple calling algorithm on intensity matrices in input_dir outputted by DB_250k2Array.
 		
 		The output file is named like 'array_id'_array_call.tsv. The 'array_id' is extracted from input filename.
+		If a file with same name in the output directory already exists, no call or output file would be generated.
+	"""
+	option_default_dict = {	('i', 'input_dir',1, 'directory containing intensity matricies outputted by DB_250k2Array.py', 1, ): None,\
+							('o', 'output_dir',1, 'directory to hold output calls.', 1, ): None,\
+							('b', 'debug',0, 'toggle debug mode', 0, int):0,\
+							('r', 'report',0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
 	
+	"""
+	2008-04-20
+		option_default_dict is a dictionary for option handling, including argument_default_dict info
+		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
+		argument_type is optional
 	"""
 	def __init__(self, **keywords):
 		"""
 		2008-04-08
 		"""
-		argument_default_dict = {('hostname',1, ):'localhost',\
-								('dbname',1, ):'stock',\
-								('schema',0, ):'',\
-								('input_dir',1, ):None,\
-								('output_dir',1, ):None,\
-								('snps_table',1, ):'stock_250k.snps',\
-								('probes_table',1, ):'stock_250k.probes',\
-								('array_info_table',1, ):'stock_250k.array_info',\
-								('commit',0, int):0,\
-								('debug',0, int):0,\
-								('report',0, int):0}
-		"""
-		2008-02-28
-			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
-			argument_type is optional
-		"""
+		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
+		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
+		
 		#argument dictionary
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
@@ -502,48 +494,10 @@ class SimpleCall(object):
 		
 		
 if __name__ == '__main__':
-	if len(sys.argv) == 1:
-		print SimpleCall.__doc__
-		sys.exit(2)
+	from pymodule import process_options, generate_program_doc
+	main_class = SimpleCall
+	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
 	
-	long_options_list = ["help", "type=", "debug", "report"]
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hz:d:k:i:o:br", long_options_list)
-	except:
-		traceback.print_exc()
-		print sys.exc_info()
-		print SimpleCall.__doc__
-		sys.exit(2)
-	
-	
-	hostname = ''
-	dbname = ''
-	schema = None
-	input_dir = None
-	output_dir = None
-	debug = None
-	report = None
-	
-	for opt, arg in opts:
-		if opt in ("-h", "--help"):
-			help = 1
-			print SimpleCall.__doc__
-			sys.exit(2)
-		elif opt in ("-z", "--hostname"):
-			hostname = arg
-		elif opt in ("-d", "--dbname"):
-			dbname = arg
-		elif opt in ("-k", "--schema"):
-			schema = arg
-		elif opt in ("-i",):
-			input_dir = arg
-		elif opt in ("-o",):
-			output_dir = arg
-		elif opt in ("-b", "--debug"):
-			debug = 1
-		elif opt in ("-r", "--report"):
-			report = 1
-	
-	instance = SimpleCall(hostname=hostname, dbname=dbname, schema=schema, input_dir=input_dir, output_dir=output_dir,
-					debug=debug, report=report)
+	instance = main_class(**opts_dict)
 	instance.run()
+
