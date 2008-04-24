@@ -1,20 +1,6 @@
 #!/usr/bin/env python
 """
-Usage:	Array2DB_250k.py [OPTIONS] -i INPUT_DIR -m MAPPING_FILE
 
-Argument list:
-	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
-	-d ..., --dbname=...	the database name, stock_250k(default)
-	-u ..., --user=...	the db username, (otherwise it will ask for it).
-	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
-	-e ...,	experimenter. if it's not supplied, db username (-u) is regarded same as experimenter.
-	-m ...,	mapping file* a file mapping filename in input_dir to ecotypeid.
-	-i ...,	input_dir*	where all the .cel files sit
-	-o ...,	output_dir	to store the renamed .cel files. '/Network/Data/250k/db/raw_data/'(default)
-	-g ...,	array_info_table, 'array_info'(default)
-	-c,	commit db transaction
-	-b,	toggle debug
-	-r, toggle report
 Examples:
 	#test run without commiting database (no records in database)
 	Array2DB_250k.py -i /Network/Data/250k/raw_data/yanli8-8-07/ -m /tmp/array_filename.map -e yanli
@@ -58,7 +44,7 @@ class ArrayInfo(object):
 								('array_info_table',1, ):None,\
 								('user',1, ):None,\
 								('experimenter',0,):None,\
-								('mapping_file',1,):None,\
+								('mapping_file',0,):None,\
 								('debug',0, int):0,\
 								('report',0, int):0}
 		"""
@@ -72,7 +58,10 @@ class ArrayInfo(object):
 		if not self.experimenter:
 			self.experimenter = self.user
 		self.md5sum2array_id, self.max_array_id = self.get_md5sum2array_id(self.curs, self.array_info_table)
-		self.array_file_basename2ecotypeid_tuple = self.readMappingFile(self.mapping_file)
+		if self.mapping_file:	#2008-04-23 check if mapping is there or not (empty dictionary).
+			self.array_file_basename2ecotypeid_tuple = self.readMappingFile(self.mapping_file)
+		else:
+			self.array_file_basename2ecotypeid_tuple = {}
 		
 	def get_md5sum2array_id(cls, curs, array_info_table):
 		"""
@@ -138,6 +127,8 @@ class ArrayInfo(object):
 	
 	def assignNewIdToThisArray(self, array_filename, output_dir):
 		"""
+		2008-04-23
+			allow arrays with no maternal_ecotype_id, paternal_ecotype_id imported into db
 		2008-04-12
 			maternal_ecotype_id, paternal_ecotype_id, experimenter are also submitted into db.
 			create the output_dir if it doesn't exist
@@ -160,8 +151,8 @@ class ArrayInfo(object):
 			if array_file_basename in self.array_file_basename2ecotypeid_tuple:
 				maternal_ecotype_id, paternal_ecotype_id = self.array_file_basename2ecotypeid_tuple[array_file_basename]
 			else:
-				sys.stderr.write("%s not in mapping_file. Ignored.\n"%array_file_basename)
-				return -1
+				sys.stderr.write("%s not in mapping_file. No ecotype id assigned.\n"%array_file_basename)
+				maternal_ecotype_id = paternal_ecotype_id = 'NULL'
 			
 			cp_p = subprocess.Popen(['cp', array_filename, output_fname], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 			cp_p_stdout_out = cp_p.stdout.read()
@@ -170,7 +161,6 @@ class ArrayInfo(object):
 				sys.stderr.write("copy error: %s\n"%cp_p_stderr_out)
 				return -1
 			else:
-
 				self.curs.execute("insert into %s(id, filename, original_filename, md5sum, maternal_ecotype_id, paternal_ecotype_id, experimenter, created_by)\
 					 	values (%s, '%s', '%s', '%s', %s, %s, '%s', '%s')"%\
 						(self.array_info_table, new_array_id, output_fname, array_filename, \
@@ -181,6 +171,24 @@ class ArrayInfo(object):
 
 class Array2DB_250k(object):
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
+	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
+							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
+							('u', 'user', 1, 'database username', 1, ):None,\
+							('p', 'passwd', 1, 'database password', 1, ):None,\
+							('e', 'experimenter', 1, 'if it is not supplied, db username (-u) is regarded same as experimenter.', 1, ): None,\
+							('m', 'mapping_file',1, 'a file mapping filename in input_dir to ecotypeid', 0, ): None,\
+							('i', 'input_dir', 1, 'where all the .cel files sit', 1, ): None,\
+							('o', 'output_dir', 1, 'to store the renamed .cel files', 1, ): '/Network/Data/250k/db/raw_data/',\
+							('t', 'array_info_table', 1, '', 1, ): 'array_info',\
+							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
+							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
+							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
+	"""
+	2008-04-40
+		option_default_dict is a dictionary for option handling, including argument_default_dict info
+		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
+		argument_type is optional
+	"""
 	def __init__(self, **keywords):
 		"""
 		2008-04-12
@@ -189,7 +197,9 @@ class Array2DB_250k(object):
 			array_data_table, probes_table, strain_info_table are no longer required. but leave them in the argument_default_dict.
 		2008-02-28
 		"""
-		from pymodule import process_function_arguments
+		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
+		"""
+		#2008-04-23 old dictionary
 		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
 								('dbname',1, ):'stock_250k',\
 								('user',1, ):None,\
@@ -206,8 +216,11 @@ class Array2DB_250k(object):
 								('debug',0, int):0,\
 								('report',0, int):0}
 		"""
+		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
+		"""
 		2008-02-28
-			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
+			argument_default_dict is a dictionary of default arguments
+			the key is a tuple, ('argument_name', is_argument_required, argument_type)
 			argument_type is optional
 		"""
 		#argument dictionary
@@ -442,6 +455,14 @@ class Array2DB_250k(object):
 
 
 if __name__ == '__main__':
+	from pymodule import process_options, generate_program_doc
+	main_class = Array2DB_250k
+	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
+	
+	instance = main_class(**opts_dict)
+	instance.run()
+
+"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -506,3 +527,4 @@ if __name__ == '__main__':
 							array_info_table=array_info_table, \
 							commit=commit, debug=debug, report=report)
 	instance.run()
+"""
