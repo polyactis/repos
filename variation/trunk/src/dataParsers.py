@@ -65,6 +65,7 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
     arrayIds = []
     dataFiles = []
     i = 0
+
     while(1):
         row = cursor.fetchone()
         if not row:
