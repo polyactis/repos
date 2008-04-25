@@ -80,13 +80,13 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
         arrayIds.append(str(int(row[3])))
         i = i+1    
 
+
     f = open(dataFiles[0],"r")
     lines = f.readlines()
     f.close()
     numSnps = len(lines)
 
     line = lines[1].split()
-    
     
     linesList = []
     for i in range(0,len(accessions)): #Checking files
@@ -95,13 +95,55 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
         f.close()
         if len(newLines)!=numSnps:
             raise Exception("Data files are not equal in length.")
-        linesList.append(newLines)
+        del newLines
 
+
+    
+
+    import os
+    import tempfile
+    tempfile.tempdir='/tmp'
+    tmpFiles = []
+    print "Cutting files"
+    for i in range(0,len(dataFiles)): #Cutting the SNPs fields
+        tmpFile = tempfile.mkstemp()
+        os.close(tmpFile[0])
+        st = "cut -f 2 "+str(dataFiles[i])+" > "+tmpFile[1]       
+        #print st
+        os.system(st)
+        tmpFiles.append(tmpFile[1])
+    
+    print "Merging files"
+    def _mergeFiles_(fileList): #A recursive function that merges the files in the list
+        l = len(fileList)
+        if l>2:
+            tmpFile1 = _mergeFiles_(fileList[:l/2])
+            tmpFile2 = _mergeFiles_(fileList[l/2:])
+        elif l<2:
+            return fileList[0]
+        elif l==2:
+            tmpFile1 = fileList[0]
+            tmpFile2 = fileList[1]
+        
+        tmpFile = tempfile.mkstemp()
+        os.close(tmpFile[0])
+        st = "paste -d , "+str(tmpFile1)+" "+str(tmpFile2)+" > "+tmpFile[1]+";\n"
+        st += "rm "+str(tmpFile1)+" "+str(tmpFile2)
+        #print st
+        os.system(st)
+        return tmpFile[1]
+        
+    
+    fileName = _mergeFiles_(tmpFiles)  #Merge all the fields
+    print fileName
+    f = open(fileName,"r")
     chromosomes = []
     positionsList = []
     snpsList = []
+
     i = 1
-    
+    f.readline()
+    print "Starting to read file"
     newChr = int(line[0].split("_")[0])
     while i < len(lines):
         chromosomes.append(int(newChr))
@@ -114,9 +156,10 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
             oldChr = int(chrPos[0])
             positions.append(int(chrPos[1]))
             snp = []
+            newLine = f.readline().split(",")
             for j in range(0,len(accessions)):
-                l = linesList[j][i].split() 
-                snp.append(l[1].rstrip())
+                nt = newLine[j].rstrip()
+                snp.append(nt)
             snps.append(snp)
             i += 1
             if i < len(lines):
@@ -128,6 +171,10 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
         print "Fetched ",i,"SNPs of",len(lines)
         positionsList.append(positions)
         snpsList.append(snps)
+        
+    f.close()
+    os.system("rm "+fileName)
+    
 
     snpsds = []
     for i in chromosomes:
@@ -300,7 +347,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     return snpsds
 
 
-def parseCSVData(datafil, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
+def parseCSVData(datafile, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
     """
     Parses raw CSV SNPs data files into a RawSnpsData.
 
