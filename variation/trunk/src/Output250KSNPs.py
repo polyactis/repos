@@ -3,7 +3,7 @@
 Usage: Output250KSNPs.py [OPTIONS] -o OUTPUT_FILE
 
 Option:
-	-z ..., --hostname=...	the hostname, (banyan.usc.edu is default).
+	-z ..., --hostname=...	the hostname, (papaya.usc.edu is default).
 	-u ..., --user=...	the username, (otherwise it will ask for it).
 	-p ..., --passwd=...	the password, (otherwise it will ask for it).
         -o ...,	output file
@@ -16,7 +16,7 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	Output250SNPs.py -o /tmp/250K.csv
+	Output250KSNPs.py -o /tmp/250K.csv
 	
 Description:
 	Output 250 data, in a csv format (or with another deliminator separated format).
@@ -42,7 +42,7 @@ def _run_():
 		sys.exit(2)
 	
 	
-	hostname = 'banyan.usc.edu'
+	hostname = 'papaya.usc.edu'
 	user = None
 	passwd = None
 	output_fname = None

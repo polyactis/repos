@@ -184,6 +184,87 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
     return snpsds
 
   
+def get149DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", only96accessions=False, user = None,passwd = None):
+    """
+    Retrieve 149 data from DB.  Returns a list of RawSnpsData objects. 
+
+    """
+    rt = time.time()
+    decoder = RawDecoder()  #Other unused informative letters are ['R','Y','S','M','K','W']:
+    
+    print "Connecting to db, host="+host
+    if not user:
+        import sys
+        sys.stdout.write("Username: ")
+        user = sys.stdin.readline().rstrip()
+    if not passwd:
+        import getpass
+        passwd = getpass.getpass()
+    try:
+        conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = db)
+    except MySQLdb.Error, e:
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        sys.exit (1)
+    cursor = conn.cursor ()
+        #Get distinct accessions and their id.
+        #Generate an internal dictionary using their id.
+    #numRows = int(cursor.execute("select distinct e2a.ecotype_id, g.accession, acc.name from at.ecotype2accession_all e2a, at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id = e2a.accession_id and acc.id<97 order by acc.name"))
+    if only96accessions:
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome=1 order by acc.name"))
+    else:
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome=1 order by acc.name"))
+
+    dict = {}
+    accessions = []
+    i = 0
+    while(1):
+        row = cursor.fetchone()
+        if not row:
+            break;
+        dict[int(row[1])]=i
+        accessions.append(str(int(row[0])))
+        i = i+1
+
+    print len(accessions)," accessions found."
+
+    print "Fetching 2010 data (version "+dataVersion+"):"
+    snpsds=[]
+    for chromosome in chromosomes:
+        print "    Chromosome",chromosome
+        if only96accessions:
+            numRows = int(cursor.execute("select distinct l.position, g.accession, acc.name, al.base from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome="+str(chromosome)+" order by l.position, acc.name"))
+        else:
+            numRows = int(cursor.execute("select distinct l.position, g.accession, acc.name, al.base from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome="+str(chromosome)+" order by l.position, acc.name"))
+        print "    ",numRows,"rows retrieved."
+        positions = []
+        snps = []
+        if numRows > 0:
+            row = cursor.fetchone()
+            newPosition = int(row[0])
+            while(1):
+                if not row:
+                    break;
+                positions.append(newPosition)
+                oldPosition = newPosition
+                snp = ['NA']*len(accessions)  #Initialize to missing data.
+                while(oldPosition==newPosition):
+                    snp[dict[int(row[1])]]=decoder[row[3]]
+                    row = cursor.fetchone()
+                    if not row:
+                        break;
+                    newPosition = int(row[0])
+                snps.append(snp)
+
+        snpsd = RawSnpsData(snps,positions,accessions=accessions)
+        snpsds.append(snpsd)
+                
+    cursor.close ()
+    conn.close ()
+    dif = int(time.time() - rt)
+    print "It took "+str(dif/60)+" min. and "+str(dif%60)+" sec. to fetch data."
+
+    return snpsds
+
 
 
 def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", dataVersion="3", only96accessions=False, user = None,passwd = None):

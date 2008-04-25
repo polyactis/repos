@@ -599,12 +599,18 @@ class RawSnpsData(_SnpsData_):
         pass
 
 
-    def accessionsMissingRates(self):
+    def accessionsMissingCounts(self):
         """
         Returns a list of accessions and their missing value rates.
         """
-        pass
+        missingCounts = [0]*len(self.accessions)
 
+        for i in range(0,len(self.positions)):
+            for j in range(0,len(self.accessions)):
+                if self.snps[i][j]=='NA':
+                    missingCounts[j] += 1
+        
+        return missingCounts
 
     def getStatString(self):
         st = "Number of accessions: "+str(len(self.accessions))+"\n"

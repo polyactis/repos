@@ -33,19 +33,6 @@ Description:
 
 import sys, getopt, traceback
 
-def _removeColumns_(inputFile, outputFile, columns):
-    """
-    Use cut functionality
-    """
-    pass
-
-def _locateColumns_(inputFile,ecotypeIDs,arrayIDs):
-    """
-    Returns the indices with the ecotypeIDs and arrayIDs.
-    """
-    
-    pass
-
 def _run_():
     if len(sys.argv) == 1:
         print __doc__
@@ -212,7 +199,33 @@ def _run_():
 
 
     if maxMissing<1.0:
-      print "maxMissing hasn't been implemented yet"
+        missingCounts = [0]*len(snpsds[0].accessions)
+        numSnps = 0
+        for snpsd in snpsds:
+            mc = snpsd.accessionsMissingCounts()
+            numSnps += len(snpsd.positions)
+            for i in range(0,len(snpsds[0].accessions)):
+                missingCounts[i] += mc[i]
+        
+        missingRates = []        
+        if withArrayIds:
+            arraysToRemove = []
+            for i in range(0,len(snpsds[0].accessions)):
+                missingRates.append((missingCounts[i]/float(numSnps),snpsds[0].accessions[i],snpsds[0].arrayIds[i]))
+            missingRates.sort(reverse=True)
+            for (mrate,ecotype,array) in missingRates:
+                if mrate>maxMissing:
+                    accessionsToRemove.append(ecotype)
+                    arraysToRemove.append(array)
+        else:
+            for i in range(0,len(snpsds[0].accessions)):
+                missingRates.append((missingCounts[i]/float(numSnps),snpsds[0].accessions[i]))
+            missingRates.sort(reverse=True)
+            for (mrate,ecotype) in missingRates:
+                if mrate>maxMissing:
+                    accessionsToRemove.append(ecotype)
+        print missingRates
+
 
 
     if removeEcotype:
@@ -222,11 +235,6 @@ def _run_():
             arraysToRemove = []
         arraysToRemove.append(removeArray)
         
-    if maxMissing<1:
-        "Calculate list.."
-        print "maxMissing hasn't been implemented yet"
-
-
 
     numAccessions = len(snpsds[0].accessions)
     sys.stdout.write("Removing accessions.")
