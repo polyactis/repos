@@ -37,7 +37,7 @@ class LinkArrayId2EcotypeId(object):
 							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
 							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
 	"""
-	2008-04-40
+	2008-04-20
 		option_default_dict is a dictionary for option handling, including argument_default_dict info
 		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
 		argument_type is optional
