@@ -59,7 +59,7 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
     #Get distinct accessions and their id.
     #Generate an internal dictionary using their id.
     print "Fetching data"
-    numRows = int(cursor.execute("select distinct ai.maternal_ecotype_id, ai.paternal_ecotype_id, ci.filename, ai.id from call_info ci, array_info ai where ci.array_id=ai.id and ci.method_id="+str(methodId)+" and ai.maternal_ecotype_id is not null and ai.paternal_ecotype_id is not null order by ai.id"))
+    numRows = int(cursor.execute("select distinct ai.maternal_ecotype_id, ai.paternal_ecotype_id, ci.filename, ai.id from call_info ci, array_info ai where ci.array_id=ai.id and ci.method_id="+str(methodId)+" order by ai.id"))
 
     dict = {}
     accessions = []
@@ -300,7 +300,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     return snpsds
 
 
-def parseCSVData(datafile=None, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
+def parseCSVData(datafil, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
     """
     Parses raw CSV SNPs data files into a RawSnpsData.
 
