@@ -304,14 +304,22 @@ class QC_250k(object):
 		sys.stderr.write("Done.\n")
 	
 	def plone_run(self):
+		"""
+		2008-04-25
+			return None if QC_method_id==0
+		2008-04-20
+			for plone to call it just to get row_id2NA_mismatch_rate
+		"""
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
+		self.curs = curs
 		if self.debug:
 			import pdb
 			pdb.set_trace()
 		if self.QC_method_id==0:
 			self.cal_independent_NA_rate(curs, self.call_info_table)
+			return None
 		else:
 			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.cmp_data_filename)
@@ -329,19 +337,21 @@ class QC_250k(object):
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id)
 			
 			row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
-		return row_id2NA_mismatch_rate
+			return row_id2NA_mismatch_rate
 	
 	def run(self):
 		row_id2NA_mismatch_rate = self.plone_run()
 			
-		if self.output_fname:
+		if self.output_fname and row_id2NA_mismatch_rate:
 			self.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname)
-			
-		if self.commit and not self.input_dir:	#if self.input_dir is given, call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
-			#no submission to db
-			self.submit_to_call_QC(curs, row_id2NA_mismatch_rate, self.call_QC_table, self.QC_method_id, self.user)
+		
+		#WATCH: self.curs rather than curs
+		if row_id2NA_mismatch_rate and self.commit and not self.input_dir:
+			#if self.input_dir is given, no db submission. call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
+			#row_id2NA_mismatch_rate might be None if it's method 0.
+			self.submit_to_call_QC(self.curs, row_id2NA_mismatch_rate, self.call_QC_table, self.QC_method_id, self.user)
 		if self.commit:
-			curs.execute("commit")
+			self.curs.execute("commit")
 
 
 if __name__ == '__main__':
