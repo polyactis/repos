@@ -75,7 +75,10 @@ def process_function_arguments(keywords, argument_default_dict, error_doc='', cl
 
 def process_options(argv_list, option_default_dict, error_doc=''):
 	"""
-	
+	2008-04-25
+		add option 'help' into option_default_dict
+		program exits if '-h' or '--help' is set.
+		throw away 'try ... except ...' around getopt
 	2008-04-20
 		wraps the option handling (getopt), the usual block underneath "if __name__ == '__main__':"
 	example of option_default_dict:
@@ -100,6 +103,7 @@ def process_options(argv_list, option_default_dict, error_doc=''):
 	if len(argv_list) == 1:
 		print error_doc
 		sys.exit(2)
+	option_default_dict[('h', 'help', 0, 'Display this documentation', 0, int)] =0
 	
 	#prepare long_options_list and short_options_str for getopt
 	long_options_list = []
@@ -122,25 +126,28 @@ def process_options(argv_list, option_default_dict, error_doc=''):
 	
 	#handle options
 	import getopt, traceback
-	try:
-		opts, args = getopt.getopt(argv_list[1:], short_options_str, long_options_list)
-		opts_dict = {}	#a dictionary 
-		for opt, arg in opts:
-			if opt[1]=='-':	#it's long option
-				long_option = opt[2:]
-			else:	#it's short option
-				short_option = opt[1:]
-				long_option = short_option2long_option[short_option]
-			if long_option2has_argument[long_option]:
-				opts_dict[long_option] = arg
-			else:	#toggle the bit for options which don't have arguments
-				opts_dict[long_option] = 1
+	opts, args = getopt.getopt(argv_list[1:], short_options_str, long_options_list)
+	opts_dict = {}	#a dictionary 
+	for opt, arg in opts:
+		if opt[1]=='-':	#it's long option
+			long_option = opt[2:]
+		else:	#it's short option
+			short_option = opt[1:]
+			long_option = short_option2long_option[short_option]
+		if long_option=='help':
+			print error_doc
+			sys.exit(2)
+		if long_option2has_argument[long_option]:
+			opts_dict[long_option] = arg
+		else:	#toggle the bit for options which don't have arguments
+			opts_dict[long_option] = 1
+	"""
 	except:
 		traceback.print_exc()
 		print sys.exc_info()
 		print error_doc
 		sys.exit(2)
-	
+	"""
 	return opts_dict
 
 def turn_option_default_dict2argument_default_dict(option_default_dict):
@@ -162,6 +169,8 @@ def turn_option_default_dict2argument_default_dict(option_default_dict):
 
 def generate_program_doc(program_name, option_default_dict):
 	"""
+	2008-04-25
+		add -h, --help to program_doc
 	2008-04-24
 		generates better doc
 	2008-04-21
@@ -210,6 +219,8 @@ def generate_program_doc(program_name, option_default_dict):
 		if has_argument and default_value!=None and default_value!='':
 			this_argument_ls.append('"%s"(default)'%default_value)
 		argument_list_str_ls.append(''.join(this_argument_ls))
+	this_argument_ls = ['\t', '-h,\t--help', '\tDisplay this documentation']
+	argument_list_str_ls.append(''.join(this_argument_ls))
 	argument_list_str_ls.append("\nFor required(*) options, if no argument is given, you'll be prompted.")
 	program_doc = '\n%s\n\n'%usage_str
 	program_doc += '\n'.join(argument_list_str_ls)
