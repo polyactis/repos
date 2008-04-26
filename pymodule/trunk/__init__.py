@@ -170,6 +170,8 @@ def turn_option_default_dict2argument_default_dict(option_default_dict):
 def generate_program_doc(program_name, option_default_dict):
 	"""
 	2008-04-25
+		cosmetic change. if description_for_option already has . in the end. No '.' appended.
+	2008-04-25
 		add -h, --help to program_doc
 	2008-04-24
 		generates better doc
@@ -213,7 +215,10 @@ def generate_program_doc(program_name, option_default_dict):
 		if need_star:
 			this_argument_ls.append('*')
 		if description_for_option:
-			this_argument_ls.append('\t%s. '%description_for_option)
+			if description_for_option[-1]=='.':
+				this_argument_ls.append('\t%s '%description_for_option)
+			else:
+				this_argument_ls.append('\t%s. '%description_for_option)
 		else:
 			this_argument_ls.append('\t')
 		if has_argument and default_value!=None and default_value!='':
