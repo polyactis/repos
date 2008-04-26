@@ -147,7 +147,7 @@ if ($_POST['_submit_check'])
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td height="63" colspan="5"><div class="style7" style="margin:10px 40px 10px 60px">All presentations must be approved by your advisor. We have a limited number of presentation slots but ample space for posters. We especially encourage graduate students who have graduated recently or are planning to graduate soon to give a talk. If you plan to only attend, please select None below. We will confirm with you by e-mail. </div></td>
+        <td height="63" colspan="5"><div class="style7" style="margin:10px 40px 10px 60px">All presentations must be approved by your advisor. We have a limited number of presentation slots but ample space for posters. We especially encourage graduate students who have graduated recently or are planning to graduate soon to give a talk. <span class="style3">If you plan to only attend, please select None below.</span> We will confirm with you by e-mail. </div></td>
         </tr>
      
 	  <tr>
@@ -164,26 +164,25 @@ if ($_POST['_submit_check'])
         <td height="33">&nbsp;</td>
         <td colspan="2" align="left"><strong>Title: </strong></td>
         <td align="left">
-          
-            <input name="title" type="text" size="55" />        </td>
+            <input name="title" type="text" size="55" value="N/A" /></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
         <td height="32">&nbsp;</td>
         <td colspan="2" align="left"><strong>PI's Name: </strong></td>
-        <td align="left"><input type="text" name="pi" /></td>
+        <td align="left"><input type="text" name="pi" value="N/A" /></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
         <td height="33">&nbsp;</td>
         <td colspan="2" align="left"><strong>Author List:</strong></td>
-        <td align="left"> <input name="author_list" type="text" size="55" /></td>
+        <td align="left"> <input name="author_list" type="text" size="55" value="N/A" /></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
         <td height="120">&nbsp;</td>
         <td colspan="2" align="left" valign="middle"><strong>Abstract: </strong></td>
-        <td align="left"> <textarea name="abs" cols="52" rows="7"></textarea></td>
+        <td align="left"> <textarea name="abs" cols="52" rows="7" >N/A</textarea></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
