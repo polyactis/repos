@@ -1,52 +1,43 @@
 #!/usr/bin/env python
 """
-Usage: dbSNP2data.py [OPTIONS] -i INPUT_TABLE -o OUTPUT_FILE
-
-Option:
-	-z ..., --hostname=...	the hostname, dl324b-1(default)
-	-d ..., --dbname=...	the database name, yhdb(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)
-	-i ...,	input table
-	-o ...,	output file
-	-s ...,	strain_info table, 'strain_info'(default), 'ecotype'
-	-n ...,	snp_locus_table, 'snp_locus'(default), 'snps'
-	-y ...,	processing bits to control which processing step should be turned on.
-		default is 10101101. for what each bit stands, see Description.
-	-m,	mysql connection, change dbname and hostname
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
 	dbSNP2data.py -i justin_data -o justin_data.csv -r
 	
 	dbSNP2data.py -i justin_data -o justin_data.csv -r -t
 	
-	dbSNP2data.py -i calls -o /tmp/chicago.data.y -s ecotype -n snps -m
+	dbSNP2data.py -i calls -o /tmp/chicago.data.y -s ecotype -n snps
 	
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o stock20071008/data.tsv -s ecotype -n snps -m
+	dbSNP2data.py -z localhost -d stock20071008 -i calls -o stock20071008/data.tsv -s ecotype -n snps
 	
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data.tsv -s ecotype -n snps -m
+	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data.tsv -s ecotype -n snps
 	
 	#to see how many all-NA strains were discarded
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data10101100.tsv -s ecotype -n snps -m -y 10101100
+	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data10101100.tsv -s ecotype -n snps -y 10101100
 	
 	#all strains, but resolve duplicated (nativename, stockparent)s
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00101100.tsv -s ecotype -n snps -m -y 00101100
+	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00101100.tsv -s ecotype -n snps -y 00101100
 	
 	#output data for all ecotypeid. however duplicated calls with same ecotypeid are imputed randomly
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00001100.tsv -s ecotype -n snps -m -y 00001100
+	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00001100.tsv -s ecotype -n snps -y 00001100
 
 	#output 250k SNP data (not to resolve duplicated calls, all SNPs. uncomment another sql line to get only SNPs shared with 149SNP)
-	dbSNP2data.py -z localhost -d stock20071008 -i calls_250k -o /tmp/data_250k.tsv -s ecotype -n snps_250k -m -y 10001101 -r
+	dbSNP2data.py -z localhost -d stock20071008 -i calls_250k -o /tmp/data_250k.tsv -s ecotype -n snps_250k -y 10001101 -r
 	
 	#output 149SNP (table calls_byseq)
-	dbSNP2data.py -z localhost -d stock20071227 -i calls_byseq -o stock20071227/data_y10001101.tsv -s ecotype -n snps -m -y 10001101 -r
+	dbSNP2data.py -z localhost -d stock20071227 -i calls_byseq -o stock20071227/data_y10001101.tsv -s ecotype -n snps -y 10001101 -r
+	
+	#output all 149SNP data
+	dbSNP2data.py -o /tmp/stock_149SNP.tsv
+	
+	#output only 149SNP data with GPS info
+	dbSNP2data.py -o /tmp/stock_149SNP_y10001101.tsv -y 1 -r
+	
 Description:
 	output SNP data from database schema
 	
-	definition of each bit in processing_bits (0=off, 1=on), default is 10101101.
-	1. 1: only include strains with GPS info, 2: north american strains only, 3: 2010's 192 strains
+	Turning on each bit in processing_bits (0=off, 1=on):
+	1. 0: everything in strain_info_table, 1: only include strains with GPS info, 2: north american strains only, 3: 2010's 192 strains
 	2. include columns of other strain info (latitude, longitude, nativename, stockparent, site, country)
 	3. resolve duplicated calls (unique constraint on (nativename, stockparent))
 	4. toss out rows to make distance matrix NA free
@@ -62,26 +53,45 @@ import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
 if bit_number>40:       #64bit
 	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/')))
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
 import psycopg2 as psycopg
 import sys, getopt, csv, re
-from codense.common import db_connect, org_short2long, org2tax_id
-from common import nt2number, number2nt
+from annot.bin.codense.common import db_connect, org_short2long, org2tax_id
+from variation.src.common import nt2number, number2nt
 import Numeric as num
 from sets import Set
 
 
 class dbSNP2data(object):
+	__doc__ = __doc__
 	"""
 	2007-02-19
 	"""
-	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_table=None, \
-		output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus', \
-		organism='hs', processing_bits='10101101', mysql_connection=0, debug=0, report=0):
+	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
+							('d', 'dbname', 1, '', 1, ): 'stock',\
+							('u', 'user', 1, 'database username', 1, ):None,\
+							('p', 'passwd', 1, 'database password', 1, ):None,\
+							('i', 'input_table', 1, 'table containing calls for each accession & snp.', 1, ): 'calls',\
+							('s', 'strain_info_table', 1, 'Table with info about each accession/ecotype. could be "strain_info" or "ecotype"', 1, ): 'ecotype',\
+							('o', 'output_fname', 1, 'Output Filename', 1, ): None,\
+							('n', 'snp_locus_table', 1, 'Table with info about snps. could be "snp_locus" or "snps"', 1, ): 'snps',\
+							('y', 'processing_bits', 1, 'processing bits to control which processing step should be turned on.\
+								default is 10101101. for what each bit stands, see Description.', 1, ): '00001101',\
+							('m', 'db_connection_type', 1, 'which type of database. 1=MySQL. 2=PostgreSQL.', 1, int):1,\
+							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
+							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
+	"""
+	2008-04-20
+		option_default_dict is a dictionary for option handling, including argument_default_dict info
+		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
+		argument_type is optional
+	"""
+	def __init__(self, **keywords):
 		"""
+		2008-04-25 use new option handling
 		2007-02-25
 			add argument toss_out_rows
 		2007-07-11
@@ -89,21 +99,16 @@ class dbSNP2data(object):
 		2007-09-23
 			use processing_bits to control processing steps
 		"""
-		self.hostname = hostname
-		self.dbname = dbname
-		self.schema = schema
-		self.input_table = input_table
-		self.output_fname = output_fname
-		self.strain_info_table = strain_info_table
-		self.snp_locus_table = snp_locus_table
-		#self.tax_id = org2tax_id(org_short2long(organism))
-		self.processing_bits = processing_bits
+		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
+		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
+		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		
 		
 		#below are all default values
-		processing_bits_ls = [1,0,1,0,1,1,0,1]
+		processing_bits_ls = [0,0,0,0,1,1,0,1]
 		
-		for i in range(len(processing_bits)):
-			processing_bits_ls[i] = int(processing_bits[i])
+		for i in range(len(self.processing_bits)):
+			processing_bits_ls[i] = int(self.processing_bits[i])
 		#now pass all values
 		self.only_include_strains_with_GPS,\
 		self.include_other_strain_info,\
@@ -113,10 +118,6 @@ class dbSNP2data(object):
 		self.with_header_line,\
 		self.nt_alphabet,\
 		self.discard_all_NA_strain = processing_bits_ls
-		
-		self.mysql_connection = int(mysql_connection)
-		self.debug = int(debug)
-		self.report = int(report)
 	
 	def get_snp_id2index(self, curs, input_table, snp_locus_table):
 		"""
@@ -205,7 +206,7 @@ class dbSNP2data(object):
 		if input_table=='calls_byseq':
 			common_sql_string = "select distinct d.ecotypeid, d.replicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
 		else:
-			common_sql_string = "select distinct d.ecotypeid, d.duplicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
+			common_sql_string = "select distinct d.ecotypeid, d.replicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
 		if only_include_strains_with_GPS==1:
 			curs.execute("%s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(common_sql_string))
 		elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
@@ -352,7 +353,7 @@ class dbSNP2data(object):
 		sys.stderr.write("Getting data_matrix ..m.\n")
 		data_matrix = num.zeros([len(strain_id2index), len(snp_id2index)])
 		if input_table == 'calls':
-			common_sql_string = "select ecotypeid, duplicate, snpid, call1, callhet from %s"%(input_table)
+			common_sql_string = "select ecotypeid, replicate, snpid, call1, call2 from %s"%(input_table)
 		elif input_table == 'calls_byseq':
 			common_sql_string = "select ecotypeid, replicate, snpid, call1, call2 from %s"%(input_table)
 		elif input_table == 'calls_250k':
@@ -389,7 +390,7 @@ class dbSNP2data(object):
 					counter += 1
 				rows = curs.fetchmany(5000)
 				if self.report:
-					sys.stderr.write("%s\tSNP %s=%s\t%s"%('\x08'*80, snp_counter, snp_id, counter))
+					sys.stderr.write("%s\tSNP %s=%s\t\t%s"%('\x08'*80, snp_counter, snp_id, counter))
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
@@ -419,7 +420,7 @@ class dbSNP2data(object):
 		call_counter_ls = [0]*11
 		strain_snp_pair2call_number = {}
 		duplicated_times = 0
-		curs.execute("select e.nativename, e.stockparent, c.snpid, c.call1, c.callhet from %s e, %s c where e.id=c.ecotypeid order by nativename, stockparent, snpid"%(ecotype_table, calls_table))
+		curs.execute("select e.nativename, e.stockparent, c.snpid, c.call1, c.call2 from %s e, %s c where e.id=c.ecotypeid order by nativename, stockparent, snpid"%(ecotype_table, calls_table))
 		rows = curs.fetchall()
 		no_of_distinct_pairs = 0
 		no_of_duplicated_pairs = 0
@@ -638,10 +639,10 @@ class dbSNP2data(object):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
-		if self.mysql_connection:
+		if self.db_connection_type==1:
 			import MySQLdb
 			#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
-			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+			conn = MySQLdb.connect(db=self.dbname,host=self.hostname, user=self.user, passwd = self.passwd)
 			curs = conn.cursor()
 			snp_id2index, snp_id_list = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
 			strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, self.resolve_duplicated_calls)
@@ -656,7 +657,7 @@ class dbSNP2data(object):
 				strain_id2other_info = self.get_strain_id2other_info(curs, strain_id_list, self.strain_info_table)
 			else:
 				strain_id2other_info = None
-		else:
+		elif self.db_connection_type==2:
 			(conn, curs) =  db_connect(self.hostname, self.dbname, self.schema)
 			snp_id2index, snp_id_list = self.get_snp_id2index(curs, self.input_table, self.snp_locus_table)
 			strain_id2index, strain_id_list = self.get_strain_id2index(curs, self.input_table)
@@ -677,6 +678,13 @@ class dbSNP2data(object):
 		#self.sort_file(self.output_fname)
 
 if __name__ == '__main__':
+	from pymodule import process_options, generate_program_doc
+	main_class = dbSNP2data
+	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
+	
+	instance = main_class(**opts_dict)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -738,3 +746,4 @@ if __name__ == '__main__':
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
