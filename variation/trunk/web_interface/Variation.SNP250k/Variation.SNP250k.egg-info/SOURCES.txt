@@ -34,6 +34,8 @@ Variation/SNP250k/browser/dbsettings.py
 Variation/SNP250k/browser/interfaces.py
 Variation/SNP250k/browser/phenotype.pt
 Variation/SNP250k/browser/phenotype.py
+Variation/SNP250k/browser/qcondirectory.pt
+Variation/SNP250k/browser/qcondirectory.py
 Variation/SNP250k/browser/viewlet.pt
 Variation/SNP250k/browser/viewlets.py
 Variation/SNP250k/browser/images/README.txt
@@ -42,6 +44,7 @@ Variation/SNP250k/browser/stylesheets/main.css
 Variation/SNP250k/content/__init__.py
 Variation/SNP250k/content/configure.zcml
 Variation/SNP250k/content/phenotype.py
+Variation/SNP250k/content/qcondirectory.py
 Variation/SNP250k/content/variationfolder.py
 Variation/SNP250k/profiles/default/Variation.SNP250k_various.txt
 Variation/SNP250k/profiles/default/catalog.xml
@@ -55,6 +58,7 @@ Variation/SNP250k/profiles/default/skins.xml
 Variation/SNP250k/profiles/default/types.xml
 Variation/SNP250k/profiles/default/viewlets.xml
 Variation/SNP250k/profiles/default/types/Phenotype.xml
+Variation/SNP250k/profiles/default/types/QCOnDirectory.xml
 Variation/SNP250k/profiles/default/types/Variation_Folder.xml
 Variation/SNP250k/skins/Variation_SNP250k_custom_images/CONTENT.txt
 Variation/SNP250k/skins/Variation_SNP250k_custom_templates/CONTENT.txt

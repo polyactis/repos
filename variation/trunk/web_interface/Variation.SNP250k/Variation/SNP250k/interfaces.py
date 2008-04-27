@@ -2,6 +2,7 @@ from zope.interface import Interface, Attribute
 from zope.app.container.constraints import contains
 
 from zope import schema
+from Variation.SNP250k import VariationMessageFactory as _
 
 class IPhenotypeMethod(Interface):
 	"""
@@ -243,14 +244,13 @@ directlyProvides(QCMethodIDVocabulary, IVocabularyFactory)
 
 class IQCOnDirectory(Interface):
 	"""
-	Phenotype Interface
+	Interface
 	"""
-	title = schema.TextLine(title=u"Title", 
+	title = schema.TextLine(title=u"Title",
 							required=True)
 							
-	description = schema.TextLine(title=u"Description", 
-								  description=u"A short summary for this QC.",
-								  required=False)
+	description = schema.TextLine(title=_(u"Description"),
+								  description=_(u"A short summary for this QC."))
 	
 	QC_method_id = schema.Choice(title=u'QC Method ID',
 						 description=u'QC Method Identifier',
@@ -267,3 +267,26 @@ class IQCOnDirectory(Interface):
 	row_id2NA_mismatch_rate = schema.Dict(title=u"QC results. NA_rate and mismatch_rate",
 							description=u"dictionary storing results",
 							required = True)
+
+class Results2DB_250k(Interface):
+	title = schema.TextLine(title=u"Title", 
+							required=True)
+							
+	description = schema.TextLine(title=u"Description", 
+								  description=u"A short summary",
+								  required=False)
+	input_fname = schema.TextLine(title=u"Input Filename", 
+								  description=u"Genome Wide Results",
+								  required=True)
+	phenotype_method_id = schema.Int(title=u'Phenotype Method ID',
+						 description=u'Phenotype Method Identifier',
+						 required=True)
+	short_name = schema.TextLine(title=u'Short Name',
+							   description=u"short name for this QC Method",
+							   required=True)
+	method_description = schema.SourceText(title=u'Method Description',
+							   description=u"Describe your method",
+							   required=True)
+	data_description = schema.TextLine(title=u'Short Name',
+							   description=u"short name for this QC Method",
+							   required=True)

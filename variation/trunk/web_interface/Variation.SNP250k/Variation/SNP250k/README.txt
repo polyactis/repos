@@ -151,3 +151,15 @@ Create a phenotype in variation3 folder.
     >>> 'first-phenotype' in variation3.objectIds()
     True
 
+Create a phenotype in variation3 folder.
+04/18/08 Watch: the custom edit form (inherited from zope.formlib.form) has prefix 'form' attached to each widget name.:
+
+    >>> browser.open(variation3_url)
+    >>> browser.getLink(id='qcondirectory').click()
+    >>> browser.getControl(name='form.title').value = "first qc"
+    >>> browser.getControl(name='form.description').value = "first qc run test"
+    >>> browser.getControl(name='form.input_dir').value = "/Network/Data/250k/tmp-yh"
+    >>> browser.getControl(name='form.QC_method_id-empty-marker').value = "1"
+    >>> browser.getControl(name='form.actions.save').click()
+    >>> 'first-qc' in variation3.objectIds()
+    True

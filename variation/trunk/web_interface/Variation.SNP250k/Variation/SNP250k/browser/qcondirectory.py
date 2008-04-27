@@ -27,21 +27,6 @@ from Variation.SNP250k import VariationMessageFactory as _
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 #zope.app.event.objectevent.ObjectModifiedEvent is the old one
 
-class QC_unit(object):
-	def __init__(self, **keywords):
-		argument_default_dict = {('array_id', 1, ): None,\
-								('ecotypeid', 1, ): None,\
-								('NA_rate', 1, ): None,\
-								('mismatch_rate', 1, ): None,\
-								('no_of_NAs', 1, ): None,\
-								('no_of_totals', 1, ): None,\
-								('no_of_mismatches', 1, ): None,\
-								('no_of_non_NA_pairs', 1, ): None}
-		
-		from pymodule import process_function_arguments					
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
-
-
 class QCOnDirectoryView(BrowserView):
 	"""
 	Default view of a film
@@ -70,8 +55,8 @@ class QCOnDirectoryView(BrowserView):
 		row_id_ls.sort()	#try to keep them in call_info_id order
 		ls_to_return = []
 		for row_id in row_id_ls:
-			NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
-			qc_unit = QC_unit(array_id=row_id[0], ecotypeid=row_id[1], NA_rate= NA_mismatch_ls[0], mismatch_rate=NA_mismatch_ls[1],\
+			NA_mismatch_ls = context.row_id2NA_mismatch_rate[row_id]
+			qc_unit = dict(array_id=row_id[0], ecotypeid=row_id[1], NA_rate= NA_mismatch_ls[0], mismatch_rate=NA_mismatch_ls[1],\
 				no_of_NAs=NA_mismatch_ls[2], no_of_totals=NA_mismatch_ls[3], no_of_mismatches=NA_mismatch_ls[4], no_of_non_NA_pairs=NA_mismatch_ls[5])
 			ls_to_return.append(qc_unit)
 		return ls_to_return
@@ -122,8 +107,9 @@ class EditQCOnDirectoryForm(formbase.EditForm):
 			else:
 				new_context = context
 				new_context.setId(str(newId))
-			
-			new_context.short_name = str(new_context.QC_method_id)
+			#import pdb
+			#pdb.set_trace()
+			new_context.short_name = unicode(str(new_context.QC_method_id))
 			
 			settings = getUtility(IStockDatabaseSettings, name='variation.stockdatabasesettings')
 			from variation.src.QC_250k import QC_250k
@@ -136,9 +122,8 @@ class EditQCOnDirectoryForm(formbase.EditForm):
 			opts_dict = process_options(argv_list, QC_250k.option_default_dict, error_doc=generate_program_doc(argv_list[0], QC_250k.option_default_dict)+QC_250k.__doc__)
 			
 			instance = QC_250k(**opts_dict)
-			_row_id2NA_mismatch_rate = instance.plone_run()
-			for row_id, NA_mismatch_ls in _row_id2NA_mismatch_rate.iteritems():
-				new_context.row_id2NA_mismatch_rate[row_id] = NA_mismatch_ls
+			new_context.row_id2NA_mismatch_rate = instance.plone_run()
+			del instance
 			
 			zope.event.notify(
 				ObjectModifiedEvent(new_context)

@@ -28,9 +28,24 @@
 
 		<div tal:replace="structure provider:plone.abovecontentbody" />
 		
-		<p>
-            <h1>Short Name: </h1><span tal:content="context/short_name" />
-        </p>
+        <table class="listing">
+            <thead>
+                <tr>
+                    <th i18n:translate="column_label_title">QC Method ID</th>
+                    <th i18n:translate="column_label_title">Short Name of QC Method</th>
+                    <th i18n:translate="column_label_title">Input Directory</th>
+					<th i18n:translate="column_label_title">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr >
+                    <td tal:content="context/QC_method_id" />
+                    <td tal:content="context/short_name" />
+					<td tal:content="context/input_dir" />
+					<td tal:content="context/description" />
+                </tr>
+            </tbody>
+        </table>
 		
         <p tal:condition="python: not is_editable"
            i18n:translate="no_body_text"
@@ -43,24 +58,24 @@
                 <tr>
                     <th i18n:translate="column_label_title">Array ID</th>
                     <th i18n:translate="column_label_title">Ecotype ID</th>
-                    <th i18n:translate="column_label_title">NA_rate</th>
-					<th i18n:translate="column_label_title">mismatch_rate</th>
-					<th i18n:translate="column_label_title">no_of_NAs</th>
-					<th i18n:translate="column_label_title">no_of_totals</th>
-					<th i18n:translate="column_label_title">no_of_mismatches</th>
-					<th i18n:translate="column_label_title">no_of_non_NA_pairs</th>
+                    <th i18n:translate="column_label_title">NA rate</th>
+					<th i18n:translate="column_label_title">mismatch rate</th>
+					<th i18n:translate="column_label_title">number of NAs</th>
+					<th i18n:translate="column_label_title">number of totals</th>
+					<th i18n:translate="column_label_title">number of mismatches</th>
+					<th i18n:translate="column_label_title">number of non-NA pairs</th>
                 </tr>
             </thead>
             <tbody>
                 <tr tal:repeat="qc_unit view/iter_NA_mismatch_rate">
-                    <td tal:content="qc_unit.array_id" />
-                    <td tal:content="qc_unit.ecotypeid" />
-					<td tal:content="qc_unit.NA_rate" />
-					<td tal:content="qc_unit.mismatch_rate" />
-					<td tal:content="qc_unit.no_of_NAs" />
-					<td tal:content="qc_unit.no_of_totals" />
-					<td tal:content="qc_unit.no_of_mismatches" />
-					<td tal:content="qc_unit.no_of_non_NA_pairs" />
+                    <td tal:content="qc_unit/array_id" />
+                    <td tal:content="qc_unit/ecotypeid" />
+					<td tal:content="qc_unit/NA_rate" />
+					<td tal:content="qc_unit/mismatch_rate" />
+					<td tal:content="qc_unit/no_of_NAs" />
+					<td tal:content="qc_unit/no_of_totals" />
+					<td tal:content="qc_unit/no_of_mismatches" />
+					<td tal:content="qc_unit/no_of_non_NA_pairs" />
                 </tr>
             </tbody>
         </table>

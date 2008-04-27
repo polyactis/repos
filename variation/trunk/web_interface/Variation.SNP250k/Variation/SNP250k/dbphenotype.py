@@ -176,7 +176,7 @@ class PhenotypeLocator(object):
 		connection = db.connection
 				
 		statement = sql.select([QCMethod.c.id, QCMethod.c.short_name],
-							   distinct=True)
+							   distinct=True, order_by=[QCMethod.c.id])
 		
 		results = connection.execute(statement).fetchall()
 		vocabulary = [('%s %s'%(row[0], row[1]), row[0]) for row in results]	#(token, value)
