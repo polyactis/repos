@@ -152,7 +152,7 @@ class Stock_250kDatabase(object):
 
 if __name__ == '__main__':
 	from pymodule import process_options, generate_program_doc
-	main_class = StockDatabase
+	main_class = Stock_250kDatabase
 	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
 	
 	"""
