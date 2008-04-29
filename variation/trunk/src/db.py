@@ -89,9 +89,9 @@ class Stock_250kDatabase(object):
 		"""
 		mappers['phenotype_method'] = mapper(PhenotypeMethod, tables['phenotype_method'])
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
-										properties={'method_id': relation(PhenotypeMethod),}, allow_column_override=True)
+										properties={'phenotype_method_obj': relation(PhenotypeMethod),})
 		mappers['QC_method'] = mapper(QCMethod, tables['QC_method'])
-		mappers['results'] = mapper(Results, tables['results'], properties={'method_id': relation(ResultsMethod), 'phenotype_method_id': relation(PhenotypeMethod)}, allow_column_override=True)
+		mappers['results'] = mapper(Results, tables['results'], properties={'results_method_obj': relation(ResultsMethod), 'phenotype_method_obj': relation(PhenotypeMethod)})
 		mappers['results_method'] = mapper(ResultsMethod, tables['results_method'])
 	
 	@property
@@ -174,9 +174,24 @@ if __name__ == '__main__':
 	if instance.debug:
 		import pdb
 		pdb.set_trace()
-	print dir(instance)
 	session = instance.session
+	print dir(session.query(Results))
+	
 	for row in session.query(ResultsMethod).list():
 		print row.id
 		print row.short_name
-		print row.method_description
+	
+	i = 0
+	while i <10:
+		row = session.query(Results).offset(i).limit(1).list()	#all() = list() returns a list of objects. first() returns the 1st object. one() woud raise error because 'Multiple rows returned for one()'
+		print len(row)
+		row = row[0]
+		i += 1
+		print row.id
+		print row.chr
+		print row.start_pos
+		print row.score
+		print row.method_id
+		print row.results_method_obj.short_name
+		print row.phenotype_method_id
+		print row.phenotype_method_obj.short_name
