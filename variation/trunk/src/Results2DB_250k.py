@@ -1,17 +1,6 @@
 #!/usr/bin/env python
 """
-Usage:	Results2DB_250k.py [OPTIONS] -i INPUT_FNAME -e PHENOTYPE_METHOD_ID
 
-Argument list:
-	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
-	-d ..., --dbname=...	the database name, stock_250k(default)
-	-u ..., --user=...	the db username, (otherwise it will ask for it).
-	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
-	-i ...,	input_fname*	File containing association results
-	-e ...,	phenotype_method_id*	which phenotype you used, check table phenotype_method
-	-c,	commit db transaction
-	-b,	toggle debug
-	-r, toggle report
 Examples:
 	#test run without commiting database (no records in database)
 	Results2DB_250k.py -i pvalue.log -e 1
@@ -53,33 +42,34 @@ from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, Phenoty
 
 class Results2DB_250k(object):
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('input_fname',1, ): [None, 'i', 1, 'File containing association results'],\
+							('phenotype_method_id',1,int): [None, 'e', 1, 'which phenotype you used, check table phenotype_method'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	"""
+	04/28/08 no longer needed
+							('results_table',1, ): 'results',\
+							('results_method_table',1, ):'results_method',\
+							('phenotype_method_table',1, ):'phenotype_method',\	
+	"""
 	def __init__(self, **keywords):
 		"""
+		2008-04-28
+			use ProcessOptions, newer option handling class
 		2008-04-16
 		"""
-		from pymodule import process_function_arguments
-		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
-								('dbname',1, ):'stock_250k',\
-								('user',1, ):None,\
-								('passwd',1, ):None,\
-								('input_fname',1, ):None,\
-								('short_name',1,):None,\
-								('method_description',1,):None,\
-								('data_description',1, ):None,\
-								('phenotype_method_id',1,int):None,\
-								('results_table',1, ):'results',\
-								('results_method_table',1, ):'results_method',\
-								('phenotype_method_table',1, ):'phenotype_method',\
-								('commit',0, int):0,\
-								('debug',0, int):0,\
-								('report',0, int):0}
-		"""
-		2008-02-28
-			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
-			argument_type is optional
-		"""
-		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		#this is just for the program to ask user
+		more_function_argument_dict = {('short_name',1,): None,\
+							('method_description',1,):None,\
+							('data_description',1, ):None}
+		more_function_argument_dict.update(self.option_default_dict)
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, more_function_argument_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def check_if_phenotype_method_id_in_db(self, curs, phenotype_method_table, phenotype_method_id):
 		"""
@@ -105,7 +95,7 @@ class Results2DB_250k(object):
 		sys.stderr.write("Done.\n")
 		return rows[0][0]
 	
-	def submit_results(self, session, results_table, input_fname, rm, pm):
+	def submit_results(self, session, input_fname, rm, pm):
 		"""
 		2008-04-28
 			changed to use Stock_250kDatabase (SQLAlchemy) to do db submission
@@ -158,7 +148,7 @@ class Results2DB_250k(object):
 		rm = ResultsMethod(short_name=self.short_name, method_description=self.method_description, data_description=self.data_description)
 		
 		#results_method_id = self.submit_results_method(curs, self.results_method_table, self.short_name, self.method_description, self.data_description)
-		self.submit_results(session, self.results_table, self.input_fname, rm, pm)
+		self.submit_results(session, self.input_fname, rm, pm)
 		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if self.commit:
 			#curs.execute("commit")
@@ -168,6 +158,13 @@ class Results2DB_250k(object):
 
 
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = Results2DB_250k
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -220,3 +217,4 @@ if __name__ == '__main__':
 							phenotype_method_id=phenotype_method_id,
 							commit=commit, debug=debug, report=report)
 	instance.run()
+	"""
