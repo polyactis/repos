@@ -70,27 +70,31 @@ class dbSNP2data(object):
 	"""
 	2007-02-19
 	"""
-	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
-							('d', 'dbname', 1, '', 1, ): 'stock',\
-							('u', 'user', 1, 'database username', 1, ):None,\
-							('p', 'passwd', 1, 'database password', 1, ):None,\
-							('i', 'input_table', 1, 'table containing calls for each accession & snp.', 1, ): 'calls',\
-							('s', 'strain_info_table', 1, 'Table with info about each accession/ecotype. could be "strain_info" or "ecotype"', 1, ): 'ecotype',\
-							('o', 'output_fname', 1, 'Output Filename', 1, ): None,\
-							('n', 'snp_locus_table', 1, 'Table with info about snps. could be "snp_locus" or "snps"', 1, ): 'snps',\
-							('y', 'processing_bits', 1, 'processing bits to control which processing step should be turned on.\
-								default is 10101101. for what each bit stands, see Description.', 1, ): '00001101',\
-							('m', 'db_connection_type', 1, 'which type of database. 1=MySQL. 2=PostgreSQL.', 1, int):1,\
-							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
-							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock', 'd', 1, '', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ):[None, 'p', 1, 'database password', ],\
+							('input_table', 1, ): ['calls', 'i', 1, 'table containing calls for each accession & snp.'],\
+							('strain_info_table', 1, ): ['ecotype', 's', 1, 'Table with info about each accession/ecotype. could be "strain_info" or "ecotype"'],\
+							('output_fname', 1, ): [None, 'o', 1, 'Output Filename'],\
+							('snp_locus_table', 1, ): ['snps', 'n', 1, 'Table with info about snps. could be "snp_locus" or "snps"'],\
+							('processing_bits', 1, ): ['00001101', 'y', 1, 'processing bits to control which processing step should be turned on.\
+								default is 10101101. for what each bit stands, see Description.' ],\
+							('db_connection_type', 1, int): [1,'m', 1, 'which type of database. 1=MySQL. 2=PostgreSQL.',],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	"""
-	2008-04-20
-		option_default_dict is a dictionary for option handling, including argument_default_dict info
-		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
-		argument_type is optional
+	2008-04-28
+	option_default_dict is a dictionary for option handling, including argument_default_dict info
+		the key is a tuple, ('argument_name', is_argument_required, argument_type) and argument_type is optional.
+		
+		the value could just be the default_value or a list = [default_value, 'short_option', has_argument, description_for_option]
+		'short_option', has_argument, description_for_option are all orderly optional. You can just supply 'short_option' or 'short_option', has_argument.
 	"""
 	def __init__(self, **keywords):
 		"""
+		2008-04-28
+			use ProcessOptions, newer option handling class
 		2008-04-25 use new option handling
 		2007-02-25
 			add argument toss_out_rows
@@ -99,9 +103,8 @@ class dbSNP2data(object):
 		2007-09-23
 			use processing_bits to control processing steps
 		"""
-		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
-		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
 		
 		#below are all default values
@@ -678,11 +681,11 @@ class dbSNP2data(object):
 		#self.sort_file(self.output_fname)
 
 if __name__ == '__main__':
-	from pymodule import process_options, generate_program_doc
+	from pymodule import ProcessOptions
 	main_class = dbSNP2data
-	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	
-	instance = main_class(**opts_dict)
+	instance = main_class(**po.long_option2value)
 	instance.run()
 	"""
 	if len(sys.argv) == 1:
