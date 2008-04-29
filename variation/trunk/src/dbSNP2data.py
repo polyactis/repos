@@ -31,7 +31,7 @@ Examples:
 	dbSNP2data.py -o /tmp/stock_149SNP.tsv
 	
 	#output only 149SNP data with GPS info
-	dbSNP2data.py -o /tmp/stock_149SNP_y10001101.tsv -y 1 -r
+	dbSNP2data.py -o /tmp/stock_149SNP_y10001111.tsv -y 1 -r
 	
 Description:
 	output SNP data from database schema
@@ -78,7 +78,7 @@ class dbSNP2data(object):
 							('strain_info_table', 1, ): ['ecotype', 's', 1, 'Table with info about each accession/ecotype. could be "strain_info" or "ecotype"'],\
 							('output_fname', 1, ): [None, 'o', 1, 'Output Filename'],\
 							('snp_locus_table', 1, ): ['snps', 'n', 1, 'Table with info about snps. could be "snp_locus" or "snps"'],\
-							('processing_bits', 1, ): ['00001101', 'y', 1, 'processing bits to control which processing step should be turned on.\
+							('processing_bits', 1, ): ['00001111', 'y', 1, 'processing bits to control which processing step should be turned on.\
 								default is 10101101. for what each bit stands, see Description.' ],\
 							('db_connection_type', 1, int): [1,'m', 1, 'which type of database. 1=MySQL. 2=PostgreSQL.',],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -108,7 +108,7 @@ class dbSNP2data(object):
 		
 		
 		#below are all default values
-		processing_bits_ls = [0,0,0,0,1,1,0,1]
+		processing_bits_ls = [0,0,0,0,1,1,1,1]
 		
 		for i in range(len(self.processing_bits)):
 			processing_bits_ls[i] = int(self.processing_bits[i])
