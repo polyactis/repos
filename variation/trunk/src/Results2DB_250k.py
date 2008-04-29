@@ -43,7 +43,7 @@ else:   #32bit
 
 import csv, stat, getopt
 import traceback, gc, subprocess
-
+from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod
 """
 2008-04-16 temporarily put here
 	-s ...,	short_name*	give a short name of what you did. try to incorporate method, genotype data and phenotype data
@@ -105,43 +105,66 @@ class Results2DB_250k(object):
 		sys.stderr.write("Done.\n")
 		return rows[0][0]
 	
-	def submit_results(self, curs, results_table, input_fname, results_method_id, phenotype_method_id):
+	def submit_results(self, session, results_table, input_fname, rm, pm):
 		"""
+		2008-04-28
+			changed to use Stock_250kDatabase (SQLAlchemy) to do db submission
 		"""
 		sys.stderr.write("Submitting results from %s ..."%(os.path.basename(input_fname)))
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		for row in reader:
 			if len(row)==3:
 				chr, start_pos, score = row
-				stop_pos = 'NULL'
+				stop_pos = None
 			elif len(row)==4:
 				chr, start_pos, stop_pos, score = row
 			else:
 				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
 				sys.exit(3)
-			curs.execute("insert into %s(chr, start_pos, stop_pos, score, method_id, phenotype_method_id) values (%s, %s, %s, %s, %s, %s)"%\
-					(results_table, chr, start_pos, stop_pos, score, results_method_id, phenotype_method_id))
+			r = Results(chr=chr, start_pos=start_pos, stop_pos=stop_pos, score=score)
+			r.results_method_obj = rm
+			r.phenotype_method_obj = pm
+			session.save(r)
+			#curs.execute("insert into %s(chr, start_pos, stop_pos, score, method_id, phenotype_method_id) values (%s, %s, %s, %s, %s, %s)"%\
+			#		(results_table, chr, start_pos, stop_pos, score, results_method_id, phenotype_method_id))
 		del reader
 		sys.stderr.write("Done.\n")
 		
 	def run(self):
 		"""
+		2008-04-28
+			use Stock_250kDatabase to do database stuff
 		2008-04-16
 		"""
-		import MySQLdb
-		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
-		curs = conn.cursor()
+		#import MySQLdb
+		#conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
+		#curs = conn.cursor()
 		
+		db = Stock_250kDatabase(username=self.user,
+				   password=self.passwd, host=self.hostname, database=self.dbname)
+		session = db.session
+		transaction = session.create_transaction()
+		pm = session.query(PhenotypeMethod).get_by(id=self.phenotype_method_id)
+		
+		"""
 		if not self.check_if_phenotype_method_id_in_db(curs, self.phenotype_method_table, self.phenotype_method_id):
 			sys.stderr.write("Error: phenotype_method_id %s doesn't exist in table %s.\n"%(self.phenotype_method_id,self.phenotype_method_table))
 			sys.stderr.exit(2)
+		"""
 		if not self.short_name:
 			sys.stderr.write("Error: short_name unspecified.\n"%(self.short_name))
 			sys.stderr.exit(2)
-		results_method_id = self.submit_results_method(curs, self.results_method_table, self.short_name, self.method_description, self.data_description)
-		self.submit_results(curs, self.results_table, self.input_fname, results_method_id, self.phenotype_method_id)
+		
+		rm = ResultsMethod(short_name=self.short_name, method_description=self.method_description, data_description=self.data_description)
+		
+		#results_method_id = self.submit_results_method(curs, self.results_method_table, self.short_name, self.method_description, self.data_description)
+		self.submit_results(session, self.results_table, self.input_fname, rm, pm)
+		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if self.commit:
-			curs.execute("commit")
+			#curs.execute("commit")
+			transaction.commit()
+		else:	#default is also rollback(). to demonstrate good programming
+			transaction.rollback()
 
 
 if __name__ == '__main__':
