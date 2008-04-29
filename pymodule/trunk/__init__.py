@@ -273,6 +273,8 @@ class ProcessOptions(object):
 	def program_doc(self):
 		"""
 		2008-04-28
+			sort the options in short_option ascending order. structure of std_option_default_dict changed.
+		2008-04-28
 			2nd-generation of generate_program_doc()
 			option_default_dict becomes an enlargement of and compatible to argument_default_dict.
 		"""
@@ -282,9 +284,15 @@ class ProcessOptions(object):
 		usage_str = 'Usage: %s [OPTIONS]'%self.program_name
 		argument_list_str_ls = ['Argument List:']
 		
-		option_key_ls = self.std_option_default_dict.keys()
-		option_key_ls.sort()
-		for option_key in option_key_ls:
+		#sort the options in short_option ascending order
+		option_key_ls_to_be_sorted = []
+		for option_key, option_value in self.std_option_default_dict.iteritems():
+			if option_key[0] == 'help':	#help would be appended in the end
+				continue
+			option_key_ls_to_be_sorted.append((option_value[1], option_key))	#option_value[1] = short_option
+		option_key_ls_to_be_sorted.sort()
+		
+		for short_option, option_key in option_key_ls_to_be_sorted:
 			
 			option_value = self.std_option_default_dict[option_key]
 			default_value, short_option, has_argument, description_for_option = option_value
