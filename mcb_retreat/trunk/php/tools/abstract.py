@@ -1,14 +1,15 @@
 #!/usr/bin/python
 """
 2007-10-17
-	output abstracts into two parts, presentation and poster. each part is ordered by submitter/1st author's last name.
+	output (to stdout) abstracts into two parts, presentation and poster. each part is ordered by submitter/1st author's last name.
 """
 
-import cgi,psycopg
+import cgi
 import cgitb
 cgitb.enable()
 
-import psycopg,sys
+import sys
+import psycopg2 as psycopg
  
 class abstract_output:
 	"""
@@ -34,19 +35,35 @@ class abstract_output:
 		return abstract_id_ls
 	
 	def output_abstract_in_order(self, curs, abstract_id_ls, abstract_table='abstract'):
+		"""
+		2008-04-29
+			add name, email, pi, abstract_filename
+		"""
 		no_of_abstracts = 0
 		for abstract_id in abstract_id_ls:
-			curs.execute("select pref,title,author_list, abstract from %s where id=%s"%(abstract_table, abstract_id))
+			curs.execute("select name, email, pi, pref, title, author_list, abstract, abstract_filename from %s where id=%s"%(abstract_table, abstract_id))
 			rows = curs.fetchall()
-			pref, title, author_list, abstract = rows[0]
+			name, email, pi, pref, title, author_list, abstract, abstract_filename = rows[0]
 			no_of_abstracts += 1
 			print '%s %s'%(pref, no_of_abstracts)
-			print title
-			print author_list
-			print abstract
+			print "Name:", name
+			print "Email:", email
+			print "PI:", pi
+			print "Title:", title
+			print "Author List:", author_list
+			if abstract:
+				print "Abstract:", abstract
+			elif abstract_filename:
+				print "Abstract Filename:", abstract_filename
+			else:
+				print "Abstract:", None
 			print
 	
 	def split_name_into_first_last_name(self, curs, register_table='register', commit=0):
+		"""
+		circa 2007-10-20
+			split name into lastname and firstname for sorting purpose
+		"""
 		curs.execute("select id, name from %s"%register_table)
 		rows = curs.fetchall()
 		for row in rows:
