@@ -1,5 +1,7 @@
 #!/usr/bin/python
 """
+2008-04-30
+	it works as either a standalone program or an apache cgi.
 2007-10-17
 	output (to stdout) abstracts into two parts, presentation and poster. each part is ordered by submitter/1st author's last name.
 """
@@ -36,6 +38,8 @@ class abstract_output:
 	
 	def output_abstract_in_order(self, curs, abstract_id_ls, abstract_table='abstract'):
 		"""
+		2008-04-30
+			output not in plain format anymore. in better-looking html format.
 		2008-04-29
 			add name, email, pi, abstract_filename
 		"""
@@ -45,19 +49,26 @@ class abstract_output:
 			rows = curs.fetchall()
 			name, email, pi, pref, title, author_list, abstract, abstract_filename = rows[0]
 			no_of_abstracts += 1
-			print '%s %s'%(pref, no_of_abstracts)
-			print "Name:", name
-			print "Email:", email
-			print "PI:", pi
-			print "Title:", title
-			print "Author List:", author_list
+			print '<h1>%s %s</h1>'%(pref, no_of_abstracts)
+			print "<h3>Name:</h3>", name
+			print "<br>"
+			print "<h3>Email:</h3>", email
+			print "<br>"
+			print "<h3>PI:</h3>", pi
+			print "<br>"
+			print "<h3>Title:</h3>", title
+			print "<br>"
+			print "<h3>Author List:</h3>", author_list
+			print "<br>"
+			print "<h3>Abstract:</h3>"
 			if abstract:
-				print "Abstract:", abstract
+				print abstract
 			elif abstract_filename:
-				print "Abstract Filename:", abstract_filename
+				print "<a href='https://dl324b-1.cmb.usc.edu/static/symp/uploads/%s'>%s</a>"%\
+					(abstract_filename, abstract_filename)
 			else:
-				print "Abstract:", None
-			print
+				print None
+			print "<br>"
 	
 	def split_name_into_first_last_name(self, curs, register_table='register', commit=0):
 		"""
@@ -77,12 +88,10 @@ class abstract_output:
 			self.conn.commit()
 	
 	def output(self):
-		print '<pre>'
 		presentation_abstract_id_ls = self.get_abstract_id_ls(self.curs, pref='Presentation')
 		self.output_abstract_in_order(self.curs, presentation_abstract_id_ls)
 		poster_abstract_id_ls = self.get_abstract_id_ls(self.curs, pref='Poster')
 		self.output_abstract_in_order(self.curs, poster_abstract_id_ls)
-		print '</pre>'
 		self.split_name_into_first_last_name(self.curs, register_table='register', commit=1)
 
 if __name__ == '__main__':
