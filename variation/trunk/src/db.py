@@ -42,6 +42,19 @@ class PhenotypeMethod(object):
 class QCMethod(object):
 	pass
 
+class Call_QC(object):
+	pass
+
+class Call_Info(object):
+	pass
+
+class Call_Method(object):
+	pass
+
+class Array_Info(object):
+	pass
+
+
 class Stock_250kDatabase(object):
 	__doc__ = __doc__
 	option_default_dict = {('v', 'drivername', 1, '', 1, ):'mysql',\
@@ -83,6 +96,10 @@ class Stock_250kDatabase(object):
 		tables['QC_method'] = Table('QC_method', metadata, autoload=True)
 		tables['results'] = Table('results', metadata, autoload=True)
 		tables['results_method'] = Table('results_method', metadata, autoload=True)
+		tables['call_QC'] = Table('call_QC', metadata, autoload=True)
+		tables['call_info'] = Table('call_info', metadata, autoload=True)
+		tables['call_method'] = Table('call_method', metadata, autoload=True)
+		tables['array_info'] = Table('array_info', metadata, autoload=True)
 	
 	def _setup_mappers(self, tables, mappers):
 		"""Map the database Tables to SQLAlchemy Mapper objects
@@ -93,6 +110,11 @@ class Stock_250kDatabase(object):
 		mappers['QC_method'] = mapper(QCMethod, tables['QC_method'])
 		mappers['results'] = mapper(Results, tables['results'], properties={'results_method_obj': relation(ResultsMethod), 'phenotype_method_obj': relation(PhenotypeMethod)})
 		mappers['results_method'] = mapper(ResultsMethod, tables['results_method'])
+		mappers['call_QC'] = mapper(Call_QC, tables['call_QC'], properties={'call_info_obj': relation(Call_Info),\
+																		'qc_method_obj':relation(QCMethod)})
+		mappers['call_info'] = mapper(Call_Info, tables['call_info'], properties={'array_info_obj': relation(Array_Info), 'call_method_obj': relation(Call_Method)})
+		mappers['call_method'] = mapper(Call_Method, tables['call_method'])
+		mappers['array_info'] = mapper(Array_Info, tables['array_info'])
 	
 	@property
 	def _engine_properties(self):
