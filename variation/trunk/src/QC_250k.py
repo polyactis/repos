@@ -17,6 +17,10 @@ Examples:
 	#QC for the call files (input for Calls2DB_250k.py) against 149SNP
 	QC_250k.py -i /home/crocea/script/variation/stock20080403/data_y10001101.tsv -m 3 -n /Network/Data/250k/tmp-jr/calls-oligo/ -o /tmp/tmp-jr_calls-oligo_149SNP_QC.tsv
 	
+	QC_250k.py -i /home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv -m 5 -l 3 -y 0.85
+	QC_250k.py -i /home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv -m 6 -l 3 -y 0.85 -c
+	QC_250k.py -i /home/crocea/script/variation/stock20080403/data_y00001101.tsv -m 7 -l 3 -y 0.85 -c
+	
 Description:
 	QC for 250k call data from call_info_table against 2010, perlegen, 149SNP data.
 	It will select the call_info entries that haven't been QCed for a particular QC method.
@@ -98,7 +102,7 @@ class TwoSNPData(QualityControl):
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
 	def update_row_col_matching(self):
-		if self.QC_method_id==3:	#149SNP data is SNPData2. use database to find out which SNP matches which
+		if self.QC_method_id==3 or self.QC_method_id==7:	#149SNP data is SNPData2. use database to find out which SNP matches which
 			if self.curs==None:
 				sys.stderr.write("Error: no database connection but it's required to link SNP ids.\n")
 				sys.exit(3)
@@ -122,10 +126,12 @@ class QC_250k(object):
 							('t', 'call_info_table', 1, '', 1, ): 'call_info',\
 							('n', 'input_dir', 1, 'If given, call files would be read from this directory rather than from call info table. \
 								Does not work for QC_method_id=0. The data is sorted according to array_id. No call_info_id available. No db submission.', 0, ): None,\
-							('i', 'cmp_data_filename', 1, 'the data file to be compared with.', 1, ): None,\
+							('i', 'cmp_data_filename', 1, 'the data file to be compared with. It figures out by QC_method_id.', 0, ): None,\
+							('y', 'min_probability', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', 0, float): -1,\
 							('o', 'output_fname', 1, 'if given, QC results will be outputed into it.', 0, ): None,\
 							('q', 'call_QC_table', 1, '', 1, ): 'call_QC',\
 							('m', 'QC_method_id', 1, 'id in table QC_method', 1, int): None,\
+							('l', 'call_method_id', 1, 'id in table call_method', 1, int): None,\
 							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
 							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
 							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
@@ -149,8 +155,16 @@ class QC_250k(object):
 		"""
 		#argument dictionary
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-	
-	def get_call_info_id2fname(cls, curs, call_info_table, call_QC_table, QC_method_id, array_info_table='array_info'):
+		QC_method_id2cmp_data_filename = {1:"/home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv",\
+				2:'/home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv',\
+				3:'/home/crocea/script/variation/stock20080403/data_y00001101.tsv'}
+		if self.cmp_data_filename == None and self.QC_method_id in QC_method_id2cmp_data_filename:
+			self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
+		else:
+			sys.stderr.write("Please specify cmp_data_filename. No file available for QC_method_id=%s.\n"%self.QC_method_id)
+			sys.exit(4)
+
+	def get_call_info_id2fname(cls, curs, call_info_table, call_QC_table, QC_method_id, call_method_id, array_info_table='array_info'):
 		"""
 		2008-04-20
 			call_info entries that QC haven't been done.
@@ -159,8 +173,8 @@ class QC_250k(object):
 		"""
 		sys.stderr.write("Getting call_info_id2fname ... ")
 		curs.execute("select distinct c.id, c.filename, a.maternal_ecotype_id, a.paternal_ecotype_id, q.id as qc_id, q.QC_method_id \
-				from %s a, %s c left join %s q on c.id=q.call_info_id where c.array_id=a.id and a.maternal_ecotype_id=a.paternal_ecotype_id"%\
-				(array_info_table, call_info_table, call_QC_table))
+				from %s a, %s c left join %s q on c.id=q.call_info_id where c.array_id=a.id and a.maternal_ecotype_id=a.paternal_ecotype_id and c.method_id=%s"%\
+				(array_info_table, call_info_table, call_QC_table, call_method_id))
 		rows = curs.fetchall()
 		call_info_id2fname = {}
 		call_info_id_del_ls = []
@@ -210,19 +224,23 @@ class QC_250k(object):
 	
 	get_array_id2fname = classmethod(get_array_id2fname)
 	
-	def read_call_matrix(cls, call_info_id2fname):
+	def read_call_matrix(cls, call_info_id2fname, min_probability=-1):
 		"""
 		2008-04-20
 			fake header, strain_acc_list, category_list, data_matrix
 		"""
-		sys.stderr.write("Creating call matrix ... ")
+		sys.stderr.write("Creating call matrix ... \n")
 		header = ['', '']	#1st and 2nd is header for 1st two columns.
 		call_matrix = []
 		strain_acc_list = []
 		category_list = []
 		counter = 0
-		for call_info_id in call_info_id2fname:
+		call_info_id_ls = call_info_id2fname.keys()
+		no_of_entries = len(call_info_id_ls)
+		for i in range(no_of_entries):
+			call_info_id = call_info_id_ls[i]
 			ecotype_id, fname = call_info_id2fname[call_info_id]
+			sys.stderr.write("%s%d/%d:\t%s"%('\x08'*100, i+1, no_of_entries, fname))
 			strain_acc_list.append(call_info_id)
 			category_list.append(ecotype_id)
 			reader = csv.reader(open(fname), delimiter='\t')
@@ -233,6 +251,10 @@ class QC_250k(object):
 				SNP_id, call = row[:2]
 				if counter==0:	#first file
 					header.append(SNP_id)
+				if len(row)==3:
+					probability = float(row[2])
+					if probability < min_probability:
+						call = 'NA'
 				data_row.append(nt2number[call])
 			del reader
 			call_matrix.append(data_row)
@@ -330,8 +352,8 @@ class QC_250k(object):
 				#no submission to db
 				call_info_id2fname = self.get_array_id2fname(curs, self.input_dir)
 			else:
-				call_info_id2fname = self.get_call_info_id2fname(curs, self.call_info_table, self.call_QC_table, self.QC_method_id)
-			header, strain_acc_list, category_list, data_matrix = self.read_call_matrix(call_info_id2fname)
+				call_info_id2fname = self.get_call_info_id2fname(curs, self.call_info_table, self.call_QC_table, self.QC_method_id, self.call_method_id)
+			header, strain_acc_list, category_list, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
 			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
 			
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id)
