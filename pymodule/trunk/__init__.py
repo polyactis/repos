@@ -177,6 +177,8 @@ class ProcessOptions(object):
 	
 	def prepare_for_getopt(self, option_default_dict):
 		"""
+		2008-05-02
+			correct a bug in deal with the rest with no short_option specified
 		2008-04-28
 			2nd-generation of process_options()
 			option_default_dict becomes an enlargement of and compatible to argument_default_dict.
@@ -220,6 +222,9 @@ class ProcessOptions(object):
 				options_with_no_short_option.append(option_key)
 				continue
 			
+			if short_option==None or short_option=='':
+				options_with_no_short_option.append(option_key)
+				continue
 			#prepare short options
 			if short_option in short_option2long_option:
 				sys.stderr.write("Error: short option %s already used by %s.\n"%(short_option, short_option2long_option[short_option]))
@@ -251,10 +256,13 @@ class ProcessOptions(object):
 			option_value = option_default_dict[option_key]
 			short_option = None
 			for letter in long_option + eng_letters:	#start with the long_option, then try all english letters
+				if letter not in eng_letter_ls:	#this character has to be english letters. long_option might contain non-letters. like '_'.
+					continue
 				if letter not in short_option2long_option:
 					short_option2long_option[letter] = long_option
 					short_options_list.append('%s:'%letter)
 					short_option = letter
+					break
 			if long_option in long_option2has_argument:
 				sys.stderr.write("Error: long option %s already used.\n"%(long_option))
 				sys.exit(3)
