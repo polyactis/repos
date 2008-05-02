@@ -135,7 +135,9 @@ class Results2DB_250k(object):
 		session = db.session
 		transaction = session.create_transaction()
 		pm = session.query(PhenotypeMethod).get_by(id=self.phenotype_method_id)
-		
+		if self.debug:
+			import pdb
+			pdb.set_trace()
 		"""
 		if not self.check_if_phenotype_method_id_in_db(curs, self.phenotype_method_table, self.phenotype_method_id):
 			sys.stderr.write("Error: phenotype_method_id %s doesn't exist in table %s.\n"%(self.phenotype_method_id,self.phenotype_method_table))
