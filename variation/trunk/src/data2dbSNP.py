@@ -1,5 +1,26 @@
 #!/usr/bin/env python
 """
+
+Examples:
+	data2dbSNP.py -a "384-SNP Illumina multiplex" -i /tmp/2ndPlate-data.csv -l /tmp/080501_accession2ecotype_id_384SNP.csv -s "384-SNP-Illumina-multiplex" -m "93 accessions from the so-called 2nd batch (or 2nd 96)"  -c
+
+Description:
+	put 384-SNP Illumina-multiplex data into db
+	
+"""
+import sys, os, math
+bit_number = math.log(sys.maxint)/math.log(2)
+#if bit_number>40:       #64bit
+sys.path.insert(0, os.path.expanduser('~/lib/python'))
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+import sys, getopt, csv, re
+import psycopg2 as psycopg
+from annot.bin.codense.common import db_connect, org_short2long, org2tax_id
+
+class data2dbSNP_2007_03_06:
+	"""
+	2008-05-02 renamed to data2dbSNP_2007_03_06. a new data2dbSNP class is generated.
+	
 Usage: data2dbSNP.py [OPTIONS] -i INPUT_FILE -o OUTPUT_TABLE
 
 Option:
@@ -24,21 +45,8 @@ Examples:
 Description:
 	put SNP data into database schema
 	
-"""
-import sys, os, math
-bit_number = math.log(sys.maxint)/math.log(2)
-if bit_number>40:       #64bit
-	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
-else:   #32bit
-	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import psycopg, sys, getopt, csv, re
-from codense.common import db_connect, org_short2long, org2tax_id
-
-class data2dbSNP:
-	"""
 	2007-02-17
+	
 	"""
 	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_fname=None, \
 		output_table=None, strain_info_table='strain_info', snp_locus_table='snp_locus', \
@@ -158,7 +166,104 @@ class data2dbSNP:
 		if self.commit:
 			curs.execute("end")
 
+from dbsnp import DBSNP, SNPs, SNPs2SNPset, SNPset, Calls, CallMethod
+
+class data2dbSNP(object):
+	__doc__ = __doc__
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ):['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ):['dbsnp', 'd', 1, '',],\
+							('user', 1, ):[None, 'u', 1, 'database username',],\
+							('passwd',1, ):[None, 'p', 1, 'database password', ],\
+							('input_fname',1, ): [None, 'i', 1, 'File containing 384-SNP illumina data. csv format.'],\
+							('name2ecotype_id_fname',1, ): [None, 'l', 1, 'File containing the linking between accession name in input_fname and ecotype_id. csv format.'],\
+							('snpset_acc',1, ): [None, 's'],\
+							('snpset_description', 0, ): [None, 'n' ],\
+							('call_method_short_name', 1, ): [None, 'a'],\
+							('call_method_description', 0, ): [None,  'e'],\
+							('call_method_data_description', 0, ): [None, 'm'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	
+	def __init__(self, **keywords):
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+	
+	def get_name2ecotype_id(self, name2ecotype_id_fname):
+		"""
+		2008-05-02
+		"""
+		sys.stderr.write("Getting name2ecotype_id ... ")
+		reader = csv.reader(open(name2ecotype_id_fname))
+		name2ecotype_id = {}
+		for row in reader:
+			name, ecotype_id = row
+			name2ecotype_id[name] = int(ecotype_id)
+		sys.stderr.write("Done.\n")
+		return name2ecotype_id
+	
+	def readin_calls(self, input_fname, name2ecotype_id, session, snpset, callmethod):
+		"""
+		2008-05-02
+		"""
+		sys.stderr.write("Reading in calls ...")
+		reader = csv.reader(open(input_fname))
+		#handle the SNPs first
+		chr_ls = reader.next()[1:]
+		position_ls = reader.next()[1:]
+		snps_obj_ls = []
+		no_of_snps = len(chr_ls)
+		for i in range(no_of_snps):
+			chromosome = int(chr_ls[i])
+			position = int(position_ls[i])
+			s = SNPs(acc='%s_%s'%(chromosome, position), chromosome=chromosome, position=position)
+			snpset.snps.append(s)
+			s.snpset.append(snpset)
+			snps_obj_ls.append(s)
+			session.save(s)
+		
+		reader.next()	#skip this weird line
+		for row in reader:
+			name = row[0]
+			ecotype_id = name2ecotype_id[name]
+			for i in range(no_of_snps):
+				s = snps_obj_ls[i]
+				calls_obj = Calls(ecotype_id=ecotype_id, genotype=row[i+1])
+				calls_obj.snps = snps_obj_ls[i]
+				calls_obj.call_method = callmethod
+				session.save(calls_obj)
+		sys.stderr.write("Done.\n")
+	
+	def main(self):
+		"""
+		"""
+		db = DBSNP(username=self.user,
+				   password=self.passwd, host=self.hostname, database=self.dbname)
+		session = db.session
+		transaction = session.create_transaction()
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		snpset = SNPset(acc=self.snpset_acc, description=self.snpset_description)
+		callmethod = CallMethod(short_name=self.call_method_short_name, method_description=self.call_method_description, data_description=self.call_method_data_description)
+		name2ecotype_id = self.get_name2ecotype_id(self.name2ecotype_id_fname)
+		
+		self.readin_calls(self.input_fname, name2ecotype_id, session, snpset, callmethod)
+		session.flush()
+		if self.commit:
+			transaction.commit()
+		else:	#default is also rollback(). to demonstrate good programming
+			transaction.rollback()
+
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = data2dbSNP
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.main()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -213,9 +318,10 @@ if __name__ == '__main__':
 			commit = 1
 
 	if input_fname and output_table and hostname and dbname and schema:
-		instance = data2dbSNP(hostname, dbname, schema, input_fname, output_table, \
+		instance = data2dbSNP_2007_03_06(hostname, dbname, schema, input_fname, output_table, \
 			strain_info_table, snp_locus_table, organism, type, debug, report, commit)
 		instance.run()
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
