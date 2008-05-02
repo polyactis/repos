@@ -6,7 +6,7 @@ SET storage_engine=INNODB;
 
 create table snpset(
 	id integer auto_increment primary key,
-	acc varchar(200),
+	acc varchar(200) not null unique,
 	description varchar(4000),
 	created_by varchar(200),
 	updated_by varchar(200),
@@ -38,7 +38,7 @@ DELIMITER ;
 
 create table if not exists snps(
 	id integer auto_increment primary key,
-	acc varchar(200),
+	acc varchar(200) not null unique,
 	chromosome integer,
 	position integer,
 	probe_sequence varchar(4000),
@@ -85,7 +85,7 @@ create table snps2snpset(
 
 create table call_method(
 	id integer auto_increment primary key,
-	short_name varchar(20),
+	short_name varchar(100) not null unique,
 	method_description varchar(8000),
 	data_description varchar(8000),
 	comment varchar(8000),
@@ -129,7 +129,7 @@ create table calls(
 	)engine=INNODB;
 
 
-create table readme(
+create table if not exists readme(
 	id      integer auto_increment primary key,
 	title    varchar(2000),
 	description     varchar(60000),
