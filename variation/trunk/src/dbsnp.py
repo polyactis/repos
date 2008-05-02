@@ -16,29 +16,43 @@ from sqlalchemy.orm.session import Session
 from pymodule.db import Database
 
 class SNPset(object):
-	pass
+	def __init__(self, acc=None, description=None):
+		self.acc = acc
+		self.description = description
+
 
 class SNPs(object):
-	pass
+	def __init__(self, acc=None, chromosome=None, position=None, probe_sequence=None):
+		self.acc = acc
+		self.chromosome = chromosome
+		self.position = position
+		self.probe_sequence = probe_sequence
 
 class SNPs2SNPset(object):
-	pass
+	def __init__(self, snps_id=None, snpset_id=None):
+		self.snps_id = snps_id
+		self.snpset_id = snpset_id
 
 class CallMethod(object):
-	pass
+	def __init__(self, short_name=None, method_description=None, data_description=None):
+		self.short_name = short_name
+		self.method_description = method_description
+		self.data_description = data_description
 
 class Calls(object):
-	pass
+	def __init__(self, ecotype_id=None, snps_id=None, genotype=None):
+		self.ecotype_id = ecotype_id
+		self.snps_id = snps_id
+		self.genotype = genotype
 
 class README(object):
 	pass
-
 
 class DBSNP(Database):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
 							('hostname', 1, ):['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
-							('database', 1, ):['stock_250k', 'd', 1, '',],\
+							('database', 1, ):['dbsnp', 'd', 1, '',],\
 							('username', 1, ):[None, 'u', 1, 'database username',],\
 							('password',1, ):[None, 'p', 1, 'database password', ],\
 							('port', 0, ):[None, 'o', 1, 'database port number'],\
@@ -70,10 +84,12 @@ class DBSNP(Database):
 	def _setup_mappers(self, tables, mappers):
 		"""Map the database Tables to SQLAlchemy Mapper objects
 		"""
-		standalone_table_tuple_ls = [('snpset', SNPset), ('snps', SNPs), ('call_method', CallMethod), ('readme', README)]
+		standalone_table_tuple_ls = [('snps', SNPs), ('call_method', CallMethod), ('readme', README)]
 		for table_name, table_class in standalone_table_tuple_ls:
 			mappers[table_name] = mapper(table_class, tables[table_name])
 		
+		mappers['snpset'] = mapper(SNPset, tables['snpset'],
+										properties={'snps': relation(SNPs, secondary=tables['snps2snpset'], backref='snpset')})
 		mappers['snps2snpset'] = mapper(SNPs2SNPset, tables['snps2snpset'],
-										properties={'snps_obj': relation(SNPs), 'snpset_obj':relation(SNPset)})
-		mappers['calls'] = mapper(Calls, tables['calls'], properties={'snps_obj': relation(SNPs), 'call_method_obj': relation(CallMethod)})
+										properties={'snps': relation(SNPs), 'snpset':relation(SNPset)})
+		mappers['calls'] = mapper(Calls, tables['calls'], properties={'snps': relation(SNPs), 'call_method': relation(CallMethod)})
