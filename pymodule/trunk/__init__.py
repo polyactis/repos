@@ -280,6 +280,8 @@ class ProcessOptions(object):
 	@property
 	def program_doc(self):
 		"""
+		2008-05-02
+			fix a bug in toggle need_star
 		2008-04-28
 			sort the options in short_option ascending order. structure of std_option_default_dict changed.
 		2008-04-28
@@ -307,7 +309,7 @@ class ProcessOptions(object):
 			long_option, is_option_required = option_key[0:2]
 			need_star = 0	#required and default_value is empty
 			this_argument_ls = ['\t']
-			if is_option_required and default_value==None or default_value=='':
+			if is_option_required and (default_value==None or default_value==''):
 				usage_str += ' -%s %s'%(short_option, long_option.upper())
 				need_star = 1
 			
