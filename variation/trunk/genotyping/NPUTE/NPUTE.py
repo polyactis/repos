@@ -1,5 +1,14 @@
 #!/usr/bin/python
 """
+Examples:
+	NPUTE.py -m 0 -w 10 -i sample_data.csv -o sample_data.out
+
+Description:
+	Program to impute genotypes.
+	
+	Input file format:
+		SNP by individual. "?" is NA.
+
 2008-04-30 yh start modifying
 """
 import sys
@@ -25,59 +34,88 @@ TST = '1'
 '''
 This is the main NPUTE class, providing a command-line interface for imputation.
 '''
-def main():
-	'''
-	Parses arguments, loads data, calls proper functions, and outputs results.
-	'''
+import sys, os
+sys.path.insert(0, os.path.expanduser('~/lib/python'))
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 	
-	options = {MODE_TYPE: IMP, # Mode - imputation or window test
-			   SING_WIN : '', # Single Window
-			   RANGE_WIN : '', # Window Range - 'start:end'
-			   FILE_WIN : '', # Window File
-			   IN_FILE : 'in.csv', # Input File
-			   OUT_FILE : 'out.csv' # Output File
-			   }
-			   
-	optlist, args = getopt.getopt(sys.argv[1:], 'm:w:W:r:i:o:')
-	for opt in optlist:
-		options[opt[0]] = opt[1]
-
-	# Get input SNPs
-	inFile = options[IN_FILE]
-	if not os.path.exists(inFile):
-		print "Input file '%s' not found." % inFile
-		sys.exit(1)
-	snpData = SNPData(inFile)
-
-	# Get test windows
-	L = []
-	if not isEmpty(options[RANGE_WIN]):
-		start,stop = options[RANGE_WIN].split(':')
-		start,stop = int(start),int(stop)
-		L = range(start,stop+1)
-	winFile = options[FILE_WIN]		
-	if not isEmpty(winFile):
-		if not os.path.exists(winFile):
-			print "Window file '%s' not found." % winFile
+class NPUTE:
+	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
+	option_default_dict = {('mode_type', 1, ): [IMP, 'm', 1, 'specify running mode. 0=Imputation, 1=test window sizes', ],\
+							('single_window_size', 0, ): ['', 'w', 1, 'specify a window size, like 10', ],\
+							('window_file', 0, ): ['', 'W', 1, 'A file with each line a number for window size. To test window sizes.', ],\
+							('window_size_range', 0, ): ['', 'p', 1, 'specify a window range to test, like 5:15', ],\
+							('input_fname',1, ): ['', 'i', 1, 'Input file. A plain genotype matrix.'],\
+							('output_fname',1, ): ['out.csv', 'o', 1, 'Output File'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	def __init__(self, **keywords):
+		"""
+		2008-05-01
+			use ProcessOptions
+		"""
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+	
+	def main(self):
+		'''
+		2008-05-01
+			yh use ProcessOptions
+			
+		Parses arguments, loads data, calls proper functions, and outputs results.
+		'''
+		
+		"""
+		options = {MODE_TYPE: IMP, # Mode - imputation or window test
+				   SING_WIN : '', # Single Window
+				   RANGE_WIN : '', # Window Range - 'start:end'
+				   FILE_WIN : '', # Window File
+				   IN_FILE : 'in.csv', # Input File
+				   OUT_FILE : 'out.csv' # Output File
+				   }
+		
+		optlist, args = getopt.getopt(sys.argv[1:], 'm:w:W:r:i:o:')
+		for opt in optlist:
+			options[opt[0]] = opt[1]
+	
+		Get input SNPs
+		inFile = options[IN_FILE]
+		"""	   
+		inFile = self.input_fname
+		
+		if not os.path.exists(inFile):
+			print "Input file '%s' not found." % inFile
 			sys.exit(1)
-		lines = file(winFile,'r').readlines()
-		L += [int(line) for line in lines]
-	if not isEmpty(options[SING_WIN]):
-		L += [int(options[SING_WIN])]
-	L.sort()		
-
-	mode = options[MODE_TYPE]
-	if mode == IMP:
-		if isEmpty(options[SING_WIN]):
-			print 'Imputation window not specified.'
-			sys.exit(1)
-		L = int(options[SING_WIN])
-		imputeData(snpData, L, options[OUT_FILE])
-	elif mode == TST:
-		if isEmpty(L):
-			print 'Test windows not specified.'
-			sys.exit(1)
-		testWindows(snpData, L, options[OUT_FILE])
+		snpData = SNPData(inFile)
+		
+		# Get test windows
+		L = []
+		if not isEmpty(self.window_size_range):
+			start,stop = self.window_size_range.split(':')
+			start,stop = int(start),int(stop)
+			L = range(start,stop+1)
+		winFile = self.window_file
+		if not isEmpty(winFile):
+			if not os.path.exists(winFile):
+				print "Window file '%s' not found." % winFile
+				sys.exit(1)
+			lines = file(winFile,'r').readlines()
+			L += [int(line) for line in lines]
+		if not isEmpty(self.single_window_size):
+			L += [int(self.single_window_size)]
+		L.sort()		
+	
+		mode = self.mode_type
+		if mode == IMP:
+			if isEmpty(self.single_window_size):
+				print 'Imputation window not specified.'
+				sys.exit(1)
+			L = int(self.single_window_size)
+			imputeData(snpData, L, self.output_fname)
+		elif mode == TST:
+			if isEmpty(L):
+				print 'Test windows not specified.'
+				sys.exit(1)
+			testWindows(snpData, L, self.output_fname)
 		
 		
 def isEmpty(x):
@@ -298,4 +336,9 @@ def outputWinAccs(Ls,count,corrects,outFile):
 	print "Done"
 
 if __name__ == "__main__":
-	main()
+	from pymodule import ProcessOptions
+	main_class = NPUTE
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.main()
