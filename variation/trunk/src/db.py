@@ -18,14 +18,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy import Table, mapper, relation
 from sqlalchemy.orm.session import Session
 
-
-class a(object):
-	def __init__(self, **keywords):
-		self.hostname = keywords['hostname']
-	
-	@property
-	def _initvalue(self):
-		return 'abc'
+from pymodule.db import Database
 
 class Results(object):
 	pass
@@ -55,26 +48,21 @@ class Array_Info(object):
 	pass
 
 
-class Stock_250kDatabase(object):
+class Stock_250kDatabase(Database):
 	__doc__ = __doc__
-	option_default_dict = {('v', 'drivername', 1, '', 1, ):'mysql',\
-							('z', 'hostname', 1, '', 1, ):'papaya.usc.edu',\
-							('d', 'database',1, '', 1, ):'stock_250k',\
-							('u', 'username',1, '', 1, ):None,\
-							('p', 'password',1, '', 1, ):None,\
-							('o', 'port', 1, '', 0, ):None,\
-							('c', 'commit', 0, '', 0, int):0,\
-							('b', 'debug', 0, '', 0, int):0,\
-							('r', 'report', 0, '', 0, int):0}
-	"""
-	2008-02-28
-		argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
-		argument_type is optional
-	"""
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ):['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('database', 1, ):['stock_250k', 'd', 1, '',],\
+							('username', 1, ):[None, 'u', 1, 'database username',],\
+							('password',1, ):[None, 'p', 1, 'database password', ],\
+							('port', 0, ):[None, 'o', 1, 'database port number'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
-		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
-		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		
 		
 		self._threadlocal = threading.local()
 		self.tables = {}
@@ -115,67 +103,14 @@ class Stock_250kDatabase(object):
 		mappers['call_info'] = mapper(Call_Info, tables['call_info'], properties={'array_info_obj': relation(Array_Info), 'call_method_obj': relation(Call_Method)})
 		mappers['call_method'] = mapper(Call_Method, tables['call_method'])
 		mappers['array_info'] = mapper(Array_Info, tables['array_info'])
-	
-	@property
-	def _engine_properties(self):
-		return {}
-	
-	def invalidate(self):
-		self._initialize_engine()
-		
-	# IDatabase implementation - code using (not setting up) the database
-	# uses this
-	
-	@property
-	def session(self):
-		if getattr(self._threadlocal, 'session', None) is None:
-			# Without this, we may not have mapped things properly, nor
-			# will we necessarily start a transaction when the client
-			# code begins to use the session.
-			ignore = self.engine
-			self._threadlocal.session = Session()
-		return self._threadlocal.session
-	
-	@property
-	def connection(self):
-		return self.engine.contextual_connect()
-	
-	@property
-	def engine(self):
-		if self._engine is None:
-			self._initialize_engine()
-		
-		return self._engine
-	
-	# Helper methods
-	
-	def _initialize_engine(self):
-		kwargs = dict(self._engine_properties).copy()
-		if 'strategy' not in kwargs:
-			kwargs['strategy'] = 'threadlocal'
-		if 'convert_unicode' not in kwargs:
-			kwargs['convert_unicode'] = True
-		
-		engine = sqlalchemy.create_engine(self._url, **kwargs)
-		metadata = sqlalchemy.MetaData(engine)
-		
-		# We will only initialize once, but we may rebind metadata if
-		# necessary
 
-		if not self.tables:
-			self._setup_tables(metadata, self.tables)
-			self._setup_mappers(self.tables, self.mappers)
-		else:
-			for name, table in self.tables.items():
-				self.tables[name] = table.tometadata(self._metadata)
-		
-		self._engine = engine
-		self._metadata = metadata
 
 if __name__ == '__main__':
-	from pymodule import process_options, generate_program_doc
+	from pymodule import ProcessOptions
 	main_class = Stock_250kDatabase
-	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
 	
 	"""
 	
@@ -192,7 +127,6 @@ if __name__ == '__main__':
 	print components.registerAdapter(TreadlocalDatabaseTransactions)
 	print components.getAdapter(ITransactionAware, Database)
 	"""
-	instance = main_class(**opts_dict)
 	if instance.debug:
 		import pdb
 		pdb.set_trace()
