@@ -1,0 +1,49 @@
+
+R version 2.5.1 (2007-06-27)
+Copyright (C) 2007 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ### filename: new_basecall.R
+> ### content: make base calls from raw cel file, namely "raw_data.cel"
+> ###  output: genocall.txt where 1 is the first allele and 3 is the second allele
+> ###          the 2nd column is the likelihood of correct calls
+> ###    note: use  to transform genocall.txt to tsv file given a cutoff on the likelihood
+> ###	
+> ###	R. J. 04/25/2008
+> 
+> source("utilities-jr.R")
+> source ("readcel.R")
+Loading required package: Biobase
+Loading required package: tools
+
+Welcome to Bioconductor
+
+  Vignettes contain introductory material. To view, type
+  'openVignette()'. To cite Bioconductor, see
+  'citation("Biobase")' and for packages 'citation(pkgname)'.
+
+Loading required package: affyio
+> source("cal-pacc.R")
+> 
+> library(splines);
+> library(affy)
+> 
+> load ("snp.RData")  #annotation for SNP probes
+> load("params-logitreg-31arrays.rda")
+> load("params-31arrays.rda")
+
+Execution halted
