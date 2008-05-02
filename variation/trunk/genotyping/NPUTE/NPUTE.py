@@ -1,13 +1,18 @@
 #!/usr/bin/python
 """
 Examples:
-	NPUTE.py -m 0 -w 10 -i sample_data.csv -o sample_data.out
+	NPUTE.py -w 10 -i sample_data.csv -o sample_data.out
+	
+	NPUTE.py -m 1 -p 5:15 -i genotyping/NPUTE/sample_data.csv -o /tmp/sample_data.out
 
 Description:
-	Program to impute genotypes.
+	Program to impute genotypes, originally downloaded from http://compgen.unc.edu/?page_id=57.
+	
+	If mode_type=0, single_window_size has to be specified.
+	If mode_type=1, sizes from single_window_size +  window_file + window_size_range would all be tested.
 	
 	Input file format:
-		SNP by individual. "?" is NA.
+		SNP by individual Matrix. "?" is NA.
 
 2008-04-30 yh start modifying
 """
@@ -44,8 +49,8 @@ class NPUTE:
 							('single_window_size', 0, ): ['', 'w', 1, 'specify a window size, like 10', ],\
 							('window_file', 0, ): ['', 'W', 1, 'A file with each line a number for window size. To test window sizes.', ],\
 							('window_size_range', 0, ): ['', 'p', 1, 'specify a window range to test, like 5:15', ],\
-							('input_fname',1, ): ['', 'i', 1, 'Input file. A plain genotype matrix.'],\
-							('output_fname',1, ): ['out.csv', 'o', 1, 'Output File'],\
+							('input_fname', 1, ): ['', 'i', 1, 'Input file. A plain genotype matrix.'],\
+							('output_fname', 1, ): ['out.csv', 'o', 1, 'Output File'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
