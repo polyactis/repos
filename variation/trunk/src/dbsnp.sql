@@ -118,12 +118,47 @@ CREATE TRIGGER before_update_c_method BEFORE UPDATE ON call_method
 
 DELIMITER ;
 
-create table calls(
+create table if not exists accession(
 	id integer auto_increment primary key,
+	name varchar(100),
 	ecotype_id integer,
+	duplicate integer,
+	created_by      varchar(200),
+	updated_by     varchar(200),
+	date_created    timestamp default CURRENT_TIMESTAMP,
+	date_updated   TIMESTAMP default 0
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_accession BEFORE INSERT ON accession
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_accession BEFORE UPDATE ON accession
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
+create table if not exists calls(
+	id integer auto_increment primary key,
+	accession_id integer,
 	snps_id integer,
 	genotype varchar(2),
 	call_method_id integer,
+	foreign key (accession_id) references accession(id) on delete cascade on update cascade,
 	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
 	foreign key (call_method_id) references call_method(id) on delete cascade on update cascade
 	)engine=INNODB;
@@ -137,7 +172,7 @@ create table if not exists readme(
 	updated_by     varchar(200),
 	date_created    timestamp default CURRENT_TIMESTAMP,
 	date_updated   TIMESTAMP default 0
-	);
+	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
