@@ -18,33 +18,33 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy import Table, mapper, relation
 from sqlalchemy.orm.session import Session
 
-from pymodule.db import Database
+from pymodule.db import Database, TableClass
 
-class Results(object):
+class Results(TableClass):
 	pass
 
-class ResultsMethod(object):
+class ResultsMethod(TableClass):
 	pass
 
-class PhenotypeAvg(object):
+class PhenotypeAvg(TableClass):
 	pass
 
-class PhenotypeMethod(object):
+class PhenotypeMethod(TableClass):
 	pass
 
-class QCMethod(object):
+class QCMethod(TableClass):
 	pass
 
-class Call_QC(object):
+class Call_QC(TableClass):
 	pass
 
-class Call_Info(object):
+class Call_Info(TableClass):
 	pass
 
-class Call_Method(object):
+class Call_Method(TableClass):
 	pass
 
-class Array_Info(object):
+class Array_Info(TableClass):
 	pass
 
 
