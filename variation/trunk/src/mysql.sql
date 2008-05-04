@@ -741,3 +741,7 @@ create table phenotype_avg(
 	method_id integer not null,
 	foreign key (method_id) references phenotype_method(id) on delete cascade on update cascade
 	)engine=INNODB;
+
+
+--2008-04-30 create a view to view QC results for arrays
+create or replace view view_QC as select e.id as ecotype_id, e.nativename, q.call_info_id, c.method_id as call_method_id, a.id as array_id, a.original_filename , a.date_created, c.NA_rate, group_concat(q.mismatch_rate order by q.QC_method_id) as mismatch_rate, group_concat(q.QC_method_id order by q.QC_method_id) as QC_method, group_concat(q.no_of_non_NA_pairs order by q.QC_method_id) as no_of_non_NA_pairs from call_info c, array_info a, call_QC q , stock.ecotype e where e.id=a.maternal_ecotype_id and q.call_info_id = c.id and a.id=c.array_id group by c.id order by nativename, call_method_id, NA_rate, date_created, original_filename;
