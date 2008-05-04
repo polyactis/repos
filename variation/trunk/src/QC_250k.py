@@ -46,6 +46,7 @@ import warnings, traceback
 from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
+from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod
 
 class SNPData(object):
 	def __init__(self, **keywords):
@@ -144,6 +145,8 @@ class QC_250k(object):
 	"""
 	def __init__(self,  **keywords):
 		"""
+		2008-05-04
+			if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
 		2008-04-20
 		"""
 		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
@@ -155,14 +158,29 @@ class QC_250k(object):
 		"""
 		#argument dictionary
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-		QC_method_id2cmp_data_filename = {1:"/home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv",\
-				2:'/home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv',\
-				3:'/home/crocea/script/variation/stock20080403/data_y00001101.tsv'}
-		if self.cmp_data_filename == None and self.QC_method_id in QC_method_id2cmp_data_filename:
-			self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
-		else:
-			sys.stderr.write("Please specify cmp_data_filename. No file available for QC_method_id=%s.\n"%self.QC_method_id)
-			sys.exit(4)
+		
+		#database connection and etc
+		self.db = Stock_250kDatabase(username=self.user,
+				   password=self.passwd, host=self.hostname, database=self.dbname)
+		self.session = self.db.session
+		self.transaction = self.session.create_transaction()
+		
+		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
+		if not self.cmp_data_filename:
+			qm = self.session.query(QCMethod).get_by(id=self.QC_method_id)
+			if qm.data_description:
+				data_description_ls = qm.data_description.split('=')
+				if len(data_description_ls)>1:
+					self.cmp_data_filename = qm.data_description.split('=')[1].strip()
+		#after db query, cmp_data_filename is still nothing, exit program.
+		if not self.cmp_data_filename:
+			sys.stderr.write("cmp_data_filename is still nothing even after db query. please specify it on the commandline.\n")
+			sys.exit(3)
+		#QC_method_id2cmp_data_filename = {1:"/home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv",\
+		#		2:'/home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv',\
+		#		3:'/home/crocea/script/variation/stock20080403/data_y00001101.tsv'}
+		#if self.cmp_data_filename == None:
+		#	self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
 
 	def get_call_info_id2fname(cls, curs, call_info_table, call_QC_table, QC_method_id, call_method_id, array_info_table='array_info'):
 		"""
@@ -226,6 +244,7 @@ class QC_250k(object):
 	
 	def read_call_matrix(cls, call_info_id2fname, min_probability=-1):
 		"""
+		2008-05-03 add min_probability
 		2008-04-20
 			fake header, strain_acc_list, category_list, data_matrix
 		"""
