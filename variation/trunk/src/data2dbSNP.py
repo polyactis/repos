@@ -166,7 +166,7 @@ Description:
 		if self.commit:
 			curs.execute("end")
 
-from dbsnp import DBSNP, SNPs, SNPs2SNPset, SNPset, Calls, CallMethod
+from dbsnp import DBSNP, SNPs, SNPs2SNPset, SNPset, Calls, CallMethod, Accession
 
 class data2dbSNP(object):
 	__doc__ = __doc__
@@ -190,21 +190,30 @@ class data2dbSNP(object):
 		from pymodule import ProcessOptions
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def get_name2ecotype_id(self, name2ecotype_id_fname):
+	def get_name_duplicate2accession(self, name2ecotype_id_fname):
 		"""
+		2008-05-04
+			consider name duplicates
 		2008-05-02
 		"""
-		sys.stderr.write("Getting name2ecotype_id ... ")
+		sys.stderr.write("Getting name_duplicate2accession ... ")
 		reader = csv.reader(open(name2ecotype_id_fname))
-		name2ecotype_id = {}
+		name_duplicate2accession = {}
+		name2duplicate = {}	#to keep track of duplicates
 		for row in reader:
 			name, ecotype_id = row
-			name2ecotype_id[name] = int(ecotype_id)
+			if name not in name2duplicate:
+				name2duplicate[name] = 0
+			name2duplicate[name] += 1
+			name_duplicate = (name, name2duplicate[name])
+			name_duplicate2accession[name_duplicate] = Accession(name=name, ecotype_id=ecotype_id, duplicate=name2duplicate[name])
 		sys.stderr.write("Done.\n")
-		return name2ecotype_id
+		return name_duplicate2accession
 	
-	def readin_calls(self, input_fname, name2ecotype_id, session, snpset, callmethod):
+	def readin_calls(self, input_fname, name_duplicate2accession, session, snpset, callmethod):
 		"""
+		2008-05-04
+			consider name duplicates
 		2008-05-02
 		"""
 		sys.stderr.write("Reading in calls ...")
@@ -224,14 +233,20 @@ class data2dbSNP(object):
 			session.save(s)
 		
 		reader.next()	#skip this weird line
+		name2duplicate = {}	#to keep track of duplicates
 		for row in reader:
 			name = row[0]
-			ecotype_id = name2ecotype_id[name]
+			if name not in name2duplicate:
+				name2duplicate[name] = 0
+			name2duplicate[name] += 1
+			name_duplicate = (name, name2duplicate[name])
+			accession = name_duplicate2accession[name_duplicate]
 			for i in range(no_of_snps):
 				s = snps_obj_ls[i]
-				calls_obj = Calls(ecotype_id=ecotype_id, genotype=row[i+1])
+				calls_obj = Calls(genotype=row[i+1])
 				calls_obj.snps = snps_obj_ls[i]
 				calls_obj.call_method = callmethod
+				calls_obj.accession = accession
 				session.save(calls_obj)
 		sys.stderr.write("Done.\n")
 	
@@ -247,9 +262,9 @@ class data2dbSNP(object):
 			pdb.set_trace()
 		snpset = SNPset(acc=self.snpset_acc, description=self.snpset_description)
 		callmethod = CallMethod(short_name=self.call_method_short_name, method_description=self.call_method_description, data_description=self.call_method_data_description)
-		name2ecotype_id = self.get_name2ecotype_id(self.name2ecotype_id_fname)
+		name_duplicate2accession = self.get_name_duplicate2accession(self.name2ecotype_id_fname)
 		
-		self.readin_calls(self.input_fname, name2ecotype_id, session, snpset, callmethod)
+		self.readin_calls(self.input_fname, name_duplicate2accession, session, snpset, callmethod)
 		session.flush()
 		if self.commit:
 			transaction.commit()
