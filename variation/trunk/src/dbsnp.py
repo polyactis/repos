@@ -13,7 +13,7 @@ import sqlalchemy, threading
 from sqlalchemy.engine.url import URL
 from sqlalchemy import Table, mapper, relation
 from sqlalchemy.orm.session import Session
-from pymodule.db import Database
+from pymodule.db import Database, TableClass
 
 class SNPset(object):
 	def __init__(self, acc=None, description=None):
@@ -45,7 +45,10 @@ class Calls(object):
 		self.snps_id = snps_id
 		self.genotype = genotype
 
-class README(object):
+class README(TableClass):
+	pass
+
+class Accession(TableClass):
 	pass
 
 class DBSNP(Database):
@@ -77,14 +80,14 @@ class DBSNP(Database):
 	def _setup_tables(self, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
 		"""
-		table_ls = ['snpset', 'snps', 'snps2snpset', 'call_method', 'calls', 'readme']
+		table_ls = ['snpset', 'snps', 'snps2snpset', 'call_method', 'calls', 'readme', 'accession']
 		for table_name in table_ls:
 			tables[table_name] = Table(table_name, metadata, autoload=True)
 	
 	def _setup_mappers(self, tables, mappers):
 		"""Map the database Tables to SQLAlchemy Mapper objects
 		"""
-		standalone_table_tuple_ls = [('snps', SNPs), ('call_method', CallMethod), ('readme', README)]
+		standalone_table_tuple_ls = [('snps', SNPs), ('call_method', CallMethod), ('readme', README), ('accession', Accession)]
 		for table_name, table_class in standalone_table_tuple_ls:
 			mappers[table_name] = mapper(table_class, tables[table_name])
 		
@@ -92,4 +95,4 @@ class DBSNP(Database):
 										properties={'snps': relation(SNPs, secondary=tables['snps2snpset'], backref='snpset')})
 		mappers['snps2snpset'] = mapper(SNPs2SNPset, tables['snps2snpset'],
 										properties={'snps': relation(SNPs), 'snpset':relation(SNPset)})
-		mappers['calls'] = mapper(Calls, tables['calls'], properties={'snps': relation(SNPs), 'call_method': relation(CallMethod)})
+		mappers['calls'] = mapper(Calls, tables['calls'], properties={'snps': relation(SNPs), 'call_method': relation(CallMethod), 'accession': relation(Accession)})
