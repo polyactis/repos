@@ -1,8 +1,10 @@
 #!/usr/bin/python
 """
 Examples:
+	#Imputation mode: use windows size 10 to impute sample_data.csv
 	NPUTE.py -w 10 -i sample_data.csv -o sample_data.out
 	
+	#test window size from 5 to 15
 	NPUTE.py -m 1 -p 5:15 -i genotyping/NPUTE/sample_data.csv -o /tmp/sample_data.out
 
 Description:
