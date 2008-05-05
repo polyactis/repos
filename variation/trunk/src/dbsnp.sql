@@ -41,6 +41,7 @@ create table if not exists snps(
 	acc varchar(200) not null unique,
 	chromosome integer,
 	position integer,
+	offset integer,
 	probe_sequence varchar(4000),
 	allele1 varchar(2),
 	allele2 varchar(2),
