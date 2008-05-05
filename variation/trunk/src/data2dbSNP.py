@@ -2,10 +2,12 @@
 """
 
 Examples:
-	data2dbSNP.py -a "384-SNP Illumina multiplex" -i /tmp/2ndPlate-data.csv -l /tmp/080501_accession2ecotype_id_384SNP.csv -s "384-SNP-Illumina-multiplex" -m "93 accessions from the so-called 2nd batch (or 2nd 96)"  -c
+	data2dbSNP.py -a "384-SNP Illumina multiplex" -i /tmp/2ndPlate-data.csv -l /tmp/080501_accession2ecotype_id_384SNP.csv -s "384-SNP-Illumina-multiplex" -m "93 accessions from the so-called 2nd batch (or 2nd 96)"  -f /tmp/chosenR2.csv  -c
 
 Description:
-	put 384-SNP Illumina-multiplex data into db
+	put 384-SNP Illumina-multiplex data into db.
+	
+	all the data files are attached in ticket 17 in Trac.
 	
 """
 import sys, os, math
@@ -177,6 +179,7 @@ class data2dbSNP(object):
 							('passwd',1, ):[None, 'p', 1, 'database password', ],\
 							('input_fname',1, ): [None, 'i', 1, 'File containing 384-SNP illumina data. csv format.'],\
 							('name2ecotype_id_fname',1, ): [None, 'l', 1, 'File containing the linking between accession name in input_fname and ecotype_id. csv format.'],\
+							('snp_probe_fname',1, ): [None, 'f', 1, 'File containing snp name, probe sequence, chromosome, position. chosenR.csv sent from chris.'],\
 							('snpset_acc',1, ): [None, 's'],\
 							('snpset_description', 0, ): [None, 'n' ],\
 							('call_method_short_name', 1, ): [None, 'a'],\
@@ -210,7 +213,40 @@ class data2dbSNP(object):
 		sys.stderr.write("Done.\n")
 		return name_duplicate2accession
 	
-	def readin_calls(self, input_fname, name_duplicate2accession, session, snpset, callmethod):
+	def get_chromosome_pos2snp_obj(self, snp_probe_fname, session, snpset):
+		"""
+		2008-05-05
+			snp_probe_fname is a csv file, a square matrix extracted from chosenR2.csv from chris.
+			4-column: name, probe sequence, chromosome, position
+		"""
+		sys.stderr.write("Getting chromosome_pos2snp_obj ...")
+		reader = csv.reader(open(snp_probe_fname))
+		chromosome_pos2snp_obj = {}
+		import re
+		offset_pattern = re.compile(r'o(\d+)')
+		allele_pattern = re.compile(r'\[([a-zA-Z])/([a-zA-Z])\]')
+		for row in reader:
+			snp_acc, probe_sequence, random_stuff, chromosome, position = row[:5]
+			offset = None
+			search_result = offset_pattern.search(snp_acc)
+			if search_result:
+				offset = int(search_result.groups()[0])
+			search_result1 = allele_pattern.search(probe_sequence)
+			allele1, allele2 = None, None
+			if search_result1:
+				allele1, allele2 = search_result1.groups()
+			chromosome=int(chromosome)
+			position=int(position)
+			s = SNPs(acc=snp_acc, chromosome=chromosome, position=position, offset=offset, \
+					probe_sequence=probe_sequence, allele1=allele1, allele2=allele2)
+			snpset.snps.append(s)
+			s.snpset.append(snpset)
+			chromosome_pos2snp_obj[(chromosome, position)] = s
+			session.save(s)
+		sys.stderr.write("Done.\n")
+		return chromosome_pos2snp_obj
+	
+	def readin_calls(self, input_fname, name_duplicate2accession, session, callmethod, chromosome_pos2snp_obj):
 		"""
 		2008-05-04
 			consider name duplicates
@@ -221,16 +257,12 @@ class data2dbSNP(object):
 		#handle the SNPs first
 		chr_ls = reader.next()[1:]
 		position_ls = reader.next()[1:]
-		snps_obj_ls = []
+		chr_pos_ls = []
 		no_of_snps = len(chr_ls)
 		for i in range(no_of_snps):
 			chromosome = int(chr_ls[i])
 			position = int(position_ls[i])
-			s = SNPs(acc='%s_%s'%(chromosome, position), chromosome=chromosome, position=position)
-			snpset.snps.append(s)
-			s.snpset.append(snpset)
-			snps_obj_ls.append(s)
-			session.save(s)
+			chr_pos_ls.append((chromosome, position))
 		
 		reader.next()	#skip this weird line
 		name2duplicate = {}	#to keep track of duplicates
@@ -242,9 +274,15 @@ class data2dbSNP(object):
 			name_duplicate = (name, name2duplicate[name])
 			accession = name_duplicate2accession[name_duplicate]
 			for i in range(no_of_snps):
-				s = snps_obj_ls[i]
+				chr_pos = chr_pos_ls[i]
+				if chr_pos in chromosome_pos2snp_obj:
+					s = chromosome_pos2snp_obj[chr_pos]
+				else:
+					sys.stderr.write("Error: %s not in chromosome_pos2snp_obj. Ignore. Won't commit db transaction.\n"%(repr(chr_pos)))
+					self.commit = 0
+					continue
 				calls_obj = Calls(genotype=row[i+1])
-				calls_obj.snps = snps_obj_ls[i]
+				calls_obj.snps = s
 				calls_obj.call_method = callmethod
 				calls_obj.accession = accession
 				session.save(calls_obj)
@@ -262,9 +300,12 @@ class data2dbSNP(object):
 			pdb.set_trace()
 		snpset = SNPset(acc=self.snpset_acc, description=self.snpset_description)
 		callmethod = CallMethod(short_name=self.call_method_short_name, method_description=self.call_method_description, data_description=self.call_method_data_description)
+		
+		chromosome_pos2snp_obj = self.get_chromosome_pos2snp_obj(self.snp_probe_fname, session, snpset)
+		
 		name_duplicate2accession = self.get_name_duplicate2accession(self.name2ecotype_id_fname)
 		
-		self.readin_calls(self.input_fname, name_duplicate2accession, session, snpset, callmethod)
+		self.readin_calls(self.input_fname, name_duplicate2accession, session, callmethod, chromosome_pos2snp_obj)
 		session.flush()
 		if self.commit:
 			transaction.commit()
