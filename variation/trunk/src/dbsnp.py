@@ -15,41 +15,39 @@ from sqlalchemy import Table, mapper, relation
 from sqlalchemy.orm.session import Session
 from pymodule.db import Database, TableClass
 
-class SNPset(object):
-	def __init__(self, acc=None, description=None):
-		self.acc = acc
-		self.description = description
+class SNPset(TableClass):
+	pass
 
+class SNPs(TableClass):
+	pass
 
-class SNPs(object):
-	def __init__(self, acc=None, chromosome=None, position=None, probe_sequence=None):
-		self.acc = acc
-		self.chromosome = chromosome
-		self.position = position
-		self.probe_sequence = probe_sequence
+class SNPs2SNPset(TableClass):
+	pass
 
-class SNPs2SNPset(object):
-	def __init__(self, snps_id=None, snpset_id=None):
-		self.snps_id = snps_id
-		self.snpset_id = snpset_id
+class CallMethod(TableClass):
+	pass
 
-class CallMethod(object):
-	def __init__(self, short_name=None, method_description=None, data_description=None):
-		self.short_name = short_name
-		self.method_description = method_description
-		self.data_description = data_description
-
-class Calls(object):
-	def __init__(self, ecotype_id=None, snps_id=None, genotype=None):
-		self.ecotype_id = ecotype_id
-		self.snps_id = snps_id
-		self.genotype = genotype
+class Calls(TableClass):
+	pass
 
 class README(TableClass):
 	pass
 
 class Accession(TableClass):
 	pass
+
+class AtEcotype2Accession(TableClass):
+	pass
+
+class AtGenotype(TableClass):
+	pass
+
+class AtAllele(TableClass):
+	pass
+
+class AtLocus(TableClass):
+	pass
+
 
 class DBSNP(Database):
 	__doc__ = __doc__
@@ -83,6 +81,13 @@ class DBSNP(Database):
 		table_ls = ['snpset', 'snps', 'snps2snpset', 'call_method', 'calls', 'readme', 'accession']
 		for table_name in table_ls:
 			tables[table_name] = Table(table_name, metadata, autoload=True)
+		
+		"""
+		schema2table_ls = {'at':['ecotype2accession', 'genotype', 'allele', 'locus']}
+		for schema, table_ls in schema2table_ls.iteritems():
+			for table_name in table_ls:
+				tables[table_name] = Table(table_name, metadata, autoload=True, schema=schema)
+		"""
 	
 	def _setup_mappers(self, tables, mappers):
 		"""Map the database Tables to SQLAlchemy Mapper objects
