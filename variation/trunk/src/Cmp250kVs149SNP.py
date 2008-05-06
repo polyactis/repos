@@ -59,8 +59,11 @@ class Cmp250kVs149SNP(QualityControl):
 
 		self.debug = int(debug)
 	
-	def get_col_matching_dstruc(cls, header_250k, header_149, curs, snp_locus_table_250k, snp_locus_table_149snp):
+	def get_col_matching_dstruc(cls, header_250k, header_149, curs, snp_locus_table_250k, snp_locus_table_149snp, \
+							columns_to_be_selected='s1.snpid, s2.snpid'):
 		"""
+		2008-05-06
+			add optional columns_to_be_selected
 		2008-04-20
 			change the one snpid by one sql matching to a full sql matching first, then link among the sql results
 		2007-12-18
@@ -79,8 +82,8 @@ class Cmp250kVs149SNP(QualityControl):
 			snpid2col_index_149[snpid] = i-2
 		
 		snpid_250k2snpid_149 = {}
-		curs.execute("select s1.snpid, s2.snpid from %s s1, %s s2 where s1.chromosome=s2.chromosome and s1.position=s2.position"%\
-					(snp_locus_table_250k, snp_locus_table_149snp))
+		curs.execute("select %s from %s s1, %s s2 where s1.chromosome=s2.chromosome and s1.position=s2.position"%\
+					(columns_to_be_selected, snp_locus_table_250k, snp_locus_table_149snp))
 		rows = curs.fetchall()
 		for row in rows:
 			snpid_250k, snpid_149 = row
