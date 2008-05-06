@@ -237,7 +237,7 @@ class data2dbSNP(object):
 				allele1, allele2 = search_result1.groups()
 			chromosome=int(chromosome)
 			position=int(position)
-			s = SNPs(acc=snp_acc, chromosome=chromosome, position=position, offset=offset, \
+			s = SNPs(name=snp_acc, chromosome=chromosome, position=position, offset=offset, \
 					probe_sequence=probe_sequence, allele1=allele1, allele2=allele2)
 			snpset.snps.append(s)
 			s.snpset.append(snpset)
@@ -298,7 +298,7 @@ class data2dbSNP(object):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
-		snpset = SNPset(acc=self.snpset_acc, description=self.snpset_description)
+		snpset = SNPset(name=self.snpset_acc, description=self.snpset_description)
 		callmethod = CallMethod(short_name=self.call_method_short_name, method_description=self.call_method_description, data_description=self.call_method_data_description)
 		
 		chromosome_pos2snp_obj = self.get_chromosome_pos2snp_obj(self.snp_probe_fname, session, snpset)
