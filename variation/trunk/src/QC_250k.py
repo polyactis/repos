@@ -2,9 +2,6 @@
 """
 
 Examples:
-	#test run (without -c) calculate missing rate for call_info entries. no need for cmp_data_filename. 'nothing' is a place holder.
-	QC_250k.py -i nothing -m 0
-	
 	#test run (without -c) QC between 250k and 2010
 	QC_250k.py -i /home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv -m 1
 	
@@ -20,6 +17,15 @@ Examples:
 	QC_250k.py -i /home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv -m 5 -l 3 -y 0.85
 	QC_250k.py -i /home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv -m 6 -l 3 -y 0.85 -c
 	QC_250k.py -i /home/crocea/script/variation/stock20080403/data_y00001101.tsv -m 7 -l 3 -y 0.85 -c
+	
+	#calculate missing rate for call_info entries (call_method_id=3), minimum calling probability=0.85
+	QC_250k.py -m 0 -l 3 -c -y 0.85
+	
+	#accession-wise QC between 250k (call_method_id=3) and 149SNP
+	QC_250k.py -m 3 -l 3 -y 0.85 -c
+	
+	#do snp-wise QC between 250k (call_method_id=3, excluding arrays with > 20% mismatch rate, according to the QC with maximum no_of_non_NA_pairs) and Perlegen
+	QC_250k.py -m 2 -l 3 -y 0.85 -e 2 -x 0.20 -c
 	
 Description:
 	QC for 250k call data from call_info_table against 2010, perlegen, 149SNP data.
@@ -46,14 +52,19 @@ import warnings, traceback
 from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod
+from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README, formReadmeObj
+import sqlalchemy
 
 class SNPData(object):
 	def __init__(self, **keywords):
 		argument_default_dict = {('header', 1, ): None,\
 								('strain_acc_list', 1, ): None,\
 								('category_list', 1, ): None,\
-								('data_matrix', 1, ): None}
+								('data_matrix', 1, ): None,\
+								('min_probability', 0, float): -1,\
+								('call_method_id', 0, int): -1,\
+								('col_id2id', 0, ):None,\
+								('max_call_info_error_rate', 0, float): 1}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 
 
@@ -68,7 +79,8 @@ class TwoSNPData(QualityControl):
 								('curs', 0, ): None,\
 								('snp_locus_table_250k', 0, ): 'stock_250k.snps',\
 								('snp_locus_table_149snp', 0, ): 'stock.snps',\
-								('QC_method_id', 1, int):1}
+								('QC_method_id', 1, int):1,\
+								('user', 0,): ''}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		self.update_row_col_matching()
 	
@@ -108,31 +120,58 @@ class TwoSNPData(QualityControl):
 				sys.stderr.write("Error: no database connection but it's required to link SNP ids.\n")
 				sys.exit(3)
 			from variation.src.Cmp250kVs149SNP import Cmp250kVs149SNP
-			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = Cmp250kVs149SNP.get_col_matching_dstruc(self.SNPData1.header, self.SNPData2.header, self.curs, self.snp_locus_table_250k, self.snp_locus_table_149snp)
+			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = Cmp250kVs149SNP.get_col_matching_dstruc(self.SNPData1.header, \
+					self.SNPData2.header, self.curs, self.snp_locus_table_250k, self.snp_locus_table_149snp, columns_to_be_selected='s1.name, s2.snpid')
 		else:	#use the default from QualityControl
 			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.header, self.SNPData2.header)
 		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.strain_acc_list, self.SNPData1.category_list, self.SNPData2.strain_acc_list)
 		
 	def cmp_row_wise(self):
 		return QualityControl.cmp_row_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
-
-
-
+	
+	def cmp_col_wise(self):
+		return QualityControl.cmp_col_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+	
+	def save_col_wise(self, session, readme):
+		sys.stderr.write("Comparing col-wise for mismatches ...\n")
+		for col_id1 in self.col_id2col_index1:
+			col_id2 = self.col_id12col_id2.get(col_id1)
+			if col_id2:
+				snpsqc = SNPsQC(QC_method_id=self.QC_method_id, min_probability=self.SNPData1.min_probability,\
+							call_method_id=self.SNPData1.call_method_id, created_by=self.user, max_call_info_error_rate=self.SNPData1.max_call_info_error_rate)
+				if type(self.SNPData1.col_id2id)==dict:
+					snpsqc.snps_id = self.SNPData1.col_id2id[col_id1]
+				snpsqc.tg_snps_name=col_id2
+				col_index1 = self.col_id2col_index1[col_id1]
+				col_index2 = self.col_id2col_index2[col_id2]
+				snpsqc.relative_no_of_NAs, snpsqc.relative_no_of_totals, snpsqc.no_of_mismatches, snpsqc.no_of_non_NA_pairs = self.cmp_one_col(self.SNPData1.data_matrix, self.SNPData2.data_matrix, col_index1, col_index2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+				if snpsqc.relative_no_of_totals >0:
+					snpsqc.relative_NA_rate = snpsqc.relative_no_of_NAs/float(snpsqc.relative_no_of_totals)
+				if snpsqc.no_of_non_NA_pairs>0:
+					snpsqc.mismatch_rate = snpsqc.no_of_mismatches/float(snpsqc.no_of_non_NA_pairs)
+				snpsqc.no_of_NAs, snpsqc.no_of_totals = self.get_NA_rate_for_one_col(self.SNPData1.data_matrix, col_index1)
+				if snpsqc.no_of_totals >0:
+					snpsqc.NA_rate = snpsqc.no_of_NAs/float(snpsqc.no_of_totals)
+				snpsqc.readme = readme
+				session.save(snpsqc)
+		sys.stderr.write("Done.\n")
+		
 class QC_250k(object):
 	__doc__ = __doc__
 	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
 							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
 							('u', 'user', 1, 'database username', 1, ):None,\
 							('p', 'passwd', 1, 'database password', 1, ):None,\
-							('t', 'call_info_table', 1, '', 1, ): 'call_info',\
 							('n', 'input_dir', 1, 'If given, call files would be read from this directory rather than from call info table. \
 								Does not work for QC_method_id=0. The data is sorted according to array_id. No call_info_id available. No db submission.', 0, ): None,\
-							('i', 'cmp_data_filename', 1, 'the data file to be compared with. It figures out by QC_method_id.', 0, ): None,\
+							('i', 'cmp_data_filename', 1, 'the data file to be compared with. if not given, it gets figured out by QC_method_id.', 0, ): None,\
 							('y', 'min_probability', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', 0, float): -1,\
 							('o', 'output_fname', 1, 'if given, QC results will be outputed into it.', 0, ): None,\
 							('q', 'call_QC_table', 1, '', 1, ): 'call_QC',\
 							('m', 'QC_method_id', 1, 'id in table QC_method', 1, int): None,\
 							('l', 'call_method_id', 1, 'id in table call_method', 1, int): None,\
+							('e', 'run_type', 1, 'QC on 1=accession-wise or 2=snp-wise', 1, int): 1,\
+							('x', 'max_call_info_error_rate', 1, 'maximum error rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.', 0, float): 1,\
 							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
 							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
 							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
@@ -159,53 +198,65 @@ class QC_250k(object):
 		#argument dictionary
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
-		#database connection and etc
-		self.db = Stock_250kDatabase(username=self.user,
-				   password=self.passwd, host=self.hostname, database=self.dbname)
-		self.session = self.db.session
-		self.transaction = self.session.create_transaction()
-		
-		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
-		if not self.cmp_data_filename:
-			qm = self.session.query(QCMethod).get_by(id=self.QC_method_id)
-			if qm.data_description:
-				data_description_ls = qm.data_description.split('=')
-				if len(data_description_ls)>1:
-					self.cmp_data_filename = qm.data_description.split('=')[1].strip()
-		#after db query, cmp_data_filename is still nothing, exit program.
-		if not self.cmp_data_filename:
-			sys.stderr.write("cmp_data_filename is still nothing even after db query. please specify it on the commandline.\n")
-			sys.exit(3)
 		#QC_method_id2cmp_data_filename = {1:"/home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv",\
 		#		2:'/home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv',\
 		#		3:'/home/crocea/script/variation/stock20080403/data_y00001101.tsv'}
 		#if self.cmp_data_filename == None:
 		#	self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
 
-	def get_call_info_id2fname(cls, curs, call_info_table, call_QC_table, QC_method_id, call_method_id, array_info_table='array_info'):
+	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_error_rate=1, debug=0):
 		"""
+		2008-05-06
+			use sqlalchemy connection
+		2008-05-05
+			add option filter_calls_QCed
 		2008-04-20
 			call_info entries that QC haven't been done.
 			and its corresponding maternal_ecotype_id=paternal_ecotype_id (no crosses).
 			
 		"""
 		sys.stderr.write("Getting call_info_id2fname ... ")
-		curs.execute("select distinct c.id, c.filename, a.maternal_ecotype_id, a.paternal_ecotype_id, q.id as qc_id, q.QC_method_id \
-				from %s a, %s c left join %s q on c.id=q.call_info_id where c.array_id=a.id and a.maternal_ecotype_id=a.paternal_ecotype_id and c.method_id=%s"%\
-				(array_info_table, call_info_table, call_QC_table, call_method_id))
-		rows = curs.fetchall()
-		call_info_id2fname = {}
-		call_info_id_del_ls = []
-		for row in rows:
-			call_info_id, fname, maternal_ecotype_id, paternal_ecotype_id, qc_id, db_QC_method_id = row
-			if db_QC_method_id==QC_method_id:	#done already, mark it for deletion
-				call_info_id_del_ls.append(call_info_id)
-			call_info_id2fname[call_info_id] = [maternal_ecotype_id, fname]	#take all
+		#curs.execute("select distinct c.id, c.filename, a.maternal_ecotype_id, a.paternal_ecotype_id, q.id as qc_id, q.QC_method_id \
+		#		from %s a, %s c left join %s q on c.id=q.call_info_id where c.array_id=a.id and a.maternal_ecotype_id=a.paternal_ecotype_id and c.method_id=%s"%\
+		#		(array_info_table, call_info_table, call_QC_table, call_method_id))
+		#rows = curs.fetchall()
+		call_info_ls = db.session.query(CallInfo).filter(db.tables['call_info'].c.method_id==call_method_id).all()
 		
-		for call_info_id in call_info_id_del_ls:	#remove the ones that already have QC from this QC_method_id
-			del call_info_id2fname[call_info_id]
+		call_info_id2fname = {}
+		call_info_ls_to_return = []
+		for call_info in call_info_ls:
+			if call_info.array_info.maternal_ecotype_id!=call_info.array_info.paternal_ecotype_id:	#ignore crosses
+				continue
+			if not call_info.array_info.maternal_ecotype_id:	#not linked to ecotypeid yet
+				continue
+			ignore_this = 0
+			if filter_calls_QCed:
+				for call_QC in call_info.call_QC:
+					if call_QC.QC_method_id==QC_method_id:	#same QC method has been done on this
+						ignore_this = 1
+						break
+			
+			#choose the call_QC with maximum no of non-NA pairs to get mismatch_rate
+			if call_info.call_QC:
+				call_QC_with_max_no_of_non_NA_pairs = call_info.call_QC[0]
+				for call_QC in call_info.call_QC:
+					if call_QC.no_of_non_NA_pairs>call_QC_with_max_no_of_non_NA_pairs.no_of_non_NA_pairs:
+						call_QC_with_max_no_of_non_NA_pairs = call_QC
+				if call_QC_with_max_no_of_non_NA_pairs.mismatch_rate>max_call_info_error_rate:
+					ignore_this = 1
+				call_info.call_QC_with_max_no_of_non_NA_pairs = call_QC_with_max_no_of_non_NA_pairs				
+			else:
+				call_info.call_QC_with_max_no_of_non_NA_pairs = None
+			
+			if ignore_this:
+				continue
+			call_info_id2fname[call_info.id] = [call_info.array_info.maternal_ecotype_id, call_info.filename]
+			call_info_ls_to_return.append(call_info)
+			if debug and len(call_info_id2fname)>40:
+				break
+		
 		sys.stderr.write("%s call files. Done.\n"%(len(call_info_id2fname)))
-		return call_info_id2fname
+		return call_info_id2fname, call_info_ls_to_return
 	
 	get_call_info_id2fname = classmethod(get_call_info_id2fname)
 	
@@ -259,7 +310,7 @@ class QC_250k(object):
 		for i in range(no_of_entries):
 			call_info_id = call_info_id_ls[i]
 			ecotype_id, fname = call_info_id2fname[call_info_id]
-			sys.stderr.write("%s%d/%d:\t%s"%('\x08'*100, i+1, no_of_entries, fname))
+			sys.stderr.write("%s%d/%d:\t\t%s"%('\x08'*100, i+1, no_of_entries, fname))
 			strain_acc_list.append(call_info_id)
 			category_list.append(ecotype_id)
 			reader = csv.reader(open(fname), delimiter='\t')
@@ -283,49 +334,74 @@ class QC_250k(object):
 	
 	read_call_matrix = classmethod(read_call_matrix)
 	
-	def submit_to_call_QC(cls, curs, row_id2NA_mismatch_rate, call_QC_table, QC_method_id, user):
-		sys.stderr.write("Submitting row_id2NA_mismatch_rate to %s ..."%(call_QC_table))
+	def submit_to_call_QC(cls, session, row_id2NA_mismatch_rate, QC_method_id, user, min_probability, row_id12row_id2, call_method_id, readme):
+		"""
+		2008-05-06
+			add readme
+		2008-05-05
+			add ecotype_id, min_probability, tg_ecotype_id
+		"""
+		sys.stderr.write("Submitting row_id2NA_mismatch_rate to database ...")
 		row_id_ls = row_id2NA_mismatch_rate.keys()
 		row_id_ls.sort()	#try to keep them in call_info_id order
 		for row_id in row_id_ls:
 			NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
+			call_info_id, ecotype_id = row_id
+			tg_ecotype_id = row_id12row_id2[row_id]
+			NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs = NA_mismatch_ls
+			callqc = CallQC(call_info_id=call_info_id, min_probability=min_probability, ecotype_id=ecotype_id, tg_ecotype_id=tg_ecotype_id,\
+						QC_method_id=QC_method_id, call_method_id=call_method_id, NA_rate=NA_rate, mismatch_rate=mismatch_rate,\
+						no_of_NAs=no_of_NAs, no_of_totals=no_of_totals, no_of_mismatches=no_of_mismatches, no_of_non_NA_pairs=no_of_non_NA_pairs,\
+						created_by=user)
+			callqc.readme = readme
+			session.save(callqc)
+			"""
 			data_insert_ls = [row_id[0]] + NA_mismatch_ls + [QC_method_id, user]	#row_id is (call_info_id, ecotypeid)
 			curs.execute("insert into " + call_QC_table + " (call_info_id, NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs, QC_method_id, created_by)\
 				values(%s, %s, %s, %s, %s, %s, %s, %s, %s)", data_insert_ls)
+			"""
 		sys.stderr.write("Done.\n")
 	
 	submit_to_call_QC = classmethod(submit_to_call_QC)
 	
-	def cal_independent_NA_rate(cls, curs, call_info_table):
+	def cal_independent_NA_rate(cls, db, min_probability, readme):
 		"""
+		2008-05-06
+			use sqlalchemy connection
 		2008-04-20
 			calculate indepent (no data to be compared) NA rates.
 			update it in the db.
 		"""
 		sys.stderr.write("Calculating indepent NA rate ... \n")
-		curs.execute("select c.id, c.filename from %s c where c.NA_rate is null order by id"%\
-					(call_info_table))
-		rows = curs.fetchall()
-		no_of_rows = len(rows)
+		#curs.execute("select c.id, c.filename from %s c where c.NA_rate is null order by id"%\
+		#			(call_info_table))
+		#rows = curs.fetchall()
+		#call_info_ls = db.session.query(CallInfo).filter_by(NA_rate=None).all()
+		call_info_ls = db.session.query(CallInfo).filter(sqlalchemy.or_(db.tables['call_info'].c.NA_rate==0.0, db.tables['call_info'].c.NA_rate==None)).all()
+		no_of_rows = len(call_info_ls)
 		sys.stderr.write("\tTotally, %d call_info entries to be processed.\n"%no_of_rows)
 		for i in range(no_of_rows):
-			sys.stderr.write("%d/%d:\t%s\n"%(i+1, no_of_rows, rows[i][1]))
-			call_info_id, fname = rows[i]
-			reader = csv.reader(open(fname), delimiter='\t')
+			call_info = call_info_ls[i]
+			sys.stderr.write("%d/%d:\t%s\n"%(i+1, no_of_rows, call_info.filename))
+			reader = csv.reader(open(call_info.filename), delimiter='\t')
 			reader.next()	#throw away the first line
 			no_of_totals = 0
 			no_of_NAs = 0
 			for row in reader:
 				SNP_id, call = row[:2]
 				no_of_totals += 1
+				if len(row)==3:
+					probability = float(row[2])
+					if probability < min_probability:
+						call = 'NA'
 				if call=='NA':
 					no_of_NAs += 1
 			if no_of_totals!=0:
-				NA_rate = float(no_of_NAs)/no_of_totals
-			else:
-				NA_rate = -1
-			curs.execute("update " + call_info_table + " set NA_rate=%s where id=%s",\
-					(NA_rate, call_info_id))
+				call_info.NA_rate = float(no_of_NAs)/no_of_totals
+				call_info.readme = readme
+			del reader
+			#curs.execute("update " + call_info_table + " set NA_rate=%s where id=%s",\
+			#		(NA_rate, call_info_id))
 		sys.stderr.write("Done.\n")
 	
 	def output_row_id2NA_mismatch_rate(self, row_id2NA_mismatch_rate, output_fname):
@@ -344,13 +420,46 @@ class QC_250k(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def plone_run(self):
+	def get_snps_name2snps_id(self, db):
+		"""
+		2008-05-05
+		"""
+		sys.stderr.write("Getting snps_name2snps_id ...")
+		from sqlalchemy.sql import select
+		s = select([db.tables['snps'].c.id, db.tables['snps'].c.name])
+		result = db.connection.execute(s)
+		snps_name2snps_id = {}
+		for row in result:
+			snps_id, snps_name = row
+			snps_name2snps_id[snps_name] = snps_id
+		sys.stderr.write("Done.\n")
+		return snps_name2snps_id
+	
+	def run(self):
 		"""
 		2008-04-25
 			return None if QC_method_id==0
 		2008-04-20
 			for plone to call it just to get row_id2NA_mismatch_rate
 		"""
+		#database connection and etc
+		db = Stock_250kDatabase(username=self.user,
+				   password=self.passwd, host=self.hostname, database=self.dbname)
+		session = db.session
+		transaction = session.create_transaction()
+		
+		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
+		if not self.cmp_data_filename and self.QC_method_id!=0:
+			qm = session.query(QCMethod).get_by(id=self.QC_method_id)
+			if qm.data_description:
+				data_description_ls = qm.data_description.split('=')
+				if len(data_description_ls)>1:
+					self.cmp_data_filename = qm.data_description.split('=')[1].strip()
+		#after db query, cmp_data_filename is still nothing, exit program.
+		if not self.cmp_data_filename and self.QC_method_id!=0:
+			sys.stderr.write("cmp_data_filename is still nothing even after db query. please specify it on the commandline.\n")
+			sys.exit(3)
+		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
@@ -358,9 +467,12 @@ class QC_250k(object):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
+		
+		readme = formReadmeObj(sys.argv, self.ad)
+		
 		if self.QC_method_id==0:
-			self.cal_independent_NA_rate(curs, self.call_info_table)
-			return None
+			self.cal_independent_NA_rate(db, self.min_probability, readme)
+			row_id2NA_mismatch_rate = None
 		else:
 			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.cmp_data_filename)
@@ -371,29 +483,50 @@ class QC_250k(object):
 				#no submission to db
 				call_info_id2fname = self.get_array_id2fname(curs, self.input_dir)
 			else:
-				call_info_id2fname = self.get_call_info_id2fname(curs, self.call_info_table, self.call_QC_table, self.QC_method_id, self.call_method_id)
+				if self.run_type==2:	#no filtering on call_info entries that have been QCed.
+					filter_calls_QCed=0
+				elif self.run_type==1:
+					filter_calls_QCed = 1
+					self.max_call_info_error_rate = 1	#don't use this when doing accession-wise QC
+				else:
+					sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
+					sys.exit(5)
+				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, filter_calls_QCed, self.max_call_info_error_rate)
 			header, strain_acc_list, category_list, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
-			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
 			
-			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id)
+			if self.run_type==2:
+				snps_name2snps_id = self.get_snps_name2snps_id(db)
+			else:
+				snps_name2snps_id = None
+			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix, \
+							min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
+							max_call_info_error_rate=self.max_call_info_error_rate)
 			
-			row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
-			return row_id2NA_mismatch_rate
-	
-	def run(self):
-		row_id2NA_mismatch_rate = self.plone_run()
+			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id, user=self.user)
 			
-		if self.output_fname and row_id2NA_mismatch_rate:
+			if self.run_type==1:
+				row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
+			elif self.run_type==2:
+				twoSNPData.save_col_wise(session, readme)
+				row_id2NA_mismatch_rate = None
+			else:
+				sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
+				sys.exit(5)
+		
+		if self.output_fname and self.run_type==1 and row_id2NA_mismatch_rate:
 			self.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname)
 		
-		#WATCH: self.curs rather than curs
-		if row_id2NA_mismatch_rate and self.commit and not self.input_dir:
+		if self.run_type==1 and self.commit and not self.input_dir and row_id2NA_mismatch_rate:
 			#if self.input_dir is given, no db submission. call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
 			#row_id2NA_mismatch_rate might be None if it's method 0.
-			self.submit_to_call_QC(self.curs, row_id2NA_mismatch_rate, self.call_QC_table, self.QC_method_id, self.user)
+			self.submit_to_call_QC(session, row_id2NA_mismatch_rate, self.QC_method_id, self.user, self.min_probability, twoSNPData.row_id12row_id2, self.call_method_id, readme)
 		if self.commit:
-			self.curs.execute("commit")
-
+			curs.execute("commit")
+			transaction.commit()
+		else:
+			transaction.rollback()
+		
+		self.row_id2NA_mismatch_rate = row_id2NA_mismatch_rate	#for plone to get the data structure
 
 if __name__ == '__main__':
 	from pymodule import process_options, generate_program_doc
