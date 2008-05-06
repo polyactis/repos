@@ -35,18 +35,29 @@ class PhenotypeMethod(TableClass):
 class QCMethod(TableClass):
 	pass
 
-class Call_QC(TableClass):
+class CallQC(TableClass):
 	pass
 
-class Call_Info(TableClass):
+class CallInfo(TableClass):
 	pass
 
-class Call_Method(TableClass):
+class CallMethod(TableClass):
 	pass
 
-class Array_Info(TableClass):
+class ArrayInfo(TableClass):
 	pass
 
+class SNPs(TableClass):
+	pass
+
+class Probes(TableClass):
+	pass
+
+class SNPsQC(TableClass):
+	pass
+
+class README(TableClass):
+	pass
 
 class Stock_250kDatabase(Database):
 	__doc__ = __doc__
@@ -78,32 +89,35 @@ class Stock_250kDatabase(Database):
 	def _setup_tables(self, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
 		"""
-			
-		tables['phenotype_avg'] = Table('phenotype_avg', metadata, autoload=True)
-		tables['phenotype_method'] = Table('phenotype_method', metadata, autoload=True)
-		tables['QC_method'] = Table('QC_method', metadata, autoload=True)
-		tables['results'] = Table('results', metadata, autoload=True)
-		tables['results_method'] = Table('results_method', metadata, autoload=True)
-		tables['call_QC'] = Table('call_QC', metadata, autoload=True)
-		tables['call_info'] = Table('call_info', metadata, autoload=True)
-		tables['call_method'] = Table('call_method', metadata, autoload=True)
-		tables['array_info'] = Table('array_info', metadata, autoload=True)
+		table_ls = ['phenotype_avg', 'phenotype_method', 'QC_method', 'results', 'results_method', \
+				'call_QC', 'call_info', 'call_method', 'array_info', 'snps_QC', 'snps', 'probes', 'readme']
+		for table_name in table_ls:
+			tables[table_name] = Table(table_name, metadata, autoload=True)
+		
 	
 	def _setup_mappers(self, tables, mappers):
 		"""Map the database Tables to SQLAlchemy Mapper objects
 		"""
-		mappers['phenotype_method'] = mapper(PhenotypeMethod, tables['phenotype_method'])
+		standalone_table_tuple_ls = [('phenotype_method', PhenotypeMethod), ('QC_method', QCMethod), ('results_method', ResultsMethod), \
+									('call_method', CallMethod), ('array_info', ArrayInfo), ('snps', SNPs), ('readme', README)]
+		for table_name, table_class in standalone_table_tuple_ls:
+			mappers[table_name] = mapper(table_class, tables[table_name])
+		
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
-										properties={'phenotype_method_obj': relation(PhenotypeMethod),})
-		mappers['QC_method'] = mapper(QCMethod, tables['QC_method'])
-		mappers['results'] = mapper(Results, tables['results'], properties={'results_method_obj': relation(ResultsMethod), 'phenotype_method_obj': relation(PhenotypeMethod)})
-		mappers['results_method'] = mapper(ResultsMethod, tables['results_method'])
-		mappers['call_QC'] = mapper(Call_QC, tables['call_QC'], properties={'call_info_obj': relation(Call_Info),\
-																		'qc_method_obj':relation(QCMethod)})
-		mappers['call_info'] = mapper(Call_Info, tables['call_info'], properties={'array_info_obj': relation(Array_Info), 'call_method_obj': relation(Call_Method)})
-		mappers['call_method'] = mapper(Call_Method, tables['call_method'])
-		mappers['array_info'] = mapper(Array_Info, tables['array_info'])
-
+										properties={'phenotype_method': relation(PhenotypeMethod), 'readme':relation(README)})
+		mappers['results'] = mapper(Results, tables['results'], properties={'results_method': relation(ResultsMethod), 'phenotype_method': relation(PhenotypeMethod)})
+		mappers['call_QC'] = mapper(CallQC, tables['call_QC'], properties={'call_info': relation(CallInfo, backref='call_QC'),\
+																		'readme':relation(README),\
+																		'QC_method':relation(QCMethod),\
+																		'call_method':relation(CallMethod)})
+		mappers['call_info'] = mapper(CallInfo, tables['call_info'], properties={'array_info': relation(ArrayInfo, backref='call_info'), \
+																				'readme':relation(README),\
+																				'call_method': relation(CallMethod)})
+		
+		mappers['probes'] = mapper(Probes, tables['probes'], properties={'snps': relation(SNPs, backref='probes')})
+		mappers['snps_QC'] = mapper(SNPsQC, tables['snps_QC'], properties={'snps': relation(SNPs, backref='snps_QC'), 'call_method': relation(CallMethod), \
+																		'readme':relation(README),\
+																		'QC_method':relation(QCMethod, backref='snps_QC')})
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
@@ -148,6 +162,6 @@ if __name__ == '__main__':
 		print row.start_pos
 		print row.score
 		print row.method_id
-		print row.results_method_obj.short_name
+		print row.results_method.short_name
 		print row.phenotype_method_id
-		print row.phenotype_method_obj.short_name
+		print row.phenotype_method.short_name
