@@ -10,6 +10,18 @@
 """
 import os, sys
 
+#2008-05-06 ab2number and number2ab is for 384-illumina data
+ab2number = {'N': 0,
+	'NA': 0,
+	'A': 1,
+	'B': 2,
+	'H': 3}
+
+number2ab = {0: 'NA',
+	1: 'A',
+	2: 'B',
+	3: 'H'}
+
 nt2number = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
 	'-': -1,	#deletion
 	'N': 0,
