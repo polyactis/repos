@@ -2705,10 +2705,13 @@ def output_intensity_fname(curs, new_array_info_table, old_array_info_table, out
 		writer.writerow([old_fname, new_fname])
 	del writer
 
+
 new_array_info_table='stock_250k.array_info'
 old_array_info_table='stock_250k.array_info_2008_04_11'
 output_fname = '/tmp/intensity_fname.rename.tsv'
 output_intensity_fname(curs, new_array_info_table, old_array_info_table, output_fname)
+
+
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
