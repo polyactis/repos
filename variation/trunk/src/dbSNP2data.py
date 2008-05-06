@@ -33,6 +33,9 @@ Examples:
 	#output only 149SNP data with GPS info
 	dbSNP2data.py -o /tmp/stock_149SNP_y10001111.tsv -y 1 -r
 	
+	#output 384-illumina data
+	dbSNP2data.py -o /tmp/384-illumina.tsv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 00001101
+	
 Description:
 	output SNP data from database schema
 	
@@ -60,7 +63,7 @@ else:   #32bit
 import psycopg2 as psycopg
 import sys, getopt, csv, re
 from annot.bin.codense.common import db_connect, org_short2long, org2tax_id
-from variation.src.common import nt2number, number2nt
+from variation.src.common import nt2number, number2nt, ab2number, number2ab
 import Numeric as num
 from sets import Set
 
@@ -141,6 +144,8 @@ class dbSNP2data(object):
 	
 	def get_snp_id2index_m(self, curs, input_table, snp_locus_table):
 		"""
+		2008-05-05
+			deal with tables in schema dbsnp
 		2007-07-11
 			mysql version of get_snp_id2index
 		2007-12-13
@@ -157,6 +162,8 @@ class dbSNP2data(object):
 			#curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s2, %s s1 where s1.chromosome=s2.chromosome and s1.position=s2.position order by chromosome, position"%('snps', snp_locus_table))
 			#2007-12-13 all 250k SNPs
 			curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s1"%(snp_locus_table))
+		elif snp_locus_table == 'dbsnp.snps':
+			curs.execute("select distinct i.snps_id, s.chromosome, s.position from %s i, %s s where i.snps_id=s.id order by chromosome, position"%(input_table, snp_locus_table))
 		rows = curs.fetchall()
 		for row in rows:
 			snp_id = row[0]
@@ -180,6 +187,8 @@ class dbSNP2data(object):
 	
 	def get_strain_id2index_m(self, curs, input_table, strain_info_table, only_include_strains_with_GPS=0, resolve_duplicated_calls=0):
 		"""
+		2008-05-05
+			deal with tables in schema dbsnp
 		2007-07-11
 			mysql version of get_strain_id2index
 		2007-09-12
@@ -208,21 +217,31 @@ class dbSNP2data(object):
 		strain_id2category = {}
 		if input_table=='calls_byseq':
 			common_sql_string = "select distinct d.ecotypeid, d.replicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
+		elif input_table=='dbsnp.calls':
+			common_sql_string = "select distinct s.ecotype_id, s.duplicate, s.id, s.id from %s d, %s s"%\
+				(input_table, strain_info_table)
 		else:
 			common_sql_string = "select distinct d.ecotypeid, d.replicate, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
-		if only_include_strains_with_GPS==1:
-			curs.execute("%s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(common_sql_string))
-		elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
-			curs.execute("%s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and s.longitude<-60 and s.longitude>-130 order by ecotypeid, nativename, stockparent"%(common_sql_string))
-		elif only_include_strains_with_GPS==3:
-			curs.execute("%s, batch_ecotype be, batch b where b.batchname='192' and b.id=be.batchid and s.id=be.ecotypeid and d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(common_sql_string))
+			
+		if input_table=='dbsnp.calls':
+			curs.execute("%s where s.id=d.accession_id order by ecotype_id, duplicate"%(common_sql_string))
 		else:
-			curs.execute("%s where d.ecotypeid=s.id order by ecotypeid, nativename, stockparent"%(common_sql_string))
+			if only_include_strains_with_GPS==1:
+				curs.execute("%s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(common_sql_string))
+			elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
+				curs.execute("%s where d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and s.longitude<-60 and s.longitude>-130 order by ecotypeid, nativename, stockparent"%(common_sql_string))
+			elif only_include_strains_with_GPS==3:
+				curs.execute("%s, batch_ecotype be, batch b where b.batchname='192' and b.id=be.batchid and s.id=be.ecotypeid and d.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid, nativename, stockparent"%(common_sql_string))
+			else:
+				curs.execute("%s where d.ecotypeid=s.id order by ecotypeid, nativename, stockparent"%(common_sql_string))
 		rows = curs.fetchall()
 		for row in rows:
 			ecotypeid, duplicate, nativename, stockparent = row
-			strain_id = (ecotypeid, duplicate)
-			nativename = nativename.upper()
+			if input_table=='dbsnp.calls':
+				strain_id = row[2]	#accession_id
+			else:
+				strain_id = (ecotypeid, duplicate)
+				nativename = nativename.upper()
 			if resolve_duplicated_calls:
 				key_pair = (nativename, stockparent)
 				if key_pair not in nativename2strain_id:
@@ -300,7 +319,10 @@ class dbSNP2data(object):
 		sys.stderr.write("Getting snp_id_info ..m.")
 		snp_id2acc = {}
 		for snp_id in snp_id_list:
-			curs.execute("select snpid from %s where id=%s"%(snp_locus_table, snp_id))
+			if snp_locus_table=='dbsnp.snps':
+				curs.execute("select name from %s where id=%s"%(snp_locus_table, snp_id))
+			else:
+				curs.execute("select snpid from %s where id=%s"%(snp_locus_table, snp_id))
 			rows = curs.fetchall()
 			acc = rows[0][0]
 			snp_id2acc[snp_id] = acc
@@ -338,6 +360,8 @@ class dbSNP2data(object):
 	
 	def get_data_matrix_m(self, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call):
 		"""
+		2008-05-05
+			deal with tables in schema dbsnp
 		2007-07-11
 			mysql version of get_data_matrix
 			
@@ -361,6 +385,8 @@ class dbSNP2data(object):
 			common_sql_string = "select ecotypeid, replicate, snpid, call1, call2 from %s"%(input_table)
 		elif input_table == 'calls_250k':
 			common_sql_string = "select ecotypeid, duplicate, snpid, snpcall from %s"%(input_table)
+		elif input_table == 'dbsnp.calls':
+			common_sql_string = "select accession_id, snps_id, genotype from %s"%(input_table)
 		else:
 			sys.stderr.write("Error: SNP call table '%s' not supported.\n"%(input_table))
 			sys.exit(3)
@@ -370,7 +396,10 @@ class dbSNP2data(object):
 			counter = 0
 			if self.report:
 				sys.stderr.write("%s\tSNP %s=%s"%('\x08'*80, snp_counter, snp_id))
-			curs.execute("%s where snpid=%s"%(common_sql_string, snp_id))
+			if input_table == 'dbsnp.calls':
+				curs.execute("%s where snps_id=%s"%(common_sql_string, snp_id))
+			else:
+				curs.execute("%s where snpid=%s"%(common_sql_string, snp_id))
 			rows = curs.fetchmany(5000)
 			while rows:
 				for row in rows:
@@ -379,13 +408,20 @@ class dbSNP2data(object):
 					elif input_table == 'calls_250k':
 						strain_id, duplicate, snp_id, call = row
 						callhet = None
-					strain_id = (strain_id, duplicate)
+					elif input_table == 'dbsnp.calls':
+						strain_id, snp_id, call = row
+						callhet = None
+					if input_table != 'dbsnp.calls':
+						strain_id = (strain_id, duplicate)
 					call = call.upper()
 					if callhet:
 						callhet.upper()	#2007-09-20	just in case
 						call = call+callhet
 					if strain_id in  strain_id2index and snp_id in snp_id2index:	#2007-03-20
-						call_number = nt2number[call]
+						if input_table == 'dbsnp.calls':
+							call_number = ab2number[call]
+						else:
+							call_number = nt2number[call]
 						if need_heterozygous_call:
 							data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
 						elif call_number<=4:	#single letter or NA
