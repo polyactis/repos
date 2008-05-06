@@ -112,8 +112,8 @@ class Results2DB_250k(object):
 				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
 				sys.exit(3)
 			r = Results(chr=chr, start_pos=start_pos, stop_pos=stop_pos, score=score)
-			r.results_method_obj = rm
-			r.phenotype_method_obj = pm
+			r.results_method = rm
+			r.phenotype_method = pm
 			session.save(r)
 			#curs.execute("insert into %s(chr, start_pos, stop_pos, score, method_id, phenotype_method_id) values (%s, %s, %s, %s, %s, %s)"%\
 			#		(results_table, chr, start_pos, stop_pos, score, results_method_id, phenotype_method_id))
