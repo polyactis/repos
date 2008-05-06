@@ -378,6 +378,8 @@ class ProcessOptions(object):
 	
 	def process_function_arguments(cls, keywords, argument_default_dict, error_doc='', class_to_have_attr=None, howto_deal_with_required_none=1):
 		"""
+		2008-05-06
+			return ad as well, just like the standalone function
 		2008-04-28
 			largely copied from the standalone process_function_arguments()
 			argument_default_dict = option_default_dict in prepare_for_getopt()
@@ -387,6 +389,7 @@ class ProcessOptions(object):
 		argument_key_ls = argument_default_dict.keys()
 		argument_key_ls.sort()
 		argument_key_ls.reverse()	#to keep 'user' appearing in front of 'password'.
+		ad = {}
 		for argument_key in argument_key_ls:
 			if type(argument_default_dict[argument_key])!=list:
 				default_value = argument_default_dict[argument_key]
@@ -419,6 +422,8 @@ class ProcessOptions(object):
 				default_value = argument_type(default_value)
 			if class_to_have_attr:
 				setattr(class_to_have_attr, argument, default_value)
+			ad[argument] = default_value
+		return ad
 	process_function_arguments = classmethod(process_function_arguments)
 	
 def turn_option_default_dict2argument_default_dict(option_default_dict):
