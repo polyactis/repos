@@ -2,8 +2,11 @@
 """
 
 Examples:
+	#output data with accession mismatch rate<=0.20, snp mismatch rate <=0.15, snp NA rate <= default
 	DB_250k2data.py -z localhost -l 3 -y 0.85 -w 0.15 -x 0.20 -o /tmp/250k_l3_w0.15_x0.20_y0.85.tsv 
 	
+	#output matrix with no SNP filtering -w 1 -v 1
+	DB_250k2data.py -l 3 -y 0.85 -w 1 -x 0.20 -v 1 -o /tmp/250k_l3_v1_w1_x0.20_y0.85.tsv
 Description:
 	Simple program to output/filter 250k data based on QC recorded in database.
 	2008-05-06
@@ -36,7 +39,7 @@ class DB_250k2Data(object):
 							('output_fname', 1, ): [None, 'o', 1, '', ],\
 							('min_probability', 0, float): [-1, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
 							('call_method_id', 1, int): [None, 'l', 1, 'id in table call_method', ],\
-							('max_call_info_error_rate', 0, float): [1, 'x', 1, 'maximum error rate of an array call_info entry. used to exclude bad arrays.'],\
+							('max_call_info_mismatch_rate', 0, float): [1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate', 0, float): [1, 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
 							('max_snp_NA_rate', 1, float): [0.4, 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -81,6 +84,8 @@ class DB_250k2Data(object):
 	
 	def get_snps_name_set_given_criteria(cls, db, call_method_id, max_snp_mismatch_rate, max_snp_NA_rate):
 		"""
+		2008-05-07
+			direct sql select, less memory
 		2008-05-06
 			scan thru all QCs related to one SNP and judge based on the QC with most no of non-NA pairs
 			
@@ -88,11 +93,40 @@ class DB_250k2Data(object):
 		"""
 		sys.stderr.write("Getting snps_name_set ... \n")
 		snps_name_set = set()
+		s = db.tables['snps'].alias()
+		q = db.tables['snps_QC'].alias()
+		sql_sentence = sqlalchemy.sql.select([s.c.id, s.c.name, q.c.NA_rate, q.c.mismatch_rate, q.c.no_of_non_NA_pairs], s.c.id==q.c.snps_id, order_by=[s.c.id])
+		
 		block_size = 5000
+		counter = 0
+		
+		results = db.connection.execute(sql_sentence)
+		rows = results.fetchmany(block_size)	#2008-05-07 don't fetchmany() is more memory-efficient than fetchall(). 
+		old_row = None
+		while rows:
+			for row in rows:
+				counter += 1
+				if old_row==None:
+					old_row = row
+				elif row.id == old_row.id:
+					if row.no_of_non_NA_pairs>old_row.no_of_non_NA_pairs:
+						old_row = row
+				elif row.id != old_row.id:
+					if old_row.NA_rate<=max_snp_NA_rate and old_row.mismatch_rate<=max_snp_mismatch_rate:
+						snps_name_set.add(old_row.name)
+					old_row = row
+			sys.stderr.write("%s%d"%('\x08'*100, counter))
+			rows = results.fetchmany(block_size)
+		
+		#take care of the last one
+		if old_row.NA_rate<=max_snp_NA_rate and old_row.mismatch_rate<=max_snp_mismatch_rate:
+			snps_name_set.add(old_row.name)
+		
+		"""
+		#2008-05-07 cost too much memory
 		snps_ls = db.session.query(SNPs).options(sqlalchemy.orm.eagerload('snps_QC')).offset(0).limit(block_size).list()
 		no_of_entries = len(snps_ls)
 		i = 0
-		counter = 0
 		while no_of_entries>0:
 			for j in range(no_of_entries):
 				counter += 1
@@ -112,6 +146,7 @@ class DB_250k2Data(object):
 			snps_ls = db.session.query(SNPs).options(sqlalchemy.orm.eagerload('snps_QC')).offset(i*block_size).limit(block_size).list()
 			no_of_entries = len(snps_ls)
 		del snps_ls
+		"""
 		sys.stderr.write("\n %s snps names Done.\n"%(len(snps_name_set)))
 		return snps_name_set
 	
@@ -122,7 +157,7 @@ class DB_250k2Data(object):
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		session = db.session
 		QC_method_id = 0 	#just for QC_250k.get_call_info_id2fname()
-		call_info_id2fname, call_info_ls_to_return = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, max_call_info_error_rate=self.max_call_info_error_rate)
+		call_info_id2fname, call_info_ls_to_return = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, max_call_info_mismatch_rate=self.max_call_info_mismatch_rate)
 		#snps_with_best_QC_ls = self.get_snps_with_best_QC_ls(db, self.call_method_id)
 		snps_name_set = self.get_snps_name_set_given_criteria(db, self.call_method_id, self.max_snp_mismatch_rate, self.max_snp_NA_rate)
 		header, call_info_id_ls, ecotype_id_ls, data_matrix = QC_250k.read_call_matrix(call_info_id2fname, self.min_probability, snps_name_set)
