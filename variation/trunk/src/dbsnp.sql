@@ -6,7 +6,7 @@ SET storage_engine=INNODB;
 
 create table snpset(
 	id integer auto_increment primary key,
-	acc varchar(200) not null unique,
+	name varchar(200) not null unique,
 	description varchar(4000),
 	created_by varchar(200),
 	updated_by varchar(200),
@@ -38,7 +38,7 @@ DELIMITER ;
 
 create table if not exists snps(
 	id integer auto_increment primary key,
-	acc varchar(200) not null unique,
+	name varchar(200) not null unique,
 	chromosome integer,
 	position integer,
 	offset integer,
@@ -83,6 +83,53 @@ create table snps2snpset(
 	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
 	foreign key (snpset_id) references snpset(id) on delete cascade on update cascade
 	)engine=INNODB;
+
+create table if not exists snps_ab_allele_mapping(
+	id integer auto_increment primary key,
+	snps_id integer,
+	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
+	allele_A_nt varchar(2),
+	allele_B_nt varchar(2),
+	tg_snps_name varchar(200),
+	NA_rate float,
+	no_of_NAs integer,
+	no_of_totals integer,
+	relative_NA_rate float,
+	relative_no_of_NAs integer,
+	relative_no_of_totals integer,
+	mismatch_rate float,
+	no_of_mismatches integer,
+	no_of_non_NA_pairs integer,
+	readme_id integer,
+	foreign key (readme_id) references readme(id) on delete cascade on update cascade,
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_snps_ab_allele_mapping BEFORE INSERT ON snps_ab_allele_mapping
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_snps_ab_allele_mapping BEFORE UPDATE ON snps_ab_allele_mapping
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
 
 create table call_method(
 	id integer auto_increment primary key,
