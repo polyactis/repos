@@ -89,8 +89,8 @@ class Stock_250kDatabase(Database):
 	def _setup_tables(self, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
 		"""
-		table_ls = ['phenotype_avg', 'phenotype_method', 'QC_method', 'results', 'results_method', \
-				'call_QC', 'call_info', 'call_method', 'array_info', 'snps_QC', 'snps', 'probes', 'readme']
+		table_ls = ['phenotype_avg', 'phenotype_method', 'qc_method', 'results', 'results_method', \
+				'call_qc', 'call_info', 'call_method', 'array_info', 'snps_qc', 'snps', 'probes', 'readme']
 		for table_name in table_ls:
 			tables[table_name] = Table(table_name, metadata, autoload=True)
 		
@@ -98,7 +98,7 @@ class Stock_250kDatabase(Database):
 	def _setup_mappers(self, tables, mappers):
 		"""Map the database Tables to SQLAlchemy Mapper objects
 		"""
-		standalone_table_tuple_ls = [('phenotype_method', PhenotypeMethod), ('QC_method', QCMethod), ('results_method', ResultsMethod), \
+		standalone_table_tuple_ls = [('phenotype_method', PhenotypeMethod), ('qc_method', QCMethod), ('results_method', ResultsMethod), \
 									('call_method', CallMethod), ('array_info', ArrayInfo), ('snps', SNPs), ('readme', README)]
 		for table_name, table_class in standalone_table_tuple_ls:
 			mappers[table_name] = mapper(table_class, tables[table_name])
@@ -106,7 +106,7 @@ class Stock_250kDatabase(Database):
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
 										properties={'phenotype_method': relation(PhenotypeMethod), 'readme':relation(README)})
 		mappers['results'] = mapper(Results, tables['results'], properties={'results_method': relation(ResultsMethod), 'phenotype_method': relation(PhenotypeMethod)})
-		mappers['call_QC'] = mapper(CallQC, tables['call_QC'], properties={'call_info': relation(CallInfo, backref='call_QC'),\
+		mappers['call_qc'] = mapper(CallQC, tables['call_qc'], properties={'call_info': relation(CallInfo, backref='call_QC'),\
 																		'readme':relation(README),\
 																		'QC_method':relation(QCMethod),\
 																		'call_method':relation(CallMethod)})
@@ -115,7 +115,7 @@ class Stock_250kDatabase(Database):
 																				'call_method': relation(CallMethod)})
 		
 		mappers['probes'] = mapper(Probes, tables['probes'], properties={'snps': relation(SNPs, backref='probes')})
-		mappers['snps_QC'] = mapper(SNPsQC, tables['snps_QC'], properties={'snps': relation(SNPs, backref='snps_QC'), 'call_method': relation(CallMethod), \
+		mappers['snps_qc'] = mapper(SNPsQC, tables['snps_qc'], properties={'snps': relation(SNPs, backref='snps_QC'), 'call_method': relation(CallMethod), \
 																		'readme':relation(README),\
 																		'QC_method':relation(QCMethod, backref='snps_QC')})
 
