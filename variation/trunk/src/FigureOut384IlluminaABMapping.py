@@ -29,8 +29,10 @@ from pymodule.db import formReadmeObj
 from variation.src.QC_250k import QC_250k, SNPData, TwoSNPData
 import sqlalchemy
 
-def get_snps_id2mapping(hostname, dbname=None, user=None, passwd=None):
+def get_snps_id2mapping(hostname, dbname=None, user=None, passwd=None, readme_id=2):
 	"""
+	2008-05-07
+		only readme_id=2
 	2008-05-06
 	"""
 	sys.stderr.write("Getting snps_id2mapping ... ")
@@ -38,7 +40,7 @@ def get_snps_id2mapping(hostname, dbname=None, user=None, passwd=None):
 			password=passwd, hostname=hostname, database=dbname)
 	session = db.session
 	snps_id2mapping = {}
-	rows = session.query(SNPsABAlleleMapping).order_by(db.tables['snps_ab_allele_mapping'].c.snps_id).list()
+	rows = session.query(SNPsABAlleleMapping).filter_by(readme_id=readme_id).order_by(db.tables['snps_ab_allele_mapping'].c.snps_id).list()
 	for i in range(0, len(rows), 2):
 		a = rows[i]
 		b = rows[i+1]
