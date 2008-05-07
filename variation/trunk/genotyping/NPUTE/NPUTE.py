@@ -44,15 +44,16 @@ This is the main NPUTE class, providing a command-line interface for imputation.
 import sys, os
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-	
+
 class NPUTE:
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
 	option_default_dict = {('mode_type', 1, ): [IMP, 'm', 1, 'specify running mode. 0=Imputation, 1=test window sizes', ],\
-							('single_window_size', 0, ): ['', 'w', 1, 'specify a window size, like 10', ],\
+							('single_window_size', 0, int): [10, 'w', 1, 'specify a window size, like 10', ],\
 							('window_file', 0, ): ['', 'W', 1, 'A file with each line a number for window size. To test window sizes.', ],\
 							('window_size_range', 0, ): ['', 'p', 1, 'specify a window range to test, like 5:15', ],\
 							('input_fname', 1, ): ['', 'i', 1, 'Input file. A plain genotype matrix.'],\
-							('output_fname', 1, ): ['out.csv', 'o', 1, 'Output File'],\
+							('output_fname', 0, ): ['', 'o', 1, 'Output File, if not given, take the input_fname and other parameters to form one.'],\
+							('chromosome', 0, ): [None, 'x', 1, 'which chromosome data'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -62,7 +63,9 @@ class NPUTE:
 		"""
 		from pymodule import ProcessOptions
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-	
+		if not self.output_fname:
+			self.output_fname = '%s_w%s_chr%s.out'%(self.input_fname, self.window_size_range, self.chromosome)
+		
 	def main(self):
 		'''
 		2008-05-01
@@ -107,13 +110,13 @@ class NPUTE:
 				sys.exit(1)
 			lines = file(winFile,'r').readlines()
 			L += [int(line) for line in lines]
-		if not isEmpty(self.single_window_size):
+		if self.single_window_size:
 			L += [int(self.single_window_size)]
 		L.sort()		
 	
 		mode = self.mode_type
 		if mode == IMP:
-			if isEmpty(self.single_window_size):
+			if not self.single_window_size:
 				print 'Imputation window not specified.'
 				sys.exit(1)
 			L = int(self.single_window_size)
