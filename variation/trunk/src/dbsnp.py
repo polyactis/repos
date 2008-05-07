@@ -48,6 +48,8 @@ class AtAllele(TableClass):
 class AtLocus(TableClass):
 	pass
 
+class SNPsABAlleleMapping(TableClass):
+	pass
 
 class DBSNP(Database):
 	__doc__ = __doc__
@@ -78,7 +80,7 @@ class DBSNP(Database):
 	def _setup_tables(self, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
 		"""
-		table_ls = ['snpset', 'snps', 'snps2snpset', 'call_method', 'calls', 'readme', 'accession']
+		table_ls = ['snpset', 'snps', 'snps2snpset', 'call_method', 'calls', 'readme', 'accession', 'snps_ab_allele_mapping']
 		for table_name in table_ls:
 			tables[table_name] = Table(table_name, metadata, autoload=True)
 		
@@ -101,3 +103,6 @@ class DBSNP(Database):
 		mappers['snps2snpset'] = mapper(SNPs2SNPset, tables['snps2snpset'],
 										properties={'snps': relation(SNPs), 'snpset':relation(SNPset)})
 		mappers['calls'] = mapper(Calls, tables['calls'], properties={'snps': relation(SNPs), 'call_method': relation(CallMethod), 'accession': relation(Accession)})
+		mappers['snps_ab_allele_mapping'] = mapper(SNPsABAlleleMapping, tables['snps_ab_allele_mapping'],
+										properties={'snps': relation(SNPs, backref='snps_ab_allele_mapping'),\
+											'readme':relation(README)})
