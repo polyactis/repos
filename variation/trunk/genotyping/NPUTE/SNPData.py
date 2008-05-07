@@ -63,7 +63,7 @@ class SNPData:
 		snps_name_ls = header[2:]
 		
 		no_of_rows = len(strain_acc_list)
-		no_of_cols = len(header)
+		no_of_cols = len(snps_name_ls)
 		snps = []
 		nucs = []
 		chosen_snps_name_ls = []
@@ -82,7 +82,7 @@ class SNPData:
 			for j in range(no_of_rows):
 				symbol = data_matrix[j][i]
 				one_snp_ls.append(symbol)
-				if symbol != 0:	#don't care about NA
+				if symbol != '0':	#don't care about NA
 					if symbol not in symbol2counts:
 						symbol2counts[symbol] = 0
 					symbol2counts[symbol] += 1
@@ -107,7 +107,7 @@ class SNPData:
 				sys.stderr.write("Error: SNP %s (%s) has more than 2 alleles: %s.\n"%(i, snps_name_ls[i], repr(symbols)))
 				sys.exit(2)
 			
-			map_func = lambda x: symbol2MAJ_MIN(x)
+			map_func = lambda x: symbol2MAJ_MIN[x]
 			one_snp_ls = map(map_func, one_snp_ls)
 			
 			snps.append(''.join(one_snp_ls))
@@ -315,7 +315,7 @@ class SNPData:
 				nuc = nuc = self.allele2output_symbol(allele, nucs, j, NA_char='0')
 				data_row.append(nuc)
 			writer.writerow(data_row)
-		del write
+		del writer
 		sys.stderr.write("Done.\n")
 	
 	def outputData(self, outFile):

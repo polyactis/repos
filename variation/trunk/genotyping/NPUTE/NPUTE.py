@@ -4,6 +4,9 @@ Examples:
 	#Imputation mode: use windows size 10 to impute sample_data.csv
 	NPUTE.py -w 10 -i sample_data.csv -o sample_data.out
 	
+	#imputaton on new file format with chromosome 1 data only
+	NPUTE.py -i data/250k_l3_y0..6_w0.2_x0.2_h170 -x 1
+	
 	#test window size from 5 to 15
 	NPUTE.py -m 1 -p 5:15 -i genotyping/NPUTE/sample_data.csv -o /tmp/sample_data.out
 
@@ -64,7 +67,7 @@ class NPUTE:
 		from pymodule import ProcessOptions
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		if not self.output_fname:
-			self.output_fname = '%s_w%s_chr%s.out'%(self.input_fname, self.window_size_range, self.chromosome)
+			self.output_fname = '%s_w%s_chr%s.npute'%(self.input_fname, self.single_window_size, self.chromosome)
 		
 	def main(self):
 		'''
@@ -95,7 +98,7 @@ class NPUTE:
 		if not os.path.exists(inFile):
 			print "Input file '%s' not found." % inFile
 			sys.exit(1)
-		snpData = SNPData(inFile)
+		snpData = SNPData(inFile, self.chromosome)
 		
 		# Get test windows
 		L = []
