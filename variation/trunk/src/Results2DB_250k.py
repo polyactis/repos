@@ -131,7 +131,7 @@ class Results2DB_250k(object):
 		#curs = conn.cursor()
 		
 		db = Stock_250kDatabase(username=self.user,
-				   password=self.passwd, host=self.hostname, database=self.dbname)
+				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		session = db.session
 		transaction = session.create_transaction()
 		pm = session.query(PhenotypeMethod).get_by(id=self.phenotype_method_id)
