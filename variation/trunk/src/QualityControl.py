@@ -96,7 +96,7 @@ class QualityControl(object):
 		sys.stderr.write("Done.\n")
 		return snpid2col_index1, snpid2col_index2, col_id12col_id2
 	
-	def get_row_matching_dstruc(self, strain_acc_list1, category_list1, strain_acc_list2):
+	def get_row_matching_dstruc(cls, strain_acc_list1, category_list1, strain_acc_list2):
 		"""
 		2008-01-01
 			default version.
@@ -125,6 +125,8 @@ class QualityControl(object):
 				print 'Failure:', strain_acc
 		sys.stderr.write("Done.\n")
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
+	
+	get_row_matching_dstruc = classmethod(get_row_matching_dstruc)
 	
 	def cmp_row_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
@@ -212,7 +214,48 @@ class QualityControl(object):
 					new_pairwise_dist_ls.append(row)
 			new_row_id2pairwise_dist[row_id] = new_pairwise_dist_ls
 		return new_row_id2pairwise_dist
-
+	
+	def get_NA_rate_for_one_col(self, data_matrix, col_index):
+		"""
+		2008-05-06
+			calculate independent no_of_NAs, no_of_totals
+		"""
+		no_of_NAs = 0
+		no_of_totals = 0
+		for i in range(len(data_matrix)):
+			no_of_totals += 1
+			if data_matrix[i][col_index] == 0:
+				no_of_NAs += 1
+		return no_of_NAs, no_of_totals
+	
+	def cmp_one_col(self, data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2, mapping_for_data_matrix1=None):
+		"""
+		2008-05-06
+			add mapping_for_data_matrix1
+		2008-05-05
+			split from cmp_col_wise(), for one column
+		"""
+		no_of_mismatches = 0
+		no_of_non_NA_pairs = 0
+		no_of_NAs = 0
+		no_of_totals = 0
+		for row_id1, row_index1 in row_id2row_index1.iteritems():
+			if row_id1 in row_id12row_id2:
+				row_id2 = row_id12row_id2[row_id1]
+				row_index2 = row_id2row_index2[row_id2]
+				no_of_totals += 1
+				if mapping_for_data_matrix1:
+					value1 = mapping_for_data_matrix1[data_matrix1[row_index1][col_index1]]
+				else:
+					value1 = data_matrix1[row_index1][col_index1]
+				if value1 == 0:
+					no_of_NAs += 1
+				if value1 > 0 and data_matrix2[row_index2][col_index2] > 0:
+					no_of_non_NA_pairs += 1
+					if value1 != data_matrix2[row_index2][col_index2]:
+						no_of_mismatches += 1
+		return no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs
+	
 	def cmp_col_wise(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
 		2007-12-18
@@ -228,21 +271,7 @@ class QualityControl(object):
 		for col_id1, col_id2 in col_id12col_id2.iteritems():
 			col_index1 = col_id2col_index1[col_id1]
 			col_index2 = col_id2col_index2[col_id2]
-			no_of_mismatches = 0
-			no_of_non_NA_pairs = 0
-			no_of_NAs = 0
-			no_of_totals = 0
-			for row_id1, row_index1 in row_id2row_index1.iteritems():
-				if row_id1 in row_id12row_id2:
-					row_id2 = row_id12row_id2[row_id1]
-					row_index2 = row_id2row_index2[row_id2]
-					no_of_totals += 1
-					if data_matrix1[row_index1][col_index1] == 0:
-						no_of_NAs += 1
-					if data_matrix1[row_index1][col_index1] > 0 and data_matrix2[row_index2][col_index2] > 0:
-						no_of_non_NA_pairs += 1
-						if data_matrix1[row_index1][col_index1] != data_matrix2[row_index2][col_index2]:
-							no_of_mismatches += 1
+			no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs = self.cmp_one_col(data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2)
 			if no_of_totals >0 and no_of_non_NA_pairs>0:
 				NA_rate = no_of_NAs/float(no_of_totals)
 				mismatch_rate = no_of_mismatches/float(no_of_non_NA_pairs)
