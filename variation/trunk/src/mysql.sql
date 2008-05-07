@@ -563,7 +563,7 @@ create table call_data(
 	)engine=INNODB;
 
 
-create table if not exists QC_method(
+create table if not exists qc_method(
 	id integer auto_increment primary key,
 	short_name varchar(30) unique,
 	data1_type varchar(30) not NULL,
@@ -579,7 +579,7 @@ create table if not exists QC_method(
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
-CREATE TRIGGER before_insert_QC_method BEFORE INSERT ON QC_method
+CREATE TRIGGER before_insert_qc_method BEFORE INSERT ON qc_method
   FOR EACH ROW BEGIN
         if NEW.created_by is null then
                set NEW.created_by = USER();
@@ -587,7 +587,7 @@ CREATE TRIGGER before_insert_QC_method BEFORE INSERT ON QC_method
   END;
 |
 
-CREATE TRIGGER before_update_QC_method BEFORE UPDATE ON QC_method
+CREATE TRIGGER before_update_qc_method BEFORE UPDATE ON qc_method
   FOR EACH ROW BEGIN
         if NEW.updated_by is null then
                 set NEW.updated_by = USER();
@@ -600,7 +600,7 @@ CREATE TRIGGER before_update_QC_method BEFORE UPDATE ON QC_method
 
 DELIMITER ;
 
-create table if not exists call_QC(
+create table if not exists call_qc(
 	id integer auto_increment primary key,
 	call_info_id integer,
 	min_probability float,
@@ -623,13 +623,13 @@ create table if not exists call_QC(
 	date_created timestamp default CURRENT_TIMESTAMP,
 	date_updated TIMESTAMP,
 	foreign key (call_info_id) references call_info(id) on delete cascade on update cascade,
-	QC_method_id integer,
-	foreign key (QC_method_id) references QC_method(id) on delete cascade on update cascade
+	qc_method_id integer,
+	foreign key (qc_method_id) references qc_method(id) on delete cascade on update cascade
 	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
-CREATE TRIGGER before_insert_call_QC BEFORE INSERT ON call_QC
+CREATE TRIGGER before_insert_call_qc BEFORE INSERT ON call_qc
   FOR EACH ROW BEGIN
         if NEW.created_by is null then
                set NEW.created_by = USER();
@@ -637,7 +637,7 @@ CREATE TRIGGER before_insert_call_QC BEFORE INSERT ON call_QC
   END;
 |
 
-CREATE TRIGGER before_update_call_QC BEFORE UPDATE ON call_QC
+CREATE TRIGGER before_update_call_qc BEFORE UPDATE ON call_qc
   FOR EACH ROW BEGIN
         if NEW.updated_by is null then
                 set NEW.updated_by = USER();
@@ -650,7 +650,7 @@ CREATE TRIGGER before_update_call_QC BEFORE UPDATE ON call_QC
 
 DELIMITER ;
 
-create table if not exists snps_QC(
+create table if not exists snps_qc(
 	id integer auto_increment primary key,
 	snps_id integer,
 	min_probability float,
@@ -667,8 +667,8 @@ create table if not exists snps_QC(
 	no_of_mismatches integer,
 	no_of_non_NA_pairs integer,
 	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
-	QC_method_id integer,
-	foreign key (QC_method_id) references QC_method(id) on delete cascade on update cascade,
+	qc_method_id integer,
+	foreign key (qc_method_id) references qc_method(id) on delete cascade on update cascade,
 	call_method_id integer,
 	foreign key (call_method_id) references call_method(id) on delete cascade on update cascade,
 	readme_id integer,
@@ -681,7 +681,7 @@ create table if not exists snps_QC(
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
-CREATE TRIGGER before_insert_snps_QC BEFORE INSERT ON snps_QC
+CREATE TRIGGER before_insert_snps_qc BEFORE INSERT ON snps_qc
   FOR EACH ROW BEGIN
         if NEW.created_by is null then
                set NEW.created_by = USER();
@@ -689,7 +689,7 @@ CREATE TRIGGER before_insert_snps_QC BEFORE INSERT ON snps_QC
   END;
 |
 
-CREATE TRIGGER before_update_snps_QC BEFORE UPDATE ON snps_QC
+CREATE TRIGGER before_update_snps_qc BEFORE UPDATE ON snps_qc
   FOR EACH ROW BEGIN
         if NEW.updated_by is null then
                 set NEW.updated_by = USER();
@@ -810,5 +810,5 @@ create table phenotype_avg(
 	)engine=INNODB;
 
 
---2008-04-30 create a view to view QC results for arrays
-create or replace view view_QC as select e.id as ecotype_id, e.nativename, q.call_info_id, c.method_id as call_method_id, a.id as array_id, a.original_filename , a.date_created, c.NA_rate, group_concat(q.mismatch_rate order by q.QC_method_id) as mismatch_rate, group_concat(q.QC_method_id order by q.QC_method_id) as QC_method, group_concat(q.no_of_non_NA_pairs order by q.QC_method_id) as no_of_non_NA_pairs from call_info c, array_info a, call_QC q , stock.ecotype e where e.id=a.maternal_ecotype_id and q.call_info_id = c.id and a.id=c.array_id group by c.id order by nativename, call_method_id, NA_rate, date_created, original_filename;
+--2008-04-30 create a view to view qc results for arrays
+create or replace view view_qc as select e.id as ecotype_id, e.nativename, q.call_info_id, c.method_id as call_method_id, a.id as array_id, a.original_filename , a.date_created, c.NA_rate, group_concat(q.mismatch_rate order by q.qc_method_id) as mismatch_rate, group_concat(q.qc_method_id order by q.qc_method_id) as qc_method, group_concat(q.no_of_non_NA_pairs order by q.qc_method_id) as no_of_non_NA_pairs from call_info c, array_info a, call_qc q , stock.ecotype e where e.id=a.maternal_ecotype_id and q.call_info_id = c.id and a.id=c.array_id group by c.id order by nativename, call_method_id, NA_rate, date_created, original_filename;
