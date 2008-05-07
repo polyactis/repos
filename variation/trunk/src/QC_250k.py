@@ -23,6 +23,7 @@ Examples:
 	
 	#accession-wise QC between 250k (call_method_id=3) and 149SNP
 	QC_250k.py -m 3 -l 3 -y 0.85 -c
+	QC_250k.py -m 8 -l 3 -y 0.85 -c
 	
 	#do snp-wise QC between 250k (call_method_id=3, excluding arrays with > 20% mismatch rate, according to the QC with maximum no_of_non_NA_pairs) and Perlegen
 	QC_250k.py -m 2 -l 3 -y 0.85 -e 2 -x 0.20 -c
@@ -52,7 +53,8 @@ import warnings, traceback
 from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README, formReadmeObj
+from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README
+from pymodule.db import formReadmeObj
 import sqlalchemy
 
 class SNPData(object):
@@ -64,7 +66,8 @@ class SNPData(object):
 								('min_probability', 0, float): -1,\
 								('call_method_id', 0, int): -1,\
 								('col_id2id', 0, ):None,\
-								('max_call_info_error_rate', 0, float): 1}
+								('max_call_info_error_rate', 0, float): 1,\
+								('snps_table', 0, ):None}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 
 
@@ -80,8 +83,11 @@ class TwoSNPData(QualityControl):
 								('snp_locus_table_250k', 0, ): 'stock_250k.snps',\
 								('snp_locus_table_149snp', 0, ): 'stock.snps',\
 								('QC_method_id', 1, int):1,\
-								('user', 0,): ''}
+								('user', 0,): '',\
+								('columns_to_be_selected', 0, ):'s1.name, s2.snpid'}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
+		if self.QC_method_id!=3 and self.QC_method_id!=7:	#149SNP uses snpid
+			self.columns_to_be_selected = 's1.name, s2.name'
 		self.update_row_col_matching()
 	
 	def get_row_matching_dstruc(self, strain_acc_list1, category_list1, strain_acc_list2):
@@ -115,13 +121,13 @@ class TwoSNPData(QualityControl):
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
 	def update_row_col_matching(self):
-		if self.QC_method_id==3 or self.QC_method_id==7:	#149SNP data is SNPData2. use database to find out which SNP matches which
+		if self.QC_method_id==3 or self.QC_method_id==7 or self.QC_method_id==8:	#149SNP data is SNPData2. use database to find out which SNP matches which
 			if self.curs==None:
 				sys.stderr.write("Error: no database connection but it's required to link SNP ids.\n")
 				sys.exit(3)
 			from variation.src.Cmp250kVs149SNP import Cmp250kVs149SNP
 			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = Cmp250kVs149SNP.get_col_matching_dstruc(self.SNPData1.header, \
-					self.SNPData2.header, self.curs, self.snp_locus_table_250k, self.snp_locus_table_149snp, columns_to_be_selected='s1.name, s2.snpid')
+					self.SNPData2.header, self.curs, self.SNPData1.snps_table, self.SNPData2.snps_table, columns_to_be_selected=self.columns_to_be_selected)
 		else:	#use the default from QualityControl
 			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.header, self.SNPData2.header)
 		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.strain_acc_list, self.SNPData1.category_list, self.SNPData2.strain_acc_list)
@@ -293,8 +299,9 @@ class QC_250k(object):
 	
 	get_array_id2fname = classmethod(get_array_id2fname)
 	
-	def read_call_matrix(cls, call_info_id2fname, min_probability=-1):
+	def read_call_matrix(cls, call_info_id2fname, min_probability=-1, snps_name_set=None):
 		"""
+		2008-05-06 add snps_name_set
 		2008-05-03 add min_probability
 		2008-04-20
 			fake header, strain_acc_list, category_list, data_matrix
@@ -319,6 +326,8 @@ class QC_250k(object):
 			
 			for row in reader:
 				SNP_id, call = row[:2]
+				if snps_name_set and SNP_id not in snps_name_set:
+					continue
 				if counter==0:	#first file
 					header.append(SNP_id)
 				if len(row)==3:
@@ -420,7 +429,7 @@ class QC_250k(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def get_snps_name2snps_id(self, db):
+	def get_snps_name2snps_id(cls, db):
 		"""
 		2008-05-05
 		"""
@@ -435,6 +444,8 @@ class QC_250k(object):
 		sys.stderr.write("Done.\n")
 		return snps_name2snps_id
 	
+	get_snps_name2snps_id = classmethod(get_snps_name2snps_id)
+	
 	def run(self):
 		"""
 		2008-04-25
@@ -444,7 +455,7 @@ class QC_250k(object):
 		"""
 		#database connection and etc
 		db = Stock_250kDatabase(username=self.user,
-				   password=self.passwd, host=self.hostname, database=self.dbname)
+				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		session = db.session
 		transaction = session.create_transaction()
 		
@@ -468,15 +479,24 @@ class QC_250k(object):
 			import pdb
 			pdb.set_trace()
 		
-		readme = formReadmeObj(sys.argv, self.ad)
-		
+		readme = formReadmeObj(sys.argv, self.ad, README)
+		session.save(readme)
+		QC_method_id2snps_table = {1:'at.locus',\
+											2:'',\
+											3:'stock.snps',\
+											4:'',\
+											5:'at.locus',\
+											6:'',\
+											7:'stock.snps',\
+											8:'dbsnp.snps'}
 		if self.QC_method_id==0:
 			self.cal_independent_NA_rate(db, self.min_probability, readme)
 			row_id2NA_mismatch_rate = None
 		else:
 			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.cmp_data_filename)
-			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix)
+			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, \
+							data_matrix=data_matrix, snps_table=QC_method_id2snps_table[self.QC_method_id])
 			
 			if self.input_dir:
 				#04/22/08 Watch: call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
@@ -492,17 +512,19 @@ class QC_250k(object):
 					sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
 					sys.exit(5)
 				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, filter_calls_QCed, self.max_call_info_error_rate)
-			header, strain_acc_list, category_list, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
+			header, call_info_id_ls, ecotype_id_ls, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
 			
 			if self.run_type==2:
 				snps_name2snps_id = self.get_snps_name2snps_id(db)
 			else:
 				snps_name2snps_id = None
-			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix, \
-							min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
-							max_call_info_error_rate=self.max_call_info_error_rate)
 			
-			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, QC_method_id=self.QC_method_id, user=self.user)
+			snpData1 = SNPData(header=header, strain_acc_list=call_info_id_ls, category_list= ecotype_id_ls, data_matrix=data_matrix, \
+							min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
+							max_call_info_error_rate=self.max_call_info_error_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
+			
+			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
+								QC_method_id=self.QC_method_id, user=self.user)
 			
 			if self.run_type==1:
 				row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
