@@ -131,6 +131,22 @@ class Database(object):
 		self._engine = engine
 		self._metadata = metadata
 
+def formReadmeObj(argv, ad, READMEClass):
+	"""
+	2008-05-06
+		create a readme instance (like a log) based on the program's sys.argv and argument dictionary
+	"""
+	readme_description_ls = []
+	argument_ls = ad.keys()
+	argument_ls.sort()
+	for argument in argument_ls:
+		if argument=='passwd' or argument=='password':	#password info not into db
+			continue
+		value = ad[argument]
+		readme_description_ls.append('%s=%s'%(argument, value))
+	readme = READMEClass(title=' '.join(argv), description='; '.join(readme_description_ls))
+	return readme
+
 if __name__ == '__main__':
 	from pymodule import process_options, generate_program_doc
 	main_class = Database
