@@ -509,8 +509,10 @@ def generate_program_doc(program_name, option_default_dict):
 	return program_doc
 
 
-def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=None, cols_to_be_tossed_out=None, nt_alphabet=0):
+def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=None, cols_to_be_tossed_out=None, nt_alphabet=0, transform_to_numpy=1):
 	"""
+	2008-05-06
+		add transform_to_numpy
 	2008-04-02
 		extracted from variation.src.FilterStrainSNPMatrix to be standalone.
 	"""
@@ -530,10 +532,16 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 			new_header.append(header[i])
 	writer.writerow(new_header)
 	
-	if type(data_matrix)==list:	#2008-02-06 transform the 2D list into array
+	if type(data_matrix)==list and transform_to_numpy:	#2008-02-06 transform the 2D list into array
 		import numpy
 		data_matrix = numpy.array(data_matrix)
-	no_of_rows, no_of_cols = data_matrix.shape
+		no_of_rows, no_of_cols = data_matrix.shape
+	else:
+		no_of_rows = len(data_matrix)
+		if no_of_rows>0:
+			no_of_cols = len(data_matrix[0])
+		else:
+			no_of_cols = 0
 	for i in range(no_of_rows):
 		if i not in rows_to_be_tossed_out:
 			new_row = [strain_acc_list[i], category_list[i]]
