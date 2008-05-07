@@ -16,7 +16,7 @@ MIN = '1'
 I_MAJ = 'Z'
 I_MIN = 'W'
 
-class SNPData:
+class SNPData(object):
 	'''
 	This class provides a datastructure for SNP datasets being imputed with NPUTE. Input
 	files should be either CSV or TXT files with lines as SNPs (separated by crlf) and
@@ -27,7 +27,7 @@ class SNPData:
 	must be a '?' character.
 	'''
 
-	def __init__(self, inFile, chromosome=None):
+	def __init__(self, inFile, snps_name_ls=None, data_matrix=None, chromosome=None):
 		'''
 		Constructor reads in data file, generates mismatch vectors and upper
 		triangular matrix extract indices, and reports stats of data.
@@ -36,7 +36,7 @@ class SNPData:
 		if chromosome==None:
 			self.readInData(inFile)
 		else:
-			snps, nucs, self.chosen_snps_name_ls = self.readOneChromosomeData(inFile, chromosome)
+			snps, nucs, self.chosen_snps_name_ls = self.readOneChromosomeData(snps_name_ls, data_matrix, chromosome)
 			self.snps = array(snps)
 			self.sdps = Set(snps)
 			self.nucs = array(nucs)
@@ -52,17 +52,13 @@ class SNPData:
 		print 'Number of SDPs: %d' % len(self.sdps)
 		print 'Time to Process: %d m %d s\n' % (t/60,t%60)
 	
-	def readOneChromosomeData(self, input_fname, chromosome):
+	def readOneChromosomeData(self, snps_name_ls, data_matrix, chromosome):
 		"""
 		05/07/08
 			replace readInData()
 		"""
-		sys.stderr.write("Reading chromosome %s data from %s ..."%(chromosome, input_fname))
-		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(input_fname, turn_into_integer=0)
-		snps_name_ls = header[2:]
-		
-		no_of_rows = len(strain_acc_list)
+		sys.stderr.write("Reading chromosome %s data ..."%(chromosome))
+		no_of_rows = len(data_matrix)
 		no_of_cols = len(snps_name_ls)
 		snps = []
 		nucs = []
@@ -122,6 +118,9 @@ class SNPData:
 		Reads in data file and normalizes alleles.
 		'''
 		print "Reading in SNP data from '%s'..." % inFile,
+		if not os.path.exists(inFile):
+			print "Input file '%s' not found." % inFile
+			sys.exit(1)
 		snps = []
 		nucs = []
 		self.numSamps = -1		
@@ -192,7 +191,7 @@ class SNPData:
 		Mismatch = 2
 		Unknown = 1
 		'''
-		print "Generating pair-wise mismatch vectors...",
+		sys.stderr.write("Generating pair-wise mismatch vectors...")
 
 		n = self.numSamps
 		o = [1 for i in range(n)]
@@ -223,10 +222,8 @@ class SNPData:
 					dM += o[i+1:]
 			
 			self.vectors[sdp] = array(dM,uint16)
-
-			
-		print "Done"
-		
+		sys.stderr.write("Done.\n")
+	
 	def incorporateChanges(self):
 		'''
 		Uses the changes dictionary to replace unknowns with imputed values.
@@ -302,17 +299,18 @@ class SNPData:
 	def outputOneChromosomeData(self, chosen_snps_name_ls, chromosome, snps, nucs, numSamps, output_fname):
 		"""
 		05/07/08
+			change it to SNP by Strain
+		05/07/08
 			a matrix with only snp name as header
 		"""
 		sys.stderr.write("Outputting imputed chromosome %s data to %s ..."%(chromosome, output_fname))
-		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-		writer.writerow(chosen_snps_name_ls)
+		writer = csv.writer(open(output_fname, 'a'), delimiter='\t')
 		no_of_snps = len(chosen_snps_name_ls)
-		for i in range(numSamps):
-			data_row = []
-			for j in range(no_of_snps):
-				allele = snps[j][i]
-				nuc = nuc = self.allele2output_symbol(allele, nucs, j, NA_char='0')
+		for i in range(no_of_snps):
+			data_row = [chosen_snps_name_ls[i], chosen_snps_name_ls[i]]	#2 times
+			for j in range(numSamps):
+				allele = snps[i][j]
+				nuc = self.allele2output_symbol(allele, nucs, i, NA_char='0')
 				data_row.append(nuc)
 			writer.writerow(data_row)
 		del writer
@@ -332,7 +330,7 @@ class SNPData:
 		'''
 		Generate lookup table of indices for the rows of a matrix stored in upper-triangular form.
 		'''
-		print 'Generating indices for triangular matrix row extraction...',
+		sys.stderr.write('Generating indices for triangular matrix row extraction...')
 		numSamps = self.numSamps
 		
 		extractIndices = zeros((numSamps,numSamps),int)
@@ -348,7 +346,7 @@ class SNPData:
 			extractIndices[samp] = indices
 		
 		self.extractIndices = extractIndices
-		print 'Done'
+		sys.stderr.write("Done.\n")
 	
 	def extractRow(self,tM,rowNum):
 		'''

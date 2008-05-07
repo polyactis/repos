@@ -2,10 +2,10 @@
 """
 Examples:
 	#Imputation mode: use windows size 10 to impute sample_data.csv
-	NPUTE.py -w 10 -i sample_data.csv -o sample_data.out
+	NPUTE.py -w 10 -i sample_data.csv -o sample_data.out -f 2
 	
-	#imputaton on new file format with chromosome 1 data only
-	NPUTE.py -i data/250k_l3_y0..6_w0.2_x0.2_h170 -x 1
+	#imputaton on new file format
+	NPUTE.py -i data/250k_l3_y0..6_w0.2_x0.2_h170
 	
 	#test window size from 5 to 15
 	NPUTE.py -m 1 -p 5:15 -i genotyping/NPUTE/sample_data.csv -o /tmp/sample_data.out
@@ -21,8 +21,10 @@ Description:
 
 2008-04-30 yh start modifying
 """
-import sys
-import os
+import sys, os, csv
+sys.path.insert(0, os.path.expanduser('~/lib/python'))
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+
 import getopt
 import time
 from SNPData import *
@@ -44,9 +46,7 @@ TST = '1'
 '''
 This is the main NPUTE class, providing a command-line interface for imputation.
 '''
-import sys, os
-sys.path.insert(0, os.path.expanduser('~/lib/python'))
-sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+
 
 class NPUTE:
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
@@ -56,7 +56,7 @@ class NPUTE:
 							('window_size_range', 0, ): ['', 'p', 1, 'specify a window range to test, like 5:15', ],\
 							('input_fname', 1, ): ['', 'i', 1, 'Input file. A plain genotype matrix.'],\
 							('output_fname', 0, ): ['', 'o', 1, 'Output File, if not given, take the input_fname and other parameters to form one.'],\
-							('chromosome', 0, ): [None, 'x', 1, 'which chromosome data'],\
+							('input_file_format', 1, int): [1, 'f', 1, 'which file format. 1= DB_250k2data.py output. 2=original NPUTE input.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -67,9 +67,49 @@ class NPUTE:
 		from pymodule import ProcessOptions
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		if not self.output_fname:
-			self.output_fname = '%s_w%s_chr%s.npute'%(self.input_fname, self.single_window_size, self.chromosome)
-		
+			self.output_fname = '%s_w%s.npute'%(self.input_fname, self.single_window_size)
+	
+	def get_chr2no_of_snps(self, snps_name_ls):
+		"""
+		05/07/08
+		"""
+		sys.stderr.write("Getting chr2no_of_snps ... ")
+		chr2no_of_snps = {}
+		for snps_name in snps_name_ls:
+			tmp_ls = snps_name.split('_')
+			chr = tmp_ls[0]
+			if chr not in chr2no_of_snps:
+				chr2no_of_snps[chr] = 0
+			chr2no_of_snps[chr] += 1
+		sys.stderr.write("Done.\n")
+		return chr2no_of_snps
+	
+	def outputHeader(self, output_fname, strain_acc_list, category_list):
+		"""
+		05/07/08
+		"""
+		sys.stderr.write("Outputting common header ... ")
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		writer.writerow(['','']+strain_acc_list)
+		writer.writerow(['','']+category_list)
+		del writer
+		sys.stderr.write("Done.\n")
+	
 	def main(self):
+		if self.input_file_format==1:
+			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
+			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname, turn_into_integer=0)
+			snps_name_ls = header[2:]
+			self.outputHeader(self.output_fname, strain_acc_list, category_list)
+			chr2no_of_snps = self.get_chr2no_of_snps(snps_name_ls)
+			chr_ls = chr2no_of_snps.keys()
+			chr_ls.sort()
+			for chromosome in chr_ls:
+				self.run(self.input_fname, self.output_fname, snps_name_ls, data_matrix, chromosome)
+		else:
+			self.run(self.input_fname, self.output_fname)
+		
+	def run(self, input_fname, output_fname, snps_name_ls=None, data_matrix=None, chromosome=None):
 		'''
 		2008-05-01
 			yh use ProcessOptions
@@ -92,13 +132,10 @@ class NPUTE:
 	
 		Get input SNPs
 		inFile = options[IN_FILE]
-		"""	   
-		inFile = self.input_fname
+		"""
 		
-		if not os.path.exists(inFile):
-			print "Input file '%s' not found." % inFile
-			sys.exit(1)
-		snpData = SNPData(inFile, self.chromosome)
+		inFile = input_fname
+		snpData = SNPData(input_fname, snps_name_ls, data_matrix, chromosome)
 		
 		# Get test windows
 		L = []
@@ -123,13 +160,13 @@ class NPUTE:
 				print 'Imputation window not specified.'
 				sys.exit(1)
 			L = int(self.single_window_size)
-			imputeData(snpData, L, self.output_fname)
+			imputeData(snpData, L, output_fname)
 		elif mode == TST:
 			if isEmpty(L):
 				print 'Test windows not specified.'
 				sys.exit(1)
-			testWindows(snpData, L, self.output_fname)
-		
+			testWindows(snpData, L, output_fname)
+		del snpData
 		
 def isEmpty(x):
 	'''
@@ -141,12 +178,12 @@ def imputeData(snpData, L, outFile):
 	'''
 	Main function for doing a real imputation on a SNPData object and outputting results.
 	'''
-	print outFile
+	sys.stderr.write("output filename is %s.\n"%outFile)
 	start = time.time()
 	c = impute(snpData, L)
 	t = int(time.time()-start + 0.5)
 	snpData.incorporateChanges()
-	print 'Imputed %d unknowns in %dm %ds.' % (c,t/60,t%60)
+	sys.stderr.write('Imputed %d unknowns in %dm %ds.\n'%(c,t/60,t%60))
 	snpData.outputData(outFile)
 
 def testWindows(snpData, Ls, outFile):
@@ -174,7 +211,7 @@ def impute(snpData, L):
 	vectors = snpData.vectors
 	numSNPs = len(snps)
 
-	print "Imputing with window size " +  str(L) + "...",
+	sys.stderr.write("Imputing with window size " +  str(L) + "...")
 	
 	vectorLength = len(vectors.values()[0])
 	vectorQueue = CircularQueue([L], vectorLength)
@@ -202,7 +239,7 @@ def impute(snpData, L):
 		if '?' in snp:
 			imputeSNP(snpData,i,acc,snp)
 						 
-	print "Done"
+	sys.stderr.write("Done.\n")
 	return count
 
 def imputeSNP(snpData,locI,mmv,snp):
