@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """
 Examples:
 	#Imputation mode: use windows size 10 to impute sample_data.csv
