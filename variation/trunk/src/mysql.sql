@@ -283,7 +283,7 @@ SET storage_engine=INNODB;
 
 create table snps(
 	id integer auto_increment primary key,
-	snpid varchar(200),
+	name varchar(200) not null unique,
 	chromosome integer,
 	position integer,
 	allele1 varchar(1),
@@ -432,6 +432,8 @@ create table array_info(
 	hyb_vol varchar(20),
 	seed_source varchar(100),
 	method_name varchar(250),
+	readme_id integer,
+	foreign key (readme_id) references readme(id) on update cascade,
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
@@ -517,6 +519,8 @@ create table call_info(
 	description varchar(2000),
 	array_id integer,
 	NA_rate float,
+	readme_id integer,
+	foreign key (readme_id) references readme(id) on update cascade,
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
@@ -599,6 +603,11 @@ DELIMITER ;
 create table if not exists call_QC(
 	id integer auto_increment primary key,
 	call_info_id integer,
+	min_probability float,
+	ecotype_id integer,
+	duplicate integer,
+	tg_ecotype_id integer,
+	tg_duplicate integer,
 	NA_rate float,
 	no_of_NAs integer,
 	no_of_totals integer,
@@ -607,6 +616,10 @@ create table if not exists call_QC(
 	no_of_non_NA_pairs integer,
 	created_by varchar(200),
 	updated_by varchar(200),
+	call_method_id integer,
+	foreign key (call_method_id) references call_method(id) on delete cascade on update cascade,
+	readme_id integer,
+	foreign key (readme_id) references readme(id) on delete cascade on update cascade,
 	date_created timestamp default CURRENT_TIMESTAMP,
 	date_updated TIMESTAMP,
 	foreign key (call_info_id) references call_info(id) on delete cascade on update cascade,
@@ -625,6 +638,58 @@ CREATE TRIGGER before_insert_call_QC BEFORE INSERT ON call_QC
 |
 
 CREATE TRIGGER before_update_call_QC BEFORE UPDATE ON call_QC
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
+create table if not exists snps_QC(
+	id integer auto_increment primary key,
+	snps_id integer,
+	min_probability float,
+	max_call_info_error_rate float,
+	snps_name varchar(200),
+	tg_snps_name varchar(200),
+	NA_rate float,
+	no_of_NAs integer,
+	no_of_totals integer,
+	relative_NA_rate float,
+	relative_no_of_NAs integer,
+	relative_no_of_totals integer,
+	mismatch_rate float,
+	no_of_mismatches integer,
+	no_of_non_NA_pairs integer,
+	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
+	QC_method_id integer,
+	foreign key (QC_method_id) references QC_method(id) on delete cascade on update cascade,
+	call_method_id integer,
+	foreign key (call_method_id) references call_method(id) on delete cascade on update cascade,
+	readme_id integer,
+	foreign key (readme_id) references readme(id) on delete cascade on update cascade,
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_snps_QC BEFORE INSERT ON snps_QC
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_snps_QC BEFORE UPDATE ON snps_QC
   FOR EACH ROW BEGIN
         if NEW.updated_by is null then
                 set NEW.updated_by = USER();
@@ -739,7 +804,9 @@ create table phenotype_avg(
 	stdev float,
 	sample_size integer,
 	method_id integer not null,
-	foreign key (method_id) references phenotype_method(id) on delete cascade on update cascade
+	foreign key (method_id) references phenotype_method(id) on delete cascade on update cascade,
+	readme_id integer,
+	foreign key (readme_id) references readme(id) on delete cascade on update cascade
 	)engine=INNODB;
 
 
