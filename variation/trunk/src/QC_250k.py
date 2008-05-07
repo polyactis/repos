@@ -66,7 +66,7 @@ class SNPData(object):
 								('min_probability', 0, float): -1,\
 								('call_method_id', 0, int): -1,\
 								('col_id2id', 0, ):None,\
-								('max_call_info_error_rate', 0, float): 1,\
+								('max_call_info_mismatch_rate', 0, float): 1,\
 								('snps_table', 0, ):None}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 
@@ -144,7 +144,7 @@ class TwoSNPData(QualityControl):
 			col_id2 = self.col_id12col_id2.get(col_id1)
 			if col_id2:
 				snpsqc = SNPsQC(QC_method_id=self.QC_method_id, min_probability=self.SNPData1.min_probability,\
-							call_method_id=self.SNPData1.call_method_id, created_by=self.user, max_call_info_error_rate=self.SNPData1.max_call_info_error_rate)
+							call_method_id=self.SNPData1.call_method_id, created_by=self.user, max_call_info_mismatch_rate=self.SNPData1.max_call_info_mismatch_rate)
 				if type(self.SNPData1.col_id2id)==dict:
 					snpsqc.snps_id = self.SNPData1.col_id2id[col_id1]
 				snpsqc.tg_snps_name=col_id2
@@ -177,7 +177,7 @@ class QC_250k(object):
 							('m', 'QC_method_id', 1, 'id in table QC_method', 1, int): None,\
 							('l', 'call_method_id', 1, 'id in table call_method', 1, int): None,\
 							('e', 'run_type', 1, 'QC on 1=accession-wise or 2=snp-wise', 1, int): 1,\
-							('x', 'max_call_info_error_rate', 1, 'maximum error rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.', 0, float): 1,\
+							('x', 'max_call_info_mismatch_rate', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.', 0, float): 1,\
 							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
 							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
 							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
@@ -210,7 +210,7 @@ class QC_250k(object):
 		#if self.cmp_data_filename == None:
 		#	self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
 
-	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_error_rate=1, debug=0):
+	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0):
 		"""
 		2008-05-06
 			use sqlalchemy connection
@@ -248,7 +248,7 @@ class QC_250k(object):
 				for call_QC in call_info.call_QC:
 					if call_QC.no_of_non_NA_pairs>call_QC_with_max_no_of_non_NA_pairs.no_of_non_NA_pairs:
 						call_QC_with_max_no_of_non_NA_pairs = call_QC
-				if call_QC_with_max_no_of_non_NA_pairs.mismatch_rate>max_call_info_error_rate:
+				if call_QC_with_max_no_of_non_NA_pairs.mismatch_rate>max_call_info_mismatch_rate:
 					ignore_this = 1
 				call_info.call_QC_with_max_no_of_non_NA_pairs = call_QC_with_max_no_of_non_NA_pairs				
 			else:
@@ -507,11 +507,11 @@ class QC_250k(object):
 					filter_calls_QCed=0
 				elif self.run_type==1:
 					filter_calls_QCed = 1
-					self.max_call_info_error_rate = 1	#don't use this when doing accession-wise QC
+					self.max_call_info_mismatch_rate = 1	#don't use this when doing accession-wise QC
 				else:
 					sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
 					sys.exit(5)
-				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, filter_calls_QCed, self.max_call_info_error_rate)
+				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, filter_calls_QCed, self.max_call_info_mismatch_rate)
 			header, call_info_id_ls, ecotype_id_ls, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
 			
 			if self.run_type==2:
@@ -521,7 +521,7 @@ class QC_250k(object):
 			
 			snpData1 = SNPData(header=header, strain_acc_list=call_info_id_ls, category_list= ecotype_id_ls, data_matrix=data_matrix, \
 							min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
-							max_call_info_error_rate=self.max_call_info_error_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
+							max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
 			
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
 								QC_method_id=self.QC_method_id, user=self.user)

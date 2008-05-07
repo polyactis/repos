@@ -654,7 +654,7 @@ create table if not exists snps_QC(
 	id integer auto_increment primary key,
 	snps_id integer,
 	min_probability float,
-	max_call_info_error_rate float,
+	max_call_info_mismatch_rate float,
 	snps_name varchar(200),
 	tg_snps_name varchar(200),
 	NA_rate float,
