@@ -198,8 +198,10 @@ class FilterStrainSNPMatrix(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def read_data(cls, input_fname, input_alphabet=0, turn_into_integer=1):
+	def read_data(cls, input_fname, input_alphabet=0, turn_into_integer=1, double_header=0):
 		"""
+		2008-05-07
+			add option double_header
 		2007-03-06
 			different from the one from SelectStrains.py is map(int, data_row)
 		2007-05-14
@@ -210,6 +212,8 @@ class FilterStrainSNPMatrix(object):
 		sys.stderr.write("Reading data ...")
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		header = reader.next()
+		if double_header:
+			header = [header, reader.next()]
 		data_matrix = []
 		strain_acc_list = []
 		category_list = []
