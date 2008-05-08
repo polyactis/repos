@@ -47,10 +47,10 @@ class SNPData(object):
 		self.genMismatchVectors()
 		self.genExtractIndices()
 		t = int(time.time()-start+0.5)
-		print 'Number of Samples: %d' % self.numSamps
-		print 'Number of SNPs: %d' % len(self.snps)
-		print 'Number of SDPs: %d' % len(self.sdps)
-		print 'Time to Process: %d m %d s\n' % (t/60,t%60)
+		sys.stderr.write('Number of Samples: %d\n' % self.numSamps)
+		sys.stderr.write('Number of SNPs: %d\n' % len(self.snps))
+		sys.stderr.write('Number of SDPs: %d' % len(self.sdps))
+		sys.stderr.write('Time to Process: %d m %d s\n' % (t/60,t%60))
 	
 	def readOneChromosomeData(self, snps_name_ls, data_matrix, chromosome):
 		"""
@@ -228,7 +228,7 @@ class SNPData(object):
 		'''
 		Uses the changes dictionary to replace unknowns with imputed values.
 		'''
-		print "Incorporating imputed values into the SNP data...",
+		sys.stderr.write("Incorporating imputed values into the SNP data...")
 		snps = self.snps
 		for loc,val in self.changes.iteritems():
 			locI, samp = loc
@@ -242,7 +242,7 @@ class SNPData(object):
 				print loc
 			
 			snps[locI] = snp[0:samp] + iVal + snp[samp+1:]
-		print "Done"			
+		sys.stderr.write("Done.\n")
 
 	'''
 	def outputData(self, outFile):
