@@ -163,7 +163,7 @@ class dbSNP2data(object):
 			#2007-12-13 all 250k SNPs
 			curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s1"%(snp_locus_table))
 		elif snp_locus_table == 'dbsnp.snps':
-			curs.execute("select distinct i.snps_id, s.chromosome, s.position from %s i, %s s where i.snps_id=s.id order by chromosome, position"%(input_table, snp_locus_table))
+			curs.execute("select distinct s.id, s.chromosome, s.position from %s i, %s s, %s m where s.id=m.snps_id and i.snps_id=s.id order by chromosome, position"%(input_table, snp_locus_table, 'dbsnp.snps_ab_allele_mapping'))
 		rows = curs.fetchall()
 		for row in rows:
 			snp_id = row[0]
@@ -358,7 +358,7 @@ class dbSNP2data(object):
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
-	def get_data_matrix_m(self, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call):
+	def get_data_matrix_m(self, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call, snps_id2mapping=None):
 		"""
 		2008-05-05
 			deal with tables in schema dbsnp
@@ -418,9 +418,11 @@ class dbSNP2data(object):
 						callhet.upper()	#2007-09-20	just in case
 						call = call+callhet
 					if strain_id in  strain_id2index and snp_id in snp_id2index:	#2007-03-20
-						if input_table == 'dbsnp.calls':
+						if input_table == 'dbsnp.calls' and not snps_id2mapping:
 							call_number = ab2number[call]
 						else:
+							if snps_id2mapping:
+								call = snps_id2mapping[snp_id][call]
 							call_number = nt2number[call]
 						if need_heterozygous_call:
 							data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
@@ -688,7 +690,12 @@ class dbSNP2data(object):
 			
 			#strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 			snp_id2acc = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
-			data_matrix = self.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
+			if self.input_table == 'dbsnp.calls':
+				from variation.src.FigureOut384IlluminaABMapping import get_snps_id2mapping
+				snps_id2mapping = get_snps_id2mapping(self.hostname, dbname='dbsnp', user=self.user, passwd=self.passwd)
+			else:
+				snps_id2mapping = None
+			data_matrix = self.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call, snps_id2mapping)
 			if self.resolve_duplicated_calls:
 				nativename_snpid2call = self.get_nativename_snpid2call_m(curs, self.strain_info_table, self.input_table)
 				data_matrix = self.fill_in_resolved_duplicated_calls(data_matrix, strain_id2index, snp_id2index, nativename2strain_id, nativename_snpid2call)
