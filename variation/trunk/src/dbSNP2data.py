@@ -34,7 +34,10 @@ Examples:
 	dbSNP2data.py -o /tmp/stock_149SNP_y10001111.tsv -y 1 -r
 	
 	#output 384-illumina data
-	dbSNP2data.py -o /tmp/384-illumina.tsv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 00001101
+	dbSNP2data.py -o /tmp/384-illumina_y00001101.tsv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 00001101
+	
+	#output 384-illumina data in csv format. output matrix transposed, in SNP by strain.
+	dbSNP2data.py  -o /tmp/384-illumina_y0000111111.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000111111
 	
 Description:
 	output SNP data from database schema
@@ -48,6 +51,8 @@ Description:
 	6. with header line
 	7. use alphabet to represent nucleotide, not number
 	8. discard strains with all-NA data
+	9. output matrix type (in terms of row X column). 0=(strain X SNP, default), 1=(SNP X strain)
+	10. delimiter. 0=tab default, 1=comma.
 	
 	you can specify the bits up to the one you want to change and omit the rest. i.e.
 	-y 11
@@ -66,7 +71,7 @@ from annot.bin.codense.common import db_connect, org_short2long, org2tax_id
 from variation.src.common import nt2number, number2nt, ab2number, number2ab
 import Numeric as num
 from sets import Set
-
+from pymodule import write_data_matrix
 
 class dbSNP2data(object):
 	__doc__ = __doc__
@@ -81,9 +86,9 @@ class dbSNP2data(object):
 							('strain_info_table', 1, ): ['ecotype', 's', 1, 'Table with info about each accession/ecotype. could be "strain_info" or "ecotype"'],\
 							('output_fname', 1, ): [None, 'o', 1, 'Output Filename'],\
 							('snp_locus_table', 1, ): ['snps', 'n', 1, 'Table with info about snps. could be "snp_locus" or "snps"'],\
-							('processing_bits', 1, ): ['00001111', 'y', 1, 'processing bits to control which processing step should be turned on.\
+							('processing_bits', 1, ): ['0000111100', 'y', 1, 'processing bits to control which processing step should be turned on.\
 								default is 10101101. for what each bit stands, see Description.' ],\
-							('db_connection_type', 1, int): [1,'m', 1, 'which type of database. 1=MySQL. 2=PostgreSQL.',],\
+							('db_connection_type', 1, int): [1, 'm', 1, 'which type of database. 1=MySQL. 2=PostgreSQL.',],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	"""
@@ -96,6 +101,8 @@ class dbSNP2data(object):
 	"""
 	def __init__(self, **keywords):
 		"""
+		2008-05-08
+			add self.output_matrix_type, self.delimiter
 		2008-04-28
 			use ProcessOptions, newer option handling class
 		2008-04-25 use new option handling
@@ -111,7 +118,7 @@ class dbSNP2data(object):
 		
 		
 		#below are all default values
-		processing_bits_ls = [0,0,0,0,1,1,1,1]
+		processing_bits_ls = [0,0,0,0,1,1,1,1, 0, 0]
 		
 		for i in range(len(self.processing_bits)):
 			processing_bits_ls[i] = int(self.processing_bits[i])
@@ -123,7 +130,14 @@ class dbSNP2data(object):
 		self.need_heterozygous_call,\
 		self.with_header_line,\
 		self.nt_alphabet,\
-		self.discard_all_NA_strain = processing_bits_ls
+		self.discard_all_NA_strain,\
+		self.output_matrix_type, \
+		self.delimiter_type = processing_bits_ls
+		
+		delimiter_dict = {0: '\t', \
+						1: ','}
+		
+		self.delimiter = delimiter_dict[self.delimiter_type]
 	
 	def get_snp_id2index(self, curs, input_table, snp_locus_table):
 		"""
@@ -273,6 +287,8 @@ class dbSNP2data(object):
 	
 	def get_strain_id_info_m(self, curs, strain_id_list, strain_info_table):
 		"""
+		2008-05-08
+			deprecated
 		2007-07-11
 			mysql version of get_strain_id_info
 		2007-09-13
@@ -317,17 +333,19 @@ class dbSNP2data(object):
 			table 'snps' and 'snps_250k' have same field names, no need to differentiate two
 		"""
 		sys.stderr.write("Getting snp_id_info ..m.")
-		snp_id2acc = {}
+		snp_id2info = {}
+		if snp_locus_table=='dbsnp.snps':
+			snp_acc_column = 'name'
+		else:
+			snp_acc_column = 'snpid'
+		#sql_sentence = "select %s, chromosome, position " + " from %s where id=%s"%(snp_locus_table, snp_id)
 		for snp_id in snp_id_list:
-			if snp_locus_table=='dbsnp.snps':
-				curs.execute("select name from %s where id=%s"%(snp_locus_table, snp_id))
-			else:
-				curs.execute("select snpid from %s where id=%s"%(snp_locus_table, snp_id))
+			curs.execute("select %s, chromosome, position from %s where id=%s"%(snp_acc_column, snp_locus_table, snp_id))
 			rows = curs.fetchall()
-			acc = rows[0][0]
-			snp_id2acc[snp_id] = acc
+			acc, chromosome, position = rows[0]
+			snp_id2info[snp_id] = (acc, chromosome, position)
 		sys.stderr.write("Done.\n")
-		return snp_id2acc
+		return snp_id2info
 	
 	def get_data_matrix(self, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call):
 		"""
@@ -536,6 +554,8 @@ class dbSNP2data(object):
 	
 	def write_data_matrix(self, data_matrix, output_fname, strain_id_list, snp_id_list, snp_id2acc, with_header_line, nt_alphabet, strain_id2acc=None, strain_id2category=None, rows_to_be_tossed_out=Set(), strain_id2other_info=None, discard_all_NA_strain=0, predefined_header_row=['strain', 'duplicate', 'latitude', 'longitude', 'nativename', 'stockparent', 'site', 'country']):
 		"""
+		2008-05-08
+			defunct use write_data_matrix from pymodule
 		2007-02-19
 			if strain_id2acc is available, translate strain_id into strain_acc,
 			if strain_id2category is available, add 'category'
@@ -660,6 +680,8 @@ class dbSNP2data(object):
 	
 	def run(self):
 		"""
+		2008-05-08
+			transpose everything if output_matrix_type=1 (bjarni's SNP matrix format)
 		2007-02-19
 			--db_connect
 			--get_snp_id2index()
@@ -689,7 +711,7 @@ class dbSNP2data(object):
 			strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, self.resolve_duplicated_calls)
 			
 			#strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
-			snp_id2acc = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
+			snp_id2info = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
 			if self.input_table == 'dbsnp.calls':
 				from variation.src.FigureOut384IlluminaABMapping import get_snps_id2mapping
 				snps_id2mapping = get_snps_id2mapping(self.hostname, dbname='dbsnp', user=self.user, passwd=self.passwd)
@@ -709,7 +731,7 @@ class dbSNP2data(object):
 			strain_id2index, strain_id_list = self.get_strain_id2index(curs, self.input_table)
 			
 			strain_id2acc, strain_id2category = self.get_strain_id_info(curs, strain_id_list, self.strain_info_table)
-			snp_id2acc = self.get_snp_id_info(curs, snp_id_list, self.snp_locus_table)
+			snp_id2info = self.get_snp_id_info(curs, snp_id_list, self.snp_locus_table)
 			data_matrix = self.get_data_matrix(curs, strain_id2index, snp_id2index, nt2number, self.input_table, self.need_heterozygous_call)
 			strain_id2other_info = None
 		
@@ -718,8 +740,46 @@ class dbSNP2data(object):
 			rows_to_be_tossed_out = Set(rows_to_be_tossed_out)
 		else:
 			rows_to_be_tossed_out = Set()
-		self.write_data_matrix(data_matrix, self.output_fname, strain_id_list, snp_id_list, snp_id2acc, self.with_header_line,\
-			self.nt_alphabet, strain_id2acc, strain_id2category, rows_to_be_tossed_out, strain_id2other_info, self.discard_all_NA_strain)
+		
+		#05/08/08
+		if self.discard_all_NA_strain:
+			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
+			rows_with_too_many_NAs_set, row_index2no_of_NAs = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(data_matrix, row_cutoff=1)
+			rows_to_be_tossed_out.update(rows_with_too_many_NAs_set)
+		
+		strain_acc_list = [strain_id2acc[strain_id] for strain_id in strain_id_list]
+		category_list = [strain_id2category[strain_id] for strain_id in strain_id_list]
+		if self.output_matrix_type==1:
+			#transpose everything
+			data_matrix = num.array(data_matrix)
+			data_matrix = num.transpose(data_matrix)
+			
+			header = ['Chromosomes', 'Positions'] + strain_acc_list
+			chromosome_ls = []
+			position_ls = []
+			for snp_id, info in snp_id2info.iteritems():
+				snp_name, chromosome, position = info
+				chromosome_ls.append(chromosome)
+				position_ls.append(position) 
+			
+			strain_acc_list = chromosome_ls
+			category_list = position_ls
+			cols_to_be_tossed_out = rows_to_be_tossed_out
+			rows_to_be_tossed_out = None
+			strain_id2other_info = None	#make up one
+		else:
+			header = ['strain', 'category']
+			for snp_id, info in snp_id2info.iteritems():
+				snp_name, chromosome, position = info
+				header.append(snp_name)
+			cols_to_be_tossed_out = None
+		
+		write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=rows_to_be_tossed_out, \
+					cols_to_be_tossed_out=cols_to_be_tossed_out, nt_alphabet=self.nt_alphabet,\
+					strain_acc2other_info=strain_id2other_info, delimiter=self.delimiter)
+		
+		#self.write_data_matrix(data_matrix, self.output_fname, strain_id_list, snp_id_list, snp_id2acc, self.with_header_line,\
+		#	self.nt_alphabet, strain_id2acc, strain_id2category, rows_to_be_tossed_out, strain_id2other_info, self.discard_all_NA_strain)
 
 		#self.sort_file(self.output_fname)
 
