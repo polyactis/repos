@@ -64,7 +64,11 @@ class FilterStrainSNPMatrix(object):
 		self.debug = int(debug)
 		self.report = int(report)
 	
-	def remove_rows_with_too_many_NAs(self, data_matrix, row_cutoff):
+	def remove_rows_with_too_many_NAs(cls, data_matrix, row_cutoff, debug=0):
+		"""
+		2008-05-08
+			become classmethod
+		"""
 		sys.stderr.write("Removing rows with too many NAs...")
 		no_of_rows, no_of_cols = data_matrix.shape
 		rows_with_too_many_NAs_set = Set()
@@ -78,12 +82,14 @@ class FilterStrainSNPMatrix(object):
 			strain_index2no_of_NAs[i] = NA_ratio
 			if NA_ratio >= row_cutoff:
 				rows_with_too_many_NAs_set.add(i)
-		if self.debug:
+		if debug:
 			print
 			print 'rows_with_too_many_NAs_set'
 			print rows_with_too_many_NAs_set
 		sys.stderr.write("%s strains removed, done.\n"%len(rows_with_too_many_NAs_set))
 		return rows_with_too_many_NAs_set, strain_index2no_of_NAs
+	
+	remove_rows_with_too_many_NAs = classmethod(remove_rows_with_too_many_NAs)
 	
 	def remove_cols_with_too_many_NAs(self, data_matrix, col_cutoff, rows_with_too_many_NAs_set):
 		sys.stderr.write("Removing columns with too many NAs...")
