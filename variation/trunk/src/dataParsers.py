@@ -30,7 +30,7 @@ accessionName2EcotypeId = {'NFA-8': '8346', 'Ei2': '8289', 'Pu27': '8362', 'Ms-0
 
 
 
-def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stock_250k", withArrayIds=False, methodId=1, user = None, passwd = None): 
+def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stock_250k", withArrayIds=False, methodId=1, user = None, passwd = None, callProb=False): 
     """
     Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
     
@@ -100,11 +100,12 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
 
     
 
+    print "Reading and processing (cutting & merging) raw call files"
     import os
     import tempfile
     tempfile.tempdir='/tmp'
     tmpFiles = []
-    print "Cutting files"
+    #Cutting files
     for i in range(0,len(dataFiles)): #Cutting the SNPs fields
         tmpFile = tempfile.mkstemp()
         os.close(tmpFile[0])
@@ -112,8 +113,8 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
         #print st
         os.system(st)
         tmpFiles.append(tmpFile[1])
-    
-    print "Merging files"
+        
+ 
     def _mergeFiles_(fileList): #A recursive function that merges the files in the list
         l = len(fileList)
         if l>2:
@@ -132,53 +133,122 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
         #print st
         os.system(st)
         return tmpFile[1]
-        
+
     
+    print "Merging files"
     fileName = _mergeFiles_(tmpFiles)  #Merge all the fields
     print fileName
-    f = open(fileName,"r")
+
+
     chromosomes = []
     positionsList = []
     snpsList = []
-
     i = 1
-    f.readline()
-    print "Starting to read file"
     newChr = int(line[0].split("_")[0])
-    while i < len(lines):
-        chromosomes.append(int(newChr))
-        oldChr = newChr
-        positions = []
-        snps =[]
-        while i < len(lines) and newChr == oldChr:
-            line = lines[i].split()
-            chrPos = line[0].split("_")
-            oldChr = int(chrPos[0])
-            positions.append(int(chrPos[1]))
-            snp = []
-            newLine = f.readline().split(",")
-            for j in range(0,len(accessions)):
-                nt = newLine[j].rstrip()
-                snp.append(nt)
-            snps.append(snp)
-            i += 1
-            if i < len(lines):
-                line = lines[i].split()
-                newChr = int(line[0].split("_")[0])
-            else:
-                break
+
+    if callProb:
+        probTmpFiles = []
+        #Cut the call probability fields
+        print "Cutting call prob. files"
+        for i in range(0,len(dataFiles)): #Cutting the SNPs fields
+            tmpFile = tempfile.mkstemp()
+            os.close(tmpFile[0])
+            st = "cut -f 3 "+str(dataFiles[i])+" > "+tmpFile[1]       
+            #print st
+            os.system(st)
+            probTmpFiles.append(tmpFile[1])
+
+        print "Merging call prob. files"
+        probFileName = _mergeFiles_(probTmpFiles)  #Merge all the fields
+        print probFileName
+        probFile = open(probFileName,"r")
+        probFile.readline()
+        callProbabilityList = []
         
-        print "Fetched ",i,"SNPs of",len(lines)
-        positionsList.append(positions)
-        snpsList.append(snps)
+        #Read file with call probabilities
+        print "Starting to read file (snps and probabilities)"
+        f = open(fileName,"r")
+        f.readline()
+        i = 1
+        while i < len(lines):
+            chromosomes.append(int(newChr))
+            oldChr = newChr
+            positions = []
+            snps =[]
+            callProbs = []
+            while i < len(lines) and newChr == oldChr:
+                line = lines[i].split()
+                chrPos = line[0].split("_")
+                oldChr = int(chrPos[0])
+                positions.append(int(chrPos[1]))
+                snp = []
+                snpProbs = []
+                newLine = f.readline().split(",")
+                newProbLine = probFile.readline().split(",")
+                for j in range(0,len(accessions)):
+                    nt = newLine[j].rstrip()
+                    prob = float(newProbLine[j].rstrip())
+                    snp.append(nt)
+                    snpProbs.append(prob)
+                snps.append(snp)
+                callProbs.append(snpProbs)
+                i += 1
+                if i < len(lines):
+                    line = lines[i].split()
+                    newChr = int(line[0].split("_")[0])
+                else:
+                    break
+        
+            print "Fetched ",i,"SNPs of",len(lines)
+            positionsList.append(positions)
+            snpsList.append(snps)
+            callProbabilityList.append(callProbs)
+        probFile.close()
+        os.system("rm "+probFileName)
+
+    else: #Without call probabilities
+        print "Starting to read file"
+        f = open(fileName,"r")
+        f.readline()
+        while i < len(lines):
+            chromosomes.append(int(newChr))
+            oldChr = newChr
+            positions = []
+            snps =[]
+            while i < len(lines) and newChr == oldChr:
+                line = lines[i].split()
+                chrPos = line[0].split("_")
+                oldChr = int(chrPos[0])
+                positions.append(int(chrPos[1]))
+                snp = []
+                newLine = f.readline().split(",")
+                for j in range(0,len(accessions)):
+                    nt = newLine[j].rstrip()
+                    snp.append(nt)
+                snps.append(snp)
+                i += 1
+                if i < len(lines):
+                    line = lines[i].split()
+                    newChr = int(line[0].split("_")[0])
+                else:
+                    break
+        
+            print "Fetched ",i,"SNPs of",len(lines)
+            positionsList.append(positions)
+            snpsList.append(snps)
         
     f.close()
     os.system("rm "+fileName)
     
 
     snpsds = []
-    for i in chromosomes:
-        snpsds.append(RawSnpsData(snpsList[i-1], positionsList[i-1], accessions=accessions, arrayIds=arrayIds))
+    if callProb:
+        for i in chromosomes:
+            snpsds.append(RawSnpsData(snpsList[i-1], positionsList[i-1], accessions=accessions, arrayIds=arrayIds, callProbabilities = callProbabilityList[i-1]))
+            print "callProbabilityList length=",len(callProbabilityList[i-1])
+    else:
+        for i in chromosomes:
+            snpsds.append(RawSnpsData(snpsList[i-1], positionsList[i-1], accessions=accessions, arrayIds=arrayIds))
     dif = int(time.time() - rt)
     print "It took "+str(dif/60)+" min. and "+str(dif%60)+" sec. to fetch data."
     return snpsds
@@ -497,6 +567,93 @@ def parseCSVData(datafile, format=1, deliminator=", ", missingVal='NA', withArra
             snpsds[i] = snpsds[i].getSnpsData()
     print ""
     return(snpsds)
+
+
+def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
+    """
+    Parses raw CSV SNPs data files into a RawSnpsData.
+
+    format=1: the function return a RawSnpsData object list
+    format=0: the function return a SnpsData object list
+    """
+    print "Loading file:",datafile
+    decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T'}
+    
+    positions = [] #list[chr][position_index]
+    genotypes = [] #list[chr][position_index][acces]
+    accessions = []
+    
+    #Reading column data
+    f = open(datafile, 'r')
+    lines = f.readlines()
+    f.close()
+    numLines = len(lines)
+    f = open(datafile, 'r')
+    probFile = open(callProbFile, 'r')
+    
+    chromosomes = []
+    positionsList = []
+    snpsList = []
+    accessions = []
+    callProbList = []
+    arrayIds = None
+    i=0
+    if withArrayIds:
+        line = (f.readline()).split(deliminator)
+        probFile.readline()
+        arrayIds = []
+        for arrayId in line[2:]:
+            arrayIds.append(arrayId.rstrip())
+        i += 1
+    line = (f.readline()).split(deliminator)
+    probFile.readline()
+    for acc in line[2:]:
+        accessions.append(acc.rstrip())
+    i += 1
+    
+    newChr = lines[3].split(deliminator)[0]
+    while i < numLines:
+        chromosomes.append(int(newChr))
+        oldChr = newChr
+        positions = []
+        snps =[]
+        probsList = []
+        while i < numLines and newChr == oldChr:
+            line = (f.readline()).split(deliminator)
+            probLine = (probFile.readline()).split(deliminator)
+            oldChr = int(line[0])
+            positions.append(int(line[1]))
+            snp = []
+            probs = []
+            for j in range(2,len(line)):
+                nt = line[j]
+                snp.append(decoder[nt.rstrip()])
+                probs.append(float(probLine[j]))
+            snps.append(snp)
+            probsList.append(probs)
+            i += 1
+            if i < numLines:
+                line = lines[i].split(deliminator)
+                newChr = int(line[0])
+            else:
+                break
+        
+        print "Loaded", i, "of", len(lines), "SNPs."
+        positionsList.append(positions)
+        snpsList.append(snps)
+        callProbList.append(probsList)
+    f.close()
+    probFile.close()
+    
+    snpsds = []
+    for i in range(0,len(chromosomes)):
+        snpsds.append(RawSnpsData(snpsList[i],positionsList[i],accessions=accessions,arrayIds=arrayIds,callProbabilities=callProbList[i]))
+    if format==0:
+        for i in range(0,len(chromosomes)):
+            snpsds[i] = snpsds[i].getSnpsData()
+    print ""
+    return(snpsds)
+
 
 
 def parse2010Data(datafile=None):

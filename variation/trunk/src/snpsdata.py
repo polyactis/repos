@@ -49,6 +49,19 @@ class RawSnpsData(_SnpsData_):
     Alphabet: A,C,G,T, and NA
 
     """
+    callProbabilities = []  #list[position_index][accession_index]
+
+    def __init__(self,snps,positions,baseScale=None,accessions=None,arrayIds=None, callProbabilities=None):
+        self.snps = snps
+        self.positions = positions
+        if accessions: 
+            self.accessions=accessions
+        if arrayIds: 
+            self.arrayIds=arrayIds
+        if callProbabilities:
+            self.callProbabilities = callProbabilities
+
+
     
     def writeToFile(self,filename,chromosome, withArrayId=False):
         """
@@ -509,7 +522,35 @@ class RawSnpsData(_SnpsData_):
         self.positions = newPositions
         
 
+    def convertBadCallsToNA(self,minCallProb=0):
+        """
+        Converts all base calls with call prob. lower than the given one to NAs.
+        """
+        totalCount = len(self.positions)*len(self.snps[0])
+        count = 0
+        for i in range(0,len(self.positions)):
+            for j in range(0,len(self.snps[i])):
+                if self.callProbabilities[i][j]<minCallProb:
+                    self.snps[i][j] = 'NA'
+                    count += 1
+        fractionConverted = count/float(totalCount)
+        return fractionConverted
+        
 
+
+    def countMissingSnps(self):
+        """
+        Returns a list of accessions and their missing value rates.
+        """
+        missingCounts = 0
+        totalCounts = 0
+        for i in range(0,len(self.positions)):
+            for j in range(0,len(self.accessions)):
+                totalCounts +=1
+                if self.snps[i][j]=='NA':
+                    missingCounts += 1
+        
+        return missingCounts/float(totalCounts)
 
 
     def filterMissingSnps(self,maxNumMissing=0):
@@ -893,7 +934,7 @@ class SnpsData(_SnpsData_):
         return [ehh,ehhcount]
 
 
-def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False):
+def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False, callProbFile=None):
     """
     Writes data to a file. 
     """
@@ -934,6 +975,31 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
     f = open(filename,"w")
     f.write(outStr)
     f.close()
+
+    if callProbFile:
+        if withArrayIds:
+            outStr = "-, -, "+", ".join(snpsds[0].arrayIds)+"\n"
+        else:
+            outStr = ""
+        f = open(callProbFile,"w")
+        outStr += deliminator.join(fieldStrings)+"\n"
+        f.write(outStr)
+        f.flush()
+        for i in range(0,len(chromosomes)):
+            outStr = ""
+            snpsd = snpsds[i]
+            snpsds[i] = []
+            for j in range(0,len(snpsd.positions)):
+                outStr += str(chromosomes[i])+deliminator+str(snpsd.positions[j])
+                for k in range(0, len(snpsd.accessions)):
+                    outStr += deliminator+str(snpsd.callProbabilities[j][k])
+                outStr +="\n"
+            del snpsd
+            f.write(outStr)
+            f.flush()
+        f.close()
+
+
 
 
 def estimateRecomb(snpsdList,baseNum,filterProb,id):

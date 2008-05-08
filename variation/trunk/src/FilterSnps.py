@@ -10,8 +10,11 @@ Option:
 	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info, 2 if comparison file also.
 	--maxError=...              maximum allowed error percentage (requires a comparison file).
         --comparisonFile=...        a file which is used to claculate the SNPs error.
+        --callProbFile=...          a csv file with call probabilities.
 	--maxMissing=...            maximum allowed missing percentage.
 	--monomorphic               filter monomorphic SNPs.
+	--minCallProb=...           minimum allowed call probability. SNPs below the threshold are set to NA. (Requires a callProbFile file.)
+	--minAverageCallProb=...    minimum allowed average call probability. Bad SNPs are removed. (Requires a callProbFile file.)
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -33,7 +36,7 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
+	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minAverageCallProb=", "minCallProb=", "debug", "report", "help"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
 
@@ -56,6 +59,9 @@ def _run_():
 	report = None
 	help = 0
 	withArrayIds = 0
+	minCallProb=None
+	minAverageCallProb=None
+	callProbFile = None
 
 	
 	for opt, arg in opts:
@@ -72,6 +78,12 @@ def _run_():
 			maxMissing = float(arg)
 		elif opt in ("--monomorphic"):
 			monomorphic = True
+		elif opt in ("--minCallProb"):
+			minCallProb = float(arg)
+		elif opt in ("--minAverageCallProb"):
+			minAverageCallProb = float(arg)
+		elif opt in ("--callProbFile"):
+			callProbFile = arg
 		elif opt in ("-o",):
 			output_fname = arg
 		elif opt in ("-d","--delim"):
@@ -99,7 +111,11 @@ def _run_():
 	waid2 = withArrayIds==2
 
 	import dataParsers
-	snpsds = dataParsers.parseCSVData(inputFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
+	if callProbFile and (minCallProb or minAverageCallProb):
+		#Read prob file into SNPsdatas.
+		snpsds = dataParsers.parseCSVDataWithCallProb(inputFile, callProbFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
+	else:
+		snpsds = dataParsers.parseCSVData(inputFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
 	
         #Filtering monomorphic
 	if monomorphic:
@@ -117,11 +133,17 @@ def _run_():
 
 	#Filtering bad SNPs
 	if comparisonFile and maxError<1.0:
-		print "Filtering bad SNPs"
+		print "Filtering erroneous SNPs, with maxError=",maxError
 		snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
 		for i in range(0,len(snpsds)):
 			snpsds[i].filterBadSnps(snpsds2[i],maxError)
-		
+			
+	#Converting lousy calls to NAs
+	if callProbFile and minCallProb:
+		print "Converting base calls with call prob. lower than",minCallProb,"to NAs"
+		for i in range(0,len(snpsds)):
+			print "Fraction converted =",snpsds[i].convertBadCallsToNA(minCallProb)
+
 	import snpsdata
 	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 

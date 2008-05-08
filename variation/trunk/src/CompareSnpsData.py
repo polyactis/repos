@@ -88,9 +88,18 @@ def _run_():
 		raise Exception("Unequal number of chromosomes in files.")
         
         res = []
-        for i in range(0,len(snpsds1)):
+        naRate1 = 0
+        naRate2 = 0
+	numSNPs = 0
+	for i in range(0,len(snpsds1)):
 		res.append(snpsds1[i].compareWith(snpsds2[i],withArrayIds=withArrayIds))
-        
+		numSNPs += len(snpsds1[i].positions)
+		naRate1 += snpsds1[i].countMissingSnps()*len(snpsds1[i].positions)
+		naRate2 += snpsds2[i].countMissingSnps()*len(snpsds2[i].positions)
+
+	naRate1 = naRate1/float(numSNPs)
+	naRate2 = naRate2/float(numSNPs)
+
 	import rfun
 	totalCommonPos = 0
 	totalAccessionCounts = [0]*len(res[0][2])
@@ -136,11 +145,12 @@ def _run_():
 		statstr += "#ArrayIds:\n"
 		statstr += str(res[0][5])+'\n'
 
-
         if not verbose:
 		print "In all",len(res[0][2]),"common accessions found"
 		print "In all",totalCommonPos,"common snps found"
 		print "Average Snp Error:",sum(snpsErrorRate)/float(len(snpsErrorRate))
+		print "NA rate (1) =",naRate1
+		print "NA rate (2) =",naRate2
 
 
 	for i in range(0,len(res)):

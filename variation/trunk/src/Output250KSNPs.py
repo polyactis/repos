@@ -11,6 +11,7 @@ Option:
         -d ..., --delim=...         default is ", "      
         -m ..., --missingval=...    default is "NA"
 	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info.
+        --callProbFile=...,	output call probabilities in a file
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -31,7 +32,7 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["hostname=", "user=", "passwd=", "method=", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
+	long_options_list = ["hostname=", "user=", "passwd=", "method=", "delim=", "missingval=", "withArrayId=", "callProbFile=", "debug", "report", "help"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "z:u:p:o:t:d:m:a:brh", long_options_list)
 
@@ -53,6 +54,7 @@ def _run_():
 	report = None
 	help = 0
 	withArrayId = False
+	callProbFile = None
 
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -74,6 +76,8 @@ def _run_():
 			missingVal = arg	
 		elif opt in ("-a","--withArrayId"):
 			withArrayId = bool(arg)
+		elif opt in ("--callProbFile"):
+			callProbFile =arg
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
@@ -88,10 +92,13 @@ def _run_():
 
 
 	import dataParsers
-	snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId)
-	
 	import snpsdata
-	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds=withArrayId)
+	if callProbFile:
+		snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId, callProb=True)
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds=withArrayId, callProbFile=callProbFile)
+	else:
+		snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId)
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds=withArrayId)
 
 
 if __name__ == '__main__':
