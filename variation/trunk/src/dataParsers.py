@@ -498,7 +498,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     return snpsds
 
 
-def parseCSVData(datafile, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
+def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False):
     """
     Parses raw CSV SNPs data files into a RawSnpsData.
 
@@ -571,7 +571,7 @@ def parseCSVData(datafile, format=1, deliminator=", ", missingVal='NA', withArra
     return(snpsds)
 
 
-def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=", ", missingVal='NA', withArrayIds=False):
+def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=",", missingVal='NA', withArrayIds=False):
     """
     Parses raw CSV SNPs data files into a RawSnpsData.
 
