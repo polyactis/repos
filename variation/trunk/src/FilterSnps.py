@@ -157,10 +157,10 @@ def filterByError(snpsds,comparisonSnpsds,maxError):
 
 def filterByNA(snpsds,maxMissing):
         #Filtering bad SNPs
-	print "Filtering SNPs with missing values"
+	sys.stderr.write("Filtering SNPs with missing values ...\n")
 	numAccessions = len(snpsds[0].accessions)
 	for snpsd in snpsds:
-		print "Removed", str(snpsd.filterMissingSnps(int(maxMissing*numAccessions))),"Snps"
+		sys.stderr.write("Removed " + str(snpsd.filterMissingSnps(int(maxMissing*numAccessions))) + " Snps.\n")
 	return snpsds
 
 def filterMonomorphic(snpsds):
