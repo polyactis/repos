@@ -109,7 +109,7 @@ def _run_():
 	
 	
         if len(snpsds1) != len(snpsds2):
-            raise Exception("Unequal number of chromosomes.")
+		raise Exception("Unequal number of chromosomes.")
         
 	import snpsdata
 	if union==0 and intersection==0:
@@ -130,9 +130,30 @@ def _run_():
 
 
 	
+def merge(snpsds1,snpsds2,unionType=0,priority=1):
+        if len(snpsds1) != len(snpsds2):
+		raise Exception("Unequal number of chromosomes.")
+        
+	import snpsdata
+	if unionType==0:
+		for i in range(0,len(snpsds1)):
+			snpsds1[i].mergeData(snpsds2[i],priority=priority)
+	elif unionType>0 and unionType<4:
+		for i in range(0,len(snpsds1)):
+			snpsds1[i].mergeDataUnion(snpsds2[i], priority=priority, unionType=unionType)
+	else:
+		print "The union option used are wrong!!\n"
+	return snpsds1
 
 
+
+def _test_():
+        import dataParsers
+	snpsds1 = dataParsers.parseCSVData("149_v1.csv", deliminator=",")
+        snpsds2 = dataParsers.parseCSVData("384.csv", deliminator=",")	
+	merge(snpsds1,snpsds2,unionType=1,priority=1)
+	print snpsds1[0].positions
 
 if __name__ == '__main__':
 	_run_()
-
+	#_test_()

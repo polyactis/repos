@@ -111,7 +111,7 @@ def _run_():
         sys.exit(2)
 
     waid1 = withArrayIds==1 or withArrayIds==2
-    waid2 = withArrayIds==2
+    waid2 = withArrayIds==2 #or withArrayIds==0
 
     import dataParsers
     snpsds = dataParsers.parseCSVData(inputFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)

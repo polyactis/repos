@@ -90,15 +90,17 @@ def _run_():
         res = []
         naRate1 = 0
         naRate2 = 0
-	numSNPs = 0
+	numSNPs1 = 0
+	numSNPs2 = 0
 	for i in range(0,len(snpsds1)):
 		res.append(snpsds1[i].compareWith(snpsds2[i],withArrayIds=withArrayIds))
-		numSNPs += len(snpsds1[i].positions)
+		numSNPs1 += len(snpsds1[i].positions)
+		numSNPs2 += len(snpsds2[i].positions)
 		naRate1 += snpsds1[i].countMissingSnps()*len(snpsds1[i].positions)
 		naRate2 += snpsds2[i].countMissingSnps()*len(snpsds2[i].positions)
 
-	naRate1 = naRate1/float(numSNPs)
-	naRate2 = naRate2/float(numSNPs)
+	naRate1 = naRate1/float(numSNPs1)
+	naRate2 = naRate2/float(numSNPs2)
 
 	import rfun
 	totalCommonPos = 0

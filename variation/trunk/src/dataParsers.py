@@ -506,7 +506,8 @@ def parseCSVData(datafile, format=1, deliminator=", ", missingVal='NA', withArra
     format=0: the function return a SnpsData object list
     """
     print "Loading file:",datafile
-    decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T'}
+    decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T', 
+             'AG':'NA', 'AC':'NA', 'GT':'NA', 'CT':'NA', 'AT':'NA', 'CG':'NA'}
     
     positions = [] #list[chr][position_index]
     genotypes = [] #list[chr][position_index][acces]
@@ -527,11 +528,11 @@ def parseCSVData(datafile, format=1, deliminator=", ", missingVal='NA', withArra
         line = lines[i].split(deliminator)
         arrayIds = []
         for arrayId in line[2:]:
-            arrayIds.append(arrayId.rstrip())
+            arrayIds.append(arrayId.strip())
         i += 1
     line = lines[i].split(deliminator)
     for acc in line[2:]:
-        accessions.append(acc.rstrip())
+        accessions.append(acc.strip())
     i += 1
     line = lines[i].split(deliminator)
     newChr = line[0]
@@ -542,11 +543,12 @@ def parseCSVData(datafile, format=1, deliminator=", ", missingVal='NA', withArra
         snps =[]
         while i < len(lines) and newChr == oldChr:
             line = lines[i].split(deliminator)
+            #print line
             oldChr = int(line[0])
             positions.append(int(line[1]))
             snp = []
             for nt in line[2:]:
-                snp.append(decoder[nt.rstrip()])
+                snp.append(decoder[(nt.strip())])
             snps.append(snp)
             i += 1
             if i < len(lines):
@@ -603,12 +605,12 @@ def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=", ",
         probFile.readline()
         arrayIds = []
         for arrayId in line[2:]:
-            arrayIds.append(arrayId.rstrip())
+            arrayIds.append(arrayId.strip())
         i += 1
     line = (f.readline()).split(deliminator)
     probFile.readline()
     for acc in line[2:]:
-        accessions.append(acc.rstrip())
+        accessions.append(acc.strip())
     i += 1
     
     newChr = lines[3].split(deliminator)[0]
@@ -627,7 +629,7 @@ def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=", ",
             probs = []
             for j in range(2,len(line)):
                 nt = line[j]
-                snp.append(decoder[nt.rstrip()])
+                snp.append(decoder[nt.strip()])
                 probs.append(float(probLine[j]))
             snps.append(snp)
             probsList.append(probs)
@@ -680,10 +682,10 @@ def parse2010Data(datafile=None):
     f = open(datafile, 'r')
     lines = f.readlines()
     f.close()
-    for chr in (lines[0].rstrip()).split(",")[1:]:
+    for chr in (lines[0].strip()).split(",")[1:]:
         chromosomes.append(int(chr)-1)
     
-    line = (lines[1].rstrip()).split(",")[1:]
+    line = (lines[1].strip()).split(",")[1:]
     for i in range(0,len(chromosomes)):
         positions[chromosomes[i]].append(int(line[i]))
 
@@ -696,7 +698,7 @@ def parse2010Data(datafile=None):
 
     accessions = []
     for i in range(2,len(lines)):
-        line = (lines[i].rstrip()).split(",")
+        line = (lines[i].strip()).split(",")
         accessions.append(line[0])
         line = line[1:]
         for j in range(0,5):
@@ -785,9 +787,9 @@ def parse250DataRaw(imputed = True):
     f.close()
     for line in lines:
         if imputed:
-            acc = line.rstrip()
+            acc = line.strip()
         else:
-            acc = (line.rstrip().split("."))[1]            
+            acc = (line.strip().split("."))[1]            
         accessions.append(accessionName2Id[accessions250To2010[acc]])
 
     #Reading row data
@@ -797,11 +799,11 @@ def parse250DataRaw(imputed = True):
     positions = [[],[],[],[],[]] #1 list per chromasome
     for line in lines:
         if imputed:
-            l = line.rstrip().split(".")
+            l = line.strip().split(".")
             chr = int(l[0])
             pos = int(l[1])
         else:
-            pos = int(line.rstrip())
+            pos = int(line.strip())
             chr = pos/100000000
             pos = pos%100000000
         positions[chr-1].append(pos)
@@ -812,7 +814,7 @@ def parse250DataRaw(imputed = True):
     for i in range(0,5):
         for p in positions[i]:
             line = f.readline()
-            l = (line.rstrip()).split(",")
+            l = (line.strip()).split(",")
             if l == []:
                 raise Exception("Data problem") 
             rawgenotypes[i].append(l)

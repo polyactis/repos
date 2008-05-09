@@ -100,6 +100,7 @@ class RawSnpsData(_SnpsData_):
         newAccessions = []
         accessionsIndices = []
         commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
+        commonPositions = list(set(self.positions).intersection(set(snpsd.positions)))
         allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
         
         if unionType==2 or unionType==3:
@@ -119,6 +120,7 @@ class RawSnpsData(_SnpsData_):
             
         print "Number of common accessions:", len(commonAccessions)
         print "Total number of accessions:",len(allAccessions)
+        print "Number of common Snps:",len(commonPositions)
         #print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
         #print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
             
@@ -552,6 +554,22 @@ class RawSnpsData(_SnpsData_):
         
         return missingCounts/float(totalCounts)
 
+    def getSnpsNArates(self):
+        """
+        Returns a list of accessions and their missing value rates.
+        """
+        naRates = []
+        for i in range(0,len(self.positions)):
+            missingCounts = 0
+            totalCounts = 0
+            for j in range(0,len(self.accessions)):
+                totalCounts +=1
+                if self.snps[i][j]=='NA':
+                    missingCounts += 1
+            naRates.append(missingCounts/float(totalCounts))
+                    
+        return naRates
+
 
     def filterMissingSnps(self,maxNumMissing=0):
         """
@@ -932,6 +950,85 @@ class SnpsData(_SnpsData_):
             else:
                 break
         return [ehh,ehhcount]
+
+#SnpsDataSet
+class SnpsDataSet:
+    """
+    A class that encompasses multiple _SnpsData_ chromosomes objects (chromosomes), and can deal with them as a whole.
+
+    This object should eventually overtake 
+    """
+    snpsDataList = None
+    chromosomes = None
+    accessions = None
+
+    def __init__(self,snpsds,chromosomes):
+        accessions = self.SnpsDataList[0].accessions
+        for i in range(1,len(self.chromosomes)):
+            if accessions != self.SnpsDataList[i].accessions:
+                raise Exception("Accessions are different between SNPs datas")
+
+    def writeToFile(self, filename, deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False, callProbFile=None):
+        """
+        Writes data to a file. 
+        """
+    
+        print "Writing data to file:",filename
+        numSnps = 0
+        for i in range(0,len(self.chromosomes)):
+            numSnps += len(self.SnpsDataList[i].positions)
+        
+       
+        
+        decoder = RawDecoder()
+        decoder['NA']=missingVal
+
+        #outStr = "NumSnps: "+str(numSnps)+", NumAcc: "+str(len(accessions))+"\n"
+        if withArrayIds:
+            outStr = "-, -, "+", ".join(self.SnpsDataList[0].arrayIds)+"\n"
+        else:
+            outStr = ""
+        fieldStrings = ["Chromosome", "Positions"]
+        if accDecoder:
+            for acc in self.SnpsDataList[i].accessions:
+                fieldStrings.append(str(accDecoder[acc]))
+        else:
+            for acc in self.SnpsDataList[i].accessions:
+                fieldStrings.append(str(acc))
+        outStr += deliminator.join(fieldStrings)+"\n"
+        for i in range(0,len(self.chromosomes)):
+            for j in range(0,len(self.SnpsDataList[i].positions)):
+                outStr += str(self.chromosomes[i])+deliminator+str(self.SnpsDataList[i].positions[j])
+                for k in range(0, len(self.SnpsDataList[0].accessions)):
+                    outStr += deliminator+decoder[self.SnpsDataList[i].snps[j][k]]
+                outStr +="\n"
+        f = open(filename,"w")
+        f.write(outStr)
+        f.close()
+
+        if callProbFile:
+            if withArrayIds:
+                outStr = "-, -, "+", ".join(self.SnpsDataList[0].arrayIds)+"\n"
+            else:
+                outStr = ""
+            f = open(callProbFile,"w")
+            outStr += deliminator.join(fieldStrings)+"\n"
+            f.write(outStr)
+            f.flush()
+            for i in range(0,len(self.chromosomes)):
+                outStr = ""
+                snpsd = self.SnpsDataList[i]
+                self.SnpsDataList[i] = []
+                for j in range(0,len(snpsd.positions)):
+                    outStr += str(self.chromosomes[i])+deliminator+str(snpsd.positions[j])
+                    for k in range(0, len(snpsd.accessions)):
+                        outStr += deliminator+str(snpsd.callProbabilities[j][k])
+                    outStr +="\n"
+                del snpsd
+                f.write(outStr)
+                f.flush()
+            f.close()
+
 
 
 def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False, callProbFile=None):
