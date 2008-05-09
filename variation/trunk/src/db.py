@@ -79,12 +79,6 @@ class Stock_250kDatabase(Database):
 		self.tables = {}
 		self.mappers = {}
 		self._engine = None
-		
-	@property
-	def _url(self):
-		return URL(drivername=self.drivername, username=self.username,
-				   password=self.password, host=self.hostname,
-				   port=self.port, database=self.database)
 	
 	def _setup_tables(self, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
