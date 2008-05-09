@@ -148,7 +148,38 @@ def _run_():
 	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 
 
+def filterByError(snpsds,comparisonSnpsds,maxError):
+        #Filtering bad SNPs
+	print "Filtering erroneous SNPs, with maxError=",maxError
+	for i in range(0,len(snpsds)):
+		snpsds[i].filterBadSnps(comparisonSnpsds[i],maxError)
+	return snpsds
+
+def filterByNA(snpsds,maxMissing):
+        #Filtering bad SNPs
+	print "Filtering SNPs with missing values"
+	numAccessions = len(snpsds[0].accessions)
+	for snpsd in snpsds:
+		print "Removed", str(snpsd.filterMissingSnps(int(maxMissing*numAccessions))),"Snps"
+	return snpsds
+
+def filterMonomorphic(snpsds):
+        #Filtering monomorphic
+        print "Filtering monomorphic SNPs"
+	for snpsd in snpsds:
+		print "Removed", str(snpsd.filterMonoMorphicSnps()),"Snps"
+	return snpsds
+
+def _test1_():
+	import dataParsers
+	snpsds = dataParsers.parseCSVData("2010_v3.csv")
+	#snpsds = dataParsers.parseCSVData("250K_m3.csv",withArrayIds=1)
+	#comparisonSnpsds = dataParsers.parseCSVData("2010_v3.csv")
+	filterMonomorphic(snpsds)
+
+
 if __name__ == '__main__':
+	#_test1_()
 	_run_()
 
 
