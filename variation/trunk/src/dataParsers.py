@@ -3,7 +3,7 @@ This library offers functions to parse different types of SNPs data from multipl
 
 Bjarni Vilhjalmsson, bvilhjal@usc.edu
 """
-import time 
+import time, sys
 import MySQLdb
 
 from snpsdata import *
@@ -505,7 +505,7 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
     format=1: the function return a RawSnpsData object list
     format=0: the function return a SnpsData object list
     """
-    print "Loading file:",datafile
+    sys.stderr.write("Loading file: %s ... \n"%datafile)
     decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T', 
              'AG':'NA', 'AC':'NA', 'GT':'NA', 'CT':'NA', 'AT':'NA', 'CG':'NA'}
     
@@ -557,7 +557,7 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
             else:
                 break
         
-        print "Loaded", i, "of", len(lines), "SNPs."
+        sys.stderr.write("Loaded %s of %s SNPs.\n"%(i, len(lines)))
         positionsList.append(positions)
         snpsList.append(snps)
 
@@ -567,7 +567,7 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
     if format==0:
         for i in range(0,len(chromosomes)):
             snpsds[i] = snpsds[i].getSnpsData()
-    print ""
+    sys.stderr.write( "\n")
     return(snpsds)
 
 
@@ -578,7 +578,7 @@ def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=",", 
     format=1: the function return a RawSnpsData object list
     format=0: the function return a SnpsData object list
     """
-    print "Loading file:",datafile
+    sys.stderr.write("Loading file: %s ...\n"%datafile)
     decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T'}
     
     positions = [] #list[chr][position_index]
@@ -639,8 +639,7 @@ def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=",", 
                 newChr = int(line[0])
             else:
                 break
-        
-        print "Loaded", i, "of", len(lines), "SNPs."
+        sys.stderr.write("Loaded %s of %s SNPs.\n"%(i, len(lines)))
         positionsList.append(positions)
         snpsList.append(snps)
         callProbList.append(probsList)
@@ -653,7 +652,7 @@ def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=",", 
     if format==0:
         for i in range(0,len(chromosomes)):
             snpsds[i] = snpsds[i].getSnpsData()
-    print ""
+    sys.stderr.write( "\n")
     return(snpsds)
 
 
