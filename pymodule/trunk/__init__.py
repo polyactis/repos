@@ -277,7 +277,7 @@ class ProcessOptions(object):
 		self.std_option_default_dict = std_option_default_dict
 		self.getopt_ready = 1
 	
-	@property
+	#@property	not in 2.3
 	def program_doc(self):
 		"""
 		2008-05-02
@@ -337,8 +337,10 @@ class ProcessOptions(object):
 		program_doc += '\n'.join(argument_list_str_ls)
 		program_doc += '\n'
 		return program_doc
-		
-	@property
+	
+	program_doc = property(program_doc)
+	
+	#@property
 	def long_option2value(self):
 		#handle options
 		if self.getopt_ready==0:
@@ -375,7 +377,8 @@ class ProcessOptions(object):
 			sys.exit(2)
 		"""
 		return opts_dict
-	
+	long_option2value = property(long_option2value)
+
 	def process_function_arguments(cls, keywords, argument_default_dict, error_doc='', class_to_have_attr=None, howto_deal_with_required_none=1):
 		"""
 		2008-05-06
