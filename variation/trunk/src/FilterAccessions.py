@@ -121,16 +121,14 @@ def _run_():
 
     #Retrieve comparison list of accessions.  (Error rates for accessions)
     if (removeIdentical or maxError<1.0) and comparisonFile:
-        print("Loading comparison file:")
-        sys.stdout.flush()
+        sys.stderr.write("Loading comparison file:")
         snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
         res = []
-        sys.stdout.write("Comparing accessions.")
+        sys.stderr.write("Comparing accessions.")
         for i in range(0,len(snpsds)):
             res.append(snpsds[i].compareWith(snpsds2[i],withArrayIds=withArrayIds,verbose=False))
-            sys.stdout.write(".")
-            sys.stdout.flush()
-        print ""
+            sys.stderr.write(".")
+        sys.stderr.write("\n")
 
         totalAccessionCounts = [0]*len(res[0][2])
 	accErrorRate = [0]*len(res[0][2])
@@ -243,12 +241,10 @@ def _run_():
         
 
     numAccessions = len(snpsds[0].accessions)
-    sys.stdout.write("Removing accessions.")
-    sys.stdout.flush()
+    sys.stderr.write("Removing accessions.")
     for snpsd in snpsds:
         snpsd.removeAccessions(accessionsToRemove,arrayIds=arraysToRemove)
-        sys.stdout.write(".")
-        sys.stdout.flush()
+        sys.stderr.write(".")
     print "\n", (numAccessions-len(snpsds[0].accessions)), "accessions out of "+str(numAccessions)+" were removed."
         
 
@@ -285,11 +281,10 @@ def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1):
     arraysToRemove = None
 
     res = []
-    sys.stdout.write("Comparing accessions.")
+    sys.stderr.write("Comparing accessions.")
     for i in range(0,len(snpsds)):
         res.append(snpsds[i].compareWith(comparisonSnpsds[i],withArrayIds=withArrayIds,verbose=False))
-        sys.stdout.write(".")
-        sys.stdout.flush()
+        sys.stderr.write(".")
     print ""
 
     totalAccessionCounts = [0]*len(res[0][2])
@@ -327,12 +322,12 @@ def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1):
 
     #Remove accessions
     numAccessions = len(snpsds[0].accessions)
-    sys.stdout.write("Removing accessions.")
-    sys.stdout.flush()
+    sys.stderr.write("Removing accessions.")
+    sys.stderr.flush()
     for snpsd in snpsds:
         snpsd.removeAccessions(accessionsToRemove,arrayIds=arraysToRemove)
-        sys.stdout.write(".")
-        sys.stdout.flush()
+        sys.stderr.write(".")
+        sys.stderr.flush()
     print "\n", (numAccessions-len(snpsds[0].accessions)), "accessions out of "+str(numAccessions)+" were removed."
     return snpsds
 
@@ -374,13 +369,11 @@ def filterByNA(snpsds,maxMissing,withArrayIds=1):
                 accessionsToRemove.append(ecotype)
 
     numAccessions = len(snpsds[0].accessions)
-    sys.stdout.write("Removing accessions.")
-    sys.stdout.flush()
+    sys.stderr.write("Removing accessions.")
     for snpsd in snpsds:
         snpsd.removeAccessions(accessionsToRemove,arrayIds=arraysToRemove)
-        sys.stdout.write(".")
-        sys.stdout.flush()
-    print "\n", (numAccessions-len(snpsds[0].accessions)), "accessions out of "+str(numAccessions)+" were removed."
+        sys.stderr.write(".")
+    sys.stderr.write("\n%s"%(numAccessions-len(snpsds[0].accessions)) + "accessions out of "+str(numAccessions)+" were removed.\n")
 
     return snpsds
 
