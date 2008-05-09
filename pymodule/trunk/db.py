@@ -52,11 +52,12 @@ class Database(object):
 		self.mappers = {}
 		self._engine = None
 		
-	@property
+	#@property
 	def _url(self):
 		return URL(drivername=self.drivername, username=self.username,
 				   password=self.password, host=self.hostname,
 				   port=self.port, database=self.database)
+	_url = property(_url)
 	
 	def _setup_tables(self, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
@@ -75,9 +76,10 @@ class Database(object):
 		"""
 		pass
 	
-	@property
+	#@property
 	def _engine_properties(self):
 		return {}
+	_engine_properties = property(_engine_properties)
 	
 	def invalidate(self):
 		self._initialize_engine()
@@ -85,7 +87,7 @@ class Database(object):
 	# IDatabase implementation - code using (not setting up) the database
 	# uses this
 	
-	@property
+	#@property
 	def session(self):
 		if getattr(self._threadlocal, 'session', None) is None:
 			# Without this, we may not have mapped things properly, nor
@@ -94,17 +96,19 @@ class Database(object):
 			ignore = self.engine
 			self._threadlocal.session = Session()
 		return self._threadlocal.session
+	session = property(session)
 	
-	@property
+	#@property
 	def connection(self):
 		return self.engine.contextual_connect()
 	
-	@property
+	#@property
 	def engine(self):
 		if self._engine is None:
 			self._initialize_engine()
 		
 		return self._engine
+	engine = property(engine)
 	
 	# Helper methods
 	
