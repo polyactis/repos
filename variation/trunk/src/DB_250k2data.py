@@ -58,7 +58,7 @@ class DB_250k2Data(object):
 			deprecated, too much memory
 		"""
 		sys.stderr.write("Getting snps_with_best_QC_ls ... ")
-		snps_ls = db.session.query(SNPs).options(sqlalchemy.orm.eagerload('snps_QC')).join('snps_QC').filter(db.tables['snps_QC'].c.call_method_id==call_method_id).all()
+		snps_ls = db.session.query(SNPs).options(sqlalchemy.orm.eagerload('snps_qc')).join('snps_qc').filter(db.tables['snps_qc'].c.call_method_id==call_method_id).all()
 		
 		snps_with_best_QC_ls = []
 		no_of_entries = len(snps_ls)
@@ -94,7 +94,7 @@ class DB_250k2Data(object):
 		sys.stderr.write("Getting snps_name_set ... \n")
 		snps_name_set = set()
 		s = db.tables['snps'].alias()
-		q = db.tables['snps_QC'].alias()
+		q = db.tables['snps_qc'].alias()
 		sql_sentence = sqlalchemy.sql.select([s.c.id, s.c.name, q.c.NA_rate, q.c.mismatch_rate, q.c.no_of_non_NA_pairs], s.c.id==q.c.snps_id, order_by=[s.c.id])
 		
 		block_size = 5000
