@@ -87,13 +87,44 @@ class TwoSNPData(QualityControl):
 								('snp_locus_table_149snp', 0, ): 'stock.snps',\
 								('QC_method_id', 1, int):1,\
 								('user', 0,): '',\
-								('columns_to_be_selected', 0, ):'s1.name, s2.snpid'}
+								('columns_to_be_selected', 0, ):'s1.name, s2.snpid',\
+								('row_id_matching_type', 0, int): 1}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		if self.QC_method_id!=3 and self.QC_method_id!=7:	#149SNP uses snpid
 			self.columns_to_be_selected = 's1.name, s2.name'
 		self.update_row_col_matching()
+		
+		get_row_matching_dstruc_dict = {1: self.get_row_matching_dstruc_by_category,\
+			2: self.get_row_matching_dstruc_by_strain_acc}
+		
+		self.get_row_matching_dstruc = get_row_matching_dstruc_dict[self.row_id_matching_type]
 	
-	def get_row_matching_dstruc(self, strain_acc_list1, category_list1, strain_acc_list2):
+	def get_row_matching_dstruc_by_strain_acc(self, strain_acc_list1, category_list1, strain_acc_list2):
+		"""
+		2008-05-09
+		"""
+		sys.stderr.write("Getting row matching dstruc ...\n")
+		strain_acc2row_index1 = {}
+		for i in range(len(strain_acc_list1)):
+			strain_acc = int(strain_acc_list1[i])
+			strain_acc2row_index1[strain_acc] = i
+		
+		strain_acc2row_index2 = {}
+		for i in range(len(strain_acc_list2)):
+			strain_acc = strain_acc_list2[i]
+			ecotypeid = int(strain_acc)
+			strain_acc2row_index2[ecotypeid] = i
+		
+		row_id12row_id2 = {}
+		for strain_acc in strain_acc2row_index1:
+			if strain_acc in strain_acc2row_index2:
+				row_id12row_id2[strain_acc] = ecotypeid
+			else:
+				print 'Failure:', strain_acc
+		sys.stderr.write("Done.\n")
+		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
+	
+	def get_row_matching_dstruc_by_category(self, strain_acc_list1, category_list1, strain_acc_list2):
 		"""
 		2008-04-20
 			strain_acc_list1 contains call_info_id
