@@ -28,6 +28,9 @@ Examples:
 	#do snp-wise QC between 250k (call_method_id=3, excluding arrays with > 20% mismatch rate, according to the QC with maximum no_of_non_NA_pairs) and Perlegen
 	QC_250k.py -m 2 -l 3 -y 0.85 -e 2 -x 0.20 -c
 	
+	QC_250k.py -n /mnt/nfs/NPUTE_data/250k_l3_y0..6_w0.2_x0.2_h170_w10.npute -m 3
+	QC_250k.py -n /mnt/nfs/NPUTE_data/250k_l3_y0..6_w0.2_x0.2_h170_w10.npute -m 8 -o 250k_l3_y0.6_m8_QC.out -l 3
+	
 Description:
 	QC for 250k call data from call_info_table against 2010, perlegen, 149SNP data.
 	It will select the call_info entries that haven't been QCed for a particular QC method.
@@ -55,7 +58,7 @@ from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README
 from pymodule.db import formReadmeObj
-import sqlalchemy
+import sqlalchemy, numpy
 
 class SNPData(object):
 	def __init__(self, **keywords):
@@ -168,7 +171,7 @@ class QC_250k(object):
 							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
 							('u', 'user', 1, 'database username', 1, ):None,\
 							('p', 'passwd', 1, 'database password', 1, ):None,\
-							('n', 'input_dir', 1, 'If given, call files would be read from this directory rather than from call info table. \
+							('n', 'input_dir', 1, 'If given, call data would be read from this directory/file rather than from call info table. \
 								Does not work for QC_method_id=0. The data is sorted according to array_id. No call_info_id available. No db submission.', 0, ): None,\
 							('i', 'cmp_data_filename', 1, 'the data file to be compared with. if not given, it gets figured out by QC_method_id.', 0, ): None,\
 							('y', 'min_probability', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', 0, float): -1,\
@@ -498,10 +501,12 @@ class QC_250k(object):
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, \
 							data_matrix=data_matrix, snps_table=QC_method_id2snps_table[self.QC_method_id])
 			
-			if self.input_dir:
+			if self.input_dir and os.path.isdir(self.input_dir):
 				#04/22/08 Watch: call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
 				#no submission to db
 				call_info_id2fname = self.get_array_id2fname(curs, self.input_dir)
+			elif self.input_dir and os.path.isfile(self.input_dir):	#it's file
+				call_info_id2fname = None
 			else:
 				if self.run_type==2:	#no filtering on call_info entries that have been QCed.
 					filter_calls_QCed=0
@@ -512,7 +517,16 @@ class QC_250k(object):
 					sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
 					sys.exit(5)
 				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, filter_calls_QCed, self.max_call_info_mismatch_rate)
-			header, call_info_id_ls, ecotype_id_ls, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
+			if call_info_id2fname:
+				header, call_info_id_ls, ecotype_id_ls, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
+			else:
+				#input file is SNP by strain format. double header (1st two lines)
+				header, snps_name_ls, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_dir, double_header=1)
+				ecotype_id_ls = header[0][2:]
+				call_info_id_ls = header[1][2:]
+				data_matrix = numpy.array(data_matrix)
+				data_matrix = data_matrix.transpose()
+				header = ['', ''] + snps_name_ls	#fake a header for SNPData
 			
 			if self.run_type==2:
 				snps_name2snps_id = self.get_snps_name2snps_id(db)
