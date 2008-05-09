@@ -11,9 +11,10 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import sqlalchemy, threading
 from sqlalchemy.engine.url import URL
-from sqlalchemy import Table, mapper, relation
+from sqlalchemy import Table
 from sqlalchemy.orm.session import Session
 from pymodule.db import Database, TableClass
+from sqlalchemy.orm import mapper, relation
 
 class SNPset(TableClass):
 	pass

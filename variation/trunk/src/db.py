@@ -15,8 +15,9 @@ else:   #32bit
 
 import sqlalchemy, threading
 from sqlalchemy.engine.url import URL
-from sqlalchemy import Table, mapper, relation
+from sqlalchemy import Table
 from sqlalchemy.orm.session import Session
+from sqlalchemy.orm import mapper, relation
 
 from pymodule.db import Database, TableClass
 
