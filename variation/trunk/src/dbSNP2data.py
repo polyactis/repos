@@ -178,7 +178,7 @@ class dbSNP2data(object):
 			#2007-12-13 only the snps overlapping with 149SNP
 			#curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s2, %s s1 where s1.chromosome=s2.chromosome and s1.position=s2.position order by chromosome, position"%('snps', snp_locus_table))
 			#2007-12-13 all 250k SNPs
-			curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s1"%(snp_locus_table))
+			curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s1 order by chromosome, position"%(snp_locus_table))
 		elif snp_locus_table == 'dbsnp.snps':
 			curs.execute("select distinct s.id, s.chromosome, s.position from %s i, %s s, %s m where s.id=m.snps_id and i.snps_id=s.id order by chromosome, position"%(input_table, snp_locus_table, 'dbsnp.snps_ab_allele_mapping'))
 		rows = curs.fetchall()
@@ -760,8 +760,8 @@ class dbSNP2data(object):
 			header = ['Chromosomes', 'Positions'] + strain_acc_list
 			chromosome_ls = []
 			position_ls = []
-			for snp_id, info in snp_id2info.iteritems():
-				snp_name, chromosome, position = info
+			for snp_id in snp_id_list:
+				snp_name, chromosome, position = snp_id2info[snp_id]
 				chromosome_ls.append(chromosome)
 				position_ls.append(position) 
 			
@@ -772,8 +772,8 @@ class dbSNP2data(object):
 			strain_id2other_info = None	#make up one
 		else:
 			header = ['strain', 'category']
-			for snp_id, info in snp_id2info.iteritems():
-				snp_name, chromosome, position = info
+			for snp_id in snp_id_list:
+				snp_name, chromosome, position = snp_id2info[snp_id]
 				header.append(snp_name)
 			cols_to_be_tossed_out = None
 		
