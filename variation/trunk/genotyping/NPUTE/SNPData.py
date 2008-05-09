@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import time, csv
-from numpy import *
+from CircularQueue import *
 from sets import *
 
 

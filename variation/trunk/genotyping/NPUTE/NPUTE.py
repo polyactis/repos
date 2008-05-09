@@ -29,7 +29,6 @@ import getopt
 import time
 from SNPData import *
 from CircularQueue import *
-from numpy import *
 
 #Option Names
 MODE_TYPE = '-m'

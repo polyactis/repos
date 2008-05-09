@@ -1,4 +1,10 @@
-from numpy import *
+try:
+	from numpy import *
+except:
+	try:
+		from numarray import *
+	except:
+		from Numeric import *
 
 
 class CircularQueue:
