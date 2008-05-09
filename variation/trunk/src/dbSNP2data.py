@@ -30,13 +30,16 @@ Examples:
 	#output all 149SNP data
 	dbSNP2data.py -o /tmp/stock_149SNP.tsv
 	
+	#output all 149SNP data in csv format. in nucleotide. output matrix transposed, in SNP by strain.
+	dbSNP2data.py -o /tmp/stock_149SNP_y0000111111.tsv -y 0000111111
+	
 	#output only 149SNP data with GPS info
 	dbSNP2data.py -o /tmp/stock_149SNP_y10001111.tsv -y 1 -r
 	
 	#output 384-illumina data
 	dbSNP2data.py -o /tmp/384-illumina_y00001101.tsv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 00001101
 	
-	#output 384-illumina data in csv format. output matrix transposed, in SNP by strain.
+	#output 384-illumina data in csv format. in nucleotide. output matrix transposed, in SNP by strain.
 	dbSNP2data.py  -o /tmp/384-illumina_y0000111111.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000111111
 	
 Description:
