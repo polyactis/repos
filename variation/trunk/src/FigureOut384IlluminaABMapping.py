@@ -41,6 +41,8 @@ def get_snps_id2mapping(hostname, dbname=None, user=None, passwd=None, readme_id
 	session = db.session
 	snps_id2mapping = {}
 	rows = session.query(SNPsABAlleleMapping).filter_by(readme_id=readme_id).order_by(db.tables['snps_ab_allele_mapping'].c.snps_id).list()
+	#below is same
+	#rows = session.query(SNPsABAlleleMapping).filter(db.tables['snps_ab_allele_mapping'].c.readme_id==readme_id).order_by(db.tables['snps_ab_allele_mapping'].c.snps_id).list()
 	for i in range(0, len(rows), 2):
 		a = rows[i]
 		b = rows[i+1]
