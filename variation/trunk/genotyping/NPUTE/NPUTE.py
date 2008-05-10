@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 """
 Examples:
-	#Imputation mode: use windows size 10 to impute sample_data.csv
-	NPUTE.py -w 10 -i sample_data.csv -o sample_data.out -f 2
+	#Impute the orginal file format: use windows size 10 to impute sample_data.csv
+	NPUTE.py -w 10 -i sample_data.csv -o sample_data.out -f 2 -l
 	
-	#imputaton on new file format
+	#imputaton on DB_250k2data.py output format (strain by snp)
 	NPUTE.py -i data/250k_l3_y0..6_w0.2_x0.2_h170
+	
+	
 	
 	#test window size from 5 to 15
 	NPUTE.py -m 1 -p 5:15 -i genotyping/NPUTE/sample_data.csv -o /tmp/sample_data.out
@@ -47,7 +49,7 @@ This is the main NPUTE class, providing a command-line interface for imputation.
 '''
 
 
-class NPUTE:
+class NPUTE(object):
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
 	option_default_dict = {('mode_type', 1, ): [IMP, 'm', 1, 'specify running mode. 0=Imputation, 1=test window sizes', ],\
 							('single_window_size', 0, int): [10, 'w', 1, 'specify a window size, like 10', ],\
@@ -55,7 +57,8 @@ class NPUTE:
 							('window_size_range', 0, ): ['', 'p', 1, 'specify a window range to test, like 5:15', ],\
 							('input_fname', 1, ): ['', 'i', 1, 'Input file. A plain genotype matrix.'],\
 							('output_fname', 0, ): ['', 'o', 1, 'Output File, if not given, take the input_fname and other parameters to form one.'],\
-							('input_file_format', 1, int): [1, 'f', 1, 'which file format. 1= DB_250k2data.py output. 2=original NPUTE input.'],\
+							('input_file_format', 1, int): [1, 'f', 1, 'which file format. 1= DB_250k2data.py output. 2=original NPUTE input. 3=Output250KSNPs.py output wtih array Id'],\
+							('lower_case_for_imputation', 1, int): [0, 'l', 0, ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -95,6 +98,9 @@ class NPUTE:
 		sys.stderr.write("Done.\n")
 	
 	def main(self):
+		if self.debug:
+			import pdb
+			pdb.set_trace()
 		if self.input_file_format==1:
 			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname, turn_into_integer=0)
@@ -104,11 +110,14 @@ class NPUTE:
 			chr_ls = chr2no_of_snps.keys()
 			chr_ls.sort()
 			for chromosome in chr_ls:
-				self.run(self.input_fname, self.output_fname, snps_name_ls, data_matrix, chromosome)
+				snpData = SNPData(inFile=self.input_fname, snps_name_ls=snps_name_ls, data_matrix=data_matrix, chromosome=chromosome, \
+								input_file_format=self.input_file_format, lower_case_for_imputation=self.lower_case_for_imputation)
+				self.run(snpData)
 		else:
-			self.run(self.input_fname, self.output_fname)
+			snpData = SNPData(inFile=self.input_fname, input_file_format=self.input_file_format, lower_case_for_imputation=self.lower_case_for_imputation)
+			self.run(snpData)
 		
-	def run(self, input_fname, output_fname, snps_name_ls=None, data_matrix=None, chromosome=None):
+	def run(self, snpData):
 		'''
 		2008-05-01
 			yh use ProcessOptions
@@ -132,10 +141,8 @@ class NPUTE:
 		Get input SNPs
 		inFile = options[IN_FILE]
 		"""
-		
-		inFile = input_fname
-		snpData = SNPData(input_fname, snps_name_ls, data_matrix, chromosome)
-		
+		inFile = snpData.inFile
+
 		# Get test windows
 		L = []
 		if not isEmpty(self.window_size_range):
@@ -159,12 +166,12 @@ class NPUTE:
 				print 'Imputation window not specified.'
 				sys.exit(1)
 			L = int(self.single_window_size)
-			imputeData(snpData, L, output_fname)
+			imputeData(snpData, L, self.output_fname)
 		elif mode == TST:
 			if isEmpty(L):
 				print 'Test windows not specified.'
 				sys.exit(1)
-			testWindows(snpData, L, output_fname)
+			testWindows(snpData, L, self.output_fname)
 		del snpData
 		
 def isEmpty(x):
@@ -173,7 +180,7 @@ def isEmpty(x):
 	'''
 	return len(x) == 0
 
-def imputeData(snpData, L, outFile):
+def imputeData(snpData, L, outFile=None):
 	'''
 	Main function for doing a real imputation on a SNPData object and outputting results.
 	'''
@@ -182,8 +189,10 @@ def imputeData(snpData, L, outFile):
 	c = impute(snpData, L)
 	t = int(time.time()-start + 0.5)
 	snpData.incorporateChanges()
+	snpData.translate2InputSymbols()
 	sys.stderr.write('Imputed %d unknowns in %dm %ds.\n'%(c,t/60,t%60))
-	snpData.outputData(outFile)
+	if outFile:
+		snpData.outputData(outFile)
 
 def testWindows(snpData, Ls, outFile):
 	'''
