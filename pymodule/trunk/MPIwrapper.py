@@ -113,16 +113,26 @@ class MPIwrapper(object):
 		
 		functions copied from annot.bin.codense.common. made into a class.
 	"""
-	def __init__(self, communicator):
+	def __init__(self, communicator, debug=0, report=0):
 		self.communicator = communicator
+		self.debug = debug
+		self.report = report
 	
 	"""
 	10-21-05
 		below output_node(), fetch_cluster_block(),input_node(), computing_node() are shared
 		functions for Mpi Programs
 	"""
+	def synchronize(self):
+		"""
+		05-19-05
+			copied from MpiBiclustering.py
+		"""
+		sys.stdout.flush()
+		sys.stderr.flush()
+		self.communicator.barrier()
 	
-	def output_node(self, free_computing_nodes, parameter_list, handler, report=0, type=1):
+	def output_node(self, free_computing_nodes, parameter_list, handler, type=1):
 		"""
 		10-20-05
 		10-21-05
@@ -138,7 +148,7 @@ class MPIwrapper(object):
 			handler(communicator, parameter_list, data)
 		"""
 		communicator = self.communicator
-		
+		report = self.report
 		node_rank = communicator.rank
 		sys.stderr.write("Node no.%s ready to accept output...\n"%node_rank)
 		if type==1:
@@ -186,7 +196,7 @@ class MPIwrapper(object):
 				data, source, tag, count = communicator.receive(type, None, 1)
 		sys.stderr.write("Node no.%s output done.\n"%node_rank)		
 	
-	def input_node(self, curs, free_computing_nodes, message_size=None, report=0, input_handler=fetch_cluster_block):
+	def input_node(self, curs, free_computing_nodes, message_size=None, input_handler=fetch_cluster_block):
 		"""
 		10-20-05
 		10-22-05
@@ -195,7 +205,7 @@ class MPIwrapper(object):
 		communicator = self.communicator
 		node_rank = communicator.rank
 		sys.stderr.write("Input node(%s) working...\n"%node_rank)
-		data = input_handler(curs, message_size, report)
+		data = input_handler(curs, message_size, self.report)
 		counter = 0
 		while data:
 			communicator.send("1", communicator.size-1, 1)	#WATCH: tag is 1, to the output_node.
@@ -203,12 +213,14 @@ class MPIwrapper(object):
 				#WATCH: tag is 2, from the output_node
 			data_pickle = cPickle.dumps(data, -1)
 			communicator.send(data_pickle, int(free_computing_node), 0)	#WATCH: int()
-			if report:
+			if self.report:
 				sys.stderr.write("block %s sent to %s.\n"%(counter, free_computing_node))
-			data = input_handler(curs, message_size, report)
+			data = input_handler(curs, message_size, self.report)
 			counter += 1
 		#tell computing_node to exit the loop
 		for node in free_computing_nodes:	#send it to the computing_node
+			if self.report:
+				sys.stderr.write("exit signal sent to %s.\n"%(node))
 			communicator.send("-1", node, 0)
 		sys.stderr.write("Input node(%s) done\n"%(node_rank))
 	
@@ -222,7 +234,7 @@ class MPIwrapper(object):
 	
 	computing_cleanup_handler = classmethod(computing_cleanup_handler)
 	
-	def computing_node(self, parameter_list, node_fire_handler, cleanup_handler=computing_cleanup_handler, report=0):
+	def computing_node(self, parameter_list, node_fire_handler, cleanup_handler=None):
 		"""
 		10-21-05
 			0 is the node where the data is from
@@ -230,6 +242,7 @@ class MPIwrapper(object):
 		10-22-05
 			make computing_cleanup_handler to be the default cleanup_handler
 		"""
+		report = self.report
 		communicator = self.communicator
 		node_rank = communicator.rank
 		data, source, tag = communicator.receiveString(0, 0)	#get data from node 0
@@ -243,4 +256,5 @@ class MPIwrapper(object):
 				result_pickle = cPickle.dumps(result, -1)
 				communicator.send(result_pickle, communicator.size-1, 1)
 			data, source, tag = communicator.receiveString(0, 0)	#get data from node 0
-		cleanup_handler(communicator)
+		if not cleanup_handler:
+			MPIwrapper.computing_cleanup_handler(communicator)
