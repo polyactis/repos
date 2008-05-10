@@ -102,6 +102,7 @@ class Database(object):
 	#@property
 	def connection(self):
 		return self.engine.contextual_connect()
+	connection = property(connection)
 	
 	#@property
 	def engine(self):
