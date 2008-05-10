@@ -92,12 +92,13 @@ class TwoSNPData(QualityControl):
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		if self.QC_method_id!=3 and self.QC_method_id!=7:	#149SNP uses snpid
 			self.columns_to_be_selected = 's1.name, s2.name'
-		self.update_row_col_matching()
 		
 		get_row_matching_dstruc_dict = {1: self.get_row_matching_dstruc_by_category,\
 			2: self.get_row_matching_dstruc_by_strain_acc}
 		
 		self.get_row_matching_dstruc = get_row_matching_dstruc_dict[self.row_id_matching_type]
+		
+		self.update_row_col_matching()
 	
 	def get_row_matching_dstruc_by_strain_acc(self, strain_acc_list1, category_list1, strain_acc_list2):
 		"""
@@ -106,21 +107,21 @@ class TwoSNPData(QualityControl):
 		sys.stderr.write("Getting row matching dstruc ...\n")
 		strain_acc2row_index1 = {}
 		for i in range(len(strain_acc_list1)):
-			strain_acc = int(strain_acc_list1[i])
+			strain_acc = strain_acc_list1[i]
 			strain_acc2row_index1[strain_acc] = i
 		
 		strain_acc2row_index2 = {}
 		for i in range(len(strain_acc_list2)):
 			strain_acc = strain_acc_list2[i]
-			ecotypeid = int(strain_acc)
-			strain_acc2row_index2[ecotypeid] = i
+			strain_acc2row_index2[strain_acc] = i
 		
 		row_id12row_id2 = {}
 		for strain_acc in strain_acc2row_index1:
 			if strain_acc in strain_acc2row_index2:
-				row_id12row_id2[strain_acc] = ecotypeid
+				row_id12row_id2[strain_acc] = strain_acc
 			else:
-				print 'Failure:', strain_acc
+				if hasattr(self, 'debug') and getattr(self,'debug'):
+					sys.stderr.write('Linking Failure: %s.\n'% strain_acc)
 		sys.stderr.write("Done.\n")
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
@@ -150,7 +151,8 @@ class TwoSNPData(QualityControl):
 			if ecotypeid in strain_acc2row_index2:
 				row_id12row_id2[strain_acc] = ecotypeid
 			else:
-				print 'Failure:', strain_acc
+				if hasattr(self, 'debug') and getattr(self,'debug'):
+					sys.stderr.write('Linking Failure: %s.\n'% strain_acc)
 		sys.stderr.write("Done.\n")
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
