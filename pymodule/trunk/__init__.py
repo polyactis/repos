@@ -606,3 +606,10 @@ def dict_map(dict, ls, type=1):
 				new_list.append(item)
 	
 	return new_list
+
+class PassingData(object):
+	"""
+	05/09/08
+		a class to hold any data structure
+	"""
+	pass
