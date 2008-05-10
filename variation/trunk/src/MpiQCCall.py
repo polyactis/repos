@@ -85,7 +85,7 @@ class MpiQCCall(object):
 		param_d.parameters = parameters
 		param_d.max_snp_NA_rate_ls = self.max_snp_NA_rate_ls
 		param_d.npute_window_size_ls = self.npute_window_size_ls
-		sys.stderr.write("Done.\n")
+		sys.stderr.write(" %s parameters to pass. Done.\n"%len(parameters))
 		return param_d
 	
 	def input_handler(self, data, message_size, report=0):
@@ -269,23 +269,25 @@ class MpiQCCall(object):
 		else:
 			pass
 		
-		mpi_synchronize(self.communicator)
+		mw = MPIwrapper(self.communicator, debug=self.debug, report=self.report)
+		mw.synchronize()
 		
-		mw = MPIwrapper(self.communicator)
 		if node_rank == 0:
 			param_d.index = 0
-			mw.input_node(param_d, free_computing_nodes, report=self.report, input_handler=self.input_handler)
+			mw.input_node(param_d, free_computing_nodes, input_handler=self.input_handler)
 		elif node_rank in free_computing_nodes:
 			parameter_list = init_data
-			mw.computing_node(parameter_list, self.computing_node_handler, report=self.report)
+			mw.computing_node(parameter_list, self.computing_node_handler)
 		else:
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
 			header = ['strain/snp', 'min_call_probability'] + self.parameter_names + ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
 			writer.writerow(header)
 			parameter_list = [writer]
-			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler, self.report)
+			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
 			del writer
-
+		
+		mw.synchronize()	#to avoid some node early exits
+		
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
 	main_class = MpiQCCall
