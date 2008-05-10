@@ -199,9 +199,12 @@ def _run_():
 			accMissAndID[1].append((accCallRate[1][i], commonAccessions[i]))
 		accOverlMissAndID[0] = zip(accOverlappingCallRate[0],commonAccessions)
 		accOverlMissAndID[1] = zip(accOverlappingCallRate[1],commonAccessions)
-	accErrAndID.sort(reverse=True)
-	accMissAndID[0].sort(reverse=True)
-	accMissAndID[1].sort(reverse=True)
+	accErrAndID.sort()	#05/10/08 yh. sort(reverse=True) is not available in python 2.3
+	accErrAndID.reverse()
+	accMissAndID[0].sort()
+	accMissAndID[0].reverse()
+	accMissAndID[1].sort()
+	accMissAndID[1].reverse()
 	statstr += "#Sorted list, based on error rates (Error rate, ecotype id, array id):\n"
 	for t in accErrAndID:
 		statstr += str(t)+'\n'

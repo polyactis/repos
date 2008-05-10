@@ -148,7 +148,8 @@ def _run_():
 	else:
             for i in range(0,len(r[2])):
                 accErrAndID.append((accErrorRate[i], r[2][i]))
-	accErrAndID.sort(reverse=True)
+	accErrAndID.sort()
+	accErrAndID.reverse()	#05/10/08 yh. sort(reverse=True) is not available in python 2.3
         #print "(Error,'ecotype_id','array_id')"
         #for t in accErrAndID :
         #    print t    
@@ -214,7 +215,8 @@ def _run_():
             arraysToRemove = []
             for i in range(0,len(snpsds[0].accessions)):
                 missingRates.append((missingCounts[i]/float(numSnps),snpsds[0].accessions[i],snpsds[0].arrayIds[i]))
-            missingRates.sort(reverse=True)
+            missingRates.sort()
+            missingRates.reverse()
             for (mrate,ecotype,array) in missingRates:
                 if mrate>maxMissing:
                     accessionsToRemove.append(ecotype)
@@ -222,7 +224,8 @@ def _run_():
         else:
             for i in range(0,len(snpsds[0].accessions)):
                 missingRates.append((missingCounts[i]/float(numSnps),snpsds[0].accessions[i]))
-            missingRates.sort(reverse=True)
+            missingRates.sort()
+            missingRates.reverse()
             for (mrate,ecotype) in missingRates:
                 if mrate>maxMissing:
                     accessionsToRemove.append(ecotype)
@@ -308,7 +311,8 @@ def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1):
     else:
         for i in range(0,len(r[2])):
             accErrAndID.append((accErrorRate[i], r[2][i]))
-    accErrAndID.sort(reverse=True)
+    accErrAndID.sort()
+    accErrAndID.reverse()
 
     #Figure out which accessions are too erroraneous
     if withArrayIds:
@@ -356,7 +360,8 @@ def filterByNA(snpsds,maxMissing,withArrayIds=1):
         arraysToRemove = []
         for i in range(0,len(snpsds[0].accessions)):
             missingRates.append((missingCounts[i]/float(numSnps),snpsds[0].accessions[i],snpsds[0].arrayIds[i]))
-        missingRates.sort(reverse=True)
+        missingRates.sort()
+        missingRates.reverse()
         for (mrate,ecotype,array) in missingRates:
             if mrate>maxMissing:
                 accessionsToRemove.append(ecotype)
@@ -364,7 +369,8 @@ def filterByNA(snpsds,maxMissing,withArrayIds=1):
     else:
         for i in range(0,len(snpsds[0].accessions)):
             missingRates.append((missingCounts[i]/float(numSnps),snpsds[0].accessions[i]))
-        missingRates.sort(reverse=True)
+        missingRates.sort()
+        missingRates.reverse()
         print missingRates
         print len(missingRates)
         for (mrate,ecotype) in missingRates:
