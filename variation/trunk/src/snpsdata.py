@@ -380,12 +380,13 @@ class RawSnpsData(_SnpsData_):
                         if snp1!=snp2:
                             fails = fails+1
                             accessionErrorRate[k] += 1
-                    elif snp1=='NA':
-                        accessionCallRates[0][k]+=1
-                        missing1 += 1
-                    elif snp2=='NA':
-                        accessionCallRates[1][k]+=1
-                        missing2 += 1
+                    else:
+                        if snp1=='NA':
+                            accessionCallRates[0][k]+=1
+                            missing1 += 1
+                        if snp2=='NA':
+                            accessionCallRates[1][k]+=1
+                            missing2 += 1
                 goodSnpsCounts.append(counts)
                 error = 0
                 if counts>0:
@@ -416,8 +417,26 @@ class RawSnpsData(_SnpsData_):
         print "SNP error rates",snpErrorRate
         print "Average Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
         """
+
+        naCounts1 = [0]*len(accessionsIndices)
+        for i in range(0,len(self.positions)):
+            for k in range(0,len(accessionsIndices)):
+                accIndices = accessionsIndices[k]
+                snp = self.snps[i][accIndices[0]]
+                if snp=='NA':
+                    naCounts1[k] += 1
         
-        return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate]
+        naCounts2 = [0]*len(accessionsIndices)
+        for i in range(0,len(snpsd.positions)):
+            for k in range(0,len(accessionsIndices)):
+                accIndices = accessionsIndices[k]
+                snp = snpsd.snps[i][accIndices[1]]
+                if snp=='NA':
+                    naCounts2[k] += 1
+          
+
+
+        return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate,[naCounts1,naCounts2]]
 
 
     def getSnpsData(self):
@@ -542,7 +561,7 @@ class RawSnpsData(_SnpsData_):
 
     def countMissingSnps(self):
         """
-        Returns a list of accessions and their missing value rates.
+        Returns the overall missing value rate.
         """
         missingCounts = 0
         totalCounts = 0

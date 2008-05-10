@@ -48,7 +48,7 @@ def _run_():
         rFile = None
         statFile = None
 	verbose = False
-	delim = ", "
+	delim = ","
 	missingVal = "NA"
 	debug = None
 	report = None
@@ -94,37 +94,45 @@ def _run_():
 	numSNPs2 = 0
 	for i in range(0,len(snpsds1)):
 		res.append(snpsds1[i].compareWith(snpsds2[i],withArrayIds=withArrayIds))
-		numSNPs1 += len(snpsds1[i].positions)
-		numSNPs2 += len(snpsds2[i].positions)
 		naRate1 += snpsds1[i].countMissingSnps()*len(snpsds1[i].positions)
 		naRate2 += snpsds2[i].countMissingSnps()*len(snpsds2[i].positions)
-
+		numSNPs1 += len(snpsds1[i].positions)
+		numSNPs2 += len(snpsds2[i].positions)
+		
+		
 	naRate1 = naRate1/float(numSNPs1)
 	naRate2 = naRate2/float(numSNPs2)
 
 	import rfun
 	totalCommonPos = 0
-	totalAccessionCounts = [0]*len(res[0][2])
-	accCallRate = [[0]*len(res[0][2]),[0]*len(res[0][2])]
-	accErrorRate = [0]*len(res[0][2])
+	totalPos = [0,0]
+	commonAccessions = res[0][2]
+	totalAccessionCounts = [0]*len(commonAccessions)
+	accOverlappingCallRate = [[0]*len(commonAccessions),[0]*len(commonAccessions)]
+	accCallRate = [[0]*len(commonAccessions),[0]*len(commonAccessions)]
+	accErrorRate = [0]*len(commonAccessions)
 	
 	statstr = "#Common SNPs positions:\n"
 	rstr = "#Snps error rates\n"
 	rstr = "par(mfrow=c(5,1));\n"
 	snpsErrorRate = []
-	for i in range(0,len(res)):
+	for i in range(0,len(res)): #for all chromosomes
 		r = res[i]
 		snpsErrorRate +=r[1]
 		totalCommonPos += len(r[0])
+		totalPos[0] += len(snpsds1[i].positions)
+		totalPos[1] += len(snpsds2[i].positions)
 		statstr += "Chr. "+str(i+1)+":\n"
 		statstr += str(r[0])+"\n"
 		xname = "commonPos_ch"+str(i+1)
 		ynames = ["errorRates_ch"+str(i+1)]
 		rstr += rfun.plotOverlayingVectors(r[0],[r[1]],xlab="Position, chr. "+str(i+1),ylab="Error (red)",type="b",xname=xname,ynames=ynames)+"\n\n"
-		for j in range(0,len(r[2])):
+		for j in range(0,len(commonAccessions)):
 			totalAccessionCounts[j] += r[6][j]
-			accCallRate[0][j]+=r[4][0][j]*float(len(r[0]))
-			accCallRate[1][j]+=r[4][1][j]*float(len(r[0]))
+			accOverlappingCallRate[0][j]+=r[4][0][j]*float(len(r[0]))
+			accOverlappingCallRate[1][j]+=r[4][1][j]*float(len(r[0]))
+			accCallRate[0][j]+=r[8][0][j]
+			accCallRate[1][j]+=r[8][1][j]
 			accErrorRate[j]+=r[3][j]*float(r[6][j])
 
 	statstr += "#Number of common SNPs positions:\n"
@@ -140,15 +148,21 @@ def _run_():
 	statstr += str(sum(snpsErrorRate)/float(len(snpsErrorRate)))+"\n"
 	
 	statstr += "#Commmon accessions:\n"
-	statstr += str(res[0][2])+'\n'
+	statstr += str(commonAccessions)+'\n'
 	statstr += "#Number of commmon accessions:\n"
-	statstr += str(len(res[0][2]))+'\n'
+	statstr += str(len(commonAccessions))+'\n'
+	statstr += "#Number of accessions (1):\n"
+	statstr += str(len(snpsds1[0].accessions))+'\n'
+	statstr += "#Number of accessions (2):\n"
+	statstr += str(len(snpsds2[0].accessions))+'\n'
+
 	if withArrayIds:
+		commonArrayIds = res[0][5]
 		statstr += "#ArrayIds:\n"
-		statstr += str(res[0][5])+'\n'
+		statstr += str(commonArrayIds)+'\n'
 
         if not verbose:
-		print "In all",len(res[0][2]),"common accessions found"
+		print "In all",len(commonAccessions),"common accessions found"
 		print "In all",totalCommonPos,"common snps found"
 		print "Average Snp Error:",sum(snpsErrorRate)/float(len(snpsErrorRate))
 		print "NA rate (1) =",naRate1
@@ -161,32 +175,48 @@ def _run_():
 		ynames = ["missingRates1_ch"+str(i+1),"missingRates2_ch"+str(i+1)]
 		rstr += rfun.plotOverlayingVectors(r[0],[r[7][0],r[7][1]],xlab="Position, chr. "+str(i+1),ylab="Missing (red,green)",type="b",xname=xname,ynames=ynames)+"\n\n"
 
-	for i in range(0,len(r[2])):
-		accCallRate[0][i]=accCallRate[0][i]/totalCommonPos
-		accCallRate[1][i]=accCallRate[1][i]/totalCommonPos
+	for i in range(0,len(commonAccessions)):
+		accOverlappingCallRate[0][i]=accOverlappingCallRate[0][i]/float(totalCommonPos)
+		accOverlappingCallRate[1][i]=accOverlappingCallRate[1][i]/float(totalCommonPos)
+		accCallRate[0][i]=accCallRate[0][i]/float(totalPos[0])
+		accCallRate[1][i]=accCallRate[1][i]/float(totalPos[1])
 		accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
 
 	accErrAndID = []
 	accMissAndID = [[],[]]
+	accOverlMissAndID = [[],[]]
 	if withArrayIds:
-		for i in range(0,len(r[2])):
-			accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
-			accMissAndID[0].append((accCallRate[0][i], r[2][i], r[5][i]))
-			accMissAndID[1].append((accCallRate[1][i], r[2][i], r[5][i]))
+		for i in range(0,len(commonAccessions)):
+			accErrAndID.append((accErrorRate[i], commonAccessions[i], commonArrayIds[i]))
+			accMissAndID[0].append((accCallRate[0][i], commonAccessions[i], commonArrayIds[i]))
+			accMissAndID[1].append((accCallRate[1][i], commonAccessions[i], commonArrayIds[i]))
+		accOverlMissAndID[0] = zip(accOverlappingCallRate[0],commonAccessions,commonArrayIds)
+		accOverlMissAndID[1] = zip(accOverlappingCallRate[1],commonAccessions,commonArrayIds)
 	else:
-		for i in range(0,len(r[2])):
-			accErrAndID.append((accErrorRate[i], r[2][i]))
-			accMissAndID[0].append((accCallRate[0][i], r[2][i]))
-			accMissAndID[1].append((accCallRate[1][i], r[2][i]))
+		for i in range(0,len(commonAccessions)):
+			accErrAndID.append((accErrorRate[i], commonAccessions[i]))
+			accMissAndID[0].append((accCallRate[0][i], commonAccessions[i]))
+			accMissAndID[1].append((accCallRate[1][i], commonAccessions[i]))
+		accOverlMissAndID[0] = zip(accOverlappingCallRate[0],commonAccessions)
+		accOverlMissAndID[1] = zip(accOverlappingCallRate[1],commonAccessions)
 	accErrAndID.sort(reverse=True)
 	accMissAndID[0].sort(reverse=True)
 	accMissAndID[1].sort(reverse=True)
 	statstr += "#Sorted list, based on error rates (Error rate, ecotype id, array id):\n"
-	statstr += str(accErrAndID)+'\n'
+	for t in accErrAndID:
+		statstr += str(t)+'\n'
 	statstr += "#Sorted list, based on missing rates of 1st file, (Missing rate, ecotype id, array id):\n"
-	statstr += str(accMissAndID[0])+'\n'
+	for t in accMissAndID[0]:
+		statstr += str(t)+'\n'
 	statstr += "#Sorted list, based on missing rates of 2nd file, (Missing rate, ecotype id, array id):\n"
-	statstr += str(accMissAndID[1])+'\n'
+	for t in accMissAndID[1]:
+		statstr += str(t)+'\n'
+	statstr += "#Sorted list, based on (overlapping positions) missing rates of 1st file, (Missing rate, ecotype id, array id):\n"
+	for t in accOverlMissAndID[0]:
+		statstr += str(t)+'\n'
+	statstr += "#Sorted list, based on (overlapping positions) missing rates of 2nd file, (Missing rate, ecotype id, array id):\n"
+	for t in accOverlMissAndID[1]:
+		statstr += str(t)+'\n'
  
 	"""
 	print "Sorted list, based on error rates: ",accErrAndID,'\n'
