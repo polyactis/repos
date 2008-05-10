@@ -163,7 +163,8 @@ class QualityControl(object):
 				mismatch_rate = no_of_mismatches/float(no_of_non_NA_pairs)
 				row_id2NA_mismatch_rate[row_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs]
 			else:
-				sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
 		sys.stderr.write("Done.\n")
 		return row_id2NA_mismatch_rate
 	
@@ -228,7 +229,7 @@ class QualityControl(object):
 				no_of_NAs += 1
 		return no_of_NAs, no_of_totals
 	
-	def cmp_one_col(self, data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2, mapping_for_data_matrix1=None):
+	def cmp_one_col(cls, data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2, mapping_for_data_matrix1=None):
 		"""
 		2008-05-06
 			add mapping_for_data_matrix1
@@ -256,7 +257,9 @@ class QualityControl(object):
 						no_of_mismatches += 1
 		return no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs
 	
-	def cmp_col_wise(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
+	cmp_one_col = classmethod(cmp_one_col)
+	
+	def cmp_col_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
 		2007-12-18
 			SNP wise
@@ -271,15 +274,18 @@ class QualityControl(object):
 		for col_id1, col_id2 in col_id12col_id2.iteritems():
 			col_index1 = col_id2col_index1[col_id1]
 			col_index2 = col_id2col_index2[col_id2]
-			no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs = self.cmp_one_col(data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2)
+			no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs = QualityControl.cmp_one_col(data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2)
 			if no_of_totals >0 and no_of_non_NA_pairs>0:
 				NA_rate = no_of_NAs/float(no_of_totals)
 				mismatch_rate = no_of_mismatches/float(no_of_non_NA_pairs)
 				col_id2NA_mismatch_rate[col_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs]
 			else:
-				sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(col_id1, col_id2))
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(col_id1, col_id2))
 		sys.stderr.write("Done.\n")
 		return col_id2NA_mismatch_rate
+	
+	cmp_col_wise = classmethod(cmp_col_wise)
 	
 	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1, need_diff_code_pair_dict=0):
 		"""
