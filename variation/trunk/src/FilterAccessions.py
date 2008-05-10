@@ -296,7 +296,10 @@ def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1):
             accErrorRate[j]+=r[3][j]*float(r[6][j])
         
     for i in range(0,len(accErrorRate)):
-        accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
+    	if totalAccessionCounts[i]>0:
+        	accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
+        else:
+        	accErrorRate[i] = 1
 
     accErrAndID = []
     if withArrayIds: #Then include arrayID in list..
@@ -328,7 +331,7 @@ def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1):
         snpsd.removeAccessions(accessionsToRemove,arrayIds=arraysToRemove)
         sys.stderr.write(".")
         sys.stderr.flush()
-    print "\n", (numAccessions-len(snpsds[0].accessions)), "accessions out of "+str(numAccessions)+" were removed."
+    sys.stderr.write("\n %s accessions out of %s were removed.\n"%((numAccessions-len(snpsds[0].accessions)), numAccessions))
     return snpsds
 
 
