@@ -7,6 +7,7 @@ Bjarni Vilhjalmsson, bvilhjal@usc.edu
 """
 
 from sets import Set
+from sets import Set as set
 
 class _SnpsData_(object):
 	"""
