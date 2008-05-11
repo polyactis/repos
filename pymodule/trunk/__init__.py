@@ -613,3 +613,17 @@ class PassingData(object):
 		a class to hold any data structure
 	"""
 	pass
+
+def importNumericArray():
+	"""
+	2008-05-11
+		import whatever available array module
+	"""
+	try:
+		import numpy as num
+	except:
+		try:
+			import numarray as num
+		except:
+			import Numeric as num
+	return num
