@@ -372,3 +372,21 @@ def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 	if report:
 		sys.stderr.write("Done.\n")
 	return snpData
+
+def transposeSNPData(snpData, report=0):
+	"""
+	2008-05-11
+	"""
+	import sys
+	if report:
+		sys.stderr.write("Converting RawSnpsData_ls to SNPData ...")
+	from pymodule import importNumericArray
+	num = importNumericArray()
+	import copy
+	newSnpData = copy.copy(snpData)
+	newSnpData.row_id_ls = snpData.col_id_ls
+	newSnpData.col_id_ls = snpData.row_id_ls
+	newSnpData.data_matrix = num.transpose(num.array(snpData.data_matrix))
+	if report:
+		sys.stderr.write("Done.\n")
+	return snpData
