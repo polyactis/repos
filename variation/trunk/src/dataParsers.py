@@ -500,6 +500,8 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
 
 def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False):
     """
+    05/11/2008 yh. add chromosome. use RawSnpsData directly. ...
+    
     Parses raw CSV SNPs data files into a RawSnpsData.
 
     format=1: the function return a RawSnpsData object list
@@ -535,21 +537,26 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
         accessions.append(acc.strip())
     i += 1
     line = lines[i].split(deliminator)
-    newChr = line[0]
+    newChr = int(line[0])
+    
+    no_of_headers = i+1
+    snpsd_ls = []
     while i < len(lines):
         chromosomes.append(int(newChr))
         oldChr = newChr
-        positions = []
-        snps =[]
+        rawSnpsData = RawSnpsData(accessions=accessions, arrayIds=arrayIds)	#05/11/2008 yh. use rawSnpsData
+        rawSnpsData.snps = []
+        rawSnpsData.positions = []
+        rawSnpsData.chromosome = oldChr
         while i < len(lines) and newChr == oldChr:
             line = lines[i].split(deliminator)
             #print line
             oldChr = int(line[0])
-            positions.append(int(line[1]))
+            rawSnpsData.positions.append(int(line[1]))
             snp = []
             for nt in line[2:]:
                 snp.append(decoder[(nt.strip())])
-            snps.append(snp)
+            rawSnpsData.snps.append(snp)
             i += 1
             if i < len(lines):
                 line = lines[i].split(deliminator)
@@ -557,18 +564,14 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
             else:
                 break
         
-        sys.stderr.write("Loaded %s of %s SNPs.\n"%(i, len(lines)))
-        positionsList.append(positions)
-        snpsList.append(snps)
-
-    snpsds = []
-    for i in range(0,len(chromosomes)):
-        snpsds.append(RawSnpsData(snpsList[i],positionsList[i],accessions=accessions,arrayIds=arrayIds))
+        sys.stderr.write("Loaded %s of %s SNPs.\n"%(i+1-no_of_headers, len(lines)-no_of_headers))
+        snpsd_ls.append(rawSnpsData)
+        del rawSnpsData
     if format==0:
         for i in range(0,len(chromosomes)):
-            snpsds[i] = snpsds[i].getSnpsData()
+            snpsd_ls[i] = snpsd_ls[i].getSnpsData()
     sys.stderr.write( "\n")
-    return(snpsds)
+    return(snpsd_ls)
 
 
 def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=",", missingVal='NA', withArrayIds=False):
