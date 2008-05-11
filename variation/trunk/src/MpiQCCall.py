@@ -23,7 +23,7 @@ import Numeric, cPickle
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
 #from FilterStrainSNPMatrix import FilterStrainSNPMatrix	#for read_data()
-from common import nt2number,number2nt
+from common import nt2number,number2nt, RawSnpsData_ls2SNPData
 import dataParsers, FilterAccessions, FilterSnps, MergeSnpsData
 from variation.genotyping.NPUTE.SNPData import SNPData as NPUTESNPData
 from variation.genotyping.NPUTE.NPUTE import imputeData
@@ -43,7 +43,7 @@ class MpiQCCall(object):
 							('max_call_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8", 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate_ls', 1, ): ["0.05,0.1,0.15,0.2,0.25,0.3", 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
 							('max_snp_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7", 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
-							('npute_window_size_ls', 1): ["10,20,30,40,50",],\
+							('npute_window_size_ls', 1): ["10,30,50",],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -55,7 +55,8 @@ class MpiQCCall(object):
 	
 	def generate_parameters(self, parameter_names, parameter_depth=2):
 		"""
-		parameter_depth is not used now
+		2008-05-11
+			put NA rate into passing parameters as well. too much memory consumption on each computing node
 		"""
 		sys.stderr.write( "Generating parameter settings ...")
 		param_d = PassingData()
@@ -80,7 +81,9 @@ class MpiQCCall(object):
 		for max_call_mismatch_rate in getattr(self, parameter_names[0]):
 			for max_call_NA_rate in getattr(self, parameter_names[1]):
 				for max_snp_mismatch_rate in getattr(self, parameter_names[2]):
-					parameters.append([min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate])
+					for max_snp_NA_rate in getattr(self, parameter_names[3]):
+						parameters.append([min_call_probability, max_call_mismatch_rate, max_call_NA_rate, \
+										max_snp_mismatch_rate, max_snp_NA_rate])
 		
 		param_d.parameters = parameters
 		param_d.max_snp_NA_rate_ls = self.max_snp_NA_rate_ls
@@ -88,12 +91,12 @@ class MpiQCCall(object):
 		sys.stderr.write(" %s parameters to pass. Done.\n"%len(parameters))
 		return param_d
 	
-	def input_handler(self, data, message_size, report=0):
+	def input_handler(self, parameter_list, message_size, report=0):
 		"""
 		"""
 		if report:
 			sys.stderr.write("Fetching stuff...\n")
-		param_d = data
+		param_d = parameter_list[0]
 		if param_d.index<len(param_d.parameters):
 			data_to_return = param_d.parameters[param_d.index]
 			param_d.index += 1
@@ -103,83 +106,80 @@ class MpiQCCall(object):
 			sys.stderr.write("Fetching done.\n")
 		return data_to_return
 	
-	def computing_node_handler(self, communicator, data, init_data):
+	def doFilter(self, snpsd_ls, snpsd_ls_qc_strain, snpsd_ls_qc_snp, snpData_qc_strain, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
+				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size_ls):
+		"""
+		2008-05-11
+			split up
+		"""
+		snpsd_250k_tmp = copy.copy(snpsd_ls)
+		
+		FilterAccessions.filterByError(snpsd_250k_tmp, snpsd_ls_qc_strain, max_call_mismatch_rate, withArrayIds=1)
+		FilterAccessions.filterByNA(snpsd_250k_tmp, max_call_NA_rate, withArrayIds=1)
+		
+		FilterSnps.filterByError(snpsd_250k_tmp, snpsd_ls_qc_snp, max_snp_mismatch_rate)
+		
+		FilterSnps.filterByNA(snpsd_250k_tmp, max_snp_NA_rate)
+		
+		MergeSnpsData.merge(snpsd_250k_tmp, snpsd_ls_qc_snp, unionType=0, priority=2)
+		
+		FilterSnps.filterMonomorphic(snpsd_250k_tmp)
+		
+		snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
+		
+		twoSNPData0 = TwoSNPData(SNPData1=snpData0, SNPData2=snpData_qc_strain, \
+						col_matching_by_which_value=1)	#col_id of snpData0 is (arrayId, accession)
+		row_id2NA_mismatch_rate0 = twoSNPData0.cmp_row_wise()
+		col_id2NA_mismatch_rate0 = twoSNPData0.cmp_col_wise()
+		del twoSNPData0, snpData0
+		
+		result = []
+		for npute_window_size in npute_window_size_ls:
+			snpsd_250k_tmp_1 = copy.deepcopy(snpsd_250k_tmp)	#deepcopy, otherwise snpsd_250k_tmp_1[i].snps = [] would clear snpsd_250k_tmp up as well
+			for i in range(len(snpsd_250k_tmp)):
+				snpsd_250k_tmp_1[i].snps = []	#clear it up
+				npute_data_struc = NPUTESNPData(inFile=snpsd_250k_tmp[i], input_NA_char='NA', input_file_format=4, lower_case_for_imputation=0)
+				imputeData(npute_data_struc, int(npute_window_size))
+				snpsd_250k_tmp_1[i].snps += npute_data_struc.snps
+			
+			snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp_1)
+			del snpsd_250k_tmp_1
+			
+			qcdata = PassingData()
+			
+			twoSNPData1 = TwoSNPData(SNPData1=snpData1, SNPData2=snpData_qc_strain, \
+							col_matching_by_which_value=1)
+			qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
+			qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
+			del twoSNPData1, snpData1
+			
+			qcdata.row_id2NA_mismatch_rate0 = row_id2NA_mismatch_rate0
+			qcdata.col_id2NA_mismatch_rate0 = col_id2NA_mismatch_rate0
+			
+			qcdata.min_call_probability = min_call_probability
+			qcdata.max_call_mismatch_rate = max_call_mismatch_rate
+			qcdata.max_call_NA_rate = max_call_NA_rate
+			qcdata.max_snp_mismatch_rate = max_snp_mismatch_rate
+			qcdata.max_snp_NA_rate = max_snp_NA_rate
+			qcdata.npute_window_size = npute_window_size
+			result.append(qcdata)
+			del qcdata
+		del snpsd_250k_tmp
+		return result
+	
+	def computing_node_handler(self, communicator, data, parameter_list):
 		"""
 		2007-03-07
 		"""
 		node_rank = communicator.rank
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
-		result = []
-		min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate = data
-		
-		#for i in range(0,len(init_data.snpsd_250k)):
-		#	sys.stderr.write("Fraction converted ="%(init_data.snpsd_250k[i].convertBadCallsToNA(min_call_probability)))
-		
-		FilterAccessions.filterByError(init_data.snpsd_250k, init_data.snpsd_2010_149_384, max_call_mismatch_rate, withArrayIds=1)
-		FilterAccessions.filterByNA(init_data.snpsd_250k, max_call_NA_rate, withArrayIds=1)
-		
-		FilterSnps.filterByError(init_data.snpsd_250k, init_data.snpsd_perlegen, max_snp_mismatch_rate)
-		
-		result = []
-		for max_snp_NA_rate in init_data.param_d.max_snp_NA_rate_ls:
-			snpsd_250k_tmp = copy.copy(init_data.snpsd_250k)
-			FilterSnps.filterByNA(snpsd_250k_tmp, max_snp_NA_rate)
-			for npute_window_size in init_data.param_d.npute_window_size_ls:
-				MergeSnpsData.merge(snpsd_250k_tmp, init_data.snpsd_perlegen, unionType=0, priority=2)
-				FilterSnps.filterMonomorphic(snpsd_250k_tmp)
-				
-				chr_pos_ls = []
-				data_matrix_250k_0 = []
-				data_matrix_250k = []
-				chr_pos_ls_ref = []
-				data_matrix_ref = []
-				for i in range(len(snpsd_250k_tmp)):
-					data_matrix_250k_0 += snpsd_250k_tmp[i].snps
-					
-					npute_data_struc = NPUTESNPData(inFile=snpsd_250k_tmp[i], input_NA_char='NA', input_file_format=4, lower_case_for_imputation=0)
-					imputeData(npute_data_struc, int(npute_window_size))
-					
-					this_chr_pos_ls = [(i+1, pos) for pos in snpsd_250k_tmp[i].positions]	#chromosome is i+1
-					chr_pos_ls += this_chr_pos_ls
-					this_chr_pos_ls = [(i+1, pos) for pos in init_data.snpsd_2010_149_384[i].positions]	#chromosome is i+1
-					chr_pos_ls_ref += this_chr_pos_ls
-					data_matrix_250k += npute_data_struc.snps
-					data_matrix_ref += init_data.snpsd_2010_149_384[i].snps
-				
-				snpData0 = SNPData(header=['', '']+snpsd_250k_tmp[0].accessions,\
-					strain_acc_list=chr_pos_ls, category_list=chr_pos_ls, data_matrix=data_matrix_250k_0)
-				del data_matrix_250k_0
-				
-				snpData1 = SNPData(header=['', '']+snpsd_250k_tmp[0].accessions,\
-					strain_acc_list=chr_pos_ls, category_list=chr_pos_ls, data_matrix=data_matrix_250k)
-				del data_matrix_250k
-				
-				snpData2 = SNPData(header=['', '']+init_data.snpsd_2010_149_384[0].accessions, \
-					strain_acc_list=chr_pos_ls_ref, category_list= chr_pos_ls_ref, data_matrix=data_matrix_ref)
-				del data_matrix_ref
-				
-				qcdata = PassingData()
-				
-				twoSNPData0 = TwoSNPData(SNPData1=snpData0, SNPData2=snpData2, \
-								row_id_matching_type=2)
-				qcdata.row_id2NA_mismatch_rate0 = twoSNPData0.cmp_row_wise()
-				qcdata.col_id2NA_mismatch_rate0 = twoSNPData0.cmp_col_wise()
-				del twoSNPData0, snpData0
-				
-				twoSNPData1 = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, \
-								row_id_matching_type=2)
-				qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
-				qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
-				del twoSNPData1, snpData1, snpData2
-				
-				qcdata.min_call_probability = min_call_probability
-				qcdata.max_call_mismatch_rate = max_call_mismatch_rate
-				qcdata.max_call_NA_rate = max_call_NA_rate
-				qcdata.max_snp_mismatch_rate = max_snp_mismatch_rate
-				qcdata.max_snp_NA_rate = max_snp_NA_rate
-				qcdata.npute_window_size = npute_window_size
-				result.append(qcdata)
+		min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate = data
+		init_data = parameter_list[0]
+		snpsd_250k_tmp = copy.copy(init_data.snpsd_250k)				
+		result = self.doFilter(snpsd_250k_tmp, init_data.snpsd_2010_149_384, init_data.snpsd_perlegen, init_data.snpData_2010_149_384, \
+							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
+							max_snp_mismatch_rate, max_snp_NA_rate, init_data.param_d.npute_window_size_ls)
 		sys.stderr.write("Node no.%s done with %s QC.\n"%(node_rank, len(result)))
 		return result
 	
@@ -203,51 +203,43 @@ class MpiQCCall(object):
 				else:
 					type_of_id = 'strain'
 				if id2NA_mismatch_rate_name[-1]=='0':
-					type_of_id += '(before imputation)'
+					after_imputation = 0
 				else:
-					type_of_id += '(after imputation)'
+					after_imputation = 1
 				for row_id in row_id_ls:
 					NA_mismatch_ls = id2NA_mismatch_rate[row_id]
-					writer.writerow(['%s %s'%(type_of_id, repr(row_id))] + common_ls + NA_mismatch_ls)
+					writer.writerow([type_of_id, repr(row_id), after_imputation] + common_ls + NA_mismatch_ls)
 	
 	def run(self):
 		"""
 		2008-05-09
-			(rank==0)
-				--get_chr_start_ls()
-			elif free_computing_nodes:
-				-- (receive data)
-			
-			--mpi_synchronize()
-			
-			(rank==0)
-				--input_node()
-					--input_handler()
-			elif free_computing_nodes:
-				--computing_node()
-					--computing_node_handler()
-						--identify_ancestry_with_min_jumps()
-							--initialize_score_trace_matrix()
-								--is_child_heterozygous_SNP_compatible_with_parents()
-							(for loop)
-								--identify_ancestry_of_one_chr_with_DP()
-									--is_child_heterozygous_SNP_compatible_with_parents()
-							--trace()
-								--recursive_trace()
-			else:
-				--output_node()
-					--output_node_handler()
 		"""
+		self.parameter_names = ['max_call_mismatch_rate_ls', 'max_call_NA_rate_ls', \
+			'max_snp_mismatch_rate_ls', 'max_snp_NA_rate_ls', 'npute_window_size_ls']
+		if self.debug:	#serial debug
+			import pdb
+			pdb.set_trace()
+			init_data = PassingData()
+			init_data.snpsd_250k = dataParsers.parseCSVData(self.input_fname, withArrayIds=True)
+			init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384)
+			init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report, use_nt2number=0)
+			init_data.snpsd_perlegen = dataParsers.parseCSVData(self.fname_perlegen)
+			param_d = self.generate_parameters(self.parameter_names)
+			min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate = param_d.parameters[0]
+			result = self.doFilter(init_data.snpsd_250k, init_data.snpsd_2010_149_384, init_data.snpsd_perlegen, init_data.snpData_2010_149_384, \
+							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
+							max_snp_mismatch_rate, max_snp_NA_rate, param_d.npute_window_size_ls)
+			sys.exit(2)
+		
 		self.communicator = MPI.world.duplicate()
 		node_rank = self.communicator.rank
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
-		self.parameter_names = ['max_call_mismatch_rate_ls', 'max_call_NA_rate_ls', \
-			'max_snp_mismatch_rate_ls', 'max_snp_NA_rate_ls', 'npute_window_size_ls']
-		data_to_pickle_name_ls = ['snpsd_250k', 'snpsd_2010_149_384', 'snpsd_perlegen', 'param_d']
+		data_to_pickle_name_ls = ['snpsd_250k', 'snpsd_2010_149_384', 'snpData_2010_149_384', 'snpsd_perlegen', 'param_d']
 		if node_rank == 0:
 			init_data = PassingData()
 			init_data.snpsd_250k = dataParsers.parseCSVData(self.input_fname, withArrayIds=True)
-			init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384, deliminator=',')
+			init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384)
+			init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report, use_nt2number=0)
 			init_data.snpsd_perlegen = dataParsers.parseCSVData(self.fname_perlegen)
 			param_d = self.generate_parameters(self.parameter_names)
 			init_data.param_d = param_d
@@ -274,13 +266,14 @@ class MpiQCCall(object):
 		
 		if node_rank == 0:
 			param_d.index = 0
-			mw.input_node(param_d, free_computing_nodes, input_handler=self.input_handler)
+			parameter_list = [param_d]
+			mw.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler)
 		elif node_rank in free_computing_nodes:
-			parameter_list = init_data
+			parameter_list = [init_data]
 			mw.computing_node(parameter_list, self.computing_node_handler)
 		else:
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
-			header = ['strain/snp', 'min_call_probability'] + self.parameter_names + ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
+			header = ['strain or snp', 'id', 'after_imputation', 'min_call_probability'] + self.parameter_names + ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
 			writer.writerow(header)
 			parameter_list = [writer]
 			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
