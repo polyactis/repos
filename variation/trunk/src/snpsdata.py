@@ -11,19 +11,22 @@ from sets import Set as set
 
 class _SnpsData_(object):
 	"""
+	05/11/2008 yh. add chromosome
 	An abstract superclass.
 	"""
 	accessions = [] #list[accession_index]
 	arrayIds = None #list[accession_index]
 	snps = []  #list[position_index][accession_index]
 	positions = [] #list[position_index]
-	def __init__(self,snps,positions,baseScale=None,accessions=None,arrayIds=None):
+	chromosome = None
+	def __init__(self,snps,positions,baseScale=None,accessions=None,arrayIds=None, chromosome=None):
 		self.snps = snps
 		self.positions = positions
 		if accessions: 
 			self.accessions=accessions
 		if arrayIds: 
 			self.arrayIds=arrayIds
+		self.chromosome = chromosome
 
 	def scalePositions(self,baseScale):
 		for i in range(0,len(self.positions)):
@@ -47,6 +50,7 @@ class RawDecoder(dict):
 
 class RawSnpsData(_SnpsData_):
 	"""
+	05/11/2008 yh. give default values to all initial arguments so that it could be called without any arguments.
 	Similar to the SnpsData class, except it deals with bases (A,C,G,T), instead of allele numbers (0s and 1s).
 	
 	Alphabet: A,C,G,T, and NA
@@ -54,7 +58,7 @@ class RawSnpsData(_SnpsData_):
 	"""
 	callProbabilities = []  #list[position_index][accession_index]
 
-	def __init__(self,snps,positions,baseScale=None,accessions=None,arrayIds=None, callProbabilities=None):
+	def __init__(self,snps=None,positions=None,baseScale=None,accessions=None,arrayIds=None, callProbabilities=None):
 		self.snps = snps
 		self.positions = positions
 		if accessions: 
