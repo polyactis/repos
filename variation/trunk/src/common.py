@@ -338,3 +338,37 @@ def get_ecotypeid2nativename(curs, ecotype_table='ecotype'):
 		ecotypeid2nativename[ecotypeid] = nativename
 	sys.stderr.write("Done.\n")
 	return ecotypeid2nativename
+
+def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
+	"""
+	2008-05-11
+		adapts RawSnpsData(bjarni's SNP data structure) to SNPData
+		
+		combine all chromsomes together
+	"""
+	import sys
+	if report:
+		sys.stderr.write("Converting RawSnpsData_ls to SNPData ...")
+	from QC_250k import SNPData
+	nt_dict_map = lambda x: nt2number[x]
+	snpData = SNPData(row_id_ls = [], col_id_ls=[], data_matrix=[])
+	for i in range(len(rawSnpsData_ls)):
+		rawSnpsData = rawSnpsData_ls[i]
+		chromosome = rawSnpsData.chromosome
+		for j in range(len(rawSnpsData.positions)):
+			if use_nt2number:
+				data_row = map(nt_dict_map, rawSnpsData.snps[j])
+			else:
+				data_row = rawSnpsData.snps[j]
+			snpData.data_matrix.append(data_row)
+			snpData.row_id_ls.append((chromosome, rawSnpsData.positions[j]))
+		if i==0:	#only need once
+			for j in range(len(rawSnpsData.accessions)):
+				if rawSnpsData.arrayIds:
+					col_id = (rawSnpsData.arrayIds[j], rawSnpsData.accessions[j])
+				else:
+					col_id = rawSnpsData.accessions[j]
+				snpData.col_id_ls.append(col_id)
+	if report:
+		sys.stderr.write("Done.\n")
+	return snpData
