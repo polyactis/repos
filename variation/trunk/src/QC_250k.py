@@ -486,12 +486,18 @@ class QC_250k(object):
 			#		(NA_rate, call_info_id))
 		sys.stderr.write("Done.\n")
 	
-	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname):
+	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname, file_1st_open=1):
 		"""
+		2008-05-11
+			add file_1st_open argument
 		2008-04-22
 		"""
 		sys.stderr.write("Outputting row_id2NA_mismatch_rate to %s ..."%(output_fname))
-		writer = csv.writer(open(output_fname, 'a'), delimiter='\t')
+		if file_1st_open:
+			open_flag = 'w'
+		else:
+			open_flag = 'a'
+		writer = csv.writer(open(output_fname, open_flag), delimiter='\t')
 		header = ['array_id', 'ecotypeid', 'NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
 		writer.writerow(header)
 		row_id_ls = row_id2NA_mismatch_rate.keys()
