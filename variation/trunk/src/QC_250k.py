@@ -28,8 +28,9 @@ Examples:
 	#do snp-wise QC between 250k (call_method_id=3, excluding arrays with > 20% mismatch rate, according to the QC with maximum no_of_non_NA_pairs) and Perlegen
 	QC_250k.py -m 2 -l 3 -y 0.85 -e 2 -x 0.20 -c
 	
+	#QC on an NPUTE output file.
 	QC_250k.py -n /mnt/nfs/NPUTE_data/250k_l3_y0..6_w0.2_x0.2_h170_w10.npute -m 3
-	QC_250k.py -n /mnt/nfs/NPUTE_data/250k_l3_y0..6_w0.2_x0.2_h170_w10.npute -m 8 -o 250k_l3_y0.6_m8_QC.out -l 3
+	QC_250k.py -n /mnt/nfs/NPUTE_data/NPUTE_output/250k_l3_y0.70_v0.6_w0.2_x0.2.tsv_w10.npute -m 8 -o /tmp/250k_l3_y0.70_v0.6_w0.2_x0.2.tsv_w10.npute_m8_QC.tsv -l 3
 	
 Description:
 	QC for 250k call data from call_info_table against 2010, perlegen, 149SNP data.
@@ -53,7 +54,7 @@ else:   #32bit
 
 import time, csv, getopt
 import warnings, traceback
-from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
+from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict, ProcessOptions
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README
@@ -62,9 +63,11 @@ import sqlalchemy, numpy
 
 class SNPData(object):
 	def __init__(self, **keywords):
-		argument_default_dict = {('header', 1, ): None,\
-								('strain_acc_list', 1, ): None,\
-								('category_list', 1, ): None,\
+		argument_default_dict = {('row_id_ls', 0, ): None,\
+								('col_id_ls', 0, ): None,\
+								('header', 0, ): None,\
+								('strain_acc_list', 0, ): None,\
+								('category_list', 0, ): None,\
 								('data_matrix', 1, ): None,\
 								('min_probability', 0, float): -1,\
 								('call_method_id', 0, int): -1,\
@@ -72,101 +75,135 @@ class SNPData(object):
 								('max_call_info_mismatch_rate', 0, float): 1,\
 								('snps_table', 0, ):None}
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
-
+		if self.row_id_ls is None and self.strain_acc_list is not None:
+			self.row_id_ls = []
+			for i in range(len(self.strain_acc_list)):
+				if self.category_list is not None:
+					row_id = (self.strain_acc_list[i], self.category_list[i])
+				else:
+					row_id = self.strain_acc_list[i]
+				self.row_id_ls.append(row_id)
+		
+		if self.col_id_ls is None and self.header is not None:
+			self.col_id_ls = []
+			for i in range(2,len(self.header)):
+				col_id = self.header[i]
+				self.col_id_ls.append(col_id)
 
 
 class TwoSNPData(QualityControl):
 	"""
 	QC between SNPData1 and SNPData2. The final NA_rate, mismatch_rate is in terms of row_id in SNPData1.
 	"""
+	argument_default_dict = {('SNPData1', 1, ): None,\
+							('SNPData2', 1, ): None,\
+							('curs', 0, ): None,\
+							('snp_locus_table_250k', 0, ): 'stock_250k.snps',\
+							('snp_locus_table_149snp', 0, ): 'stock.snps',\
+							('QC_method_id', 1, int):1,\
+							('user', 0,): '',\
+							('columns_to_be_selected', 0, ):'s1.name, s2.snpid',\
+							('row_matching_by_which_value', 0, ): None,\
+							('col_matching_by_which_value', 0, ): None,\
+							('debug', 0, ): 0}
 	def __init__(self, **keywords):
-		argument_default_dict = {('SNPData1', 1, ): None,\
-								('SNPData2', 1, ): None,\
-								('curs', 0, ): None,\
-								('snp_locus_table_250k', 0, ): 'stock_250k.snps',\
-								('snp_locus_table_149snp', 0, ): 'stock.snps',\
-								('QC_method_id', 1, int):1,\
-								('user', 0,): '',\
-								('columns_to_be_selected', 0, ):'s1.name, s2.snpid',\
-								('row_id_matching_type', 0, int): 1}
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		if self.QC_method_id!=3 and self.QC_method_id!=7:	#149SNP uses snpid
 			self.columns_to_be_selected = 's1.name, s2.name'
 		
-		get_row_matching_dstruc_dict = {1: self.get_row_matching_dstruc_by_category,\
-			2: self.get_row_matching_dstruc_by_strain_acc}
-		
-		self.get_row_matching_dstruc = get_row_matching_dstruc_dict[self.row_id_matching_type]
-		
 		self.update_row_col_matching()
 	
-	def get_row_matching_dstruc_by_strain_acc(self, strain_acc_list1, category_list1, strain_acc_list2):
+	def get_row_matching_dstruc(self, row_id_ls1, row_id_ls2, row_matching_by_which_value=None):
 		"""
+		2008-05-11
+			overhauled
 		2008-05-09
 		"""
 		sys.stderr.write("Getting row matching dstruc ...\n")
-		strain_acc2row_index1 = {}
-		for i in range(len(strain_acc_list1)):
-			strain_acc = strain_acc_list1[i]
-			strain_acc2row_index1[strain_acc] = i
+		if row_matching_by_which_value!=None:
+			row_matching_by_which_value = row_matching_by_which_value
+		else:
+			row_matching_by_which_value = self.row_matching_by_which_value
 		
-		strain_acc2row_index2 = {}
-		for i in range(len(strain_acc_list2)):
-			strain_acc = strain_acc_list2[i]
-			strain_acc2row_index2[strain_acc] = i
+		row_id2row_index1= {}
+		for i in range(len(row_id_ls1)):
+			row_id = row_id_ls1[i]
+			row_id2row_index1[row_id] = i
+		
+		row_id2row_index2 = {}
+		for i in range(len(row_id_ls2)):
+			row_id = row_id_ls2[i]
+			row_id2row_index2[row_id] = i
 		
 		row_id12row_id2 = {}
-		for strain_acc in strain_acc2row_index1:
-			if strain_acc in strain_acc2row_index2:
-				row_id12row_id2[strain_acc] = strain_acc
+		for row_id in row_id2row_index1:
+			if isinstance(row_matching_by_which_value, int):
+				key = row_id[row_matching_by_which_value]
+			else:
+				key = row_id
+			if key in row_id2row_index2:
+				row_id12row_id2[row_id] = key
 			else:
 				if hasattr(self, 'debug') and getattr(self,'debug'):
-					sys.stderr.write('Linking Failure: %s.\n'% strain_acc)
+					sys.stderr.write('Row Matching Failure: %s.\n'% repr(row_id))
 		sys.stderr.write("Done.\n")
-		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
+		return row_id2row_index1, row_id2row_index2, row_id12row_id2
 	
-	def get_row_matching_dstruc_by_category(self, strain_acc_list1, category_list1, strain_acc_list2):
+	def get_col_matching_dstruc(self, col_id_ls1, col_id_ls2, col_matching_by_which_value=None):
 		"""
-		2008-04-20
-			strain_acc_list1 contains call_info_id
-			category_list1 contains ecotypeid corresponding to call_info_id
+		2008-05-11
+			copied from QualityControl.py
+		2008-01-01
+			default version. matching by same names
+			copied from get_col_matching_dstruc() of Cmp250kVs2010.py
 		"""
-		sys.stderr.write("Getting row matching dstruc ...\n")
-		strain_acc2row_index1 = {}
-		for i in range(len(strain_acc_list1)):
-			call_info_id = int(strain_acc_list1[i])
-			ecotypeid = int(category_list1[i])
-			strain_acc = (call_info_id, ecotypeid)
-			strain_acc2row_index1[strain_acc] = i
+		sys.stderr.write("Getting col matching dstruc ...\n")
+		if col_matching_by_which_value!=None:
+			col_matching_by_which_value = col_matching_by_which_value
+		else:
+			col_matching_by_which_value = self.col_matching_by_which_value
 		
-		strain_acc2row_index2 = {}
-		for i in range(len(strain_acc_list2)):
-			strain_acc = strain_acc_list2[i]
-			ecotypeid = int(strain_acc)
-			strain_acc2row_index2[ecotypeid] = i
+		col_id2col_index1 = {}
+		for i in range(len(col_id_ls1)):
+			col_id = col_id_ls1[i]
+			col_id2col_index1[col_id] = i
 		
-		row_id12row_id2 = {}
-		for strain_acc in strain_acc2row_index1:
-			call_info_id, ecotypeid = strain_acc
-			if ecotypeid in strain_acc2row_index2:
-				row_id12row_id2[strain_acc] = ecotypeid
+		col_id2col_index2 = {}
+		for i in range(len(col_id_ls2)):
+			col_id = col_id_ls2[i]
+			col_id2col_index2[col_id] = i
+		
+		col_id12col_id2 = {}
+		for col_id in col_id2col_index1:
+			if isinstance(col_matching_by_which_value, int):
+				key = col_id[col_matching_by_which_value]
+			else:
+				key = col_id
+			if key in col_id2col_index2:
+				col_id12col_id2[col_id] = key
 			else:
 				if hasattr(self, 'debug') and getattr(self,'debug'):
-					sys.stderr.write('Linking Failure: %s.\n'% strain_acc)
+					sys.stderr.write('Col Matching Failure: %s.\n'% repr(col_id))
 		sys.stderr.write("Done.\n")
-		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
+		return col_id2col_index1, col_id2col_index2, col_id12col_id2
 	
 	def update_row_col_matching(self):
+		"""
+		2008-05-11
+			fake two headers from col_id_ls
+		"""
 		if self.QC_method_id==3 or self.QC_method_id==7 or self.QC_method_id==8:	#149SNP data is SNPData2. use database to find out which SNP matches which
 			if self.curs==None:
 				sys.stderr.write("Error: no database connection but it's required to link SNP ids.\n")
 				sys.exit(3)
 			from variation.src.Cmp250kVs149SNP import Cmp250kVs149SNP
-			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = Cmp250kVs149SNP.get_col_matching_dstruc(self.SNPData1.header, \
-					self.SNPData2.header, self.curs, self.SNPData1.snps_table, self.SNPData2.snps_table, columns_to_be_selected=self.columns_to_be_selected)
+			header1 = ['', ''] + self.SNPData1.col_id_ls
+			header2 = ['', ''] + self.SNPData2.col_id_ls
+			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = Cmp250kVs149SNP.get_col_matching_dstruc(header1, \
+					header2, self.curs, self.SNPData1.snps_table, self.SNPData2.snps_table, columns_to_be_selected=self.columns_to_be_selected)
 		else:	#use the default from QualityControl
-			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.header, self.SNPData2.header)
-		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.strain_acc_list, self.SNPData1.category_list, self.SNPData2.strain_acc_list)
+			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.col_id_ls, self.SNPData2.col_id_ls)
+		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.row_id_ls, self.SNPData2.row_id_ls)
 		
 	def cmp_row_wise(self):
 		return QualityControl.cmp_row_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
@@ -449,12 +486,12 @@ class QC_250k(object):
 			#		(NA_rate, call_info_id))
 		sys.stderr.write("Done.\n")
 	
-	def output_row_id2NA_mismatch_rate(self, row_id2NA_mismatch_rate, output_fname):
+	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname):
 		"""
 		2008-04-22
 		"""
 		sys.stderr.write("Outputting row_id2NA_mismatch_rate to %s ..."%(output_fname))
-		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		writer = csv.writer(open(output_fname, 'a'), delimiter='\t')
 		header = ['array_id', 'ecotypeid', 'NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
 		writer.writerow(header)
 		row_id_ls = row_id2NA_mismatch_rate.keys()
@@ -464,6 +501,8 @@ class QC_250k(object):
 			writer.writerow(list(row_id) + NA_mismatch_ls)
 		del writer
 		sys.stderr.write("Done.\n")
+	
+	output_row_id2NA_mismatch_rate = classmethod(output_row_id2NA_mismatch_rate)
 	
 	def get_snps_name2snps_id(cls, db):
 		"""
@@ -531,8 +570,8 @@ class QC_250k(object):
 		else:
 			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.cmp_data_filename)
-			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, \
-							data_matrix=data_matrix, snps_table=QC_method_id2snps_table[self.QC_method_id])
+			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, \
+							data_matrix=data_matrix, snps_table=QC_method_id2snps_table[self.QC_method_id])	#category_list is not used.
 			
 			if self.input_dir and os.path.isdir(self.input_dir):
 				#04/22/08 Watch: call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
@@ -571,7 +610,7 @@ class QC_250k(object):
 							max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
 			
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
-								QC_method_id=self.QC_method_id, user=self.user)
+								QC_method_id=self.QC_method_id, user=self.user, row_matching_by_which_value=1, debug=self.debug)
 			
 			if self.run_type==1:
 				row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
