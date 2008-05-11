@@ -244,12 +244,13 @@ class MpiQCCall(object):
 			param_d = self.generate_parameters(self.parameter_names)
 			init_data.param_d = param_d
 			
-			sys.stderr.write("passing data to nodes from %s ..."%node_rank)
 			for node in free_computing_nodes:	#send it to the computing_node
+				sys.stderr.write("passing data to nodes from %s to %s ..."%(node_rank, node))
 				for data_to_pickle_name in data_to_pickle_name_ls:
 					data_pickle = cPickle.dumps(getattr(init_data, data_to_pickle_name), -1)
 					self.communicator.send(data_pickle, node, 0)
 					del data_pickle
+				sys.stderr.write(" Done.\n")
 			del init_data
 			sys.stderr.write("Done.\n")
 		elif node_rank in free_computing_nodes:
