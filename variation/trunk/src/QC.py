@@ -98,10 +98,9 @@ class QC(object):
 		row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
 		col_id2NA_mismatch_rate = twoSNPData.cmp_col_wise()
 		if row_id2NA_mismatch_rate:
-			QC_250k.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname)
+			QC_250k.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname, file_1st_open=1)
 		if col_id2NA_mismatch_rate:
-			QC_250k.output_row_id2NA_mismatch_rate(col_id2NA_mismatch_rate, self.output_fname)
-			pass
+			QC_250k.output_row_id2NA_mismatch_rate(col_id2NA_mismatch_rate, self.output_fname, file_1st_open=0)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
