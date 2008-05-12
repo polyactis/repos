@@ -442,7 +442,7 @@ class RawSnpsData(_SnpsData_):
 				if snp=='NA':
 					naCounts2[k] += 1
 		
-		return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate]
+		return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate, [naCounts1,naCounts2]]
 
 	def getSnpsData(self):
 		"""
