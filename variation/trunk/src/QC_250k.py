@@ -488,6 +488,8 @@ class QC_250k(object):
 	
 	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname, file_1st_open=1):
 		"""
+		2008-05-12
+			tsv => csv fromat
 		2008-05-11
 			add file_1st_open argument
 		2008-04-22
@@ -497,7 +499,7 @@ class QC_250k(object):
 			open_flag = 'w'
 		else:
 			open_flag = 'a'
-		writer = csv.writer(open(output_fname, open_flag), delimiter='\t')
+		writer = csv.writer(open(output_fname, open_flag))
 		header = ['array_id', 'ecotypeid', 'NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
 		writer.writerow(header)
 		row_id_ls = row_id2NA_mismatch_rate.keys()
