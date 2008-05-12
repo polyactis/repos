@@ -51,7 +51,7 @@ def _run_():
 	
     inputFile = args[0]
     output_fname = None
-    delim = ", "
+    delim = ","
     missingVal = "NA"
     comparisonFile = None
     maxMissing = 1.0

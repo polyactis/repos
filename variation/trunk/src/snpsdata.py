@@ -184,18 +184,18 @@ class RawSnpsData(_SnpsData_):
 				newSnp = []
 				oldSnp1 = self.snps[i]
 				oldSnp2 = snpsd.snps[j]
-				if priority ==1:
-					for index in accessionsIndices:
-						if index[0] != -1:
-							newSnp.append(oldSnp1[index[0]])
-						else:
-							newSnp.append(oldSnp2[index[1]])
-				elif priority == 2:
-					for index in accessionsIndices:
+				newnt = 'NA'
+				for index in accessionsIndices:
+					if index[0] != -1 and oldSnp1[index[0]]!='NA' and priority==1:
+						newSnp.append(oldSnp1[index[0]])
+					elif index[0] != -1 and oldSnp1[index[0]]!='NA' and priority==2:
 						if index[1] != -1:
-							newSnp.append(oldSnp2[index[1]])
-						else:
-							newSnp.append(oldSnp1[index[0]])
+							if oldSnp2[index[1]]=='NA':
+								newSnp.append(oldSnp1[index[0]])
+							else:
+								newSnp.append(oldSnp2[index[1]])
+					elif index[1] != -1:
+						newSnp.append(oldSnp2[index[1]])
 				newSnps.append(newSnp)
 				i = i+1
 				j = j+1

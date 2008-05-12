@@ -58,7 +58,7 @@ def _run_():
         union = 0
         intersection = 0
         output_fname = None
-	delim = ", "
+	delim = ","
 	missingVal = "NA"
 	debug = None
 	report = None
