@@ -2,12 +2,12 @@
 """
 
 Examples:
-	mpiexec MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250k_method_3.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.out
+	mpiexec MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250k_method_3.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.csv
 	
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython ~/script/variation/src/MpiQCCall.py
 	
 	#test
-	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.out -n 20 -v 0.3 -a 0.4 -w 0.2
+	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.csv -n 20 -v 0.3 -a 0.4 -w 0.2
 
 Description:
 	a parallel program to do QC on genotype calls before/after imputation under various parameter settings.
@@ -276,7 +276,7 @@ class MpiQCCall(object):
 			parameter_list = [init_data]
 			mw.computing_node(parameter_list, self.computing_node_handler)
 		else:
-			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
+			writer = csv.writer(open(self.output_fname, 'w'))
 			header = ['strain or snp', 'id', 'after_imputation', 'min_call_probability'] + self.parameter_names + ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
 			writer.writerow(header)
 			parameter_list = [writer]
