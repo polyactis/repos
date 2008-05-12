@@ -26,6 +26,7 @@ nt2number = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces
 	'-': -1,	#deletion
 	'N': 0,
 	'NA': 0,
+	None: 0,
 	'A': 1,
 	'C': 2,
 	'G': 3,
