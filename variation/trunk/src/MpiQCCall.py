@@ -43,7 +43,7 @@ class MpiQCCall(object):
 							('max_call_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8", 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate_ls', 1, ): ["0.05,0.1,0.15,0.2,0.25,0.3", 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
 							('max_snp_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7", 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
-							('npute_window_size_ls', 1): ["10,30,50",],\
+							('npute_window_size_ls', 1): ["10,30,50", 'n', 1, 'NPUTE window size',],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
