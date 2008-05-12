@@ -196,6 +196,8 @@ class RawSnpsData(_SnpsData_):
 								newSnp.append(oldSnp2[index[1]])
 					elif index[1] != -1:
 						newSnp.append(oldSnp2[index[1]])
+					else:
+						newSnp.append('NA')
 				newSnps.append(newSnp)
 				i = i+1
 				j = j+1
