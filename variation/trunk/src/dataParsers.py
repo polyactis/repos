@@ -500,6 +500,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
 
 def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False):
     """
+    05/12/08 yh. add '-':'-' (deletion) and '|':'NA' (untouched) to decoder
     05/12/2008 yh. more correct reporting of snp loading counts
     05/11/2008 yh. add chromosome. use RawSnpsData directly. ...
     
@@ -510,8 +511,9 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
     """
     sys.stderr.write("Loading file: %s ... \n"%datafile)
     decoder={missingVal:'NA', 'A':'A', 'C':'C', 'G':'G', 'T':'T', 
-             'AG':'NA', 'AC':'NA', 'GT':'NA', 'CT':'NA', 'AT':'NA', 'CG':'NA'}
-    
+             'AG':'NA', 'AC':'NA', 'GT':'NA', 'CT':'NA', 'AT':'NA', 'CG':'NA', '-':'-', '|':'NA'}	#05/12/08 yh. add '-':'-' (deletion) and '|':'NA' (untouched)
+    #from common import nt2number
+    #decoder = nt2number
     positions = [] #list[chr][position_index]
     genotypes = [] #list[chr][position_index][acces]
     accessions = []
