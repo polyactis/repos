@@ -20,6 +20,9 @@ Examples:
 	
 	#translate integer nucleotide into english letter (no filtering)
 	FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a 01 -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
+	
+	#remove all-NA rows & columns
+	./src/FilterStrainSNPMatrix.py -i data/2010/data_2010_ecotype_id_y0002.tsv -o data/2010/data_2010_ecotype_id_y0002_n1c1d110.tsv -n 1 -c 1 -d 110 -r
 
 Description:
 	Filtering procedures:
@@ -27,6 +30,11 @@ Description:
 	 2. SNPs with too many NAs (-c specifies the cutoff)
 	 3. identity strains
 	
+	NA could be 0 (NA, undecided in calling) or -2 (not touched by the procedure).
+	
+	Input format is strain X snp. delimiter (either tab or comma) is automatically detected.
+	
+	Output format is strain X snp. same delimiter as input would be used.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -40,7 +48,7 @@ import getopt, csv, math
 import Numeric as num
 from sets import Set
 from variation.src.common import number2nt, nt2number
-from pymodule import dict_map
+from pymodule import dict_map, PassingData, figureOutDelimiter, write_data_matrix
 
 class FilterStrainSNPMatrix(object):
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
@@ -64,53 +72,86 @@ class FilterStrainSNPMatrix(object):
 		self.debug = int(debug)
 		self.report = int(report)
 	
-	def remove_rows_with_too_many_NAs(cls, data_matrix, row_cutoff, debug=0):
+	def remove_rows_with_too_many_NAs(cls, data_matrix, row_cutoff, cols_with_too_many_NAs_set=None, NA_set=Set([0, -2]), debug=0):
 		"""
+		2008-05-12
+			made more robust
+			add cols_with_too_many_NAs_set
+			add NA_set
 		2008-05-08
 			become classmethod
 		"""
-		sys.stderr.write("Removing rows with too many NAs...")
+		sys.stderr.write("Removing rows with NA rate >= %s ..."%(row_cutoff))
 		no_of_rows, no_of_cols = data_matrix.shape
 		rows_with_too_many_NAs_set = Set()
-		strain_index2no_of_NAs = {}
+		total_cols_set = Set(range(no_of_cols))
+		if cols_with_too_many_NAs_set:
+			cols_to_be_checked = total_cols_set - cols_with_too_many_NAs_set
+		else:
+			cols_to_be_checked = total_cols_set
+		row_index2no_of_NAs = {}
 		for i in range(no_of_rows):
 			no_of_NAs = 0.0
-			for j in range(no_of_cols):
-				if data_matrix[i][j] == 0:
+			for j in cols_to_be_checked:
+				if data_matrix[i][j] in NA_set:
 					no_of_NAs += 1
-			NA_ratio = no_of_NAs/no_of_cols
-			strain_index2no_of_NAs[i] = NA_ratio
+			if no_of_cols!=0:
+				NA_ratio = no_of_NAs/no_of_cols
+			else:
+				NA_ratio = 0.0
+			row_index2no_of_NAs[i] = NA_ratio
 			if NA_ratio >= row_cutoff:
 				rows_with_too_many_NAs_set.add(i)
 		if debug:
 			print
 			print 'rows_with_too_many_NAs_set'
 			print rows_with_too_many_NAs_set
+		passingdata = PassingData(rows_with_too_many_NAs_set=rows_with_too_many_NAs_set)
+		passingdata.row_index2no_of_NAs = row_index2no_of_NAs
 		sys.stderr.write("%s strains removed, done.\n"%len(rows_with_too_many_NAs_set))
-		return rows_with_too_many_NAs_set, strain_index2no_of_NAs
+		return passingdata
 	
 	remove_rows_with_too_many_NAs = classmethod(remove_rows_with_too_many_NAs)
 	
-	def remove_cols_with_too_many_NAs(self, data_matrix, col_cutoff, rows_with_too_many_NAs_set):
-		sys.stderr.write("Removing columns with too many NAs...")
+	def remove_cols_with_too_many_NAs(cls, data_matrix, col_cutoff, rows_with_too_many_NAs_set=None, NA_set=Set([0, -2]), debug=0):
+		"""
+		2008-05-12
+			classmethod
+			more robust, standardize
+			add NA_set
+		"""
+		sys.stderr.write("Removing columns with NA rate>=%s ..."%col_cutoff)
 		no_of_rows, no_of_cols = data_matrix.shape
 		cols_with_too_many_NAs_set = Set()
 		total_rows_set = Set(range(no_of_rows))
-		rows_to_be_checked = total_rows_set - rows_with_too_many_NAs_set
+		if rows_with_too_many_NAs_set:
+			rows_to_be_checked = total_rows_set - rows_with_too_many_NAs_set
+		else:
+			rows_to_be_checked = total_rows_set
+		
+		col_index2no_of_NAs = {}
+		
 		for j in range(no_of_cols):
 			no_of_NAs = 0.0
 			for i in rows_to_be_checked:
-				if data_matrix[i][j] == 0:
+				if data_matrix[i][j] in NA_set:
 					no_of_NAs += 1
-			NA_ratio = no_of_NAs/no_of_rows
+			if no_of_rows!=0:
+				NA_ratio = no_of_NAs/no_of_rows
+			else:
+				NA_ratio = 0.0
+			col_index2no_of_NAs[j] = NA_ratio
 			if NA_ratio >= col_cutoff:
 				cols_with_too_many_NAs_set.add(j)
-		if self.debug:
+		if debug:
 			print
 			print 'cols_with_too_many_NAs_set'
 			print cols_with_too_many_NAs_set
+		passingdata = PassingData(cols_with_too_many_NAs_set=cols_with_too_many_NAs_set, col_index2no_of_NAs=col_index2no_of_NAs)
 		sys.stderr.write("%s cols removed, done.\n"%(len(cols_with_too_many_NAs_set)))
-		return cols_with_too_many_NAs_set
+		return passingdata
+	
+	remove_cols_with_too_many_NAs = classmethod(remove_cols_with_too_many_NAs)
 	
 	def remove_identity_strains(self, data_matrix, rows_to_be_checked, cols_to_be_checked):
 		"""
@@ -204,8 +245,10 @@ class FilterStrainSNPMatrix(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def read_data(cls, input_fname, input_alphabet=0, turn_into_integer=1, double_header=0):
+	def read_data(cls, input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter='\t'):
 		"""
+		2008-05-12
+			add delimiter
 		2008-05-07
 			add option double_header
 		2007-03-06
@@ -216,7 +259,7 @@ class FilterStrainSNPMatrix(object):
 			add turn_into_integer
 		"""
 		sys.stderr.write("Reading data ...")
-		reader = csv.reader(open(input_fname), delimiter='\t')
+		reader = csv.reader(open(input_fname), delimiter=delimiter)
 		header = reader.next()
 		if double_header:
 			header = [header, reader.next()]
@@ -253,14 +296,21 @@ class FilterStrainSNPMatrix(object):
 		-remove_identity_strains()
 		-write_data_matrix()
 		"""
-		header, strain_acc_list, category_list, data_matrix = self.read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		delimiter = figureOutDelimiter(self.input_fname, report=self.report)
+		header, strain_acc_list, category_list, data_matrix = self.read_data(self.input_fname, int(self.nt_alphabet_bits[0]), delimiter=delimiter)
 		data_matrix = num.array(data_matrix)
 		if self.filtering_bits[0]=='1':
-			rows_with_too_many_NAs_set, strain_index2no_of_NAs = self.remove_rows_with_too_many_NAs(data_matrix, self.row_cutoff)
+			remove_rows_data = self.remove_rows_with_too_many_NAs(data_matrix, self.row_cutoff)
+			rows_with_too_many_NAs_set = remove_rows_data.rows_with_too_many_NAs_set
+			strain_index2no_of_NAs = remove_rows_data.row_index2no_of_NAs
 		else:
 			rows_with_too_many_NAs_set = Set()
 		if self.filtering_bits[1]=='1':
-			cols_with_too_many_NAs_set = self.remove_cols_with_too_many_NAs(data_matrix, col_cutoff, rows_with_too_many_NAs_set)
+			remove_cols_data = self.remove_cols_with_too_many_NAs(data_matrix, col_cutoff, rows_with_too_many_NAs_set)
+			cols_with_too_many_NAs_set = remove_cols_data.cols_with_too_many_NAs_set			
 		else:
 			cols_with_too_many_NAs_set = Set()
 		if self.filtering_bits[2]=='1':
@@ -273,8 +323,8 @@ class FilterStrainSNPMatrix(object):
 		else:
 			identity_strains_to_be_removed = Set()
 		rows_to_be_tossed_out = rows_with_too_many_NAs_set | identity_strains_to_be_removed
-		self.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set, int(self.nt_alphabet_bits[1]))
-
+		#self.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set, int(self.nt_alphabet_bits[1]))
+		write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out, cols_with_too_many_NAs_set, nt_alphabet=int(self.nt_alphabet_bits[1]), delimiter=delimiter)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
