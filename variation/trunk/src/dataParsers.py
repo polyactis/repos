@@ -500,6 +500,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
 
 def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False):
     """
+    05/12/2008 yh. more correct reporting of snp loading counts
     05/11/2008 yh. add chromosome. use RawSnpsData directly. ...
     
     Parses raw CSV SNPs data files into a RawSnpsData.
@@ -539,7 +540,7 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
     line = lines[i].split(deliminator)
     newChr = int(line[0])
     
-    no_of_headers = i+1
+    no_of_headers = i
     snpsd_ls = []
     while i < len(lines):
         chromosomes.append(int(newChr))
@@ -564,7 +565,7 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
             else:
                 break
         
-        sys.stderr.write("Loaded %s of %s SNPs.\n"%(i+1-no_of_headers, len(lines)-no_of_headers))
+        sys.stderr.write("Loaded %s of %s SNPs.\n"%(i-no_of_headers, len(lines)-no_of_headers))
         snpsd_ls.append(rawSnpsData)
         del rawSnpsData
     if format==0:
