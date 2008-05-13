@@ -149,8 +149,8 @@ def _run_():
 
 
 def filterByError(snpsds,comparisonSnpsds,maxError):
-        #Filtering bad SNPs
-	print "Filtering erroneous SNPs, with maxError=",maxError
+	#Filtering bad SNPs
+	sys.stderr.write("Filtering erroneous SNPs, with maxError=%s ... \n"%maxError)
 	for i in range(0,len(snpsds)):
 		snpsds[i].filterBadSnps(comparisonSnpsds[i],maxError)
 	return snpsds
@@ -164,10 +164,10 @@ def filterByNA(snpsds,maxMissing):
 	return snpsds
 
 def filterMonomorphic(snpsds):
-        #Filtering monomorphic
-        print "Filtering monomorphic SNPs"
+	#Filtering monomorphic
+	sys.stderr.write("Filtering monomorphic SNPs ... \n")
 	for snpsd in snpsds:
-		print "Removed", str(snpsd.filterMonoMorphicSnps()),"Snps"
+		sys.stderr.write("Removed" + str(snpsd.filterMonoMorphicSnps()) + "Snps.\n")
 	return snpsds
 
 def _test1_():
