@@ -126,7 +126,7 @@ class MpiQCCall(object):
 	
 		FilterSnps.filterMonomorphic(snpsd_250k_tmp)
 		
-		snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
+		snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp, use_nt2number=1)
 		
 		twoSNPData0 = TwoSNPData(SNPData1=snpData0, SNPData2=snpData_qc_strain, \
 						col_matching_by_which_value=1)	#col_id of snpData0 is (arrayId, accession)
@@ -148,7 +148,7 @@ class MpiQCCall(object):
 			#	snpsd_250k_tmp[i].snps = []
 			#	snpsd_250k_tmp[i].accession = []
 			#	snpsd_250k_tmp[i].positions = []
-		snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
+		snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp, use_nt2number=1)
 		del snpsd_250k_tmp
 		
 		qcdata = PassingData()
@@ -213,6 +213,20 @@ class MpiQCCall(object):
 					NA_mismatch_ls = id2NA_mismatch_rate[row_id]
 					writer.writerow([type_of_id, repr(row_id), after_imputation] + common_ls + NA_mismatch_ls)
 	
+	def create_init_data(self):
+		"""
+		2008-05-12
+			initial data loading on node 0
+		"""
+		init_data = PassingData()
+		init_data.snpsd_250k = dataParsers.parseCSVData(self.input_fname, withArrayIds=True)
+		init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384)
+		init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report, use_nt2number=1)
+		init_data.snpsd_perlegen = dataParsers.parseCSVData(self.fname_perlegen)
+		param_d = self.generate_parameters(self.parameter_names)
+		init_data.param_d = param_d
+		return init_data
+	
 	def run(self):
 		"""
 		2008-05-09
@@ -222,13 +236,8 @@ class MpiQCCall(object):
 		if self.debug:	#serial debug
 			import pdb
 			pdb.set_trace()
-			init_data = PassingData()
-			init_data.snpsd_250k = dataParsers.parseCSVData(self.input_fname, withArrayIds=True)
-			init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384)
-			init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report, use_nt2number=0)
-			init_data.snpsd_perlegen = dataParsers.parseCSVData(self.fname_perlegen)
-			param_d = self.generate_parameters(self.parameter_names)
-			min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = param_d.parameters[0][:6]
+			init_data = self.create_init_data()
+			min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = init_data.param_d.parameters[0][:6]
 			result = self.doFilter(init_data.snpsd_250k, init_data.snpsd_2010_149_384, init_data.snpsd_perlegen, init_data.snpData_2010_149_384, \
 							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size)
@@ -239,14 +248,8 @@ class MpiQCCall(object):
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
 		data_to_pickle_name_ls = ['snpsd_250k', 'snpsd_2010_149_384', 'snpData_2010_149_384', 'snpsd_perlegen', 'param_d']
 		if node_rank == 0:
-			init_data = PassingData()
-			init_data.snpsd_250k = dataParsers.parseCSVData(self.input_fname, withArrayIds=True)
-			init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384)
-			init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report, use_nt2number=0)
-			init_data.snpsd_perlegen = dataParsers.parseCSVData(self.fname_perlegen)
-			param_d = self.generate_parameters(self.parameter_names)
-			init_data.param_d = param_d
-			
+			init_data = self.create_init_data()
+			param_d = init_data.param_d
 			for node in free_computing_nodes:	#send it to the computing_node
 				sys.stderr.write("passing initial data to nodes from %s to %s ..."%(node_rank, node))
 				for data_to_pickle_name in data_to_pickle_name_ls:
@@ -277,7 +280,8 @@ class MpiQCCall(object):
 			mw.computing_node(parameter_list, self.computing_node_handler)
 		else:
 			writer = csv.writer(open(self.output_fname, 'w'))
-			header = ['strain or snp', 'id', 'after_imputation', 'min_call_probability'] + self.parameter_names + ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
+			header = ['strain or snp', 'id', 'after_imputation', 'min_call_probability'] + self.parameter_names + \
+				['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs', 'relative_NA_rate', 'relative_no_of_NAs', 'relative_no_of_totals']
 			writer.writerow(header)
 			parameter_list = [writer]
 			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
