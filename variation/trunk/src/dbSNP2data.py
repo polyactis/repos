@@ -36,11 +36,18 @@ Examples:
 	#output only 149SNP data with GPS info
 	dbSNP2data.py -o /tmp/stock_149SNP_y10001111.tsv -y 1 -r
 	
+	#output all 149SNP data in csv format. in number. output in strain X SNP format.
+	./src/dbSNP2data.py -o genotyping/149snp/stock_149SNP_y0000110101.tsv -y 0000110101
+	
 	#output 384-illumina data
 	dbSNP2data.py -o /tmp/384-illumina_y00001101.tsv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 00001101
 	
 	#output 384-illumina data in csv format. in nucleotide. output matrix transposed, in SNP by strain.
 	dbSNP2data.py  -o /tmp/384-illumina_y0000111111.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000111111
+	
+	#output 384-illumina data in csv format. in number. output in strain X SNP format.
+	./src/dbSNP2data.py -o genotyping/384-illumina_y0000110101.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000110101 -r
+	
 	
 Description:
 	output SNP data from database schema
@@ -161,6 +168,9 @@ class dbSNP2data(object):
 	
 	def get_snp_id2index_m(self, curs, input_table, snp_locus_table):
 		"""
+		2008-05-12
+			return snp_id2info as well
+			to standardize between different SNP dataset, use 'chromosome_position' as snp name (snpid)
 		2008-05-05
 			deal with tables in schema dbsnp
 		2007-07-11
@@ -172,22 +182,31 @@ class dbSNP2data(object):
 		sys.stderr.write("Getting snp_id2index ..m.")
 		snp_id2index = {}
 		snp_id_list = []
+		snp_id2info = {}
+		if snp_locus_table=='dbsnp.snps':
+			snp_acc_column = 'name'
+		else:
+			snp_acc_column = 'snpid'
+		
 		if snp_locus_table == 'snps':
-			curs.execute("select distinct i.snpid, s.chromosome, s.position from %s i, %s s where i.snpid=s.id order by chromosome, position"%(input_table, snp_locus_table))
+			curs.execute("select distinct i.snpid, s.%s, s.chromosome, s.position from %s i, %s s where i.snpid=s.id order by chromosome, position"%(snp_acc_column, input_table, snp_locus_table))
 		elif snp_locus_table == 'snps_250k':
 			#2007-12-13 only the snps overlapping with 149SNP
 			#curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s2, %s s1 where s1.chromosome=s2.chromosome and s1.position=s2.position order by chromosome, position"%('snps', snp_locus_table))
 			#2007-12-13 all 250k SNPs
-			curs.execute("select distinct s1.id, s1.chromosome, s1.position from %s s1 order by chromosome, position"%(snp_locus_table))
+			curs.execute("select distinct s.id, s.%s, s.chromosome, s.position from %s s order by chromosome, position"%(snp_acc_column, snp_locus_table))
 		elif snp_locus_table == 'dbsnp.snps':
-			curs.execute("select distinct s.id, s.chromosome, s.position from %s i, %s s, %s m where s.id=m.snps_id and i.snps_id=s.id order by chromosome, position"%(input_table, snp_locus_table, 'dbsnp.snps_ab_allele_mapping'))
+			curs.execute("select distinct s.id, s.%s, s.chromosome, s.position from %s i, %s s, %s m where s.id=m.snps_id and i.snps_id=s.id order by chromosome, position"%(snp_acc_column, input_table, snp_locus_table, 'dbsnp.snps_ab_allele_mapping'))
 		rows = curs.fetchall()
+		
 		for row in rows:
-			snp_id = row[0]
+			snp_id, snp_name, chromosome, position = row[:4]
+			new_snp_name='%s_%s'%(chromosome, position)	#to standardize between different SNP dataset
 			snp_id_list.append(snp_id)
 			snp_id2index[snp_id] = len(snp_id2index)
+			snp_id2info[snp_id] = (new_snp_name, chromosome, position)
 		sys.stderr.write("Done.\n")
-		return snp_id2index, snp_id_list
+		return snp_id2index, snp_id_list, snp_id2info
 	
 	def get_strain_id2index(self, curs, input_table):
 		sys.stderr.write("Getting strain_id2index ...")
@@ -328,6 +347,8 @@ class dbSNP2data(object):
 	
 	def get_snp_id_info_m(self, curs, snp_id_list, snp_locus_table):
 		"""
+		2008-05-12
+			deprecated, get_snp_id2index_m() can do this.
 		2007-07-11
 			mysql version of get_snp_id_info
 		2007-12-13
@@ -710,11 +731,11 @@ class dbSNP2data(object):
 			#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
 			conn = MySQLdb.connect(db=self.dbname,host=self.hostname, user=self.user, passwd = self.passwd)
 			curs = conn.cursor()
-			snp_id2index, snp_id_list = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
+			snp_id2index, snp_id_list, snp_id2info = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
 			strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, self.resolve_duplicated_calls)
 			
 			#strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
-			snp_id2info = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
+			#snp_id2info = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
 			if self.input_table == 'dbsnp.calls':
 				from variation.src.FigureOut384IlluminaABMapping import get_snps_id2mapping
 				snps_id2mapping = get_snps_id2mapping(self.hostname, dbname='dbsnp', user=self.user, passwd=self.passwd)
@@ -747,7 +768,9 @@ class dbSNP2data(object):
 		#05/08/08
 		if self.discard_all_NA_strain:
 			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-			rows_with_too_many_NAs_set, row_index2no_of_NAs = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(data_matrix, row_cutoff=1)
+			remove_rows_data = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(data_matrix, row_cutoff=1)
+			rows_with_too_many_NAs_set = remove_rows_data.rows_with_too_many_NAs_set
+			#row_index2no_of_NAs = remove_rows_data.row_index2no_of_NAs
 			rows_to_be_tossed_out.update(rows_with_too_many_NAs_set)
 		
 		strain_acc_list = [strain_id2acc[strain_id] for strain_id in strain_id_list]
