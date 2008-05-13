@@ -62,23 +62,25 @@ class QC(object):
 				file_format2count[file_format] = 0
 			file_format2count[file_format] += 1
 		
+		"""
+		2008-05-12	this block useless. use_nt2number=1 for all dataParsers.parseCSVData
 		if 1 in file_format2count and file_format2count[1]==1:	#there's one and only one strain x snp format.
 			#it needs transpose matrix. only numpy works on character matrix. not sure Numeric or numarray is imported. so transform the input matrix to integer.
 			use_nt2number = 1
 		else:
 			use_nt2number = 1
-		
+		"""
 		if self.input_fname1_format==1:
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname1)
 			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
 							data_matrix=data_matrix)
 		elif self.input_fname1_format==2:
-			snpsd_ls = dataParsers.parseCSVData(self.input_fname1, withArrayIds=False)
-			snpData1 = RawSnpsData_ls2SNPData(snpsd_ls, report=self.report, use_nt2number=use_nt2number)
+			snpsd_ls = dataParsers.parseCSVData(self.input_fname1, withArrayIds=False, use_nt2number=1)
+			snpData1 = RawSnpsData_ls2SNPData(snpsd_ls, report=self.report, use_nt2number=0)	#already nt in number
 			del snpsd_ls
 		elif self.input_fname1_format==3:
-			snpsd_ls = dataParsers.parseCSVData(self.input_fname1, withArrayIds=True)
-			snpData1 = RawSnpsData_ls2SNPData(snpsd_ls, report=self.report, use_nt2number=use_nt2number)
+			snpsd_ls = dataParsers.parseCSVData(self.input_fname1, withArrayIds=True, use_nt2number=1)
+			snpData1 = RawSnpsData_ls2SNPData(snpsd_ls, report=self.report, use_nt2number=0)
 			del snpsd_ls
 		else:
 			sys.stderr.write('Error: unsupported input_fname1 format, %s\n' % self.input_fname1_format)
@@ -89,8 +91,8 @@ class QC(object):
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list,\
 							data_matrix=data_matrix)
 		elif self.input_fname2_format==2:
-			snpsd_ls = dataParsers.parseCSVData(self.input_fname2, withArrayIds=False)
-			snpData2 = RawSnpsData_ls2SNPData(snpsd_ls, report=self.report, use_nt2number=use_nt2number)
+			snpsd_ls = dataParsers.parseCSVData(self.input_fname2, withArrayIds=False, use_nt2number=1)
+			snpData2 = RawSnpsData_ls2SNPData(snpsd_ls, report=self.report, use_nt2number=0)
 			del snpsd_ls
 		else:
 			sys.stderr.write('Error: unsupported input_fname2 format, %s\n' % self.input_fname2_format)
