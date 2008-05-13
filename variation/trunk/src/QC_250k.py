@@ -212,6 +212,10 @@ class TwoSNPData(QualityControl):
 		return QualityControl.cmp_col_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 	
 	def save_col_wise(self, session, readme):
+		"""
+		2008-05-12
+			cmp_one_col and get_NA_rate_for_one_col changed interface
+		"""
 		sys.stderr.write("Comparing col-wise for mismatches ...\n")
 		for col_id1 in self.col_id2col_index1:
 			col_id2 = self.col_id12col_id2.get(col_id1)
@@ -223,14 +227,16 @@ class TwoSNPData(QualityControl):
 				snpsqc.tg_snps_name=col_id2
 				col_index1 = self.col_id2col_index1[col_id1]
 				col_index2 = self.col_id2col_index2[col_id2]
-				snpsqc.relative_no_of_NAs, snpsqc.relative_no_of_totals, snpsqc.no_of_mismatches, snpsqc.no_of_non_NA_pairs = self.cmp_one_col(self.SNPData1.data_matrix, self.SNPData2.data_matrix, col_index1, col_index2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
-				if snpsqc.relative_no_of_totals >0:
-					snpsqc.relative_NA_rate = snpsqc.relative_no_of_NAs/float(snpsqc.relative_no_of_totals)
-				if snpsqc.no_of_non_NA_pairs>0:
-					snpsqc.mismatch_rate = snpsqc.no_of_mismatches/float(snpsqc.no_of_non_NA_pairs)
-				snpsqc.no_of_NAs, snpsqc.no_of_totals = self.get_NA_rate_for_one_col(self.SNPData1.data_matrix, col_index1)
-				if snpsqc.no_of_totals >0:
-					snpsqc.NA_rate = snpsqc.no_of_NAs/float(snpsqc.no_of_totals)
+				snpsqc.relative_NA_rate, snpsqc.mismatch_rate, snpsqc.relative_no_of_NAs, snpsqc.relative_no_of_totals, \
+					snpsqc.no_of_mismatches, snpsqc.no_of_non_NA_pairs = self.cmp_one_col(self.SNPData1.data_matrix, \
+																						self.SNPData2.data_matrix, col_index1, col_index2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+				if snpsqc.relative_NA_rate==-1:
+					snpsqc.relative_NA_rate = None
+				if snpsqc.mismatch_rate == -1:
+					snpsqc.mismatch_rate = None
+				snpsqc.NA_rate, snpsqc.no_of_NAs, snpsqc.no_of_totals = self.get_NA_rate_for_one_col(self.SNPData1.data_matrix, col_index1)
+				if snpsqc.NA_rate == -1:
+					snpsqc.NA_rate = None
 				snpsqc.readme = readme
 				session.save(snpsqc)
 		sys.stderr.write("Done.\n")
@@ -500,7 +506,8 @@ class QC_250k(object):
 		else:
 			open_flag = 'a'
 		writer = csv.writer(open(output_fname, open_flag))
-		header = ['array_id', 'ecotypeid', 'NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs']
+		header = ['array_id', 'ecotypeid', 'NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', \
+				'no_of_mismatches', 'no_of_non_NA_pairs', 'relative_NA_rate', 'relative_no_of_NAs', 'relative_no_of_totals']
 		writer.writerow(header)
 		row_id_ls = row_id2NA_mismatch_rate.keys()
 		row_id_ls.sort()	#try to keep them in call_info_id order
