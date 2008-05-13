@@ -376,18 +376,78 @@ def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 
 def transposeSNPData(snpData, report=0):
 	"""
+	05/12/08 fix a bug (return snpData)
 	2008-05-11
 	"""
 	import sys
 	if report:
-		sys.stderr.write("Converting RawSnpsData_ls to SNPData ...")
+		sys.stderr.write("Transposing SNPData ...")
 	from pymodule import importNumericArray
 	num = importNumericArray()
 	import copy
-	newSnpData = copy.copy(snpData)
+	newSnpData = copy.deepcopy(snpData)
 	newSnpData.row_id_ls = snpData.col_id_ls
 	newSnpData.col_id_ls = snpData.row_id_ls
-	newSnpData.data_matrix = num.transpose(num.array(snpData.data_matrix))
+	if isinstance(snpData.data_matrix, list):
+		newSnpData.data_matrix = num.transpose(num.array(snpData.data_matrix))
+	else:	#assume it's array type already. Numeric/numarray has ArrayType, but numpy doesn't
+		newSnpData.data_matrix = num.transpose(snpData.data_matrix)
 	if report:
 		sys.stderr.write("Done.\n")
-	return snpData
+	return newSnpData
+
+def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, report=0):
+	"""
+	2008-05-12
+		reverse of RawSnpsData_ls2SNPData
+		
+		adapts SNPData (Yu's SNP data structure) to RawSnpsData(bjarni's SNP data structure)
+		
+		split into different chromsomes
+	"""
+	import sys
+	if report:
+		sys.stderr.write("Converting SNPData to RawSnpsData_ls ...")
+	from snpsdata import RawSnpsData
+	
+	if need_transposeSNPData:
+		newSnpData = transposeSNPData(snpData, report=report)
+	else:
+		newSnpData = snpData
+	
+	accessions = []
+	for col_id in newSnpData.col_id_ls:
+		accessions.append(col_id)
+	
+	number2nt_dict_map = lambda x: number2nt[x]
+	rawSnpsData_ls = []
+	
+	rawSnpsData = RawSnpsData(accessions=accessions)
+	rawSnpsData.snps = []
+	rawSnpsData.positions = []
+	row_id0 = newSnpData.row_id_ls[0]
+	old_chromosome = row_id0.split('_')[:1]
+	rawSnpsData.chromosome = old_chromosome
+	rawSnpsData_ls.append(rawSnpsData)
+	rawSnpsData_ls_index = 0
+	for i in range(len(newSnpData.row_id_ls)):
+		row_id = newSnpData.row_id_ls[i]
+		new_chromosome, position = row_id.split('_')[:2]
+		position = int(position)
+		if new_chromosome!=old_chromosome:
+			rawSnpsData = RawSnpsData(accessions=accessions)
+			rawSnpsData.snps = []
+			rawSnpsData.positions = []
+			rawSnpsData_ls.append(rawSnpsData)
+			rawSnpsData_ls_index += 1
+			rawSnpsData.chromosome = new_chromosome
+			old_chromosome = new_chromosome
+		rawSnpsData_ls[rawSnpsData_ls_index].positions.append(position)
+		if use_number2nt:
+			data_row = map(number2nt_dict_map, newSnpData.data_matrix[i])
+		else:
+			data_row = newSnpData.data_matrix[i]
+		rawSnpsData_ls[rawSnpsData_ls_index].snps.append(data_row)
+	if report:
+		sys.stderr.write("Done.\n")
+	return rawSnpsData_ls
