@@ -22,6 +22,10 @@ number2ab = {0: 'NA',
 	2: 'B',
 	3: 'H'}
 
+#2008-05-12	a common NA set
+from sets import Set
+NA_set = Set([0, 'NA', 'N', -2, '|'])
+
 nt2number = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
 	'-': -1,	#deletion
 	'N': 0,
