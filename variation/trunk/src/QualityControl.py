@@ -8,7 +8,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 
-from variation.src.common import get_nt_number2diff_matrix_index, nt2number, number2nt
+from variation.src.common import get_nt_number2diff_matrix_index, nt2number, number2nt, NA_set
 
 class QualityControl(object):
 	"""
@@ -132,22 +132,14 @@ class QualityControl(object):
 		"""
 		2008-05-12
 		"""
-		no_of_NAs = 0
-		no_of_totals = 0
-		for i in range(len(data_matrix[row_index])):
-			no_of_totals += 1
-			if data_matrix[row_index][i] == 0:
-				no_of_NAs += 1
-		if no_of_totals >0:
-			NA_rate = no_of_NAs/float(no_of_totals)
-		else:
-			NA_rate = -1
-		return NA_rate, no_of_NAs, no_of_totals
+		return QualityControl.get_NA_rate_for_one_slice(data_matrix, row_index)
 	
 	get_NA_rate_for_one_row = classmethod(get_NA_rate_for_one_row)
 	
 	def cmp_one_row(cls, data_matrix1, data_matrix2, row_index1, row_index2, col_id2col_index1, col_id2col_index2, col_id12col_id2, mapping_for_data_matrix1=None):
 		"""
+		2008-05-12
+			use NA_set
 		2008-05-12
 			split from cmp_row_wise(), for one row
 		"""
@@ -160,9 +152,9 @@ class QualityControl(object):
 				col_id2 = col_id12col_id2[col_id1]
 				col_index2 = col_id2col_index2[col_id2]
 				no_of_totals += 1
-				if data_matrix1[row_index1][col_index1] == 0:
+				if data_matrix1[row_index1][col_index1] in NA_set:
 					no_of_NAs += 1
-				if data_matrix1[row_index1][col_index1] > 0 and data_matrix2[row_index2][col_index2] > 0:	#2008-01-07
+				if data_matrix1[row_index1][col_index1] not in NA_set and data_matrix2[row_index2][col_index2] not in NA_set:	#2008-01-07
 					no_of_non_NA_pairs += 1
 					if data_matrix1[row_index1][col_index1] != data_matrix2[row_index2][col_index2]:
 						no_of_mismatches += 1
@@ -258,16 +250,25 @@ class QualityControl(object):
 			new_row_id2pairwise_dist[row_id] = new_pairwise_dist_ls
 		return new_row_id2pairwise_dist
 	
-	def get_NA_rate_for_one_col(cls, data_matrix, col_index):
+	def get_NA_rate_for_one_slice(cls, data_matrix, slice_index, by_col=0):
 		"""
-		2008-05-06
-			calculate independent no_of_NAs, no_of_totals
+		2008-05-12
+			for get_NA_rate_for_one_row and get_NA_rate_for_one_col
+			use NA_set
 		"""
 		no_of_NAs = 0
 		no_of_totals = 0
-		for i in range(len(data_matrix)):
+		if by_col:
+			no_of_cells = len(data_matrix)
+		else:
+			no_of_cells = len(data_matrix[slice_index])
+		for i in range(no_of_cells):
 			no_of_totals += 1
-			if data_matrix[i][col_index] == 0:
+			if by_col:
+				value = data_matrix[i][slice_index]
+			else:
+				value = data_matrix[slice_index][i]
+			if value in NA_set:
 				no_of_NAs += 1
 		if no_of_totals >0:
 			NA_rate = no_of_NAs/float(no_of_totals)
@@ -275,10 +276,21 @@ class QualityControl(object):
 			NA_rate = -1
 		return NA_rate, no_of_NAs, no_of_totals
 	
+	get_NA_rate_for_one_slice = classmethod(get_NA_rate_for_one_slice)
+	
+	def get_NA_rate_for_one_col(cls, data_matrix, col_index):
+		"""
+		2008-05-06
+			calculate independent no_of_NAs, no_of_totals
+		"""
+		return QualityControl.get_NA_rate_for_one_slice(data_matrix, col_index, by_col=1)
+	
 	get_NA_rate_for_one_col = classmethod(get_NA_rate_for_one_col)
 	
 	def cmp_one_col(cls, data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2, mapping_for_data_matrix1=None):
 		"""
+		2008-05-12
+			use NA_set
 		2008-05-06
 			add mapping_for_data_matrix1
 		2008-05-05
@@ -297,9 +309,9 @@ class QualityControl(object):
 					value1 = mapping_for_data_matrix1[data_matrix1[row_index1][col_index1]]
 				else:
 					value1 = data_matrix1[row_index1][col_index1]
-				if value1 == 0:
+				if value1 in NA_set:
 					no_of_NAs += 1
-				if value1 > 0 and data_matrix2[row_index2][col_index2] > 0:
+				if value1 not in NA_set and data_matrix2[row_index2][col_index2] not in NA_set:
 					no_of_non_NA_pairs += 1
 					if value1 != data_matrix2[row_index2][col_index2]:
 						no_of_mismatches += 1
