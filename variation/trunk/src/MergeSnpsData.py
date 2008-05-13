@@ -131,9 +131,8 @@ def _run_():
 
 	
 def merge(snpsds1,snpsds2,unionType=0,priority=1):
-        if len(snpsds1) != len(snpsds2):
+	if len(snpsds1) != len(snpsds2):
 		raise Exception("Unequal number of chromosomes.")
-        
 	import snpsdata
 	if unionType==0:
 		for i in range(0,len(snpsds1)):
