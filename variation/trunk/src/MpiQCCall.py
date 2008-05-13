@@ -7,7 +7,7 @@ Examples:
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython ~/script/variation/src/MpiQCCall.py
 	
 	#test
-	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.csv -n 20 -v 0.3 -a 0.4 -w 0.2
+	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc -n 20 -v 0.3 -a 0.4 -w 0.2
 
 Description:
 	a parallel program to do QC on genotype calls before/after imputation under various parameter settings.
@@ -28,8 +28,10 @@ import dataParsers, FilterAccessions, FilterSnps, MergeSnpsData
 from variation.genotyping.NPUTE.SNPData import SNPData as NPUTESNPData
 from variation.genotyping.NPUTE.NPUTE import imputeData
 from variation.src.QC_250k import SNPData, TwoSNPData
-from pymodule import PassingData
+from pymodule import PassingData, importNumericArray
 import copy
+
+num = importNumericArray()
 
 class MpiQCCall(object):
 	__doc__ = __doc__
@@ -37,7 +39,7 @@ class MpiQCCall(object):
 							('callProbFile', 0, ): ['', 't', 1, '250k probability file'],\
 							('fname_2010_149_384', 1, ): ['', 'f', 1, ''],\
 							('fname_perlegen', 1, ): ['', 'p', 1, ''],\
-							('output_fname', 1, ): [None, 'o', 1, '', ],\
+							('output_fname', 1, ): [None, 'o', 1, 'output filename prefix. two files would be generated. 1st file is strain/snp detailed data. 2nd file is average strain/snp data.', ],\
 							('min_call_probability_ls', 1, ): ["0.6,0.7,0.75,0.8,0.85,0.9,0.95,0.975,0.982", 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
 							('max_call_mismatch_rate_ls', 1, ): ["0.05,0.1,0.15,0.20,0.25,0.3", 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_call_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8", 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
@@ -110,21 +112,41 @@ class MpiQCCall(object):
 	def doFilter(self, snpsd_ls, snpsd_ls_qc_strain, snpsd_ls_qc_snp, snpData_qc_strain, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size):
 		"""
+		2008-05-12
+			add
+			qcdata.no_of_accessions_filtered_by_mismatch
+			qcdata.no_of_accessions_filtered_by_na
+			qcdata.no_of_snps_filtered_by_mismatch
+			qcdata.no_of_snps_filtered_by_na
+			qcdata.no_of_monomorphic_snps_removed
+		
 		2008-05-11
 			split up from computing_node_handler
 		"""
 		snpsd_250k_tmp = copy.deepcopy(snpsd_ls)
+		qcdata = PassingData()
 		
 		FilterAccessions.filterByError(snpsd_250k_tmp, snpsd_ls_qc_strain, max_call_mismatch_rate, withArrayIds=1)
+		qcdata.no_of_accessions_filtered_by_mismatch = snpsd_250k_tmp[0].no_of_accessions_filtered_by_mismatch
+		
 		FilterAccessions.filterByNA(snpsd_250k_tmp, max_call_NA_rate, withArrayIds=1)
+		qcdata.no_of_accessions_filtered_by_na = snpsd_250k_tmp[0].no_of_accessions_filtered_by_na
 		
 		FilterSnps.filterByError(snpsd_250k_tmp, snpsd_ls_qc_snp, max_snp_mismatch_rate)
 		
 		FilterSnps.filterByNA(snpsd_250k_tmp, max_snp_NA_rate)
 		
 		MergeSnpsData.merge(snpsd_250k_tmp, snpsd_ls_qc_snp, unionType=0, priority=2)
-	
+			
 		FilterSnps.filterMonomorphic(snpsd_250k_tmp)
+		
+		qcdata.no_of_snps_filtered_by_mismatch = 0
+		qcdata.no_of_snps_filtered_by_na = 0
+		qcdata.no_of_monomorphic_snps_removed = 0
+		for snpsd in snpsd_250k_tmp:
+			qcdata.no_of_snps_filtered_by_mismatch += snpsd.no_of_snps_filtered_by_mismatch
+			qcdata.no_of_snps_filtered_by_na += snpsd.no_of_snps_filtered_by_na
+			qcdata.no_of_monomorphic_snps_removed += snpsd.no_of_monomorphic_snps_removed
 		
 		snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
 		
@@ -151,7 +173,6 @@ class MpiQCCall(object):
 		snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
 		del snpsd_250k_tmp
 		
-		qcdata = PassingData()
 		
 		twoSNPData1 = TwoSNPData(SNPData1=snpData1, SNPData2=snpData_qc_strain, \
 						col_matching_by_which_value=1)
@@ -186,15 +207,50 @@ class MpiQCCall(object):
 		sys.stderr.write("Node no.%s done with %s QC.\n"%(node_rank, len(result)))
 		return result
 	
+	def summarize_NA_mismatch_ls(self, NA_mismatch_ls_ls, avg_var_name_pair_ls):
+		"""
+		05/12/2008
+		"""
+		passingdata = PassingData()
+		for avg_var_name_pair in avg_var_name_pair_ls:
+			ls_var_name, avg_var_name, std_var_name = avg_var_name_pair
+			setattr(passingdata, ls_var_name, [])
+			setattr(passingdata, avg_var_name, -1)
+			setattr(passingdata, std_var_name, -1)
+		for i in range(len(NA_mismatch_ls_ls)):
+			NA_mismatch_ls = NA_mismatch_ls_ls[i]
+			
+			NA_rate, mismatch_rate, no_of_NAs, no_of_totals, \
+			no_of_mismatches, no_of_non_NA_pairs, \
+			relative_NA_rate, relative_no_of_NAs, relative_no_of_totals = NA_mismatch_ls
+			
+			if NA_rate!=-1 and mismatch_rate!=-1 and relative_NA_rate!=-1:	#no non-valid values
+				passingdata.NA_rate_ls.append(NA_rate)
+				passingdata.mismatch_rate_ls.append(mismatch_rate)
+				passingdata.relative_NA_rate_ls.append(relative_NA_rate)
+		for avg_var_name_pair in avg_var_name_pair_ls:
+			ls_var_name, avg_var_name, std_var_name = avg_var_name_pair
+			this_ls = getattr(passingdata, ls_var_name)
+			sample_size = len(this_ls)
+			setattr(passingdata, 'sample_size', sample_size)
+			if sample_size>0:
+				setattr(passingdata, avg_var_name, num.average(this_ls))
+			if sample_size>1:
+				setattr(passingdata, std_var_name, num.std(this_ls))
+		return passingdata
+	
 	def output_node_handler(self, communicator, parameter_list, data):
 		"""
+		05/12/2008
+			common_var_name_ls
 		"""
-		writer = parameter_list[0]
+		writer, writer_avg, common_var_name_ls, avg_var_name_pair_ls, partial_header_avg = parameter_list[:5]
 		result = cPickle.loads(data)
 		id2NA_mismatch_rate_name_ls = ['row_id2NA_mismatch_rate0', 'col_id2NA_mismatch_rate0', 'row_id2NA_mismatch_rate1', 'col_id2NA_mismatch_rate1']
 		for qcdata in result:
-			common_ls = [qcdata.min_call_probability, qcdata.max_call_mismatch_rate, qcdata.max_call_NA_rate,\
-			qcdata.max_snp_mismatch_rate, qcdata.max_snp_NA_rate, qcdata.npute_window_size]
+			common_ls = []
+			for common_var_name in common_var_name_ls:
+				common_ls.append(getattr(qcdata, common_var_name))
 			for id2NA_mismatch_rate_name in id2NA_mismatch_rate_name_ls:
 				if not hasattr(qcdata, id2NA_mismatch_rate_name):
 					continue
@@ -212,6 +268,12 @@ class MpiQCCall(object):
 				for row_id in row_id_ls:
 					NA_mismatch_ls = id2NA_mismatch_rate[row_id]
 					writer.writerow([type_of_id, repr(row_id), after_imputation] + common_ls + NA_mismatch_ls)
+				
+				summary_data = self.summarize_NA_mismatch_ls(id2NA_mismatch_rate.values(), avg_var_name_pair_ls)
+				summary_ls = []
+				for summary_var_name in partial_header_avg:
+					summary_ls.append(getattr(summary_data, summary_var_name))
+				writer_avg.writerow([type_of_id, after_imputation] + common_ls + summary_ls)
 	
 	def create_init_data(self):
 		"""
@@ -279,11 +341,28 @@ class MpiQCCall(object):
 			parameter_list = [init_data]
 			mw.computing_node(parameter_list, self.computing_node_handler)
 		else:
-			writer = csv.writer(open(self.output_fname, 'w'))
-			header = ['strain or snp', 'id', 'after_imputation', 'min_call_probability'] + self.parameter_names + \
+			writer = csv.writer(open('%s.csv'%self.output_fname, 'w'))
+			writer_avg = csv.writer(open('%s.avg.csv'%self.output_fname, 'w'))
+			common_var_name_ls = ['min_call_probability', 'max_call_mismatch_rate', 'no_of_accessions_filtered_by_mismatch', \
+							'max_call_NA_rate', 'no_of_accessions_filtered_by_na',\
+							'max_snp_mismatch_rate', 'no_of_snps_filtered_by_mismatch',\
+							'max_snp_NA_rate', 'no_of_snps_filtered_by_na', 'no_of_monomorphic_snps_removed','npute_window_size']
+			header = ['strain or snp', 'id', 'after_imputation'] + common_var_name_ls + \
 				['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs', 'relative_NA_rate', 'relative_no_of_NAs', 'relative_no_of_totals']
 			writer.writerow(header)
-			parameter_list = [writer]
+			
+			avg_var_name_ls = ['NA_rate', 'mismatch_rate', 'relative_NA_rate']	#solely serves avg_var_name_pair_ls
+			avg_var_name_pair_ls = []	#generate variable names for a summary data object
+			partial_header_avg = []
+			for avg_var_name in avg_var_name_ls:
+				avg_var_name_pair_ls.append(('%s_ls'%avg_var_name, 'avg_%s'%avg_var_name, 'std_%s'%avg_var_name))
+				partial_header_avg.append('avg_%s'%avg_var_name)
+				partial_header_avg.append('std_%s'%avg_var_name)
+			partial_header_avg.append('sample_size')
+			header_avg = ['strain or snp', 'after_imputation'] + common_var_name_ls + partial_header_avg
+			writer_avg.writerow(header_avg)
+			
+			parameter_list = [writer, writer_avg, common_var_name_ls, avg_var_name_pair_ls, partial_header_avg]
 			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
 			del writer
 		
