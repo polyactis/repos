@@ -8,6 +8,7 @@ Bjarni Vilhjalmsson, bvilhjal@usc.edu
 
 from sets import Set
 from sets import Set as set
+import sys
 
 class _SnpsData_(object):
 	"""
@@ -244,15 +245,14 @@ class RawSnpsData(_SnpsData_):
 		self.arrayIds = None
 
 
-	def mergeData(self,snpsd, priority=1):
+	def mergeData(self,snpsd, priority=1, debug=0):
 		"""
 		Merges two RawSnpsData objects.
 
 		If snps disagree, then the snps from the object called from is used.		
 		"""
-		print "Merging datas"
-		print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
-	# Find common accession indices
+		sys.stderr.write("Merging datas Number of snps: %s vs %s ..."%(len(self.snps),len(snpsd.snps)))
+		# Find common accession indices
 		accessionsIndices = []
 		commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
 		allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
@@ -264,13 +264,13 @@ class RawSnpsData(_SnpsData_):
 				if acc1==acc2:
 					accessionsIndices.append([i,k])
    
-
-		print "Common accessions:", len(commonAccessions)
-		print "All accessions:",len(allAccessions)
-		#print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
-		#print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
-		print snpsd.accessions
-		print len(snpsd.accessions), len(list(set(snpsd.accessions)))
+		if debug:
+			sys.stderr.write("Common accessions: %s\n"% len(commonAccessions))
+			sys.stderr.write("All accessions: %s\n"%len(allAccessions))
+			#print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
+			#print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
+			print snpsd.accessions
+			print len(snpsd.accessions), len(list(set(snpsd.accessions)))
 			
 		commonSnpsPos = []
 		snpErrorRate = []
@@ -312,11 +312,9 @@ class RawSnpsData(_SnpsData_):
 			else: 
 				# One pointer has reached the end so we're done...
 				break
-		
-
-		print "In all",len(commonSnpsPos),"common snps found"
-		print "In all",len(commonAccessions),"common accessions found"
-		print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
+		sys.stderr.write("In all %s common snps found.\n"%len(commonSnpsPos))
+		sys.stderr.write("In all %s common accessions found.\n"%len(commonAccessions))
+		sys.stderr.write("Mean Snp Error: %s.\n"%(sum(snpErrorRate)/float(len(snpErrorRate))) )
 
 
 
@@ -487,14 +485,14 @@ class RawSnpsData(_SnpsData_):
 
 	def filterBadSnps(self,snpsd,maxNumError=0):
 		"""
+		05/12/08 add no_of_snps_filtered_by_mismatch
 		Filters snps with high rate mismatches, when compared against another snpsd.
 		"""
 
 		newSnps = []
 		newPositions = []
-		print "Comparing datas"
-		print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
-	# Find common accession indices
+		sys.stderr.write( "Comparing datas. Number of snps: %s vs %s"%(len(self.snps), len(snpsd.snps)))
+		# Find common accession indices
 		accessionsIndices = []
 		commonAccessions = []
 		for i in range(0,len(self.accessions)):
@@ -542,9 +540,8 @@ class RawSnpsData(_SnpsData_):
 			else: 
 				# One pointer has reached and the end and the other surpassed it.
 				break
-		
-
-		print len(self.snps)-len(newSnps),"were filtered"
+		self.no_of_snps_filtered_by_mismatch = len(self.snps)-len(newSnps)
+		sys.stderr.write('%s were filtered\n'%(self.no_of_snps_filtered_by_mismatch))
 		self.snps = newSnps
 		self.positions = newPositions
 		
@@ -597,8 +594,9 @@ class RawSnpsData(_SnpsData_):
 		return naRates
 
 
-	def filterMissingSnps(self,maxNumMissing=0):
+	def filterMissingSnps(self, maxNumMissing=0):
 		"""
+		05/12/2008 add no_of_snps_filtered_by_na
 		Removes SNPs from the data which have more than maxNumMissing missing values.
 		"""
 		newPositions = []
@@ -612,12 +610,14 @@ class RawSnpsData(_SnpsData_):
 				newSnps.append(self.snps[i])
 				newPositions.append(self.positions[i])
 		numRemoved = len(self.positions)-len(newPositions)
+		self.no_of_snps_filtered_by_na = numRemoved
 		self.snps = newSnps
 		self.positions = newPositions
 		return numRemoved
 
 	def filterMonoMorphicSnps(self):
 		"""
+		05/12/08 yh. add no_of_monomorphic_snps_removed
 		Removes SNPs from the data which are monomorphic.
 		"""
 		newPositions = []
@@ -631,11 +631,11 @@ class RawSnpsData(_SnpsData_):
 				newSnps.append(self.snps[i])
 				newPositions.append(self.positions[i])
 		numRemoved = len(self.positions)-len(newPositions)
+		self.no_of_monomorphic_snps_removed = numRemoved
 		self.snps = newSnps
 		self.positions = newPositions
 		return numRemoved
-
-
+	
 	def removeAccessions(self,accessions,arrayIds=None):
 		"""
 		05/10/08 modified by yh. merge the function and replace list with Set to look up
