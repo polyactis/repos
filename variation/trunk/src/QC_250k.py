@@ -495,6 +495,8 @@ class QC_250k(object):
 	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname, file_1st_open=1):
 		"""
 		2008-05-12
+			smart way to figure out how to deal with row_id and its labels
+		2008-05-12
 			tsv => csv fromat
 		2008-05-11
 			add file_1st_open argument
@@ -506,14 +508,27 @@ class QC_250k(object):
 		else:
 			open_flag = 'a'
 		writer = csv.writer(open(output_fname, open_flag))
-		header = ['array_id', 'ecotypeid', 'NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', \
+		NA_mismatch_ls_header = ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', \
 				'no_of_mismatches', 'no_of_non_NA_pairs', 'relative_NA_rate', 'relative_no_of_NAs', 'relative_no_of_totals']
-		writer.writerow(header)
 		row_id_ls = row_id2NA_mismatch_rate.keys()
 		row_id_ls.sort()	#try to keep them in call_info_id order
-		for row_id in row_id_ls:
-			NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
-			writer.writerow(list(row_id) + NA_mismatch_ls)
+		if len(row_id_ls)>0:
+			row_id0 = row_id_ls[0]
+			if not isinstance(row_id0, str) and hasattr(row_id0, '__len__'):
+				header = ['']*len(row_id0)
+			else:
+				header = ['']
+			header += NA_mismatch_ls_header
+			writer.writerow(header)
+			for row_id in row_id_ls:
+				NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
+				if isinstance(row_id, tuple):
+					row_id_ls = list(row_id)
+				elif isinstance(row_id, list):
+					row_id_ls = row_id
+				else:
+					row_id_ls = [row_id]
+				writer.writerow(row_id_ls + NA_mismatch_ls)
 		del writer
 		sys.stderr.write("Done.\n")
 	
