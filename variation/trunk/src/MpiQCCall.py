@@ -111,7 +111,7 @@ class MpiQCCall(object):
 				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size):
 		"""
 		2008-05-11
-			split up
+			split up from computing_node_handler
 		"""
 		snpsd_250k_tmp = copy.deepcopy(snpsd_ls)
 		
@@ -126,7 +126,7 @@ class MpiQCCall(object):
 	
 		FilterSnps.filterMonomorphic(snpsd_250k_tmp)
 		
-		snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp, use_nt2number=1)
+		snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
 		
 		twoSNPData0 = TwoSNPData(SNPData1=snpData0, SNPData2=snpData_qc_strain, \
 						col_matching_by_which_value=1)	#col_id of snpData0 is (arrayId, accession)
@@ -148,7 +148,7 @@ class MpiQCCall(object):
 			#	snpsd_250k_tmp[i].snps = []
 			#	snpsd_250k_tmp[i].accession = []
 			#	snpsd_250k_tmp[i].positions = []
-		snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp, use_nt2number=1)
+		snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
 		del snpsd_250k_tmp
 		
 		qcdata = PassingData()
@@ -221,7 +221,7 @@ class MpiQCCall(object):
 		init_data = PassingData()
 		init_data.snpsd_250k = dataParsers.parseCSVData(self.input_fname, withArrayIds=True)
 		init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384)
-		init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report, use_nt2number=1)
+		init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report)
 		init_data.snpsd_perlegen = dataParsers.parseCSVData(self.fname_perlegen)
 		param_d = self.generate_parameters(self.parameter_names)
 		init_data.param_d = param_d
