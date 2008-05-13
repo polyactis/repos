@@ -203,8 +203,8 @@ def _run_():
 	accErrAndID.reverse()
 	accMissAndID[0].sort()
 	accMissAndID[0].reverse()
-	accMissAndID[1].sort()
-	accMissAndID[1].reverse()
+	accOverlMissAndID[1].sort()
+	accOverlMissAndID[1].reverse()
 	statstr += "#Sorted list, based on error rates (Error rate, ecotype id, array id):\n"
 	for t in accErrAndID:
 		statstr += str(t)+'\n'
