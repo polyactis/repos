@@ -241,10 +241,12 @@ class MpiQCCall(object):
 	
 	def output_node_handler(self, communicator, parameter_list, data):
 		"""
+		05/14/2008
+			flush outf and outf_avg
 		05/12/2008
 			common_var_name_ls
 		"""
-		writer, writer_avg, common_var_name_ls, avg_var_name_pair_ls, partial_header_avg = parameter_list[:5]
+		writer, writer_avg, common_var_name_ls, avg_var_name_pair_ls, partial_header_avg, outf, outf_avg = parameter_list
 		result = cPickle.loads(data)
 		id2NA_mismatch_rate_name_ls = ['row_id2NA_mismatch_rate0', 'col_id2NA_mismatch_rate0', 'row_id2NA_mismatch_rate1', 'col_id2NA_mismatch_rate1']
 		for qcdata in result:
@@ -274,6 +276,8 @@ class MpiQCCall(object):
 				for summary_var_name in partial_header_avg:
 					summary_ls.append(getattr(summary_data, summary_var_name))
 				writer_avg.writerow([type_of_id, after_imputation] + common_ls + summary_ls)
+		outf.flush()
+		outf_avg.flush()
 	
 	def create_init_data(self):
 		"""
@@ -366,8 +370,10 @@ class MpiQCCall(object):
 			parameter_list = [init_data]
 			mw.computing_node(parameter_list, self.computing_node_handler)
 		else:
-			writer = csv.writer(open('%s.csv'%self.output_fname, 'w'))
-			writer_avg = csv.writer(open('%s.avg.csv'%self.output_fname, 'w'))
+			outf = open('%s.csv'%self.output_fname, 'w')
+			writer = csv.writer(outf)
+			outf_avg = open('%s.avg.csv'%self.output_fname, 'w')
+			writer_avg = csv.writer(outf_avg)
 			
 			common_var_name_ls = self.common_var_name_ls
 			
@@ -380,9 +386,11 @@ class MpiQCCall(object):
 			header_avg = ['strain or snp', 'after_imputation'] + common_var_name_ls + partial_header_avg
 			writer_avg.writerow(header_avg)
 			
-			parameter_list = [writer, writer_avg, common_var_name_ls, avg_var_name_pair_ls, partial_header_avg]
+			parameter_list = [writer, writer_avg, common_var_name_ls, avg_var_name_pair_ls, partial_header_avg, outf, outf_avg]
 			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
-			del writer
+			del writer, writer_avg
+			outf.close()
+			outf_avg.close()
 		
 		mw.synchronize()	#to avoid some node early exits
 		
