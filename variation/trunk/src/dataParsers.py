@@ -4,7 +4,6 @@ This library offers functions to parse different types of SNPs data from multipl
 Bjarni Vilhjalmsson, bvilhjal@usc.edu
 """
 import time, sys
-import MySQLdb
 
 from snpsdata import *
 
@@ -31,6 +30,7 @@ accessionName2EcotypeId = {'NFA-8': '8346', 'Ei2': '8289', 'Pu27': '8362', 'Ms-0
 
 
 def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stock_250k", withArrayIds=False, methodId=1, user = None, passwd = None, callProb=False): 
+    import MySQLdb
     """
     Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
     
@@ -255,6 +255,7 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
 
   
 def get149DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", only96accessions=False, user = None,passwd = None):
+    import MySQLdb
     """
     Retrieve 149 data from DB.  Returns a list of RawSnpsData objects. 
 
@@ -338,6 +339,7 @@ def get149DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", o
 
 
 def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", dataVersion="3", only96accessions=False, user = None,passwd = None):
+    import MySQLdb
     """
     Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
 
@@ -421,6 +423,7 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
 
 
 def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,4,5], user = None,passwd = None):
+    import MySQLdb
     """
     Retrieve Perlgen data from DB.  Returns a list of RawSnpsData objects. 
 

@@ -7,7 +7,7 @@ Option:
 	-o ...,	output file
 	-d ..., --delim=...		 default is \", \"	  
 	-m ..., --missingval=...	default is \"NA\"
-	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info, 2 if comparison file also.
+	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info, 2 if comparison file also, 3 if only comparison file.
 	--maxError=...			  maximum allowed error percentage (requires a comparison file).
 	--comparisonFile=...		a file which is used to claculate the SNPs error.
 	--maxMissing=...			maximum allowed missing percentage.
@@ -111,7 +111,7 @@ def _run_():
 		sys.exit(2)
 
 	waid1 = withArrayIds==1 or withArrayIds==2
-	waid2 = withArrayIds==2 or withArrayIds==0
+	waid2 = withArrayIds==2 or withArrayIds==3
 
 	import dataParsers
 	snpsds = dataParsers.parseCSVData(inputFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
@@ -142,17 +142,14 @@ def _run_():
 			accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
 
 		accErrAndID = []
-	if withArrayIds:
+	if 0<withArrayIds<3:
 			for i in range(0,len(r[2])):
 				accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
 	else:
 			for i in range(0,len(r[2])):
 				accErrAndID.append((accErrorRate[i], r[2][i]))
 	accErrAndID.sort()
-	accErrAndID.reverse()	#05/10/08 yh. sort(reverse=True) is not available in python 2.3
-		#print "(Error,'ecotype_id','array_id')"
-		#for t in accErrAndID :
-		#	print t	
+	accErrAndID.reverse()
 
    
 	#Figure out which accessions are too erroraneous
@@ -184,8 +181,6 @@ def _run_():
 							accessionsToRemove.append(ecotype)
 							arraysToRemove.append(array)
 						found += 1
-		print accessionsToRemove, arraysToRemove
-
 
 	if onlyCommon and comparisonFile:
 		print "Locating accessions which are not shared"
@@ -198,7 +193,6 @@ def _run_():
 				accessionsToRemove.append(acc)
 				if withArrayIds:
 					arraysToRemove.append(snpsds[0].arrayIds[i])
-		print accessionsToRemove, arraysToRemove
 
 
 	if maxMissing<1.0:
@@ -229,10 +223,6 @@ def _run_():
 			for (mrate,ecotype) in missingRates:
 				if mrate>maxMissing:
 					accessionsToRemove.append(ecotype)
-		#print "(NA-rate,'ecotype_id','array_id')"
-		#for t in missingRates :
-		#	print t
-
 
 
 	if removeEcotype:
@@ -250,25 +240,6 @@ def _run_():
 		sys.stderr.write(".")
 	print "\n", (numAccessions-len(snpsds[0].accessions)), "accessions out of "+str(numAccessions)+" were removed."
 		
-
-	"""
-	#Filtering missing values
-	if maxMissing<1.0 and maxMissing>=0.0:
-		print "Filtering SNPs with missing values"
-		numAccessions = len(snpsds[0].accessions)
-		for snpsd in snpsds:
-			print "Removed", str(snpsd.filterMissingSnps(int(maxMissing*numAccessions))),"Snps"
-
-	#Filtering bad SNPs
-	if comparisonFile and maxError<1.0:
-		print "Filtering bad SNPs"
-		snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
-		for i in range(0,len(snpsds)):
-			snpsds[i].filterBadSnps(snpsds2[i],maxError)
-		
-	import snpsdata
-	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
-	"""
 	import snpsdata
 	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 
