@@ -289,6 +289,31 @@ class MpiQCCall(object):
 		init_data.param_d = param_d
 		return init_data
 	
+	def generate_avg_variable_names(cls, avg_var_name_ls=['NA_rate', 'mismatch_rate', 'relative_NA_rate']):
+		"""
+		2008-05-13 generalize here so that get_qccall_results() from misc.py could use
+			avg_var_name_pair_ls is for summarize_NA_mismatch_ls() to get average/std
+			partial_header_avg	is only for output file header
+		"""
+		avg_var_name_pair_ls = []	#generate variable names for a summary data object
+		partial_header_avg = []
+		for avg_var_name in avg_var_name_ls:
+			avg_var_name_pair_ls.append(('%s_ls'%avg_var_name, 'avg_%s'%avg_var_name, 'std_%s'%avg_var_name))
+			partial_header_avg.append('avg_%s'%avg_var_name)
+			partial_header_avg.append('std_%s'%avg_var_name)
+		partial_header_avg.append('sample_size')
+		return avg_var_name_pair_ls, partial_header_avg
+	
+	generate_avg_variable_names = classmethod(generate_avg_variable_names)
+	
+	#2008-05-13 put them here so that get_qccall_results() from misc.py could use
+	#common_var_name_ls is for both output and getting variable values from passingdata
+	common_var_name_ls = ['min_call_probability', 'max_call_mismatch_rate', 'no_of_accessions_filtered_by_mismatch', \
+							'max_call_NA_rate', 'no_of_accessions_filtered_by_na',\
+							'max_snp_mismatch_rate', 'no_of_snps_filtered_by_mismatch',\
+							'max_snp_NA_rate', 'no_of_snps_filtered_by_na', 'no_of_monomorphic_snps_removed','npute_window_size']
+	avg_var_name_ls = ['NA_rate', 'mismatch_rate', 'relative_NA_rate']	#solely serves avg_var_name_pair_ls
+	
 	def run(self):
 		"""
 		2008-05-09
@@ -343,22 +368,15 @@ class MpiQCCall(object):
 		else:
 			writer = csv.writer(open('%s.csv'%self.output_fname, 'w'))
 			writer_avg = csv.writer(open('%s.avg.csv'%self.output_fname, 'w'))
-			common_var_name_ls = ['min_call_probability', 'max_call_mismatch_rate', 'no_of_accessions_filtered_by_mismatch', \
-							'max_call_NA_rate', 'no_of_accessions_filtered_by_na',\
-							'max_snp_mismatch_rate', 'no_of_snps_filtered_by_mismatch',\
-							'max_snp_NA_rate', 'no_of_snps_filtered_by_na', 'no_of_monomorphic_snps_removed','npute_window_size']
+			
+			common_var_name_ls = self.common_var_name_ls
+			
 			header = ['strain or snp', 'id', 'after_imputation'] + common_var_name_ls + \
 				['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', 'no_of_mismatches', 'no_of_non_NA_pairs', 'relative_NA_rate', 'relative_no_of_NAs', 'relative_no_of_totals']
 			writer.writerow(header)
 			
-			avg_var_name_ls = ['NA_rate', 'mismatch_rate', 'relative_NA_rate']	#solely serves avg_var_name_pair_ls
-			avg_var_name_pair_ls = []	#generate variable names for a summary data object
-			partial_header_avg = []
-			for avg_var_name in avg_var_name_ls:
-				avg_var_name_pair_ls.append(('%s_ls'%avg_var_name, 'avg_%s'%avg_var_name, 'std_%s'%avg_var_name))
-				partial_header_avg.append('avg_%s'%avg_var_name)
-				partial_header_avg.append('std_%s'%avg_var_name)
-			partial_header_avg.append('sample_size')
+			avg_var_name_ls = self.avg_var_name_ls
+			avg_var_name_pair_ls, partial_header_avg = self.generate_avg_variable_names(avg_var_name_ls)
 			header_avg = ['strain or snp', 'after_imputation'] + common_var_name_ls + partial_header_avg
 			writer_avg.writerow(header_avg)
 			
