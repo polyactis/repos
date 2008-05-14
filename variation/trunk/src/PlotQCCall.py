@@ -1,10 +1,28 @@
 #!/usr/bin/env python
 """
 Examples:
+	#default x axs='min_call_probability', y-axis='max_call_mismatch_rate', z-axis='avg_mismatch_rate'
 	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output
 
+	#replace the z axis with no_of_total_accessions_filtered
+	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -t 1_2_9
+	
+	#replace the z axis with no_of_total_snps_filtered
+	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -t 1_2_14
+	
+	#avg_mismatch_rate (7) ~ min_call_probability (1) * npute_window_size (6)
+	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x 0.15 -w 0.25 -n -1 -t 1_6_7
+	
+	#avg_mismatch_rate (7) ~ max_call_mismatch_rate (2) * npute_window_size (6)	#min_call_probability not fixed
+	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.25 -n -1 -t 2_6_7
+	
+	#avg_mismatch_rate (7) ~ max_call_mismatch_rate (2) * max_call_NA_rate (3)
+	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.25 -a -1 -n 50 -t 2_3_7
+	
 Description:
 	program to plot MpiQCCall.py's avg.csv output.
+	
+	-1 in arguments invalidates that argument. not used in subsetting data
 """
 
 import sys, os, math
@@ -16,20 +34,23 @@ class PlotQCCall(object):
 	keyword_candidate_ls = ['strain or snp', 'after_imputation', 'min_call_probability', 'max_call_mismatch_rate', 'max_call_NA_rate', 'max_snp_mismatch_rate',
 						'max_snp_NA_rate', 'npute_window_size']
 	candidate_plot_var_name_ls = keyword_candidate_ls[1:]+ ['avg_mismatch_rate', 'avg_NA_rate', \
-								'no_of_total_accessions_filtered', 'no_of_total_snps_filtered', 'no_of_total_snps_removed', 'no_of_monomorphic_snps_removed']
-	__doc__ = __doc__  + 'candidates for keywords: ' + repr(keyword_candidate_ls) + '\nCandidate plot variables: ' + repr(candidate_plot_var_name_ls)
+								'no_of_total_accessions_filtered', 'no_of_accessions_filtered_by_mismatch', 'no_of_accessions_filtered_by_na', \
+								'no_of_total_snps_filtered', 'no_of_total_snps_removed', 'no_of_snps_filtered_by_mismatch', 'no_of_snps_filtered_by_na',\
+								'no_of_monomorphic_snps_removed']
+	candidate_plot_var_name_index_tuple_ls = [(candidate_plot_var_name_ls[i], i) for i in range(len(candidate_plot_var_name_ls))]
+	__doc__ = __doc__  + 'candidates for keywords: ' + repr(keyword_candidate_ls) + '\nCandidate plot variables and indices: ' + repr(candidate_plot_var_name_index_tuple_ls)
 	
 	option_default_dict = {('input_dir', 1, ): ['/mnt/nfs/NPUTE_data/QC_avg_output', 'i', 1, ],\
 							('output_fname', 0, ): [None, 'o', 1, 'not given, the program would construct an output filename based on arguments.', ],\
-							('var_to_plot_indices', 1, ):['127', 't', 1, 'index corresponding to candidate plot variable list. -h to see the list'],\
+							('var_to_plot_indices', 1, ):['1_2_7', 't', 1, '3 indices separated by _, corresponding to candidate plot variable list. -h to see the list'],\
 							('strain or snp', 1,): ['strain', 's', 1,],\
-							('after_imputation', 0, ): [1, 'f'],\
-							('min_call_probability', 0, ): [None, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
-							('max_call_mismatch_rate', 0, ): [None, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
-							('max_call_NA_rate', 0, ): [0.4, 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
-							('max_snp_mismatch_rate', 0, ): [0.2, 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
-							('max_snp_NA_rate', 0, ): [0.4, 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
-							('npute_window_size', 0, ): [50, 'n', 1, 'NPUTE window size',],\
+							('after_imputation', 0, int): [1, 'f'],\
+							('min_call_probability', 0, float): [-1, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
+							('max_call_mismatch_rate', 0, float): [-1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
+							('max_call_NA_rate', 0, float,): [0.4, 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
+							('max_snp_mismatch_rate', 0, float,): [0.2, 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
+							('max_snp_NA_rate', 0, float,): [0.4, 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
+							('npute_window_size', 0, int): [50, 'n', 1, 'NPUTE window size',],\
 							('plot_type', 1, int): [1, 'p', 1, '1=plot3D, 2=contour',],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -181,12 +202,19 @@ class PlotQCCall(object):
 		output_fname_ls = []
 		for keyword_candidate in self.keyword_candidate_ls:
 			value = getattr(self, keyword_candidate)
-			if value !='' and value is not None:
+			chosen=1
+			if isinstance(value, float) or isinstance(value, int):
+				if value<0:
+					chosen = 0
+			elif value =='' or value is None:
+				chosen = 0
+			if chosen:
 				keywords[keyword_candidate] = value
 				output_fname_ls.append('%s_%s'%(keyword_candidate, value))
 		
 		plot_var_name_ls = []
-		for var_index in self.var_to_plot_indices[:3]:
+		var_indices = self.var_to_plot_indices.split('_')
+		for var_index in var_indices[:3]:
 			var_index = int(var_index)
 			plot_var_name_ls.append(self.candidate_plot_var_name_ls[var_index])
 			output_fname_ls.append(self.candidate_plot_var_name_ls[var_index])
