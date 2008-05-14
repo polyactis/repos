@@ -1,0 +1,1 @@
+strain or snp=strain, after imputation=1, min call probability=80.0, max call mismatch rate=0.15, max call NA rate=0.4, npute window size=50, max snp mismatch rate, max snp NA rate, no of snps filtered by na.png

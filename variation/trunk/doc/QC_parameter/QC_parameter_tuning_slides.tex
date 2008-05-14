@@ -1,0 +1,117 @@
+\documentclass{beamer}
+
+
+\usepackage{default}
+\title{QC parameter tuning}
+\subtitle{Choose an optimized 6-parameter setting for final genotype calls after oligo.}
+\author{Yu Huang}
+\institute{MCB USC}
+\date{May 14, 2008}
+
+\begin{document}
+
+\setbeamertemplate{caption}
+{
+\begin{beamercolorbox}{}
+     \vskip3pt \insertcaption \vskip3pt
+  \end{beamercolorbox}
+}
+
+\frame{\titlepage}
+
+\begin{frame}{Definition of strain}
+
+\begin{quotation}
+ 
+
+
+ 1. Race; stock; generation; descent; family.
+ [1913 Webster]
+
+ He is of a noble strain. --Shak.
+ [1913 Webster]
+
+ With animals and plants a cross between different
+ varieties, or between individuals of the same
+ variety but of another strain, gives vigor and
+ fertility to the offspring. --Darwin.
+ [1913 Webster]
+\end{quotation}
+\end{frame}
+
+\section{Genotype calling pipeline}
+\begin{frame}{Genotype calling pipeline}
+The 1st reference dataset is the one merging 2010, 149SNP data and 384-illumina (written in the order of overriding priority) with the number of SNPs spanning from 149 to 30,000 in 295 strains.
+
+The 2nd reference dataset is the 20-strain whole-genome resequencing perlegen dataset.
+
+\begin{enumerate}
+ \item oligo genotype calling (parameter learning using 31 arrays with correspondent perlegen calls)
+ \item filter strains according to mismatch rate from a comparison with the 1st reference dataset
+ \item filter strains according NA rate
+ \item filter snps according to mismatch rate from a comparison with the 2nd reference dataset
+ \item filter snps according to NA rate
+
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Genotype calling pipeline (cont.)}
+\begin{enumerate}
+
+ \item merge the data with 2nd reference dataset. as far as the 2nd reference dataset has non-NA value,  substitute call at the corresponding strain/snp with this non-NA value.
+ \item remove monomorphic snps
+ \item (QC before imputation)
+ \item imputation by NPUTE
+ \item (QC after imputation)
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{goal of Genotype calling pipeline}
+Choose the best setting of six parameters below:
+
+min call probability (step 1.1), max strain/call mismatch rate (step 1.2), max strain/call NA rate (step 1.3), max snp mismatch rate (step 1.4), max snp NA rate (step 1.5), npute-window-size (step 2.5)
+
+to obtain the objective of minimizing (strain/snp mismatch rate, no of strains/snps removed).
+\end{frame}
+
+\section{NPUTE window size matters little}
+\begin{frame}{NPUTE window size matters little}
+
+\begin{figure}
+\includegraphics[height=0.7\textheight]{figures/figure2.png}
+\caption{strain after imputation, max call NA rate=0.4, max snp mismatch rate=0.25, max snp NA rate=0.4, npute window size=50, X=max call mismatch rate, Y=npute window size, Z=avg mismatch rate.}\label{f2}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}{NPUTE window size matters little (cont)}
+\begin{figure}
+\includegraphics[height=0.7\textheight]{figures/figure1.png}
+\caption{X-axis is NPUTE window size from 10 to 90. Y axis is average strain mismatch rate. Each horizontal 5 points correspond to a max accession mismatch rate cutoff.}\label{f1}
+\end{figure}
+\end{frame}
+
+\section{choose min call probability + max strain mismatch rate}
+\begin{frame}{choose min call probability + max strain mismatch rate}
+
+\begin{figure}
+\includegraphics[height=0.7\textheight]{figures/figure3.png}
+\caption{strain or snp=strain, after imputation=1, max call NA rate=0.4, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50. min call probability, max strain mismatch rate, avg strain mismatch rate}\label{f3}
+\end{figure}
+\end{frame}
+
+\begin{frame}{choose min call probability + max strain mismatch rate}
+\begin{figure}
+\includegraphics[height=0.7\textheight]{figures/figure4.png}
+\caption{strain or snp=strain, after imputation=1, max call NA rate=0.4, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, min call probability, max call mismatch rate, no of total accessions filtered}\label{f4}
+\end{figure}
+\end{frame}
+
+\begin{frame}{choose min call probability + max strain mismatch rate}
+\begin{figure}
+\includegraphics[height=0.7\textheight]{figures/figure5.png}
+\caption{strain or snp=strain, after imputation=1, max call NA rate=0.4, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, min call probability, max call mismatch rate, no of total snps removed}\label{f5}
+\end{figure}
+\end{frame}
+
+\end{document}

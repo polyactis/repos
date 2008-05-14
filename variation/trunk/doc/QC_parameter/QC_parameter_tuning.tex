@@ -1,0 +1,188 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[pdftex]{color,graphicx}
+\usepackage[pdftex, bookmarks, colorlinks]{hyperref}
+\addtolength{\textheight}{4cm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\hoffset}{-1.5cm}
+\addtolength{\voffset}{-2cm}
+
+%opening
+\title{QC parameter tuning}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Choose an optimized 6-parameter setting for final genotype calls after oligo.
+
+\end{abstract}
+
+\section{Genotype calling pipeline}
+\emph{Definition of strain}
+\begin{verbatim}
+ 1. Race; stock; generation; descent; family.
+ [1913 Webster]
+
+ He is of a noble strain. --Shak.
+ [1913 Webster]
+
+ With animals and plants a cross between different
+ varieties, or between individuals of the same
+ variety but of another strain, gives vigor and
+ fertility to the offspring. --Darwin.
+ [1913 Webster]
+\end{verbatim}
+
+The 1st reference dataset is the one merging 2010, 149SNP data and 384-illumina (written in the order of overriding priority) with the number of SNPs spanning from 149 to 30,000 in 295 strains.
+
+The 2nd reference dataset is the 20-strain whole-genome resequencing perlegen dataset.
+
+\begin{enumerate}
+ \item oligo genotype calling (parameter learning using 31 arrays with correspondent perlegen calls)
+ \item filter strains according to mismatch rate from a comparison with the 1st reference dataset
+ \item filter strains according NA rate
+ \item filter snps according to mismatch from a comparison with the 2nd reference dataset
+ \item filter snps according to NA rate
+ \item merge the data with 2nd reference dataset. as far as the 2nd reference dataset has non-NA value,  substitute call at the corresponding strain/snp with this non-NA value.
+ \item remove monomorphic snps
+ \item (QC before imputation)
+ \item imputation by NPUTE
+ \item (QC after imputation)
+\end{enumerate}
+
+Choose the best setting of six parameters below:
+
+min call probability (step 1), max strain/call mismatch rate (step 2), max strain/call NA rate (step 3), max snp mismatch rate (step 4), max snp NA rate (step 5), npute-window-size (step 9)
+
+to obtain the objective of minimizing (strain/snp mismatch rate, no of strains/snps removed).
+
+\section{NPUTE window size matters little}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.25 -n -1 -t 2_6_7+ generates Figure \ref{f2}.
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure2.png}
+\caption{strain after imputation, max call NA rate=0.4, max snp mismatch rate=0.25, max snp NA rate=0.4, npute window size=50, X-axis=max call mismatch rate, Y-axis=npute window size, Z-axis=avg mismatch rate.}\label{f2}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1\textwidth]{figures/figure1.png}
+\caption{X-axis is NPUTE window size from 10 to 90. Y axis is average strain mismatch rate. Each horizontal 5 points correspond to a max accession mismatch rate cutoff.}\label{f1}
+\end{figure}
+
+
+
+\section{choose min call probability + max strain mismatch rate}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output+ generates Figure \ref{f3}.
+
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure3.png}
+\caption{strain or snp=strain, after imputation=1, max call NA rate=0.4, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50. average strain mismatch rate = min call probability + max strain mismatch rate}\label{f3}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -t 1_2_9+ generates Figure \ref{f4}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure4.png}
+\caption{strain or snp=strain, after imputation=1, max call NA rate=0.4, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, min call probability, max call mismatch rate, no of total accessions filtered}\label{f4}
+\end{figure}
+
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -t 1_2_13+ generates Figure \ref{f5}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure5.png}
+\caption{strain or snp=strain, after imputation=1, max call NA rate=0.4, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, min call probability, max call mismatch rate, no of total snps removed}\label{f5}
+\end{figure}
+
+\section{is max strain/call NA rate useful?}
+Not so important, check Figure \ref{f6}.
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_7 -y 95+ generates Figure \ref{f6}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure6.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, avg mismatch rate}\label{f6}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_9 -y 95+ generates Figure \ref{f7}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure7.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, no of total accessions filtered}\label{f7}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_10 -y 95+ generates Figure \ref{f71}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure71.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, no of accessions filtered by mismatch}\label{f71}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_11 -y 95+ generates Figure \ref{f72}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure72.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, no of accessions filtered by na}\label{f72}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_13 -y 95+ generates Figure \ref{f8}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure8.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, no of total snps removed}\label{f8}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_14 -y 95+ generates Figure \ref{f81}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure81.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, no of snps filtered by mismatch.png}\label{f81}
+\end{figure}
+
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_15 -y 95+ generates Figure \ref{f82}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure82.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, no of snps filtered by na.png}\label{f82}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.2 -a -1 -n 50 -t 2_3_16 -y 95+ generates Figure \ref{f83}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure83.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=95.0, max snp mismatch rate=0.2, max snp NA rate=0.4, npute window size=50, max call mismatch rate, max call NA rate, no of monomorphic snps removed.png}\label{f83}
+\end{figure}
+\section{is max SNP NA rate useful?}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x 0.15 -a 0.4 -n 50 -t 4_5_7 -w -1 -v -1 -y 80+ generates Figure \ref{f9}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure9.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=80.0, max call mismatch rate=0.15, max call NA rate=0.4, npute window size=50, max snp mismatch rate, max snp NA rate, avg mismatch rate}\label{f9}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x 0.15 -a 0.4 -n 50 -t 4_5_9 -w -1 -v -1 -y 80+ generates Figure \ref{f10}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure10.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=80.0, max call mismatch rate=0.15, max call NA rate=0.4, npute window size=50, max snp mismatch rate, max snp NA rate, no of total accessions filtered}\label{f10}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x 0.15 -a 0.4 -n 50 -t 4_5_13 -w -1 -v -1 -y 80+ generates Figure \ref{f11}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure11.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=80.0, max call mismatch rate=0.15, max call NA rate=0.4, npute window size=50, max snp mismatch rate, max snp NA rate, no of total snps removed}\label{f11}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x 0.15 -a 0.4 -n 50 -t 4_5_14 -w -1 -v -1 -y 80+ generates Figure \ref{f12}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure12.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=80.0, max call mismatch rate=0.15, max call NA rate=0.4, npute window size=50, max snp mismatch rate, max snp NA rate, no of snps filtered by mismatch}\label{f12}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x 0.15 -a 0.4 -n 50 -t 4_5_15 -w -1 -v -1 -y 80+ generates Figure \ref{f13}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure13.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=80.0, max call mismatch rate=0.15, max call NA rate=0.4, npute window size=50, max snp mismatch rate, max snp NA rate, no of snps filtered by na}\label{f13}
+\end{figure}
+
+\verb+./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x 0.15 -a 0.4 -n 50 -t 4_5_16 -w -1 -v -1 -y 80+ generates Figure \ref{f14}
+\begin{figure}
+\includegraphics[width=1.2\textwidth]{figures/figure14.png}
+\caption{strain or snp=strain, after imputation=1, min call probability=80.0, max call mismatch rate=0.15, max call NA rate=0.4, npute window size=50, max snp mismatch rate, max snp NA rate, no of monomorphic snps removed}\label{f14}
+\end{figure}
+
+
+\end{document}
