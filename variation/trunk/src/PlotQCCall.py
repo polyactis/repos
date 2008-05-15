@@ -19,8 +19,17 @@ Examples:
 	#avg_mismatch_rate (7) ~ max_call_mismatch_rate (2) * max_call_NA_rate (3)
 	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -x -1 -w 0.25 -a -1 -n 50 -t 2_3_7
 	
+	#avg_mismatch_rate (7) ~ no_of_total_accessions_filtered (9) * no_of_total_snps_removed (13) [after imputation]
+	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -v -1 -w -1 -a -1 -n 50 -t 9_13_7 
+	
+	#avg_mismatch_rate (7) ~ no_of_total_accessions_filtered (9) * no_of_total_snps_removed (13) [before imputation]
+	./src/PlotQCCall.py -i /mnt/nfs/NPUTE_data/QC_avg_output -v -1 -w -1 -a -1 -n 50 -t 9_13_7 -f 0
+	
 Description:
 	program to plot MpiQCCall.py's avg.csv output.
+	Basically pick 3 variable to draw 3D plots while using other variables to restrict data points (subsetting data).
+	
+	doc/QC_parameter/QC_parameter_tuning.tex has more example commandlines and corresponding figures.
 	
 	-1 in arguments invalidates that argument. not used in subsetting data
 """
@@ -84,10 +93,11 @@ class PlotQCCall(object):
 			try:
 				reader.next()
 			except:
-				import traceback
-				sys.stderr.write('\terror in reading this file. ignored.\n')
-				traceback.print_exc()
-	  			print sys.exc_info()
+				if self.debug:
+					import traceback
+					traceback.print_exc()
+	  				sys.stderr.write('%s\n'%sys.exc_info())
+	  			sys.stderr.write('\terror in reading this file. ignored.\n')
 	  			del reader
 				continue
 			for row in reader:
@@ -210,18 +220,19 @@ class PlotQCCall(object):
 				chosen = 0
 			if chosen:
 				keywords[keyword_candidate] = value
-				output_fname_ls.append('%s_%s'%(keyword_candidate, value))
+				
+				output_fname_ls.append('%s=%s'%(keyword_candidate.replace('_', ' '), value))
 		
 		plot_var_name_ls = []
 		var_indices = self.var_to_plot_indices.split('_')
 		for var_index in var_indices[:3]:
 			var_index = int(var_index)
 			plot_var_name_ls.append(self.candidate_plot_var_name_ls[var_index])
-			output_fname_ls.append(self.candidate_plot_var_name_ls[var_index])
+			output_fname_ls.append(self.candidate_plot_var_name_ls[var_index].replace('_', ' '))
 		#plot_var_name_ls = ['min_call_probability', 'max_call_mismatch_rate', 'avg_mismatch_rate']
 		
 		if not self.output_fname:
-			self.output_fname = '_'.join(output_fname_ls)
+			self.output_fname = ', '.join(output_fname_ls)
 		
 		self.plot_variables(passingdata_ls, plot_var_name_ls, self.output_fname, **keywords)
 
