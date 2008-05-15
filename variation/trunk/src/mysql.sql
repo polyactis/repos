@@ -107,6 +107,14 @@ create table person(
 	donor	integer not null
 	);
 
+--2008-05-15 add foreign key constraints for tables created by GroupDuplicateEcotype.py but can't run, get "ERROR 1005 (HY000): Can't create table './stock/#sql-99_17.frm' (errno: 150)"
+alter table ecotype_duplicate2tg_ecotypeid add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
+alter table ecotype_duplicate2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
+
+alter table genotyping_all_na_ecotype add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
+
+alter table nativename_stkparent2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
+
 --2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
 use dbsnp;
 create table snp_locus(
