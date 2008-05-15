@@ -48,7 +48,7 @@ create table readme(
 	updated_by     varchar(200),
 	date_created    timestamp default CURRENT_TIMESTAMP,
 	date_updated   TIMESTAMP default 0
-	);
+	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
