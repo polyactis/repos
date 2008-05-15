@@ -94,9 +94,9 @@ class GroupDuplicateEcotype(object):
 				genotyping_all_na_ecotypeid_duplicate_ls.append(key_pair)
 		
 		if commit:
-			curs.execute("create table %s.%s(id	integer primary key auto_increment,\
+			curs.execute("create table %s(id integer primary key auto_increment,\
 				ecotypeid	integer,\
-				duplicate	integer)"%(stock_db, table_name))
+				duplicate	integer) engine=INNODB"%(table_name))
 			for key_pair in genotyping_all_na_ecotypeid_duplicate_ls:
 				ecotypeid, duplicate = key_pair
 				curs.execute("insert into %s.%s(ecotypeid, duplicate) values (%s, %s)"%(stock_db, table_name, ecotypeid, duplicate))
@@ -204,7 +204,7 @@ class GroupDuplicateEcotype(object):
 				nativename	varchar(50),\
 				stockparent	varchar(10),\
 				tg_ecotypeid	integer,\
-				quality	varchar(50))"%(stock_db, nativename_stkparent2tg_ecotypeid_table))
+				quality	varchar(50)) engine=INNODB"%(stock_db, nativename_stkparent2tg_ecotypeid_table))
 			for key_pair, tg_ecotypeid_quality_pair in nativename_stkparent2tg_ecotypeid.iteritems():
 				tg_ecotypeid, quality = tg_ecotypeid_quality_pair
 				nativename, stockparent = ecotypeid2nativename_stockparent[tg_ecotypeid]
@@ -213,7 +213,7 @@ class GroupDuplicateEcotype(object):
 			curs.execute("create table %s.%s(id	integer primary key auto_increment,\
 				ecotypeid	integer,\
 				duplicate	integer,\
-				tg_ecotypeid	integer)"%(stock_db, ecotype_duplicate2tg_ecotypeid_table))
+				tg_ecotypeid	integer) engine=INNODB"%(stock_db, ecotype_duplicate2tg_ecotypeid_table))
 			
 			for pair, tg_ecotypeid in ecotype_duplicate2tg_ecotypeid.iteritems():
 				curs.execute("insert into %s.%s(ecotypeid, duplicate, tg_ecotypeid) values (%s, %s, %s)"%(stock_db, ecotype_duplicate2tg_ecotypeid_table, pair[0], pair[1], tg_ecotypeid))
