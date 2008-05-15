@@ -1,60 +1,15 @@
 #!/usr/bin/env python
 """
-Usage: dbSNP2data.py [OPTIONS] -i INPUT_TABLE -o OUTPUT_FILE
-
-Option:
-	-z ..., --hostname=...	the hostname, dl324b-1(default)
-	-d ..., --dbname=...	the database name, yhdb(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)
-	-i ...,	input table
-	-o ...,	output file
-	-s ...,	strain_info table, 'strain_info'(default), 'ecotype'
-	-n ...,	snp_locus_table, 'snp_locus'(default), 'snps'
-	-y ...,	processing bits to control which processing step should be turned on.
-		default is 10101101. for what each bit stands, see Description.
-	-m,	mysql connection, change dbname and hostname
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
-	dbSNP2data.py -i justin_data -o justin_data.csv -r
-	
-	dbSNP2data.py -i justin_data -o justin_data.csv -r -t
-	
-	dbSNP2data.py -i calls -o /tmp/chicago.data.y -s ecotype -n snps -m
-	
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o stock20071008/data.tsv -s ecotype -n snps -m
-	
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data.tsv -s ecotype -n snps -m
-	
-	#to see how many all-NA strains were discarded
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data10101100.tsv -s ecotype -n snps -m -y 10101100
-	
-	#all strains, but resolve duplicated (nativename, stockparent)s
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00101100.tsv -s ecotype -n snps -m -y 00101100
-	
-	#output data for all ecotypeid. however duplicated calls with same ecotypeid are imputed randomly
-	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00001100.tsv -s ecotype -n snps -m -y 00001100
-
-	#output 250k SNP data (not to resolve duplicated calls, only SNPs shared with 149SNP)
-	dbSNP2data.py -z localhost -d stock20071008 -i calls_250k -o /tmp/data_250k.tsv -s ecotype -n snps_250k -m -y 10001101 -r
+	./src/GroupDuplicateEcotype.py -u yh -c
 
 Description:
-	output SNP data from database schema
-	
-	definition of each bit in processing_bits (0=off, 1=on), default is 10101101.
-	1. 1: only include strains with GPS info, 2: north american strains only, 3: 2010's 192 strains
-	2. include columns of other strain info (latitude, longitude, stockparent, site, country)
-	3. resolve duplicated calls (unique constraint on (nativename, stockparent))
-	4. toss out rows to make distance matrix NA free
-	5. need heterozygous call
-	6. with header line
-	7. use alphabet to represent nucleotide, not number
-	8. discard strains with all-NA data
-	
-	you can specify the bits up to the one you want to change and omit the rest. i.e.
-	-y 11
+	program to 
+	1. group duplicates, map all dupicated ecotpe ids to one target ecotype id. Upon determining which duplicate
+		becomes target ecotype, precedence is given to ecotypes with data, GPS info, etc.
+	2. find out ecotypes who have all-NA genotypes, are not genotyped or have no GPS data associated.
+	3. create database tables/views to store findings above.
 """
 
 import sys, os, math
@@ -71,166 +26,229 @@ from annot.bin.codense.common import db_connect, org_short2long, org2tax_id
 from variation.src.common import nt2number, number2nt
 import Numeric as num
 from sets import Set
-
-def createEcotypeid2duplicate_view(curs, stock_db):
-	"""
-	2007-10-22
-	"""
-	curs.execute("create or replace view %s.ecotypeid2duplicate_view as select distinct ecotypeid, replicate from %s.calls order by ecotypeid, replicate"%(stock_db, stock_db))
-
-def createNoGenotypingEcotypeView(curs, stock_db):
-	"""
-	2007-10-22
-	"""
-	curs.execute("create or replace view %s.no_genotyping_ecotype_view as select e.* from %s.ecotype e where not exists (select e1.id,c.id from %s.ecotype e1, %s.calls c where c.ecotypeid=e1.id and e1.id=e.id)"%(stock_db, stock_db, stock_db, stock_db))
-
-def createNoGPSEcotypeView(curs, stock_db):
-	"""
-	2007-10-22
-	"""
-	curs.execute("create or replace view %s.no_gps_ecotype_view as select e.* from %s.ecotype e where latitude is null or longitude is null"%(stock_db, stock_db))
-
-def createGenotypingAllNAEcotypeTable(curs, stock_db, table_name='genotyping_all_na_ecotype', commit=0):
-	"""
-	2007-10-22
-		create a table to store all ecotypeid which have been genotyped (in table calls) but all results are NA.
-	"""
-	curs.execute("select distinct ecotypeid, replicate, call1 from %s.calls"%(stock_db))
-	rows = curs.fetchall()
-	genotype_run2call_ls = {}
-	for row in rows:
-		ecotypeid, duplicate, call1 = row
-		key_pair = (ecotypeid, duplicate)
-		if key_pair not in genotype_run2call_ls:
-			genotype_run2call_ls[key_pair] = []
-		genotype_run2call_ls[key_pair].append(call1)
-	
-	genotyping_all_na_ecotypeid_duplicate_ls = []
-	for key_pair, call_ls in genotype_run2call_ls.iteritems():
-		if len(call_ls)==1 and (call_ls[0]=='N' or call_ls[0]=='n'):
-			genotyping_all_na_ecotypeid_duplicate_ls.append(key_pair)
-	
-	if commit:
-		curs.execute("create table %s.%s(id	integer primary key auto_increment,\
-			ecotypeid	integer,\
-			duplicate	integer)"%(stock_db, table_name))
-		for key_pair in genotyping_all_na_ecotypeid_duplicate_ls:
-			ecotypeid, duplicate = key_pair
-			curs.execute("insert into %s.%s(ecotypeid, duplicate) values (%s, %s)"%(stock_db, table_name, ecotypeid, duplicate))
-	
-	return genotyping_all_na_ecotypeid_duplicate_ls, genotype_run2call_ls
-
-
-def get_no_genotyping_ecotypeid_set(curs, stock_db, no_genotyping_ecotype_view_name='no_genotyping_ecotype_view'):
-	from sets import Set
-	no_genotyping_ecotypeid_set = Set()
-	curs.execute("select id from %s.%s"%(stock_db, no_genotyping_ecotype_view_name))
-	rows = curs.fetchall()
-	for row in rows:
-		no_genotyping_ecotypeid_set.add(row[0])
-	return no_genotyping_ecotypeid_set
-
-def get_no_gps_ecotypeid_set(curs, stock_db, no_gps_ecotype_view_name='no_gps_ecotype_view'):
-	from sets import Set
-	no_gps_ecotypeid_set = Set()
-	curs.execute("select id from %s.%s"%(stock_db, no_gps_ecotype_view_name))
-	rows = curs.fetchall()
-	for row in rows:
-		no_gps_ecotypeid_set.add(row[0])
-	return no_gps_ecotypeid_set
-	
-
-def createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set,\
-			genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', \
-			nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', \
-			ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=0):
-	"""
-	2007-10-22
-		map (nativename, stockparent) to an ecotypeid (AKA tg_ecotypeid)
-		map all (ecotype,duplicate) to that ecotypeid
-	2007-12-16
-		mysql is case-insensitive, python is case-sensitive.
-		key_pair (nativename, stockparent) should be case-insensitive. like 'Kz-9' and 'KZ-9'
-		uppercase nativename and stockparent
-	"""
-	sys.stderr.write("Getting nativename_stkparent2ecotypeid_duplicate_ls...")
-	nativename_stkparent2ecotypeid_duplicate_ls = {}
-	ecotypeid2nativename_stockparent = {}
-	curs.execute("select e.nativename, e.stockparent, ed.ecotypeid, ed.replicate from %s.ecotype e, %s.%s ed where ed.ecotypeid=e.id order by nativename, stockparent, ecotypeid, replicate"%(stock_db, stock_db, ecotypeid2duplicate_view_name))
-	rows = curs.fetchall()
-	for row in rows:
-		nativename, stockparent, ecotypeid, duplicate = row
-		ecotypeid2nativename_stockparent[ecotypeid] = (nativename, stockparent)	#2007-12-16 before upper()
-		nativename = nativename.upper()
-		if stockparent:
-			stockparent = stockparent.upper()
-		key_pair = (nativename, stockparent)
-		if key_pair not in nativename_stkparent2ecotypeid_duplicate_ls:
-			nativename_stkparent2ecotypeid_duplicate_ls[key_pair] = []
-		nativename_stkparent2ecotypeid_duplicate_ls[key_pair].append((ecotypeid, duplicate))
-	sys.stderr.write("Done.\n")
-	sys.stderr.write("Constructing nativename_stkparent2tg_ecotypeid ecotype_duplicate2tg_ecotypeid...\n")
-	nativename_stkparent2tg_ecotypeid = {}
-	ecotype_duplicate2tg_ecotypeid = {}
-	from sets import Set
-	genotyping_all_na_ecotypeid_duplicate_set = Set(genotyping_all_na_ecotypeid_duplicate_ls)
-	no_of_solid_mappings = 0
-	no_of_mappings_with_data_but_no_gps = 0
-	no_of_mappings_with_gps_but_no_data = 0
-	no_of_worst_random_mappings = 0
-	for key_pair, ecotypeid_duplicate_ls in nativename_stkparent2ecotypeid_duplicate_ls.iteritems():
-		tg_ecotypeid_quality_pair = None
-		ecotypeid_ls_with_data_but_no_gps = []
-		ecotypeid_ls_with_gps_but_no_data = []
-		for pair in ecotypeid_duplicate_ls:
-			if pair[0] not in no_genotyping_ecotypeid_set and pair[0] not in no_gps_ecotypeid_set and pair not in genotyping_all_na_ecotypeid_duplicate_set:
-				tg_ecotypeid_quality_pair = (pair[0], 'solid')
-				no_of_solid_mappings += 1
-				break
-			elif pair[0] not in no_genotyping_ecotypeid_set and pair not in genotyping_all_na_ecotypeid_duplicate_set:
-				ecotypeid_ls_with_data_but_no_gps.append(pair[0])
-			elif pair[0] not in no_gps_ecotypeid_set:
-				ecotypeid_ls_with_gps_but_no_data.append(pair[0])
-		if tg_ecotypeid_quality_pair==None:	#use ecotypeid with data
-			if ecotypeid_ls_with_data_but_no_gps:
-				tg_ecotypeid_quality_pair = (ecotypeid_ls_with_data_but_no_gps[0], 'with_data_but_no_gps')
-				no_of_mappings_with_data_but_no_gps += 1
-			elif ecotypeid_ls_with_gps_but_no_data:
-				tg_ecotypeid_quality_pair = (ecotypeid_ls_with_gps_but_no_data[0], 'with_gps_but_no_data')
-				no_of_mappings_with_gps_but_no_data += 1
-			else:
-				tg_ecotypeid_quality_pair = (ecotypeid_duplicate_ls[0][0], 'worst_random')
-				no_of_worst_random_mappings += 1
-		nativename_stkparent2tg_ecotypeid[key_pair] = tg_ecotypeid_quality_pair
-		for pair in ecotypeid_duplicate_ls:
-			ecotype_duplicate2tg_ecotypeid[pair] = tg_ecotypeid_quality_pair[0]
-	no_of_total_mappings = float(len(nativename_stkparent2tg_ecotypeid))
-	sys.stderr.write("\t%s(%s) solid mappings\n"%(no_of_solid_mappings, no_of_solid_mappings/no_of_total_mappings))
-	sys.stderr.write("\t%s(%s) mappings_with_data_but_no_gps\n"%(no_of_mappings_with_data_but_no_gps, no_of_mappings_with_data_but_no_gps/no_of_total_mappings))
-	sys.stderr.write("\t%s(%s) mappings_with_gps_but_no_data\n"%(no_of_mappings_with_gps_but_no_data, no_of_mappings_with_gps_but_no_data/no_of_total_mappings))
-	sys.stderr.write("\t%s(%s) worst_random_mappings\n"%(no_of_worst_random_mappings, no_of_worst_random_mappings/no_of_total_mappings))
-	sys.stderr.write("Done.\n")
-	if commit:
-		sys.stderr.write("Submitting to db...")
-		curs.execute("create table %s.%s(id	integer primary key auto_increment,\
-			nativename	varchar(50),\
-			stockparent	varchar(10),\
-			tg_ecotypeid	integer,\
-			quality	varchar(50))"%(stock_db, nativename_stkparent2tg_ecotypeid_table))
-		for key_pair, tg_ecotypeid_quality_pair in nativename_stkparent2tg_ecotypeid.iteritems():
-			tg_ecotypeid, quality = tg_ecotypeid_quality_pair
-			nativename, stockparent = ecotypeid2nativename_stockparent[tg_ecotypeid]
-			curs.execute("insert into %s.%s(nativename, stockparent, tg_ecotypeid, quality) values ('%s', '%s', %s, '%s')"%(stock_db, nativename_stkparent2tg_ecotypeid_table, nativename, stockparent, tg_ecotypeid, quality))
 		
-		curs.execute("create table %s.%s(id	integer primary key auto_increment,\
-			ecotypeid	integer,\
-			duplicate	integer,\
-			tg_ecotypeid	integer)"%(stock_db, ecotype_duplicate2tg_ecotypeid_table))
+class GroupDuplicateEcotype(object):
+	__doc__ = __doc__
+	option_default_dict = {	('hostname', 1, ):['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ):['stock', 'd', 1, '',],\
+							('user', 1, ):[None, 'u', 1, 'database username',],\
+							('passwd',1, ):[None, 'p', 1, 'database password', ],\
+							('genotyping_all_na_ecotype_table',1, ): ['genotyping_all_na_ecotype', 'n', 1, 'Table to hold ecotypes with all NA genotypes.'],\
+							('no_genotyping_ecotype_view_name',1, ): ['no_genotyping_ecotype_view', 'o', 1, 'name for the view to look at ecotypes not genotyped (different from all-NA genotype).'],\
+							('no_gps_ecotype_view_name',1, ): ['no_gps_ecotype_view', 's', 1, 'view the genotypes with no GPS data'],\
+							('ecotypeid2duplicate_view_name',1, ): ['ecotypeid2duplicate_view', 'y'],\
+							('nativename_stkparent2tg_ecotypeid_table', 1, ): ['nativename_stkparent2tg_ecotypeid', 'v' ],\
+							('ecotype_duplicate2tg_ecotypeid_table', 1, ): ['ecotype_duplicate2tg_ecotypeid', 'e'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	def __init__(self, **keywords):
+		"""
+		2008-05-15
+		"""
+		from pymodule import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+	
+
+	def createEcotypeid2duplicate_view(curs, stock_db):
+		"""
+		2007-10-22
+		"""
+		curs.execute("create or replace view %s.ecotypeid2duplicate_view as select distinct ecotypeid, replicate from %s.calls order by ecotypeid, replicate"%(stock_db, stock_db))
+	createEcotypeid2duplicate_view = staticmethod(createEcotypeid2duplicate_view)
+	
+	def createNoGenotypingEcotypeView(curs, stock_db):
+		"""
+		2007-10-22
+		"""
+		curs.execute("create or replace view %s.no_genotyping_ecotype_view as select e.* from %s.ecotype e where not exists (select e1.id,c.id from %s.ecotype e1, %s.calls c where c.ecotypeid=e1.id and e1.id=e.id)"%(stock_db, stock_db, stock_db, stock_db))
+	
+	createNoGenotypingEcotypeView = staticmethod(createNoGenotypingEcotypeView)
+	
+	def createNoGPSEcotypeView(curs, stock_db):
+		"""
+		2007-10-22
+		"""
+		curs.execute("create or replace view %s.no_gps_ecotype_view as select e.* from %s.ecotype e where latitude is null or longitude is null"%(stock_db, stock_db))
+	createNoGPSEcotypeView = staticmethod(createNoGPSEcotypeView)
+	
+	def createGenotypingAllNAEcotypeTable(curs, stock_db, table_name='genotyping_all_na_ecotype', commit=0):
+		"""
+		2007-10-22
+			create a table to store all ecotypeid which have been genotyped (in table calls) but all results are NA.
+		"""
+		sys.stderr.write( "Creating table to record ecotypes with all-NA genotypes ...")
+		curs.execute("select distinct ecotypeid, replicate, call1 from %s.calls"%(stock_db))
+		rows = curs.fetchall()
+		genotype_run2call_ls = {}
+		for row in rows:
+			ecotypeid, duplicate, call1 = row
+			key_pair = (ecotypeid, duplicate)
+			if key_pair not in genotype_run2call_ls:
+				genotype_run2call_ls[key_pair] = []
+			genotype_run2call_ls[key_pair].append(call1)
 		
-		for pair, tg_ecotypeid in ecotype_duplicate2tg_ecotypeid.iteritems():
-			curs.execute("insert into %s.%s(ecotypeid, duplicate, tg_ecotypeid) values (%s, %s, %s)"%(stock_db, ecotype_duplicate2tg_ecotypeid_table, pair[0], pair[1], tg_ecotypeid))
+		genotyping_all_na_ecotypeid_duplicate_ls = []
+		for key_pair, call_ls in genotype_run2call_ls.iteritems():
+			if len(call_ls)==1 and (call_ls[0]=='N' or call_ls[0]=='n'):
+				genotyping_all_na_ecotypeid_duplicate_ls.append(key_pair)
+		
+		if commit:
+			curs.execute("create table %s.%s(id	integer primary key auto_increment,\
+				ecotypeid	integer,\
+				duplicate	integer)"%(stock_db, table_name))
+			for key_pair in genotyping_all_na_ecotypeid_duplicate_ls:
+				ecotypeid, duplicate = key_pair
+				curs.execute("insert into %s.%s(ecotypeid, duplicate) values (%s, %s)"%(stock_db, table_name, ecotypeid, duplicate))
+		sys.stderr.write( "Done.\n")
+		return genotyping_all_na_ecotypeid_duplicate_ls, genotype_run2call_ls
+	createGenotypingAllNAEcotypeTable = staticmethod(createGenotypingAllNAEcotypeTable)
+	
+	def get_no_genotyping_ecotypeid_set(curs, stock_db, no_genotyping_ecotype_view_name='no_genotyping_ecotype_view'):
+		sys.stderr.write( "Getting no_genotyping_ecotypeid_set ...")
+		from sets import Set
+		no_genotyping_ecotypeid_set = Set()
+		curs.execute("select id from %s.%s"%(stock_db, no_genotyping_ecotype_view_name))
+		rows = curs.fetchall()
+		for row in rows:
+			no_genotyping_ecotypeid_set.add(row[0])
+		sys.stderr.write( "Done.\n")
+		return no_genotyping_ecotypeid_set
+	get_no_genotyping_ecotypeid_set = staticmethod(get_no_genotyping_ecotypeid_set)
+	
+	def get_no_gps_ecotypeid_set(curs, stock_db, no_gps_ecotype_view_name='no_gps_ecotype_view'):
+		sys.stderr.write( "Getting no_gps_ecotypeid_set ... ")
+		from sets import Set
+		no_gps_ecotypeid_set = Set()
+		curs.execute("select id from %s.%s"%(stock_db, no_gps_ecotype_view_name))
+		rows = curs.fetchall()
+		for row in rows:
+			no_gps_ecotypeid_set.add(row[0])
+		sys.stderr.write( "Done.\n")
+		return no_gps_ecotypeid_set
+	get_no_gps_ecotypeid_set = staticmethod(get_no_gps_ecotypeid_set)	
+	
+	def createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set,\
+				genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', \
+				nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', \
+				ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=0):
+		"""
+		2007-10-22
+			map (nativename, stockparent) to an ecotypeid (AKA tg_ecotypeid)
+			map all (ecotype,duplicate) to that ecotypeid
+		2007-12-16
+			mysql is case-insensitive, python is case-sensitive.
+			key_pair (nativename, stockparent) should be case-insensitive. like 'Kz-9' and 'KZ-9'
+			uppercase nativename and stockparent
+		"""
+		sys.stderr.write("Getting nativename_stkparent2ecotypeid_duplicate_ls...")
+		nativename_stkparent2ecotypeid_duplicate_ls = {}
+		ecotypeid2nativename_stockparent = {}
+		curs.execute("select e.nativename, e.stockparent, ed.ecotypeid, ed.replicate from %s.ecotype e, %s.%s ed where ed.ecotypeid=e.id order by nativename, stockparent, ecotypeid, replicate"%(stock_db, stock_db, ecotypeid2duplicate_view_name))
+		rows = curs.fetchall()
+		for row in rows:
+			nativename, stockparent, ecotypeid, duplicate = row
+			ecotypeid2nativename_stockparent[ecotypeid] = (nativename, stockparent)	#2007-12-16 before upper()
+			nativename = nativename.upper()
+			if stockparent:
+				stockparent = stockparent.upper()
+			key_pair = (nativename, stockparent)
+			if key_pair not in nativename_stkparent2ecotypeid_duplicate_ls:
+				nativename_stkparent2ecotypeid_duplicate_ls[key_pair] = []
+			nativename_stkparent2ecotypeid_duplicate_ls[key_pair].append((ecotypeid, duplicate))
 		sys.stderr.write("Done.\n")
-	return nativename_stkparent2ecotypeid_duplicate_ls, nativename_stkparent2tg_ecotypeid, ecotype_duplicate2tg_ecotypeid
+		sys.stderr.write("Constructing nativename_stkparent2tg_ecotypeid ecotype_duplicate2tg_ecotypeid...\n")
+		nativename_stkparent2tg_ecotypeid = {}
+		ecotype_duplicate2tg_ecotypeid = {}
+		from sets import Set
+		genotyping_all_na_ecotypeid_duplicate_set = Set(genotyping_all_na_ecotypeid_duplicate_ls)
+		no_of_solid_mappings = 0
+		no_of_mappings_with_data_but_no_gps = 0
+		no_of_mappings_with_gps_but_no_data = 0
+		no_of_worst_random_mappings = 0
+		for key_pair, ecotypeid_duplicate_ls in nativename_stkparent2ecotypeid_duplicate_ls.iteritems():
+			tg_ecotypeid_quality_pair = None
+			ecotypeid_ls_with_data_but_no_gps = []
+			ecotypeid_ls_with_gps_but_no_data = []
+			for pair in ecotypeid_duplicate_ls:
+				if pair[0] not in no_genotyping_ecotypeid_set and pair[0] not in no_gps_ecotypeid_set and pair not in genotyping_all_na_ecotypeid_duplicate_set:
+					tg_ecotypeid_quality_pair = (pair[0], 'solid')
+					no_of_solid_mappings += 1
+					break
+				elif pair[0] not in no_genotyping_ecotypeid_set and pair not in genotyping_all_na_ecotypeid_duplicate_set:
+					ecotypeid_ls_with_data_but_no_gps.append(pair[0])
+				elif pair[0] not in no_gps_ecotypeid_set:
+					ecotypeid_ls_with_gps_but_no_data.append(pair[0])
+			if tg_ecotypeid_quality_pair==None:	#use ecotypeid with data
+				if ecotypeid_ls_with_data_but_no_gps:
+					tg_ecotypeid_quality_pair = (ecotypeid_ls_with_data_but_no_gps[0], 'with_data_but_no_gps')
+					no_of_mappings_with_data_but_no_gps += 1
+				elif ecotypeid_ls_with_gps_but_no_data:
+					tg_ecotypeid_quality_pair = (ecotypeid_ls_with_gps_but_no_data[0], 'with_gps_but_no_data')
+					no_of_mappings_with_gps_but_no_data += 1
+				else:
+					tg_ecotypeid_quality_pair = (ecotypeid_duplicate_ls[0][0], 'worst_random')
+					no_of_worst_random_mappings += 1
+			nativename_stkparent2tg_ecotypeid[key_pair] = tg_ecotypeid_quality_pair
+			for pair in ecotypeid_duplicate_ls:
+				ecotype_duplicate2tg_ecotypeid[pair] = tg_ecotypeid_quality_pair[0]
+		no_of_total_mappings = float(len(nativename_stkparent2tg_ecotypeid))
+		sys.stderr.write("\t%s(%s) solid mappings\n"%(no_of_solid_mappings, no_of_solid_mappings/no_of_total_mappings))
+		sys.stderr.write("\t%s(%s) mappings_with_data_but_no_gps\n"%(no_of_mappings_with_data_but_no_gps, no_of_mappings_with_data_but_no_gps/no_of_total_mappings))
+		sys.stderr.write("\t%s(%s) mappings_with_gps_but_no_data\n"%(no_of_mappings_with_gps_but_no_data, no_of_mappings_with_gps_but_no_data/no_of_total_mappings))
+		sys.stderr.write("\t%s(%s) worst_random_mappings\n"%(no_of_worst_random_mappings, no_of_worst_random_mappings/no_of_total_mappings))
+		sys.stderr.write("Done.\n")
+		if commit:
+			sys.stderr.write("Submitting to db...")
+			curs.execute("create table %s.%s(id	integer primary key auto_increment,\
+				nativename	varchar(50),\
+				stockparent	varchar(10),\
+				tg_ecotypeid	integer,\
+				quality	varchar(50))"%(stock_db, nativename_stkparent2tg_ecotypeid_table))
+			for key_pair, tg_ecotypeid_quality_pair in nativename_stkparent2tg_ecotypeid.iteritems():
+				tg_ecotypeid, quality = tg_ecotypeid_quality_pair
+				nativename, stockparent = ecotypeid2nativename_stockparent[tg_ecotypeid]
+				curs.execute("insert into %s.%s(nativename, stockparent, tg_ecotypeid, quality) values ('%s', '%s', %s, '%s')"%(stock_db, nativename_stkparent2tg_ecotypeid_table, nativename, stockparent, tg_ecotypeid, quality))
+			
+			curs.execute("create table %s.%s(id	integer primary key auto_increment,\
+				ecotypeid	integer,\
+				duplicate	integer,\
+				tg_ecotypeid	integer)"%(stock_db, ecotype_duplicate2tg_ecotypeid_table))
+			
+			for pair, tg_ecotypeid in ecotype_duplicate2tg_ecotypeid.iteritems():
+				curs.execute("insert into %s.%s(ecotypeid, duplicate, tg_ecotypeid) values (%s, %s, %s)"%(stock_db, ecotype_duplicate2tg_ecotypeid_table, pair[0], pair[1], tg_ecotypeid))
+			sys.stderr.write("Done.\n")
+		return nativename_stkparent2ecotypeid_duplicate_ls, nativename_stkparent2tg_ecotypeid, ecotype_duplicate2tg_ecotypeid
+	createTableStructureToGroupEcotypeid = staticmethod(createTableStructureToGroupEcotypeid)
+	
+	def run(self):
+		"""
+		2008-05-15
+		"""
+		import MySQLdb
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
+		curs = conn.cursor()
+		stock_db = self.dbname
+		self.createEcotypeid2duplicate_view(curs, stock_db)
+		
+		self.createNoGenotypingEcotypeView(curs, stock_db)
+		
+		self.createNoGPSEcotypeView(curs, stock_db)
+		
+		genotyping_all_na_ecotypeid_duplicate_ls, genotype_run2call_ls = self.createGenotypingAllNAEcotypeTable(curs, stock_db, \
+			table_name=self.genotyping_all_na_ecotype_table, commit=self.commit)
+		
+		no_genotyping_ecotypeid_set = self.get_no_genotyping_ecotypeid_set(curs, stock_db, no_genotyping_ecotype_view_name=self.no_genotyping_ecotype_view_name)
+		
+		no_gps_ecotypeid_set = self.get_no_gps_ecotypeid_set(curs, stock_db, no_gps_ecotype_view_name=self.no_gps_ecotype_view_name)
+		
+		nativename_stkparent2ecotypeid_duplicate_ls, nativename_stkparent2tg_ecotypeid, ecotype_duplicate2tg_ecotypeid = \
+		self.createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set, \
+		genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name=self.ecotypeid2duplicate_view_name, \
+		nativename_stkparent2tg_ecotypeid_table=self.nativename_stkparent2tg_ecotypeid_table, \
+		ecotype_duplicate2tg_ecotypeid_table=self.ecotype_duplicate2tg_ecotypeid_table, commit=self.commit)
+		if self.commit:
+			curs.execute("commit")
 
 def get_ecotypeid2duplicate_times(curs, stock_db, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view'):
 	"""
@@ -452,3 +470,12 @@ outf.write(outputMatrixInLatexTable(m, caption, table_label, header_ls))
 outf.flush()
 
 """
+if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = GroupDuplicateEcotype
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	
+	
