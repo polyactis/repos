@@ -27,6 +27,10 @@ create table magnus_192_status(
 	description	varchar(200)
 	);
 
+-- 2008-05-15 view to link entries in at.accession to target ecotypeid thru another view complete_2010_strains_in_stock and table stock.ecotype_duplicate2tg_ecotypeid. target ecotypeid is the final ecotypeid for a group of duplicated ecotypeids.
+create or replace view complete_2010_strains_in_stock2tg_ecotypeid as select e.tg_ecotypeid, c.*, a.origin, a.number from complete_2010_strains_in_stock c, stock.ecotype_duplicate2tg_ecotypeid e , accession a where c.ecotypeid=e.ecotypeid and c.accession_id=a.id order by accession_id;
+
+
 /*
 create table readme(
 	id	integer auto_increment primary key,
