@@ -458,7 +458,7 @@ class RawSnpsData(_SnpsData_):
 					decoder[nt]=k
 					k = k+1
 			snp = []
-			if k > 1:
+			if k > 2:
 				max1 = 0
 				maxnt1 = ''
 				max2 = 0
