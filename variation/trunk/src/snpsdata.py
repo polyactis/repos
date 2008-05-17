@@ -1084,7 +1084,10 @@ class SnpsDataSet:
 def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False, callProbFile=None):
 	"""
 	2008-05-17
+		for callProbFile, modify it to output a row immediately. no memory hoarding, untested.
+	2008-05-17
 		modify it to output a row immediately. no memory hoarding
+		fix a slight bug. arrayIds is outputted always using ', ' as delimiter
 	Writes data to a file. 
 	"""
 	import sys,csv
@@ -1127,27 +1130,20 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	del writer
 	
 	if callProbFile:
+		writer = csv.writer(open(callProbFile, 'w'), delimiter=deliminator)
 		if withArrayIds:
-			outStr = "-, -, "+", ".join(snpsds[0].arrayIds)+"\n"
-		else:
-			outStr = ""
-		f = open(callProbFile,"w")
-		outStr += deliminator.join(fieldStrings)+"\n"
-		f.write(outStr)
-		f.flush()
+			writer.writerow(['-', '-']+snpsds[0].arrayIds)
+		writer.writerow(fieldStrings)
 		for i in range(0,len(chromosomes)):
-			outStr = ""
 			snpsd = snpsds[i]
 			snpsds[i] = []
 			for j in range(0,len(snpsd.positions)):
-				outStr += str(chromosomes[i])+deliminator+str(snpsd.positions[j])
+				data_row = [chromosomes[i], snpsds[i].positions[j]]
 				for k in range(0, len(snpsd.accessions)):
-					outStr += deliminator+str(snpsd.callProbabilities[j][k])
-				outStr +="\n"
+					data_row.append(snpsd.callProbabilities[j][k])
+				writer.writerow(data_row)
 			del snpsd
-			f.write(outStr)
-			f.flush()
-		f.close()
+		del writer
 	sys.stderr.write("Done.\n")
 
 
