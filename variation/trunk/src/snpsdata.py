@@ -458,7 +458,7 @@ class RawSnpsData(_SnpsData_):
 					decoder[nt]=k
 					k = k+1
 			snp = []
-			if k > 2:
+			if k > 1:
 				max1 = 0
 				maxnt1 = ''
 				max2 = 0
@@ -491,7 +491,7 @@ class RawSnpsData(_SnpsData_):
 
 		newSnps = []
 		newPositions = []
-		sys.stderr.write( "Comparing datas. Number of snps: "+str(len(self.snps))+" vs "+str(len(snpsd.snps))+"\n")
+		sys.stderr.write( "Comparing datas. Number of snps: %s vs %s"%(len(self.snps), len(snpsd.snps)))
 		# Find common accession indices
 		accessionsIndices = []
 		commonAccessions = []
@@ -1083,10 +1083,12 @@ class SnpsDataSet:
 
 def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False, callProbFile=None):
 	"""
+	2008-05-17
+		modify it to output a row immediately. no memory hoarding
 	Writes data to a file. 
 	"""
-	
-	print "Writing data to file:",filename
+	import sys,csv
+	sys.stderr.write("Writing data to file: %s ..."%filename)
 	numSnps = 0
 	for i in range(0,len(chromosomes)):
 		numSnps += len(snpsds[i].positions)
@@ -1101,10 +1103,12 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	decoder['NA']=missingVal
 
 	#outStr = "NumSnps: "+str(numSnps)+", NumAcc: "+str(len(accessions))+"\n"
+	writer = csv.writer(open(filename, 'w'), delimiter=deliminator)
 	if withArrayIds:
-		outStr = "-, -, "+", ".join(snpsds[0].arrayIds)+"\n"
-	else:
-		outStr = ""
+		writer.writerow(['-', '-']+snpsds[0].arrayIds)
+		#outStr = "-, -, "+", ".join(snpsds[0].arrayIds)+"\n"
+	#else:
+	#	outStr = ""
 	fieldStrings = ["Chromosome", "Positions"]
 	if accDecoder:
 		for acc in snpsds[i].accessions:
@@ -1112,17 +1116,16 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	else:
 		for acc in snpsds[i].accessions:
 			fieldStrings.append(str(acc))
-	outStr += deliminator.join(fieldStrings)+"\n"
+	writer.writerow(fieldStrings)
+	#outStr += deliminator.join(fieldStrings)+"\n"
 	for i in range(0,len(chromosomes)):
 		for j in range(0,len(snpsds[i].positions)):
-			outStr += str(chromosomes[i])+deliminator+str(snpsds[i].positions[j])
+			data_row = [chromosomes[i], snpsds[i].positions[j]]
 			for k in range(0, len(snpsds[0].accessions)):
-				outStr += deliminator+decoder[snpsds[i].snps[j][k]]
-			outStr +="\n"
-	f = open(filename,"w")
-	f.write(outStr)
-	f.close()
-
+				data_row.append(decoder[snpsds[i].snps[j][k]])
+			writer.writerow(data_row)
+	del writer
+	
 	if callProbFile:
 		if withArrayIds:
 			outStr = "-, -, "+", ".join(snpsds[0].arrayIds)+"\n"
@@ -1145,8 +1148,7 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 			f.write(outStr)
 			f.flush()
 		f.close()
-
-
+	sys.stderr.write("Done.\n")
 
 
 def estimateRecomb(snpsdList,baseNum,filterProb,id):
