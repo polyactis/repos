@@ -1,0 +1,13 @@
+Rong Jiang's code. it's his package for oligo (Carvalho2007) genotype calling. 
+from /Network/Data/250k/tmp-jr/basecall/oligo-basecall-jr.tar
+parameters estimated from 31 perlegen overlapping arrays.
+normalization data of 107 out of initial 163 arrays.
+other associated R/shell/c-binary programs
+
+
+The stucture of all programs here is:
+
+wrap_basecall.sh
+	new_basecall.sh
+		new_basecall.R
+	process-calls
