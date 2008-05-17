@@ -370,6 +370,68 @@ def filterByNA(snpsds,maxMissing,withArrayIds=1, debug=0):
 	return snpsds
 
 
+def removeIdentical(snpsds,comparisonSnpsds,withArrayIds=1, debug=0):
+	"""
+	2008-05-12
+		cosmetic change a bit
+		add no_of_accessions_removed to every snpsd
+	Removes the accessions in the snpsds list if they have NA-rates greater than maxMissing. 
+	"""
+	accessionsToRemove = []
+	arraysToRemove = []
+
+	res = []
+	sys.stderr.write("Comparing accessions.")
+	for i in range(0,len(snpsds)):
+		res.append(snpsds[i].compareWith(comparisonSnpsds[i],withArrayIds=withArrayIds,verbose=False))
+		sys.stderr.write(".")
+	print ""
+
+	totalAccessionCounts = [0]*len(res[0][2])
+	accErrorRate = [0]*len(res[0][2])
+	for i in range(0,len(snpsds)):
+		r = res[i]
+		for j in range(0,len(r[2])):
+			totalAccessionCounts[j] += r[6][j]
+			accErrorRate[j]+=r[3][j]*float(r[6][j])
+		
+	for i in range(0,len(accErrorRate)):
+		if totalAccessionCounts[i]>0:
+			accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
+		else:
+			accErrorRate[i] = 1
+
+	accErrAndID = []
+	for i in range(0,len(r[2])):
+		accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
+
+	accErrAndID.sort()
+
+	print "Locating identical accessions"
+	arraysToRemove = []
+	for accession in set(snpsds[0].accessions):
+		if snpsds[0].accessions.count(accession)>1:
+			found = 0
+			for (error,ecotype,array) in accErrAndID:
+				if ecotype==accession:
+					if found>0:
+						accessionsToRemove.append(ecotype)
+						arraysToRemove.append(array)
+					found += 1
+	
+	sys.stderr.write("Removing accessions ... ")
+	numAccessions = len(snpsds[0].accessions)
+	no_of_accessions_removed = None
+	for snpsd in snpsds:
+		snpsd.removeAccessions(accessionsToRemove,arrayIds=arraysToRemove)
+		if no_of_accessions_removed ==None:
+   			no_of_accessions_removed = numAccessions-len(snpsd.accessions)
+		snpsd.no_of_accessions_filtered_by_na = no_of_accessions_removed
+		sys.stderr.write(".")
+	sys.stderr.write("\n%s accessions out of %s were removed.\n"%(no_of_accessions_removed, numAccessions))
+	return snpsds
+
+
 def _testRun1_():
 	import dataParsers
 	snpsds = dataParsers.parseCSVData("250K_m3.csv",withArrayIds=1)

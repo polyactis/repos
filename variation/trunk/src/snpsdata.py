@@ -491,7 +491,7 @@ class RawSnpsData(_SnpsData_):
 
 		newSnps = []
 		newPositions = []
-		sys.stderr.write( "Comparing datas. Number of snps: %s vs %s"%(len(self.snps), len(snpsd.snps)))
+		sys.stderr.write( "Comparing datas. Number of snps: "+str(len(self.snps))+" vs "+str(len(snpsd.snps))+"\n")
 		# Find common accession indices
 		accessionsIndices = []
 		commonAccessions = []
