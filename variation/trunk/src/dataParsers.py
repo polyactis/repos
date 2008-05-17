@@ -501,7 +501,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     return snpsds
 
 
-def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False, use_nt2number=0):
+def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False, use_nt2number=0, returnChromosomes=False):
     """
     05/12/08 yh. add argument use_nt2number, to turn nucleotide into numbers. default is not
     05/12/08 yh. add '-':'-' (deletion) and '|':'NA' (untouched) check nt2number in 'variation.common' to decoder
@@ -545,6 +545,7 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
     line = lines[i].split(deliminator)
     for acc in line[2:]:
         accessions.append(acc.strip())
+    print "Found",len(accessions),"arrays/strains."
     i += 1
     line = lines[i].split(deliminator)
     newChr = int(line[0])
@@ -560,7 +561,6 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
         rawSnpsData.chromosome = oldChr
         while i < len(lines) and newChr == oldChr:
             line = lines[i].split(deliminator)
-            #print line
             oldChr = int(line[0])
             rawSnpsData.positions.append(int(line[1]))
             snp = []
@@ -581,7 +581,10 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
         for i in range(0,len(chromosomes)):
             snpsd_ls[i] = snpsd_ls[i].getSnpsData()
     sys.stderr.write( "\n")
-    return(snpsd_ls)
+    if returnChromosomes:
+        return (snpsd_ls,chromosomes)
+    else:
+        return snpsd_ls
 
 
 def parseCSVDataWithCallProb(datafile, callProbFile, format=1, deliminator=",", missingVal='NA', withArrayIds=False):

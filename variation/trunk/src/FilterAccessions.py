@@ -161,7 +161,7 @@ def _run_():
 					accessionsToRemove.append(ecotype)
 					arraysToRemove.append(array)
 
-	else:
+		else:
 			for (error,ecotype) in accErrAndID:
 				if error> maxError:
 					accessionsToRemove.append(ecotype)

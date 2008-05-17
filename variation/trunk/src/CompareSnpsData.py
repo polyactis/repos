@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 """
-Usage: CompareSNPsData.py [OPTIONS] datafile1 datafile2
+Usage: CompareSNPsData.py [OPTIONS] datafile1 [datafile2]
 
 Option:
         -o ...,	--rFile=...             Output file (R format), a script that generates several graphs.
@@ -8,9 +8,9 @@ Option:
         -m ..., --missingval=...        default is "NA"
 	-a ..., --withArrayId=...       0 for no array ID info (default), 1 if first file has array ID info, 2 if both have.
 	-s ..., --statFile=...          Writes several comparison statistics to a file.
+	-c [...], --crossExamine=...    Check arrays in datafile, requires argument of what persentage of SNPs it should base the calculations on. (0.05 is default)
+	--strainIdentity                Check strains for naming errors..
 	-v, --verbose   Prints various comparison statistics to the screen.
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
 	-h, --help	show this help
 
 Examples:
@@ -26,14 +26,157 @@ import sys, getopt, traceback
 import dataParsers
 import snpsdata
 
+def crossExamine(snpsds,fractionSnps,withArrayIds=False):
+	print "Cross examining arrays"
+	numSnpsChr = []
+	for snpsd in snpsds:
+		numSnpsChr.append(int(len(snpsd.positions)*fractionSnps))
+
+	#Implement a random pick of SNPs
+	errCounts = []
+	counts = []
+	for acc in snpsds[0].accessions:
+		errCounts.append([0]*len(snpsds[0].accessions))
+		counts.append([0]*len(snpsds[0].accessions))
+
+	accIndexList = range(0,len(snpsds[0].accessions))
+	for i in range(0,len(snpsds)):
+		snpsd = snpsds[i]
+		print "Examining", numSnpsChr[i], "SNPs on chromosome",i+1
+		for j in xrange(0,numSnpsChr[i]):
+			snp = snpsd.snps[j]
+			for acc1 in accIndexList:
+				for acc2 in accIndexList:
+					if snp[acc1] != 'NA' and snp[acc2] !='NA':
+						counts[acc1][acc2] += 1
+						if snp[acc1] != snp[acc2]:
+							errCounts[acc1][acc2] += 1
+	for acc1 in accIndexList:
+		for acc2 in accIndexList:
+			if counts[acc1][acc2] != 0:
+				errCounts[acc1][acc2] = errCounts[acc1][acc2]/float(counts[acc1][acc2])
+			else:
+				errCounts[acc1][acc2] = 0	
+
+	
+	accessions = snpsds[0].accessions
+	if withArrayIds:
+		arrayIds = snpsds[0].arrayIds
+		l1 = zip(accessions,arrayIds)
+		for acc1 in accIndexList:
+			l = zip(errCounts[acc1],l1)
+			l.sort()
+			st = str(l[0])
+			for i in range(1,min(8,len(l))):
+				st += ", "+str(l[i])
+			print "Ecotype =",accessions[acc1],', Array ID =',arrayIds[acc1],": ",st
+	else:
+		for acc1 in accIndexList:
+			l = zip(errCounts[acc1],accessions)
+			l.sort()
+			st = str(l[0])
+			for i in range(1,min(8,len(l))):
+				st += ", "+str(l[i])
+			print "Ecotype =",accessions[acc1],": ",st
+	
+
+				
+def findIdentities(snpsds1,snpsds2,withArrayIds=0):
+	"""
+	commonAccessionIndices = []
+	for i in range(0,len(snpsds1[0].accessions)):
+		acc1 = snpsds1[0].accessions[i]
+		for j in range(0,len(snpsds2[0].accessions)):
+			acc2 = snpsds2[0].accessions[j]
+			if acc1==acc2:
+				commonAccessionIndices.append((i,j,acc1))
+	"""
+
+	errCounts = []
+	counts = []
+	for acc in snpsds1[0].accessions:
+		errCounts.append([0]*len(snpsds2[0].accessions))
+		counts.append([0]*len(snpsds2[0].accessions))
+
+
+	accessions1 = snpsds1[0].accessions	
+	accessions2 = snpsds2[0].accessions	
+
+	for i in range(0,len(snpsds1)):
+		print "Comparing SNPs on chromosome",i+1, ":"
+		snpsd1 = snpsds1[i]
+		snpsd2 = snpsds2[i]				
+		commonPos = []
+		j = 0
+		k = 0
+		while j <= len(snpsd1.positions) and k <= len(snpsd2.positions):
+			if j < len(snpsd1.positions):
+				pos1 = snpsd1.positions[j]
+			if k < len(snpsd2.positions):
+				pos2 = snpsd2.positions[k] 
+			if j < len(snpsd1.positions) and pos1 < pos2:
+				j = j+1
+			elif k < len(snpsd2.positions) and pos2 < pos1:
+				k = k+1
+			elif j < len(snpsd1.positions) and k < len(snpsd2.positions) and pos1==pos2:
+				commonPos.append((j,k,pos1))
+				j = j+1
+				k = k+1
+			else: 
+				# One pointer has reached and the end and the other surpassed it.
+				break
+					
+		print "Found",len(commonPos), "common SNPs."
+		print "Counting errors"
+		for (pos1,pos2,pos) in commonPos:
+			snp1 = snpsd1.snps[pos1]
+			snp2 = snpsd2.snps[pos2]
+			for acc1 in range(0,len(accessions1)):
+				for acc2 in range(0,len(accessions2)):
+					if snp1[acc1]!='NA' and snp2[acc2]!='NA':
+						counts[acc1][acc2] += 1
+						if snp1[acc1] != snp2[acc2]:
+							errCounts[acc1][acc2] += 1
+
+
+	for acc1 in range(0,len(accessions1)):
+		for acc2 in range(0,len(accessions2)):
+			if counts[acc1][acc2] != 0:
+				errCounts[acc1][acc2] = errCounts[acc1][acc2]/float(counts[acc1][acc2])
+			else:
+				errCounts[acc1][acc2] = 0	
+
+	
+	if 0<withArrayIds<3:
+		arrayIds = snpsds1[0].arrayIds
+		for acc1 in range(0,len(accessions1)):
+			l = zip(errCounts[acc1],counts[acc1],accessions2)
+			l.sort()
+			if accessions1[acc1]!=l[0][2]:
+				st = str(l[0])
+				for i in range(1,min(6,len(l))):
+					st += ", "+str(l[i])
+				print "Ecotype =",accessions1[acc1],', Array ID =',arrayIds[acc1],": ",st
+	else:
+		for acc1 in range(0,len(accessions1)):
+			l = zip(errCounts[acc1],counts[acc1],accessions2)
+			l.sort()
+			if accessions1[acc1]!=l[0][2]:
+				st = str(l[0])
+				for i in range(1,min(6,len(l))):
+					st += ", "+str(l[i])
+			print "Ecotype =",accessions1[acc1],": ",st
+				
+			
+			
 def _run_():
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["rFile=", "delim=", "missingval=", "statFile=", "debug", "report", "help", "withArrayId="]
+	long_options_list = ["rFile=", "delim=", "missingval=", "crossExamine=", "statFile=", "debug", "report", "help", "withArrayId=","strainIdentity"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:s:vbrh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:s:c:vh", long_options_list)
 
 	except:
 		traceback.print_exc()
@@ -41,10 +184,17 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	if len(args)!=2:
-            raise Exception("Number of arguments isn't correct.")
+	if len(args)>2:
+		print args
+		raise Exception("Number of arguments isn't correct.")
         inputFile1 = args[0]
-	inputFile2 = args[1]
+	inputFile2 = None
+	crossExamineData=False
+	if len(args)>1:
+		inputFile2 = args[1]
+	else:
+		crossExamineData=True
+	
         rFile = None
         statFile = None
 	verbose = False
@@ -53,6 +203,7 @@ def _run_():
 	debug = None
 	report = None
 	withArrayIds = 0
+	fractionSnps = 0.05
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -72,17 +223,26 @@ def _run_():
 			withArrayIds = int(arg)
 		elif opt in ("-v", "--verbose"):
 			verbose = True
-		elif opt in ("-b", "--debug"):
-			debug = 1
-		elif opt in ("-r", "--report"):
-			report = 1
+		elif opt in ("-c", "--crossExamine"):
+			fractionSnps = float(arg)
+		elif opt in ("--strainIdentity"):
+			crossExamineData=True
+
 	
 	waid1 = withArrayIds==1 or withArrayIds==2
 	waid2 = withArrayIds==2
 	
 	snpsds1 = dataParsers.parseCSVData(inputFile1, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
-	snpsds2 = dataParsers.parseCSVData(inputFile2, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
-        
+	if inputFile2:
+		snpsds2 = dataParsers.parseCSVData(inputFile2, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
+
+	if crossExamineData:
+		if inputFile2:
+			findIdentities(snpsds1,snpsds2,withArrayIds)
+		else:
+			crossExamine(snpsds1,fractionSnps,waid1)
+		return
+	
 
         if len(snpsds1) != len(snpsds2):
 		raise Exception("Unequal number of chromosomes in files.")
