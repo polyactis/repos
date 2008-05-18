@@ -19,6 +19,8 @@ Option:
 Examples:
 	OutputPhenotype.py -o /tmp/phenotype.tsv
 	
+	OutputPhenotype.py -o /tmp/phenotype.tsv -e stock.ecotype_usc
+	
 Description:
 	program to output phenotype_avg table.
 	The output format is roughly a ecotype_id X phenotype(shortname) matrix.
