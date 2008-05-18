@@ -198,6 +198,8 @@ class Calls2DB_250k_old:
 import getopt, csv, subprocess
 import traceback, gc
 from pymodule import process_function_arguments
+
+
 class Calls2DB_250k(object):
 	"""
 
@@ -219,7 +221,7 @@ class Calls2DB_250k(object):
 							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
 							('u', 'user', 1, 'database username', 1, ):None,\
 							('p', 'passwd', 1, 'database password', 1, ):None,\
-							('i', 'input_dir', 1, 'directory containing output files of any calling algorithm', 1, ): None,\
+							('i', 'input_dir', 1, "directory containing output files of any calling algorithm. it could aslso be a file, assuming it's in bjarni's format with arrayId.", 1, ): None,\
 							('m', 'method_id',1, 'the id of the calling method. It must be in table call_method beforehand.', 1, ): None,\
 							('o', 'output_dir',1, 'file system storage for the call files. call_info_table would point each entry to this.', 1, ):'/Network/Data/250k/db/calls/' ,\
 							('a', 'call_method_table', 1, 'table storing the calling methods', 1, ): 'call_method',\
@@ -326,13 +328,64 @@ class Calls2DB_250k(object):
 				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
 						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
 	
+	def submit_call_file2db(self, curs, input_fname, call_info_table, output_dir, method_id, user):
+		"""
+		2008-05-17
+			submit the calls from a matrix file to db
+		"""
+		sys.stderr.write("Submitting calls to db ...\n")
+		output_dir = os.path.join(output_dir, 'method_%s'%method_id)
+		if not os.path.isdir(output_dir):
+			os.makedirs(output_dir)
+		
+		reader = csv.reader(open(input_fname))
+		array_id_ls = reader.next()
+		column_index2writer = {}
+		for i in range(2, len(array_id_ls)):
+			array_id = array_id_ls[i]
+			sys.stderr.write("\t%sAssign new call info id to array id=%s ..."%('\x08'*80, array_id))
+			new_call_id = self.get_new_call_id(curs, call_info_table, array_id, method_id)
+			if new_call_id!=-1:
+				output_fname = os.path.join(output_dir, '%s_call.tsv'%new_call_id)
+				if os.path.isfile(output_fname):
+					sys.stderr.write("%s already exists. Ignore.\n"%output_fname)
+					continue
+				writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+				writer.writerow(['SNP_ID', array_id])
+				column_index2writer[i] = writer
+				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
+						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
+			sys.stderr.write("\n")
+		reader.next()	#ignore the ecotype id line
+		
+		sys.stderr.write("Moving real data to database ...\n")
+		counter = 0
+		for row in reader:
+			chromosome = int(row[0])
+			position = int(row[1])
+			counter += 1
+			snp_id = '%s_%s'%(chromosome, position)
+			for i in range(2, len(row)):
+				if i in column_index2writer:
+					column_index2writer[i].writerow([snp_id, row[i]])
+			if counter%5000==0:
+				sys.stderr.write("\t%s%s"%('\x08'*20, counter))
+		sys.stderr.write("\t%s%s"%('\x08'*20, counter))
+		del reader
+		for column_index, writer in column_index2writer.iteritems():
+			del writer
+		sys.stderr.write("Done.\n")
+	
 	def run(self):
 		"""
-		2008-04-08
+		2008-05-17
 			-check_method_id_exists()
-			-submit_call_dir2db()
-				-get_new_call_id()
-					-get_cur_max_call_id()
+			if input_dir is dir:
+				-submit_call_dir2db()
+					-get_new_call_id()
+						-get_cur_max_call_id()
+			elif input_dir is file:
+				-submit_call_file2db()
 		"""
 		
 		import MySQLdb
@@ -343,7 +396,12 @@ class Calls2DB_250k(object):
 							(self.method_id, self.call_method_table))
 			sys.exit(2)
 		if self.commit:
-			self.submit_call_dir2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
+			if os.path.isdir(self.input_dir):
+				self.submit_call_dir2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
+			elif os.path.isfile(self.input_dir):
+				self.submit_call_file2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
+			else:
+				sys.stderr.write("%s is neither directory nor file.\n"%self.input_dir)
 			curs.execute("commit")
 	
 if __name__ == '__main__':
