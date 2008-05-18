@@ -1105,13 +1105,13 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	decoder = RawDecoder()
 	decoder['NA']=missingVal
 
-	#outStr = "NumSnps: "+str(numSnps)+", NumAcc: "+str(len(accessions))+"\n"
-	writer = csv.writer(open(filename, 'w'), delimiter=deliminator)
+	print "NumSnps: "+str(numSnps)+", NumAcc: "+str(len(accessions))+"\n"
+	#writer = csv.writer(open(filename, 'w'), delimiter=deliminator)
 	if withArrayIds:
-		writer.writerow(['-', '-']+snpsds[0].arrayIds)
-		#outStr = "-, -, "+", ".join(snpsds[0].arrayIds)+"\n"
-	#else:
-	#	outStr = ""
+		#writer.writerow(['-', '-']+snpsds[0].arrayIds)
+		outStr = deliminator.join(['-', '-'])+deliminator+deliminator.join(snpsds[0].arrayIds)+"\n"
+	else:
+		outStr = ""
 	fieldStrings = ["Chromosome", "Positions"]
 	if accDecoder:
 		for acc in snpsds[i].accessions:
@@ -1119,15 +1119,22 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	else:
 		for acc in snpsds[i].accessions:
 			fieldStrings.append(str(acc))
-	writer.writerow(fieldStrings)
-	#outStr += deliminator.join(fieldStrings)+"\n"
+	#writer.writerow(fieldStrings)
+	f = open(filename, 'w')
+	outStr += deliminator.join(fieldStrings)+"\n"
+	f.write(outStr)
 	for i in range(0,len(chromosomes)):
+		outStr=""
 		for j in range(0,len(snpsds[i].positions)):
-			data_row = [chromosomes[i], snpsds[i].positions[j]]
-			for k in range(0, len(snpsds[0].accessions)):
-				data_row.append(decoder[snpsds[i].snps[j][k]])
-			writer.writerow(data_row)
-	del writer
+			outStr += str(chromosomes[i])+deliminator+str(snpsds[i].positions[j])+deliminator
+			outStr += deliminator.join(snpsds[i].snps[j])+"\n"
+			
+                        #data_row = [chromosomes[i], snpsds[i].positions[j]]
+	                #for k in range(0, len(snpsds[0].accessions)):
+			#	data_row.append(decoder[snpsds[i].snps[j][k]])
+			#writer.writerow(data_row)
+		f.write(outStr)
+	#del writer
 	
 	if callProbFile:
 		writer = csv.writer(open(callProbFile, 'w'), delimiter=deliminator)
