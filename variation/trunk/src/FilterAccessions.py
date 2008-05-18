@@ -246,7 +246,7 @@ def _run_():
 
 
 #--------------------------------------------------------------------------------#
-def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1):
+def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1,onlyCommon=False):
 	"""
 	05/13/2008 add no_of_accessions_filtered_by_mismatch
 	Removes the accessions in the snpsds object if they have error-rates greater than maxError. 
@@ -294,10 +294,22 @@ def filterByError(snpsds,comparisonSnpsds,maxError,withArrayIds=1):
 				accessionsToRemove.append(ecotype)
 				arraysToRemove.append(array)
 
+		if onlyCommon:
+			for i in range(0,len(snpsds[0].accessions)): #Removing all arrays that are comparable
+				acc = snpsds[0].accessions[i]
+				if not acc in comparisonSnpsds[0].accessions:
+					accessionsToRemove.append(acc)
+					arraysToRemove.append(snpsds[0].arrayIds[i])
+
 	else:
 		for (error,ecotype) in accErrAndID:
 			if error> maxError:
 				accessionsToRemove.append(ecotype)
+		if onlyCommon:
+			for i in range(0,len(snpsds[0].accessions)): #Removing all arrays that are comparable
+				acc = snpsds[0].accessions[i]
+				if not acc in comparisonSnpsds[0].accessions:
+					accessionsToRemove.append(acc)
 
 	#Remove accessions
 	sys.stderr.write("Removing accessions.")
