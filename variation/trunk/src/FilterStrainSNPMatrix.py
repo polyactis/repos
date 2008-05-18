@@ -247,6 +247,8 @@ class FilterStrainSNPMatrix(object):
 	
 	def read_data(cls, input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter='\t'):
 		"""
+		2008-05-18
+			DEPRECATED. moved to pymodule.SNP
 		2008-05-12
 			add delimiter
 		2008-05-07
