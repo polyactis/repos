@@ -372,6 +372,8 @@ def filterByNA(snpsds,maxMissing,withArrayIds=1, debug=0):
 
 def removeIdentical(snpsds,comparisonSnpsds,withArrayIds=1, debug=0):
 	"""
+	2008-05-17
+		cosmetic change
 	2008-05-12
 		cosmetic change a bit
 		add no_of_accessions_removed to every snpsd
@@ -385,7 +387,7 @@ def removeIdentical(snpsds,comparisonSnpsds,withArrayIds=1, debug=0):
 	for i in range(0,len(snpsds)):
 		res.append(snpsds[i].compareWith(comparisonSnpsds[i],withArrayIds=withArrayIds,verbose=False))
 		sys.stderr.write(".")
-	print ""
+	sys.stderr.write("\n")
 
 	totalAccessionCounts = [0]*len(res[0][2])
 	accErrorRate = [0]*len(res[0][2])
