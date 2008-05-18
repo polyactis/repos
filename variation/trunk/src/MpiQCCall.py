@@ -2,16 +2,27 @@
 """
 
 Examples:
+	#parallel run on hpc-cmb
 	mpiexec MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250k_method_3.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.csv
-	
-	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython ~/script/variation/src/MpiQCCall.py
-	
-	#test
+		
+	#test parallel run on desktop
 	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc -n 20 -v 0.3 -a 0.4 -w 0.2
-
+	
+	#debug and run thru on a single node and output the matrix to output_fname.
+	python ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -p ~/panfs/NPUTE_data/input/perlgen.csv \
+	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -o ~/panfs/NPUTE_data/QC_output/250K_m3_85_vs_2010_149_384_v2_QC_x0.12_a1_v0.55_w0.3_n30 \
+	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -b
+	
+	#parallel run on hpc-cmb and output data (both before & after imputation into output_dir)
+	mpiexec ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -p ~/panfs/NPUTE_data/input/perlgen.csv \
+	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -o ~/panfs/NPUTE_data/QC_output/250K_m3_85_vs_2010_149_384_v2_QC_x0.12_a1_v0.55_w0.3_n30 \
+	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u ~/panfs/NPUTE_data/matrix_output
+	
 Description:
 	a parallel program to do QC on genotype calls before/after imputation under various parameter settings.
 	
+	In debug mode (-b), it takes the first parameter setting and run thru on a single node and output the matrix to
+		output_fname. The output_fname is not regarded as a prefix for two stat filenames.
 """
 import sys, os, math
 #bit_number = math.log(sys.maxint)/math.log(2)
@@ -30,6 +41,7 @@ from variation.genotyping.NPUTE.NPUTE import imputeData
 from variation.src.QC_250k import SNPData, TwoSNPData
 from pymodule import PassingData, importNumericArray
 import copy
+import snpsdata
 
 num = importNumericArray()
 
@@ -39,7 +51,8 @@ class MpiQCCall(object):
 							('callProbFile', 0, ): ['', 't', 1, '250k probability file'],\
 							('fname_2010_149_384', 1, ): ['', 'f', 1, ''],\
 							('fname_perlegen', 1, ): ['', 'p', 1, ''],\
-							('output_fname', 1, ): [None, 'o', 1, 'output filename prefix. two files would be generated. 1st file is strain/snp detailed data. 2nd file is average strain/snp data.', ],\
+							('output_fname', 1, ): [None, 'o', 1, 'final stat output filename prefix. two files would be generated. 1st file is strain/snp detailed data. 2nd file is average strain/snp data. If running in debug mode, this will be the direcotry to store the matrix before and after imputation.', ],\
+							('output_dir', 0, ): [None, 'u', 1, 'if given, output matrix before and after imputation into a directory'],\
 							('min_call_probability_ls', 1, ): ["0.6,0.7,0.75,0.8,0.85,0.9,0.95,0.975,0.982", 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
 							('max_call_mismatch_rate_ls', 1, ): ["0.05,0.1,0.15,0.20,0.25,0.3", 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_call_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8", 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
@@ -110,8 +123,10 @@ class MpiQCCall(object):
 		return data_to_return
 	
 	def doFilter(self, snpsd_ls, snpsd_ls_qc_strain, snpsd_ls_qc_snp, snpData_qc_strain, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
-				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size):
+				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size , output_dir=None):
 		"""
+		2008-05-17
+			add argument output_dir. if it's available, output data matrix before and after imputation
 		2008-05-12
 			add
 			qcdata.no_of_accessions_filtered_by_mismatch
@@ -137,8 +152,22 @@ class MpiQCCall(object):
 		FilterSnps.filterByNA(snpsd_250k_tmp, max_snp_NA_rate)
 		
 		MergeSnpsData.merge(snpsd_250k_tmp, snpsd_ls_qc_snp, unionType=0, priority=2)
-			
+		
 		FilterSnps.filterMonomorphic(snpsd_250k_tmp)
+		
+		if output_dir:
+			#output data here
+			if not os.path.isdir(output_dir):
+				os.makedirs(output_dir)
+			output_fname_prefix_ls = ['min_oligo_call_probability=%s'%min_call_probability,\
+									'max_array_mismatch_rate=%s'%max_call_mismatch_rate,\
+									'max_array_NA_rate=%s'%max_call_NA_rate,\
+									'max_snp_mismatch_rate=%s'%max_snp_mismatch_rate,\
+									'max_snp_NA_rate=%s'%max_snp_NA_rate,\
+									'npute_window_size=%s'%npute_window_size]
+			output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['before_imputation.csv']))
+			chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]
+			snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
 		
 		qcdata.no_of_snps_filtered_by_mismatch = 0
 		qcdata.no_of_snps_filtered_by_na = 0
@@ -170,6 +199,11 @@ class MpiQCCall(object):
 			#	snpsd_250k_tmp[i].snps = []
 			#	snpsd_250k_tmp[i].accession = []
 			#	snpsd_250k_tmp[i].positions = []
+		if output_dir:	#2008-05-16 write the data out if output_fname is available
+			#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
+			output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.csv']))
+			snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
+		
 		snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
 		del snpsd_250k_tmp
 		
@@ -200,10 +234,10 @@ class MpiQCCall(object):
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
 		min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = data[:6]
-		init_data = parameter_list[0]
+		init_data, output_dir = parameter_list
 		result = self.doFilter(init_data.snpsd_250k, init_data.snpsd_2010_149_384, init_data.snpsd_perlegen, init_data.snpData_2010_149_384, \
 							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
-							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size)
+							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, output_dir)
 		sys.stderr.write("Node no.%s done with %s QC.\n"%(node_rank, len(result)))
 		return result
 	
@@ -331,7 +365,7 @@ class MpiQCCall(object):
 			min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = init_data.param_d.parameters[0][:6]
 			result = self.doFilter(init_data.snpsd_250k, init_data.snpsd_2010_149_384, init_data.snpsd_perlegen, init_data.snpData_2010_149_384, \
 							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
-							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size)
+							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, self.output_fname)
 			sys.exit(2)
 		
 		self.communicator = MPI.world.duplicate()
@@ -367,7 +401,7 @@ class MpiQCCall(object):
 			parameter_list = [param_d]
 			mw.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler)
 		elif node_rank in free_computing_nodes:
-			parameter_list = [init_data]
+			parameter_list = [init_data, self.output_dir]
 			mw.computing_node(parameter_list, self.computing_node_handler)
 		else:
 			outf = open('%s.csv'%self.output_fname, 'w')
