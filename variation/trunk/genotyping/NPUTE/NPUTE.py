@@ -71,7 +71,7 @@ class NPUTE(object):
 		if not self.output_fname:
 			self.output_fname = '%s_w%s.npute'%(self.input_fname, self.single_window_size)
 	
-	def get_chr2no_of_snps(self, snps_name_ls):
+	def get_chr2no_of_snps(cls, snps_name_ls):
 		"""
 		05/07/08
 		"""
@@ -85,6 +85,7 @@ class NPUTE(object):
 			chr2no_of_snps[chr] += 1
 		sys.stderr.write("Done.\n")
 		return chr2no_of_snps
+	get_chr2no_of_snps = classmethod(get_chr2no_of_snps)
 	
 	def outputHeader(self, output_fname, strain_acc_list, category_list):
 		"""
