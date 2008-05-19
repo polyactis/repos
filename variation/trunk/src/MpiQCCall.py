@@ -37,9 +37,10 @@ from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
 from common import nt2number,number2nt, RawSnpsData_ls2SNPData
 import dataParsers, FilterAccessions, FilterSnps, MergeSnpsData
 from variation.genotyping.NPUTE.SNPData import SNPData as NPUTESNPData
-from variation.genotyping.NPUTE.NPUTE import imputeData
+from variation.genotyping.NPUTE.NPUTE import imputeData, NPUTE
 from variation.src.QC_250k import SNPData, TwoSNPData
 from pymodule import PassingData, importNumericArray
+from pymodule.SNP import SNPData, TwoSNPData
 import copy
 import snpsdata
 
@@ -122,9 +123,11 @@ class MpiQCCall(object):
 			sys.stderr.write("Fetching done.\n")
 		return data_to_return
 	
-	def doFilter(self, snpsd_ls, snpsd_ls_qc_strain, snpsd_ls_qc_snp, snpData_qc_strain, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
+	def doFilter(self, snpData, snpData_qc_strain, snpData_qc_snp, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size , output_dir=None):
 		"""
+		2008-05-19
+			use SNPData structure
 		2008-05-18
 			add onlyCommon=True to FilterAccessions.filterByError()
 		2008-05-17
@@ -140,22 +143,38 @@ class MpiQCCall(object):
 		2008-05-11
 			split up from computing_node_handler
 		"""
-		snpsd_250k_tmp = copy.deepcopy(snpsd_ls)
 		qcdata = PassingData()
+		twoSNPData = TwoSNPData(SNPData1=snpData, SNPData2=snpData_qc_strain, \
+						row_matching_by_which_value=0, debug=self.debug)
+		row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
+		del twoSNPData
 		
-		FilterAccessions.filterByError(snpsd_250k_tmp, snpsd_ls_qc_strain, max_call_mismatch_rate, withArrayIds=1, onlyCommon=True)
-		qcdata.no_of_accessions_filtered_by_mismatch = snpsd_250k_tmp[0].no_of_accessions_filtered_by_mismatch
+		newSnpData = SNPData.removeRowsByMismatchRate(snpData, row_id2NA_mismatch_rate, max_call_mismatch_rate)
+		qcdata.no_of_accessions_filtered_by_mismatch = newSnpData.no_of_rows_filtered_by_mismatch
 		
-		FilterAccessions.filterByNA(snpsd_250k_tmp, max_call_NA_rate, withArrayIds=1)
-		qcdata.no_of_accessions_filtered_by_na = snpsd_250k_tmp[0].no_of_accessions_filtered_by_na
+		newSnpData = SNPData.removeRowsByNARate(newSnpData, max_call_NA_rate)
+		qcdata.no_of_accessions_filtered_by_na = newSnpData.no_of_rows_filtered_by_na
 		
-		FilterSnps.filterByError(snpsd_250k_tmp, snpsd_ls_qc_snp, max_snp_mismatch_rate)
+		twoSNPData = TwoSNPData(SNPData1=newSnpData, SNPData2=snpData_qc_snp, \
+						row_matching_by_which_value=0, debug=self.debug)
+		col_id2NA_mismatch_rate = twoSNPData.cmp_col_wise()
+		del twoSNPData
+		newSnpData = SNPData.removeColsByMismatchRate(newSnpData, col_id2NA_mismatch_rate, max_snp_mismatch_rate)
+		qcdata.no_of_snps_filtered_by_mismatch = newSnpData.no_of_cols_filtered_by_mismatch
 		
-		FilterSnps.filterByNA(snpsd_250k_tmp, max_snp_NA_rate)
+		newSnpData = SNPData.removeColsByNARate(newSnpData, max_snp_NA_rate)
+		qcdata.no_of_snps_filtered_by_na = newSnpData.no_of_cols_filtered_by_na
 		
-		MergeSnpsData.merge(snpsd_250k_tmp, snpsd_ls_qc_snp, unionType=0, priority=2)
+		twoSNPData = TwoSNPData(SNPData1=newSnpData, SNPData2=snpData_qc_snp, \
+						row_matching_by_which_value=0, debug=self.debug)
+		newSnpData = twoSNPData.mergeTwoSNPData(priority=2)
 		
-		FilterSnps.filterMonomorphic(snpsd_250k_tmp)
+		#MergeSnpsData.merge(snpsd_250k_tmp, snpsd_ls_qc_snp, unionType=0, priority=2)
+		
+		newSnpData = SNPData.removeMonomorphicCols(newSnpData)
+		qcdata.no_of_monomorphic_snps_removed = newSnpData.no_of_monomorphic_cols
+		
+		#FilterSnps.filterMonomorphic(snpsd_250k_tmp)
 		
 		if output_dir:
 			#output data here
@@ -168,9 +187,11 @@ class MpiQCCall(object):
 									'max_snp_NA_rate=%s'%max_snp_NA_rate,\
 									'npute_window_size=%s'%npute_window_size]
 			output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['before_imputation.csv']))
-			chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]
-			snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
+			newSnpData.tofile(output_fname)
+			#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]
+			#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
 		
+		"""
 		qcdata.no_of_snps_filtered_by_mismatch = 0
 		qcdata.no_of_snps_filtered_by_na = 0
 		qcdata.no_of_monomorphic_snps_removed = 0
@@ -178,44 +199,63 @@ class MpiQCCall(object):
 			qcdata.no_of_snps_filtered_by_mismatch += snpsd.no_of_snps_filtered_by_mismatch
 			qcdata.no_of_snps_filtered_by_na += snpsd.no_of_snps_filtered_by_na
 			qcdata.no_of_monomorphic_snps_removed += snpsd.no_of_monomorphic_snps_removed
+		"""
 		
-		snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
+		#snpData0 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
 		
-		twoSNPData0 = TwoSNPData(SNPData1=snpData0, SNPData2=snpData_qc_strain, \
-						col_matching_by_which_value=1)	#col_id of snpData0 is (arrayId, accession)
+		twoSNPData0 = TwoSNPData(SNPData1=newSnpData, SNPData2=snpData_qc_strain, \
+						row_matching_by_which_value=0)
 		row_id2NA_mismatch_rate0 = twoSNPData0.cmp_row_wise()
 		col_id2NA_mismatch_rate0 = twoSNPData0.cmp_col_wise()
-		del twoSNPData0, snpData0
+		del twoSNPData0
 		
 		result = []
 		#for npute_window_size in npute_window_size_ls:
 		#snpsd_250k_tmp_1 = copy.deepcopy(snpsd_250k_tmp)	#deepcopy, otherwise snpsd_250k_tmp_1[i].snps = [] would clear snpsd_250k_tmp up as well
+		if len(newSnpData.row_id_ls)>5:
+			snps_name_ls = newSnpData.col_id_ls
+			chr2no_of_snps = NPUTE.get_chr2no_of_snps(snps_name_ls)
+			chr_ls = chr2no_of_snps.keys()
+			chr_ls.sort()
+			
+			snpData_imputed = SNPData(row_id_ls = newSnpData.row_id_ls, col_id_ls=[])
+			matrix_ls = []
+			for chromosome in chr_ls:
+				if chr2no_of_snps[chromosome]>5:	#enough for imputation
+					npute_data_struc = NPUTESNPData(snps_name_ls=snps_name_ls, data_matrix=newSnpData.data_matrix, chromosome=chromosome, \
+									input_file_format=1, input_NA_char=0)
+					imputeData(npute_data_struc, int(npute_window_size))
+					matrix_ls.append(npute_data_struc.snps)
+					snpData_imputed.col_id_ls += npute_data_struc.chosen_snps_name_ls
+			snpData_imputed.data_matrix = num.transpose(num.concatenate(matrix_ls))
+			
+			if output_dir:	#2008-05-16 write the data out if output_fname is available
+				#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
+				output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.csv']))
+				#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
+				snpData_imputed.tofile(output_fname)
+		
+		
+			twoSNPData1 = TwoSNPData(SNPData1=snpData_imputed, SNPData2=snpData_qc_strain, \
+							row_matching_by_which_value=0)
+			qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
+			qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
+			del twoSNPData1, snpData_imputed
+		else:
+			snpData_imputed = None
+			#qcdata.row_id2NA_mismatch_rate1 = {}
+			#qcdata.col_id2NA_mismatch_rate1 = {}
+		del newSnpData
+		"""
 		for i in range(len(snpsd_250k_tmp)):
 			#snpsd_250k_tmp_1[i].snps = []	#clear it up
+			
 			if len(snpsd_250k_tmp[i].accessions)>5 and len(snpsd_250k_tmp[i].positions)>5:	#not enough for imputation
 				npute_data_struc = NPUTESNPData(inFile=snpsd_250k_tmp[i], input_NA_char='NA', input_file_format=4, lower_case_for_imputation=0)
 				imputeData(npute_data_struc, int(npute_window_size))
 				snpsd_250k_tmp[i].snps = npute_data_struc.snps
 				del npute_data_struc
-			#else:	#don't use them as QC
-			#	snpsd_250k_tmp[i].snps = []
-			#	snpsd_250k_tmp[i].accession = []
-			#	snpsd_250k_tmp[i].positions = []
-		if output_dir:	#2008-05-16 write the data out if output_fname is available
-			#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
-			output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.csv']))
-			snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
-		
-		snpData1 = RawSnpsData_ls2SNPData(snpsd_250k_tmp)
-		del snpsd_250k_tmp
-		
-		
-		twoSNPData1 = TwoSNPData(SNPData1=snpData1, SNPData2=snpData_qc_strain, \
-						col_matching_by_which_value=1)
-		qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
-		qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
-		del twoSNPData1, snpData1
-		
+			"""
 		qcdata.row_id2NA_mismatch_rate0 = row_id2NA_mismatch_rate0
 		qcdata.col_id2NA_mismatch_rate0 = col_id2NA_mismatch_rate0
 		
@@ -237,7 +277,7 @@ class MpiQCCall(object):
 		data = cPickle.loads(data)
 		min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = data[:6]
 		init_data, output_dir = parameter_list
-		result = self.doFilter(init_data.snpsd_250k, init_data.snpsd_2010_149_384, init_data.snpsd_perlegen, init_data.snpData_2010_149_384, \
+		result = self.doFilter(init_data.snpData_250k, init_data.snpData_2010_149_384, init_data.snpData_perlegen, \
 							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, output_dir)
 		sys.stderr.write("Node no.%s done with %s QC.\n"%(node_rank, len(result)))
@@ -277,6 +317,8 @@ class MpiQCCall(object):
 	
 	def output_node_handler(self, communicator, parameter_list, data):
 		"""
+		2008-05-19
+			row is strain. col is snp. reversed due to utilization of SNPData
 		05/14/2008
 			flush outf and outf_avg
 		05/12/2008
@@ -296,9 +338,9 @@ class MpiQCCall(object):
 				row_id_ls = id2NA_mismatch_rate.keys()
 				row_id_ls.sort()	#try to keep them in call_info_id order
 				if id2NA_mismatch_rate_name[:3]=='row':
-					type_of_id = 'snp'
-				else:
 					type_of_id = 'strain'
+				else:
+					type_of_id = 'snp'
 				if id2NA_mismatch_rate_name[-1]=='0':
 					after_imputation = 0
 				else:
@@ -307,11 +349,12 @@ class MpiQCCall(object):
 					NA_mismatch_ls = id2NA_mismatch_rate[row_id]
 					writer.writerow([type_of_id, repr(row_id), after_imputation] + common_ls + NA_mismatch_ls)
 				
-				summary_data = self.summarize_NA_mismatch_ls(id2NA_mismatch_rate.values(), avg_var_name_pair_ls)
-				summary_ls = []
-				for summary_var_name in partial_header_avg:
-					summary_ls.append(getattr(summary_data, summary_var_name))
-				writer_avg.writerow([type_of_id, after_imputation] + common_ls + summary_ls)
+				if id2NA_mismatch_rate:	#not empty dictionary
+					summary_data = self.summarize_NA_mismatch_ls(id2NA_mismatch_rate.values(), avg_var_name_pair_ls)
+					summary_ls = []
+					for summary_var_name in partial_header_avg:
+						summary_ls.append(getattr(summary_data, summary_var_name))
+					writer_avg.writerow([type_of_id, after_imputation] + common_ls + summary_ls)
 		outf.flush()
 		outf_avg.flush()
 	
@@ -321,10 +364,9 @@ class MpiQCCall(object):
 			initial data loading on node 0
 		"""
 		init_data = PassingData()
-		init_data.snpsd_250k = dataParsers.parseCSVData(self.input_fname, withArrayIds=True)
-		init_data.snpsd_2010_149_384 = dataParsers.parseCSVData(self.fname_2010_149_384)
-		init_data.snpData_2010_149_384 = RawSnpsData_ls2SNPData(init_data.snpsd_2010_149_384, report=self.report)
-		init_data.snpsd_perlegen = dataParsers.parseCSVData(self.fname_perlegen)
+		init_data.snpData_250k = SNPData(input_fname=self.input_fname, turn_into_array=1)
+		init_data.snpData_2010_149_384 = SNPData(input_fname=self.fname_2010_149_384, turn_into_array=1, ignore_2nd_column=1)
+		init_data.snpData_perlegen = SNPData(input_fname=self.fname_perlegen, turn_into_array=1, ignore_2nd_column=1)
 		param_d = self.generate_parameters(self.parameter_names)
 		init_data.param_d = param_d
 		return init_data
@@ -365,7 +407,7 @@ class MpiQCCall(object):
 			pdb.set_trace()
 			init_data = self.create_init_data()
 			min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = init_data.param_d.parameters[0][:6]
-			result = self.doFilter(init_data.snpsd_250k, init_data.snpsd_2010_149_384, init_data.snpsd_perlegen, init_data.snpData_2010_149_384, \
+			result = self.doFilter(init_data.snpData_250k, init_data.snpData_2010_149_384, init_data.snpData_perlegen, \
 							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, self.output_fname)
 			sys.exit(2)
@@ -373,7 +415,7 @@ class MpiQCCall(object):
 		self.communicator = MPI.world.duplicate()
 		node_rank = self.communicator.rank
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
-		data_to_pickle_name_ls = ['snpsd_250k', 'snpsd_2010_149_384', 'snpData_2010_149_384', 'snpsd_perlegen', 'param_d']
+		data_to_pickle_name_ls = ['snpData_250k', 'snpData_2010_149_384', 'snpData_perlegen', 'param_d']
 		if node_rank == 0:
 			init_data = self.create_init_data()
 			param_d = init_data.param_d
