@@ -8,7 +8,14 @@
 2007-03-29
 	add mappings for '-', 'N', and ambiguous letters ('M', 'R', 'W', 'S', 'Y', 'K')
 """
-import os, sys
+import sys, os, math
+bit_number = math.log(sys.maxint)/math.log(2)
+if bit_number>40:       #64bit
+	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64')))
+else:   #32bit
+	sys.path.insert(0, os.path.expanduser('~/lib/python'))
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 #2008-05-06 ab2number and number2ab is for 384-illumina data
 ab2number = {'N': 0,
@@ -380,18 +387,27 @@ def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 
 def transposeSNPData(snpData, report=0):
 	"""
+	2008-05-18
+		no more copy.deepcopy(snpData), data_matrix takes too long and too much memory
 	05/12/08 fix a bug (return snpData)
 	2008-05-11
 	"""
 	import sys
 	if report:
 		sys.stderr.write("Transposing SNPData ...")
-	from pymodule import importNumericArray
+	from pymodule import importNumericArray, SNPData
 	num = importNumericArray()
+	#copy except data_matrix
 	import copy
-	newSnpData = copy.deepcopy(snpData)
-	newSnpData.row_id_ls = snpData.col_id_ls
-	newSnpData.col_id_ls = snpData.row_id_ls
+	newSnpData = SNPData()
+	"""
+	for option_tuple in SNPData.option_default_dict:
+		var_name = option_tuple[0]
+		if var_name!='data_matrix':
+			setattr(newSnpData, var_name, copy.deepcopy(getattr(snpData, var_name)))
+	"""
+	newSnpData.row_id_ls = copy.deepcopy(snpData.col_id_ls)
+	newSnpData.col_id_ls = copy.deepcopy(snpData.row_id_ls)
 	if isinstance(snpData.data_matrix, list):
 		newSnpData.data_matrix = num.transpose(num.array(snpData.data_matrix))
 	else:	#assume it's array type already. Numeric/numarray has ArrayType, but numpy doesn't
@@ -400,8 +416,11 @@ def transposeSNPData(snpData, report=0):
 		sys.stderr.write("Done.\n")
 	return newSnpData
 
-def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, report=0):
+def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, report=0, mask_untouched_deleltion_as_NA=1):
 	"""
+	2008-05-18
+		add mask_untouched_deleltion_as_NA. turned on by default because bjarni's RawSnpsData structure only recognizes NA, A, T, C, G
+		if col_id in newSnpData.col_id_ls is tuple of size >1, the 2nd one  in the tuple is taken as array id.
 	2008-05-12
 		reverse of RawSnpsData_ls2SNPData
 		
@@ -420,13 +439,28 @@ def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, re
 		newSnpData = snpData
 	
 	accessions = []
+	arrayIds = []
+	accession_id = None	#default
+	array_id = None	#default
 	for col_id in newSnpData.col_id_ls:
-		accessions.append(col_id)
+		if isinstance(col_id, tuple):
+			if len(col_id)>0:
+				accession_id = col_id[0]
+			if len(col_id)>1:
+				array_id = col_id[1]
+		else:
+			accession_id = col_id
+		accessions.append(accession_id)
+		if array_id is not None:
+			arrayIds.append(array_id)
 	
+	if mask_untouched_deleltion_as_NA:
+		number2nt[-2] = 'NA'	#mask -2 (untouched) as 'NA'
+		number2nt[-1] = 'NA'	#mask -1 (deletion) as 'NA'
 	number2nt_dict_map = lambda x: number2nt[x]
 	rawSnpsData_ls = []
 	
-	rawSnpsData = RawSnpsData(accessions=accessions)
+	rawSnpsData = RawSnpsData(accessions=accessions, arrayIds=arrayIds)
 	rawSnpsData.snps = []
 	rawSnpsData.positions = []
 	row_id0 = newSnpData.row_id_ls[0]
@@ -439,7 +473,7 @@ def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, re
 		new_chromosome, position = row_id.split('_')[:2]
 		position = int(position)
 		if new_chromosome!=old_chromosome:
-			rawSnpsData = RawSnpsData(accessions=accessions)
+			rawSnpsData = RawSnpsData(accessions=accessions, arrayIds=arrayIds)
 			rawSnpsData.snps = []
 			rawSnpsData.positions = []
 			rawSnpsData_ls.append(rawSnpsData)
