@@ -27,9 +27,12 @@ create table magnus_192_status(
 	description	varchar(200)
 	);
 
--- 2008-05-15 view to link entries in at.accession to target ecotypeid thru another view complete_2010_strains_in_stock and table stock.ecotype_duplicate2tg_ecotypeid. target ecotypeid is the final ecotypeid for a group of duplicated ecotypeids.
-create or replace view complete_2010_strains_in_stock2tg_ecotypeid as select e.tg_ecotypeid, c.*, a.origin, a.number from complete_2010_strains_in_stock c, stock.ecotype_duplicate2tg_ecotypeid e , accession a where c.ecotypeid=e.ecotypeid and c.accession_id=a.id order by accession_id;
+-- 2008-05-15 view to link entries in at.accession to target ecotypeid thru another view complete_2010_strains_in_stock and table stock.ecotypeid2tg_ecotypeid. target ecotypeid is the final ecotypeid for a group of duplicated ecotypeids.
+create or replace view complete_2010_strains_in_stock2tg_ecotypeid as select distinct e.tg_ecotypeid, c.*, a.origin, a.number from complete_2010_strains_in_stock c, stock.ecotypeid2tg_ecotypeid e , accession a where c.ecotypeid=e.ecotypeid and c.accession_id=a.id order by accession_id;
 
+
+--2008-05-18 offering the final linking between accession id and ecotype id. a view linking each accession.id to a stock.ecotypeid2tg_ecotypeid.tg_ecotypeid thru at.ecotype2accession.
+create or replace view accession2tg_ecotypeid as select distinct e1.accession_id, a.name as accession_name, a.origin, a.number, e2.tg_ecotypeid as ecotype_id, e.name, e.nativename, e.stockparent, e1.ecotype_id as intermediate_ecotype_id from ecotype2accession e1, stock.ecotype e, stock.ecotypeid2tg_ecotypeid e2, accession a where e1.accession_id=a.id and e1.ecotype_id=e2.ecotypeid and e2.tg_ecotypeid=e.id order by accession_id;
 
 /*
 create table readme(
@@ -118,6 +121,10 @@ alter table ecotype_duplicate2tg_ecotypeid add foreign key (tg_ecotypeid) refere
 alter table genotyping_all_na_ecotype add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
 
 alter table nativename_stkparent2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
+
+-- 2008-05-18 view to check other info (where and country) about ecotype
+create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent, e.nativename, e.alias, e.siteid, s.name as site_name, c.abbr as country from ecotype e, site s, address a, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
+
 
 --2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
 use dbsnp;
