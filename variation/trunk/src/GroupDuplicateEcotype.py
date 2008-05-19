@@ -38,7 +38,8 @@ class GroupDuplicateEcotype(object):
 							('no_gps_ecotype_view_name',1, ): ['no_gps_ecotype_view', 's', 1, 'view the genotypes with no GPS data'],\
 							('ecotypeid2duplicate_view_name',1, ): ['ecotypeid2duplicate_view', 'y'],\
 							('nativename_stkparent2tg_ecotypeid_table', 1, ): ['nativename_stkparent2tg_ecotypeid', 'v' ],\
-							('ecotype_duplicate2tg_ecotypeid_table', 1, ): ['ecotype_duplicate2tg_ecotypeid', 'e'],\
+							('ecotype_duplicate2tg_ecotypeid_table', 1, ): ['ecotype_duplicate2tg_ecotypeid', 't'],\
+							('ecotype_table', 1, ): ['ecotype', 'e', 1, "not ecotype because ecotype_usc has new entries."],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -69,13 +70,13 @@ class GroupDuplicateEcotype(object):
 		sys.stderr.write(" Done.\n")
 	createNoGenotypingEcotypeView = staticmethod(createNoGenotypingEcotypeView)
 	
-	def createNoGPSEcotypeView(curs, stock_db, no_gps_ecotype_view_name):
+	def createNoGPSEcotypeView(curs, stock_db, no_gps_ecotype_view_name, ecotype_table):
 		"""
 		2007-10-22
 		"""
 		sys.stderr.write( "Creating %s ..."%no_gps_ecotype_view_name)
-		curs.execute("create or replace view %s.%s as select e.* from %s.ecotype e where latitude is null or longitude is null"%\
-					(stock_db, no_gps_ecotype_view_name, stock_db))
+		curs.execute("create or replace view %s.%s as select e.* from %s.%s e where latitude is null or longitude is null"%\
+					(stock_db, no_gps_ecotype_view_name, stock_db, ecotype_table))
 		sys.stderr.write(" Done.\n")
 	createNoGPSEcotypeView = staticmethod(createNoGPSEcotypeView)
 	
@@ -136,7 +137,7 @@ class GroupDuplicateEcotype(object):
 	get_no_gps_ecotypeid_set = staticmethod(get_no_gps_ecotypeid_set)	
 	
 	def createTableStructureToGroupEcotypeid(curs, stock_db, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set,\
-				genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', \
+				genotyping_all_na_ecotypeid_duplicate_ls, ecotype_table='ecotype', ecotypeid2duplicate_view_name='ecotypeid2duplicate_view', \
 				nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', \
 				ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=0):
 		"""
@@ -155,7 +156,8 @@ class GroupDuplicateEcotype(object):
 		nativename_stkparent2ecotypeid_duplicate_ls = {}
 		ecotypeid2nativename_stockparent = {}
 		#2008-05-15 use left outer join
-		curs.execute("select e.nativename, e.stockparent, e.id, ed.replicate from %s.ecotype e left outer join %s.%s ed on ed.ecotypeid=e.id order by nativename, stockparent, ecotypeid, replicate"%(stock_db, stock_db, ecotypeid2duplicate_view_name))
+		curs.execute("select e.nativename, e.stockparent, e.id, ed.replicate from %s.%s e left outer join %s.%s ed on ed.ecotypeid=e.id order by nativename, stockparent, ecotypeid, replicate"%\
+					(stock_db, ecotype_table, stock_db, ecotypeid2duplicate_view_name))
 		rows = curs.fetchall()
 		for row in rows:
 			nativename, stockparent, ecotypeid, duplicate = row
@@ -222,9 +224,14 @@ class GroupDuplicateEcotype(object):
 			for key_pair, tg_ecotypeid_quality_pair in nativename_stkparent2tg_ecotypeid.iteritems():
 				tg_ecotypeid, quality = tg_ecotypeid_quality_pair
 				nativename, stockparent = ecotypeid2nativename_stockparent[tg_ecotypeid]
+				if stockparent==None:
+					stockparent='NULL'
 				try:
-					curs.execute("insert into %s.%s(nativename, stockparent, tg_ecotypeid, quality) values ('%s', '%s', %s, '%s')"%(stock_db, nativename_stkparent2tg_ecotypeid_table, nativename, stockparent, tg_ecotypeid, quality))
+					curs.execute("""insert into %s.%s(nativename, stockparent, tg_ecotypeid, quality) values ("%s", "%s", %s, "%s")"""%(stock_db, nativename_stkparent2tg_ecotypeid_table, nativename, stockparent, tg_ecotypeid, quality))
 				except:
+					import traceback
+					traceback.print_exc()
+					print sys.exc_info()
 					import pdb
 					pdb.set_trace()
 			
@@ -240,8 +247,8 @@ class GroupDuplicateEcotype(object):
 				curs.execute("insert into %s.%s(ecotypeid, duplicate, tg_ecotypeid) values (%s, %s, %s)"%\
 							(stock_db, ecotype_duplicate2tg_ecotypeid_table, ecotypeid, duplicate, tg_ecotypeid))
 			#2008-05-15
-			curs.execute("create or replace view ecotypeid2tg_ecotypeid as select distinct e.id  as ecotypeid, e.name, e.alias, e.nativename, e.stockparent, e2.duplicate, e2.tg_ecotypeid from %s.ecotype e, %s.ecotype_duplicate2tg_ecotypeid e2 where e.id=e2.ecotypeid order by ecotypeid"%\
-						(stock_db, stock_db))
+			curs.execute("create or replace view ecotypeid2tg_ecotypeid as select distinct e.id  as ecotypeid, e.name, e.alias, e.nativename, e.stockparent, e2.duplicate, e2.tg_ecotypeid from %s.%s e, %s.%s e2 where e.id=e2.ecotypeid order by ecotypeid"%\
+						(stock_db, ecotype_table, stock_db, ecotype_duplicate2tg_ecotypeid_table))
 			sys.stderr.write("Done.\n")
 		return nativename_stkparent2ecotypeid_duplicate_ls, nativename_stkparent2tg_ecotypeid, ecotype_duplicate2tg_ecotypeid
 	createTableStructureToGroupEcotypeid = staticmethod(createTableStructureToGroupEcotypeid)
@@ -260,7 +267,7 @@ class GroupDuplicateEcotype(object):
 		
 		self.createNoGenotypingEcotypeView(curs, self.dbname, self.no_genotyping_ecotype_view_name)
 		
-		self.createNoGPSEcotypeView(curs, self.dbname, self.no_gps_ecotype_view_name)
+		self.createNoGPSEcotypeView(curs, self.dbname, self.no_gps_ecotype_view_name, self.ecotype_table)
 		
 		genotyping_all_na_ecotypeid_duplicate_ls, genotype_run2call_ls = self.createGenotypingAllNAEcotypeTable(curs, self.dbname, \
 			table_name=self.genotyping_all_na_ecotype_table, commit=self.commit)
@@ -271,7 +278,7 @@ class GroupDuplicateEcotype(object):
 		
 		nativename_stkparent2ecotypeid_duplicate_ls, nativename_stkparent2tg_ecotypeid, ecotype_duplicate2tg_ecotypeid = \
 		self.createTableStructureToGroupEcotypeid(curs, self.dbname, no_genotyping_ecotypeid_set, no_gps_ecotypeid_set, \
-												genotyping_all_na_ecotypeid_duplicate_ls, ecotypeid2duplicate_view_name=self.ecotypeid2duplicate_view_name, \
+												genotyping_all_na_ecotypeid_duplicate_ls, self.ecotype_table, ecotypeid2duplicate_view_name=self.ecotypeid2duplicate_view_name, \
 												nativename_stkparent2tg_ecotypeid_table=self.nativename_stkparent2tg_ecotypeid_table, \
 												ecotype_duplicate2tg_ecotypeid_table=self.ecotype_duplicate2tg_ecotypeid_table, commit=self.commit)
 		if self.commit:
