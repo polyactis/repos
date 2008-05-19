@@ -281,6 +281,7 @@ class TwoSNPData(QualityControl):
 		return newSnpData
 
 if __name__ == '__main__':
+	#do simple intersectSNPData1_and_SNPData2_row_wise()
 	snpData1 = SNPData(input_fname=sys.argv[1], turn_into_array=1, ignore_2nd_column=1)
 	snpData2 = SNPData(input_fname=sys.argv[2], turn_into_array=1, ignore_2nd_column=1)
 	output_fname = sys.argv[3]
