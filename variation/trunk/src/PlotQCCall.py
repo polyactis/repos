@@ -51,8 +51,9 @@ class PlotQCCall(object):
 	
 	option_default_dict = {('input_dir', 1, ): ['/mnt/nfs/NPUTE_data/QC_avg_output', 'i', 1, ],\
 							('output_fname', 0, ): [None, 'o', 1, 'not given, the program would construct an output filename based on arguments.', ],\
+							('output_for_qhull_fname', 0, ): [None, 'q', 1, 'qhull output'],\
 							('var_to_plot_indices', 1, ):['1_2_7', 't', 1, '3 indices separated by _, corresponding to candidate plot variable list. -h to see the list'],\
-							('strain or snp', 1,): ['strain', 's', 1,],\
+							('strain or snp', 1, ): ['strain', 's', 1,],\
 							('after_imputation', 0, int): [1, 'f'],\
 							('min_call_probability', 0, float): [-1, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
 							('max_call_mismatch_rate', 0, float): [-1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
@@ -79,19 +80,23 @@ class PlotQCCall(object):
 		import os,sys,csv
 		from variation.src.MpiQCCall import MpiQCCall
 		from pymodule import PassingData
+		"""
 		var_name_ls = ['strain or snp', 'after_imputation'] + MpiQCCall.common_var_name_ls
 		avg_var_name_pair_ls, partial_header_avg = MpiQCCall.generate_avg_variable_names(MpiQCCall.avg_var_name_ls)
 		var_name_ls += partial_header_avg
-		
+		"""
 		files = os.listdir(input_dir)
 		passingdata_ls = []
 		no_of_objects = len(files)
+		var_name_ls = []
 		for i in range(no_of_objects):
 			sys.stderr.write("\t%d/%d: from %s ... \n"%(i+1, no_of_objects, files[i]))
 			filename = os.path.join(input_dir, files[i])
 			reader = csv.reader(open(filename))
 			try:
-				reader.next()
+				row = reader.next()
+				if len(var_name_ls)==0:
+					var_name_ls = row
 			except:
 				if self.debug:
 					import traceback
@@ -104,7 +109,7 @@ class PlotQCCall(object):
 				passingdata = PassingData()
 				for i in range(len(var_name_ls)):
 					var_name = var_name_ls[i]
-					if i!=0:
+					if var_name!='strain or snp':
 						value = float(row[i])
 					else:	#the first column is strain or snp, no float conversion
 						value = row[i]
@@ -118,7 +123,7 @@ class PlotQCCall(object):
 				
 				passingdata_ls.append(passingdata)
 			del reader
-		return passingdata_ls
+		return passingdata_ls, var_name_ls
 	
 	def filter_passingdata(cls, passingdata):
 		"""
@@ -130,15 +135,41 @@ class PlotQCCall(object):
 		good_data = 1
 		for avg_var_name_pair in avg_var_name_pair_ls:
 			ls_var_name, avg_var_name, std_var_name = avg_var_name_pair
-			if getattr(passingdata, avg_var_name)==-1:
+			if hasattr(passingdata, avg_var_name) and getattr(passingdata, avg_var_name)==-1:
 				good_data = 0
 				break
-			if getattr(passingdata, std_var_name)==-1:
+			if hasattr(passingdata, std_var_name) and getattr(passingdata, std_var_name)==-1:
 				good_data = 0
 				break
 		return good_data
 	filter_passingdata = classmethod(filter_passingdata)
 	
+	def output_passingdata_in_qhull_format(self, passingdata_ls, candidate_plot_var_name_ls, plot_var_name_ls, output_for_qhull_fname):
+		"""
+		2008-05-16
+			to prepare the data (3D in three variables chosen in plot_var_name_ls) in qhull format
+		"""
+		sys.stderr.write("Outputting in qhull format to %s ..." %output_for_qhull_fname)
+		import csv
+		writer = csv.writer(open(output_for_qhull_fname, 'w'), delimiter=' ')
+		writer.writerow([len(plot_var_name_ls)])
+		writer.writerow([len(passingdata_ls)])
+		for passingdata in passingdata_ls:
+			one_row = []
+			for var_name in plot_var_name_ls:
+				one_row.append(getattr(passingdata, var_name))
+			writer.writerow(one_row)
+		
+		writer.writerow(['#'] + candidate_plot_var_name_ls)
+		
+		for passingdata in passingdata_ls:
+			one_row = ['#']
+			for var_name in candidate_plot_var_name_ls:
+				one_row.append(getattr(passingdata, var_name))
+			writer.writerow(one_row)
+		del writer
+		sys.stderr.write(" Done.\n")
+		
 	def plot_variables(self, passingdata_ls, plot_var_name_ls, output_fname, **keywords):
 		"""
 		2008-05-13
@@ -147,11 +178,12 @@ class PlotQCCall(object):
 		plot_var_value_ls = []
 		for i in range(len(plot_var_name_ls)):
 			plot_var_value_ls.append([])
+		self.good_passingdata_ls = []
 		
 		for passingdata in passingdata_ls:
 			good_data = self.filter_passingdata(passingdata)
 			for key, value in keywords.iteritems():
-				if getattr(passingdata, key)!=value:
+				if hasattr(passingdata, key) and getattr(passingdata, key)!=value:
 					good_data=0
 					break
 			if good_data==1:
@@ -159,12 +191,17 @@ class PlotQCCall(object):
 					var_name = plot_var_name_ls[i]
 					plot_var_value = getattr(passingdata, var_name)
 					plot_var_value_ls[i].append(plot_var_value)
+				self.good_passingdata_ls.append(passingdata)
 		self._plot(plot_var_value_ls, plot_var_name_ls, output_fname)
-		return plot_var_value_ls
+		return self.good_passingdata_ls
 	
 	#plot_variables  = classmethod(plot_variables)
 	
 	def _plotContour(cls, plot_var_value_ls, plot_var_name_ls, output_fname_prefix):
+		"""
+		2008-05-18
+			this function is not runnable yet. pylab.contour()'s 3 arguments are prepared wrongly.
+		"""
 		import pylab
 		import matplotlib.axes3d as p3
 		pylab.clf()
@@ -180,20 +217,38 @@ class PlotQCCall(object):
 		pylab.show()
 	_plotContour = classmethod(_plotContour)
 	
+	def on_click_showing_passingdata(cls, event):
+		"""
+		2008-05-15
+			inspired by examples/pick_event_demo.py from matplotlib source code
+			
+			useless as Axes3D doesn't support pick event, check plone doc, log/python/plot
+		"""
+		good_passingdata_ls = getattr(cls, good_passingdata_ls)
+		if good_passingdata_ls:
+			ind = event.ind
+        	print "picked: ",ind
+        	for plot_var_name in candidate_plot_var_name_ls:
+        		plot_var_value = getattr(good_passingdata_ls[ind], plot_var_name)
+        		print plot_var_name, plot_var_value
 	
-	def _plot3D(cls, plot_var_value_ls, plot_var_name_ls, output_fname_prefix):
+	on_click_showing_passingdata = classmethod(on_click_showing_passingdata)
+	
+	def _plot3D(cls, plot_var_value_ls, plot_var_name_ls, output_fname_prefix, picker_function=on_click_showing_passingdata):
 		import pylab
 		import matplotlib.axes3d as p3
 		pylab.clf()
 		fig=pylab.figure()
+		fig.canvas.mpl_connect('pick_event', picker_function)
 		ax = p3.Axes3D(fig)
 		# plot3D requires a 1D array for x, y, and z
 		# ravel() converts the 100x100 array into a 1x10000 array
 		#ax.plot3D(plot_var_value_ls[0], plot_var_value_ls[1], plot_var_value_ls[2])
-		ax.scatter3D(plot_var_value_ls[0], plot_var_value_ls[1], plot_var_value_ls[2])
+		ax.scatter3D(plot_var_value_ls[0], plot_var_value_ls[1], plot_var_value_ls[2], picker=5)
 		ax.set_xlabel(plot_var_name_ls[0])
 		ax.set_ylabel(plot_var_name_ls[1])
 		ax.set_zlabel(plot_var_name_ls[2])
+
 		#fig.add_axes(ax)
 		pylab.savefig('%s.png'%output_fname_prefix, dpi=100)
 		pylab.savefig('%s.svg'%output_fname_prefix, dpi=100)
@@ -204,13 +259,15 @@ class PlotQCCall(object):
 		if self.debug:	#serial debug
 			import pdb
 			pdb.set_trace()
-		passingdata_ls = self.get_qccall_results(self.input_dir)
+		passingdata_ls, total_var_name_ls = self.get_qccall_results(self.input_dir)
 		
 		#6 free variables, control 4 and show 2 + final strain/snp_mismatch or no_of_total_accessions_removed or no_of_total_snps_removed
 
 		keywords = {}
 		output_fname_ls = []
 		for keyword_candidate in self.keyword_candidate_ls:
+			if not hasattr(self, keyword_candidate):
+				continue
 			value = getattr(self, keyword_candidate)
 			chosen=1
 			if isinstance(value, float) or isinstance(value, int):
@@ -234,7 +291,42 @@ class PlotQCCall(object):
 		if not self.output_fname:
 			self.output_fname = ', '.join(output_fname_ls)
 		
-		self.plot_variables(passingdata_ls, plot_var_name_ls, self.output_fname, **keywords)
+		good_passingdata_ls = self.plot_variables(passingdata_ls, plot_var_name_ls, self.output_fname, **keywords)
+		if self.output_for_qhull_fname:
+			self.output_passingdata_in_qhull_format(good_passingdata_ls, total_var_name_ls, plot_var_name_ls, self.output_for_qhull_fname)
+
+def recoverQhullOutput(qhull_input_fname, qhull_output_fname, output_fname):
+	"""
+	2008-05-16
+		pass the qhull input/output and pick the hull points and output corresponding complete stat data to output_fname
+	"""
+	import os, sys, csv
+	from sets import Set
+	inf1 = open(qhull_output_fname)
+	point_index_set = Set()
+	for line in inf1:
+		point_index = int(line[:-1])
+		point_index_set.add(point_index)
+	del inf1
+	
+	reader = csv.reader(open(qhull_input_fname), delimiter=' ')	#outputted by output_passingdata_in_qhull_format()
+	writer = csv.writer(open(output_fname, 'w'))
+	point_index = 0
+	for row in reader:
+		if row[0]=='#':	#outputted by output_passingdata_in_qhull_format
+			if point_index == 0:
+				writer.writerow(row[1:])	#keep the header
+			elif point_index-1 in point_index_set:	#0 is the header, 1 is the actual info
+				writer.writerow(row[1:])
+			point_index += 1
+	del reader, writer
+
+"""
+qhull_input_fname = '/tmp/qhull.in'
+qhull_output_fname = '/tmp/qhull.out'
+output_fname = '/tmp/qhull.out.passingdata'
+recoverQhullOutput(qhull_input_fname, qhull_output_fname, output_fname)
+"""
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
