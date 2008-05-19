@@ -7,7 +7,7 @@ Option:
 	-d ..., --dbname=...	the database name, stock20071008(default)
 	-k ..., --schema=...	which schema in the database, dbsnp(default)
 	-e ...,	ecotype_table, 'stock20071008.ecotype'(default)
-	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession'(default)
+	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession' or 'at.accession2tg_ecotypeid'(default)
 	-s ...,	sequence table, 'at.sequence'(default)
 	-a ..., alignment table, 'at.alignment'(default)
 	-n ...,	snp_locus_table, 'snp_locus'(default)
@@ -405,7 +405,7 @@ class Output2010InCertainSNPs(object):
 		#2008-02-08 which type of row id/1st column
 		if self.processing_bits[0]==0:
 			from variation.src.common import map_accession_id2ecotype_id
-			accession_id2ecotype_id = map_accession_id2ecotype_id(curs)
+			accession_id2ecotype_id = map_accession_id2ecotype_id(curs, accession2ecotype_table=self.accession2ecotype_table)
 			ecotype_id_ls = []
 			rows_to_be_tossed_out=Set()
 			for i in range(len(accession_id_ls)):
@@ -451,7 +451,7 @@ if __name__ == '__main__':
 	dbname = 'stock20071008'
 	schema = 'dbsnp'
 	ecotype_table = 'stock20071008.ecotype'
-	accession2ecotype_table = 'at.ecotype2accession'
+	accession2ecotype_table = 'at.accession2tg_ecotypeid'
 	sequence_table = 'at.sequence'
 	alignment_table = 'at.alignment'
 	snp_locus_table = 'stock20071008.snps'
