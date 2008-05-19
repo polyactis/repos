@@ -125,6 +125,8 @@ class MpiQCCall(object):
 	def doFilter(self, snpsd_ls, snpsd_ls_qc_strain, snpsd_ls_qc_snp, snpData_qc_strain, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size , output_dir=None):
 		"""
+		2008-05-18
+			add onlyCommon=True to FilterAccessions.filterByError()
 		2008-05-17
 			add argument output_dir. if it's available, output data matrix before and after imputation
 		2008-05-12
@@ -141,7 +143,7 @@ class MpiQCCall(object):
 		snpsd_250k_tmp = copy.deepcopy(snpsd_ls)
 		qcdata = PassingData()
 		
-		FilterAccessions.filterByError(snpsd_250k_tmp, snpsd_ls_qc_strain, max_call_mismatch_rate, withArrayIds=1)
+		FilterAccessions.filterByError(snpsd_250k_tmp, snpsd_ls_qc_strain, max_call_mismatch_rate, withArrayIds=1, onlyCommon=True)
 		qcdata.no_of_accessions_filtered_by_mismatch = snpsd_250k_tmp[0].no_of_accessions_filtered_by_mismatch
 		
 		FilterAccessions.filterByNA(snpsd_250k_tmp, max_call_NA_rate, withArrayIds=1)
