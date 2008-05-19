@@ -142,14 +142,15 @@ def _run_():
 			accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
 
 		accErrAndID = []
-	if 0<withArrayIds<3:
+		if 0<withArrayIds<3:
 			for i in range(0,len(r[2])):
 				accErrAndID.append((accErrorRate[i], r[2][i], r[5][i]))
-	else:
+		else:
 			for i in range(0,len(r[2])):
 				accErrAndID.append((accErrorRate[i], r[2][i]))
-	accErrAndID.sort()
-	accErrAndID.reverse()
+		accErrAndID.sort()
+		accErrAndID.reverse()
+
 
    
 	#Figure out which accessions are too erroraneous
@@ -185,13 +186,14 @@ def _run_():
 	if onlyCommon and comparisonFile:
 		print "Locating accessions which are not shared"
 		snpsds2 = dataParsers.parseCSVData(comparisonFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
+		#print snpsds2[0].accessions,'\n',snpsds[0].accessions,'\n',len(set(snpsds2[0].accessions).intersection(set(snpsds[0].accessions)))
 		if not arraysToRemove:
 			arraysToRemove = []
 		for i in range(0,len(snpsds[0].accessions)):
 			acc = snpsds[0].accessions[i]
 			if not acc in snpsds2[0].accessions:
 				accessionsToRemove.append(acc)
-				if withArrayIds:
+				if 0<withArrayIds<3:
 					arraysToRemove.append(snpsds[0].arrayIds[i])
 
 

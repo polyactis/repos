@@ -48,7 +48,7 @@ def _run_():
 	passwd = None
 	output_fname = None
 	method = 1 
-	delim = ", "
+	delim = ","
 	missingVal = "NA"
 	debug = None
 	report = None

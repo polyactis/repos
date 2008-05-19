@@ -1137,18 +1137,21 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	#del writer
 	
 	if callProbFile:
-		writer = csv.writer(open(callProbFile, 'w'), delimiter=deliminator)
+		f = open(callProbFile, 'w')
+		outStr = ""
 		if withArrayIds:
-			writer.writerow(['-', '-']+snpsds[0].arrayIds)
-		writer.writerow(fieldStrings)
+			outStr += deliminator.join(['-', '-']+snpsds[0].arrayIds)+'\n'
+		f.write(outStr)
 		for i in range(0,len(chromosomes)):
+			outStr = ""
 			snpsd = snpsds[i]
 			snpsds[i] = []
 			for j in range(0,len(snpsd.positions)):
-				data_row = [chromosomes[i], snpsds[i].positions[j]]
+				data_row = [chromosomes[i], snpsd.positions[j]]
 				for k in range(0, len(snpsd.accessions)):
 					data_row.append(snpsd.callProbabilities[j][k])
-				writer.writerow(data_row)
+				outStr += deliminator.join(data_row)
+			f.write(outStr)
 			del snpsd
 		del writer
 	sys.stderr.write("Done.\n")
