@@ -475,13 +475,17 @@ class SNPData(object):
 	def removeRowsByNARate(cls, snpData, max_NA_rate=1):
 		"""
 		2008-05-19
+			if max_NA_rate out of [0,1) range, no calculation
+		2008-05-19
 		"""
 		sys.stderr.write("Removing rows whose NA_rate >%s ..."%(max_NA_rate))
-		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		remove_rows_data = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
+		if max_NA_rate<1 and max_NA_rate>=0:
+			from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+			remove_rows_data = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
 		
-		rows_with_too_many_NAs_set = remove_rows_data.rows_with_too_many_NAs_set
-		
+			rows_with_too_many_NAs_set = remove_rows_data.rows_with_too_many_NAs_set
+		else:
+			rows_with_too_many_NAs_set = Set()
 		no_of_rows = len(snpData.row_id_ls)-len(rows_with_too_many_NAs_set)
 		no_of_cols = len(snpData.col_id_ls)
 		newSnpData = SNPData(col_id_ls=snpData.col_id_ls, row_id_ls=[])
@@ -527,12 +531,17 @@ class SNPData(object):
 	def removeColsByNARate(cls, snpData, max_NA_rate=1):
 		"""
 		2008-05-19
+			if max_NA_rate out of [0,1) range, no calculation
+		2008-05-19
 		"""
 		sys.stderr.write("Removing cols whose NA_rate >%s ..."%(max_NA_rate))
-		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		remove_cols_data = FilterStrainSNPMatrix.remove_cols_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
-		
-		cols_with_too_many_NAs_set = remove_cols_data.cols_with_too_many_NAs_set
+		if max_NA_rate<1 and max_NA_rate>=0:
+			from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+			remove_cols_data = FilterStrainSNPMatrix.remove_cols_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
+			
+			cols_with_too_many_NAs_set = remove_cols_data.cols_with_too_many_NAs_set
+		else:
+			cols_with_too_many_NAs_set = Set()
 		
 		no_of_cols = len(snpData.col_id_ls)-len(cols_with_too_many_NAs_set)
 		no_of_rows = len(snpData.row_id_ls)
