@@ -7,7 +7,9 @@ import os, sys
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 from ProcessOptions import  ProcessOptions
-from utils import dict_map, importNumericArray
+from utils import dict_map, importNumericArray, figureOutDelimiter
+
+num = importNumericArray()
 
 #2008-05-06 ab2number and number2ab is for 384-illumina data
 ab2number = {'N': 0,
@@ -389,7 +391,7 @@ class SNPData(object):
 		#read it from file
 		if not self.data_matrix and isinstance(self.input_fname,str) and os.path.isfile(self.input_fname):
 			self.header, self.strain_acc_list, self.category_list, self.data_matrix = read_data(self.input_fname, self.input_alphabet, self.turn_into_integer, self.double_header)
-			if ignore_2nd_column:
+			if self.ignore_2nd_column:
 				self.category_list = None
 				
 		if not self.data_matrix and self.turn_into_array:
@@ -443,6 +445,141 @@ class SNPData(object):
 				self.strain_acc_list.append(strain_acc)
 				self.category_list.append(category)
 		write_data_matrix(self.data_matrix, output_fname, self.header, self.strain_acc_list, self.category_list, **keywords)
+	
+	def removeRowsByMismatchRate(cls, snpData, row_id2NA_mismatch_rate, max_mismatch_rate=1):
+		"""
+		2008-05-19
+		"""
+		sys.stderr.write("Removing rows whose mismatch_rate >%s ..."%(max_mismatch_rate))
+		no_of_rows = 0	#extra computing time a bit, but to save memory
+		for row_id in snpData.row_id_ls:
+			if row_id in row_id2NA_mismatch_rate and row_id2NA_mismatch_rate[row_id][1]<=max_mismatch_rate:
+				no_of_rows += 1
+		
+		no_of_cols = len(snpData.col_id_ls)
+		newSnpData = SNPData(col_id_ls=snpData.col_id_ls, row_id_ls=[])
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		row_index = 0
+		for i in range(len(snpData.row_id_ls)):
+			row_id = snpData.row_id_ls[i]
+			if row_id in row_id2NA_mismatch_rate and row_id2NA_mismatch_rate[row_id][1]<=max_mismatch_rate:
+				newSnpData.row_id_ls.append(row_id)
+				newSnpData.data_matrix[row_index] = snpData.data_matrix[i]
+				row_index += 1
+		newSnpData.no_of_rows_filtered_by_mismatch = len(snpData.row_id_ls)-no_of_rows
+		sys.stderr.write("%s rows filtered by mismatch. Done.\n"%(newSnpData.no_of_rows_filtered_by_mismatch))
+		return newSnpData
+	
+	removeRowsByMismatchRate = classmethod(removeRowsByMismatchRate)
+	
+	def removeRowsByNARate(cls, snpData, max_NA_rate=1):
+		"""
+		2008-05-19
+		"""
+		sys.stderr.write("Removing rows whose NA_rate >%s ..."%(max_NA_rate))
+		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+		remove_rows_data = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
+		
+		rows_with_too_many_NAs_set = remove_rows_data.rows_with_too_many_NAs_set
+		
+		no_of_rows = len(snpData.row_id_ls)-len(rows_with_too_many_NAs_set)
+		no_of_cols = len(snpData.col_id_ls)
+		newSnpData = SNPData(col_id_ls=snpData.col_id_ls, row_id_ls=[])
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		row_index = 0
+		for i in range(len(snpData.row_id_ls)):
+			row_id = snpData.row_id_ls[i]
+			if i not in rows_with_too_many_NAs_set:
+				newSnpData.row_id_ls.append(row_id)
+				newSnpData.data_matrix[row_index] = snpData.data_matrix[i]
+				row_index += 1
+		newSnpData.no_of_rows_filtered_by_na = len(rows_with_too_many_NAs_set)
+		sys.stderr.write("%s rows filtered by NA. Done.\n"%(newSnpData.no_of_rows_filtered_by_na))
+		return newSnpData
+	removeRowsByNARate = classmethod(removeRowsByNARate)
+	
+	def removeColsByMismatchRate(cls, snpData, col_id2NA_mismatch_rate, max_mismatch_rate=1):
+		"""
+		2008-05-19
+		"""
+		sys.stderr.write("Removing cols whose mismatch_rate >%s ..."%(max_mismatch_rate))
+		no_of_cols = 0	#extra computing time a bit, but to save memory
+		for col_id in snpData.col_id_ls:
+			if col_id in col_id2NA_mismatch_rate and col_id2NA_mismatch_rate[col_id][1]<=max_mismatch_rate:
+				no_of_cols += 1
+		
+		no_of_rows = len(snpData.row_id_ls)
+		newSnpData = SNPData(col_id_ls=[], row_id_ls=snpData.row_id_ls)
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		col_index = 0
+		for i in range(len(snpData.col_id_ls)):
+			col_id = snpData.col_id_ls[i]
+			if col_id in col_id2NA_mismatch_rate and col_id2NA_mismatch_rate[col_id][1]<=max_mismatch_rate:
+				newSnpData.col_id_ls.append(col_id)
+				newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
+				col_index += 1
+		newSnpData.no_of_cols_filtered_by_mismatch = len(snpData.col_id_ls)-no_of_cols
+		sys.stderr.write("%s columns filtered by mismatch. Done.\n"%(newSnpData.no_of_cols_filtered_by_mismatch))
+		return newSnpData
+	
+	removeColsByMismatchRate = classmethod(removeColsByMismatchRate)
+	
+	def removeColsByNARate(cls, snpData, max_NA_rate=1):
+		"""
+		2008-05-19
+		"""
+		sys.stderr.write("Removing cols whose NA_rate >%s ..."%(max_NA_rate))
+		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
+		remove_cols_data = FilterStrainSNPMatrix.remove_cols_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
+		
+		cols_with_too_many_NAs_set = remove_cols_data.cols_with_too_many_NAs_set
+		
+		no_of_cols = len(snpData.col_id_ls)-len(cols_with_too_many_NAs_set)
+		no_of_rows = len(snpData.row_id_ls)
+		newSnpData = SNPData(row_id_ls=snpData.row_id_ls, col_id_ls=[])
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		col_index = 0
+		for i in range(len(snpData.col_id_ls)):
+			col_id = snpData.col_id_ls[i]
+			if i not in cols_with_too_many_NAs_set:
+				newSnpData.col_id_ls.append(col_id)
+				newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
+				col_index += 1
+		newSnpData.no_of_cols_filtered_by_na = len(cols_with_too_many_NAs_set)
+		sys.stderr.write("%s columns filtered by NA. Done.\n"%(newSnpData.no_of_cols_filtered_by_na))
+		return newSnpData
+	removeColsByNARate = classmethod(removeColsByNARate)
+
+	def removeMonomorphicCols(cls, snpData):
+		"""
+		2008-05-19
+		"""
+		sys.stderr.write("Removing monomorphic cols ...")
+		no_of_rows, no_of_cols = snpData.data_matrix.shape
+		#NA_set = Set([0,-1,-2])
+		col_index_wanted_ls = []
+		for j in range(no_of_cols):
+			non_negative_number_set = Set()
+			for i in range(no_of_rows):
+				number = snpData.data_matrix[i][j]
+				if number >0:
+					non_negative_number_set.add(number)
+			if len(non_negative_number_set)>1:	#not monomorphic
+				col_index_wanted_ls.append(j)
+		
+		newSnpData = SNPData(row_id_ls=snpData.row_id_ls, col_id_ls=[])
+		newSnpData.data_matrix = num.zeros([no_of_rows, len(col_index_wanted_ls)], num.int8)
+		col_index = 0
+		for i in col_index_wanted_ls:
+			col_id = snpData.col_id_ls[i]
+			newSnpData.col_id_ls.append(col_id)
+			newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
+			col_index += 1
+		newSnpData.no_of_monomorphic_cols = no_of_cols-len(newSnpData.col_id_ls)
+		sys.stderr.write("%s monomorphic columns. Done.\n"%(newSnpData.no_of_monomorphic_cols))
+		return newSnpData
+	removeMonomorphicCols = classmethod(removeMonomorphicCols)
+
 
 try:
 	from QualityControl import QualityControl
