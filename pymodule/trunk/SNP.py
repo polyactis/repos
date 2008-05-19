@@ -332,7 +332,7 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 		add turn_into_integer
 	"""
 	import csv
-	sys.stderr.write("Reading data ...")
+	sys.stderr.write("Reading data from %s ..."%input_fname)
 	if delimiter is None:
 		delimiter = figureOutDelimiter(input_fname)
 	reader = csv.reader(open(input_fname), delimiter=delimiter)
