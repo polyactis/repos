@@ -28,7 +28,7 @@ class SNPData(object):
 	Majoriy and minority alleles can be represented by any characters, but an unknown
 	must be a '?' character.
 	'''
-	option_default_dict = {('inFile', 1, ): ['', ],\
+	option_default_dict = {('inFile', 0, ): ['', ],\
 							('snps_name_ls', 0, ): [None, ],\
 							('data_matrix', 0, ): [None, ],\
 							('chromosome', 0, ): [None, ],\
@@ -151,8 +151,12 @@ class SNPData(object):
 	
 	def readOneChromosomeData(self, snps_name_ls, data_matrix, chromosome):
 		"""
+		2008-05-19
+			snps_name could be tuple or list
 		05/07/08
 			replace readInData()
+			
+			based on chromosome info extracted from snps_name_ls, only pick data from one chromosome
 		"""
 		sys.stderr.write("Reading chromosome %s data ..."%(chromosome))
 		no_of_rows = len(data_matrix)
@@ -162,7 +166,10 @@ class SNPData(object):
 		chosen_snps_name_ls = []
 		for i in range(no_of_cols):
 			snps_name = snps_name_ls[i]
-			tmp_ls = snps_name.split('_')
+			if isinstance(snps_name, tuple) or isinstance(snps_name, list):
+				tmp_ls = snps_name
+			else:
+				tmp_ls = snps_name.split('_')
 			chr = tmp_ls[0]
 			if chr!=chromosome:	#skip the SNPs from other chromosomes
 				continue
