@@ -388,6 +388,8 @@ def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 def transposeSNPData(snpData, report=0):
 	"""
 	2008-05-18
+		use num.int8 to keep memory small in num.transpose(num.array(snpData.data_matrix, num.int8))
+	2008-05-18
 		no more copy.deepcopy(snpData), data_matrix takes too long and too much memory
 	05/12/08 fix a bug (return snpData)
 	2008-05-11
@@ -409,7 +411,7 @@ def transposeSNPData(snpData, report=0):
 	newSnpData.row_id_ls = copy.deepcopy(snpData.col_id_ls)
 	newSnpData.col_id_ls = copy.deepcopy(snpData.row_id_ls)
 	if isinstance(snpData.data_matrix, list):
-		newSnpData.data_matrix = num.transpose(num.array(snpData.data_matrix))
+		newSnpData.data_matrix = num.transpose(num.array(snpData.data_matrix, num.int8))
 	else:	#assume it's array type already. Numeric/numarray has ArrayType, but numpy doesn't
 		newSnpData.data_matrix = num.transpose(snpData.data_matrix)
 	if report:
