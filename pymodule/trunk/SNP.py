@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 from ProcessOptions import  ProcessOptions
 from utils import dict_map, importNumericArray, figureOutDelimiter
+import copy
 
 num = importNumericArray()
 
@@ -108,6 +109,8 @@ def get_nt_number2diff_matrix_index(number2nt):
 
 def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 	"""
+	2008-05-19
+		swap accession id and array id in col_id. now accession_id in 1st
 	2008-05-11
 		adapts RawSnpsData(bjarni's SNP data structure) to SNPData
 		
@@ -132,7 +135,7 @@ def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 		if i==0:	#only need once
 			for j in range(len(rawSnpsData.accessions)):
 				if rawSnpsData.arrayIds:
-					col_id = (rawSnpsData.arrayIds[j], rawSnpsData.accessions[j])
+					col_id = (rawSnpsData.accessions[j], rawSnpsData.arrayIds[j])
 				else:
 					col_id = rawSnpsData.accessions[j]
 				snpData.col_id_ls.append(col_id)
@@ -449,20 +452,29 @@ class SNPData(object):
 	def removeRowsByMismatchRate(cls, snpData, row_id2NA_mismatch_rate, max_mismatch_rate=1):
 		"""
 		2008-05-19
+			more robust handling given max_mismatch_rate
+		2008-05-19
 		"""
 		sys.stderr.write("Removing rows whose mismatch_rate >%s ..."%(max_mismatch_rate))
-		no_of_rows = 0	#extra computing time a bit, but to save memory
-		for row_id in snpData.row_id_ls:
-			if row_id in row_id2NA_mismatch_rate and row_id2NA_mismatch_rate[row_id][1]<=max_mismatch_rate:
-				no_of_rows += 1
+		if max_mismatch_rate>=0 and max_mismatch_rate<1:
+			row_id_wanted_set = Set()	#extra computing time a bit, but to save memory
+			for row_id in snpData.row_id_ls:
+				if row_id in row_id2NA_mismatch_rate and row_id2NA_mismatch_rate[row_id][1]<=max_mismatch_rate and row_id2NA_mismatch_rate[row_id][1]>=0:
+					row_id_wanted_set.add(row_id)
+
+		elif max_mismatch_rate>=1:	#every row is wanted
+			row_id_wanted_set = Set(snpData.row_id_ls)
+		else:
+			row_id_wanted_set = Set()
+		no_of_rows = len(row_id_wanted_set)
 		
 		no_of_cols = len(snpData.col_id_ls)
-		newSnpData = SNPData(col_id_ls=snpData.col_id_ls, row_id_ls=[])
+		newSnpData = SNPData(col_id_ls=copy.deepcopy(snpData.col_id_ls), row_id_ls=[])
 		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
 		row_index = 0
 		for i in range(len(snpData.row_id_ls)):
 			row_id = snpData.row_id_ls[i]
-			if row_id in row_id2NA_mismatch_rate and row_id2NA_mismatch_rate[row_id][1]<=max_mismatch_rate:
+			if row_id in row_id_wanted_set:
 				newSnpData.row_id_ls.append(row_id)
 				newSnpData.data_matrix[row_index] = snpData.data_matrix[i]
 				row_index += 1
@@ -475,20 +487,24 @@ class SNPData(object):
 	def removeRowsByNARate(cls, snpData, max_NA_rate=1):
 		"""
 		2008-05-19
+			add is_cutoff_max to FilterStrainSNPMatrix.remove_rows_with_too_many_NAs
+		2008-05-19
 			if max_NA_rate out of [0,1) range, no calculation
 		2008-05-19
 		"""
 		sys.stderr.write("Removing rows whose NA_rate >%s ..."%(max_NA_rate))
 		if max_NA_rate<1 and max_NA_rate>=0:
 			from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-			remove_rows_data = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
+			remove_rows_data = FilterStrainSNPMatrix.remove_rows_with_too_many_NAs(snpData.data_matrix, max_NA_rate, is_cutoff_max=1)
 		
 			rows_with_too_many_NAs_set = remove_rows_data.rows_with_too_many_NAs_set
-		else:
+		elif max_NA_rate>=1:	#no row has too many NA sets
 			rows_with_too_many_NAs_set = Set()
+		else:
+			rows_with_too_many_NAs_set = Set(range(len(snpData.row_id_ls)))
 		no_of_rows = len(snpData.row_id_ls)-len(rows_with_too_many_NAs_set)
 		no_of_cols = len(snpData.col_id_ls)
-		newSnpData = SNPData(col_id_ls=snpData.col_id_ls, row_id_ls=[])
+		newSnpData = SNPData(col_id_ls=copy.deepcopy(snpData.col_id_ls), row_id_ls=[])
 		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
 		row_index = 0
 		for i in range(len(snpData.row_id_ls)):
@@ -505,20 +521,29 @@ class SNPData(object):
 	def removeColsByMismatchRate(cls, snpData, col_id2NA_mismatch_rate, max_mismatch_rate=1):
 		"""
 		2008-05-19
+			more robust handling given max_mismatch_rate
+			fix a bug. mismatch rate could be -1 which is no-comparison
+		2008-05-19
 		"""
 		sys.stderr.write("Removing cols whose mismatch_rate >%s ..."%(max_mismatch_rate))
-		no_of_cols = 0	#extra computing time a bit, but to save memory
-		for col_id in snpData.col_id_ls:
-			if col_id in col_id2NA_mismatch_rate and col_id2NA_mismatch_rate[col_id][1]<=max_mismatch_rate:
-				no_of_cols += 1
+		if max_mismatch_rate>=0 and max_mismatch_rate<1:
+			col_id_wanted_set = Set()	#extra computing time a bit, but to save memory
+			for col_id in snpData.col_id_ls:
+				if col_id in col_id2NA_mismatch_rate and col_id2NA_mismatch_rate[col_id][1]<=max_mismatch_rate and col_id2NA_mismatch_rate[col_id][1]>=0:
+					col_id_wanted_set.add(col_id)
+		elif max_mismatch_rate>=1:
+			col_id_wanted_set = Set(snpData.col_id_ls)
+		else:
+			col_id_wanted_set = Set()
 		
+		no_of_cols = len(col_id_wanted_set)
 		no_of_rows = len(snpData.row_id_ls)
 		newSnpData = SNPData(col_id_ls=[], row_id_ls=snpData.row_id_ls)
 		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
 		col_index = 0
 		for i in range(len(snpData.col_id_ls)):
 			col_id = snpData.col_id_ls[i]
-			if col_id in col_id2NA_mismatch_rate and col_id2NA_mismatch_rate[col_id][1]<=max_mismatch_rate:
+			if col_id in col_id_wanted_set:
 				newSnpData.col_id_ls.append(col_id)
 				newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
 				col_index += 1
@@ -531,17 +556,20 @@ class SNPData(object):
 	def removeColsByNARate(cls, snpData, max_NA_rate=1):
 		"""
 		2008-05-19
+			add is_cutoff_max to FilterStrainSNPMatrix.remove_cols_with_too_many_NAs()
+		2008-05-19
 			if max_NA_rate out of [0,1) range, no calculation
 		2008-05-19
 		"""
 		sys.stderr.write("Removing cols whose NA_rate >%s ..."%(max_NA_rate))
 		if max_NA_rate<1 and max_NA_rate>=0:
 			from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-			remove_cols_data = FilterStrainSNPMatrix.remove_cols_with_too_many_NAs(snpData.data_matrix, max_NA_rate)
-			
+			remove_cols_data = FilterStrainSNPMatrix.remove_cols_with_too_many_NAs(snpData.data_matrix, max_NA_rate, is_cutoff_max=1)			
 			cols_with_too_many_NAs_set = remove_cols_data.cols_with_too_many_NAs_set
-		else:
+		elif max_NA_rate>=1:
 			cols_with_too_many_NAs_set = Set()
+		else:
+			cols_with_too_many_NAs_set = Set(range(len(snpData.col_id_ls)))
 		
 		no_of_cols = len(snpData.col_id_ls)-len(cols_with_too_many_NAs_set)
 		no_of_rows = len(snpData.row_id_ls)
