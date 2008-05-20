@@ -443,13 +443,16 @@ class RawSnpsData(_SnpsData_):
 		
 		return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate, [naCounts1,naCounts2]]
 
-	def getSnpsData(self):
+	def getSnpsData(self, noNA=True):
 		"""
 		Returns a SnpsData object correspoding to this RawSnpsData object.
 
 		Note that some of the SnpsData attributes are a shallow copy of the RawSnpsData obj.
 		"""
-		decoder = {'NA':-1}
+		if noNA:
+			decoder = {'NA':0}  #A REALLY UGLY HACK!!!
+		else:
+			decoder = {'NA':-1}
 		snps = []
 		for i in range(0,len(self.snps)):
 			k = 0
@@ -458,7 +461,7 @@ class RawSnpsData(_SnpsData_):
 					decoder[nt]=k
 					k = k+1
 			snp = []
-			if k > 1:
+			if k > 2:
 				max1 = 0
 				maxnt1 = ''
 				max2 = 0
@@ -1026,7 +1029,7 @@ class SnpsDataSet:
 	   
 		#outStr = "NumSnps: "+str(numSnps)+", NumAcc: "+str(len(accessions))+"\n"
 		if withArrayIds:
-			outStr = "-, -, "+", ".join(self.snpsDataList[0].arrayIds)+"\n"
+			outStr = ", ".join(["-", "-"]+self.snpsDataList[0].arrayIds)+"\n"
 		else:
 			outStr = ""
 		fieldStrings = ["Chromosome", "Positions"]

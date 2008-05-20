@@ -168,9 +168,12 @@ def _run_():
 			sys.stdout.flush()
 			newSnpsds.append(snpsd.getSnpsData())
 		print ""
-	snpsDataset = snpsdata.SnpsDataSet(newSnpsds,[1,2,3,4,5])
-
-	decoder = {1:1, 0:0, -1:'NA'}
+		waid1 = 0
+		snpsDataset = snpsdata.SnpsDataSet(newSnpsds,[1,2,3,4,5])
+		decoder = {1:1, 0:0, -1:'NA'}
+	else:
+		snpsDataset = snpsdata.SnpsDataSet(snpsds,[1,2,3,4,5])
+		decoder=None
 	
 	snpsDataset.writeToFile(output_fname, deliminator=delim, missingVal = missingVal, withArrayIds = waid1, decoder=decoder)
 
