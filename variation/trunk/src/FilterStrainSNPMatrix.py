@@ -72,8 +72,11 @@ class FilterStrainSNPMatrix(object):
 		self.debug = int(debug)
 		self.report = int(report)
 	
-	def remove_rows_with_too_many_NAs(cls, data_matrix, row_cutoff, cols_with_too_many_NAs_set=None, NA_set=Set([0, -2]), debug=0):
+	def remove_rows_with_too_many_NAs(cls, data_matrix, row_cutoff, cols_with_too_many_NAs_set=None, NA_set=Set([0, -2]), debug=0, is_cutoff_max=0):
 		"""
+		2008-05-19
+			if is_cutoff_max=1, anything > row_cutoff is deemed as having too many NAs
+			if is_cutoff_max=0 (cutoff is minimum), anything >= row_cutoff is deemed as having too many NAs
 		2008-05-12
 			made more robust
 			add cols_with_too_many_NAs_set
@@ -100,8 +103,12 @@ class FilterStrainSNPMatrix(object):
 			else:
 				NA_ratio = 0.0
 			row_index2no_of_NAs[i] = NA_ratio
-			if NA_ratio >= row_cutoff:
-				rows_with_too_many_NAs_set.add(i)
+			if is_cutoff_max:
+				if NA_ratio > row_cutoff:
+					rows_with_too_many_NAs_set.add(i)
+			else:
+				if NA_ratio >= row_cutoff:
+					rows_with_too_many_NAs_set.add(i)
 		if debug:
 			print
 			print 'rows_with_too_many_NAs_set'
@@ -113,8 +120,11 @@ class FilterStrainSNPMatrix(object):
 	
 	remove_rows_with_too_many_NAs = classmethod(remove_rows_with_too_many_NAs)
 	
-	def remove_cols_with_too_many_NAs(cls, data_matrix, col_cutoff, rows_with_too_many_NAs_set=None, NA_set=Set([0, -2]), debug=0):
+	def remove_cols_with_too_many_NAs(cls, data_matrix, col_cutoff, rows_with_too_many_NAs_set=None, NA_set=Set([0, -2]), debug=0, is_cutoff_max=0):
 		"""
+		2008-05-19
+			if is_cutoff_max=1, anything > row_cutoff is deemed as having too many NAs
+			if is_cutoff_max=0 (cutoff is minimum), anything >= row_cutoff is deemed as having too many NAs
 		2008-05-12
 			classmethod
 			more robust, standardize
@@ -141,8 +151,12 @@ class FilterStrainSNPMatrix(object):
 			else:
 				NA_ratio = 0.0
 			col_index2no_of_NAs[j] = NA_ratio
-			if NA_ratio >= col_cutoff:
-				cols_with_too_many_NAs_set.add(j)
+			if is_cutoff_max:
+				if NA_ratio > col_cutoff:
+					cols_with_too_many_NAs_set.add(j)
+			else:
+				if NA_ratio >= col_cutoff:
+					cols_with_too_many_NAs_set.add(j)
 		if debug:
 			print
 			print 'cols_with_too_many_NAs_set'
