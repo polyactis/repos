@@ -7,9 +7,12 @@ Examples:
 	
 	#output matrix with no SNP filtering -w 1 -v 1
 	DB_250k2data.py -l 3 -y 0.85 -w 1 -x 0.20 -v 1 -o /tmp/250k_l3_v1_w1_x0.20_y0.85.tsv
+
 Description:
-	Simple program to output/filter 250k data based on QC recorded in database.
+	Simple program to output/filter 250k data based on QC recorded in database in Strain X SNP format.
 	2008-05-06
+
+	1st column is array id. 2nd column is ecotype id.
 
 """
 import sys, os, math
@@ -41,7 +44,7 @@ class DB_250k2Data(object):
 							('call_method_id', 1, int): [None, 'l', 1, 'id in table call_method', ],\
 							('max_call_info_mismatch_rate', 0, float): [1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate', 0, float): [1, 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
-							('max_snp_NA_rate', 1, float): [0.4, 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
+							('max_snp_NA_rate', 1, float): [1, 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -84,6 +87,8 @@ class DB_250k2Data(object):
 	
 	def get_snps_name_set_given_criteria(cls, db, call_method_id, max_snp_mismatch_rate, max_snp_NA_rate):
 		"""
+		2008-05-17
+			add chromosome_position to snps_name_set as well due to some call files in file system storage only have that as SNP id
 		2008-05-07
 			direct sql select, less memory
 		2008-05-06
@@ -114,6 +119,7 @@ class DB_250k2Data(object):
 				elif row.id != old_row.id:
 					if old_row.NA_rate<=max_snp_NA_rate and old_row.mismatch_rate<=max_snp_mismatch_rate:
 						snps_name_set.add(old_row.name)
+						snps_name_set.add(old_row.name[:-4])	#2008-05-17 add chromosome_position to it as well
 					old_row = row
 			sys.stderr.write("%s%d"%('\x08'*100, counter))
 			rows = results.fetchmany(block_size)
@@ -121,7 +127,7 @@ class DB_250k2Data(object):
 		#take care of the last one
 		if old_row.NA_rate<=max_snp_NA_rate and old_row.mismatch_rate<=max_snp_mismatch_rate:
 			snps_name_set.add(old_row.name)
-		
+			snps_name_set.add(old_row.name[:-4])
 		"""
 		#2008-05-07 cost too much memory
 		snps_ls = db.session.query(SNPs).options(sqlalchemy.orm.eagerload('snps_QC')).offset(0).limit(block_size).list()
@@ -159,7 +165,10 @@ class DB_250k2Data(object):
 		QC_method_id = 0 	#just for QC_250k.get_call_info_id2fname()
 		call_info_id2fname, call_info_ls_to_return = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, max_call_info_mismatch_rate=self.max_call_info_mismatch_rate)
 		#snps_with_best_QC_ls = self.get_snps_with_best_QC_ls(db, self.call_method_id)
-		snps_name_set = self.get_snps_name_set_given_criteria(db, self.call_method_id, self.max_snp_mismatch_rate, self.max_snp_NA_rate)
+		if self.max_snp_mismatch_rate<1 or self.max_snp_NA_rate<1:	#2008-05-18 only do this when it's necessary
+			snps_name_set = self.get_snps_name_set_given_criteria(db, self.call_method_id, self.max_snp_mismatch_rate, self.max_snp_NA_rate)
+		else:
+			snps_name_set = None
 		header, call_info_id_ls, ecotype_id_ls, data_matrix = QC_250k.read_call_matrix(call_info_id2fname, self.min_probability, snps_name_set)
 		strain_acc_list, category_list = ecotype_id_ls, call_info_id_ls
 		write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list)
