@@ -13,8 +13,8 @@ Examples:
 Description:
 	Convert Yu's SNP format (input) to Bjarni's.
 
-	Input format is strain X snp. 2nd column ignored. delimiter (either tab or comma) is automatically detected.
-	header is 'chromosome_position'.
+	Input format is strain X snp. 2nd column ignored by default (change by array_id_2nd_column).
+		delimiter (either tab or comma) is automatically detected. 	header is 'chromosome_position'.
 	
 	Output format is snp X strain, bjarni's format.
 	
