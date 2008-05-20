@@ -122,7 +122,7 @@ def _run_():
 						phenAccIndicesToKeep.append(j)
 						break					
 
-		else:
+		elif phenotype==None:
 			sys.stdout.write("Removing accessions which do not have any phenotype values.")
 			sys.stdout.flush()
 			for i in range(0,len(snpsds[0].accessions)):
@@ -133,8 +133,8 @@ def _run_():
 						accIndicesToKeep.append(i)
 						phenAccIndicesToKeep.append(j)
 						break
+			
 					
-
 		#Filter Accessions which do not have the phenotype value.
 		for snpsd in snpsds:
 			sys.stdout.write(".")
