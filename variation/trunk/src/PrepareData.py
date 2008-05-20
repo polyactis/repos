@@ -12,7 +12,7 @@ Option:
 	-f ..., --phenotypeFile=...     File with phenotypes (deliminator separated format)
         -p ..., --phenotype=...         Phenotype index
         --phenotypeName=...             Phenotype name
-        --orderPhenotypeAccessions=...  Order phenotype accessions
+        --orderAccessions               Order phenotype accessions (to match genotype order)
         --rawDataFormat                 Output data in raw format (with nucleotides)
         --filterMonomorphic             Filter monomorphic SNPs.
         --calcKinshipMatrix=...         Calculate kinship matrix and output in the given file.
@@ -32,7 +32,7 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["outputSNPsFile=","outputPhenotFile=", "monomorphic", "rawDataFormat", "delim=", "missingval=", "withArrayId=", "phenotype=", "phenotypeFile=", "phenotypeName=", "calcKinshipMatrix=", "help"]
+	long_options_list = ["outputSNPsFile=","outputPhenotFile=", "monomorphic", "rawDataFormat", "delim=", "missingval=", "withArrayId=", "phenotype=", "phenotypeFile=", "phenotypeName=", "calcKinshipMatrix=", "orderAccessions", "help"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:u:d:m:a:f:p:h", long_options_list)
 
@@ -41,7 +41,6 @@ def _run_():
 		print sys.exc_info()
 		print __doc__
 		sys.exit(2)
-	
 	
 	inputFile = args[0]
         output_fname = None
@@ -56,7 +55,7 @@ def _run_():
 	monomorphic = False
 	help = 0
 	withArrayIds = 0
-
+	orderAccessions = False
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -78,6 +77,8 @@ def _run_():
 			phenotype = int(arg)
 		elif opt in ("-o","--outputSNPsFile"):
 			output_fname = arg
+		elif opt in ("--orderAccessions"):
+			orderAccessions = True
 		elif opt in ("-u","--phenotypeFile"):
 			outputPhenotFile = arg
 		elif opt in ("-d","--delim"):
@@ -91,7 +92,7 @@ def _run_():
 			sys.exit(2)
 
 	if not output_fname:
-		output_fname
+		print output_fname
 		if help==0:
 			print "Output file missing!!\n"
 			print __doc__
@@ -144,14 +145,22 @@ def _run_():
 		print numAcc-len(accIndicesToKeep),"accessions removed, leaving",len(accIndicesToKeep),"accessions in all."
 		
 		if outputPhenotFile:
-			print "Filtering phenotype data and writing to file",outputPhenotFile
+			print "Filtering phenotype data."
 			phed.removeAccessions(phenAccIndicesToKeep)
+			if orderAccessions:
+				accessionMapping = []
+				i = 0
+				for acc in snpsds[0].accessions:
+					if acc in phed.accessions:
+						accessionMapping.append((phed.accessions.index(acc),i))
+						i += 1
+				phed.orderAccessions(accessionMapping)
 			if phenotype>=0:
 				phed.writeToFile(outputPhenotFile, [phenotype])
 			else:
 				phed.writeToFile(outputPhenotFile)
 
-				
+		
         #Filtering monomorphic
 	if monomorphic:
 		print "Filtering monomorphic SNPs"

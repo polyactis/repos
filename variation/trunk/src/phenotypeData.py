@@ -12,16 +12,30 @@ class PhenotypeData:
         self.phenotypeNames = phenotypeNames
         self.phenotypeValues=phenotypeValues
 
-    def orderAccessions(self, ordering):
+    def orderAccessions(self, accessionMapping=None):
         """
-        Removes accessions from the data.
+        Orders the accession alphabetically if no mapping is given.
         """
+        print "Ordering phenotype data accessions."
         newAccessions = []
         newPhenotVals = []
-        print len(indicesToKeep)
-        for i in indicesToKeep:
-            newAccessions.append(self.accessions[i])
-            newPhenotVals.append(self.phenotypeValues[i])
+        for acc in self.accessions:
+            newAccessions.append("")
+            newPhenotVals.append([])
+
+        if not accessionMapping:
+            accessionMapping = []
+            l = range(0,len(self.accessions))
+            l1 = zip(self.accessions,l)
+            l1.sort()
+            j = 0
+            for (acc,i) in l1:
+                accessionMapping.append((i,j))
+                j += 1
+
+        for (i,j) in accessionMapping:
+            newAccessions[j] = self.accessions[i]
+            newPhenotVals[j] = self.phenotypeValues[i]
         self.accessions = newAccessions
         self.phenotypeValues = newPhenotVals
         
@@ -29,6 +43,8 @@ class PhenotypeData:
         """
         Removes accessions from the data.
         """
+        numAccessionsRemoved = len(self.accessions)-len(indicesToKeep)
+        print "Removing",numAccessionsRemoved,"accessions in phenotype data, out of",len(self.accessions), "accessions."
         newAccessions = []
         newPhenotVals = []
         print len(indicesToKeep)
