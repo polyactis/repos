@@ -198,6 +198,7 @@ class Calls2DB_250k_old:
 import getopt, csv, subprocess
 import traceback, gc
 from pymodule import process_function_arguments
+from pymodule.SNP import number2nt
 
 
 class Calls2DB_250k(object):
@@ -226,6 +227,7 @@ class Calls2DB_250k(object):
 							('o', 'output_dir',1, 'file system storage for the call files. call_info_table would point each entry to this.', 1, ):'/Network/Data/250k/db/calls/' ,\
 							('a', 'call_method_table', 1, 'table storing the calling methods', 1, ): 'call_method',\
 							('t', 'call_info_table', 1, 'table to store final call file entries', 1, ): 'call_info',\
+							('y', 'input_type', 1, 'The input type. 1: directory. 2: SNP X strain format (bjarni). 3: Strain X SNP format (Yu)', 1, int): 1,\
 							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
 							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
 							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
@@ -244,6 +246,13 @@ class Calls2DB_250k(object):
 		#argument dictionary
 		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		self.cur_max_call_id = None
+		
+		call2db_func_dict = {1: self.submit_call_dir2db,\
+							2: self.submit_SNPxStrain_file2db,\
+							3: self.submit_StrainxSNP_file2db}
+		self.submit_call2db = call2db_func_dict.get(self.input_type)
+		if not self.submit_call2db:
+			sys.stderr.write("Error: Input type %s is not available.\n"%self.input_type)
 	
 	def get_cur_max_call_id(self, curs, call_info_table):
 		"""
@@ -328,12 +337,12 @@ class Calls2DB_250k(object):
 				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
 						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
 	
-	def submit_call_file2db(self, curs, input_fname, call_info_table, output_dir, method_id, user):
+	def submit_SNPxStrain_file2db(self, curs, input_fname, call_info_table, output_dir, method_id, user):
 		"""
 		2008-05-17
 			submit the calls from a matrix file to db
 		"""
-		sys.stderr.write("Submitting calls to db ...\n")
+		sys.stderr.write("Submitting %s to db ...\n"%(input_fname))
 		output_dir = os.path.join(output_dir, 'method_%s'%method_id)
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
@@ -343,7 +352,7 @@ class Calls2DB_250k(object):
 		column_index2writer = {}
 		for i in range(2, len(array_id_ls)):
 			array_id = array_id_ls[i]
-			sys.stderr.write("\t%sAssign new call info id to array id=%s ..."%('\x08'*80, array_id))
+			sys.stderr.write("%s\tAssign new call info id to array id=%s ."%('\x08'*80, array_id))
 			new_call_id = self.get_new_call_id(curs, call_info_table, array_id, method_id)
 			if new_call_id!=-1:
 				output_fname = os.path.join(output_dir, '%s_call.tsv'%new_call_id)
@@ -355,10 +364,9 @@ class Calls2DB_250k(object):
 				column_index2writer[i] = writer
 				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
 						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
-			sys.stderr.write("\n")
 		reader.next()	#ignore the ecotype id line
 		
-		sys.stderr.write("Moving real data to database ...\n")
+		sys.stderr.write("Moving real data to file system storage ...\n")
 		counter = 0
 		for row in reader:
 			chromosome = int(row[0])
@@ -369,11 +377,43 @@ class Calls2DB_250k(object):
 				if i in column_index2writer:
 					column_index2writer[i].writerow([snp_id, row[i]])
 			if counter%5000==0:
-				sys.stderr.write("\t%s%s"%('\x08'*20, counter))
-		sys.stderr.write("\t%s%s"%('\x08'*20, counter))
+				sys.stderr.write("%s\t%s"%('\x08'*20, counter))
+		sys.stderr.write("%s\t%s"%('\x08'*20, counter))
 		del reader
 		for column_index, writer in column_index2writer.iteritems():
 			del writer
+		sys.stderr.write("Done.\n")
+	
+	def submit_StrainxSNP_file2db(self, curs, input_fname, call_info_table, output_dir, method_id, user):
+		"""
+		2008-05-19
+			submit the calls from a matrix file (Strain X SNP format, tsv, nucleotides in numbers) to db
+		"""
+		sys.stderr.write("Submitting %s to db ...\n"%(input_fname))
+		output_dir = os.path.join(output_dir, 'method_%s'%method_id)
+		if not os.path.isdir(output_dir):
+			os.makedirs(output_dir)
+		
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		header = reader.next()
+		for row in reader:
+			ecotype_id, array_id = row[:2]
+			sys.stderr.write("%s\tAssign new call info id to array id=%s ."%('\x08'*80, array_id))
+			new_call_id = self.get_new_call_id(curs, call_info_table, array_id, method_id)
+			if new_call_id!=-1:
+				output_fname = os.path.join(output_dir, '%s_call.tsv'%new_call_id)
+				if os.path.isfile(output_fname):
+					sys.stderr.write("%s already exists. Ignore.\n"%output_fname)
+					continue
+				writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+				writer.writerow(['SNP_ID', array_id])
+				for i in range(2, len(row)):
+					snp_id = header[i]
+					writer.writerow([snp_id, number2nt[int(row[i])]])	#translate 
+				del writer
+				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
+						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
+		del reader
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
@@ -396,12 +436,7 @@ class Calls2DB_250k(object):
 							(self.method_id, self.call_method_table))
 			sys.exit(2)
 		if self.commit:
-			if os.path.isdir(self.input_dir):
-				self.submit_call_dir2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
-			elif os.path.isfile(self.input_dir):
-				self.submit_call_file2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
-			else:
-				sys.stderr.write("%s is neither directory nor file.\n"%self.input_dir)
+			self.submit_call2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
 			curs.execute("commit")
 	
 if __name__ == '__main__':
