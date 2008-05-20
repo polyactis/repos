@@ -6,20 +6,20 @@ Examples:
 	mpiexec MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250k_method_3.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.csv
 		
 	#test parallel run on desktop
-	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc -n 20 -v 0.3 -a 0.4 -w 0.2
+	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -y 0.85 -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc -n 20 -v 0.3 -a 0.4 -w 0.2
 	
 	#debug and run thru on a single node and output the matrix to output_fname.
-	python ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -p ~/panfs/NPUTE_data/input/perlgen.csv \
+	python ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -y 0.85 -p ~/panfs/NPUTE_data/input/perlgen.csv \
 	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -o ~/panfs/NPUTE_data/QC_output/250K_m3_85_vs_2010_149_384_v2_QC_x0.12_a1_v0.55_w0.3_n30 \
 	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -b
 	
 	#parallel run on hpc-cmb and output data (both before & after imputation into output_dir)
-	mpiexec ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -p ~/panfs/NPUTE_data/input/perlgen.csv \
+	mpiexec ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -y 0.85 -p ~/panfs/NPUTE_data/input/perlgen.csv \
 	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -o ~/panfs/NPUTE_data/QC_output/250K_m3_85_vs_2010_149_384_v2_QC_x0.12_a1_v0.55_w0.3_n30 \
 	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u ~/panfs/NPUTE_data/matrix_output
 	
 	#test parallel run on desktop, using Strain X SNP format
-	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.tsv -p /mnt/nfs/NPUTE_data/input/perlegen.tsv -f /mnt/nfs/NPUTE_data/input/2010_149_384_v3_narrowed_by_250k_l3.tsv -o /tmp/param_qc_2008_05_19  -x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u /tmp/out2
+	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.tsv -y 0.70 -p /mnt/nfs/NPUTE_data/input/perlegen.tsv -f /mnt/nfs/NPUTE_data/input/2010_149_384_v3_narrowed_by_250k_l3.tsv -o /tmp/param_qc_2008_05_19  -x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u /tmp/out2
 	
 Description:
 	a parallel program to do QC on genotype calls before/after imputation under various parameter settings.
@@ -57,7 +57,7 @@ class MpiQCCall(object):
 							('fname_perlegen', 1, ): ['', 'p', 1, ''],\
 							('output_fname', 1, ): [None, 'o', 1, 'final stat output filename prefix. two files would be generated. 1st file is strain/snp detailed data. 2nd file is average strain/snp data. If running in debug mode, this will be the direcotry to store the matrix before and after imputation.', ],\
 							('output_dir', 0, ): [None, 'u', 1, 'if given, output matrix before and after imputation into a directory'],\
-							('min_call_probability_ls', 1, ): ["0.6,0.7,0.75,0.8,0.85,0.9,0.95,0.975,0.982", 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
+							('min_call_probability', 1, float): [None, 'y', 1, 'the minimum probability used in the input_fname for a call to be non-NA.', ],\
 							('max_call_mismatch_rate_ls', 1, ): ["0.05,0.1,0.15,0.20,0.25,0.3", 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_call_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8", 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate_ls', 1, ): ["0.05,0.1,0.15,0.2,0.25,0.3", 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
@@ -74,6 +74,8 @@ class MpiQCCall(object):
 	
 	def generate_parameters(self, parameter_names, parameter_depth=2):
 		"""
+		2008-05-19
+			min_call_probability = self.min_call_probability
 		2008-05-11
 			put NA rate into passing parameters as well. too much memory consumption on each computing node
 		"""
@@ -85,6 +87,8 @@ class MpiQCCall(object):
 			parameter_value = map(float, parameter_value)
 			setattr(self, parameter_name, parameter_value)
 		
+		"""
+		#2008-05-19 commented out. use self.min_call_probability
 		#figure out call probability from input_fname
 		import re
 		call_prob_pattern = re.compile(r'_(\d+)\.csv')
@@ -93,7 +97,8 @@ class MpiQCCall(object):
 			min_call_probability = float(call_prob_p_result.groups()[0])
 		else:
 			min_call_probability = -1
-		
+		"""
+		min_call_probability = self.min_call_probability
 		
 		#only 1st 4, last 2 passed to computing node
 		parameters = []
@@ -274,7 +279,7 @@ class MpiQCCall(object):
 		result.append(qcdata)
 		return result
 	
-	def computing_node_handler(self, communicator, data, parameter_list):
+	def computing_node_handler(self, communicator, data, computing_parameter_obj):
 		"""
 		2007-03-07
 		"""
@@ -282,10 +287,10 @@ class MpiQCCall(object):
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
 		min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = data[:6]
-		init_data, output_dir = parameter_list
+		init_data = computing_parameter_obj.init_data
 		result = self.doFilter(init_data.snpData_250k, init_data.snpData_2010_149_384, init_data.snpData_perlegen, \
 							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
-							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, output_dir)
+							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, computing_parameter_obj.output_dir)
 		sys.stderr.write("Node no.%s done with %s QC.\n"%(node_rank, len(result)))
 		return result
 	
@@ -451,8 +456,8 @@ class MpiQCCall(object):
 			parameter_list = [param_d]
 			mw.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler)
 		elif node_rank in free_computing_nodes:
-			parameter_list = [init_data, self.output_dir]
-			mw.computing_node(parameter_list, self.computing_node_handler)
+			computing_parameter_obj = PassingData(init_data=init_data, output_dir=self.output_dir)
+			mw.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			outf = open('%s.csv'%self.output_fname, 'w')
 			writer = csv.writer(outf)
