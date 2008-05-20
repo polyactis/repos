@@ -196,7 +196,7 @@ class MpiQCCall(object):
 									'max_snp_mismatch_rate=%s'%max_snp_mismatch_rate,\
 									'max_snp_NA_rate=%s'%max_snp_NA_rate,\
 									'npute_window_size=%s'%npute_window_size]
-			output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['before_imputation.csv']))
+			output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['before_imputation.tsv']))
 			newSnpData.tofile(output_fname)
 			#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]
 			#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
@@ -242,7 +242,7 @@ class MpiQCCall(object):
 				
 				if output_dir:	#2008-05-16 write the data out if output_fname is available
 					#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
-					output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.csv']))
+					output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.tsv']))
 					#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
 					snpData_imputed.tofile(output_fname)
 			
