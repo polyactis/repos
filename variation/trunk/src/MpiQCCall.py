@@ -18,6 +18,9 @@ Examples:
 	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -o ~/panfs/NPUTE_data/QC_output/250K_m3_85_vs_2010_149_384_v2_QC_x0.12_a1_v0.55_w0.3_n30 \
 	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u ~/panfs/NPUTE_data/matrix_output
 	
+	#test parallel run on desktop, using Strain X SNP format
+	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.tsv -p /mnt/nfs/NPUTE_data/input/perlegen.tsv -f /mnt/nfs/NPUTE_data/input/2010_149_384_v3_narrowed_by_250k_l3.tsv -o /tmp/param_qc_2008_05_19  -x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u /tmp/out2
+	
 Description:
 	a parallel program to do QC on genotype calls before/after imputation under various parameter settings.
 	
@@ -127,6 +130,8 @@ class MpiQCCall(object):
 				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size , output_dir=None):
 		"""
 		2008-05-19
+			matrix_ls has to be of length >0 before concatenation
+		2008-05-19
 			use SNPData structure
 		2008-05-18
 			add onlyCommon=True to FilterAccessions.filterByError()
@@ -168,7 +173,7 @@ class MpiQCCall(object):
 		twoSNPData = TwoSNPData(SNPData1=newSnpData, SNPData2=snpData_qc_snp, \
 						row_matching_by_which_value=0, debug=self.debug)
 		newSnpData = twoSNPData.mergeTwoSNPData(priority=2)
-		
+		del twoSNPData
 		#MergeSnpsData.merge(snpsd_250k_tmp, snpsd_ls_qc_snp, unionType=0, priority=2)
 		
 		newSnpData = SNPData.removeMonomorphicCols(newSnpData)
@@ -227,20 +232,21 @@ class MpiQCCall(object):
 					imputeData(npute_data_struc, int(npute_window_size))
 					matrix_ls.append(npute_data_struc.snps)
 					snpData_imputed.col_id_ls += npute_data_struc.chosen_snps_name_ls
-			snpData_imputed.data_matrix = num.transpose(num.concatenate(matrix_ls))
+			if len(matrix_ls)>0:
+				snpData_imputed.data_matrix = num.transpose(num.concatenate(matrix_ls))
+				
+				if output_dir:	#2008-05-16 write the data out if output_fname is available
+					#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
+					output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.csv']))
+					#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
+					snpData_imputed.tofile(output_fname)
 			
-			if output_dir:	#2008-05-16 write the data out if output_fname is available
-				#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
-				output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.csv']))
-				#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
-				snpData_imputed.tofile(output_fname)
-		
-		
-			twoSNPData1 = TwoSNPData(SNPData1=snpData_imputed, SNPData2=snpData_qc_strain, \
-							row_matching_by_which_value=0)
-			qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
-			qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
-			del twoSNPData1, snpData_imputed
+			
+				twoSNPData1 = TwoSNPData(SNPData1=snpData_imputed, SNPData2=snpData_qc_strain, \
+								row_matching_by_which_value=0)
+				qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
+				qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
+				del twoSNPData1, snpData_imputed
 		else:
 			snpData_imputed = None
 			#qcdata.row_id2NA_mismatch_rate1 = {}
