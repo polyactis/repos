@@ -27,7 +27,7 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
-from pymodule import process_function_arguments, write_data_matrix
+from pymodule import process_function_arguments, write_data_matrix, figureOutDelimiter, read_data
 from variation.src.QC_250k import SNPData
 from common import SNPData2RawSnpsData_ls
 import snpsdata
@@ -57,10 +57,8 @@ class ConvertYuSNPFormat2Bjarni(object):
 			import pdb
 			pdb.set_trace()
 		
-		from pymodule import figureOutDelimiter
 		delimiter = figureOutDelimiter(self.input_fname, report=self.report)
-		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname, delimiter=delimiter)
+		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, delimiter=delimiter)
 		
 		if self.array_id_2nd_column:
 			snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
