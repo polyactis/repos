@@ -110,6 +110,9 @@ def get_nt_number2diff_matrix_index(number2nt):
 def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 	"""
 	2008-05-19
+		this returns a SNPData in same orientation as rawSnpsData_ls, SNP (row) X Strain (column).
+		apply transposeSNPData after this if another orientation is favored.
+	2008-05-19
 		swap accession id and array id in col_id. now accession_id in 1st
 	2008-05-11
 		adapts RawSnpsData(bjarni's SNP data structure) to SNPData
@@ -178,6 +181,8 @@ def transposeSNPData(snpData, report=0):
 
 def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, report=0, mask_untouched_deleltion_as_NA=1):
 	"""
+	2008-05-19
+		the transformation assumes snpData is in the orientation of SNP(row_id_ls) X Strain (col_id_ls). if not, toggle need_transposeSNPData=1.
 	2008-05-18
 		add mask_untouched_deleltion_as_NA. turned on by default because bjarni's RawSnpsData structure only recognizes NA, A, T, C, G
 		if col_id in newSnpData.col_id_ls is tuple of size >1, the 2nd one  in the tuple is taken as array id.
