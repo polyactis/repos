@@ -159,6 +159,9 @@ class DB_250k2Data(object):
 	get_snps_name_set_given_criteria= classmethod(get_snps_name_set_given_criteria)
 	
 	def run(self):
+		"""
+		2008-05-20 read_call_matrix returns PassingData object
+		"""
 		db = Stock_250kDatabase(username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		session = db.session
@@ -169,9 +172,9 @@ class DB_250k2Data(object):
 			snps_name_set = self.get_snps_name_set_given_criteria(db, self.call_method_id, self.max_snp_mismatch_rate, self.max_snp_NA_rate)
 		else:
 			snps_name_set = None
-		header, call_info_id_ls, ecotype_id_ls, data_matrix = QC_250k.read_call_matrix(call_info_id2fname, self.min_probability, snps_name_set)
-		strain_acc_list, category_list = ecotype_id_ls, call_info_id_ls
-		write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list)
+		pdata = QC_250k.read_call_matrix(call_info_id2fname, self.min_probability, snps_name_set)	#2008-05-20 read_call_matrix returns PassingData object
+		strain_acc_list, category_list = pdata.ecotype_id_ls, pdata.array_id_ls
+		write_data_matrix(pdata.data_matrix, self.output_fname, pdata.header, strain_acc_list, category_list)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
