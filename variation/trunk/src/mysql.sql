@@ -831,3 +831,7 @@ create table phenotype_avg(
 
 --2008-04-30 create a view to view qc results for arrays
 create or replace view view_qc as select e.id as ecotype_id, e.nativename, q.tg_ecotype_id, q.call_info_id, q.call_method_id, a.id as array_id, a.original_filename as array_original_filename, a.date_created as array_created, c.NA_rate, group_concat(q.mismatch_rate order by q.qc_method_id) as mismatch_rate, group_concat(q.qc_method_id order by q.qc_method_id) as qc_method, group_concat(q.no_of_non_NA_pairs order by q.qc_method_id) as no_of_non_NA_pairs from call_info c, array_info a, call_qc q , stock.ecotype e where e.id=q.ecotype_id and q.call_info_id = c.id and a.id=c.array_id group by q.ecotype_id, q.call_info_id, q.call_method_id order by nativename,  call_method_id, NA_rate,array_created, original_filename;
+
+--2008-05-20 view the calls, arrays, ecotypes all together
+
+create or replace view view_call as select c.id as call_info_id, c.filename, c.method_id as call_method_id, a.id as array_id, a.original_filename, a.maternal_ecotype_id as ecotype_id, e.nativename, e.stockparent from call_info c, array_info a, stock.ecotype e where a.id=c.array_id and e.id=a.maternal_ecotype_id order by nativename;
