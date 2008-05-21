@@ -54,7 +54,7 @@ else:   #32bit
 
 import time, csv, getopt
 import warnings, traceback
-from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict, ProcessOptions
+from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict, ProcessOptions, PassingData
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README
@@ -205,6 +205,11 @@ class QC_250k(object):
 	
 	def read_call_matrix(cls, call_info_id2fname, min_probability=-1, snps_name_set=None):
 		"""
+		2008-05-20
+			return PassingData to wrap everything
+		2008-05-19
+			the header is now 'chromosome_position'. no candidate alleles behind them.
+			header.append('%s_%s'%(SNP_id_ls[0], SNP_id_ls[1]))
 		2008-05-18
 			rename strain_acc_list, category_list to call_info_id_ls and ecotype_id_ls
 			add array_id_ls
@@ -239,7 +244,8 @@ class QC_250k(object):
 				if snps_name_set and SNP_id not in snps_name_set:
 					continue
 				if counter==0:	#first file
-					header.append(SNP_id)
+					SNP_id_ls = SNP_id.split('_')
+					header.append('%s_%s'%(SNP_id_ls[0], SNP_id_ls[1]))
 				if len(row)==3:
 					probability = float(row[2])
 					if probability < min_probability:
@@ -248,13 +254,19 @@ class QC_250k(object):
 			del reader
 			call_matrix.append(data_row)
 			counter += 1
+		pdata = PassingData(header=header, call_info_id_ls=call_info_id_ls, array_id_ls=array_id_ls,\
+			ecotype_id_ls=ecotype_id_ls, data_matrix=call_matrix)
 		sys.stderr.write("Done.\n")
-		return header, array_id_ls, ecotype_id_ls, call_matrix
+		return pdata
 	
 	read_call_matrix = classmethod(read_call_matrix)
 	
 	def submit_to_call_QC(cls, session, row_id2NA_mismatch_rate, QC_method_id, user, min_probability, row_id12row_id2, call_method_id, readme):
 		"""
+		2008-05-21
+			ecotype_id, call_info_id = row_id	#bug here, order changed.
+		2008-05-19
+			NA_mismatch_ls was expanded
 		2008-05-06
 			add readme
 		2008-05-05
@@ -265,9 +277,11 @@ class QC_250k(object):
 		row_id_ls.sort()	#try to keep them in call_info_id order
 		for row_id in row_id_ls:
 			NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
-			call_info_id, ecotype_id = row_id
+			ecotype_id, call_info_id = row_id	#bug here, order changed.
 			tg_ecotype_id = row_id12row_id2[row_id]
-			NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs = NA_mismatch_ls
+			NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs, relative_NA_rate, relative_no_of_NAs, relative_no_of_totals = NA_mismatch_ls
+			#call_QC stores the relative NA rate. call_info already stores the independent NA rate
+			NA_rate, no_of_NAs, no_of_totals = relative_NA_rate, relative_no_of_NAs, relative_no_of_totals
 			callqc = CallQC(call_info_id=call_info_id, min_probability=min_probability, ecotype_id=ecotype_id, tg_ecotype_id=tg_ecotype_id,\
 						QC_method_id=QC_method_id, call_method_id=call_method_id, NA_rate=NA_rate, mismatch_rate=mismatch_rate,\
 						no_of_NAs=no_of_NAs, no_of_totals=no_of_totals, no_of_mismatches=no_of_mismatches, no_of_non_NA_pairs=no_of_non_NA_pairs,\
@@ -431,8 +445,9 @@ class QC_250k(object):
 		else:
 			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
 			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.cmp_data_filename)
+			strain_acc_list = map(int, strain_acc_list)	#it's ecotypeid, cast it to integer to be compatible to the later ecotype_id_ls from db
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, \
-							data_matrix=data_matrix, snps_table=QC_method_id2snps_table[self.QC_method_id])	#category_list is not used.
+							data_matrix=data_matrix, snps_table=QC_method_id2snps_table.get(self.QC_method_id))	#category_list is not used.
 			
 			if self.input_dir and os.path.isdir(self.input_dir):
 				#04/22/08 Watch: call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
@@ -449,9 +464,15 @@ class QC_250k(object):
 				else:
 					sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
 					sys.exit(5)
-				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, filter_calls_QCed, self.max_call_info_mismatch_rate)
+				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, \
+																						filter_calls_QCed, self.max_call_info_mismatch_rate, self.debug)
 			if call_info_id2fname:
-				header, call_info_id_ls, ecotype_id_ls, data_matrix = self.read_call_matrix(call_info_id2fname, self.min_probability)
+				pdata = self.read_call_matrix(call_info_id2fname, self.min_probability)
+				header = pdata.header
+				call_info_id_ls = pdata.call_info_id_ls
+				array_id_ls = pdata.array_id_ls
+				ecotype_id_ls = pdata.ecotype_id_ls
+				data_matrix = pdata.data_matrix
 			else:
 				#input file is SNP by strain format. double header (1st two lines)
 				header, snps_name_ls, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_dir, double_header=1)
@@ -466,12 +487,13 @@ class QC_250k(object):
 			else:
 				snps_name2snps_id = None
 			
-			snpData1 = SNPData(header=header, strain_acc_list=call_info_id_ls, category_list= ecotype_id_ls, data_matrix=data_matrix, \
+			#swap the ecotype_id_ls and call_info_id_ls when passing them to SNPData. now strain_acc_list=ecotype_id_ls
+			snpData1 = SNPData(header=header, strain_acc_list=ecotype_id_ls, category_list= call_info_id_ls, data_matrix=data_matrix, \
 							min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
 							max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
 			
 			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
-								QC_method_id=self.QC_method_id, user=self.user, row_matching_by_which_value=1, debug=self.debug)
+								QC_method_id=self.QC_method_id, user=self.user, row_matching_by_which_value=0, debug=self.debug)
 			
 			if self.run_type==1:
 				row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
