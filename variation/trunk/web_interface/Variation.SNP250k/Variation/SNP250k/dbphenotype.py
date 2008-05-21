@@ -18,7 +18,6 @@ class PhenotypeMethod(object):
 	
 	implements(IPhenotypeMethod)
 	
-	id = None
 	short_name = None
 	method_description = u""
 	data_description = u""
@@ -28,8 +27,7 @@ class PhenotypeMethod(object):
 	date_created = None
 	date_updated = None
 	
-	def __init__(self, id, short_name, method_description, data_description, comment, created_by, updated_by, date_created, date_updated):
-		self.id = id
+	def __init__(self, short_name, method_description, data_description, comment, created_by, updated_by, date_created, date_updated):
 		self.short_name = short_name
 		self.method_description = method_description
 		self.data_description = data_description
@@ -44,15 +42,13 @@ class PhenotypeAvg(object):
 	"""
 	
 	implements(IPhenotypeAvg)
-	id = None
 	ecotype_id = None
 	value = None
 	stdev = None
 	sample_size = None
 	method_id = None
 	
-	def __init__(self, id, ecotype_id, value, stdev, sample_size, method_id):
-		self.id = id
+	def __init__(self, ecotype_id, value, stdev, sample_size, method_id):
 		self.ecotype_id = ecotype_id
 		self.value = value
 		self.stdev = stdev
@@ -74,8 +70,7 @@ class QCMethod(object):
 	date_created = None
 	date_updated = None
 	
-	def __init__(self, id, short_name, method_description, data_description, comment, created_by, updated_by, date_created, date_updated):
-		self.id = id
+	def __init__(self, short_name, method_description, data_description, comment, created_by, updated_by, date_created, date_updated):
 		self.short_name = short_name
 		self.method_description = method_description
 		self.data_description = data_description
