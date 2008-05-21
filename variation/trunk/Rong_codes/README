@@ -10,4 +10,8 @@ The stucture of all programs here is:
 wrap_basecall.sh
 	new_basecall.sh
 		new_basecall.R
+			...
 	process-calls
+
+	
+plot-mean-intensity-348arrays.R
