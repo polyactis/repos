@@ -325,8 +325,10 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 	del writer
 	sys.stderr.write("%s NA rows. Done.\n"%no_of_all_NA_rows)
 
-def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None):
+def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int):
 	"""
+	2008-05-21
+		add matrix_data_type, default=int. data_row = map(matrix_data_type, data_row)
 	2008-05-18
 		copied from FilterStrainSNPMatrix.py
 		if delimiter not specified, call figureOutDelimiter()
@@ -363,7 +365,7 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 				print row
 		else:
 			if turn_into_integer:
-				data_row = map(int, data_row)
+				data_row = map(matrix_data_type, data_row)
 		data_matrix.append(data_row)
 	del reader
 	sys.stderr.write("Done.\n")
