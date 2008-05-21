@@ -6,17 +6,27 @@
 i=$1
 #cutoff for confidence measure, i.e., the second column in $i_genocall.txt
 c=$2
+output_dir=$3
 
-cp ${i}_raw_data.cel raw_data.cel
+echo -n "Array " $i
+dir_prefix="/Network/Data/250k/db/raw_data/"
+call_output="$output_dir/call_output_$c"
+other_output="$output_dir/other_output"
+mkdir $call_output
+mkdir $other_output
+rm raw_data.cel
+ln -s $dir_prefix$i\_raw_data.cel raw_data.cel
 R CMD BATCH new_basecall.R 
-cp mprobe.norm.rda ${i}_mprobe.norm.rda		#after quantile-normalization
-cp genocalls.txt ${i}_genocalls.txt		#called genotypes with probability
+#cp mprobe.mean.rda $other_output/${i}_mprobe_mean.rda
+cp mprobe.norm.rda $other_output/${i}_mprobe.norm.rda		#after quantile-normalization
+cp genocalls.txt $other_output/${i}_genocalls.txt		#called genotypes with probability
 
 cp genocalls.txt calls.txt
 ./process-calls $i $c
-cp calls.tsv ${i}_call.tsv	#base calls in DB tsv format
+cp calls.tsv $call_output/${i}_call.tsv	#base calls in DB tsv format
 
 # output the set of SNPs with at least 3 strains for AA and BB in the training set
 #./process-calls-snpset $i $c
 #cp calls.tsv ${i}_call.tsv
 
+echo ""
