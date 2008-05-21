@@ -57,7 +57,7 @@ class StockDatabase(Database):
 		
 		mappers['phenotype_method'] = mapper(PhenotypeMethod, tables['phenotype_method'])
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
-										properties={'method_id': relation(PhenotypeMethod),}, allow_column_override=True)
+										properties={'phenotype_method': relation(PhenotypeMethod),})
 		mappers['QC_method'] = mapper(QCMethod, tables['QC_method'])
 		#mappers['reservation'] = mapper(Reservation, tables['reservation'],
 		#							   properties = {
