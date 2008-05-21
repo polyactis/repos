@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, csv
 
 def dict_map(dict, ls, type=1):
 	"""
@@ -65,21 +65,29 @@ def importNumericArray():
 
 def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ',']):
 	"""
+	2008-05-21
+		csv.Sniffer is handy, use it figure out csv.Sniffer instead.
 	2008-05-12
 		try tab first
 	"""
 	if report:
 		import sys
 		sys.stderr.write("Figuring out delimiter for %s ..."%input_fname)
+	cs = csv.Sniffer()
+	
 	inf = open(input_fname)
 	line = inf.readline()
 	del inf
+	delimiter_chosen = cs.sniff(line).delimiter
+	"""
+	#2008-05-21
 	delimiter_chosen = None
 	for delimiter in delimiter_choice_ls:
 		delimiter_count = line.count(delimiter)
 		if delimiter_count>0:
 			delimiter_chosen = delimiter
 			break
+	"""
 	if report:
 		sys.stderr.write("Done.\n")
 	return delimiter_chosen
