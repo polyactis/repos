@@ -7,12 +7,7 @@ from Variation.SNP250k import VariationMessageFactory as _
 class IPhenotypeMethod(Interface):
 	"""
 	PhenotypeMethod Interface
-	"""
-	id = schema.Int(title=u"Phenotype Method identifier",
-							  description=u"A unique id for this phenotype_method",
-							  required=True,
-							  readonly=True)
-	
+	"""	
 	short_name = schema.TextLine(title=u"Short Name",
                             required=True)
 	
@@ -35,10 +30,6 @@ class IPhenotypeAvg(Interface):
 	"""
 	PhenotypeAvg Interface
 	"""
-	id = schema.Int(title=u"Phenotype Avg identifier",
-							  description=u"A unique id for this phenotype_avg",
-							  required=True,
-							  readonly=True)
 	ecotype_id = schema.Int(title=u"Ecotype id",
 							  description=u"A unique id for the ecotype",
 							  required=True,
@@ -212,12 +203,7 @@ class IStockDatabaseSettings(Interface):
 class IQCMethod(Interface):
 	"""
 	QCMethod Interface
-	"""
-	id = schema.Int(title=u"QC Method identifier",
-							  description=u"A unique id for this QC method",
-							  required=True,
-							  readonly=True)
-	
+	"""	
 	short_name = schema.TextLine(title=u"Short Name",
                             required=True)
 	
@@ -268,25 +254,25 @@ class IQCOnDirectory(Interface):
 							description=u"dictionary storing results",
 							required = True)
 
-class Results2DB_250k(Interface):
+class IResults2DB_250k(Interface):
 	title = schema.TextLine(title=u"Title", 
 							required=True)
-							
+	
 	description = schema.TextLine(title=u"Description", 
 								  description=u"A short summary",
 								  required=False)
 	input_fname = schema.TextLine(title=u"Input Filename", 
-								  description=u"Genome Wide Results",
+								  description=u"File containing Genome-Wide Results",
 								  required=True)
 	phenotype_method_id = schema.Int(title=u'Phenotype Method ID',
-						 description=u'Phenotype Method Identifier',
+						 description=u'Which Phenotype Used',
 						 required=True)
 	short_name = schema.TextLine(title=u'Short Name',
-							   description=u"short name for this QC Method",
+							   description=u"short name for this result",
 							   required=True)
 	method_description = schema.SourceText(title=u'Method Description',
 							   description=u"Describe your method",
 							   required=True)
-	data_description = schema.TextLine(title=u'Short Name',
-							   description=u"short name for this QC Method",
+	data_description = schema.TextLine(title=u'Data Description',
+							   description=u"Describe data your data",
 							   required=True)
