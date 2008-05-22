@@ -10,6 +10,8 @@ Description:
 	Input genotype file format is Strain X SNP format (Yu's format, Output by DB_250k2data.py Or Output250KSNPs.py + ConvertBjarniSNPFormat2Yu.py).
 	Input phenotype file format is Strain X phenotype format (Output by OutputPhenotype.py). 
 	
+	It requires a minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test.
+	
 	It will automatically match strains in two files. NO worry for missing/extra data in either input file.
 """
 
@@ -31,6 +33,7 @@ class Kruskal_Wallis:
 							('phenotype_fname', 1, ): [None, 'p', 1, 'phenotype file', ],\
 							('minus_log_pvalue', 0, ): [0, 'e', 0, 'toggle -log(pvalue)', ],\
 							('which_phenotype', 1, int): [0, 'w', 1, 'which phenotype, 0=first phenotype (3rd column in phenotype_fname) and so on.',],\
+							('min_data_point', 1, int): [3, 'm', 1, 'minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -151,7 +154,7 @@ class Kruskal_Wallis:
 		data_matrix_phen = numpy.array(data_matrix_phen)
 		#2008-05-21 take the 1st phenotype
 		phenotype_ls = self.get_phenotype_ls_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen[:, self.which_phenotype], data_type=float)
-		kw_results = self._kruskal_wallis(data_matrix, phenotype_ls)
+		kw_results = self._kruskal_wallis(data_matrix, phenotype_ls, self.min_data_point)
 		self.output_kw_results(kw_results, header[2:], self.output_fname, self.minus_log_pvalue)
 
 if __name__ == '__main__':
