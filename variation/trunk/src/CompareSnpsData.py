@@ -152,10 +152,15 @@ def findIdentities(snpsds1,snpsds2,withArrayIds=0):
 		for acc1 in range(0,len(accessions1)):
 			l = zip(errCounts[acc1],counts[acc1],accessions2)
 			l.sort()
-			if accessions1[acc1]!=l[0][2]:
+			if accessions1[acc1]!=l[0][2] or arrayIds[acc1]==69:
 				st = str(l[0])
-				for i in range(1,min(6,len(l))):
-					st += ", "+str(l[i])
+				i = 0
+				j = 0
+				while i<6 and j<len(l):
+					if l[j][1]>10:
+						st += ", "+str(l[i])
+						i += 1
+					j += 1
 				print "Ecotype =",accessions1[acc1],', Array ID =',arrayIds[acc1],": ",st
 	else:
 		for acc1 in range(0,len(accessions1)):

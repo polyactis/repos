@@ -8,7 +8,7 @@ Option:
         -u ..., --outputPhenotFile=...  Phenotype output file
 	-d ..., --delim=...             default is \", \"      
         -m ..., --missingval=...        default is \"NA\"
-	-a ..., --withArrayId=...       0 for no array ID info (default), 1 if input file has array ID info.
+	-a ..., --withArrayId=...       1 for array ID info (default), 0 if input file has no array ID info.
 	-f ..., --phenotypeFile=...     File with phenotypes (deliminator separated format)
         -p ..., --phenotype=...         Phenotype index
         --phenotypeName=...             Phenotype name
@@ -32,7 +32,7 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["outputSNPsFile=","outputPhenotFile=", "monomorphic", "rawDataFormat", "delim=", "missingval=", "withArrayId=", "phenotype=", "phenotypeFile=", "phenotypeName=", "calcKinshipMatrix=", "orderAccessions", "help"]
+	long_options_list = ["outputSNPsFile=","outputPhenotFile=", "filterMonomorphic", "rawDataFormat", "delim=", "missingval=", "withArrayId=", "phenotype=", "phenotypeFile=", "phenotypeName=", "calcKinshipMatrix=", "orderAccessions", "help"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:u:d:m:a:f:p:h", long_options_list)
 
@@ -54,7 +54,7 @@ def _run_():
 	rawDataFormat = False
 	monomorphic = False
 	help = 0
-	withArrayIds = 0
+	withArrayIds = 1
 	orderAccessions = False
 	
 	for opt, arg in opts:
@@ -67,7 +67,7 @@ def _run_():
 			phenotypeFile = arg
                 elif opt in ("calcKinshipMatrix"):
                         kinshipMatrixFile = arg
-		elif opt in ("--monomorphic"):
+		elif opt in ("--filterMonomorphic"):
 			monomorphic = True
 		elif opt in ("--rawDataFormat"):
 			rawDataFormat = True

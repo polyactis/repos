@@ -12,6 +12,11 @@ class PhenotypeData:
         self.phenotypeNames = phenotypeNames
         self.phenotypeValues=phenotypeValues
 
+    def logTransform(phenotypeIndex):
+        import math
+        for i in range(0,len(self.accessions)):
+            self.phenotypeValues[i][phenotypeIndex] = math.log(self.phenotypeValues[i][phenotypeIndex])
+
     def orderAccessions(self, accessionMapping=None):
         """
         Orders the accession alphabetically if no mapping is given.

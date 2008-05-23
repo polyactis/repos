@@ -5,21 +5,22 @@ Usage: FilterAccessions.py [OPTIONS] -o OUTPUT_FILE INPUT_FILE
 Option:
 
 	-o ...,	output file
-	-d ..., --delim=...		 default is \", \"	  
-	-m ..., --missingval=...	default is \"NA\"
-	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info, 2 if comparison file also, 3 if only comparison file.
-	--maxError=...			  maximum allowed error percentage (requires a comparison file).
-	--comparisonFile=...		a file which is used to claculate the SNPs error.
-	--maxMissing=...			maximum allowed missing percentage.
-	--removeEcotypeId=...	   removes all accessions with the given ecotype ID. 
-	--removeArrayId=...		 removes an accessions with the given array ID. 
-	--removeIdentical		   removes redundant accessions picking the one with the least error (requires a comparison 
-							file).
-	--onlyCommon				removes all accessions which are not both in the input file and the comparison file,
-						(requires a comparison file).
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
+	-d ..., --delim=...	    default is \", \"	  
+	-m ..., --missingval=...    default is \"NA\"
+	-a ..., --withArrayId=...   1 for array ID info (default), 0 if file has array no ID info, 2 if comparison file also, 3 if only comparison file.
+	--maxError=...		    maximum allowed error percentage (requires a comparison file).
+	--comparisonFile=...	    a file which is used to claculate the SNPs error.
+	--maxMissing=...	    maximum allowed missing percentage.
+	--removeEcotypeId=...	    removes all accessions with the given ecotype ID. 
+	--removeArrayId=...	    removes an accessions with the given array ID. 
+	--removeIdentical	    removes redundant accessions picking the one with the least error (requires a comparison 
+				    file).
+	--onlyCommon		    removes all accessions which are not both in the input file and the comparison file,
+				    (requires a comparison file).
+
+        --first96                   Outputs only the first (old) 96 accessions.
+	-b, --debug	            enable debug
+	-h, --help                  show this help
 
 Examples:
 	FilterAccessions.py --maxMissing=0.5 -o /tmp/2010_filtered.csv 2010.csv
@@ -38,9 +39,9 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "removeEcotypeId=", "removeArrayId=", "removeIdentical", "onlyCommon", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
+	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "removeEcotypeId=", "removeArrayId=", "first96", "removeIdentical", "onlyCommon", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:bh", long_options_list)
 
 	except:
 		traceback.print_exc()
@@ -63,8 +64,8 @@ def _run_():
 	debug = None
 	report = None
 	help = 0
-	withArrayIds = 0
-
+	withArrayIds = 1
+	first96 = False
 	
 	for opt, arg in opts:
 		if opt in ('-o'):
@@ -88,6 +89,8 @@ def _run_():
 			removeIdentical = True
 		elif opt in ("--onlyCommon"):
 			onlyCommon = True
+		elif opt in ("--first96"):
+			first96 = True
 		elif opt in ("-d","--delim"):
 			delim = arg
 		elif opt in ("-m","--missingval"):
@@ -118,6 +121,32 @@ def _run_():
 	
 	accessionsToRemove = []
 	arraysToRemove = None
+
+	if first96:
+		import dataParsers
+		d = dataParsers.getEcotypeToAccessionDictionary(defaultValue='-1',user="bvilhjal",passwd="bamboo123")
+		ecotd = dataParsers.getEcotypeToNameDictionary(defaultValue='-1',user="bvilhjal",passwd="bamboo123")
+		print "Dictionaries loaded"
+		names = []
+		first96Names = []
+		for i in range(0,len(snpsds[0].accessions)):
+			ecotype = snpsds[0].accessions[i]
+			arrayID = snpsds[0].arrayIds[i]
+			names.append((arrayID,ecotd[ecotype],ecotype))
+			if int(d[ecotype][0]) > 97 or int(d[ecotype][0]) < 0:
+				accessionsToRemove.append(ecotype)
+			else:
+				first96Names.append((arrayID,d[ecotype][1],d[ecotype][0],ecotype))
+
+		first96Names.sort()
+		print "First 96 accessions, len:",len(first96Names),":"
+		for name in first96Names:
+			print name
+		names.sort()
+		print "All accessions:"
+		for name in names:
+			print name
+
 
 	#Retrieve comparison list of accessions.  (Error rates for accessions)
 	if (removeIdentical or maxError<1.0) and comparisonFile:

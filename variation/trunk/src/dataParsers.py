@@ -22,7 +22,11 @@ resultsdir = ""
 #accessionName2EcotypeId = {'NFA-8': '8346', 'Ei2': '8289', 'Pu27': '8362', 'Ms-0': '8340', 'Mt-0': '8341', 'Ull25': '8397', 'HR-10': '8308', 'Nfa10': '8345', 'Fei0': '8294', 'Ws0': '8405', 'Omo2_3': '8350', 'Est1B': '8291', 'Lp26': '8333', 'Var26': '8402', 'Zdr-1': '8409', 'Lp22': '8332', 'Ms_0': '8340', 'Tsu-1': '8394', 'Knox-18': '8318', 'HR5': '8309', 'Spr1-6': '8383', 'Knox-10': '8317', 'Spr1-2': '8382', 'Nok-3': '8347', 'Ra0': '8364', 'LP26': '8333', 'Bay0B': '8260', 'LP22': '8332', 'Mt0': '8341', 'Eden-2': '8287', 'Uod-1': '8398', 'LY1': '8279', 'FeiOB': '8294', 'LY3': '8324', 'Mrk0': '8339', 'C24B': '8273', 'C24A': '8273', 'Pro-0': '8360', 'Ra-0': '8364', 'Kin-0': '8316', 'Ts1A': '8392', 'Ts1B': '8394', 'Gu-0': '8301', 'LOV5A': '6046', 'Knox10': '8317', 'Mz-0': '8342', 'Ts5': '8393', 'Knox18': '8318', 'Sq_1': '8384', 'Ler1': '8324', 'Lz0': '8336', 'Ts1': '8392', 'Wa_1': '8403', 'Spr16': '8383', 'Fei-0': '8294', 'Nok_3': '8347', 'Bur-0': '8272', 'Spr1_6': '8383', 'Bur0': '8272', 'Gy0': '8302', 'Rrs10B': '8372', 'HR10': '8308', 'Tsu1': '8394', 'Ws_2': '8406', 'Ull2-3': '8396', 'Omo2-3': '8350', 'Omo2-1': '8349', 'Rmx-A180': '8371', 'Kondara': '8319', 'NFA10': '8345', 'Bil7': '8263', 'Tamm-2': '8390', 'Bil5': '8262', 'Kin0': '8316', 'CS22491': '8429', 'Nd1': '8344', 'Ga0': '8295', 'Cibc5': '8277', 'Ren11': '8368', 'Zdr-6': '8410', 'Bor4': '8268', 'Ren-11': '8368', 'Bor1': '5837', 'Var21': '8401', 'Est1': '8291', 'Lov_1': '6043', 'CIBC-17': '8276', 'Pu2-23': '8361', 'An-1': '8253', 'Zdr_1': '8409', 'Kas1': '8315', 'LL0': '8328', 'Ren-1': '8367', 'Ler-1': '8324', 'RRS10': '8372', 'Var2_6': '8402', 'Sq-8': '8385', 'Zdr6': '8410', 'EST1A': '8291', 'Rrs7B': '8373', 'Got-7': '8299', 'BroA': '8269', 'Uod_1': '8398', 'Tamm_27': '8391', 'Kz1': '8320', 'Wt5': '8407', 'Zdr1': '8409', 'Tamm-27': '8391', 'Kz9': '8322', 'RmxA02': '8370', 'Got7A': '8299', 'Ts_5': '8393', 'Eden2': '8287', 'Eden1': '6009', 'Pna10': '8358', 'Pu2-7': '8362', 'Tamm27': '8391', 'Mr-0': '8338', 'Ei-2': '8289', 'Mrk-0': '8339', 'Uod1': '8398', 'Pu2_7': '8362', 'CIBC17': '8276', 'Uod7': '8399', 'Lz-0': '8336', 'Gu0': '8301', 'Kz_9': '8322', 'Bil-7': '8263', 'Bil-5': '8262', 'Lp2-2': '8332', 'Fab-2': '8292', 'Fab-4': '8293', 'Se0': '8379', 'Sq-1': '8384', 'Oy-0': '8352', 'LL-0': '8328', 'Col0': '8279', 'Lov1': '6043', 'ShaA': '8248', 'Lov5': '6046', 'An1': '8253', 'Var2-1': '8401', 'Var2-6': '8402', 'CIBC5': '8277', 'Pna_17': '8359', 'Fab4': '8293', 'Got22': '8298', 'Wa-1': '8403', 'Fab2': '8292', 'Lov-5': '6046', 'Edi0': '8288', 'Lov-1': '6043', 'CS2249': '8429', 'RRS7': '8373', 'Ms0': '8340', 'Col-0': '8279', 'Gy-0': '8302', 'BUR0A': '8272', 'El2': '8289', 'Nok3': '8347', 'Wa1': '8403', 'Nd-1': '8344', 'Got-22': '8298', 'Br-0': '8269', 'HR-5': '8309', 'Cibc17': '8276', 'Ull2-5': '8397', 'Se0_2': '8379', 'Est-1': '8291', 'Tamm2B': '8390', 'Se-0': '8379', 'Pu223': '8361', 'Ct-1': '8280', 'Got7': '8299', 'Tamm2': '8390', 'Shahdara': '8248', 'Kas-2': '8315', 'Ct1': '8280', 'Cvi-0': '8281', 'Spr12': '8382', 'Omo21': '8349', 'Bor4B': '8268', 'Omo23': '8350', 'Mr0': '8338', 'Uod-7': '8399', 'Kno10': '8317', 'RmxA180': '8371', 'Bor-4': '8268', 'Bor-1': '5837', 'Kno18': '8318', 'Pna-10': '8358', 'Spr1_2': '8382', 'CviOA': '8281', 'Pna-17': '8359', 'C24': '8273', 'Ts-5': '8393', 'Nafa8B': '8346', 'Pna_10': '8358', 'Pna17': '8359', 'Bay-0': '8260', 'Br0': '8269', 'Ren1': '8367', 'NFA8': '8346', 'RRS-10': '8372', 'Eden-1': '6009', 'Yo-0': '8408', 'Ag0': '8251', 'Ren_11': '8368', 'Ts-1': '8392', 'Kz-1': '8320', 'RRS-7': '8373', 'Wt-5': '8407', 'Ws-2': '8406', 'Cvi0': '8281', 'Kz-9': '8322', 'Edi-0': '8288', 'Wei0': '8404', 'Wei-0': '8404', 'Oy0': '8352', 'Bay0': '8260', 'CIBC-5': '8277', 'Lov5B': '6046', 'Ws-0': '8405', 'Pro0': '8360', 'Van-0': '8400', 'Rmx-A02': '8370', 'Yo0': '8408', 'Van0': '8400', 'Ler1A': '8324', 'Sq8': '8385', 'Mz0': '8342', 'Lp2-6': '8333', 'Ull23': '8396', 'Ws2': '8406', 'Sq1': '8384', 'Ga-0': '8295', 'Tsu1B': '8394', 'BurOB': '8272', 'Kas2': '8315', 'NFA-10': '8345', 'Ag-0': '8251', 'VanOA': '8400', 'Sorbo': '8381'}
 
 
-def getEcotypeToAccessionDictionary(useAccessionID=False):
+def getEcotypeToAccessionDictionary(host="papaya.usc.edu", user=None, passwd=None, defaultValue=None):
+    class _ecotypeDict_(dict):
+        def __missing__(self, key):
+            return (defaultValue,defaultValue)
+
     import MySQLdb
     print "Connecting to db, host="+host
     if not user:
@@ -33,30 +37,58 @@ def getEcotypeToAccessionDictionary(useAccessionID=False):
         import getpass
         passwd = getpass.getpass()
     try:
-        conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = db)
+        conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "at")
     except MySQLdb.Error, e:
         print "Error %d: %s" % (e.args[0], e.args[1])
         sys.exit (1)
     cursor = conn.cursor ()
     #Retrieve the filenames
     print "Fetching data"
-    numRows = int(cursor.execute("select distinct ei.id, e2a.accession_id, ei.name from stock.ecotype ei, at.ecotype2accession_all e2a where e2a.accession_name=ei.nativename"))
+    numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, e2a.accession_id, ei.nativename from stock.ecotypeid2tg_ecotypeid ei, at.accession2tg_ecotypeid e2a where e2a.tg_ecotypeid=ei.tg_ecotypeid"))
     
-    dict = {}
+    ecotDict = _ecotypeDict_()
     while(1):
         row = cursor.fetchone()
         if not row:
             break;
         ecotypeID = str(int(row[0]))
-        
-        if useAccessionID:
-            accession = str(int(row[1]))
-        else:
-            accession = str(row[1])
-        dict[ecotypeID]=accession
-    return dict
+        ecotDict[ecotypeID]=(str(int(row[1])),str(row[2]))
+    return ecotDict
 
+def getEcotypeToNameDictionary(host="papaya.usc.edu", user=None, passwd=None, defaultValue=None):
+    class _ecotypeDict_(dict):
+        def __missing__(self, key):
+            return defaultValue
+
+    import MySQLdb
+    print "Connecting to db, host="+host
+    if not user:
+        import sys
+        sys.stdout.write("Username: ")
+        user = sys.stdin.readline().rstrip()
+    if not passwd:
+        import getpass
+        passwd = getpass.getpass()
+    try:
+        conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "at")
+    except MySQLdb.Error, e:
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        sys.exit (1)
+    cursor = conn.cursor ()
+    #Retrieve the filenames
+    print "Fetching data"
+    numRows = int(cursor.execute("select distinct ei.id, ei.nativename from stock.ecotype ei order by ei.name"))
     
+    ecotDict = _ecotypeDict_()
+    while(1):
+        row = cursor.fetchone()
+        if not row:
+            break;
+        ecotypeID = str(int(row[0]))
+        ecotDict[ecotypeID]=str(row[1])
+    return ecotDict
+
+     
 
 def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stock_250k", withArrayIds=False, methodId=1, user = None, passwd = None, callProb=False): 
     import MySQLdb
