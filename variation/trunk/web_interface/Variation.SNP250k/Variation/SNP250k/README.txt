@@ -163,3 +163,9 @@ Create a phenotype in variation3 folder.
     >>> browser.getControl(name='form.actions.save').click()
     >>> 'first-qc' in variation3.objectIds()
     True
+
+2008-05-23 test results2db_250k
+
+	>>> browser.open(variation3_url)
+	>>> browser.getLink('Results2DB_250k')
+	>>> browser.title

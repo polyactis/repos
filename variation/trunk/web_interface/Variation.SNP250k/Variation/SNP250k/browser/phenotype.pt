@@ -43,10 +43,10 @@
                 </tr>
             </thead>
             <tbody>
-                <tr tal:repeat="method_description context/method_description_ls">
-                	<td> <span tal:content="context/method_id_ls" /> </td>
-                    <td> <tal:block repeat="short_name context/short_name_ls"> <span tal:content="short_name" /> </tal:block> </td>
-                	<td tal:content="method_description" />
+                <tr tal:repeat="phenotype_obj context/phenotype_obj_ls">
+                	<td> <span tal:content="phenotype_obj/id" /> </td>
+                    <td> <span tal:content="phenotype_obj/short_name" /> </td>
+                	<td tal:content="phenotype_obj/method_description" />
                 </tr>
             </tbody>
         </table>

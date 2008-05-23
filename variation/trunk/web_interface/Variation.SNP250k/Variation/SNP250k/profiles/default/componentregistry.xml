@@ -1,12 +1,18 @@
 <?xml version="1.0"?>
 <!-- Register the local database settings utility. This is modified via
      a control panel page in browser/dbsettings.py.
+     The IStockDatabaseSettings utility must be setup when the product is installed. This can be done with a GenericSetup import step, here.
+     Registration of these two utilities in other two configure.zcml's don't help.
   -->
 <componentregistry>
  <utilities>  
   <utility
      interface="Variation.SNP250k.interfaces.IStockDatabaseSettings"
      factory="Variation.SNP250k.db.StockDatabaseSettings"
+     />
+  <utility
+     interface="Variation.SNP250k.interfaces.IResults2DB_250k"
+     factory="Variation.SNP250k.browser.results2db_250k.Results2DB_250kFormContent"
      />
  </utilities>
 </componentregistry>

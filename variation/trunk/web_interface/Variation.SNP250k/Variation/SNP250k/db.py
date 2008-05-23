@@ -9,8 +9,9 @@ from Variation.SNP250k.interfaces import IStockDatabaseSettings
 from sqlalchemy.engine.url import URL
 from sqlalchemy import Table, mapper, relation
 
-from Variation.SNP250k.dbphenotype import PhenotypeAvg, PhenotypeMethod, QCMethod
+#from Variation.SNP250k.dbphenotype import PhenotypeAvg, PhenotypeMethod, QCMethod
 #from optilux.cinemacontent.reservation import Results
+from variation.src.db import Stock_250kDatabase
 
 class StockDatabaseSettings(Persistent):
 	"""Database connection settings
@@ -45,16 +46,21 @@ class StockDatabase(Database):
 	def _setup_tables(self, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
 		"""
-			
+		Stock_250kDatabase._setup_tables(metadata, tables)
+		"""
+		#2008-05-21
 		tables['phenotype_avg'] = Table('phenotype_avg', metadata, autoload=True)
 		tables['phenotype_method'] = Table('phenotype_method', metadata, autoload=True)
 		tables['QC_method'] = Table('QC_method', metadata, autoload=True)
 		#tables['reservation'] = Table('reservation', metadata, autoload=True)
+		"""
 	
 	def _setup_mappers(self, tables, mappers):
 		"""Map the database Tables to SQLAlchemy Mapper objects
 		"""
-		
+		Stock_250kDatabase._setup_mappers(tables, mappers)
+		"""
+		#2008-05-21
 		mappers['phenotype_method'] = mapper(PhenotypeMethod, tables['phenotype_method'])
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
 										properties={'phenotype_method': relation(PhenotypeMethod),})
@@ -63,4 +69,4 @@ class StockDatabase(Database):
 		#							   properties = {
 		#									'screening' : relation(Screening),
 		#									})
-		
+		"""

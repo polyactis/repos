@@ -85,8 +85,7 @@ class Phenotype(atapi.BaseContent):
 	description = fieldproperty.FieldProperty(IPhenotype['description'])
 	
 	method_id_ls = fieldproperty.FieldProperty(IPhenotype['method_id_ls'])
-	short_name_ls = fieldproperty.FieldProperty(IPhenotype['short_name_ls'])
-	method_description_ls = fieldproperty.FieldProperty(IPhenotype['method_description_ls'])
+	phenotype_obj_ls = fieldproperty.FieldProperty(IPhenotype['phenotype_obj_ls'])
 	data_matrix = fieldproperty.FieldProperty(IPhenotype['data_matrix'])
 	
 	#def listMethodIDShortName(self):

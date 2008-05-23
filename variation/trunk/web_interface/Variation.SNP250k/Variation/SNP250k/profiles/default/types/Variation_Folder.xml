@@ -21,7 +21,8 @@
      <element value="Folder" />
      <element value="Image" />
      <element value="Link" />
-	 	<element value="QCOnDirectory"/>
+	 <element value="QCOnDirectory"/>
+	 <element value="VariationFolder"/>
  </property>
  <property name="allow_discussion">False</property>
  <property name="default_view">folder_summary_view</property>
@@ -45,6 +46,10 @@
  </action>
  <action title="DBSetting" action_id="dbsettings" category="object" condition_expr=""
     url_expr="string:${object_url}/@@stock-database-settings-form" visible="True">
+  <permission value="Modify portal content"/>
+ </action>
+ <action title="Results2DB_250k" action_id="results2db_250k" category="object" condition_expr=""
+    url_expr="string:${object_url}/@@results2db_250k-form" visible="True">
   <permission value="Modify portal content"/>
  </action>
 </object>

@@ -35,9 +35,10 @@ class StockDatabaseSettingsForm(FieldsetsEditForm):
 	description = _(u"Please enter the appropriate connection settings for the database")
 	
 	# This trick hides the editable border and tabs in Plone
-	def __call__(self):
-		self.request.set('disable_border', True)
-		return super(StockDatabaseSettingsForm, self).__call__()
+	#def __call__(self):
+	#	#2008-05-22 stop hiding the borders and tabs
+	#	self.request.set('disable_border', True)
+	#	return super(StockDatabaseSettingsForm, self).__call__()
 	
 	@form.action(_(u'label_save', default=u'Save'), name=u'save')
 	def handle_edit_action(self, action, data):

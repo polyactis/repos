@@ -10,7 +10,8 @@ from zope.formlib import form
 from zope.schema import vocabulary
 import zope
 #from zope.app.form import browser
-
+from zope.app.form.browser import MultiSelectWidget
+from zope.app.form import CustomWidgetFactory
 
 from Acquisition import aq_inner, aq_parent
 
@@ -53,15 +54,20 @@ class PhenotypeView(BrowserView):
 		context = aq_inner(self.context)
 		ls_to_return = [short_name for short_name in context.short_name_ls]
 		return ls_to_return
-		
+
+class MyMultiSelectWidget(MultiSelectWidget):
+	def __init__(self, field, request):
+		super(MyMultiSelectWidget, self).__init__(
+			field, field.value_type.vocabulary, request)
 
 class EditPhenotypeForm(formbase.EditForm):
-	form_fields = form.FormFields(IPhenotype).omit('short_name_ls', 'method_description_ls', 'data_matrix')
+	form_fields = form.FormFields(IPhenotype).omit('phenotype_obj_ls', 'data_matrix')
 	#result_template = pagetemplatefile.ZopeTwoPageTemplateFile('search-results.pt')
 		
 		# a hack to make the content tab work
 		#self.template.getId = lambda: 'edit'
-
+	form_fields['method_id_ls'].custom_widget = MyMultiSelectWidget
+	#method_id_ls_widget = CustomWidgetFactory(MyMultiSelectWidget)	
 	@form.action(_(u"Save"), name='save')
 	def action_save(self, action, data):
 		"""
@@ -107,7 +113,7 @@ class EditPhenotypeForm(formbase.EditForm):
 				new_context.setId(str(newId))
 			
 			locator = getUtility(IPhenotypeLocator)
-			new_context.short_name_ls, new_context.method_description_ls = locator.get_short_name_description_ls(new_context.method_id_ls)
+			new_context.phenotype_obj_ls = locator.get_phenotype_obj_ls(new_context.method_id_ls)
 			
 			zope.event.notify(
 				ObjectModifiedEvent(new_context)
@@ -136,38 +142,6 @@ class EditPhenotypeForm(formbase.EditForm):
 			self.request.response.redirect(context.absolute_url())
 			
 			#self.status = _('No changes')
-
-	"""
-	def update(self):
-		if form.applyChanges(
-			self.context, self.form_fields, data, self.adapters):
-			method_id_ls = data['method_id_ls']
-			#method_id = method_id_short_name.split(' ')[0]
-			#method_id = int(method_id)
-			context = aq_inner(self.context)
-			newId = data['title'].replace(' ','-')
-			newId = id.replace('/', '-')
-			#newId = context.generateNewId()
-			context.invokeFactory(newId, type_name='Phenotype')
-			new_context = getattr(context, newId)
-			
-			#phenotype.generateNewId()
-			#new_context = context.portal_factory.doCreate(context, id)
-			locator = getUtility(IPhenotypeLocator)
-			new_context.short_name_ls, new_context.method_description_ls = locator.get_short_name_description_ls(method_id_ls)
-			
-			zope.event.notify(
-				zope.app.event.objectevent.ObjectModifiedEvent(self.context)
-				)
-			# TODO: Needs locale support. See also Five.form.EditView.
-			self.status = _(
-				"Updated on ${date_time}", 
-				mapping={'date_time': str(datetime.utcnow())}
-				)
-			
-		else:
-			self.status = _('No changes')
-	"""
 	
 	@form.action(_(u"Cancel"), name='cancel')
 	def action_cancel(self, action, data):
@@ -194,9 +168,9 @@ def fill_phenotype_content(obj, event):
 	#obj.short_name_ls, obj.method_description_ls = locator.get_short_name_description_ls(obj.method_id_ls)
 
 class AddPhenotypeForm(formbase.AddForm):
-	form_fields = form.FormFields(IPhenotype).omit('short_name_ls', 'method_description_ls', 'data_matrix')
+	form_fields = form.FormFields(IPhenotype).omit('phenotype_obj_ls', 'data_matrix')
 	
-	
+	form_fields['method_id_ls'].custom_widget = MyMultiSelectWidget
 	@form.action(_("Save"), name='save', condition=form.haveInputWidgets)
 	def handle_add(self, action, data):
 		if form.applyChanges(
@@ -220,7 +194,7 @@ class AddPhenotypeForm(formbase.AddForm):
 			#phenotype.generateNewId()
 			#new_context = context.portal_factory.doCreate(context, id)
 			locator = getUtility(IPhenotypeLocator)
-			new_context.short_name_ls, new_context.method_description_ls = locator.get_short_name_description_ls(method_id_ls)
+			new_context.phenotype_obj_ls = locator.get_phenotype_obj_ls(new_context.method_id_ls)
 			zope.event.notify(ObjectCreatedEvent(obj))
 			self._finished_add = True	#a flag to decide whether the object is added or not
 			return obj	#AddForm.render() will handle the redirect

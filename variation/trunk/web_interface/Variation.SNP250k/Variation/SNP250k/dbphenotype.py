@@ -2,7 +2,7 @@ from zope.interface import implements
 from zope.component import getUtility
 
 from Variation.SNP250k.interfaces import IPhenotypeMethod, IPhenotypeAvg,  IQCMethod
-from Variation.SNP250k.interfaces import IPhenotypeLocator
+from Variation.SNP250k.interfaces import IPhenotypeLocator, PassingData
 #from optilux.cinemacontent.interfaces import ITicketReservations
 #from optilux.cinemacontent.interfaces import ReservationError
 
@@ -11,10 +11,10 @@ from Variation.SNP250k.interfaces import IPhenotypeLocator
 
 import sqlalchemy as sql
 from collective.lead.interfaces import IDatabase
-
+from variation.src.db import QCMethod, PhenotypeMethod, PhenotypeAvg
+"""
 class PhenotypeMethod(object):
-	"""PhenotypeMethod for ORM mapping
-	"""
+	#PhenotypeMethod for ORM mapping
 	
 	implements(IPhenotypeMethod)
 	
@@ -38,8 +38,7 @@ class PhenotypeMethod(object):
 		self.date_updated = date_updated
 
 class PhenotypeAvg(object):
-	"""PhenotypeAvg for ORM mapping
-	"""
+	#PhenotypeAvg for ORM mapping
 	
 	implements(IPhenotypeAvg)
 	ecotype_id = None
@@ -56,8 +55,7 @@ class PhenotypeAvg(object):
 		self.method_id = method_id
 
 class QCMethod(object):
-	"""QCMethod for ORM mapping
-	"""
+	#QCMethod for ORM mapping
 	
 	implements(IQCMethod)
 	
@@ -79,6 +77,7 @@ class QCMethod(object):
 		self.updated_by = updated_by
 		self.date_created = date_created
 		self.date_updated = date_updated
+"""
 
 #class TicketReservations(object):
 #	"""Make reservations in the reservations database
@@ -128,11 +127,11 @@ class PhenotypeLocator(object):
 		db = getUtility(IDatabase, name='variation.stockdatabase')
 		connection = db.connection
 				
-		statement = sql.select([PhenotypeMethod.c.id, PhenotypeMethod.c.short_name],
-							   distinct=True)
+		#statement = sql.select([PhenotypeMethod.c.id, PhenotypeMethod.c.short_name],
+		#					   distinct=True)
 		
-		results = connection.execute(statement).fetchall()
-		
+		#results = connection.execute(statement).fetchall()
+		results = db.session.query(PhenotypeMethod)
 		# Now use the catalog to find films for the returned film codes
 		#film_codes = [row['film_code'] for row in results]
 		
@@ -156,7 +155,7 @@ class PhenotypeLocator(object):
 							sort_on='sortable_title')
 			   ]
 		"""
-		vocabulary = [('%s %s'%(row[0], row[1]), row[0]) for row in results]	#(token, value)
+		vocabulary = [('%s %s'%(row.id, row.short_name), row.id) for row in results]	#(token, value)
 		return vocabulary
 
 	def get_QC_method_id_ls(self):
@@ -169,40 +168,50 @@ class PhenotypeLocator(object):
 		
 		db = getUtility(IDatabase, name='variation.stockdatabase')
 		connection = db.connection
-				
-		statement = sql.select([QCMethod.c.id, QCMethod.c.short_name],
-							   distinct=True, order_by=[QCMethod.c.id])
+		
+		qcm_table = db.tables['qc_method'].alias()
+		statement = sql.select([qcm_table.c.id, qcm_table.c.short_name],
+							   distinct=True, order_by=[qcm_table.c.id])
 		
 		results = connection.execute(statement).fetchall()
-		vocabulary = [('%s %s'%(row[0], row[1]), row[0]) for row in results]	#(token, value)
+		vocabulary = [('%s %s'%(row.id, row.short_name), row.id) for row in results]	#(token, value)
 		return vocabulary
 	
-	def get_short_name_description_ls(self, method_id_ls):
+	def get_phenotype_obj_ls(self, method_id_ls):
 		"""
+		2008-05-23 return phenotype_obj_ls
 		2008-04-18
 			method_id_ls is only one long integer (not a list, zope.schema.Choice)
 		2008-03-28
 		"""
-		short_name_ls = []
-		method_description_ls = []
+		#short_name_ls = []
+		#method_description_ls = []
 		db = getUtility(IDatabase, name='variation.stockdatabase')
 		connection = db.connection
 		session = db.session
-		if type(method_id_ls)!=list:
-			method_id_ls = [method_id_ls]
+		#if type(method_id_ls)!=list:
+		#	method_id_ls = [method_id_ls]
 		method_id_ls.sort()
+		pm_table = db.tables['phenotype_method'].alias()
+		phenotype_obj_ls = []
 		for method_id in method_id_ls:
 			#phenotype_method = session.query(PhenotypeMethod).get(method_id)
-			statement = sql.select([PhenotypeMethod.c.short_name, PhenotypeMethod.c.method_description],
+			statement = sql.select([pm_table.c.id, pm_table.c.short_name, pm_table.c.method_description],
 							   sql.and_(
-									PhenotypeMethod.c.id == method_id),
+									pm_table.c.id == method_id),
 							   distinct=True)
 			results = connection.execute(statement).fetchall()
 			#cinema_codes = [row['cinema_code'] for row in results]
-			short_name_ls += [row['short_name'] for row in results]
-			method_description_ls += [row['method_description'] for row in results]
+			for row in results:
+				pdata = PassingData()
+				pdata.id = row.id
+				pdata.short_name = row.short_name
+				pdata.method_description = row.method_description
+				phenotype_obj_ls.append(pdata)
+			#short_name_ls += [row['short_name'] for row in results]
+			#method_description_ls += [row['method_description'] for row in results]
 		
-		return short_name_ls, method_description_ls
+		return phenotype_obj_ls
 	
 	"""
 	def cinemas_for_film(self, film, from_date, to_date):

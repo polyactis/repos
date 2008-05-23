@@ -4,6 +4,9 @@ from zope.app.container.constraints import contains
 from zope import schema
 from Variation.SNP250k import VariationMessageFactory as _
 
+class PassingData(object):
+	pass
+
 class IPhenotypeMethod(Interface):
 	"""
 	PhenotypeMethod Interface
@@ -68,22 +71,18 @@ class IPhenotype(Interface):
 	description = schema.SourceText(title=u"Description", 
 								  description=u"A short summary for this phenotype checking out.",
 								  required=False)
-	
-	method_id_ls = schema.Choice(title=u'Method ID',
-						 description=u'Phentoype Method ID in phenotype_method',
-						 required=True, vocabulary="Variation.SNP250k.MethodIDVocabulary")
+	#method_id_ls = schema.Choice only picks up simple one-selection widget
+	#MultiSelectWidget requires a schema.Choice embedded in a schema.List http://wiki.zope.org/zope3/FAQ2007#how-can-i-use-multiselectwidget-with-formlib
+	method_id_ls = schema.List(title=u'Method ID list', required=True,  description=u'Phentoype Method ID in phenotype_method',\
+							value_type=schema.Choice(__name__='method_id', title=u'Method ID Choice', vocabulary="Variation.SNP250k.MethodIDVocabulary"))
 	
 	#method_id_short_name = schema.TextLine(title=u'Method ID Short Name',
 	#					 description=u'Phentoype Method ID and Short Name',
 	#					 required=True)
 	
-	short_name_ls = schema.List(title=u'Short Name',
-							   description=u"short name for this phenotype",
+	phenotype_obj_ls = schema.List(title=u'phenotype object list',
+							   description=u"list of phenotype objects, each object has attibute id, short_name, method_description",
 							   required=True)
-	
-	method_description_ls = schema.List(title=u"Method Description",
-                             description=u"Descriptive text about this phenotype.")
-	
 	data_matrix = schema.List(title=u"Data Matrix",
                              description=u"Data Matrix. each row is ecotype_id, nativename, value.")
 	"""
@@ -261,18 +260,19 @@ class IResults2DB_250k(Interface):
 	description = schema.TextLine(title=u"Description", 
 								  description=u"A short summary",
 								  required=False)
-	input_fname = schema.TextLine(title=u"Input Filename", 
+	input_fname = schema.Bytes(title=u"Input Filename", 
 								  description=u"File containing Genome-Wide Results",
 								  required=True)
-	phenotype_method_id = schema.Int(title=u'Phenotype Method ID',
+	phenotype_method_id = schema.Choice(title=u'Phenotype Method ID',
 						 description=u'Which Phenotype Used',
-						 required=True)
+						 required=True, vocabulary="Variation.SNP250k.MethodIDVocabulary")
+	
 	short_name = schema.TextLine(title=u'Short Name',
 							   description=u"short name for this result",
 							   required=True)
 	method_description = schema.SourceText(title=u'Method Description',
 							   description=u"Describe your method",
 							   required=True)
-	data_description = schema.TextLine(title=u'Data Description',
+	data_description = schema.SourceText(title=u'Data Description',
 							   description=u"Describe data your data",
 							   required=True)

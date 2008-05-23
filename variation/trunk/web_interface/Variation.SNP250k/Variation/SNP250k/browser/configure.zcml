@@ -80,5 +80,21 @@
         class=".qcondirectory.EditQCOnDirectoryForm"
         permission="cmf.ModifyPortalContent"
         />
-
+    
+	<utility
+		provides="..interfaces.IResults2DB_250k"
+		factory=".results2db_250k.Results2DB_250kFormContent"
+		name="variation.results2db_250k"
+		/>
+	<browser:page
+    	name = "results2db_250k-form"
+    	for= "..interfaces.IVariationFolder"
+    	class=".results2db_250k.Results2DB_250kForm"
+    	permission="cmf.ModifyPortalContent"
+    	/>
+    <adapter
+    	for="..interfaces.IVariationFolder"
+    	provides="..interfaces.IResults2DB_250k"
+    	factory=".results2db_250k.results2db_250k_adapter"
+    	/>
 </configure>
