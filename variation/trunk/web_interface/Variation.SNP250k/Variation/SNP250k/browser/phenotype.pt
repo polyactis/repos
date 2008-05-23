@@ -37,21 +37,16 @@
         <table class="listing" tal:condition="python:1">
             <thead>
                 <tr>
+                	<th i18n:translate="column_label_title">Phenotype Method ID</th>
                     <th i18n:translate="column_label_title">Short Name</th>
                     <th i18n:translate="column_label_title">Method Description</th>
-                    <th i18n:translate="column_label_modified">Modified</th>
                 </tr>
             </thead>
             <tbody>
-                <tr tal:repeat="short_name context/short_name_ls">
-                    <td tal:content="short_name" />
-                    <td tal:content="short_name" />
-                    <td tal:content="short_name" />
-                </tr>
                 <tr tal:repeat="method_description context/method_description_ls">
-                    <td tal:content="method_description" />
-                    <td tal:content="method_description" />
-                    <td tal:content="method_description" />
+                	<td> <span tal:content="context/method_id_ls" /> </td>
+                    <td> <tal:block repeat="short_name context/short_name_ls"> <span tal:content="short_name" /> </tal:block> </td>
+                	<td tal:content="method_description" />
                 </tr>
             </tbody>
         </table>
