@@ -32,7 +32,7 @@ create or replace view complete_2010_strains_in_stock2tg_ecotypeid as select dis
 
 
 --2008-05-18 offering the final linking between accession id and ecotype id. a view linking each accession.id to a stock.ecotypeid2tg_ecotypeid.tg_ecotypeid thru at.ecotype2accession.
-create or replace view accession2tg_ecotypeid as select distinct e1.accession_id, a.name as accession_name, a.origin, a.number, e2.tg_ecotypeid as ecotype_id, e.name, e.nativename, e.stockparent, e1.ecotype_id as intermediate_ecotype_id from ecotype2accession e1, stock.ecotype e, stock.ecotypeid2tg_ecotypeid e2, accession a where e1.accession_id=a.id and e1.ecotype_id=e2.ecotypeid and e2.tg_ecotypeid=e.id order by accession_id;
+create or replace view accession2tg_ecotypeid as select distinct e1.accession_id, a.name as accession_name, a.origin, a.number, e2.tg_ecotypeid, e.name, e.nativename, e.stockparent, e1.ecotype_id as intermediate_ecotype_id from ecotype2accession e1, stock.ecotype e, stock.ecotypeid2tg_ecotypeid e2, accession a where e1.accession_id=a.id and e1.ecotype_id=e2.ecotypeid and e2.tg_ecotypeid=e.id order by accession_id;
 
 /*
 create table readme(
