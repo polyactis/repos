@@ -728,11 +728,15 @@ create table results_method(
 	short_name varchar(30) unique,
 	method_description varchar(8000),
 	data_description varchar(8000),
+	phenotype_method_id integer,
+	call_method_id integer,
 	comment varchar(8000),
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
+	date_updated TIMESTAMP,
+	foreign key (phenotype_method_id) references phenotype_method(id) on delete RESTRICT on update cascade,
+	foreign key (call_method_id) references call_method(id) on delete RESTRICT on update cascade
 	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
@@ -764,10 +768,8 @@ create table if not exists results(
 	chr integer,
 	start_pos integer,
 	stop_pos integer,
-	method_id integer,
-	foreign key (method_id) references results_method(id) on delete cascade on update cascade,
-	phenotype_method_id integer,
-	foreign key (phenotype_method_id) references phenotype_method(id) on delete cascade on update cascade,
+	results_method_id integer,
+	foreign key (results_method_id) references results_method(id) on delete cascade on update cascade,
 	score float
 	)engine=INNODB;
 
