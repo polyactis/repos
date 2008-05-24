@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <!-- Register the local database settings utility. This is modified via
      a control panel page in browser/dbsettings.py.
-     The IStockDatabaseSettings utility must be setup when the product is installed. This can be done with a GenericSetup import step, here.
-     Registration of these two utilities in other two configure.zcml's don't help.
+     2008-05-23 The IStockDatabaseSettings utility must be setup when the product is installed. This can be done with a GenericSetup import step, here.
   -->
+
 <componentregistry>
+ <!-- 2008-5-23  Registration of these two utilities with names in other two configure.zcml's could overwrite these two since the dbsetting page is not in control panel anymore as optilux product.
  <utilities>  
   <utility
      interface="Variation.SNP250k.interfaces.IStockDatabaseSettings"
@@ -15,4 +16,5 @@
      factory="Variation.SNP250k.browser.results2db_250k.Results2DB_250kFormContent"
      />
  </utilities>
+ -->
 </componentregistry>
