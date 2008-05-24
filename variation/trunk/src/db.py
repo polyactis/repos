@@ -81,26 +81,32 @@ class Stock_250kDatabase(Database):
 		self.mappers = {}
 		self._engine = None
 	
-	def _setup_tables(self, metadata, tables):
+	def _setup_tables(cls, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
 		"""
 		table_ls = ['phenotype_avg', 'phenotype_method', 'qc_method', 'results', 'results_method', \
 				'call_qc', 'call_info', 'call_method', 'array_info', 'snps_qc', 'snps', 'probes', 'readme']
 		for table_name in table_ls:
 			tables[table_name] = Table(table_name, metadata, autoload=True)
-		
 	
-	def _setup_mappers(self, tables, mappers):
-		"""Map the database Tables to SQLAlchemy Mapper objects
+	_setup_tables = classmethod(_setup_tables)
+	
+	def _setup_mappers(cls, tables, mappers):
 		"""
-		standalone_table_tuple_ls = [('phenotype_method', PhenotypeMethod), ('qc_method', QCMethod), ('results_method', ResultsMethod), \
+		2008-05-23
+			results_method is connected to call_method and phenotype_method
+		Map the database Tables to SQLAlchemy Mapper objects
+		"""
+		standalone_table_tuple_ls = [('phenotype_method', PhenotypeMethod), ('qc_method', QCMethod), \
 									('call_method', CallMethod), ('array_info', ArrayInfo), ('snps', SNPs), ('readme', README)]
 		for table_name, table_class in standalone_table_tuple_ls:
 			mappers[table_name] = mapper(table_class, tables[table_name])
 		
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
 										properties={'phenotype_method': relation(PhenotypeMethod), 'readme':relation(README)})
-		mappers['results'] = mapper(Results, tables['results'], properties={'results_method': relation(ResultsMethod), 'phenotype_method': relation(PhenotypeMethod)})
+		mappers['results_method'] = mapper(ResultsMethod, tables['results_method'], properties={'call_method': relation(CallMethod),\
+																						'phenotype_method': relation(PhenotypeMethod)})
+		mappers['results'] = mapper(Results, tables['results'], properties={'results_method': relation(ResultsMethod)})
 		mappers['call_qc'] = mapper(CallQC, tables['call_qc'], properties={'call_info': relation(CallInfo, backref='call_QC'),\
 																		'readme':relation(README),\
 																		'QC_method':relation(QCMethod),\
@@ -113,6 +119,7 @@ class Stock_250kDatabase(Database):
 		mappers['snps_qc'] = mapper(SNPsQC, tables['snps_qc'], properties={'snps': relation(SNPs, backref='snps_QC'), 'call_method': relation(CallMethod), \
 																		'readme':relation(README),\
 																		'QC_method':relation(QCMethod, backref='snps_QC')})
+	_setup_mappers = classmethod(_setup_mappers)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
