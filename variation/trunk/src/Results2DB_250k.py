@@ -32,7 +32,9 @@ else:   #32bit
 
 import csv, stat, getopt
 import traceback, gc, subprocess
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod
+from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod
+from pymodule import figureOutDelimiter
+
 """
 2008-04-16 temporarily put here
 	-s ...,	short_name*	give a short name of what you did. try to incorporate method, genotype data and phenotype data
@@ -48,6 +50,8 @@ class Results2DB_250k(object):
 							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							('input_fname',1, ): [None, 'i', 1, 'File containing association results'],\
 							('phenotype_method_id',1,int): [None, 'e', 1, 'which phenotype you used, check table phenotype_method'],\
+							('call_method_id',1,int): [None,],\
+							('comment',0, ): [None, ],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -95,13 +99,26 @@ class Results2DB_250k(object):
 		sys.stderr.write("Done.\n")
 		return rows[0][0]
 	
-	def submit_results(self, session, input_fname, rm, pm):
+	def submit_results(cls, session, input_fname, rm):
 		"""
+		2008-05-24
+			figure out delimiter automatically
+			input_fname could be a file object (from plone)
+			phenotype method doesn't go with results anymore. it goes with results_method
 		2008-04-28
 			changed to use Stock_250kDatabase (SQLAlchemy) to do db submission
 		"""
-		sys.stderr.write("Submitting results from %s ..."%(os.path.basename(input_fname)))
-		reader = csv.reader(open(input_fname), delimiter='\t')
+		if isinstance(input_fname, str):
+			sys.stderr.write("Submitting results from %s ..."%(os.path.basename(input_fname)))
+			delimiter = figureOutDelimiter(input_fname)
+			reader = csv.reader(open(input_fname), delimiter=delimiter)
+		else:	#input_fname is not a file name, but direct file object
+			sys.stderr.write("Submitting results from %s on plone ..."%input_fname.filename)
+			cs = csv.Sniffer()
+			input_fname.seek(0)	#it's already read by plone to put int data['input_fname'], check results2db_250k.py
+			delimiter = cs.sniff(input_fname.read(20)).delimiter
+			input_fname.seek(0)
+			reader = csv.reader(input_fname, delimiter=delimiter)
 		for row in reader:
 			if len(row)==3:
 				chr, start_pos, score = row
@@ -113,13 +130,36 @@ class Results2DB_250k(object):
 				sys.exit(3)
 			r = Results(chr=chr, start_pos=start_pos, stop_pos=stop_pos, score=score)
 			r.results_method = rm
-			r.phenotype_method = pm
 			session.save(r)
 			#curs.execute("insert into %s(chr, start_pos, stop_pos, score, method_id, phenotype_method_id) values (%s, %s, %s, %s, %s, %s)"%\
 			#		(results_table, chr, start_pos, stop_pos, score, results_method_id, phenotype_method_id))
 		del reader
 		sys.stderr.write("Done.\n")
-		
+	
+	submit_results = classmethod(submit_results)
+	
+	def plone_run(cls, db, short_name, phenotype_method_id, call_method_id, data_description, \
+				method_description, comment, input_fname, user, commit=0):
+		"""
+		2008-05-24
+			to conveniently wrap up all codes so that both this program and plone can call
+		"""
+		session = db.session
+		transaction = session.create_transaction()
+		#pm = session.query(PhenotypeMethod).get_by(id=phenotype_method_id)
+		#cm = session.query(CallMethod).get_by(id=call_method_id)
+		rm = ResultsMethod(short_name=short_name, method_description=method_description, \
+						data_description=data_description, comment=comment, phenotype_method_id=phenotype_method_id,\
+						call_method_id=call_method_id, created_by=user)
+		cls.submit_results(session, input_fname, rm)
+		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
+		if commit:
+			#curs.execute("commit")
+			transaction.commit()
+		else:	#default is also rollback(). to demonstrate good programming
+			transaction.rollback()
+	plone_run = classmethod(plone_run)
+	
 	def run(self):
 		"""
 		2008-04-28
@@ -129,35 +169,17 @@ class Results2DB_250k(object):
 		#import MySQLdb
 		#conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		#curs = conn.cursor()
-		
-		db = Stock_250kDatabase(username=self.user,
-				   password=self.passwd, hostname=self.hostname, database=self.dbname)
-		session = db.session
-		transaction = session.create_transaction()
-		pm = session.query(PhenotypeMethod).get_by(id=self.phenotype_method_id)
 		if self.debug:
 			import pdb
 			pdb.set_trace()
-		"""
-		if not self.check_if_phenotype_method_id_in_db(curs, self.phenotype_method_table, self.phenotype_method_id):
-			sys.stderr.write("Error: phenotype_method_id %s doesn't exist in table %s.\n"%(self.phenotype_method_id,self.phenotype_method_table))
-			sys.stderr.exit(2)
-		"""
+		
+		db = Stock_250kDatabase(username=self.user,
+				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		if not self.short_name:
 			sys.stderr.write("Error: short_name unspecified.\n"%(self.short_name))
 			sys.stderr.exit(2)
-		
-		rm = ResultsMethod(short_name=self.short_name, method_description=self.method_description, data_description=self.data_description)
-		
-		#results_method_id = self.submit_results_method(curs, self.results_method_table, self.short_name, self.method_description, self.data_description)
-		self.submit_results(session, self.input_fname, rm, pm)
-		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
-		if self.commit:
-			#curs.execute("commit")
-			transaction.commit()
-		else:	#default is also rollback(). to demonstrate good programming
-			transaction.rollback()
-
+		self.plone_run(db, self.short_name, self.phenotype_method_id, self.call_method_id, self.data_description, \
+				self.method_description, self.comment, self.input_fname, self.user, self.commit)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
