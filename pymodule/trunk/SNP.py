@@ -648,7 +648,7 @@ try:
 except:
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 	try:
-		from QualityControl import QualityControl
+		from variation.src.QualityControl import QualityControl
 	except:
 		QualityControl = object
 if QualityControl!=object:
