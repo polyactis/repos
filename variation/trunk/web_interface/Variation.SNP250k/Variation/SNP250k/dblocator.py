@@ -1,7 +1,7 @@
 from zope.interface import implements
 from zope.component import getUtility
 
-from Variation.SNP250k.interfaces import IPhenotypeMethod, IPhenotypeAvg,  IQCMethod
+#from Variation.SNP250k.interfaces import IPhenotypeMethod, IPhenotypeAvg,  IQCMethod
 from Variation.SNP250k.interfaces import IDBLocator, PassingData
 #from optilux.cinemacontent.interfaces import ITicketReservations
 #from optilux.cinemacontent.interfaces import ReservationError
@@ -11,7 +11,8 @@ from Variation.SNP250k.interfaces import IDBLocator, PassingData
 
 import sqlalchemy as sql
 from collective.lead.interfaces import IDatabase
-from variation.src.db import QCMethod, PhenotypeMethod, PhenotypeAvg
+from variation.src.db import QCMethod, PhenotypeMethod, PhenotypeAvg, CallMethod, ResultsMethod
+
 """
 class PhenotypeMethod(object):
 	#PhenotypeMethod for ORM mapping
@@ -114,11 +115,7 @@ class DBLocator(object):
 	implements(IDBLocator)
 	
 	def get_phenotype_method_id_ls(self):
-		"""Return a list of all films showing at the particular ICinema
-		between the specified dates.
-		
-		Returns a list of dictionaries with keys 'film_code', 'url', 'title' 
-		and 'summary'.
+		"""
 		"""
 		
 		# Set up and issue the query, making sure we use the same transaction
@@ -157,7 +154,7 @@ class DBLocator(object):
 		"""
 		vocabulary = [('%s %s'%(row.id, row.short_name), row.id) for row in results]	#(token, value)
 		return vocabulary
-
+	
 	def get_QC_method_id_ls(self):
 		"""
 		2008-04-23
@@ -176,6 +173,28 @@ class DBLocator(object):
 		results = connection.execute(statement).fetchall()
 		vocabulary = [('%s %s'%(row.id, row.short_name), row.id) for row in results]	#(token, value)
 		return vocabulary
+	
+	def get_call_method_id_ls(self):
+		"""
+		2008-05-23
+		"""
+		db = getUtility(IDatabase, name='variation.stockdatabase')
+		results = db.session.query(CallMethod)
+		vocabulary = [('%s %s'%(row.id, row.short_name), row.id) for row in results]	#(token, value)
+		return vocabulary
+	
+	def checkIfResultsMethodExist(self, results_method_short_name):
+		"""
+		2008-05-24
+			check if the short_name is unique or not in results_method table
+		"""
+		db = getUtility(IDatabase, name='variation.stockdatabase')
+		rm_table = db.tables['results_method'].alias()
+		results = db.connection.execute(sql.select([rm_table], rm_table.c.short_name==results_method_short_name))
+		if results.rowcount==0:
+			return False
+		else:
+			return True
 	
 	def get_phenotype_obj_ls(self, method_id_ls):
 		"""

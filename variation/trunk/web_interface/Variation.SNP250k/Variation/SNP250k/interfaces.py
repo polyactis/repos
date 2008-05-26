@@ -56,10 +56,22 @@ from zope.schema.interfaces import IVocabularyFactory
 from zope.interface import directlyProvides
 from zope.component import getUtility
 def MethodIDVocabulary(context):
-	locator = getUtility(IPhenotypeLocator)
+	locator = getUtility(IDBLocator)
 	v = locator.get_phenotype_method_id_ls()
 	return SimpleVocabulary.fromItems(v)
 directlyProvides(MethodIDVocabulary, IVocabularyFactory)
+								
+def QCMethodIDVocabulary(context):
+	locator = getUtility(IDBLocator)
+	v = locator.get_QC_method_id_ls()
+	return SimpleVocabulary.fromItems(v)
+directlyProvides(QCMethodIDVocabulary, IVocabularyFactory)
+
+def CallMethodIDVocabulary(context):
+	locator = getUtility(IDBLocator)
+	v = locator.get_call_method_id_ls()
+	return SimpleVocabulary.fromItems(v)
+directlyProvides(CallMethodIDVocabulary, IVocabularyFactory)
 
 class IPhenotype(Interface):
 	"""
@@ -130,35 +142,13 @@ class IVariationFolder(Interface):
 	description = schema.TextLine(title=u"Description", 
 								  description=u"A short summary of this folder")
 
-class IPhenotypeLocator(Interface):
+class IDBLocator(Interface):
 	"""A utility used to locate appropriate screenings based on search criteria
 	"""
 	
-	def films_at_cinema(cinema, from_date, to_date):
-		"""Return a list of all films screening at the particular ICinema
-		between the specified dates.
-		
-		Returns a list of dictionaries with keys 'film_code', 'url', 'title' 
-		and 'summary'.
+	def get_phenotype_method_id_ls():
 		"""
-		
-	def cinemas_for_film(film, from_date, to_date):
-		"""Return a list of all cinemas screening the given film between the
-		specified dates.
-		
-		Returns a list of dictionaries with keys 'cinema_code', 'url', 'name' 
-		and 'address'.
-		"""
-		
-	def screenings(film, cinema, from_date, to_date):
-		"""Return all screenings of the given film, at the given cinema,
-		between the given dates
-		
-		Returns a list of IScreening objects.
-		"""
-		
-	def screening_by_id(screening_id):
-		"""Get an IScreening from a screening id
+		return a vocubulary
 		"""
 
 class PhenotypeError(Exception):
@@ -220,12 +210,6 @@ class IQCMethod(Interface):
 							readonly=True)
 	date_updated = schema.Datetime(title=u"Date Updated",
 							readonly=True)
-								
-def QCMethodIDVocabulary(context):
-	locator = getUtility(IPhenotypeLocator)
-	v = locator.get_QC_method_id_ls()
-	return SimpleVocabulary.fromItems(v)
-directlyProvides(QCMethodIDVocabulary, IVocabularyFactory)
 
 class IQCOnDirectory(Interface):
 	"""
@@ -254,25 +238,39 @@ class IQCOnDirectory(Interface):
 							required = True)
 
 class IResults2DB_250k(Interface):
-	title = schema.TextLine(title=u"Title", 
-							required=True)
+	short_name = schema.TextLine(title=u'Short Name',
+							   description=u"short name for this result. Must be unique from previous ones. combining your name, phenotype, data, method is a good one.",
+							   required=True)
+		
+	username = schema.ASCIILine(title=u"Database Username", 
+								description=u"This will overwrite/change the setting in DBSetting tab. If your db account doesn't have insert privilege, leave this blank.",
+								required=False)
+
+	password = schema.Password(title=u"Database Password", 
+								description=u"This will overwrite/change the setting in DBSetting tab.",
+								required=False)
 	
-	description = schema.TextLine(title=u"Description", 
-								  description=u"A short summary",
-								  required=False)
-	input_fname = schema.Bytes(title=u"Input Filename", 
-								  description=u"File containing Genome-Wide Results",
-								  required=True)
 	phenotype_method_id = schema.Choice(title=u'Phenotype Method ID',
 						 description=u'Which Phenotype Used',
 						 required=True, vocabulary="Variation.SNP250k.MethodIDVocabulary")
 	
-	short_name = schema.TextLine(title=u'Short Name',
-							   description=u"short name for this result",
+	call_method_id = schema.Choice(title=u'Call Method ID',
+						 description=u'From which call method this data is derived from',
+						 required=True, vocabulary="Variation.SNP250k.CallMethodIDVocabulary")
+	data_description = schema.SourceText(title=u'Data Description',
+							   description=u"Describe how your data is derived from that call method. like non-redundant set, 1st 96, etc.",
 							   required=True)
 	method_description = schema.SourceText(title=u'Method Description',
-							   description=u"Describe your method",
+							   description=u"Describe your method and what type of score, association (-log or not), recombination etc.",
 							   required=True)
-	data_description = schema.SourceText(title=u'Data Description',
-							   description=u"Describe data your data",
-							   required=True)
+	comment = schema.SourceText(title=u'Further Comment',
+							   description=u"Anything worth other people to know?",
+							   required=False)
+	input_fname = schema.Bytes(title=u"Input File", 
+								  description=u"File containing Genome-Wide Results. tab or comma delimited 3-column (chromosome, position, score) or 4-column (chromosome, start_position, end_position, score).",
+								  required=True)
+	commit_type = schema.Choice(title=u'Commit Type',
+						 description=u'Which type of database commit action you want.',
+						 required=True, vocabulary=SimpleVocabulary.fromItems([("No commit this transaction. Leave it to the next transaction. Save Time!", 0),\
+																			("Commit this and all previous transactions.", 1),\
+																			("Commit all previous transactions. Fill in all the required field or just leave them with previous values. They won't go into database.", 2)]))

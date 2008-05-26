@@ -38,8 +38,8 @@ We should now be able to make a connection.
     >>> db = getUtility(IDatabase, name='variation.stockdatabase')
     
     >>> from zope.interface import implements
-    >>> from Variation.SNP250k.interfaces import IPhenotypeLocator
-    >>> locator = getUtility(IPhenotypeLocator)
+    >>> from Variation.SNP250k.interfaces import IDBLocator
+    >>> locator = getUtility(IDBLocator)
     
     >>> v = locator.get_phenotype_method_id_ls()
 	>>> v[1][1]

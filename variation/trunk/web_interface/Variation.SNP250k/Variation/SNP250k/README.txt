@@ -69,9 +69,9 @@ don't want a database state dependency in this test, so we register a
 dummy utility for finding screenings - otherwise, we will get errors on the
 film and cinema view pages.
     >>> from zope.interface import implements
-    >>> from Variation.SNP250k.interfaces import IPhenotypeLocator
+    >>> from Variation.SNP250k.interfaces import IDBLocator
     >>> class DummyPhenotypeLocator(object):
-    ...     implements(IPhenotypeLocator)
+    ...     implements(IDBLocator)
     ...     
     ...     _method_id_ls = [1,2,3]
     ...     
@@ -82,12 +82,12 @@ We need to remember the existing utility so that we can set it back at the
 end of the tests - otherwise, we may mess up other tests running later!
     
     >>> from zope.component import provideUtility
-    >>> _old_screening_locator = getUtility(IPhenotypeLocator)
+    >>> _old_screening_locator = getUtility(IDBLocator)
     >>> provideUtility(DummyPhenotypeLocator())
     
     >>> from zope.interface import implements
-    >>> from Variation.SNP250k.interfaces import IPhenotypeLocator
-    >>> locator = getUtility(IPhenotypeLocator)
+    >>> from Variation.SNP250k.interfaces import IDBLocator
+    >>> locator = getUtility(IDBLocator)
     
     >>> v = locator.get_phenotype_method_id_ls()
 	>>> print v
@@ -134,10 +134,10 @@ item menu:
 
 Play around a bit according to /usr/lib/zope2.10/lib/python/zope/formlib/form.txt
 
-    >>> from zope.publisher.browser import TestRequest, BrowserResponse
-    >>> request = TestRequest(response=BrowserResponse())
-    >>> from Variation.SNP250k.browser.phenotype import AddPhenotypeForm
-    >>> print AddPhenotypeForm(None, request)() # doctest: +NORMALIZE_WHITESPACE
+    #>>> from zope.publisher.browser import TestRequest, BrowserResponse
+    #>>> request = TestRequest(response=BrowserResponse())
+    #>>> from Variation.SNP250k.browser.phenotype import AddPhenotypeForm
+    #>>> print AddPhenotypeForm(None, request)() # doctest: +NORMALIZE_WHITESPACE
 
 Create a phenotype in variation3 folder.
 04/18/08 Watch: the custom edit form (inherited from zope.formlib.form) has prefix 'form' attached to each widget name.:
@@ -167,5 +167,20 @@ Create a phenotype in variation3 folder.
 2008-05-23 test results2db_250k
 
 	>>> browser.open(variation3_url)
-	>>> browser.getLink('Results2DB_250k')
+	>>> browser.getLink('Results2DB_250k').click()
+	>>> import StringIO
+	>>> myResults = StringIO.StringIO('1\t2334\t343\n2\t4324\t83.2\n')
+	>>> browser.getControl(name='form.username').value = "yh"
+	>>> browser.getControl(name='form.password').value = "yh324"
+    >>> browser.getControl(name='form.short_name').value = "96 with LD phenotype"
+    >>> browser.getControl(name='form.phenotype_method_id-empty-marker').value = "1"
+    >>> browser.getControl(name='form.call_method_id-empty-marker').value = "5"
+    >>> browser.getControl(name='form.data_description').value = "best 96 picked by tina"
+    >>> browser.getControl(name='form.method_description').value = "kruskal wallis, -log(pvalue)"
+	>>> browser.getControl(name='form.comment').value = "pvalue log "
+	>>> control = browser.getControl(name='form.input_fname')
+	>>> fileControl = control.mech_control
+	>>> fileControl.add_file(myResults, filename='myResults.tsv')
+	>>> browser.getControl(name='form.commit_type-empty-marker').value = "2"
+	>>> browser.getControl(name='form.actions.save').click()
 	>>> browser.title

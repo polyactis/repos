@@ -23,7 +23,7 @@ but to keep things more clear, use FieldsetsEditForm or formbase.EditForm
 @implementer(IStockDatabaseSettings)
 @adapter(IVariationFolder)
 def stock_database_settings(context):
-	return getUtility(IStockDatabaseSettings)
+	return getUtility(IStockDatabaseSettings, name='variation.stockdatabasesettings')
 
 class StockDatabaseSettingsForm(FieldsetsEditForm):
 	"""

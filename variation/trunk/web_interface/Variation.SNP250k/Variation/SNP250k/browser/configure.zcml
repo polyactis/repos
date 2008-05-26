@@ -34,19 +34,11 @@
         class=".phenotype.PhenotypeView"
         permission="zope2.View"
         />
-    
     <browser:page
         for="..interfaces.IPhenotype"
         layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
         name="pheno_edit"
         class=".phenotype.EditPhenotypeForm"
-        permission="cmf.ModifyPortalContent"
-        />
-    <browser:page
-        for="..interfaces.IPhenotype"
-        layer="Products.CMFDefault.interfaces.ICMFDefaultSkin"
-        name="pheno_add"
-        class=".phenotype.AddPhenotypeForm"
         permission="cmf.ModifyPortalContent"
         />
     <subscriber

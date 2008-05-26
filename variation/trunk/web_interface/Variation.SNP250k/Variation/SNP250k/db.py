@@ -25,7 +25,7 @@ class StockDatabaseSettings(Persistent):
 	implements(IStockDatabaseSettings)
 	
 	drivername = 'mysql'
-	hostname = 'banyan.usc.edu'
+	hostname = 'papaya.usc.edu'
 	port = None
 	username = 'nordborglab'
 	password = 'papaya'
@@ -39,6 +39,9 @@ class StockDatabase(Database):
 	@property
 	def _url(self):
 		settings = getUtility(IStockDatabaseSettings, name='variation.stockdatabasesettings')
+		#import sys
+		#sys.stderr.write(settings.username + '\n')
+		#sys.stderr.write(settings.password + '\n')
 		return URL(drivername=settings.drivername, username=settings.username,
 				   password=settings.password, host=settings.hostname,
 				   port=settings.port, database=settings.database)

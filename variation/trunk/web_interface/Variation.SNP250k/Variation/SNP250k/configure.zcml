@@ -16,8 +16,8 @@
    <include file="profiles.zcml" />
     
 	
-	<!-- Register the screening and reservation utilities -->
-	<utility factory=".dbphenotype.PhenotypeLocator" />
+	<!-- Register the db query utility -->
+	<utility factory=".dblocator.DBLocator" />
 	
 	<!-- Register database configuration utilities -->
 	<utility
@@ -39,5 +39,10 @@
 		provides="zope.schema.interfaces.IVocabularyFactory"
 		component=".interfaces.QCMethodIDVocabulary"
 		name="Variation.SNP250k.QCMethodIDVocabulary"
+		/>
+	<utility
+		provides="zope.schema.interfaces.IVocabularyFactory"
+		component=".interfaces.CallMethodIDVocabulary"
+		name="Variation.SNP250k.CallMethodIDVocabulary"
 		/>
 </configure>

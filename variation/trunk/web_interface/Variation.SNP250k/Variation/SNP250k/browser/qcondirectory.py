@@ -116,14 +116,14 @@ class EditQCOnDirectoryForm(formbase.EditForm):
 			QC_method_id2cmp_data_filename = {1: '/usr/local/home_ubuntu/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv',
 				2: '/usr/local/home_ubuntu/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv',
 				3: '/usr/local/home_ubuntu/crocea/script/variation/stock20080403/data_y10001101.tsv'}
-			from pymodule import process_options, generate_program_doc
+			from pymodule import ProcessOptions
 			argv_list = ['QC_250k.py', '-i', QC_method_id2cmp_data_filename[int(new_context.QC_method_id)], \
 				'-n', new_context.input_dir, '-m', new_context.QC_method_id, '-u', settings.username, '-p', settings.password]
-			opts_dict = process_options(argv_list, QC_250k.option_default_dict, error_doc=generate_program_doc(argv_list[0], QC_250k.option_default_dict)+QC_250k.__doc__)
+			po = ProcessOptions(argv_list, QC_250k.option_default_dict, error_doc=QC_250k.__doc__)
 			
-			instance = QC_250k(**opts_dict)
-			new_context.row_id2NA_mismatch_rate = instance.plone_run()
-			del instance
+			#instance = QC_250k(**po.long_option2value)
+			#new_context.row_id2NA_mismatch_rate = instance.plone_run()
+			#del instance
 			
 			zope.event.notify(
 				ObjectModifiedEvent(new_context)

@@ -23,7 +23,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from plone.memoize.instance import memoize
 
-from Variation.SNP250k.interfaces import IPhenotype, IPhenotypeLocator
+from Variation.SNP250k.interfaces import IPhenotype, IDBLocator
 from Variation.SNP250k import VariationMessageFactory as _
 from zope.lifecycleevent import ObjectCreatedEvent, ObjectModifiedEvent
 #zope.app.event.objectevent.ObjectModifiedEvent is the old one
@@ -112,7 +112,7 @@ class EditPhenotypeForm(formbase.EditForm):
 				new_context = context
 				new_context.setId(str(newId))
 			
-			locator = getUtility(IPhenotypeLocator)
+			locator = getUtility(IDBLocator)
 			new_context.phenotype_obj_ls = locator.get_phenotype_obj_ls(new_context.method_id_ls)
 			
 			zope.event.notify(
@@ -164,53 +164,5 @@ def fill_phenotype_content(obj, event):
 	2008-04-23 EditPhenotypeForm already does this. Omits them.
 	"""
 	pass
-	#locator = getUtility(IPhenotypeLocator)
+	#locator = getUtility(IDBLocator)
 	#obj.short_name_ls, obj.method_description_ls = locator.get_short_name_description_ls(obj.method_id_ls)
-
-class AddPhenotypeForm(formbase.AddForm):
-	form_fields = form.FormFields(IPhenotype).omit('phenotype_obj_ls', 'data_matrix')
-	
-	form_fields['method_id_ls'].custom_widget = MyMultiSelectWidget
-	@form.action(_("Save"), name='save', condition=form.haveInputWidgets)
-	def handle_add(self, action, data):
-		if form.applyChanges(
-			self.context, self.form_fields, data, self.adapters):
-			method_id_ls = data['method_id_ls']
-			context = aq_inner(self.context)
-			newId = data['title'].replace(' ','-')
-			newId = newId.replace('/', '-')
-			#newId = context.generateNewId()
-			obj = Phenotype(newId)
-			context.add(obj)
-			#context.invokeFactory(id=newId, type_name='Phenotype')
-			new_context = getattr(context, newId)
-			
-			#import sys
-			#sys.stderr.write("id: %s, title: %s, newId: %s.\n"%(context.id, context.title, newId))
-			#sys.stderr.write("type(newId): %s, dir(newId): %s.\n"%(repr(type(newId)), repr(dir(newId)) ))
-			
-			#new_context.setId(str(newId))	#type of newId is unicode. and str is required for catalog
-			
-			#phenotype.generateNewId()
-			#new_context = context.portal_factory.doCreate(context, id)
-			locator = getUtility(IPhenotypeLocator)
-			new_context.phenotype_obj_ls = locator.get_phenotype_obj_ls(new_context.method_id_ls)
-			zope.event.notify(ObjectCreatedEvent(obj))
-			self._finished_add = True	#a flag to decide whether the object is added or not
-			return obj	#AddForm.render() will handle the redirect
-		else:
-			confirm = u"No Phenotype Added."
-			IStatusMessage(self.request).addStatusMessage(confirm, type='info')
-			return None
-	
-	 
-	@form.action(_(u"Cancel"), name='cancel')
-	def action_cancel(self, action, data):
-		"""
-		Cancel the phenotype checkout
-		"""
-		parent = aq_parent(aq_inner(self.context))
-		confirm = u"Phenotype Checkout cancelled."
-		IStatusMessage(self.request).addStatusMessage(confirm, type='info')
-		self.request.response.redirect(parent.absolute_url())
-		return ''
