@@ -305,6 +305,7 @@ create table snps(
 	name varchar(200) not null unique,
 	chromosome integer,
 	position integer,
+	end_position integer,
 	allele1 varchar(1),
 	allele2 varchar(2),
 	created_by varchar(200),
@@ -765,9 +766,8 @@ DELIMITER ;
 --store the results
 create table if not exists results(
 	id integer auto_increment primary key,
-	chr integer,
-	start_pos integer,
-	stop_pos integer,
+	snps_id integer,
+	foreign key (snps_id) references snps(id) on delete restrict on update cascade,
 	results_method_id integer,
 	foreign key (results_method_id) references results_method(id) on delete cascade on update cascade,
 	score float
