@@ -106,7 +106,7 @@ class Stock_250kDatabase(Database):
 										properties={'phenotype_method': relation(PhenotypeMethod), 'readme':relation(README)})
 		mappers['results_method'] = mapper(ResultsMethod, tables['results_method'], properties={'call_method': relation(CallMethod),\
 																						'phenotype_method': relation(PhenotypeMethod)})
-		mappers['results'] = mapper(Results, tables['results'], properties={'results_method': relation(ResultsMethod)})
+		mappers['results'] = mapper(Results, tables['results'], properties={'snps': relation(SNPs), 'results_method': relation(ResultsMethod)})
 		mappers['call_qc'] = mapper(CallQC, tables['call_qc'], properties={'call_info': relation(CallInfo, backref='call_QC'),\
 																		'readme':relation(README),\
 																		'QC_method':relation(QCMethod),\
