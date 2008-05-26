@@ -273,4 +273,4 @@ class IResults2DB_250k(Interface):
 						 description=u'Which type of database commit action you want.',
 						 required=True, vocabulary=SimpleVocabulary.fromItems([("No commit this transaction. Leave it to the next transaction. Save Time!", 0),\
 																			("Commit this and all previous transactions.", 1),\
-																			("Commit all previous transactions. Fill in all the required field or just leave them with previous values. They won't go into database.", 2)]))
+																			("Commit all previous (excluding the current page) transactions. Fill in the required field in the current page with whatever. They won't go into database.", 2)]))
