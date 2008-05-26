@@ -65,6 +65,14 @@ def importNumericArray():
 
 def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ',']):
 	"""
+	2008-05-25
+		now 3 possible types of input_fname
+		1. a file name (path)
+		2. input_fname is a file object
+		3. input_fname is input data, string
+		
+		for a file object or input file name:
+		it could be binary file which doesn't have readline(). have to use this dumb approach due to '\n' might mess up sniff()
 	2008-05-21
 		csv.Sniffer is handy, use it figure out csv.Sniffer instead.
 	2008-05-12
@@ -74,20 +82,28 @@ def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ','])
 		import sys
 		sys.stderr.write("Figuring out delimiter for %s ..."%input_fname)
 	cs = csv.Sniffer()
-	
-	inf = open(input_fname)
-	line = inf.readline()
+	if isinstance(input_fname, str) and os.path.isfile(input_fname):
+		inf = open(input_fname)
+	elif isinstance(input_fname, file):	#could be a file object
+		inf = input_fname
+	elif isinstance(input_fname, str) and not os.path.isfile(input_fname):	#it's the input
+		import StringIO
+		inf = StringIO.StringIO(input_fname)
+	else:
+		sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
+		return None
+	if getattr(inf, 'readline', None) is not None:	
+		line = inf.readline()
+		delimiter_chosen = cs.sniff(line).delimiter
+	else:
+		line = inf.read(200)	##binary file doesn't have readline(). have to use this dumb approach due to '\n' might mess up sniff()
+		delimiter_chosen = None
+		for delimiter in delimiter_choice_ls:
+			delimiter_count = line.count(delimiter)
+			if delimiter_count>0:
+				delimiter_chosen = delimiter
+				break
 	del inf
-	delimiter_chosen = cs.sniff(line).delimiter
-	"""
-	#2008-05-21
-	delimiter_chosen = None
-	for delimiter in delimiter_choice_ls:
-		delimiter_count = line.count(delimiter)
-		if delimiter_count>0:
-			delimiter_chosen = delimiter
-			break
-	"""
 	if report:
 		sys.stderr.write("Done.\n")
 	return delimiter_chosen
