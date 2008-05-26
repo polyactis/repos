@@ -22,6 +22,8 @@ from variation.src.Results2DB_250k import Results2DB_250k
 from persistent import Persistent
 from zope.interface import implements
 
+import gc
+
 @implementer(IResults2DB_250k)
 @adapter(IVariationFolder)
 def results2db_250k_adapter(context):
@@ -66,6 +68,8 @@ class Results2DB_250kForm(FieldsetsEditForm):
 	def handle_edit_action(self, action, data):
 		"""
 		2008-05-25
+			add garbage collection
+		2008-05-25
 			check commit_type
 		"""
 		if data['commit_type']==2:	#don't care whether contents change or not
@@ -82,15 +86,17 @@ class Results2DB_250kForm(FieldsetsEditForm):
 							 self.adapters):
 			locator = getUtility(IDBLocator)
 			if locator.checkIfResultsMethodExist(data['short_name']):
-				self.status = _("Error: Short Name, %s already exists in database"%data['short_name'])
+				IStatusMessage(self.request).addStatusMessage(_("Error: Short Name, %s already exists in database"%data['short_name']), type='error')
 			else:
 				start_time = self.context.ZopeTime().timeTime()
 				self._on_save(data)
 				del data['input_fname']	#release it from memory
 				self.status = _("Took %f seconds to submit the data."%(self.context.ZopeTime().timeTime()-start_time))
 		else:
-			self.status = _("No changes made.")
-
+			IStatusMessage(self.request).addStatusMessage(_("Warning: No data submission as nothing in the form changed (Hint: add a space somewhere)."), type='warning')
+		
+		gc.collect()    #run a full collection, clean up memory
+		
 	@form.action(_(u'label_cancel', default=u'Cancel'),
 				 validator=null_validator,
 				 name=u'cancel')
