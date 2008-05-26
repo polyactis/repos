@@ -132,7 +132,7 @@ class Results2DB_250kForm(FieldsetsEditForm):
 		comment = ''
 		if data['comment']:
 			comment = data['comment']
-		comment += 'Original Filename = %s'%(file_object.filename)
+		comment += '. Original Filename = %s'%(file_object.filename)
 		Results2DB_250k.plone_run(db, data['short_name'], data['phenotype_method_id'], data['call_method_id'], \
 								data['data_description'], data['method_description'], comment, \
 								file_object, user, commit=data['commit_type'])
