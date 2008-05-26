@@ -120,6 +120,8 @@ class Results2DB_250k(object):
 	
 	def submit_results(cls, db, input_fname, rm, user):
 		"""
+		2008-05-26
+			csv.Sniffer() can't figure out delimiter if '\n' is in the string, use own dumb function figureOutDelimiter()
 		2008-05-25
 			save marker(snps) in database if it's not there.
 			use marker id in results table
@@ -130,18 +132,25 @@ class Results2DB_250k(object):
 		2008-04-28
 			changed to use Stock_250kDatabase (SQLAlchemy) to do db submission
 		"""
-		if isinstance(input_fname, str):
+		if isinstance(input_fname, str) and os.path.isfile(input_fname):
 			sys.stderr.write("Submitting results from %s ..."%(os.path.basename(input_fname)))
 			delimiter = figureOutDelimiter(input_fname)
 			reader = csv.reader(open(input_fname), delimiter=delimiter)
-		else:	#input_fname is not a file name, but direct file object
+		elif isinstance(input_fname, file):	#input_fname is not a file name, but direct file object
 			sys.stderr.write("Submitting results from %s on plone ..."%input_fname.filename)
 			cs = csv.Sniffer()
 			input_fname.seek(0)	#it's already read by plone to put int data['input_fname'], check results2db_250k.py
-			delimiter = cs.sniff(input_fname.read(20)).delimiter
+			if getattr(input_fname, 'readline', None) is not None:
+				test_line = input_fname.readline()
+				delimiter = cs.sniff(test_line).delimiter
+			else:
+				test_line = input_fname.read(200)
+				delimiter = figureOutDelimiter(test_line)	#counting is a safer solution. if test_line include '\n', cs.sniff() won't figure it out.
 			input_fname.seek(0)
 			reader = csv.reader(input_fname, delimiter=delimiter)
-		
+		else:
+			sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
+			return
 		if cls.marker_pos2snp_id is None:
 			cls.marker_pos2snp_id = cls.get_marker_pos2snp_id(db)
 		session = db.session
