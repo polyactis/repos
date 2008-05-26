@@ -32,9 +32,10 @@ else:   #32bit
 
 import csv, stat, getopt
 import traceback, gc, subprocess
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod
+from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs
 from pymodule import figureOutDelimiter
 
+import sqlalchemy as sql
 """
 2008-04-16 temporarily put here
 	-s ...,	short_name*	give a short name of what you did. try to incorporate method, genotype data and phenotype data
@@ -98,9 +99,30 @@ class Results2DB_250k(object):
 		rows = curs.fetchall()
 		sys.stderr.write("Done.\n")
 		return rows[0][0]
+		
+	marker_pos2snp_id = None
 	
-	def submit_results(cls, session, input_fname, rm):
+	def get_marker_pos2snp_id(cls, db):
 		"""
+		2008-05-24
+		"""
+		sys.stderr.write("Getting marker_pos2snp_id ...")
+		marker_pos2snp_id = {}
+		snps_table = db.tables['snps'].alias()
+		conn = db.connection
+		results = conn.execute(sql.select([snps_table.c.id, snps_table.c.chromosome, snps_table.c.position, snps_table.c.end_position]))
+		for row in results:
+			key = (row.chromosome, row.position, row.end_position)
+			marker_pos2snp_id[key] = row.id
+		sys.stderr.write("Done.\n")
+		return marker_pos2snp_id
+	get_marker_pos2snp_id = classmethod(get_marker_pos2snp_id)
+	
+	def submit_results(cls, db, input_fname, rm, user):
+		"""
+		2008-05-25
+			save marker(snps) in database if it's not there.
+			use marker id in results table
 		2008-05-24
 			figure out delimiter automatically
 			input_fname could be a file object (from plone)
@@ -119,18 +141,42 @@ class Results2DB_250k(object):
 			delimiter = cs.sniff(input_fname.read(20)).delimiter
 			input_fname.seek(0)
 			reader = csv.reader(input_fname, delimiter=delimiter)
+		
+		if cls.marker_pos2snp_id is None:
+			cls.marker_pos2snp_id = cls.get_marker_pos2snp_id(db)
+		session = db.session
 		for row in reader:
+			chr = int(row[0])
+			start_pos = int(row[1])
 			if len(row)==3:
-				chr, start_pos, score = row
 				stop_pos = None
+				score = row[2]
+				marker_name = '%s_%s'%(chr, start_pos)
 			elif len(row)==4:
-				chr, start_pos, stop_pos, score = row
+				stop_pos = int(row[2])
+				score = row[3]
+				marker_name = '%s_%s_%s'%(chr, start_pos, stop_pos)
 			else:
 				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
 				sys.exit(3)
-			r = Results(chr=chr, start_pos=start_pos, stop_pos=stop_pos, score=score)
+			
+			key = (chr, start_pos, stop_pos)
+			if key in cls.marker_pos2snp_id:
+				snps_id = cls.marker_pos2snp_id[key]
+				r = Results(snps_id=snps_id, score=score)
+			else:
+				#construct a new marker
+				marker = SNPs(name=marker_name, chromosome=chr, position=start_pos, end_position=stop_pos, created_by=user)
+				#save it in database to get id
+				session.save(marker)
+				cls.marker_pos2snp_id[key] = marker.id	#for the next time to encounter same marker
+				
+				r = Results(score=score)
+				r.snps = marker
+				del marker
 			r.results_method = rm
 			session.save(r)
+			del r
 			#curs.execute("insert into %s(chr, start_pos, stop_pos, score, method_id, phenotype_method_id) values (%s, %s, %s, %s, %s, %s)"%\
 			#		(results_table, chr, start_pos, stop_pos, score, results_method_id, phenotype_method_id))
 		del reader
@@ -145,19 +191,23 @@ class Results2DB_250k(object):
 			to conveniently wrap up all codes so that both this program and plone can call
 		"""
 		session = db.session
-		transaction = session.create_transaction()
+		if getattr(db, 'transaction', None) is None:
+			db.transaction = session.create_transaction()
 		#pm = session.query(PhenotypeMethod).get_by(id=phenotype_method_id)
 		#cm = session.query(CallMethod).get_by(id=call_method_id)
 		rm = ResultsMethod(short_name=short_name, method_description=method_description, \
 						data_description=data_description, comment=comment, phenotype_method_id=phenotype_method_id,\
 						call_method_id=call_method_id, created_by=user)
-		cls.submit_results(session, input_fname, rm)
+		cls.submit_results(db, input_fname, rm, user)
 		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if commit:
 			#curs.execute("commit")
-			transaction.commit()
-		else:	#default is also rollback(). to demonstrate good programming
-			transaction.rollback()
+			db.transaction.commit()
+			session.clear()	#Remove all object instances from this Session
+			del session
+			db.transaction = None	#delete the transaction
+		#else:	#default is also rollback(). to demonstrate good programming
+		#	transaction.rollback()
 	plone_run = classmethod(plone_run)
 	
 	def run(self):
