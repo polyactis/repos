@@ -338,17 +338,15 @@ def get149DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", o
         print "Error %d: %s" % (e.args[0], e.args[1])
         sys.exit (1)
     cursor = conn.cursor ()
-        #Get distinct accessions and their id.
-        #Generate an internal dictionary using their id.
-    #numRows = int(cursor.execute("select distinct e2a.ecotype_id, g.accession, acc.name from at.ecotype2accession_all e2a, at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id = e2a.accession_id and acc.id<97 order by acc.name"))
     if only96accessions:
-        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome=1 order by acc.name"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and eva.accession_id<97 and l.chromosome=1 order by eva.nativename"))
     else:
-        numRows = int(cursor.execute("select distinct eva.ecotype_id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome=1 order by acc.name"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and l.chromosome=1 order by eva.nativename"))
 
     dict = {}
     accessions = []
     i = 0
+    print "numRows",numRows
     while(1):
         row = cursor.fetchone()
         if not row:
@@ -364,9 +362,9 @@ def get149DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", o
     for chromosome in chromosomes:
         print "    Chromosome",chromosome
         if only96accessions:
-            numRows = int(cursor.execute("select distinct l.position, g.accession, acc.name, al.base from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and acc.id<97 and l.chromosome="+str(chromosome)+" order by l.position, acc.name"))
+            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and eva.accession_id<97 and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
         else:
-            numRows = int(cursor.execute("select distinct l.position, g.accession, acc.name, al.base from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype_192_vs_accession_192 eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and l.chromosome="+str(chromosome)+" order by l.position, acc.name"))
+            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
         print "    ",numRows,"rows retrieved."
         positions = []
         snps = []
@@ -376,6 +374,7 @@ def get149DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", o
             while(1):
                 if not row:
                     break;
+                print row
                 positions.append(newPosition)
                 oldPosition = newPosition
                 snp = ['NA']*len(accessions)  #Initialize to missing data.
@@ -403,7 +402,6 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
     import MySQLdb
     """
     Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
-
     """
     rt = time.time()
     decoder = RawDecoder()  #Other unused informative letters are ['R','Y','S','M','K','W']:
@@ -425,10 +423,10 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
         #Get distinct accessions and their id.
     if only96accessions:
         print 'starting'
-        numRows = int(cursor.execute("select distinct e.id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype2accession_all eva, stock.ecotype e where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and eva.accession_name=e.nativename and l.chromosome=1 and acc.id<97 order by acc.name"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and eva.accession_id<97 and l.chromosome=1 order by eva.nativename"))
         print 'done'
     else:
-        numRows = int(cursor.execute("select distinct e.id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype2accession_all eva, stock.ecotype e where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and eva.accession_name=e.nativename and l.chromosome=1 order by acc.name"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and l.chromosome=1 order by eva.nativename"))
 
     dict = {}
     accessions = []
@@ -448,9 +446,9 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
     for chromosome in chromosomes:
         print "    Chromosome",chromosome
         if only96accessions:
-            numRows = int(cursor.execute("select distinct e.id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype2accession_all eva, stock.ecotype e where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and eva.accession_name=e.nativename and l.chromosome="+str(chromosome)+" and acc.id<97 order by acc.name"))
+            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and eva.accession_id<97 and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
         else:
-            numRows = int(cursor.execute("select distinct e.id, g.accession, acc.name from at.genotype g, at.allele al, at.accession acc, at.locus l, at.alignment an, at.ecotype2accession_all eva, stock.ecotype e where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=acc.id and acc.id=eva.accession_id and eva.accession_name=e.nativename and l.chromosome="+str(chromosome)+" order by acc.name"))
+            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
         print "    ",numRows,"rows retrieved."
         positions = []
         snps = []

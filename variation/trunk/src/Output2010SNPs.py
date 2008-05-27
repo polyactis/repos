@@ -11,8 +11,8 @@ Option:
         -d ..., --delim=...     default is ", "      
         -m ..., --missingval=...    default is "NA"
         -a, --accname   use accession name instead of ecotype id. 
+	--includeFRI	include FRI deletions as SNPs (to be implemented).
 	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
 	-h, --help	show this help
 	--only96	Output only the 96 accesions
 

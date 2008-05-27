@@ -693,6 +693,7 @@ class RawSnpsData(_SnpsData_):
 		self.accessions = newAccessions
 		if self.arrayIds:
 			self.arrayIds = newArrayIds
+			
 		
 	def mergeIdenticalAccessions(self,accessionIndexList, priority):
 		"""
@@ -1040,24 +1041,35 @@ class SnpsDataSet:
 			for acc in self.snpsDataList[i].accessions:
 				fieldStrings.append(str(acc))
 		outStr += deliminator.join(fieldStrings)+"\n"
+		f = open(filename,"w")
+		f.write(outStr)
 		if decoder:
 			for i in range(0,len(self.chromosomes)):
+				sys.stdout.write(".")
+				sys.stdout.flush()
 				for j in range(0,len(self.snpsDataList[i].positions)):
+					outStr =""
 					outStr += str(self.chromosomes[i])+deliminator+str(self.snpsDataList[i].positions[j])
 					for k in range(0, len(self.snpsDataList[0].accessions)):
 						outStr += deliminator+str(decoder[self.snpsDataList[i].snps[j][k]])
 					outStr +="\n"
+					f.write(outStr)
 		else:
 			for i in range(0,len(self.chromosomes)):
+				sys.stdout.write(".")
+				sys.stdout.flush()
 				for j in range(0,len(self.snpsDataList[i].positions)):
+					#sys.stdout.write(".")
+					#sys.stdout.flush()
+					outStr =""
 					outStr += str(self.chromosomes[i])+deliminator+str(self.snpsDataList[i].positions[j])
-					for k in range(0, len(self.snpsDataList[0].accessions)):
-						outStr += deliminator+str(self.snpsDataList[i].snps[j][k])
+					snp = self.snpsDataList[i].snps[j]
+					for nt in snp:
+						outStr += deliminator+str(nt)
 					outStr +="\n"
-			
-		f = open(filename,"w")
-		f.write(outStr)
+					f.write(outStr)
 		f.close()
+		print ""
 
 		if callProbFile:
 			if withArrayIds:

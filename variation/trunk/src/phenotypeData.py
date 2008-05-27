@@ -12,10 +12,24 @@ class PhenotypeData:
         self.phenotypeNames = phenotypeNames
         self.phenotypeValues=phenotypeValues
 
-    def logTransform(phenotypeIndex):
+    def logTransform(self, phenotypeIndex):
         import math
         for i in range(0,len(self.accessions)):
             self.phenotypeValues[i][phenotypeIndex] = math.log(self.phenotypeValues[i][phenotypeIndex])
+
+    def isBinary(self, phenotypeIndex):
+        l = []
+        for i in range(0,len(self.accessions)):
+            val = self.phenotypeValues[i][phenotypeIndex]
+            if val != 'NA':
+                if not val in l:
+                    l.append(val)
+                
+        if 1<len(l)<3:
+            return True
+        elif 1==len(l):
+            raise Exception("Only one phenotype value")
+        return False
 
     def orderAccessions(self, accessionMapping=None):
         """
@@ -116,12 +130,14 @@ def readPhenotypeFile(filename, delimiter=',', missingVal='NA', accessionDecoder
 
 def _runTest_():
     import dataParsers
-    filename = "/Users/bjarni/Projects/Python-snps/phenotypes.tsv"
-    #phed = readPhenotypeFile(filename,accessionDecoder=dataParsers.accessionName2EcotypeId)    
+    filename = "/Network/Data/250k/finalData_051808/phenotypes_052208.tsv"
     phed = readPhenotypeFile(filename,delimiter='\t')    
-    print phed.accessions
-    print phed.phenotypeNames
+    #print phed.accessions
+    #print phed.phenotypeNames
     #print phed.phenotypeValues
+    for i in range(0,len(phed.phenotypeNames)):
+        binary = phed.isBinary(i)
+        print i, phed.phenotypeNames[i], binary
         
 if __name__ == '__main__':
 	_runTest_()
