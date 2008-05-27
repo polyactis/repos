@@ -154,15 +154,15 @@ Create a phenotype in variation3 folder.
 Create a phenotype in variation3 folder.
 04/18/08 Watch: the custom edit form (inherited from zope.formlib.form) has prefix 'form' attached to each widget name.:
 
-    >>> browser.open(variation3_url)
-    >>> browser.getLink(id='qcondirectory').click()
-    >>> browser.getControl(name='form.title').value = "first qc"
-    >>> browser.getControl(name='form.description').value = "first qc run test"
-    >>> browser.getControl(name='form.input_dir').value = "/Network/Data/250k/tmp-yh"
-    >>> browser.getControl(name='form.QC_method_id-empty-marker').value = "1"
-    >>> browser.getControl(name='form.actions.save').click()
-    >>> 'first-qc' in variation3.objectIds()
-    True
+    #>>> browser.open(variation3_url)
+    #>>> browser.getLink(id='qcondirectory').click()
+    #>>> browser.getControl(name='form.title').value = "first qc"
+    #>>> browser.getControl(name='form.description').value = "first qc run test"
+    #>>> browser.getControl(name='form.input_dir').value = "/Network/Data/250k/tmp-yh"
+    #>>> browser.getControl(name='form.QC_method_id-empty-marker').value = "1"
+    #>>> browser.getControl(name='form.actions.save').click()
+    #>>> 'first-qc' in variation3.objectIds()
+    #True
 
 2008-05-23 test results2db_250k
 
@@ -176,11 +176,16 @@ Create a phenotype in variation3 folder.
     >>> browser.getControl(name='form.phenotype_method_id-empty-marker').value = "1"
     >>> browser.getControl(name='form.call_method_id-empty-marker').value = "5"
     >>> browser.getControl(name='form.data_description').value = "best 96 picked by tina"
+	>>> browser.getControl(name='form.results_method_type_id-empty-marker').value = "None"
+	>>> browser.getControl(name='form.results_method_type_short_name').value = "new method"
     >>> browser.getControl(name='form.method_description').value = "kruskal wallis, -log(pvalue)"
 	>>> browser.getControl(name='form.comment').value = "pvalue log "
 	>>> control = browser.getControl(name='form.input_fname')
 	>>> fileControl = control.mech_control
-	>>> fileControl.add_file(myResults, filename='myResults.tsv')
-	>>> browser.getControl(name='form.commit_type-empty-marker').value = "2"
+	>>> fileControl.add_file(myResults, 'text/plain', filename='myResults.tsv')
+	>>> browser.getControl('No commit this transaction.').selected = True	#this doesn't work: browser.getControl(name='form.commit_type').value = ["1"]		#radio button
 	>>> browser.getControl(name='form.actions.save').click()
 	>>> browser.title
+	>>> browser.headers
+	>>> browser.contents
+	>>> browser.url

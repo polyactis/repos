@@ -73,6 +73,12 @@ def CallMethodIDVocabulary(context):
 	return SimpleVocabulary.fromItems(v)
 directlyProvides(CallMethodIDVocabulary, IVocabularyFactory)
 
+def ResultsMethodTypeIDVocabulary(context):
+	locator = getUtility(IDBLocator)
+	v = locator.get_results_method_type_id_ls()
+	return SimpleVocabulary.fromItems(v)
+directlyProvides(ResultsMethodTypeIDVocabulary, IVocabularyFactory)
+
 class IPhenotype(Interface):
 	"""
 	Phenotype Interface
@@ -141,6 +147,9 @@ class IVariationFolder(Interface):
 							
 	description = schema.TextLine(title=u"Description", 
 								  description=u"A short summary of this folder")
+	
+	text = schema.SourceText(title=u"Text", description=u"More descriptive text.",
+						   required=False)
 
 class IDBLocator(Interface):
 	"""A utility used to locate appropriate screenings based on search criteria
@@ -251,15 +260,25 @@ class IResults2DB_250k(Interface):
 								required=False)
 	
 	phenotype_method_id = schema.Choice(title=u'Phenotype Method ID',
-						 description=u'Which Phenotype Used',
-						 required=True, vocabulary="Variation.SNP250k.MethodIDVocabulary")
-	
+						 description=u'Which Phenotype Used. Pick "no value" if no phenotype used.',
+						 required=False, vocabulary="Variation.SNP250k.MethodIDVocabulary")
+	"""
+	phenotype_method_id = schema.List(title=u'Phenotype Method ID', required=False, \
+									description=u'Which Phenotype Used',\
+							value_type=schema.Choice(__name__='phenotype_method_id', title=u'Phenotype Method ID Choice', vocabulary="Variation.SNP250k.MethodIDVocabulary"))
+	"""
 	call_method_id = schema.Choice(title=u'Call Method ID',
 						 description=u'From which call method this data is derived from',
 						 required=True, vocabulary="Variation.SNP250k.CallMethodIDVocabulary")
 	data_description = schema.SourceText(title=u'Data Description',
 							   description=u"Describe how your data is derived from that call method. like non-redundant set, 1st 96, etc.",
 							   required=True)
+	results_method_type_id = schema.Choice(title=u'Results Method Type ID', required=False, \
+									description=u'Which type of results. Pick "no value" if no appropriate type. Fill in the blank right below.',\
+									vocabulary="Variation.SNP250k.ResultsMethodTypeIDVocabulary")
+	results_method_type_short_name = schema.TextLine(title=u'New Results Method Type Short Name', required=False, \
+									description=u'To create a new results method type if the above does not have your results type.')
+	
 	method_description = schema.SourceText(title=u'Method Description',
 							   description=u"Describe your method and what type of score, association (-log or not), recombination etc.",
 							   required=True)
@@ -273,4 +292,5 @@ class IResults2DB_250k(Interface):
 						 description=u'Which type of database commit action you want.',
 						 required=True, vocabulary=SimpleVocabulary.fromItems([("No commit this transaction. Leave it to the next transaction. Save Time!", 0),\
 																			("Commit this and all previous transactions.", 1),\
-																			("Commit all previous (excluding the current page) transactions. Fill in the required field in the current page with whatever. They won't go into database.", 2)]))
+																			("Commit all previous (excluding the current page) transactions. Fill in the required field in the current page with whatever. They won't go into database.", 2),\
+																			("Rollback all previous transactions. This = Undo!", 3)]))

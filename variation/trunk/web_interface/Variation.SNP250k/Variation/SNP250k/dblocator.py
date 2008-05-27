@@ -11,7 +11,7 @@ from Variation.SNP250k.interfaces import IDBLocator, PassingData
 
 import sqlalchemy as sql
 from collective.lead.interfaces import IDatabase
-from variation.src.db import QCMethod, PhenotypeMethod, PhenotypeAvg, CallMethod, ResultsMethod
+from variation.src.db import QCMethod, PhenotypeMethod, PhenotypeAvg, CallMethod, ResultsMethod, ResultsMethodType
 
 """
 class PhenotypeMethod(object):
@@ -180,6 +180,15 @@ class DBLocator(object):
 		"""
 		db = getUtility(IDatabase, name='variation.stockdatabase')
 		results = db.session.query(CallMethod)
+		vocabulary = [('%s %s'%(row.id, row.short_name), row.id) for row in results]	#(token, value)
+		return vocabulary
+	
+	def get_results_method_type_id_ls(self):
+		"""
+		2008-05-26
+		"""
+		db = getUtility(IDatabase, name='variation.stockdatabase')
+		results = db.session.query(ResultsMethodType)
 		vocabulary = [('%s %s'%(row.id, row.short_name), row.id) for row in results]	#(token, value)
 		return vocabulary
 	

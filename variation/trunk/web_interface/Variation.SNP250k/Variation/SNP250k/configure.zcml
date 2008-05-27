@@ -45,4 +45,9 @@
 		component=".interfaces.CallMethodIDVocabulary"
 		name="Variation.SNP250k.CallMethodIDVocabulary"
 		/>
+	<utility
+		provides="zope.schema.interfaces.IVocabularyFactory"
+		component=".interfaces.ResultsMethodTypeIDVocabulary"
+		name="Variation.SNP250k.ResultsMethodTypeIDVocabulary"
+		/>
 </configure>

@@ -43,7 +43,7 @@ We should now be able to make a connection.
     
     >>> v = locator.get_phenotype_method_id_ls()
 	>>> v[1][1]
-	2L
+	1L
 
 The last v[1][1] is the 2nd method id in table phenotype_method.
 

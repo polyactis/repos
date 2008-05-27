@@ -1,5 +1,5 @@
 from zope.formlib import form
-from zope.app.form.browser import FileWidget, ChoiceDisplayWidget, RadioWidget
+from zope.app.form.browser import FileWidget, ChoiceDisplayWidget, RadioWidget, ChoiceCollectionInputWidget, SelectWidget
 from zope.app.form import CustomWidgetFactory
 
 from Products.Five.formlib import formbase
@@ -37,7 +37,9 @@ class Results2DB_250kFormContent(Persistent):
 	password = None
 	phenotype_method_id = None
 	call_method_id = None
-	data_description = None	
+	data_description = None
+	results_method_type_id = None
+	results_method_type_short_name = None
 	method_description = None
 	comment = None
 	input_fname = None
@@ -45,8 +47,8 @@ class Results2DB_250kFormContent(Persistent):
 
 class MyRadioWidget(RadioWidget):
 	def __init__(self, field, request):
-		super(MyRadioWidget, self).__init__(
-			field, field.vocabulary, request)
+		super(MyRadioWidget, self).__init__(field, field.vocabulary, request)
+
 
 class Results2DB_250kForm(FieldsetsEditForm):
 	"""
@@ -72,16 +74,30 @@ class Results2DB_250kForm(FieldsetsEditForm):
 		2008-05-25
 			check commit_type
 		"""
-		if data['commit_type']==2:	#don't care whether contents change or not
+		if data['results_method_type_id'] is None and not data['results_method_type_short_name']:
+			IStatusMessage(self.request).addStatusMessage(_("Either results_method_type_id or results_method_type_short_name has to be something."), type='error')
+		elif data['commit_type']==2:	#don't care whether contents change or not
 			start_time = self.context.ZopeTime().timeTime()
 			db = getUtility(IDatabase, name='variation.stockdatabase')
 			if getattr(db, 'transaction', None) is not None:
 				db.transaction.commit()	#commit all previous transactions
 				db.session.close()
 				db.transaction = None
+				Results2DB_250k.reset_marker_pos2snp_id()
 				self.status = _("Took %f seconds to submit all previous data."%(self.context.ZopeTime().timeTime()-start_time))
 			else:
 				IStatusMessage(self.request).addStatusMessage(_("Warning: No data submission as no previous transaction exists."), type='warning')
+		elif data['commit_type']==3:	#don't care whether contents change or not
+			start_time = self.context.ZopeTime().timeTime()
+			db = getUtility(IDatabase, name='variation.stockdatabase')
+			if getattr(db, 'transaction', None) is not None:
+				db.transaction.rollback()	#commit all previous transactions
+				db.session.close()
+				db.transaction = None
+				Results2DB_250k.reset_marker_pos2snp_id()
+				self.status = _("Took %f seconds to rollback all previous transactions."%(self.context.ZopeTime().timeTime()-start_time))
+			else:
+				IStatusMessage(self.request).addStatusMessage(_("Warning: No rollback as no previous transaction exists."), type='warning')
 		elif form.applyChanges(self.context, self.form_fields, data,
 							 self.adapters):
 			locator = getUtility(IDBLocator)
@@ -135,4 +151,5 @@ class Results2DB_250kForm(FieldsetsEditForm):
 		comment += '. Original Filename = %s'%(file_object.filename)
 		Results2DB_250k.plone_run(db, data['short_name'], data['phenotype_method_id'], data['call_method_id'], \
 								data['data_description'], data['method_description'], comment, \
-								file_object, user, commit=data['commit_type'])
+								file_object, user, data['results_method_type_id'], \
+								results_method_type_short_name=data['results_method_type_short_name'], commit=data['commit_type'])

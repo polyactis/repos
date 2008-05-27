@@ -19,7 +19,7 @@ Variation/SNP250k/config.py
 Variation/SNP250k/configure.zcml
 Variation/SNP250k/database.txt
 Variation/SNP250k/db.py
-Variation/SNP250k/dbphenotype.py
+Variation/SNP250k/dblocator.py
 Variation/SNP250k/interfaces.py
 Variation/SNP250k/permissions.py
 Variation/SNP250k/profiles.zcml
@@ -36,6 +36,7 @@ Variation/SNP250k/browser/phenotype.pt
 Variation/SNP250k/browser/phenotype.py
 Variation/SNP250k/browser/qcondirectory.pt
 Variation/SNP250k/browser/qcondirectory.py
+Variation/SNP250k/browser/results2db_250k.py
 Variation/SNP250k/browser/viewlet.pt
 Variation/SNP250k/browser/viewlets.py
 Variation/SNP250k/browser/images/README.txt
