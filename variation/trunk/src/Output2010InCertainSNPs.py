@@ -1,22 +1,5 @@
 #!/usr/bin/env python
 """
-Usage: Output2010InCertainSNPs.py [OPTIONS] -p XXX -o OUTPUT_FNAME
-
-Option:
-	-z ..., --hostname=...	the hostname, localhost(default)
-	-d ..., --dbname=...	the database name, stock20071008(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)
-	-e ...,	ecotype_table, 'stock20071008.ecotype'(default)
-	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession' or 'at.accession2tg_ecotypeid'(default)
-	-s ...,	sequence table, 'at.sequence'(default)
-	-a ..., alignment table, 'at.alignment'(default)
-	-n ...,	snp_locus_table, 'snp_locus'(default)
-	-o ...,	output_fname
-	-y ...,	processing bits to control which processing step should be turned on.
-		default is 0000. for what each bit stands, see Description.
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
 	#to output 2010 data in 250k SNPs with ecotype id
@@ -75,6 +58,7 @@ else:   #32bit
 import getopt, numpy
 from variation.src.common import nt2number, number2nt
 from sets import Set
+from pymodule import ProcessOptions
 
 class row_dstruc:
 	def __init__(self, row_index=None, name=None, info=None, snp_ls=None, snp_touched_ls=None):
@@ -85,32 +69,36 @@ class row_dstruc:
 		self.snp_touched_ls = snp_touched_ls
 
 class Output2010InCertainSNPs(object):
+	__doc__ = __doc__
 	"""
 	2007-12-18
 	"""
-	def __init__(self, hostname='zhoudb', dbname='graphdb', schema='dbsnp', ecotype_table='ecotype',\
-		accession2ecotype_table=None, alignment_table='at.alignment', sequence_table='at.sequence',\
-		snp_locus_table='stock20071008.snps', output_fname=None, processing_bits='000', debug=0, report=0):
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock', 'd', 1, '', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('ecotype_table',1, ): ['ecotype', 'e', 1, 'table to get nativename, etc'],\
+							('accession2ecotype_table',1, ): ['at.accession2tg_ecotypeid', 'q', 1, "ecotype 2 accession mapping table 'at.accession2ecotype_complete' or 'at.ecotype2accession' or 'at.accession2tg_ecotypeid'"],\
+							('alignment_table', 1, ): ['at.alignment', 'a', ],\
+							('sequence_table',1,): ['at.sequence', 's', 1, 'raw sequence table. not used anymore.'],\
+							('snp_locus_table',1,): ['snps', 'n', ],\
+							('output_fname',1,): ['', 'o', ],\
+							('processing_bits',1,): ['0000', 'y', ],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	def __init__(self, **keywords):
 		"""
+		2008-05-27
+			add user & password
 		2007-12-29
 			add processing_bits
 		"""
-		self.hostname = hostname
-		self.dbname = dbname
-		self.schema = schema
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
-		self.ecotype_table = ecotype_table
-		self.accession2ecotype_table = accession2ecotype_table
-		self.alignment_table = alignment_table
-		self.sequence_table = sequence_table
-		self.snp_locus_table = snp_locus_table
-		self.output_fname = output_fname
-
+		processing_bits = self.processing_bits
 		self.processing_bits = [0]*len(processing_bits)
 		for i in range(len(processing_bits)):
 			self.processing_bits[i] = int(processing_bits[i])
-		self.debug = int(debug)
-		self.report = int(report)
 		
 		self.data_type2data_table = {0:'at.locus',
 									1:'chip.snp_combined_may_9_06_no_van'}
@@ -363,7 +351,7 @@ class Output2010InCertainSNPs(object):
 	
 	def run(self):
 		import MySQLdb
-		conn = MySQLdb.connect(db=dbname,host=hostname)
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user=self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		if self.debug:
 			import pdb
@@ -436,6 +424,14 @@ class Output2010InCertainSNPs(object):
 
 
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = Output2010InCertainSNPs
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	
+	"""	
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -498,3 +494,4 @@ if __name__ == '__main__':
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
