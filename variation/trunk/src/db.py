@@ -27,6 +27,9 @@ class Results(TableClass):
 class ResultsMethod(TableClass):
 	pass
 
+class ResultsMethodType(TableClass):
+	pass
+
 class PhenotypeAvg(TableClass):
 	pass
 
@@ -84,7 +87,7 @@ class Stock_250kDatabase(Database):
 	def _setup_tables(cls, metadata, tables):
 		"""Map the database structure to SQLAlchemy Table objects
 		"""
-		table_ls = ['phenotype_avg', 'phenotype_method', 'qc_method', 'results', 'results_method', \
+		table_ls = ['phenotype_avg', 'phenotype_method', 'qc_method', 'results', 'results_method', 'results_method_type',\
 				'call_qc', 'call_info', 'call_method', 'array_info', 'snps_qc', 'snps', 'probes', 'readme']
 		for table_name in table_ls:
 			tables[table_name] = Table(table_name, metadata, autoload=True)
@@ -97,7 +100,7 @@ class Stock_250kDatabase(Database):
 			results_method is connected to call_method and phenotype_method
 		Map the database Tables to SQLAlchemy Mapper objects
 		"""
-		standalone_table_tuple_ls = [('phenotype_method', PhenotypeMethod), ('qc_method', QCMethod), \
+		standalone_table_tuple_ls = [('phenotype_method', PhenotypeMethod), ('qc_method', QCMethod), ('results_method_type', ResultsMethodType), \
 									('call_method', CallMethod), ('array_info', ArrayInfo), ('snps', SNPs), ('readme', README)]
 		for table_name, table_class in standalone_table_tuple_ls:
 			mappers[table_name] = mapper(table_class, tables[table_name])
@@ -105,7 +108,8 @@ class Stock_250kDatabase(Database):
 		mappers['phenotype_avg'] = mapper(PhenotypeAvg, tables['phenotype_avg'],
 										properties={'phenotype_method': relation(PhenotypeMethod), 'readme':relation(README)})
 		mappers['results_method'] = mapper(ResultsMethod, tables['results_method'], properties={'call_method': relation(CallMethod),\
-																						'phenotype_method': relation(PhenotypeMethod)})
+																						'phenotype_method': relation(PhenotypeMethod),\
+																						'results_method_type': relation(ResultsMethodType)})
 		mappers['results'] = mapper(Results, tables['results'], properties={'snps': relation(SNPs), 'results_method': relation(ResultsMethod)})
 		mappers['call_qc'] = mapper(CallQC, tables['call_qc'], properties={'call_info': relation(CallInfo, backref='call_QC'),\
 																		'readme':relation(README),\
