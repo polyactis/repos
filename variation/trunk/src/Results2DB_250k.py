@@ -32,7 +32,7 @@ else:   #32bit
 
 import csv, stat, getopt
 import traceback, gc, subprocess
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs
+from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs, ResultsMethodType
 from pymodule import figureOutDelimiter
 
 import sqlalchemy as sql
@@ -52,6 +52,7 @@ class Results2DB_250k(object):
 							('input_fname',1, ): [None, 'i', 1, 'File containing association results'],\
 							('phenotype_method_id',1,int): [None, 'e', 1, 'which phenotype you used, check table phenotype_method'],\
 							('call_method_id',1,int): [None,],\
+							('results_method_type_id',1,int): [None,],\
 							('comment',0, ): [None, ],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -101,6 +102,17 @@ class Results2DB_250k(object):
 		return rows[0][0]
 		
 	marker_pos2snp_id = None
+	is_new_marker_added = False	#2008-05-26 flag whether new markers were generated.
+	def reset_marker_pos2snp_id(cls):
+		"""
+		2008-05-26
+			after commit or rollback in plone, session is closed and those new marker objects are gone. need to reset everything.
+		"""
+		if cls.is_new_marker_added:
+			del cls.marker_pos2snp_id
+			cls.marker_pos2snp_id = cls.get_marker_pos2snp_id(db)
+	
+	reset_marker_pos2snp_id = classmethod(reset_marker_pos2snp_id)
 	
 	def get_marker_pos2snp_id(cls, db):
 		"""
@@ -121,6 +133,8 @@ class Results2DB_250k(object):
 	def submit_results(cls, db, input_fname, rm, user):
 		"""
 		2008-05-26
+			input_fname from plone is not file object although it has file object interface.
+		2008-05-26
 			csv.Sniffer() can't figure out delimiter if '\n' is in the string, use own dumb function figureOutDelimiter()
 		2008-05-25
 			save marker(snps) in database if it's not there.
@@ -136,7 +150,7 @@ class Results2DB_250k(object):
 			sys.stderr.write("Submitting results from %s ..."%(os.path.basename(input_fname)))
 			delimiter = figureOutDelimiter(input_fname)
 			reader = csv.reader(open(input_fname), delimiter=delimiter)
-		elif isinstance(input_fname, file):	#input_fname is not a file name, but direct file object
+		elif hasattr(input_fname, 'readline') or hasattr(input_fname, 'read'):	#input_fname is not a file name, but direct file object. it could also be <ZPublisher.HTTPRequest.FileUpload instance at 0xa1774f4c>
 			sys.stderr.write("Submitting results from %s on plone ..."%input_fname.filename)
 			cs = csv.Sniffer()
 			input_fname.seek(0)	#it's already read by plone to put int data['input_fname'], check results2db_250k.py
@@ -172,13 +186,17 @@ class Results2DB_250k(object):
 			key = (chr, start_pos, stop_pos)
 			if key in cls.marker_pos2snp_id:
 				snps_id = cls.marker_pos2snp_id[key]
-				r = Results(snps_id=snps_id, score=score)
+				if isinstance(snps_id, SNPs):	#it's a new marker object
+					r = Results(score=score)
+					r.snps = snps_id
+				else:	#others are all integer ids
+					r = Results(snps_id=snps_id, score=score)
 			else:
 				#construct a new marker
 				marker = SNPs(name=marker_name, chromosome=chr, position=start_pos, end_position=stop_pos, created_by=user)
 				#save it in database to get id
 				session.save(marker)
-				cls.marker_pos2snp_id[key] = marker.id	#for the next time to encounter same marker
+				cls.marker_pos2snp_id[key] = marker	#for the next time to encounter same marker
 				
 				r = Results(score=score)
 				r.snps = marker
@@ -194,19 +212,35 @@ class Results2DB_250k(object):
 	submit_results = classmethod(submit_results)
 	
 	def plone_run(cls, db, short_name, phenotype_method_id, call_method_id, data_description, \
-				method_description, comment, input_fname, user, commit=0):
+				method_description, comment, input_fname, user, results_method_type_id=None, \
+				results_method_type_short_name=None, commit=0):
 		"""
+		2008-05-26
+			add results_method_type_id and results_method_type_short_name
 		2008-05-24
 			to conveniently wrap up all codes so that both this program and plone can call
 		"""
 		session = db.session
 		if getattr(db, 'transaction', None) is None:
 			db.transaction = session.create_transaction()
+		
 		#pm = session.query(PhenotypeMethod).get_by(id=phenotype_method_id)
+		#if not pm:	#no corresponding phentype method id
+		#	phenotype_method_id = None
+		
 		#cm = session.query(CallMethod).get_by(id=call_method_id)
+		
+		rmt = session.query(ResultsMethodType).get_by(id=results_method_type_id)
+		if not rmt and results_method_type_short_name is not None:	#create a new results method type
+			rmt = ResultsMethodType(short_name=results_method_type_short_name)
+			session.save(rmt)
+		
 		rm = ResultsMethod(short_name=short_name, method_description=method_description, \
 						data_description=data_description, comment=comment, phenotype_method_id=phenotype_method_id,\
 						call_method_id=call_method_id, created_by=user)
+		if rmt:
+			rm.results_method_type = rmt
+		
 		cls.submit_results(db, input_fname, rm, user)
 		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if commit:
@@ -215,6 +249,7 @@ class Results2DB_250k(object):
 			session.clear()	#Remove all object instances from this Session
 			del session
 			db.transaction = None	#delete the transaction
+			cls.reset_marker_pos2snp_id()
 		#else:	#default is also rollback(). to demonstrate good programming
 		#	transaction.rollback()
 	plone_run = classmethod(plone_run)
@@ -238,7 +273,8 @@ class Results2DB_250k(object):
 			sys.stderr.write("Error: short_name unspecified.\n"%(self.short_name))
 			sys.stderr.exit(2)
 		self.plone_run(db, self.short_name, self.phenotype_method_id, self.call_method_id, self.data_description, \
-				self.method_description, self.comment, self.input_fname, self.user, self.commit)
+				self.method_description, self.comment, self.input_fname, self.user, results_method_type_id=self.results_method_type_id,\
+				commit=self.commit)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
