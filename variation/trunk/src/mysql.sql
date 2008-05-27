@@ -723,21 +723,57 @@ CREATE TRIGGER before_update_snps_qc BEFORE UPDATE ON snps_qc
 DELIMITER ;
 
 
---store the method
+--store the results
+create table results_method_type(
+	id integer auto_increment primary key,
+	short_name varchar(30) unique,
+	method_description varchar(8000),
+	data_description varchar(8000),
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_r_m_type BEFORE INSERT ON results_method_type
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_r_m_type BEFORE UPDATE ON results_method_type
+  FOR EACH ROW BEGIN
+        if NEW.updated_by is null then
+                set NEW.updated_by = USER();
+        end if;
+        if NEW.date_updated=0 then
+                set NEW.date_updated = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
 create table results_method(
 	id integer auto_increment primary key,
 	short_name varchar(30) unique,
 	method_description varchar(8000),
 	data_description varchar(8000),
+	comment varchar(8000),
 	phenotype_method_id integer,
 	call_method_id integer,
-	comment varchar(8000),
+	results_method_type_id integer,
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
 	date_updated TIMESTAMP,
 	foreign key (phenotype_method_id) references phenotype_method(id) on delete RESTRICT on update cascade,
-	foreign key (call_method_id) references call_method(id) on delete RESTRICT on update cascade
+	foreign key (call_method_id) references call_method(id) on delete RESTRICT on update cascade,
+	foreign key (results_method_type_id) references results_method_type(id) on delete RESTRICT on update cascade
 	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
