@@ -13,9 +13,12 @@ class PhenotypeData:
         self.phenotypeValues=phenotypeValues
 
     def logTransform(self, phenotypeIndex):
-        import math
-        for i in range(0,len(self.accessions)):
-            self.phenotypeValues[i][phenotypeIndex] = math.log(self.phenotypeValues[i][phenotypeIndex])
+        if not self.isBinary(phenotypeIndex):
+            import math
+            for i in range(0,len(self.accessions)):
+                self.phenotypeValues[i][phenotypeIndex] = str(math.log(float(self.phenotypeValues[i][phenotypeIndex])))
+        else:
+            print "Can't log-transform, since phenotype is binary"
 
     def isBinary(self, phenotypeIndex):
         l = []
@@ -72,6 +75,8 @@ class PhenotypeData:
             newPhenotVals.append(self.phenotypeValues[i])
         self.accessions = newAccessions
         self.phenotypeValues = newPhenotVals
+        print "len(self.accessions):",len(self.accessions)
+        print "len(self.phenotypeValues):",len(self.phenotypeValues)
         
     def writeToFile(self, outputFile, phenotypes=None, delimiter=','):
         print "Writing out phenotype file:",outputFile

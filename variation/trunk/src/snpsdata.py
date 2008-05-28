@@ -731,7 +731,10 @@ class RawSnpsData(_SnpsData_):
 			self.snps[i] = newSnp
 		self.accessions = newAccessions
 		if self.arrayIds:
+			print "removeAccessionIndices: has array IDs: self.arrayIds =",self.arrayIds
 			self.arrayIds = newArrayIds
+			print "len(self.arrayIds):",len(self.arrayIds)
+		print "len(self.accessions):",len(self.accessions)
 			
 		
 	def mergeIdenticalAccessions(self,accessionIndexList, priority):
@@ -1098,11 +1101,12 @@ class SnpsDataSet:
 				sys.stdout.write(".")
 				sys.stdout.flush()
 				for j in range(0,len(self.snpsDataList[i].positions)):
-					#sys.stdout.write(".")
-					#sys.stdout.flush()
 					outStr =""
 					outStr += str(self.chromosomes[i])+deliminator+str(self.snpsDataList[i].positions[j])
 					snp = self.snpsDataList[i].snps[j]
+					if len(snp) != len(self.snpsDataList[0].accessions):
+						print "len(snp):",len(snp),", vs. len(self.snpsDataList[0].accessions):",len(self.snpsDataList[0].accessions)
+						raise Exception("The length didn't match")
 					for nt in snp:
 						outStr += deliminator+str(nt)
 					outStr +="\n"
