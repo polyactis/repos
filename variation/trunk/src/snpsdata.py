@@ -618,6 +618,45 @@ class RawSnpsData(_SnpsData_):
 		self.positions = newPositions
 		return numRemoved
 
+
+	def filterMinMAF(self, minMAF=0):
+		"""
+		Removes SNPs from the data which have a MAF less than the given one.
+		"""
+		newPositions = []
+		newSnps = []
+		ntCounts = [0.0]*4
+		ntl = ['A','C','G','T']
+		for i in range(0,len(self.positions)):
+			snp = self.snps[i]
+			totalCount = 0
+			for j in range(0,4):
+				nt = ntl[j]
+				c = snp.count(nt)
+				ntCounts[j] = c
+				totalCount += c
+			for j in range(0,4):
+				ntCounts[j] = ntCounts[j]/float(totalCount)
+			maxAF = max(ntCounts)
+			maf = 0
+			if ntCounts.count(maxAF)<2:
+				for j in range(0,4):
+					if ntCounts[j]<maxAF and ntCounts[j] > 0.0:
+						if ntCounts[j]>maf:
+							maf = ntCounts[j]
+			else:
+				maf = maxAF
+								
+			if minMAF<=maf:
+				newSnps.append(self.snps[i])
+				newPositions.append(self.positions[i])
+
+		numRemoved = len(self.positions)-len(newPositions)
+		self.snps = newSnps
+		self.positions = newPositions
+		return numRemoved
+
+
 	def filterMonoMorphicSnps(self):
 		"""
 		05/12/08 yh. add no_of_monomorphic_snps_removed

@@ -14,7 +14,7 @@ Option:
 	--maxMissing=...            maximum allowed missing percentage.
 	--monomorphic               filter monomorphic SNPs.
 	--minCallProb=...           minimum allowed call probability. SNPs below the threshold are set to NA. (Requires a callProbFile file.)
-	--minAverageCallProb=...    minimum allowed average call probability. Bad SNPs are removed. (Requires a callProbFile file.)
+	--minMAF=...                minimum allowed minor allele frequency.
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -36,7 +36,7 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minAverageCallProb=", "minCallProb=", "debug", "report", "help"]
+	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minMAF=", "minCallProb=", "debug", "report", "help"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
 
@@ -60,7 +60,7 @@ def _run_():
 	help = 0
 	withArrayIds = 0
 	minCallProb=None
-	minAverageCallProb=None
+	minMAF=None
 	callProbFile = None
 
 	
@@ -80,8 +80,8 @@ def _run_():
 			monomorphic = True
 		elif opt in ("--minCallProb"):
 			minCallProb = float(arg)
-		elif opt in ("--minAverageCallProb"):
-			minAverageCallProb = float(arg)
+		elif opt in ("--minMAF"):
+			minMAF = float(arg)
 		elif opt in ("--callProbFile"):
 			callProbFile = arg
 		elif opt in ("-o",):
@@ -111,7 +111,7 @@ def _run_():
 	waid2 = withArrayIds==2
 
 	import dataParsers
-	if callProbFile and (minCallProb or minAverageCallProb):
+	if callProbFile and minCallProb:
 		#Read prob file into SNPsdatas.
 		snpsds = dataParsers.parseCSVDataWithCallProb(inputFile, callProbFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
 	else:
@@ -144,6 +144,12 @@ def _run_():
 		for i in range(0,len(snpsds)):
 			print "Fraction converted =",snpsds[i].convertBadCallsToNA(minCallProb)
 
+	if minMAF:
+		print "Removing SNPs withe MAF <",minMAF
+		for snpsd in snpsds:
+			print "Removed", str(snpsd.filterMinMAF(minMAF)),"Snps"
+	
+		
 	import snpsdata
 	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 
