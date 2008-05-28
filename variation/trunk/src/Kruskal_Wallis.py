@@ -123,6 +123,8 @@ class Kruskal_Wallis:
 	
 	def output_kw_results(self, kw_results, SNP_header, output_fname, log_pvalue=0):
 		"""
+		2008-05-27
+			log10
 		2008-05-21
 			more stuff in kw_results
 			each kw result is wrapped in PassingData
@@ -138,7 +140,7 @@ class Kruskal_Wallis:
 			SNP_pos_ls = SNP_name.split('_')
 			if log_pvalue:
 				if pvalue>0:
-					pvalue = -math.log(pvalue)
+					pvalue = -math.log10(pvalue)
 				else:
 					pvalue = 'NA'
 			writer.writerow([SNP_pos_ls[0], SNP_pos_ls[1], pvalue] + pdata.count_ls)
