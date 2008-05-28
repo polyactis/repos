@@ -102,16 +102,18 @@ class Results2DB_250k(object):
 		return rows[0][0]
 		
 	marker_pos2snp_id = None
-	is_new_marker_added = False	#2008-05-26 flag whether new markers were generated.
+	is_new_marker_added = False	#2008-05-26 flag whether new markers were generated. to check after commit/rollback
 	def reset_marker_pos2snp_id(cls):
 		"""
+		2008-05-27
+			set "cls.is_new_marker_added = False"
 		2008-05-26
 			after commit or rollback in plone, session is closed and those new marker objects are gone. need to reset everything.
 		"""
 		if cls.is_new_marker_added:
 			del cls.marker_pos2snp_id
 			cls.marker_pos2snp_id = cls.get_marker_pos2snp_id(db)
-	
+			cls.is_new_marker_added = False
 	reset_marker_pos2snp_id = classmethod(reset_marker_pos2snp_id)
 	
 	def get_marker_pos2snp_id(cls, db):
@@ -181,7 +183,7 @@ class Results2DB_250k(object):
 				marker_name = '%s_%s_%s'%(chr, start_pos, stop_pos)
 			else:
 				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
-				sys.exit(3)
+				return
 			
 			key = (chr, start_pos, stop_pos)
 			if key in cls.marker_pos2snp_id:
@@ -197,7 +199,7 @@ class Results2DB_250k(object):
 				#save it in database to get id
 				session.save(marker)
 				cls.marker_pos2snp_id[key] = marker	#for the next time to encounter same marker
-				
+				cls.is_new_marker_added = True	#set this flag as new marker was inputted into the dict
 				r = Results(score=score)
 				r.snps = marker
 				del marker
