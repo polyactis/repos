@@ -32,7 +32,7 @@ create or replace view complete_2010_strains_in_stock2tg_ecotypeid as select dis
 
 
 --2008-05-18 offering the final linking between accession id and ecotype id. a view linking each accession.id to a stock.ecotypeid2tg_ecotypeid.tg_ecotypeid thru at.ecotype2accession.
-create or replace view accession2tg_ecotypeid as select distinct e1.accession_id, a.name as accession_name, a.origin, a.number, e2.tg_ecotypeid, e.name, e.nativename, e.stockparent, e1.ecotype_id as intermediate_ecotype_id from ecotype2accession e1, stock.ecotype e, stock.ecotypeid2tg_ecotypeid e2, accession a where e1.accession_id=a.id and e1.ecotype_id=e2.ecotypeid and e2.tg_ecotypeid=e.id order by accession_id;
+create or replace view accession2tg_ecotypeid as select distinct e1.accession_id, a.name as accession_name, a.origin, a.number, e2.tg_ecotypeid as ecotype_id, e.name, e.nativename, e.stockparent, e1.ecotype_id as intermediate_ecotype_id from ecotype2accession e1, stock.ecotype e, stock.ecotypeid2tg_ecotypeid e2, accession a where e1.accession_id=a.id and e1.ecotype_id=e2.ecotypeid and e2.tg_ecotypeid=e.id order by accession_id;
 
 /*
 create table readme(
@@ -873,3 +873,7 @@ create or replace view view_qc as select e.id as ecotype_id, e.nativename, q.tg_
 --2008-05-20 view the calls, arrays, ecotypes all together
 
 create or replace view view_call as select c.id as call_info_id, c.filename, c.method_id as call_method_id, a.id as array_id, a.original_filename, a.maternal_ecotype_id as ecotype_id, e.nativename, e.stockparent from call_info c, array_info a, stock.ecotype e where a.id=c.array_id and e.id=a.maternal_ecotype_id order by nativename;
+
+--2008-05-27 view the arrays
+
+create or replace view view_array as select a.id as array_id, a.filename, a.original_filename as array_filename,  a.maternal_ecotype_id, e1.nativename as maternal_nativename, e1.stockparent as maternal_stockparent, a.paternal_ecotype_id, e2.nativename as paternal_nativename, e2.stockparent as paternal_stockparent from array_info a, stock.ecotype e1, stock.ecotype e2 where e1.id=a.maternal_ecotype_id and e2.id=a.paternal_ecotype_id order by maternal_nativename, paternal_nativename;
