@@ -220,6 +220,7 @@ class GenomeBrowser:
 	def getGenomeWideResultFromFile(self, input_fname, min_value_cutoff=None):
 		"""
 		2008-05-28
+			handle both 3/4-column input file
 		"""
 		sys.stderr.write("Getting genome wide result from %s ... "%input_fname)
 		gwr = GenomeWideResult(name=os.path.basename(input_fname))
@@ -231,12 +232,22 @@ class GenomeBrowser:
 		self.snp_pos_ls = []
 		self.pvalue_ls = []
 		for row in reader:
-			chr, pos, pvalue = row[:3]
-			chr = int(chr)
-			pos = int(pos)
-			pvalue = float(pvalue)
-			if min_value_cutoff is None or pvalue>=min_value_cutoff:
-				data_obj = DataObject(chromosome=chr, position=pos, value =pvalue)
+			chr = int(row[0])
+			start_pos = int(row[1])
+			if len(row)==3:
+				stop_pos = None
+				score = float(row[2])
+			elif len(row)==4:
+				stop_pos = int(row[2])
+				score = float(row[3])
+			else:
+				sys.stderr.write("only 3 or 4 columns are allowed in input file.\n")
+				return gwr
+			if min_value_cutoff is None or score>=min_value_cutoff:
+				if stop_pos is not None:
+					data_obj = DataObject(chromosome=chr, position=start_pos, stop_position=stop_pos, value =score)
+				else:
+					data_obj = DataObject(chromosome=chr, position=start_pos, value =score)
 				data_obj.genome_wide_result_id = genome_wide_result_id
 				gwr.add_one_data_obj(data_obj)
 		del reader
@@ -282,7 +293,7 @@ class GenomeBrowser:
 		x = this_chr_starting_pos_on_plot + pos
 		return x
 	
-	def plot(self, ax, canvas, genome_wide_result):
+	def plot(self, ax, canvas, genome_wide_result, draw_line_as_point=True):
 		"""
 		2008-05-28
 			input is genome_wide_result
@@ -300,14 +311,17 @@ class GenomeBrowser:
 		for data_obj in genome_wide_result.data_obj_ls:
 			y_pos = genome_wide_result.base_value - genome_wide_result.min_value + data_obj.value 
 			x_pos = self.getXposition(data_obj.chromosome, data_obj.position)
-			if data_obj.stop_position is not None:
+			if data_obj.stop_position is not None and draw_line_as_point==False:	#bigger than 100k, then a line
 				x_stop_pos = self.getXposition(data_obj.chromosome, data_obj.stop_position)
 				x_ls.append([(x_pos, y_pos), (x_stop_pos, y_pos)])
 				#artist_obj = Line2D([x_pos, y_pos], [x_stop_pos, y_pos], picker=True)
 			else:
+				if draw_line_as_point and data_obj.stop_position is not None:
+					x_stop_pos = self.getXposition(data_obj.chromosome, data_obj.stop_position)
+					x_pos = (x_pos+x_stop_pos)/2.0
 				x_ls.append(x_pos)
 				y_ls.append(y_pos)
-				#artist_obj = Circle((x_pos, y_pos), picker=True)
+					#artist_obj = Circle((x_pos, y_pos), picker=True)
 		
 		if len(y_ls)>0:
 			artist_obj = ax.scatter(x_ls, y_ls, s=10, faceted=False, picker=True)
@@ -386,6 +400,8 @@ class GenomeBrowser:
 				genome_wide_result_id, data_obj_id = self.artist_obj_id2data_obj_key[artist_obj_id]
 				genome_wide_result = self.genome_wide_results.get_genome_wide_result_by_obj_id(genome_wide_result_id)
 				for obj_index in event.ind:
+					if isinstance(obj_index, tuple) or isinstance(obj_index, list):
+						obj_index = obj_index[0]
 					data_obj = genome_wide_result.get_data_obj_by_obj_index(obj_index)
 					output_str = "genome result: %s, chromosome: %s, position: %s, "%(genome_wide_result.name, data_obj.chromosome, data_obj.position)
 					if data_obj.stop_position is not None:
@@ -439,8 +455,6 @@ class GenomeBrowser:
 			min_value_cutoff = float(self.entry_min_value_cutoff.get_text())
 		else:
 			min_value_cutoff = None
-		import pdb
-		pdb.set_trace()
 		genome_wide_result = self.getGenomeWideResultFromFile(input_fname, min_value_cutoff)
 		if len(genome_wide_result.data_obj_ls)>0:
 			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
