@@ -25,6 +25,7 @@ matplotlib.use('GTKAgg')  # or 'GTK'
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 from matplotlib.figure import Figure
+
 #from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 #2008-02-04 use a custom navigation tool bar
 from pymodule.gnome import NavigationToolbar2GTKAgg_chromosome as NavigationToolbar
@@ -35,9 +36,11 @@ import numpy
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Text
+from matplotlib.collections import LineCollection, Collection
 
 from pymodule.yh_matplotlib_artists import Gene
 from variation.src.common import get_chr_pos_from_x_axis_pos
+from pymodule.db import TableClass
 
 class GeneModel:
 	def __init__(self, gene_id=None, chromosome=None, symbol = None, description = None, type_of_gene = None, \
@@ -60,6 +63,61 @@ class GeneModel:
 		self.go_description = go_description
 		self.go_term_type = go_term_type
 
+class GenomeWideResults(TableClass):
+	genome_wide_result_ls = None
+	genome_wide_result_obj_id2index = None
+	max_value = 0	#the current top value for all genome wide results
+	gap = 1.0	#gap between two genome wide results
+	def get_genome_wide_result_by_obj_id(self, obj_id):
+		return self.genome_wide_result_ls[self.genome_wide_result_obj_id2index[obj_id]]
+	
+	def add_genome_wide_result(self, genome_wide_result):
+		genome_wide_result_index = len(self.genome_wide_result_ls)
+		if genome_wide_result_index==0:	#the first result, no gap necessary
+			genome_wide_result.base_value = self.max_value
+		else:
+			genome_wide_result.base_value = self.max_value + self.gap
+		new_max_value = genome_wide_result.base_value + genome_wide_result.max_value - genome_wide_result.min_value
+		if self.max_value is None or new_max_value > self.max_value:
+			self.max_value = new_max_value
+		
+		self.genome_wide_result_ls.append(genome_wide_result)
+		self.genome_wide_result_obj_id2index[id(genome_wide_result)] = genome_wide_result_index
+
+class GenomeWideResult(TableClass):
+	data_obj_ls = None
+	data_obj_id2index = None
+	name = None
+	results_method_id = None
+	results_method = None
+	min_value = None
+	max_value = None
+	base_value = 0
+	
+	def get_data_obj_by_obj_id(self, obj_id):
+		return self.data_obj_ls[self.data_obj_id2index[obj_id]]
+	
+	def get_data_obj_by_obj_index(self, obj_index):
+		return self.data_obj_ls[obj_index]
+	
+	def add_one_data_obj(self, data_obj):
+		data_obj_index = len(self.data_obj_ls)
+		self.data_obj_ls.append(data_obj)
+		
+		self.data_obj_id2index[id(data_obj)] = data_obj_index
+		if self.min_value is None or data_obj.value<self.min_value:
+			self.min_value = data_obj.value
+		if self.max_value is None or data_obj.value>self.max_value:
+			self.max_value = data_obj.value
+
+class DataObject(TableClass):
+	chromosome = None
+	position = None
+	stop_position = None
+	name = None
+	value = None
+	genome_wide_result_id = None
+
 class GenomeBrowser:
 	def __init__(self):
 		"""
@@ -70,14 +128,14 @@ class GenomeBrowser:
 		xml.signal_autoconnect(self)
 		self.app1 = xml.get_widget("app1")
 		self.app1.connect("delete_event", gtk.main_quit)
-		self.app1.set_default_size(1200, 800)
+		#self.app1.set_default_size(1200, 800)
 		
 		self.vbox_matplotlib = xml.get_widget('vbox_matplotlib')
 		
 		# matplotlib canvas
 		fig = Figure(figsize=(8,8))
 		self.canvas_matplotlib = FigureCanvas(fig)  # a gtk.DrawingArea
-		self.canvas_matplotlib.set_size_request(800,600)
+		self.canvas_matplotlib.set_size_request(600,400)
 		self.canvas_matplotlib.mpl_connect('pick_event', self.on_canvas_pick)
 		self.vbox_matplotlib.pack_start(self.canvas_matplotlib)
 		
@@ -111,7 +169,9 @@ class GenomeBrowser:
 		self.app1.show_all()
 		
 		self.filechooserdialog1 = xml.get_widget("filechooserdialog1")
+		self.entry_min_value_cutoff = xml.get_widget('entry_min_value_cutoff')
 		self.filechooserdialog1.connect("delete_event", yh_gnome.subwindow_hide)
+		
 		
 		self.dialog_db_connect = xml.get_widget("dialog_db_connect")
 		self.dialog_db_connect.connect("delete_event", yh_gnome.subwindow_hide)
@@ -139,6 +199,13 @@ class GenomeBrowser:
 		self.chr_gap = None
 		self.chr_id_ls = []
 		
+		self.genome_wide_results = GenomeWideResults(gap=1.0)
+		self.genome_wide_results.genome_wide_result_ls = []
+		self.genome_wide_results.genome_wide_result_obj_id2index = {}
+		self.artist_obj_id2data_obj_key = {}
+		self.yticks = []
+		self.yticklabels = []
+		
 		self.gene_id2artist_object_id = {}
 		self.chr_id2gene_id_ls = {}	#chr_id here is str type (db is varchar type)
 		self.gene_id2model = {}
@@ -149,8 +216,34 @@ class GenomeBrowser:
 		self.draw_gene_symbol_when_clicked = 0
 		
 		self.debug = 0
-		
-	def load_data(self, input_fname, mysql_curs, postgres_curs):
+	
+	def getGenomeWideResultFromFile(self, input_fname, min_value_cutoff=None):
+		"""
+		2008-05-28
+		"""
+		sys.stderr.write("Getting genome wide result from %s ... "%input_fname)
+		gwr = GenomeWideResult(name=os.path.basename(input_fname))
+		gwr.data_obj_ls = []	#list and dictionary are crazy references.
+		gwr.data_obj_id2index = {}
+		genome_wide_result_id = id(gwr)
+		import csv
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		self.snp_pos_ls = []
+		self.pvalue_ls = []
+		for row in reader:
+			chr, pos, pvalue = row[:3]
+			chr = int(chr)
+			pos = int(pos)
+			pvalue = float(pvalue)
+			if min_value_cutoff is None or pvalue>=min_value_cutoff:
+				data_obj = DataObject(chromosome=chr, position=pos, value =pvalue)
+				data_obj.genome_wide_result_id = genome_wide_result_id
+				gwr.add_one_data_obj(data_obj)
+		del reader
+		sys.stderr.write("Done.\n")
+		return gwr
+	
+	def load_data(self, mysql_curs, postgres_curs):
 		"""
 		2008-02-04 update the info related to chromosome , position in toolbar
 		2008-02-01
@@ -159,19 +252,7 @@ class GenomeBrowser:
 			chr_id2cumu_size has an extra fake chromosome (0) compared to chr_id2size
 			
 			chr_id is all changed into str type
-		"""
-		sys.stderr.write("Read in data from %s ... "%input_fname)
-		import csv
-		reader = csv.reader(open(input_fname), delimiter='\t')
-		self.snp_pos_ls = []
-		self.pvalue_ls = []
-		for row in reader:
-			chr, pos, pvalue = row
-			self.snp_pos_ls.append([int(chr), int(pos)])
-			self.pvalue_ls.append(float(pvalue))
-		del reader
-		sys.stderr.write("Done.\n")
-		
+		"""		
 		from variation.src.common import get_chr_id2size, get_chr_id2cumu_size
 		chr_id_int2size = get_chr_id2size(mysql_curs)
 		self.chr_id2size = {}	#change the type of chr_id into string type
@@ -192,17 +273,70 @@ class GenomeBrowser:
 			for chr_id in self.chr_id_ls:
 				print type(chr_id)
 		self.toolbar.update_chr_info(self.chr_id2size, self.chr_id2cumu_size, self.chr_gap, self.chr_id_ls)
-		
-	def plot(self, ax, canvas, snp_pos_ls, pvalue_ls, chr_id2cumu_size, chr_id2size, chr_gap):
+	
+	def getXposition(self, chr, pos):
+		chr = str(chr)
+		if getattr(self, 'chr_id2cumu_size', None) is None:
+			self.load_data(self.mysql_curs, self.postgres_curs)
+		this_chr_starting_pos_on_plot = self.chr_id2cumu_size[chr]-self.chr_id2size[chr]-self.chr_gap
+		x = this_chr_starting_pos_on_plot + pos
+		return x
+	
+	def plot(self, ax, canvas, genome_wide_result):
 		"""
+		2008-05-28
+			input is genome_wide_result
+			chr_id2cumu_size, chr_id2size, chr_gap hidden from arguments
 		2008-02-04
 			chromosome is converted to str type
 		2008-02-01
 			draw the p-value, snp position, and chromosome boundary
 		"""
-		sys.stderr.write("Plotting ...")
-		ax.clear()
+		sys.stderr.write("Plotting %s ..."%genome_wide_result.name)
+		#ax.clear()
+		genome_wide_result_id = id(genome_wide_result)
 		x_ls = []
+		y_ls = []
+		for data_obj in genome_wide_result.data_obj_ls:
+			y_pos = genome_wide_result.base_value - genome_wide_result.min_value + data_obj.value 
+			x_pos = self.getXposition(data_obj.chromosome, data_obj.position)
+			if data_obj.stop_position is not None:
+				x_stop_pos = self.getXposition(data_obj.chromosome, data_obj.stop_position)
+				x_ls.append([(x_pos, y_pos), (x_stop_pos, y_pos)])
+				#artist_obj = Line2D([x_pos, y_pos], [x_stop_pos, y_pos], picker=True)
+			else:
+				x_ls.append(x_pos)
+				y_ls.append(y_pos)
+				#artist_obj = Circle((x_pos, y_pos), picker=True)
+		
+		if len(y_ls)>0:
+			artist_obj = ax.scatter(x_ls, y_ls, s=10, faceted=False, picker=True)
+		else:
+			artist_obj = LineCollection(x_ls, picker=True)
+			ax.add_artist(artist_obj)
+		artist_obj_id = id(artist_obj)
+		self.artist_obj_id2data_obj_key[artist_obj_id] = [genome_wide_result_id, None]
+		
+		y_base_value = genome_wide_result.base_value
+		y_top_value = genome_wide_result.base_value + genome_wide_result.max_value - genome_wide_result.min_value
+		if self.debug:
+			print "y_base_value", y_base_value
+			print 'y_top_value', y_top_value
+		self.yticks.append(y_base_value)
+		self.yticks.append(y_top_value)
+		ax.set_yticks(self.yticks)
+		
+		self.yticklabels.append('%s %.2f'%(genome_wide_result.name, genome_wide_result.min_value))
+		self.yticklabels.append('%s %.2f'%(genome_wide_result.name, genome_wide_result.max_value))
+		ax.set_yticklabels(self.yticklabels)
+		
+		"""
+		ax.add_artist(g_artist)
+		artist_object_id = id(g_artist)
+				self.artist_object_id2artist_gene_id_ls[artist_object_id] = [g_artist, gene_id]
+				self.gene_id2artist_object_id[gene_id] = artist_object_id
+				
+				x_ls = []
 		y_ls = []
 		max_pvalue = 0
 		for i in range(len(snp_pos_ls)):
@@ -216,15 +350,17 @@ class GenomeBrowser:
 				max_pvalue = pvalue
 			y_ls.append(pvalue)
 		ax.plot(x_ls, y_ls, '.', picker=3)	#3 points tolerance
-		
+		"""
 		#draw the chromosome boundary
-		for chr_id, cumu_size in chr_id2cumu_size.iteritems():
-			ax.plot([cumu_size, cumu_size], [-2, max_pvalue], c='k')
+		for chr_id, cumu_size in self.chr_id2cumu_size.iteritems():
+			ax.vlines(cumu_size, y_base_value, y_top_value, color='k')
 		canvas.draw()
 		sys.stderr.write("Done.\n")
 	
 	def on_canvas_pick(self, event):
 		"""
+		2008-05-28
+			pick from collection
 		2008-01-31 copied from examples/pick_event_demo.py from matplotlib source code
 		"""
 		if self.debug:
@@ -232,6 +368,7 @@ class GenomeBrowser:
 			print event.artist
 			print dir(event.artist)
 			print type(event.artist)
+		"""
 		if isinstance(event.artist, Line2D):
 			thisline = event.artist
 			xdata = thisline.get_xdata()
@@ -242,6 +379,21 @@ class GenomeBrowser:
 				print 'onpick1 line:', zip(numpy.take(xdata, ind), numpy.take(ydata, ind))
 			for i in ind:
 				print "snp chromosome: %s, position: %s, pvalue: %s"%(self.snp_pos_ls[i][0], self.snp_pos_ls[i][1], self.pvalue_ls[i])
+		"""
+		if isinstance(event.artist, Collection) or isinstance(event.artist, LineCollection):
+			artist_obj_id = id(event.artist)
+			if artist_obj_id in self.artist_obj_id2data_obj_key:
+				genome_wide_result_id, data_obj_id = self.artist_obj_id2data_obj_key[artist_obj_id]
+				genome_wide_result = self.genome_wide_results.get_genome_wide_result_by_obj_id(genome_wide_result_id)
+				for obj_index in event.ind:
+					data_obj = genome_wide_result.get_data_obj_by_obj_index(obj_index)
+					output_str = "genome result: %s, chromosome: %s, position: %s, "%(genome_wide_result.name, data_obj.chromosome, data_obj.position)
+					if data_obj.stop_position is not None:
+						output_str += "stop position: %s, "%(data_obj.stop_position)
+					output_str += "value: %s"%(data_obj.value)
+					print output_str
+			else:
+				sys.stderr.write("%s not in artist_obj_id2data_obj_key.\n"%(artist_obj_id))
 		elif isinstance(event.artist, Rectangle):
 			patch = event.artist
 			print 'onpick1 patch:', patch.get_verts()
@@ -273,6 +425,8 @@ class GenomeBrowser:
 	
 	def on_button_filechooser_ok_clicked(self, widget, data=None):
 		"""
+		2008-05-28
+			use GenomeWideResult and etc
 		2008-02-14
 			set the window title by the input filename
 		"""
@@ -281,8 +435,19 @@ class GenomeBrowser:
 		if not self.mysql_conn or not self.mysql_curs or not self.postgres_conn or not self.postgres_curs:
 			self.db_connect()
 		self.app1.set_title("Genome Browser: %s"%input_fname)
-		self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
-		self.plot(self.ax, self.canvas_matplotlib, self.snp_pos_ls, self.pvalue_ls, self.chr_id2cumu_size, self.chr_id2size, self.chr_gap)
+		if self.entry_min_value_cutoff.get_text():
+			min_value_cutoff = float(self.entry_min_value_cutoff.get_text())
+		else:
+			min_value_cutoff = None
+		import pdb
+		pdb.set_trace()
+		genome_wide_result = self.getGenomeWideResultFromFile(input_fname, min_value_cutoff)
+		if len(genome_wide_result.data_obj_ls)>0:
+			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
+			#self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
+			self.plot(self.ax, self.canvas_matplotlib, self.genome_wide_results.genome_wide_result_ls[-1])
+		else:
+			sys.stderr.write("No data in %s under min_value_cutoff=%s. Maybe min_value_cutoff is too high.\n"%(input_fname, min_value_cutoff))
 	
 	def on_button_filechooser_cancel_clicked(self, widget, data=None):
 		self.filechooserdialog1.hide()
@@ -471,6 +636,48 @@ class GenomeBrowser:
 			clean up output buffer
 		"""
 		self.textbuffer_output.set_text('')
+	
+	def on_checkbutton_debug_toggled(self, widget):
+		"""
+		2008-05-28
+		"""
+		if self.checkbutton_debug.get_active():
+			self.debug = 1
+		else:
+			self.debug = 0
+	
+	def on_checkbutton_stdout_toggled(self, widget):
+		"""
+		2008-05-28
+		"""
+		if self.checkbutton_stdout.get_active():
+			sys.stdout = self.dummy_out
+		else:
+			sys.stdout = sys.__stdout__
+	
+	def on_checkbutton_stderr_toggled(self, widget):
+		"""
+		2008-05-28
+		"""
+		if self.checkbutton_stderr.get_active():
+			sys.stderr = self.dummy_err
+		else:
+			sys.stderr = sys.__stderr__
+	
+	def on_checkbutton_draw_gene_symbol_toggled(self, widget):
+		"""
+		2008-05-28
+		"""
+		if self.checkbutton_draw_gene_symbol.get_active():
+			self.draw_gene_symbol_when_clicked = 1
+		else:
+			self.draw_gene_symbol_when_clicked = 0
+	
+	def on_entry_gene_width_changed(self, widget):
+		"""
+		2008-05-28
+		"""
+		self.gene_width = float(self.entry_gene_width.get_text())
 	
 prog = gnome.program_init('GenomeBrowser', '0.1')
 instance = GenomeBrowser()
