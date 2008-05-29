@@ -165,5 +165,10 @@ if __name__ == '__main__':
 	a.add_artist(g2)
 	a.set_xlim(min(start_ls), max(end_ls))
 	a.set_ylim(0,2)
+	from matplotlib.patches import Circle
+	from matplotlib.lines import Line2D
+	
+	c1 = Circle((1,2), radius=1)
+	a.add_artist(c1)
 	
 	pylab.show()
