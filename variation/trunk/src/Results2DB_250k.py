@@ -32,7 +32,7 @@ else:   #32bit
 
 import csv, stat, getopt
 import traceback, gc, subprocess
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs, ResultsMethodType
+from db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs, ResultsMethodType
 from pymodule import figureOutDelimiter
 
 import sqlalchemy as sql
