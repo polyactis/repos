@@ -48,7 +48,7 @@ def _run_():
 	passwd = None
 	output_fname = None
 	version = "3"
-	delim = ", "
+	delim = ","
 	missingVal = "NA"
 	useAccessionName = False
 	debug = None

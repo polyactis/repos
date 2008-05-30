@@ -404,7 +404,7 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
     Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
     """
     rt = time.time()
-    decoder = RawDecoder()  #Other unused informative letters are ['R','Y','S','M','K','W']:
+    decoder = RawDecoder({'-':'-'})  #Other unused informative letters are ['R','Y','S','M','K','W']:
     
     print "Connecting to db, host="+host
     if not user:
@@ -470,6 +470,7 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
                 snps.append(snp)
 
         snpsd = RawSnpsData(snps,positions,accessions=accessions)
+        snpsd.alphabet.append('-')
         snpsds.append(snpsd)
                 
     cursor.close ()

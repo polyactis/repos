@@ -44,9 +44,11 @@ class _SnpsData_(object):
 class RawDecoder(dict):
 	def __missing__(self, key):
 		return 'NA'
-	def __init__(self):
+	def __init__(self,initdict={}):
 		for letter in ['A','C','G','T']:
 			self[letter]=letter
+		for letter in initdict:
+			self[letter]=initdict[letter]
 	
 
 class RawSnpsData(_SnpsData_):
@@ -57,6 +59,10 @@ class RawSnpsData(_SnpsData_):
 	Alphabet: A,C,G,T, and NA
 
 	"""
+	#alphabet = ['A','C','G','T']
+	alphabet = ['A','C','G','T','-']
+	missingVal = 'NA'
+
 	callProbabilities = []  #list[position_index][accession_index]
 
 	def __init__(self,snps=None,positions=None,baseScale=None,accessions=None,arrayIds=None, callProbabilities=None):
@@ -150,7 +156,7 @@ class RawSnpsData(_SnpsData_):
 					if index[0]!=-1:
 						newSnp.append(oldSnp[index[0]])				   
 					else:
-						newSnp.append('NA')
+						newSnp.append(self.missingVal)
 				newSnps.append(newSnp)
 				i = i+1
 			elif j < len(snpsd.positions) and pos2 < pos1:
@@ -162,7 +168,7 @@ class RawSnpsData(_SnpsData_):
 						if index[1]!=-1:
 							newSnp.append(oldSnp[index[1]])				   
 						else:
-							newSnp.append('NA')
+							newSnp.append(self.missingVal)
 					newSnps.append(newSnp)
 				j = j+1
 			elif i < len(self.positions) and j < len(snpsd.positions) and pos1==pos2:
@@ -172,7 +178,7 @@ class RawSnpsData(_SnpsData_):
 					if index[0]!=-1 and index[1]!=-1:
 						snp1 = self.snps[i][index[0]]
 						snp2 = snpsd.snps[j][index[1]]
-						if snp1!='NA' and snp2!='NA':
+						if snp1!=self.missingVal and snp2!=self.missingVal:
 							counts += 1
 							if snp1!=snp2:
 								fails = fails+1
@@ -186,11 +192,11 @@ class RawSnpsData(_SnpsData_):
 				oldSnp1 = self.snps[i]
 				oldSnp2 = snpsd.snps[j]
 				for index in accessionsIndices:
-					if index[0] != -1 and oldSnp1[index[0]]!='NA' and priority==1:
+					if index[0] != -1 and oldSnp1[index[0]]!=self.missingVal and priority==1:
 						newSnp.append(oldSnp1[index[0]])
-					elif index[0] != -1 and oldSnp1[index[0]]!='NA' and priority==2:
+					elif index[0] != -1 and oldSnp1[index[0]]!=self.missingVal and priority==2:
 						if index[1] != -1:
-							if oldSnp2[index[1]]=='NA':
+							if oldSnp2[index[1]]==self.missingVal:
 								newSnp.append(oldSnp1[index[0]])
 							else:
 								newSnp.append(oldSnp2[index[1]])
@@ -199,7 +205,7 @@ class RawSnpsData(_SnpsData_):
 					elif index[1] != -1:
 						newSnp.append(oldSnp2[index[1]])
 					else:
-						newSnp.append('NA')
+						newSnp.append(self.missingVal)
 				newSnps.append(newSnp)
 				i = i+1
 				j = j+1
@@ -214,7 +220,7 @@ class RawSnpsData(_SnpsData_):
 						if index[0]!=-1:
 							newSnp.append(oldSnp[index[0]])				   
 						else:
-							newSnp.append('NA')
+							newSnp.append(self.missingVal)
 					newSnps.append(newSnp)
 					i = i+1
 
@@ -227,7 +233,7 @@ class RawSnpsData(_SnpsData_):
 							if index[1]!=-1:
 								newSnp.append(oldSnp[index[1]])				   
 							else:
-								newSnp.append('NA')
+								newSnp.append(self.missingVal)
 						newSnps.append(newSnp)
 					j = j+1
 				 
@@ -293,12 +299,12 @@ class RawSnpsData(_SnpsData_):
 				for index in accessionsIndices:
 					snp1 = self.snps[i][index[0]]
 					snp2 = snpsd.snps[j][index[1]]
-					if snp1!='NA' and snp2!='NA':
+					if snp1!=self.missingVal and snp2!=self.missingVal:
 						counts += 1
 						if snp1!=snp2:
 							fails = fails+1
 
-					if self.snps[index[0]] == 'NA' or priority==2 and self.snps[index[1]] != 'NA':
+					if self.snps[index[0]] == self.missingVal or priority==2 and self.snps[index[1]] != self.missingVal:
 						self.snps[i][index[0]]=snpsd.snps[j][index[1]]		   
 
 				goodSnpsCounts.append(counts)
@@ -378,17 +384,17 @@ class RawSnpsData(_SnpsData_):
 					accIndices = accessionsIndices[k]
 					snp1 = self.snps[i][accIndices[0]]
 					snp2 = snpsd.snps[j][accIndices[1]]
-					if snp1!='NA' and snp2!='NA':
+					if snp1!=self.missingVal and snp2!=self.missingVal:
 						accessionCounts[k] += 1
 						counts += 1
 						if snp1!=snp2:
 							fails = fails+1
 							accessionErrorRate[k] += 1
 					else:
-						if snp1=='NA':
+						if snp1==self.missingVal:
 							accessionCallRates[0][k]+=1
 							missing1 += 1
-						if snp2=='NA':
+						if snp2==self.missingVal:
 							accessionCallRates[1][k]+=1
 							missing2 += 1
 				goodSnpsCounts.append(counts)
@@ -430,7 +436,7 @@ class RawSnpsData(_SnpsData_):
 			for k in range(0,len(accessionsIndices)):
 				accIndices = accessionsIndices[k]
 				snp = self.snps[i][accIndices[0]]
-				if snp=='NA':
+				if snp==self.missingVal:
 					naCounts1[k] += 1
 		
 		naCounts2 = [0]*len(accessionsIndices)
@@ -438,7 +444,7 @@ class RawSnpsData(_SnpsData_):
 			for k in range(0,len(accessionsIndices)):
 				accIndices = accessionsIndices[k]
 				snp = snpsd.snps[i][accIndices[1]]
-				if snp=='NA':
+				if snp==self.missingVal:
 					naCounts2[k] += 1
 		
 		return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate, [naCounts1,naCounts2]]
@@ -450,13 +456,13 @@ class RawSnpsData(_SnpsData_):
 		Note that some of the SnpsData attributes are a shallow copy of the RawSnpsData obj.
 		"""
 		if noNA:
-			decoder = {'NA':0}  #A REALLY UGLY HACK!!!
+			decoder = {self.missingVal:0}  #A REALLY UGLY HACK!!!
 		else:
-			decoder = {'NA':-1}
+			decoder = {self.missingVal:-1}
 		snps = []
 		for i in range(0,len(self.snps)):
 			k = 0
-			for nt in ['A','C','G','T']:
+			for nt in self.alphabet:
 				if nt in self.snps[i]:
 					decoder[nt]=k
 					k = k+1
@@ -466,7 +472,7 @@ class RawSnpsData(_SnpsData_):
 				maxnt1 = ''
 				max2 = 0
 				maxnt2 = ''
-				for nt in ['A','C','G','T']:
+				for nt in self.alphabet:
 					c = self.snps[i].count(nt)
 					if c>max1:
 						max1 = c
@@ -528,7 +534,7 @@ class RawSnpsData(_SnpsData_):
 					accIndices = accessionsIndices[k]
 					snp1 = self.snps[i][accIndices[0]]
 					snp2 = snpsd.snps[j][accIndices[1]]
-					if snp1!='NA' and snp2!='NA':
+					if snp1!=self.missingVal and snp2!=self.missingVal:
 						counts += 1
 						if snp1!=snp2:
 							fails = fails+1
@@ -558,7 +564,7 @@ class RawSnpsData(_SnpsData_):
 		for i in range(0,len(self.positions)):
 			for j in range(0,len(self.snps[i])):
 				if self.callProbabilities[i][j]<minCallProb:
-					self.snps[i][j] = 'NA'
+					self.snps[i][j] = self.missingVal
 					count += 1
 		fractionConverted = count/float(totalCount)
 		return fractionConverted
@@ -575,7 +581,7 @@ class RawSnpsData(_SnpsData_):
 		for i in range(0,len(self.positions)):
 			for j in range(0,len(self.accessions)):
 				totalCounts +=1
-				if self.snps[i][j]=='NA':
+				if self.snps[i][j]==self.missingVal:
 					missingCounts += 1
 		
 		return missingCounts/float(totalCounts)
@@ -590,7 +596,7 @@ class RawSnpsData(_SnpsData_):
 			totalCounts = 0
 			for j in range(0,len(self.accessions)):
 				totalCounts +=1
-				if self.snps[i][j]=='NA':
+				if self.snps[i][j]==self.missingVal:
 					missingCounts += 1
 			naRates.append(missingCounts/float(totalCounts))
 					
@@ -607,7 +613,7 @@ class RawSnpsData(_SnpsData_):
 		for i in range(0,len(self.positions)):
 			missingCount = 0
 			for nt in self.snps[i]:
-				if nt =='NA':
+				if nt ==self.missingVal:
 					missingCount += 1
 			if missingCount<=maxNumMissing:
 				newSnps.append(self.snps[i])
@@ -625,22 +631,22 @@ class RawSnpsData(_SnpsData_):
 		"""
 		newPositions = []
 		newSnps = []
-		ntCounts = [0.0]*4
-		ntl = ['A','C','G','T']
+		ntCounts = [0.0]*len(self.alphabet)
+		ntl = self.alphabet
 		for i in range(0,len(self.positions)):
 			snp = self.snps[i]
 			totalCount = 0
-			for j in range(0,4):
+			for j in range(0,len(self.alphabet)):
 				nt = ntl[j]
 				c = snp.count(nt)
 				ntCounts[j] = c
 				totalCount += c
-			for j in range(0,4):
+			for j in range(0,len(self.alphabet)):
 				ntCounts[j] = ntCounts[j]/float(totalCount)
 			maxAF = max(ntCounts)
 			maf = 0
 			if ntCounts.count(maxAF)<2:
-				for j in range(0,4):
+				for j in range(0,len(self.alphabet)):
 					if ntCounts[j]<maxAF and ntCounts[j] > 0.0:
 						if ntCounts[j]>maf:
 							maf = ntCounts[j]
@@ -657,6 +663,26 @@ class RawSnpsData(_SnpsData_):
 		return numRemoved
 
 
+	def onlyBinarySnps(self):
+		"""
+		Removes all but binary SNPs.  (I.e. monomorphic, tertiary and quaternary alleles SNPs are removed.)
+		"""
+		newPositions = []
+		newSnps = []
+		for i in range(0,len(self.positions)):
+			count = 0
+			for nt in self.alphabet:
+				if nt in self.snps[i]:
+					count += 1
+			if count==2:
+				newSnps.append(self.snps[i])
+				newPositions.append(self.positions[i])
+		numRemoved = len(self.positions)-len(newPositions)
+		self.no_of_nonbinary_snps_removed = numRemoved
+		self.snps = newSnps
+		self.positions = newPositions
+		return numRemoved
+
 	def filterMonoMorphicSnps(self):
 		"""
 		05/12/08 yh. add no_of_monomorphic_snps_removed
@@ -666,7 +692,7 @@ class RawSnpsData(_SnpsData_):
 		newSnps = []
 		for i in range(0,len(self.positions)):
 			count = 0
-			for nt in ['A','C','G','T']:
+			for nt in self.alphabet:
 				if nt in self.snps[i]:
 					count += 1
 			if count>1:
@@ -753,7 +779,7 @@ class RawSnpsData(_SnpsData_):
 
 		for i in range(0,len(self.positions)):
 			for j in range(0,len(self.accessions)):
-				if self.snps[i][j]=='NA':
+				if self.snps[i][j]==self.missingVal:
 					missingCounts[j] += 1
 		
 		return missingCounts
@@ -1161,7 +1187,7 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 
 
 	decoder = RawDecoder()
-	decoder['NA']=missingVal
+	decoder[RawSnpsData.missingVal]=missingVal
 
 	print "NumSnps: "+str(numSnps)+", NumAcc: "+str(len(accessions))+"\n"
 	#writer = csv.writer(open(filename, 'w'), delimiter=deliminator)

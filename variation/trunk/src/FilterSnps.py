@@ -13,6 +13,7 @@ Option:
         --callProbFile=...          a csv file with call probabilities.
 	--maxMissing=...            maximum allowed missing percentage.
 	--monomorphic               filter monomorphic SNPs.
+	--onlyBinary                filter all SNPs which are not binary (monomorphic, tertiary and quaternary alleled SNPs are removed).
 	--minCallProb=...           minimum allowed call probability. SNPs below the threshold are set to NA. (Requires a callProbFile file.)
 	--minMAF=...                minimum allowed minor allele frequency.
 	-b, --debug	enable debug
@@ -36,7 +37,7 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minMAF=", "minCallProb=", "debug", "report", "help"]
+	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "onlyBinary", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minMAF=", "minCallProb=", "debug", "report", "help"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
 
@@ -62,7 +63,7 @@ def _run_():
 	minCallProb=None
 	minMAF=None
 	callProbFile = None
-
+	onlyBinary = False
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -70,30 +71,32 @@ def _run_():
 			print __doc__
 		elif opt in ("-a","--withArrayId"):
 			withArrayIds = int(arg)
+		elif opt in ("-o",):
+			output_fname = arg
+		elif opt in ("-m","--missingval"):
+			missingVal = arg
 		elif opt in ("--comparisonFile"):
 			comparisonFile = arg
 		elif opt in ("--maxError"):
 			maxError = float(arg)
 		elif opt in ("--maxMissing"):
 			maxMissing = float(arg)
-		elif opt in ("--monomorphic"):
-			monomorphic = True
 		elif opt in ("--minCallProb"):
 			minCallProb = float(arg)
 		elif opt in ("--minMAF"):
 			minMAF = float(arg)
 		elif opt in ("--callProbFile"):
 			callProbFile = arg
-		elif opt in ("-o",):
-			output_fname = arg
 		elif opt in ("-d","--delim"):
 			delim = arg
-		elif opt in ("-m","--missingval"):
-			missingVal = arg
 		elif opt in ("-b", "--debug"):
 			debug = 1
 		elif opt in ("-r", "--report"):
 			report = 1
+		elif opt in ("--monomorphic"):
+			monomorphic = True
+		elif opt in ("--onlyBinary"):
+			onlyBinary = True
 		else:
 			if help==0:
 				print "Unkown option!!\n"
@@ -123,7 +126,11 @@ def _run_():
 		for snpsd in snpsds:
 			print "Removed", str(snpsd.filterMonoMorphicSnps()),"Snps"
 
-	
+	if onlyBinary:
+		print "Filtering non-binary SNPs"
+		for snpsd in snpsds:
+			print "Removed", str(snpsd.onlyBinarySnps()),"Snps"
+
 	#Filtering missing values
 	if maxMissing<1.0 and maxMissing>=0.0:
 		print "Filtering SNPs with missing values"
