@@ -41,6 +41,7 @@ from matplotlib.collections import LineCollection, Collection
 from pymodule.yh_matplotlib_artists import Gene
 from variation.src.common import get_chr_pos_from_x_axis_pos
 from pymodule.db import TableClass
+from Results2DB_250k import Results2DB_250k
 
 class GeneModel:
 	def __init__(self, gene_id=None, chromosome=None, symbol = None, description = None, type_of_gene = None, \
@@ -126,6 +127,8 @@ class GenomeBrowser:
 		program_path = os.path.dirname(sys.argv[0])
 		xml = gtk.glade.XML(os.path.join(program_path, 'GenomeBrowser.glade'))
 		xml.signal_autoconnect(self)
+		self.xml = xml
+		
 		self.app1 = xml.get_widget("app1")
 		self.app1.connect("delete_event", gtk.main_quit)
 		#self.app1.set_default_size(1200, 800)
@@ -217,8 +220,10 @@ class GenomeBrowser:
 		
 		self.debug = 0
 	
-	def getGenomeWideResultFromFile(self, input_fname, min_value_cutoff=None):
+	def getGenomeWideResultFromFile(self, input_fname, min_value_cutoff=None, do_log10_transformation=False):
 		"""
+		2008-05-31
+			automatically detect if header exists on the first line.
 		2008-05-28
 			handle both 3/4-column input file
 		"""
@@ -231,7 +236,11 @@ class GenomeBrowser:
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		self.snp_pos_ls = []
 		self.pvalue_ls = []
+		no_of_lines = 0
 		for row in reader:
+			#check if 1st line is header or not
+			if no_of_lines ==0 and Results2DB_250k.pa_has_characters.search(row[1]):
+				continue
 			chr = int(row[0])
 			start_pos = int(row[1])
 			if len(row)==3:
@@ -243,6 +252,8 @@ class GenomeBrowser:
 			else:
 				sys.stderr.write("only 3 or 4 columns are allowed in input file.\n")
 				return gwr
+			if do_log10_transformation:
+				score = -math.log10(score)
 			if min_value_cutoff is None or score>=min_value_cutoff:
 				if stop_pos is not None:
 					data_obj = DataObject(chromosome=chr, position=start_pos, stop_position=stop_pos, value =score)
@@ -250,6 +261,9 @@ class GenomeBrowser:
 					data_obj = DataObject(chromosome=chr, position=start_pos, value =score)
 				data_obj.genome_wide_result_id = genome_wide_result_id
 				gwr.add_one_data_obj(data_obj)
+			
+			no_of_lines += 1
+			
 		del reader
 		sys.stderr.write("Done.\n")
 		return gwr
@@ -441,6 +455,8 @@ class GenomeBrowser:
 	
 	def on_button_filechooser_ok_clicked(self, widget, data=None):
 		"""
+		2008-05-31
+			add check button to handle log10 transformation
 		2008-05-28
 			use GenomeWideResult and etc
 		2008-02-14
@@ -451,11 +467,18 @@ class GenomeBrowser:
 		if not self.mysql_conn or not self.mysql_curs or not self.postgres_conn or not self.postgres_curs:
 			self.db_connect()
 		self.app1.set_title("Genome Browser: %s"%input_fname)
+		
+		checkbutton_log10_transformation = self.xml.get_widget("checkbutton_log10_transformation")
+		if checkbutton_log10_transformation.get_active():
+			do_log10_transformation = True
+		else:
+			do_log10_transformation = False
+		
 		if self.entry_min_value_cutoff.get_text():
 			min_value_cutoff = float(self.entry_min_value_cutoff.get_text())
 		else:
 			min_value_cutoff = None
-		genome_wide_result = self.getGenomeWideResultFromFile(input_fname, min_value_cutoff)
+		genome_wide_result = self.getGenomeWideResultFromFile(input_fname, min_value_cutoff, do_log10_transformation)
 		if len(genome_wide_result.data_obj_ls)>0:
 			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
 			#self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
