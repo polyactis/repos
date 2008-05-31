@@ -26,7 +26,7 @@ from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 from variation.src.dbsnp import DBSNP, SNPs, README, SNPsABAlleleMapping
 from pymodule.db import formReadmeObj
-from variation.src.QC_250k import QC_250k, SNPData, TwoSNPData
+from pymodule import SNPData, TwoSNPData
 import sqlalchemy
 
 def get_snps_id2mapping(hostname, dbname=None, user=None, passwd=None, readme_id=2):
