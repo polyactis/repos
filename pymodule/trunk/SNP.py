@@ -642,14 +642,3 @@ class SNPData(object):
 		return newSnpData
 	removeMonomorphicCols = classmethod(removeMonomorphicCols)
 
-
-try:
-	from QualityControl import QualityControl
-except:
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-	try:
-		from variation.src.QualityControl import QualityControl
-	except:
-		QualityControl = object
-if QualityControl!=object:
-	from TwoSNPData import TwoSNPData
