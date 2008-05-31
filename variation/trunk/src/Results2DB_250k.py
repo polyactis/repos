@@ -30,7 +30,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import csv, stat, getopt
+import csv, stat, getopt, re
 import traceback, gc, subprocess
 from db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs, ResultsMethodType
 from pymodule import figureOutDelimiter
@@ -50,13 +50,19 @@ class Results2DB_250k(object):
 							('user', 1, ): [None, 'u', 1, 'database username', ],\
 							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							('input_fname',1, ): [None, 'i', 1, 'File containing association results'],\
+							('output_dir',1, ): ['/Network/Data/250k/db/results/', 'o', 1, 'file system storage for the results files. results_method.filename'],\
+							('short_name',1, ): [None, 'f', 1, 'short name for this result. Must be unique from previous ones. combining your name, phenotype, data, method is a good one.' ],\
 							('phenotype_method_id',1,int): [None, 'e', 1, 'which phenotype you used, check table phenotype_method'],\
-							('call_method_id',1,int): [None,],\
-							('results_method_type_id',1,int): [None,],\
-							('comment',0, ): [None, ],\
+							('call_method_id', 1, int ): [None, 'a', 1, 'data from which call_method, field id in table call_method'],\
+							('data_description', 1, ): [None, 'n', 1, 'Describe how your data is derived from that call method. like non-redundant set, 1st 96, etc.'],\
+							('method_description', 1, ): [None, 'm', 1, 'Describe your method and what type of score, association (-log or not), recombination etc.'],\
+							('results_method_type_id', 1, int): [1, 's', 1, 'which type of method. field id in table results_method_type. 1="association"',],\
+							('comment',0, ): [None, 't', 1, 'Anything more worth for other people to know?'],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	
+	pa_has_characters = re.compile(r'^[a-zA-Z_]')	#2008-05-30 check if a string has character in it, used to judge whether the 1st line is header or not.
 	"""
 	04/28/08 no longer needed
 							('results_table',1, ): 'results',\
@@ -69,13 +75,9 @@ class Results2DB_250k(object):
 			use ProcessOptions, newer option handling class
 		2008-04-16
 		"""
-		#this is just for the program to ask user
-		more_function_argument_dict = {('short_name',1,): None,\
-							('method_description',1,):None,\
-							('data_description',1, ):None}
-		more_function_argument_dict.update(self.option_default_dict)
+		
 		from pymodule import ProcessOptions
-		ProcessOptions.process_function_arguments(keywords, more_function_argument_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def check_if_phenotype_method_id_in_db(self, curs, phenotype_method_table, phenotype_method_id):
 		"""
@@ -213,10 +215,94 @@ class Results2DB_250k(object):
 	
 	submit_results = classmethod(submit_results)
 	
+	def come_up_new_results_filename(cls, output_dir, results_method_id, results_method_type_id):
+		"""
+		2008-05-30
+			to save the filename into db
+		"""
+		output_dir = os.path.join(output_dir, 'type_%s'%results_method_type_id)
+		if not os.path.isdir(output_dir):
+			os.makedirs(output_dir)
+		output_fname = os.path.join(output_dir, '%s_results.tsv'%results_method_id)
+		return output_fname
+	
+	come_up_new_results_filename = classmethod(come_up_new_results_filename)
+	
+	def store_file(cls, input_fname, output_fname):
+		"""
+		2008-05-30
+			replace submit_results()
+			dump the file onto file system storage
+			db submission is too slow
+		"""
+		if isinstance(input_fname, str) and os.path.isfile(input_fname):
+			sys.stderr.write("Storing results from %s ..."%(os.path.basename(input_fname)))
+			delimiter = figureOutDelimiter(input_fname)
+			reader = csv.reader(open(input_fname), delimiter=delimiter)
+		elif hasattr(input_fname, 'readline') or hasattr(input_fname, 'read'):	#input_fname is not a file name, but direct file object. it could also be <ZPublisher.HTTPRequest.FileUpload instance at 0xa1774f4c>
+			sys.stderr.write("Storing results from %s on plone ..."%input_fname.filename)
+			cs = csv.Sniffer()
+			input_fname.seek(0)	#it's already read by plone to put int data['input_fname'], check results2db_250k.py
+			if getattr(input_fname, 'readline', None) is not None:
+				test_line = input_fname.readline()
+				delimiter = cs.sniff(test_line).delimiter
+			else:
+				test_line = input_fname.read(200)
+				delimiter = figureOutDelimiter(test_line)	#counting is a safer solution. if test_line include '\n', cs.sniff() won't figure it out.
+			input_fname.seek(0)
+			reader = csv.reader(input_fname, delimiter=delimiter)
+		else:
+			sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
+			return
+		
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		header_outputted = 0
+		no_of_lines = 0
+		for row in reader:
+			#check if 1st line is header or not
+			if no_of_lines ==0 and cls.pa_has_characters.search(row[1]):	#check the 2nd one, which is strict digits. while the 1st column, chromosome could be 'X' or something
+				continue
+			chr = row[0]
+			start_pos = row[1]
+			if len(row)==3:
+				stop_pos = None
+				score = row[2]
+				marker_name = '%s_%s'%(chr, start_pos)
+			elif len(row)==4:
+				stop_pos = row[2]
+				score = row[3]
+				marker_name = '%s_%s_%s'%(chr, start_pos, stop_pos)
+			else:
+				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
+				return
+			
+			if not header_outputted:	#3-column or 4-column header
+				if stop_pos is not None:
+					position_header = ['start_position', 'stop_position']
+				else:
+					position_header = ['position']
+				writer.writerow(['chromosome'] + position_header + ['score'])
+				header_outputted = 1
+			data_row = [chr, start_pos]
+			if stop_pos is not None:
+				data_row.append(stop_pos)
+			data_row.append(score)
+			writer.writerow(data_row)
+			
+			no_of_lines += 1
+		del reader, writer
+		sys.stderr.write("Done.\n")
+	
+	store_file = classmethod(store_file)
+	
 	def plone_run(cls, db, short_name, phenotype_method_id, call_method_id, data_description, \
 				method_description, comment, input_fname, user, results_method_type_id=None, \
-				results_method_type_short_name=None, commit=0):
+				results_method_type_short_name=None, output_dir=None, commit=0):
 		"""
+		2008-05-30
+			go to output_dir
+			drop submit_results()
+			use store_file()
 		2008-05-26
 			add results_method_type_id and results_method_type_short_name
 		2008-05-24
@@ -225,6 +311,9 @@ class Results2DB_250k(object):
 		session = db.session
 		if getattr(db, 'transaction', None) is None:
 			db.transaction = session.create_transaction()
+		
+		if not output_dir:
+			output_dir = cls.option_default_dict[('output_dir',1)][0]	#to get default from option_default_dict
 		
 		#pm = session.query(PhenotypeMethod).get_by(id=phenotype_method_id)
 		#if not pm:	#no corresponding phentype method id
@@ -240,14 +329,22 @@ class Results2DB_250k(object):
 		rm = ResultsMethod(short_name=short_name, method_description=method_description, \
 						data_description=data_description, comment=comment, phenotype_method_id=phenotype_method_id,\
 						call_method_id=call_method_id, created_by=user)
+		session.save(rm)
 		if rmt:
 			rm.results_method_type = rmt
 		
-		cls.submit_results(db, input_fname, rm, user)
+		#2008-05-30 no submit_results()
+		#cls.submit_results(db, input_fname, rm, user)
+		
 		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if commit:
-			#curs.execute("commit")
 			db.transaction.commit()
+			
+			rm.filename = cls.come_up_new_results_filename(output_dir, rm.id, rm.results_method_type.id)
+			session.save(rm)
+			db.transaction.commit()	#to save the filename
+			
+			cls.store_file(input_fname, rm.filename)
 			session.clear()	#Remove all object instances from this Session
 			del session
 			db.transaction = None	#delete the transaction
@@ -276,7 +373,7 @@ class Results2DB_250k(object):
 			sys.stderr.exit(2)
 		self.plone_run(db, self.short_name, self.phenotype_method_id, self.call_method_id, self.data_description, \
 				self.method_description, self.comment, self.input_fname, self.user, results_method_type_id=self.results_method_type_id,\
-				commit=self.commit)
+				output_dir=self.output_dir, commit=self.commit)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
