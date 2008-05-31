@@ -60,7 +60,7 @@ from variation.src.common import number2nt, nt2number
 from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README
 from pymodule.db import formReadmeObj
 import sqlalchemy, numpy
-from pymodule.SNP import SNPData, TwoSNPData
+from pymodule import SNPData, TwoSNPData
 
 class QC_250k(object):
 	__doc__ = __doc__
