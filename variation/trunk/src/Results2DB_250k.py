@@ -2,12 +2,12 @@
 """
 
 Examples:
-	#test run without commiting database (no records in database)
-	Results2DB_250k.py -i pvalue.log -e 1
+	#test run without commiting database (no records in database in the end)
+	./src/Results2DB_250k.py -i /home/nordborglab/pvalue.log -a 1 -e 1 -f kw_test_96_LD -m kw -n best_96_by_tina -u yh
 	
-	
-	Results2DB_250k.py -i pvalue.log -e 1 -c
-	
+	#commit transaction
+	./src/Results2DB_250k.py -i /home/nordborglab/pvalue.log -a 1 -e 1 -f kw_test_96_LD -m kw -n best_96_by_tina -u yh -c
+
 Description:
 	This program would submit simple association results into database.
 
@@ -134,8 +134,12 @@ class Results2DB_250k(object):
 		return marker_pos2snp_id
 	get_marker_pos2snp_id = classmethod(get_marker_pos2snp_id)
 	
-	def submit_results(cls, db, input_fname, rm, user):
+	def submit_results(cls, db, input_fname, rm, user, output_fname=None):
 		"""
+		2008-05-30
+			merged with store_file()
+				dump the file onto file system storage if output_fname is given
+				db submission is too slow
 		2008-05-26
 			input_fname from plone is not file object although it has file object interface.
 		2008-05-26
@@ -169,10 +173,20 @@ class Results2DB_250k(object):
 		else:
 			sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
 			return
-		if cls.marker_pos2snp_id is None:
+		
+		if output_fname:
+			writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		elif cls.marker_pos2snp_id is None:
 			cls.marker_pos2snp_id = cls.get_marker_pos2snp_id(db)
+		
+		header_outputted = 0
+		no_of_lines = 0
+		
 		session = db.session
 		for row in reader:
+			#check if 1st line is header or not
+			if no_of_lines ==0 and cls.pa_has_characters.search(row[1]):	#check the 2nd one, which is strict digits. while the 1st column, chromosome could be 'X' or something
+				continue
 			chr = int(row[0])
 			start_pos = int(row[1])
 			if len(row)==3:
@@ -187,30 +201,46 @@ class Results2DB_250k(object):
 				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
 				return
 			
-			key = (chr, start_pos, stop_pos)
-			if key in cls.marker_pos2snp_id:
-				snps_id = cls.marker_pos2snp_id[key]
-				if isinstance(snps_id, SNPs):	#it's a new marker object
-					r = Results(score=score)
-					r.snps = snps_id
-				else:	#others are all integer ids
-					r = Results(snps_id=snps_id, score=score)
+			if output_fname:	#go to file system
+				if not header_outputted:	#3-column or 4-column header
+					if stop_pos is not None:
+						position_header = ['start_position', 'stop_position']
+					else:
+						position_header = ['position']
+					writer.writerow(['chromosome'] + position_header + ['score'])
+					header_outputted = 1
+				data_row = [chr, start_pos]
+				if stop_pos is not None:
+					data_row.append(stop_pos)
+				data_row.append(score)
+				writer.writerow(data_row)
 			else:
-				#construct a new marker
-				marker = SNPs(name=marker_name, chromosome=chr, position=start_pos, end_position=stop_pos, created_by=user)
-				#save it in database to get id
-				session.save(marker)
-				cls.marker_pos2snp_id[key] = marker	#for the next time to encounter same marker
-				cls.is_new_marker_added = True	#set this flag as new marker was inputted into the dict
-				r = Results(score=score)
-				r.snps = marker
-				del marker
-			r.results_method = rm
-			session.save(r)
-			del r
-			#curs.execute("insert into %s(chr, start_pos, stop_pos, score, method_id, phenotype_method_id) values (%s, %s, %s, %s, %s, %s)"%\
-			#		(results_table, chr, start_pos, stop_pos, score, results_method_id, phenotype_method_id))
+				key = (chr, start_pos, stop_pos)
+				if key in cls.marker_pos2snp_id:
+					snps_id = cls.marker_pos2snp_id[key]
+					if isinstance(snps_id, SNPs):	#it's a new marker object
+						r = Results(score=score)
+						r.snps = snps_id
+					else:	#others are all integer ids
+						r = Results(snps_id=snps_id, score=score)
+				else:
+					#construct a new marker
+					marker = SNPs(name=marker_name, chromosome=chr, position=start_pos, end_position=stop_pos, created_by=user)
+					#save it in database to get id
+					session.save(marker)
+					cls.marker_pos2snp_id[key] = marker	#for the next time to encounter same marker
+					cls.is_new_marker_added = True	#set this flag as new marker was inputted into the dict
+					r = Results(score=score)
+					r.snps = marker
+					del marker
+				r.results_method = rm
+				session.save(r)
+				del r
+			no_of_lines += 1
+		
 		del reader
+		if output_fname:
+			del writer
 		sys.stderr.write("Done.\n")
 	
 	submit_results = classmethod(submit_results)
@@ -227,73 +257,6 @@ class Results2DB_250k(object):
 		return output_fname
 	
 	come_up_new_results_filename = classmethod(come_up_new_results_filename)
-	
-	def store_file(cls, input_fname, output_fname):
-		"""
-		2008-05-30
-			replace submit_results()
-			dump the file onto file system storage
-			db submission is too slow
-		"""
-		if isinstance(input_fname, str) and os.path.isfile(input_fname):
-			sys.stderr.write("Storing results from %s ..."%(os.path.basename(input_fname)))
-			delimiter = figureOutDelimiter(input_fname)
-			reader = csv.reader(open(input_fname), delimiter=delimiter)
-		elif hasattr(input_fname, 'readline') or hasattr(input_fname, 'read'):	#input_fname is not a file name, but direct file object. it could also be <ZPublisher.HTTPRequest.FileUpload instance at 0xa1774f4c>
-			sys.stderr.write("Storing results from %s on plone ..."%input_fname.filename)
-			cs = csv.Sniffer()
-			input_fname.seek(0)	#it's already read by plone to put int data['input_fname'], check results2db_250k.py
-			if getattr(input_fname, 'readline', None) is not None:
-				test_line = input_fname.readline()
-				delimiter = cs.sniff(test_line).delimiter
-			else:
-				test_line = input_fname.read(200)
-				delimiter = figureOutDelimiter(test_line)	#counting is a safer solution. if test_line include '\n', cs.sniff() won't figure it out.
-			input_fname.seek(0)
-			reader = csv.reader(input_fname, delimiter=delimiter)
-		else:
-			sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
-			return
-		
-		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-		header_outputted = 0
-		no_of_lines = 0
-		for row in reader:
-			#check if 1st line is header or not
-			if no_of_lines ==0 and cls.pa_has_characters.search(row[1]):	#check the 2nd one, which is strict digits. while the 1st column, chromosome could be 'X' or something
-				continue
-			chr = row[0]
-			start_pos = row[1]
-			if len(row)==3:
-				stop_pos = None
-				score = row[2]
-				marker_name = '%s_%s'%(chr, start_pos)
-			elif len(row)==4:
-				stop_pos = row[2]
-				score = row[3]
-				marker_name = '%s_%s_%s'%(chr, start_pos, stop_pos)
-			else:
-				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
-				return
-			
-			if not header_outputted:	#3-column or 4-column header
-				if stop_pos is not None:
-					position_header = ['start_position', 'stop_position']
-				else:
-					position_header = ['position']
-				writer.writerow(['chromosome'] + position_header + ['score'])
-				header_outputted = 1
-			data_row = [chr, start_pos]
-			if stop_pos is not None:
-				data_row.append(stop_pos)
-			data_row.append(score)
-			writer.writerow(data_row)
-			
-			no_of_lines += 1
-		del reader, writer
-		sys.stderr.write("Done.\n")
-	
-	store_file = classmethod(store_file)
 	
 	def plone_run(cls, db, short_name, phenotype_method_id, call_method_id, data_description, \
 				method_description, comment, input_fname, user, results_method_type_id=None, \
@@ -333,7 +296,7 @@ class Results2DB_250k(object):
 		if rmt:
 			rm.results_method_type = rmt
 		
-		#2008-05-30 no submit_results()
+		#2008-05-30 no submit_results() to database
 		#cls.submit_results(db, input_fname, rm, user)
 		
 		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
@@ -344,13 +307,15 @@ class Results2DB_250k(object):
 			session.save(rm)
 			db.transaction.commit()	#to save the filename
 			
-			cls.store_file(input_fname, rm.filename)
-			session.clear()	#Remove all object instances from this Session
-			del session
+			#copy content to file system storage
+			cls.submit_results(db, input_fname, rm, user, rm.filename)
+			#session.clear()	#Remove all object instances from this Session, doesn't help to cleanup memory
+			#del session
 			db.transaction = None	#delete the transaction
 			cls.reset_marker_pos2snp_id()
-		#else:	#default is also rollback(). to demonstrate good programming
-		#	transaction.rollback()
+		else:	#default is also rollback(). to demonstrate good programming
+			db.transaction.rollback()
+			cls.reset_marker_pos2snp_id()
 	plone_run = classmethod(plone_run)
 	
 	def run(self):
