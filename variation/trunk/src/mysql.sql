@@ -761,6 +761,7 @@ DELIMITER ;
 create table results_method(
 	id integer auto_increment primary key,
 	short_name varchar(30) unique,
+	filename varchar(1000) unique,
 	method_description varchar(8000),
 	data_description varchar(8000),
 	comment varchar(8000),
@@ -808,6 +809,10 @@ create table if not exists results(
 	foreign key (results_method_id) references results_method(id) on delete cascade on update cascade,
 	score float
 	)engine=INNODB;
+
+-- 2008-05-31 add two indices
+create index results_snps_id_results_method_id_idx on results(snps_id, results_method_id);
+create index results_results_method_id_idx on results(results_method_id);
 
 create table phenotype_method(
 	id integer auto_increment primary key,
