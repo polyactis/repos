@@ -412,7 +412,11 @@ class SNPData(object):
 		self.processRowIDColID()
 	
 	def processRowIDColID(self):
-		if not self.data_matrix and self.turn_into_array:
+		"""
+		2008-06-02
+			correct a bug here, opposite judgement of self.data_matrix
+		"""
+		if self.data_matrix and self.turn_into_array:
 			self.data_matrix = num.array(self.data_matrix, num.int8)
 		
 		if self.row_id_ls is None and self.strain_acc_list is not None:
@@ -443,6 +447,9 @@ class SNPData(object):
 		
 	def tofile(self, output_fname, **keywords):
 		"""
+		2008-06-02
+			either strain_acc_list or category_list could be None
+			try to fill them both
 		2008-05-18
 			keywords is same as write_data_matrix()
 		"""
@@ -455,9 +462,9 @@ class SNPData(object):
 					else:
 						col_id = col_id[0]
 				self.header.append(col_id)
-		if self.strain_acc_list is None:
-			self.strain_acc_list = []
-			self.category_list = []
+		if self.strain_acc_list is None or self.category_list is None:
+			strain_acc_list = []
+			category_list = []
 			for row_id in self.row_id_ls:
 				strain_acc = None
 				category = None
@@ -470,8 +477,12 @@ class SNPData(object):
 					strain_acc = row_id
 				if category == None:
 					category = strain_acc	#make them same if category is not available
-				self.strain_acc_list.append(strain_acc)
-				self.category_list.append(category)
+				strain_acc_list.append(strain_acc)
+				category_list.append(category)
+			if self.strain_acc_list is None:
+				self.strain_acc_list = strain_acc_list
+			if self.category_list is None:
+				self.category_list = category_list
 		write_data_matrix(self.data_matrix, output_fname, self.header, self.strain_acc_list, self.category_list, **keywords)
 	
 	def removeRowsByMismatchRate(cls, snpData, row_id2NA_mismatch_rate, max_mismatch_rate=1):
@@ -641,4 +652,26 @@ class SNPData(object):
 		sys.stderr.write("%s monomorphic columns. Done.\n"%(newSnpData.no_of_monomorphic_cols))
 		return newSnpData
 	removeMonomorphicCols = classmethod(removeMonomorphicCols)
-
+	
+	def convertHetero2NA(cls, snpData):
+		"""
+		2008-06-02
+			Convert all heterozygous calls and untouched in the file into NA.
+			deletion is not converted
+		"""
+		sys.stderr.write("Converting Hetero calls to NA ...")
+		no_of_hets = 0
+		newSnpData = SNPData(row_id_ls=snpData.row_id_ls, col_id_ls=snpData.col_id_ls)
+		no_of_rows, no_of_cols = snpData.data_matrix.shape
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		for i in range(no_of_rows):
+			for j in range(no_of_cols):
+				if snpData.data_matrix[i][j]<=4 and snpData.data_matrix[i][j]>=1:
+					newSnpData.data_matrix[i][j] = snpData.data_matrix[i][j]
+				elif snpData.data_matrix[i][j]==-1:	#but not -2 (untouched), -1=deletion
+					newSnpData.data_matrix[i][j] = snpData.data_matrix[i][j]
+				else:
+					no_of_hets += 1
+		sys.stderr.write("%s heterozygous calls. Done.\n"%no_of_hets)
+		return newSnpData
+	convertHetero2NA = classmethod(convertHetero2NA)
