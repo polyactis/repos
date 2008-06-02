@@ -48,7 +48,7 @@ import getopt, csv, math
 import Numeric as num
 from sets import Set
 from variation.src.common import number2nt, nt2number
-from pymodule import dict_map, PassingData, figureOutDelimiter, write_data_matrix
+from pymodule import dict_map, PassingData, figureOutDelimiter, write_data_matrix, read_data
 
 class FilterStrainSNPMatrix(object):
 	def __init__(self, input_fname=None, output_fname=None, row_cutoff=0.6, col_cutoff=0.6,\
@@ -316,7 +316,7 @@ class FilterStrainSNPMatrix(object):
 			import pdb
 			pdb.set_trace()
 		delimiter = figureOutDelimiter(self.input_fname, report=self.report)
-		header, strain_acc_list, category_list, data_matrix = self.read_data(self.input_fname, int(self.nt_alphabet_bits[0]), delimiter=delimiter)
+		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, int(self.nt_alphabet_bits[0]), delimiter=delimiter)
 		data_matrix = num.array(data_matrix)
 		if self.filtering_bits[0]=='1':
 			remove_rows_data = self.remove_rows_with_too_many_NAs(data_matrix, self.row_cutoff)
