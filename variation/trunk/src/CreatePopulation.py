@@ -1,23 +1,11 @@
 #!/usr/bin/env python
 """
-Usage: CreatePopulation.py [OPTIONS] -o 
-
-Option:
-	-z ..., --hostname=...	the hostname, localhost(default)
-	-d ..., --dbname=...	the database name, stock(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)IGNORE
-	-o ...,	output table
-	-s ...,	strain_info table, 'ecotype'(default)
-	-g ...,	max_dist to connect 2 sites, '100'(km) (default)
-	-c,	commit
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
 	CreatePopulation.py -o popid2ecotypeid_50 -g 50
 	
 Description:
+	2007-07-11
 	Divide strains into populations based on geographical distance. Two sites are connected
 	if the great circle distance between them is less than max_dist. The resulting connected
 	components from this network are populations.
@@ -30,33 +18,36 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import psycopg, sys, getopt, csv, re
+import psycopg2 as psycopg
+import sys, getopt, csv, re
 from codense.common import db_connect
 from common import nt2number, number2nt
 from sets import Set
 import networkx as nx
 
 class CreatePopulation:
-	"""
-	2007-07-11
-	"""
-	def __init__(self, hostname='localhost', dbname='stock', schema='dbsnp', input_fname=None, \
-		output_table=None, strain_info_table='ecotype', max_dist=100, commit=0, debug=0, report=0):
+	__doc__ = __doc__
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock', 'd', 1, 'database name', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('output_table', 1, ): [None, 'o', 1, 'Table to store population id versus ecotypeid'],\
+							('strain_info_table', 1, ): ['ecotype', 's', 1, 'ecotype table'],\
+							('max_dist', 1, int, ): [100, 'g', 1, 'max_dist to connect 2 sites, unit is km'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	def __init__(self, **keywords):
 		"""
+		2008-06-02
+			use ProcessOptions
 		2007-07-11
 		2007-07-13
 			input_fname is useless
 		"""
-		self.hostname = hostname
-		self.dbname = dbname
-		self.schema = schema
-		self.input_fname = input_fname
-		self.output_table = output_table
-		self.strain_info_table = strain_info_table
-		self.max_dist = int(max_dist)
-		self.commit = int(commit)
-		self.debug = int(debug)
-		self.report = int(report)
+		
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def cal_great_circle_distance(self, lat1, lon1, lat2, lon2, earth_radius=6372.795):
 		"""
@@ -162,7 +153,7 @@ class CreatePopulation:
 		sys.stderr.write("%s populations. Done.\n"%(len(weighted_pos_ls)))
 		return pop_id2center_pos_ecotypeid_ls, weighted_pos_ls, count_sum_ls, popid_ls
 	
-	def create_population_table(self, curs, output_table):
+	def create_population_table(self, curs, output_table, strain_info_table):
 		"""
 		2007-07-13
 			add selected to the output_table
@@ -174,7 +165,10 @@ class CreatePopulation:
 			latitude	float,\
 			longitude	float,\
 			ecotypeid	integer not null,\
-			selected	integer default 0)"%output_table)
+			selected	integer default 0\
+			)engine=INNODB;"%\
+			(output_table))
+			#can't have this: foreign key (ecotypeid) references %s(id) on delete cascade on update cascade
 		sys.stderr.write("Done.\n")
 	
 	def submit_pop_id2center_pos_ecotypeid_ls(self, curs, output_table, pop_id2center_pos_ecotypeid_ls):
@@ -197,7 +191,7 @@ class CreatePopulation:
 		"""
 		import MySQLdb
 		#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
-		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		
 		lat_lon_ls, pos2ecotypeid_ls = self.get_pos2ecotypeid_ls(curs, self.strain_info_table)
@@ -205,11 +199,18 @@ class CreatePopulation:
 		pop_id2center_pos_ecotypeid_ls, weighted_pos_ls, count_sum_ls, popid_ls = self.get_pop_center_pos2ecotypeid_ls(g, node_label2pos_counts, pos2ecotypeid_ls)
 		
 		if self.commit:
-			self.create_population_table(curs, self.output_table)
+			self.create_population_table(curs, self.output_table, self.strain_info_table)
 			self.submit_pop_id2center_pos_ecotypeid_ls(curs, self.output_table, pop_id2center_pos_ecotypeid_ls)
-			#conn.commit()
+			conn.commit()
 		
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = CreatePopulation
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -264,3 +265,4 @@ if __name__ == '__main__':
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
