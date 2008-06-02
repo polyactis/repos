@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 """
-2008-05-18
+Examples:
+	TwoSNPData.py -i /Network/Data/250k/db/reference_dataset/data_2010_ecotype_id_y0002_n1c1d110_mergedup.tsv -j /Network/Data/250k/db/reference_dataset/stock_149SNP_y0000110101_mergedup.csv -o /tmp/2010_149.csv -c 1 -w 1
+	
+Description:
+	Merge two SNPData.
 """
 import sys, os
 
-
-from SNP import get_nt_number2diff_matrix_index, nt2number, number2nt, NA_set
+from sets import Set
+from SNP import get_nt_number2diff_matrix_index, nt2number, number2nt, NA_set, SNPData
+from utils import importNumericArray
+num = importNumericArray()
 
 class QualityControl(object):
 	"""
@@ -771,6 +777,7 @@ class TwoSNPData(QualityControl):
 							('col_matching_by_which_value', 0, ): None,\
 							('debug', 0, ): 0}
 	def __init__(self, **keywords):
+		from __init__ import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		if self.QC_method_id!=3 and self.QC_method_id!=7:	#149SNP uses snpid
 			self.columns_to_be_selected = 's1.name, s2.name'
@@ -912,8 +919,12 @@ class TwoSNPData(QualityControl):
 				session.save(snpsqc)
 		sys.stderr.write("Done.\n")
 	
-	def mergeTwoSNPData(self, need_row_id_union=0, need_col_id_union=0, priority=1):
+	def mergeTwoSNPData_no_union(self, priority=1):
 		"""
+		2008-06-02
+			mergeTwoSNPData() renamed to mergeTwoSNPData_no_union() as mergeTwoSNPData2 below becomes functional and is renamed to mergeTwoSNPData().
+			in this function, need_row_id_union and need_col_id_union are useless and removed. it's always taking snpData1's row_id_ls and col_id_ls
+			priority is useful.
 		2008-05-19
 			if need_row_id_union==0, take SNPData1's row_id_ls as newSnpData's.
 				otherwise take the union of SNPData1 and SNPData2
@@ -947,12 +958,31 @@ class TwoSNPData(QualityControl):
 		sys.stderr.write("%s out of %s replaced. Done.\n"%(no_of_replaced_snps, no_of_total_snps))
 		return newSnpData
 	
-	def mergeTwoSNPData2(self, need_row_id_union=0, need_col_id_union=0, priority=1):
+	def mergeTwoSNPData(self, row_id_merge_type=0, col_id_merge_type=0, priority=1):
 		"""
+		2008-06-02
+			becomes functional. renamed from mergeTwoSNPData2() to mergeTwoSNPData()
+			if row_id_merge_type==0:
+				new_row_id_ls = SNPData1.row_id_ls
+			elif row_id_merge_type==1:
+				new_row_id_ls = union of SNPData1.row_id_ls and SNPData2.row_id_ls
+			elif row_id_merge_type==2:
+				new_row_id_ls = intersection of SNPData1.row_id_ls and SNPData2.row_id_ls
+			
+			for overlapping row_ids, take the names/ids from 1st SNPData
+			
+			ditto for col_id_merge_type
+			
+			if priority==1:
+				SNPData1 overwrites SNPData2 if SNPData1 is not NA at that SNP
+			elif priority==2:
+				SNPData2 overwrites SNPData1 if SNPData2 is not NA at that SNP
+			else:
+				error
 		2008-05-19
-			if need_row_id_union==0, take SNPData1's row_id_ls as newSnpData's.
+			if row_id_merge_type==0, take SNPData1's row_id_ls as newSnpData's.
 				otherwise take the union of SNPData1 and SNPData2
-			same as need_col_id_union
+			same as col_id_merge_type
 		"""
 		sys.stderr.write("Merging two SNPData ...\n")
 		
@@ -964,48 +994,76 @@ class TwoSNPData(QualityControl):
 		new_row_id2old_row_index = {}
 		SNPData2_row_id_checked_set = Set()
 		for row_id in snpData_ls[0].row_id_ls:
-			new_row_id2old_row_index[row_id] = [(0, snpData_ls[0].row_id2row_index[row_id])]
-			new_row_id_ls.append(row_id)
+			if row_id_merge_type!=2:
+				new_row_id2old_row_index[row_id] = [(0, snpData_ls[0].row_id2row_index[row_id])]
+				new_row_id_ls.append(row_id)
 			if row_id in self.row_id12row_id2:
 				SNPData2_row_id = self.row_id12row_id2[row_id]
 				SNPData2_row_id_checked_set.add(SNPData2_row_id)
+				if row_id not in new_row_id2old_row_index:
+					new_row_id2old_row_index[row_id] = []
 				new_row_id2old_row_index[row_id].append((1, snpData_ls[1].row_id2row_index[SNPData2_row_id]))
-		if need_row_id_union:
+		if row_id_merge_type==1:
 			for row_id in snpData_ls[1].row_id_ls:
 				if row_id not in SNPData2_row_id_checked_set:
 					new_row_id2old_row_index[row_id] = [(1, snpData_ls[1].row_id2row_index[row_id])]
 					new_row_id_ls.append(row_id)
 		
+		
 		#construct new col_id_ls
-		if need_col_id_union:
-			new_col_id_set = Set(self.SNPData1.col_id_ls)|Set(self.SNPData2.col_id_ls)
-		else:
-			new_col_id_set = Set(self.SNPData1.col_id_ls)
-		new_col_id_ls = list(new_col_id_set)
-		new_col_id_ls.sort()
+		new_col_id_ls = []
 		new_col_id2old_col_index = {}
-		for new_col_id in new_col_id_ls:
-			new_col_id2old_col_index[new_col_id] = [None, None]
-			for i in range(no_of_snpDatas):
-				if new_col_id in snpData_ls[i].col_id2col_index:
-					new_col_id2old_col_index[new_col_id][i] = (i, snpData_ls[i].col_id2col_index[new_col_id])
+		SNPData2_col_id_checked_set = Set()
+		for col_id in snpData_ls[0].col_id_ls:
+			if col_id_merge_type!=2:
+				new_col_id2old_col_index[col_id] = [(0, snpData_ls[0].col_id2col_index[col_id])]
+				new_col_id_ls.append(col_id)
+			if col_id in self.col_id12col_id2:
+				SNPData2_col_id = self.col_id12col_id2[col_id]
+				SNPData2_col_id_checked_set.add(SNPData2_col_id)
+				if col_id not in new_col_id2old_col_index:
+					new_col_id2old_col_index[col_id] = []
+				new_col_id2old_col_index[col_id].append((1, snpData_ls[1].col_id2col_index[SNPData2_col_id]))
+		if col_id_merge_type==1:
+			for col_id in snpData_ls[1].col_id_ls:
+				if col_id not in SNPData2_col_id_checked_set:
+					new_col_id2old_col_index[col_id] = [(1, snpData_ls[1].col_id2col_index[col_id])]
+					new_col_id_ls.append(col_id)
 		
 		newSnpData = SNPData(row_id_ls=new_row_id_ls, col_id_ls=new_col_id_ls)
-		no_of_rows, no_of_cols = len(new_row_id_ls), len(new_col_id_ls)
+		no_of_rows, no_of_cols = len(newSnpData.row_id_ls), len(newSnpData.col_id_ls)
 		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
 		for i in range(no_of_rows):
 			row_id = newSnpData.row_id_ls[i]
-			old_row_index = new_row_id2old_row_index[row_id]
+			old_row_index_tuple_ls = new_row_id2old_row_index[row_id]
 			for j in range(no_of_cols):
 				col_id = newSnpData.col_id_ls[j]
-				old_col_index = new_col_id2old_col_index[col_id]
+				old_col_index_tuple_ls = new_col_id2old_col_index[col_id]
+				if len(old_col_index_tuple_ls)==2 and len(old_row_index_tuple_ls)==2:
+					old_col_index_tuple = old_col_index_tuple_ls[priority-1]
+					old_row_index_tuple = old_row_index_tuple_ls[priority-1]
+					which_snpData, old_row_index = old_row_index_tuple
+					which_snpData_based_on_col, old_col_index = old_col_index_tuple
+					if snpData_ls[which_snpData].data_matrix[old_row_index][old_col_index] in NA_set:	#it's NA, take the other one then
+						old_col_index_tuple = old_col_index_tuple_ls[abs(priority-2)]
+						old_row_index_tuple = old_row_index_tuple_ls[abs(priority-2)]
+				elif len(old_col_index_tuple_ls)==2:
+					old_row_index_tuple = old_row_index_tuple_ls[0]
+					old_col_index_tuple = old_col_index_tuple_ls[old_row_index_tuple[0]]	#which snpData is determined by the one which has rows
+				elif len(old_row_index_tuple_ls)==2:
+					old_col_index_tuple = old_col_index_tuple_ls[0]
+					old_row_index_tuple = old_row_index_tuple_ls[old_col_index_tuple[0]]
+				else:
+					old_col_index_tuple = old_col_index_tuple_ls[0]
+					old_row_index_tuple = old_row_index_tuple_ls[0]
 				
-		
-		for i in range(no_of_rows):
-			row_id = newSnpData.row_id_ls[i]
-			row_index1 = self.row_id2row_index1[row_id]
-			if row_id not in self.row_id12row_id2:
-				newSnpData.data_matrix[i] = self.SNPData1
+				which_snpData, old_row_index = old_row_index_tuple
+				which_snpData_based_on_col, old_col_index = old_col_index_tuple
+				if which_snpData!=which_snpData_based_on_col:	#this is region which both SNPData1 and SNPData2 don't have data
+					if self.debug:
+						sys.stderr.write("Error: which_snpData differs based on row and col structures, %s vs %s.\n"%(which_snpData, which_snpData_based_on_col))
+				else:
+					newSnpData.data_matrix[i][j] = snpData_ls[which_snpData].data_matrix[old_row_index][old_col_index]
 		sys.stderr.write("Done.\n")
 		return newSnpData
 	
@@ -1028,12 +1086,64 @@ class TwoSNPData(QualityControl):
 		newSnpData.no_of_rows_removed = len(self.SNPData1.row_id_ls)-no_of_rows
 		sys.stderr.write("%s rows removed. Done.\n"%(newSnpData.no_of_rows_removed))
 		return newSnpData
+	
+	def sampleSNPLociFromSNPData1(self, no_of_loci_to_sample_around_on_each_side):
+		"""
+		2008-06-02
+			sample equal amount of loci around ones that match in both SNPData's
+		"""
+		sys.stderr.write("Sampling %s SNP loci from SNPData1 around each SNPData2 loci ..."%(no_of_loci_to_sample_around_on_each_side))
+		no_of_cols = len(self.SNPData1.col_id_ls)
+		"""
+		for col_id2 in self.SNPData2.col_id_ls:
+			col_id2_split_ls = col_id2.split('_')
+			chromosome, position = map(int, col_id2_split_ls)
+			for i in 
+		"""
+		col_indices_wanted_set = Set()		
+		for col_id1, col_id2 in self.col_id12col_id2.iteritems():
+			col_index1 = self.SNPData1.col_id2col_index[col_id1]
+			for i in range(max(0, col_index1-no_of_loci_to_sample_around_on_each_side), min(col_index1+no_of_loci_to_sample_around_on_each_side+1, no_of_cols)):
+				col_indices_wanted_set.add(i)
+		
+		cols_to_be_tossed_out = Set(range(no_of_cols)) - col_indices_wanted_set
+		sys.stderr.write("%s loci sampled around %s reference loci. Done.\n"%(len(col_indices_wanted_set), len(self.col_id12col_id2)))
+		return cols_to_be_tossed_out
+	
+class MergeTwoSNPData(object):
+	__doc__ = __doc__
+	option_default_dict = {('input_fname1',1, ): [None, 'i', 1, 'to form SNPData1'],\
+							('input_fname2',1, ): [None, 'j', 1, 'to form SNPData2'],\
+							('row_id_merge_type', 1, int): [0, 'w', 1, '0=SNPData1, 1=union, 2=intersection'],\
+							('col_id_merge_type', 1, int): [0, 'c', 1, '0=SNPData1, 1=union, 2=intersection'],\
+							('priority', 1, int): [1, 'p', 1, '1=SNPData1, 2=SNPData2'],\
+							('output_fname', 1, ): [None, 'o', 1, '', ],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+							#('input_fname1_format',1,int): [1, 'k', 1, 'Format of input_fname1. 1=strain X snp (Yu). 2=snp X strain (Bjarni) without arrayId. 3=snp X strain with arrayId.'],\
+							#('input_fname2_format',1,int): [1, 'l', 1, 'Format of input_fname2. 1=strain X snp (Yu). 2=snp X strain (Bjarni) without arrayId'],\
+	def __init__(self, **keywords):
+		"""
+		2008-06-02
+		"""
+		from __init__ import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+	
+	def run(self):
+		"""
+		2008-06-02
+		"""
+		snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1, ignore_2nd_column=1)
+		snpData2 = SNPData(input_fname=self.input_fname2, turn_into_array=1, ignore_2nd_column=1)
+		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, debug=self.debug)
+		newSnpData= twoSNPData.mergeTwoSNPData(self.row_id_merge_type, self.col_id_merge_type, self.priority)
+		newSnpData.tofile(self.output_fname)
 
 if __name__ == '__main__':
 	#do simple intersectSNPData1_and_SNPData2_row_wise()
-	snpData1 = SNPData(input_fname=sys.argv[1], turn_into_array=1, ignore_2nd_column=1)
-	snpData2 = SNPData(input_fname=sys.argv[2], turn_into_array=1, ignore_2nd_column=1)
-	output_fname = sys.argv[3]
-	twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, debug=1)
-	newSnpData= twoSNPData.intersectSNPData1_and_SNPData2_row_wise()
-	newSnpData.tofile(output_fname)
+	from __init__ import ProcessOptions
+	main_class = MergeTwoSNPData
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
