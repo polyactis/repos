@@ -5,7 +5,7 @@ Examples:
 	ConvertHeteroCall2NA.py  -i bin/structure_test/149_popid2ecotypeid_50.csv -o bin/structure_test/149_popid2ecotypeid_50_hets2NA.csv
 	
 Description:
-	Convert all heterozygous calls in the file into NA.
+	Convert all heterozygous calls and untouched in the file into NA.
 	
 """
 from __init__ import *
