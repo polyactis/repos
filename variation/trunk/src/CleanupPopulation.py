@@ -1,78 +1,51 @@
 #!/usr/bin/env python
 """
-Usage: CleanupPopulation.py [OPTIONS] -o -p -f
-
-Option:
-	-z ..., --hostname=...	the hostname, localhost(default)
-	-d ..., --dbname=...	the database name, stock(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)
-	-i ...,	input table, 'calls'(default)
-	-o ...,	output table
-	-s ...,	strain_info table, 'ecotype'(default)
-	-n ...,	snp_locus_table, 'snps'(default)
-	-p ...,	population table
-	-f ...,	snpacc_fname, the header of this data matrix file specifies which snps are needed.
-	-m ...,	min_no_of_strains_per_pop, 5(default)
-	-t ...,	row NA ratio, column NA ratio, log probability cutoff, 0.4,0.4,-0.5(default)
-	-c,	commit
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
-	CleanupPopulation.py -p popid2ecotypeid_50 -o popid2snpid_50  -c
+	CleanupPopulation.py -l popid2ecotypeid_50 -o popid2snpid_50  -c
 	
 Description:
+	2007-07-16
+	
 	Clean up population by removing sequentially
 	1. rows(strains) with too many NAs
 	2. cols(snps) with too many NAs
 	3. bad snps (too many bogus heterozygous calls)
 	
 """
-import sys, os, math
-bit_number = math.log(sys.maxint)/math.log(2)
-if bit_number>40:       #64bit
-	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
-else:   #32bit
-	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import psycopg, sys, getopt, csv, re
-from codense.common import db_connect
-from common import nt2number, number2nt
-import Numeric as num
-from sets import Set
+from __init__ import *
 
 class CleanupPopulation:
-	"""
-	2007-07-16
-	"""
-	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_table='calls', \
-		output_table='', strain_info_table='strain_info', snp_locus_table='snp_locus', \
-		population_table=None, min_no_of_strains_per_pop=5, \
-		row_cutoff=0.4, col_cutoff=0.4, min_log_prob=-0.5, commit=0, debug=0, report=0):
+	__doc__ = __doc__
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock', 'd', 1, 'database name', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('input_table', 1, ): ['calls', 'i', 1, 'SNP data table'],\
+							('output_table', 1, ): [None, 'o', 1, 'Table to store population id versus snpid'],\
+							('strain_info_table', 1, ): ['ecotype', 's', 1, 'ecotype table'],\
+							('snp_locus_table', 1, ): ['snps', 'n', 1, 'SNP locus table'],\
+							('population_table', 1, ): [None, 'l', 1, 'Table storing population id versus ecotypeid'],\
+							('min_no_of_strains_per_pop', 1, int, ): [5, 'm', 1, ''],\
+							('max_row_NA_max_col_NA_min_log_prob', 1, ): ['1,1,-0.5', 't', 1, 'min row NA ratio to toss out, min column NA ratio, min log probability'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	def __init__(self,  **keywords):
 		"""
+		2008-06-02
+			use ProcessOptions
 		2007-07-16
 		"""
-		self.hostname = hostname
-		self.dbname = dbname
-		self.schema = schema
-		self.input_table = input_table
-		self.output_table = output_table
-		self.strain_info_table = strain_info_table
-		self.snp_locus_table = snp_locus_table
-		self.population_table = population_table
-		self.min_no_of_strains_per_pop = int(min_no_of_strains_per_pop)
-		self.row_cutoff = float(row_cutoff)
-		self.col_cutoff = float(col_cutoff)
-		self.min_log_prob = float(min_log_prob)
-		self.commit = int(commit)
-		self.debug = int(debug)
-		self.report = int(report)
-	
+		
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		
+		cutoff_ls = self.max_row_NA_max_col_NA_min_log_prob.split(',')
+		self.row_cutoff, self.col_cutoff, self.min_log_prob = map(float, cutoff_ls)
 	
 	def create_sub_data_matrix(self, popid, data_matrix, ecotypeid_ls, strain_id2index):
-		sys.stderr.write("\tCreating sub data_matrix for population %s ..."%popid)
+		sys.stderr.write("\tCreating sub data_matrix for population %s for %s ecotypes ..."%(popid, len(ecotypeid_ls)))
 		no_of_strains, no_of_snps = data_matrix.shape
 		sub_data_matrix = []
 		ecotypeid_ls.sort()
@@ -89,9 +62,20 @@ class CleanupPopulation:
 	
 	def cleanup_one_population(self, FilterStrainSNPMatrix_instance, RemoveBadSNPs_instance, data_matrix, ecotypeid_ls, snp_id_list, min_no_of_strains_per_pop, row_cutoff, col_cutoff, min_log_prob):
 		sys.stderr.write("\tCleaning up ... \n")
-		rows_with_too_many_NAs_set, strain_index2no_of_NAs = FilterStrainSNPMatrix_instance.remove_rows_with_too_many_NAs(data_matrix, row_cutoff)
-
-		cols_with_too_many_NAs_set = FilterStrainSNPMatrix_instance.remove_cols_with_too_many_NAs(data_matrix, col_cutoff, rows_with_too_many_NAs_set)
+		
+		if row_cutoff<=1 and row_cutoff>=0:
+			remove_rows_data = FilterStrainSNPMatrix_instance.remove_rows_with_too_many_NAs(data_matrix, row_cutoff)
+			rows_with_too_many_NAs_set = remove_rows_data.rows_with_too_many_NAs_set
+			strain_index2no_of_NAs = remove_rows_data.row_index2no_of_NAs
+		else:
+			rows_with_too_many_NAs_set = Set()
+		
+		if col_cutoff<=1 and col_cutoff>=0:
+			remove_cols_data = FilterStrainSNPMatrix_instance.remove_cols_with_too_many_NAs(data_matrix, col_cutoff, rows_with_too_many_NAs_set)
+			cols_with_too_many_NAs_set = remove_cols_data.cols_with_too_many_NAs_set
+		else:
+			cols_with_too_many_NAs_set = Set()
+		
 		strain_id_selected = []
 		strain_index_selected = []
 		for i in range(len(ecotypeid_ls)):
@@ -132,7 +116,7 @@ class CleanupPopulation:
 		curs.execute("create table %s(\
 			id	integer primary key auto_increment,\
 			popid	integer not null,\
-			snpid	integer)"%output_table)
+			snpid	integer)engine=INNODB"%output_table)
 		sys.stderr.write("Done.\n")
 	
 	def mark_strain_id_selected(self, curs, popid2strain_id_snp_id_ls, population_table):
@@ -159,24 +143,29 @@ class CleanupPopulation:
 	
 	def run(self):
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+		conn = MySQLdb.connect(db=self.dbname,host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		
 		from dbSNP2data import dbSNP2data
-		dbSNP2data_instance = dbSNP2data()
+		dbSNP2data_instance = dbSNP2data(user=self.user, passwd=self.passwd, output_fname='whatever')
 		
-		snp_id2index, snp_id_list = dbSNP2data_instance.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
-		strain_id2index, strain_id_list = dbSNP2data_instance.get_strain_id2index_m(curs, self.input_table)
+		snp_id2index, snp_id_list, snp_id2info = dbSNP2data_instance.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
+		#strain_id2index, strain_id_list
+		strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category  = dbSNP2data_instance.get_strain_id2index_m(curs, self.input_table, self.strain_info_table)
+		#2008-06-02 stuff returned by get_strain_id2index_m is totally changed.
+		ecotype_id2row_index = {}
+		for strain_id, acc in strain_id2acc.iteritems():
+			row_index = strain_id2index[strain_id]
+			ecotype_id2row_index[acc] = row_index
 		
-		strain_id2acc, strain_id2category = dbSNP2data_instance.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
+		#strain_id2acc, strain_id2category = dbSNP2data_instance.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 		snp_id2acc = dbSNP2data_instance.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
 		data_matrix = dbSNP2data_instance.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, need_heterozygous_call=1)
 		
 		
 		from OutputPopulation import OutputPopulation
-		OutputPopulation_instance = OutputPopulation()
 		
-		popid2ecotypeid_ls = OutputPopulation_instance.get_popid2ecotypeid_ls(curs, self.population_table)
+		popid2ecotypeid_ls = OutputPopulation.get_popid2ecotypeid_ls(curs, self.population_table)
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		
@@ -186,7 +175,7 @@ class CleanupPopulation:
 		for popid, ecotypeid_ls in popid2ecotypeid_ls.iteritems():
 			if len(ecotypeid_ls)>=self.min_no_of_strains_per_pop:
 				sys.stderr.write("Population %s\n"%popid)
-				sub_data_matrix, new_ecotypeid_ls = self.create_sub_data_matrix(popid, data_matrix, ecotypeid_ls, strain_id2index)
+				sub_data_matrix, new_ecotypeid_ls = self.create_sub_data_matrix(popid, data_matrix, ecotypeid_ls, ecotype_id2row_index)
 				if len(new_ecotypeid_ls)>=self.min_no_of_strains_per_pop:
 					sys.stderr.write("\tPopulation %s has %s strains\n"%(popid, len(new_ecotypeid_ls)))
 					strain_id_selected, snp_id_selected = self.cleanup_one_population(FilterStrainSNPMatrix_instance, RemoveBadSNPs_instance, sub_data_matrix, new_ecotypeid_ls, snp_id_list, self.min_no_of_strains_per_pop, self.row_cutoff, self.col_cutoff, self.min_log_prob)
@@ -201,6 +190,13 @@ class CleanupPopulation:
 		
 
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = CleanupPopulation
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -269,3 +265,4 @@ if __name__ == '__main__':
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
