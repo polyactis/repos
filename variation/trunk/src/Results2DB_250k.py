@@ -278,13 +278,14 @@ class Results2DB_250k(object):
 		if not output_dir:
 			output_dir = cls.option_default_dict[('output_dir',1)][0]	#to get default from option_default_dict
 		
-		#pm = session.query(PhenotypeMethod).get_by(id=phenotype_method_id)
+		#pm = session.query(PhenotypeMethod).filter_by(id=phenotype_method_id).one()
 		#if not pm:	#no corresponding phentype method id
 		#	phenotype_method_id = None
 		
-		#cm = session.query(CallMethod).get_by(id=call_method_id)
+		#cm = session.query(CallMethod).filter_by(id=call_method_id).one()
 		
-		rmt = session.query(ResultsMethodType).get_by(id=results_method_type_id)
+		rmt = session.query(ResultsMethodType).get(results_method_type_id)
+		#rmt = session.query(ResultsMethodType).filter_by(id=results_method_type_id).one()
 		if not rmt and results_method_type_short_name is not None:	#create a new results method type
 			rmt = ResultsMethodType(short_name=results_method_type_short_name)
 			session.save(rmt)
