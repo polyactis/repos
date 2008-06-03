@@ -235,6 +235,21 @@ create table calls_250k_duplicate_comment(
 	date_modified	TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	);
 
+
+--2008-06-02 table to store selfing rates
+create table popid2s_100(id integer primary key auto_increment,
+	popid integer not null,
+	avg_s_Jarne2006 float,
+	std_s_Jarne2006 float,
+	avg_s_Robertson1984 float,
+	std_s_Robertson1984 float,
+	avg_s_Weir1984 float,
+	std_s_Weir1984 float,
+	weir1984_multi_loci_s float,
+	avg_s_Nordborg1997 float,
+	std_s_Nordborg1997 float,
+	s_g2_David2007 float)engine=INNODB;
+
 --2008-02-12 table for processed/averaged phenotype
 use at;
 create table phenotype_p(
