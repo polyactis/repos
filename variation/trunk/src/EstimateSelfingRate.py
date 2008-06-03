@@ -28,17 +28,8 @@ Description:
 	NA-filtering has to be carried out on the data beforehand.
 
 """
-import sys, os, math
-bit_number = math.log(sys.maxint)/math.log(2)
-if bit_number>40:       #64bit
-	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
-else:   #32bit
-	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import getopt, csv, math
+from __init__ import *
 import Numeric, pylab, rpy
-from common import nt2number, number2nt
 
 class s_estimate_result:
 	def __init__(self):
@@ -57,24 +48,29 @@ class s_estimate_result:
 		self.genotyping_error_rate_vector = None
 
 class EstimateSelfingRate:
-	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_fname=None, \
-		output_fname=None, which_method=1, nt_alphabet_bits='00', selfing_rate_table=None,\
-		commit=0, debug=0, report=0):
+	__doc__ = __doc__
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock', 'd', 1, 'database name', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('input_fname', 1, ): ['', 'i', 1, 'SNP data formatted in populations, outputted by OutputPopulation.py'],\
+							('output_fname', 1, ): [None, 'o', 1, ''],\
+							('which_method', 1, int): [1, 'y', 1, 'which estimating method'],\
+							('nt_alphabet_bits', 1, ): ['00', 'a', 1, 'bits to toggle input/output StrainSNP matrix format, 0 is integer. 1 is alphabet. 1st digit is for input. 2nd is for output'],\
+							('selfing_rate_table', 1, ): [None, 's', 1, 'table to store estimates into db'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	def __init__(self,  **keywords):
 		"""
+		2008-06-02
+			use ProcessOptions
 		2007-08-13
 		2007-08-30 add database options
 		"""
-		self.hostname = hostname
-		self.dbname = dbname
-		self.schema = schema
-		self.input_fname = input_fname
-		self.output_fname = output_fname
-		self.which_method = int(which_method)
-		self.nt_alphabet_bits = nt_alphabet_bits
-		self.selfing_rate_table = selfing_rate_table
-		self.commit = int(commit)
-		self.debug = int(debug)
-		self.report = int(report)
+		
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		
 		self.estimate_method = {1: self.estimate_Jarne2006,
 			2: self.estimate_Robertson2004,
 			3: self.estimate_Weir1984,
@@ -420,7 +416,7 @@ class EstimateSelfingRate:
 			weir1984_multi_loci_s	float,\
 			avg_s_Nordborg1997	float,\
 			std_s_Nordborg1997	float,\
-			s_g2_David2007	float)"%selfing_rate_table)
+			s_g2_David2007	float)engine=INNODB;"%selfing_rate_table)
 		sys.stderr.write("Done.\n")
 	
 	def check_table_existent(self, curs, selfing_rate_table):
@@ -447,14 +443,14 @@ class EstimateSelfingRate:
 		rows = curs.fetchall()
 		if not rows:
 			curs.execute("insert %s(popid) values(%s)"%(selfing_rate_table, popid))
-		if s_estimate_result_instance.avg_s and s_estimate_result_instance.std_s:
+		if s_estimate_result_instance.avg_s is not None and s_estimate_result_instance.std_s is not None:
 			curs.execute("update %s set %s=%s, %s=%s where popid=%s"%(selfing_rate_table,\
 				method2table_entry[which_method][0], s_estimate_result_instance.avg_s,\
 				method2table_entry[which_method][1], s_estimate_result_instance.std_s,\
 				popid))
-		if s_estimate_result_instance.weir1984_multi_loci_s:
+		if s_estimate_result_instance.weir1984_multi_loci_s is not None:
 			curs.execute("update %s set weir1984_multi_loci_s=%s where popid=%s"%(selfing_rate_table,s_estimate_result_instance.weir1984_multi_loci_s, popid))
-		if s_estimate_result_instance.s_g2_David2007:
+		if s_estimate_result_instance.s_g2_David2007 is not None:
 			curs.execute("update %s set s_g2_David2007=%s where popid=%s"%(selfing_rate_table,s_estimate_result_instance.s_g2_David2007, popid))
 		sys.stderr.write("Done.\n")
 	
@@ -462,9 +458,7 @@ class EstimateSelfingRate:
 		"""
 		2007-08-13
 		"""
-		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
+		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
 		data_matrix = Numeric.array(data_matrix)
 		
 		if self.debug:
@@ -492,12 +486,19 @@ class EstimateSelfingRate:
 				sys.stderr.write("Need to specify selfing_rate_table. Exit!\n")
 				sys.exit(1)
 			import MySQLdb
-			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+			conn = MySQLdb.connect(db=self.dbname,host=self.hostname, user = self.user, passwd = self.passwd)
 			curs = conn.cursor()
 			self.submit_to_table(curs, self.selfing_rate_table, s_estimate_result_instance, pop_number, self.method2table_entry, self.which_method)
+			conn.commit()
 			
 			
 if __name__ == '__main__':
+	main_class = EstimateSelfingRate
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -555,3 +556,4 @@ if __name__ == '__main__':
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
