@@ -22,16 +22,7 @@ Description:
 	calculating probability for each snp locus, lower probability, worse the snp locus
 
 """
-import sys, os, math
-bit_number = math.log(sys.maxint)/math.log(2)
-if bit_number>40:       #64bit
-	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/variation/src')))
-else:   #32bit
-	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
-import getopt, math
-import Numeric
+from __init__ import *
 
 class RemoveBadSNPs:
 	def __init__(self, input_fname=None, output_fname=None, min_log_prob=-0.5, nt_alphabet_bits='00', debug=0, report=0):
@@ -50,7 +41,7 @@ class RemoveBadSNPs:
 	def cal_strain_homo_perc_vector(self, data_matrix):
 		sys.stderr.write("Calculating strain_homo_perc_vector...")
 		no_of_strains, no_of_snps = data_matrix.shape
-		strain_homo_perc_vector = Numeric.zeros(no_of_strains, Numeric.Float)
+		strain_homo_perc_vector = num.zeros(no_of_strains, num.float)
 		for i in range(no_of_strains):
 			no_of_valid_calls = 0.0
 			no_of_homo_calls = 0.0
@@ -72,7 +63,7 @@ class RemoveBadSNPs:
 		"""
 		sys.stderr.write("Calculating snp_locus_log_prob ...")
 		no_of_strains, no_of_snps = data_matrix.shape
-		snp_locus_log_prob = Numeric.zeros(no_of_snps, Numeric.Float)
+		snp_locus_log_prob = num.zeros(no_of_snps, num.float)
 		for j in range(no_of_snps):
 			no_of_valid_calls = 0.0
 			for i in range(no_of_strains):
@@ -91,10 +82,8 @@ class RemoveBadSNPs:
 		2007-05-14
 			add nt_alphabet_bits
 		"""
-		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
-		data_matrix = Numeric.array(data_matrix)
+		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, int(self.nt_alphabet_bits[0]))
+		data_matrix = num.array(data_matrix)
 		strain_homo_perc_vector = self.cal_strain_homo_perc_vector(data_matrix)
 		snp_locus_log_prob = self.cal_snp_locus_log_prob(data_matrix, strain_homo_perc_vector)
 		from sets import Set
@@ -105,7 +94,7 @@ class RemoveBadSNPs:
 		print "%sSNPs removed:"%(len(cols_to_be_tossed_out_set))
 		for col_index in cols_to_be_tossed_out_set:
 			print '\t%s\t%s'%(col_index, header[2+col_index])
-		FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, cols_to_be_tossed_out=cols_to_be_tossed_out_set, nt_alphabet=int(self.nt_alphabet_bits[1]))
+		write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list, cols_to_be_tossed_out=cols_to_be_tossed_out_set, nt_alphabet=int(self.nt_alphabet_bits[1]))
 		import pylab
 		pylab.title("histogram of snp locus log probability")
 		pylab.hist(snp_locus_log_prob, 20)
