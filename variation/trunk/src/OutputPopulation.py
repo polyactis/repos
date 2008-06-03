@@ -21,59 +21,50 @@ Option:
 	-h, --help	show this help
 
 Examples:
-	OutputPopulation.py  -o /tmp/pop_50_2 -p popid2ecotypeid_50 -f popid2snpid_50 -t 2
+	OutputPopulation.py  -o /tmp/pop_50.t2 -l popid2ecotypeid_50 -f popid2snpid_50 -t 2
 	
-	OutputPopulation.py  -o /tmp/pop_50.t1 -p popid2ecotypeid_50 -f popid2snpid_50 -t 1 -w
+	OutputPopulation.py  -o /tmp/pop_50.t1 -l popid2ecotypeid_50 -f popid2snpid_50 -t 1 -w
+	
+	OutputPopulation.py -o /tmp/pop_50.t3 -l popid2ecotypeid_50 -f popid2snpid_50 -t 3
 	
 Description:
 	output SNP data in units of population
 	
 """
-import sys, os, math
-bit_number = math.log(sys.maxint)/math.log(2)
-if bit_number>40:       #64bit
-	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64/annot/bin')))
-else:   #32bit
-	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import psycopg, sys, getopt, csv, re
-from codense.common import db_connect, dict_map
-from common import nt2number, number2nt
-import Numeric as num
-from sets import Set
+from __init__ import *
 
-class OutputPopulation:
-	"""
-	2007-07-12
-	"""
-	def __init__(self, hostname='dl324b-1', dbname='yhdb', schema='dbsnp', input_table='calls', \
-		output_fname=None, strain_info_table='strain_info', snp_locus_table='snp_locus', \
-		population_table=None, popid2snpid_table='', min_no_of_strains_per_pop=5, output_type=1, \
-		with_header_line=0, nt_alphabet=0,\
-		debug=0, report=0):
+class OutputPopulation(object):
+	__doc__ = __doc__
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock', 'd', 1, 'database name', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('input_table', 1, ): ['calls', 'i', 1, 'SNP data table'],\
+							('output_fname', 1, ): [None, 'o', 1, ''],\
+							('strain_info_table', 1, ): ['ecotype', 's', 1, 'ecotype table'],\
+							('snp_locus_table', 1, ): ['snps', 'n', 1, 'SNP locus table'],\
+							('population_table', 1, ): [None, 'l', 1, 'Table storing population id versus ecotypeid'],\
+							('popid2snpid_table', 1, ): [None, 'f', 1, 'Table storing population id versus snpid'],\
+							('min_no_of_strains_per_pop', 1, int, ): [5, 'm', 1, ''],\
+							('output_type', 1, int): [1, 't', 1, 'output type, 1(each population is a matrix file), 2(RMES), 3(MIH)'],\
+							('with_header_line', 1, int, ): [0, 'w', 0, 'with header line (for output type=1)'],\
+							('nt_alphabet', 1, int, ): [0, 'a', 0, 'use alphabet to represent nucleotide, not number'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	
+	def __init__(self, **keywords):
 		"""
-		2007-07-12
+		2008-06-02
+			use ProcessOptions
 		2007-07-13
 			add output_type, need_heterozygous_call, with_header_line, nt_alphabet
 		2007-07-16
 			change snpacc_fname to popid2snpid_table
+		2007-07-16
 		"""
-		self.hostname = hostname
-		self.dbname = dbname
-		self.schema = schema
-		self.input_table = input_table
-		self.output_fname = output_fname
-		self.strain_info_table = strain_info_table
-		self.snp_locus_table = snp_locus_table
-		self.population_table = population_table
-		self.popid2snpid_table = popid2snpid_table
-		self.min_no_of_strains_per_pop = int(min_no_of_strains_per_pop)
-		self.output_type = int(output_type)
-		self.with_header_line = int(with_header_line)
-		self.nt_alphabet = int(nt_alphabet)
-		self.debug = int(debug)
-		self.report = int(report)
+		
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)		
 		
 		self.OutputPop_dict = {1: self.OutputPopMatrixFormat,
 			2: self.OutputPopRMES,
@@ -122,7 +113,7 @@ class OutputPopulation:
 		sys.stderr.write("Done.\n")
 		return popid2strain_id_snp_id_ls
 	
-	def get_popid2ecotypeid_ls(self, curs, population_table):
+	def get_popid2ecotypeid_ls(cls, curs, population_table):
 		"""
 		2007-07-12
 		"""
@@ -137,6 +128,7 @@ class OutputPopulation:
 			popid2ecotypeid_ls[popid].append(ecotypeid)
 		sys.stderr.write("Done.\n")
 		return popid2ecotypeid_ls
+	get_popid2ecotypeid_ls = classmethod(get_popid2ecotypeid_ls)
 	
 	def get_strain_id2index(self, popid2strain_id_snp_id_ls, min_no_of_strains_per_pop):
 		"""
@@ -151,7 +143,7 @@ class OutputPopulation:
 			if len(ecotypeid_ls)<min_no_of_strains_per_pop:
 				del popid2strain_id_snp_id_ls[popid]
 			else:
-				strain_id_list += ecotypeid_ls
+				strain_id_list += [(ecotypeid, 1) for ecotypeid in ecotypeid_ls]
 		strain_id_list.sort()
 		strain_id2index = dict(zip(strain_id_list, range(len(strain_id_list))))
 		sys.stderr.write("Done.\n")
@@ -175,10 +167,11 @@ class OutputPopulation:
 			if with_header_line:
 				writer.writerow(header)
 			for ecotypeid in ecotypeid_ls:
-				strain_acc = strain_id2acc[ecotypeid]
-				strain_category = strain_id2category[ecotypeid]
+				strain_id = (ecotypeid, 1)
+				strain_acc = strain_id2acc[strain_id]
+				strain_category = strain_id2category[strain_id]
 				row = [strain_acc, strain_category]
-				i = strain_id2index[ecotypeid]
+				i = strain_id2index[strain_id]
 				for j in snp_index_selected:
 					if nt_alphabet:
 						row.append(number2nt[data_matrix[i][j]])
@@ -217,7 +210,8 @@ class OutputPopulation:
 			snp_index_selected.sort()
 			sub_col_data_matrix = num.take(data_matrix, snp_index_selected, 1)
 			for ecotypeid in ecotypeid_ls:
-				data_row = sub_col_data_matrix[strain_id2index[ecotypeid],]
+				strain_id = (ecotypeid, 1)
+				data_row = sub_col_data_matrix[strain_id2index[strain_id],]
 				new_data_row = []
 				for data_point in data_row:
 					if data_point>4:
@@ -270,7 +264,8 @@ class OutputPopulation:
 			snp_index_selected.sort()
 			sub_col_data_matrix = num.take(data_matrix, snp_index_selected, 1)
 			for ecotypeid in ecotypeid_ls:
-				data_row = sub_col_data_matrix[strain_id2index[ecotypeid],]
+				strain_id = (ecotypeid, 1)
+				data_row = sub_col_data_matrix[strain_id2index[strain_id],]
 				new_data_row = []
 				for data_point in data_row:
 					if data_point>4:
@@ -292,28 +287,40 @@ class OutputPopulation:
 		2007-07-17
 		"""
 		from dbSNP2data import dbSNP2data
-		dbSNP2data_instance = dbSNP2data()
+		dbSNP2data_instance = dbSNP2data(user=self.user, passwd=self.passwd, output_fname='whatever')
 		
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+		conn = MySQLdb.connect(db=self.dbname,host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		
 		#snp_id2index, snp_id_list, snp_acc_list, snp_id2acc = self.get_snp_struc(curs, self.snpacc_fname, self.snp_locus_table)
-		snp_id2index, snp_id_list = dbSNP2data_instance.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
-		snp_id2acc = dbSNP2data_instance.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
-		snp_acc_list = dict_map(snp_id2acc, snp_id_list)
+		snp_id2index, snp_id_list, snp_id2info = dbSNP2data_instance.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
+		#snp_id2acc = dbSNP2data_instance.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
+		snp_acc_list = []
+		for snp_id in snp_id_list:
+			snp_acc_list.append(snp_id2info[snp_id][0])
 		
 		#popid2ecotypeid_ls = self.get_popid2ecotypeid_ls(curs, self.population_table)
 		popid2strain_id_snp_id_ls = self.get_popid2strain_id_snp_id_ls(curs, self.population_table, self.popid2snpid_table)
 		strain_id2index, strain_id_list = self.get_strain_id2index(popid2strain_id_snp_id_ls, self.min_no_of_strains_per_pop)
 		
+		#strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category  = dbSNP2data_instance.get_strain_id2index_m(curs, self.input_table, self.strain_info_table)
+		
 		strain_id2acc, strain_id2category = dbSNP2data_instance.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
+		
 		data_matrix = dbSNP2data_instance.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, self.input_table, need_heterozygous_call=1)
 		
 		self.OutputPop_dict[self.output_type](data_matrix, popid2strain_id_snp_id_ls, strain_id2index, self.output_fname, snp_id2index, strain_id2acc,\
 			 strain_id2category, snp_acc_list, self.with_header_line, self.nt_alphabet)
 	
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = OutputPopulation
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -384,3 +391,4 @@ if __name__ == '__main__':
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
