@@ -26,7 +26,7 @@ else:   #32bit
 
 import time, csv, getopt
 import warnings, traceback
-from pymodule import ProcessOptions
+from pymodule import ProcessOptions, read_data
 from variation.src.QualityControl import QualityControl
 import dataParsers, FilterAccessions, FilterSnps, MergeSnpsData
 from common import RawSnpsData_ls2SNPData, transposeSNPData
@@ -71,7 +71,7 @@ class QC(object):
 			use_nt2number = 0
 		
 		if self.input_fname1_format==1:
-			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname1)
+			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname1)
 			snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
 							data_matrix=data_matrix)
 		elif self.input_fname1_format==2:
@@ -87,7 +87,7 @@ class QC(object):
 			sys.exit(2)
 		
 		if self.input_fname2_format==1:
-			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname2)
+			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname2)
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list,\
 							data_matrix=data_matrix)
 		elif self.input_fname2_format==2:
