@@ -2605,6 +2605,25 @@ def minusLogPvalue(input_fname, output_fname):
 			writer.writerow([chromosome, position, pvalue])
 	del writer, reader
 
+def exponentialMinusLogPvalue(input_fname, output_fname):
+	"""
+	2008-02-14
+		take log of pvalue in input_fname
+	"""
+	import csv
+	reader = csv.reader(open(input_fname), delimiter='\t')
+	reader.next()	#skip the header
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	import math
+	for row in reader:
+		chromosome, position, pvalue = row
+		pvalue = float(pvalue)
+		if pvalue>0:
+			pvalue = math.exp(-float(pvalue))
+			writer.writerow([chromosome, position, pvalue])
+	del writer, reader
+
+
 """
 2008-03-18
 	check chiamo output
@@ -2710,6 +2729,45 @@ new_array_info_table='stock_250k.array_info'
 old_array_info_table='stock_250k.array_info_2008_04_11'
 output_fname = '/tmp/intensity_fname.rename.tsv'
 output_intensity_fname(curs, new_array_info_table, old_array_info_table, output_fname)
+
+"""
+2008-05-31
+	output results from stock_250k.results, totally db based, not reading results.filename
+"""
+def outputResults(db, results_method_id, output_fname):
+	import csv
+	import sqlalchemy as sql
+	
+	conn = db.connection	#establish the connection before referring db.tables (in case it hasn't been setup)
+	sys.stderr.write("Getting marker_id2position ... ")
+	marker_id2position = {}
+	snps_table = db.tables['snps'].alias()
+	results = conn.execute(sql.select([snps_table.c.id, snps_table.c.chromosome, snps_table.c.position, snps_table.c.end_position]))
+	for row in results:
+		marker_id2position[row.id] = (row.chromosome, row.position, row.end_position)
+	del results
+	sys.stderr.write("Done.\n")
+	
+	sys.stderr.write("Outputting results_method_id=%s ... "%results_method_id)
+	results_table = db.tables['results'].alias()
+	results = conn.execute(sql.select([results_table.c.snps_id, results_table.c.score], results_table.c.results_method_id==results_method_id,\
+									  order_by=[results_table.c.snps_id]))
+	
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	writer.writerow(['chromosome', 'position', 'score'])
+	for row in results:
+		chromosome, position, end_position = marker_id2position[row.snps_id]
+		writer.writerow([chromosome, position, row.score])
+	del writer
+	sys.stderr.write("Done.\n")
+
+
+from variation.src.db import Stock_250kDatabase
+db = Stock_250kDatabase(username='nordborglab',
+				   password='papaya', hostname='papaya.usc.edu', database='stock_250k')
+conn = db.connection	#establish the connection before referring db.tables (it needs to be setup)
+outputResults(db, 5, '/tmp/5_results.tsv')
+outputResults(db, 6, '/tmp/6_results.tsv')
 
 
 #2007-03-05 common codes to initiate database connection
