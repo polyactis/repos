@@ -90,7 +90,7 @@ def getEcotypeToNameDictionary(host="papaya.usc.edu", user=None, passwd=None, de
 
      
 
-def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stock_250k", withArrayIds=False, methodId=1, user = None, passwd = None, callProb=False): 
+def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stock_250k", withArrayIds=False, methodId=1, user = None, passwd = None, callProb=False, newBatch=False): 
     import MySQLdb
     """
     Retrieve 2010 data from DB.  Returns a list of RawSnpsData objects. 
@@ -119,7 +119,11 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
     cursor = conn.cursor ()
     #Retrieve the filenames
     print "Fetching data"
-    numRows = int(cursor.execute("select distinct ai.maternal_ecotype_id, ai.paternal_ecotype_id, ci.filename, ai.id from call_info ci, array_info ai where ci.array_id=ai.id and ci.method_id="+str(methodId)+" and ai.maternal_ecotype_id is not null and ai.paternal_ecotype_id is not null order by ai.id"))
+    if newBatch:
+        numRows = int(cursor.execute("select distinct ai.maternal_ecotype_id, ai.paternal_ecotype_id, ci.filename, ai.id from call_info ci, array_info ai where ci.array_id=ai.id and ci.method_id="+str(methodId)+" and ai.maternal_ecotype_id is not null and ai.paternal_ecotype_id is not null and ai.id>492 order by ai.id"))  #An ugly hack..
+    else:
+        numRows = int(cursor.execute("select distinct ai.maternal_ecotype_id, ai.paternal_ecotype_id, ci.filename, ai.id from call_info ci, array_info ai where ci.array_id=ai.id and ci.method_id="+str(methodId)+" and ai.maternal_ecotype_id is not null and ai.paternal_ecotype_id is not null order by ai.id"))
+    print "Num rows:",numRows
 
     dict = {}
     accessions = []

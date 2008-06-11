@@ -12,9 +12,8 @@ Option:
         -m ..., --missingval=...    default is "NA"
 	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info.
         --callProbFile=...,	output call probabilities in a file
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
 	-h, --help	show this help
+	--newBatch      retrieves only the new batch. (This option is volatile)
 
 Examples:
 	Output250KSNPs.py -o /tmp/250K.csv
@@ -32,9 +31,9 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["hostname=", "user=", "passwd=", "method=", "delim=", "missingval=", "withArrayId=", "callProbFile=", "debug", "report", "help"]
+	long_options_list = ["newBatch","hostname=", "user=", "passwd=", "method=", "delim=", "missingval=", "withArrayId=", "callProbFile=", "help"]
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "z:u:p:o:t:d:m:a:brh", long_options_list)
+		opts, args = getopt.getopt(sys.argv[1:], "z:u:p:o:t:d:m:a:h", long_options_list)
 
 	except:
 		traceback.print_exc()
@@ -50,11 +49,10 @@ def _run_():
 	method = 1 
 	delim = ","
 	missingVal = "NA"
-	debug = None
-	report = None
 	help = 0
 	withArrayId = False
 	callProbFile = None
+	newBatch = False
 
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -78,10 +76,8 @@ def _run_():
 			withArrayId = bool(arg)
 		elif opt in ("--callProbFile"):
 			callProbFile =arg
-		elif opt in ("-b", "--debug"):
-			debug = 1
-		elif opt in ("-r", "--report"):
-			report = 1
+		elif opt in ("--newBatch"):
+			newBatch = True
 	
 	if not output_fname:
 		output_fname
@@ -94,10 +90,10 @@ def _run_():
 	import dataParsers
 	import snpsdata
 	if callProbFile:
-		snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId, callProb=True)
+		snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId, callProb=True, newBatch=newBatch)
 		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds=withArrayId, callProbFile=callProbFile)
 	else:
-		snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId)
+		snpsds = dataParsers.get250KDataFromDb(host=hostname,chromosomes=[1,2,3,4,5], methodId=method, user=user, passwd=passwd, withArrayIds=withArrayId, newBatch=newBatch)
 		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds=withArrayId)
 
 

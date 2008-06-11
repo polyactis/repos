@@ -401,7 +401,7 @@ class RawSnpsData(_SnpsData_):
 				error = 0
 				if counts>0:
 					error = float(fails)/float(counts)
-				snpErrorRate.append(error) 
+					snpErrorRate.append(error) 
 				snpCallRate[0].append(missing1/float(len(accessionsIndices)))									   
 				snpCallRate[1].append(missing2/float(len(accessionsIndices)))									   
 				i = i+1
@@ -411,6 +411,7 @@ class RawSnpsData(_SnpsData_):
 				break
 		
 		for i in range(0,len(accessionErrorRate)):
+			print "accessionCounts[i]:",accessionCounts[i]
 			if accessionCounts[i]>0:
 				accessionErrorRate[i] = accessionErrorRate[i]/float(accessionCounts[i])
 			no_of_common_snps_pos = len(commonSnpsPos)

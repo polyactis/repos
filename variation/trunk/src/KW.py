@@ -84,7 +84,8 @@ def _run_():
 
 	def runParallel(phenotypeIndex):
 		#Cluster specific parameters
-		resultDir = '/home/cmb-01/bvilhjal/results/'
+		resultDir = env.homedir+'results/'
+		scriptDir = env.homedir+'Projects/Python-snps/'
 		phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
 		phenName = phed.phenotypeNames[phenotypeIndex]
 		phenName = phenName.replace("/","_div_")
@@ -98,10 +99,10 @@ def _run_():
 #PBS -q cmb
 """
 
-		shstr += "#PBS -N E"+phenName+"_"+parallel+"\n"
+		shstr += "#PBS -N K"+phenName+"_"+parallel+"\n"
 		shstr += "set phenotypeName="+parallel+"\n"
 		shstr += "set phenotype="+str(phenotypeIndex)+"\n"
-		shstr += "(python "+emmadir+"KW.py -o "+outputFile+" "
+		shstr += "(python "+scriptDir+"KW.py -o "+outputFile+" "
 		shstr += " -a "+str(withArrayIds)+" "			
 		shstr += snpsDataFile+" "+phenotypeDataFile+" "+str(phenotypeIndex)+" "
 		shstr += "> "+outFileName+"_job"+".out) >& "+outFileName+"_job"+".err\n"
@@ -114,10 +115,9 @@ def _run_():
 		os.system("qsub "+parallel+".sh ")
 
 	snpsDataFile = args[0]
-	phenotypeFile = args[1]
+	phenotypeDataFile = args[1]
 	if parallel:  #Running on the cluster..
 		if parallelAll:
-			phenotypeDataFile = '/home/cmb-01/bvilhjal/Projects/data/phenotypes_052208.tsv'
 			phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
 			for phenotypeIndex in range(0,len(phed.phenotypeNames)):
 				runParallel(phenotypeIndex)
@@ -135,7 +135,7 @@ def _run_():
 	import dataParsers
 	snpsds = dataParsers.parseCSVData(snpsDataFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=withArrayIds)
 	
-	phed = phenotypeData.readPhenotypeFile(phenotypeFile, delimiter='\t')  #Get Phenotype data 
+	phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
 	accIndicesToKeep = []			
 	phenAccIndicesToKeep = []
 	numAcc = len(snpsds[0].accessions)
@@ -189,9 +189,9 @@ def _run_():
 	print ""
 
 	#Writing files
-	cluster = "/home/cmb-01/bvilhjal/"==env.homedir #Am I running on the cluster?
+	bamboo = "/Users/bjarni/"==env.homedir #Am I running on the cluster?
 	import tempfile
-	if not cluster:
+	if bamboo:
 		tempfile.tempdir='/tmp'
 	(fId, phenotypeTempFile) = tempfile.mkstemp()
 	os.close(fId)
@@ -202,11 +202,8 @@ def _run_():
 	sys.stdout.write( "Phenotype file written\n")
 	sys.stdout.flush()
 	snpsDataset = snpsdata.SnpsDataSet(newSnpsds,[1,2,3,4,5])
-	if cluster: #AN UGLY HACK
-		snpsDataset.writeToFile(genotypeTempFile, deliminator=delim, missingVal = missingVal, withArrayIds = 0)
-	else:
-		decoder = {1:1, 0:0, -1:'NA'}	
-		snpsDataset.writeToFile(genotypeTempFile, deliminator=delim, missingVal = missingVal, withArrayIds = 0, decoder=decoder)
+	decoder = {1:1, 0:0, -1:'NA'}	
+	snpsDataset.writeToFile(genotypeTempFile, deliminator=delim, missingVal = missingVal, withArrayIds = 0, decoder=decoder)
 	sys.stdout.write( "Genotype file written\n")
 	sys.stdout.flush()
 
@@ -217,7 +214,7 @@ def _run_():
 	rDataFile = outputFile+".rData"
 	pvalFile = outputFile+".pvals"
 	binary = phed.isBinary(phenotype)
-	rstr = _generateRScript_(genotypeTempFile, phenotypeTempFile, rDataFile, pvalFile, name = phenotypeName, cluster=cluster, binary=binary)
+	rstr = _generateRScript_(genotypeTempFile, phenotypeTempFile, rDataFile, pvalFile, name = phenotypeName, binary=binary)
 	f = open(outputFile,'w')
 	f.write(rstr)
 	f.close()
@@ -231,13 +228,9 @@ def _run_():
 	print "Emma output saved in R format in", rDataFile
 	
 	
-def _generateRScript_(genotypeFile, phenotypeFile, rDataFile, pvalFile, name=None, cluster=False, binary=False):
+def _generateRScript_(genotypeFile, phenotypeFile, rDataFile, pvalFile, name=None, binary=False):
 	
-	if cluster:
-		rstr = 'library(emma,lib.loc="/home/cmb-01/bvilhjal/Projects/emma");\n'
-	else:
-		rstr = "library(emma);\n"
-	rstr += 'data250K <- read.csv("'+str(genotypeFile)+'", header=TRUE);\n'
+	rstr = 'data250K <- read.csv("'+str(genotypeFile)+'", header=TRUE);\n'
 	rstr += 'phenotData <- read.csv("'+str(phenotypeFile)+'",header=TRUE);\n'
 	rstr += """
 phenMat <- t(as.matrix(as.matrix(phenotData)[,2]));
@@ -251,7 +244,7 @@ for (chr in (1:5)){
   pos <- mat250K[,2];
   mat250K <- mat250K[,3:length(mat250K[1,])];
   res[[chr]] <- list();
-  res[[chr]][["pvals"]] <- c();
+  res[[chr]][["ps"]] <- c();
   res[[chr]][["stat"]] <- c();
   for (j in (1:length(mat250K[,1]))){
 """
@@ -260,13 +253,13 @@ for (chr in (1:5)){
 	else:
 		rstr += "    v <- kruskal.test(as.vector(phenMat),as.vector(mat250K[j,]));"
 	rstr +="""
-    res[[chr]]$pvals[j] <- as.double(v[3]);
+    res[[chr]]$ps[j] <- as.double(v[3]);
     res[[chr]]$stat[j] <- as.double(v[1]);
   }  
   res[[chr]][["pos"]] <- pos;
   res[[chr]][["chr_pos"]] <- pos;
 
-  pvals <- append(pvals,res[[chr]]$pvals);
+  pvals <- append(pvals,res[[chr]]$ps);
   positions <- append(positions,pos);
   chrs <- append(chrs,rep(chr,length(pos)));
 }
@@ -286,7 +279,7 @@ res[[3]]$pos <- res[[3]]$pos+res[[2]]$pos[length(res[[2]]$pos)];
 res[[4]]$pos <- res[[4]]$pos+res[[3]]$pos[length(res[[3]]$pos)];
 res[[5]]$pos <- res[[5]]$pos+res[[4]]$pos[length(res[[4]]$pos)];
 
-res[["ylim"]] <- c(min(min(-log(res[[1]]$pvals)),min(-log(res[[2]]$pvals)),min(-log(res[[3]]$pvals)),min(-log(res[[4]]$pvals)),min(-log(res[[5]]$pvals))), max(max(-log(res[[1]]$pvals)),max(-log(res[[2]]$pvals)),max(-log(res[[3]]$pvals)),max(-log(res[[4]]$pvals)),max(-log(res[[5]]$pvals))));
+res[["ylim"]] <- c(min(min(-log(res[[1]]$ps)),min(-log(res[[2]]$ps)),min(-log(res[[3]]$ps)),min(-log(res[[4]]$ps)),min(-log(res[[5]]$ps))), max(max(-log(res[[1]]$ps)),max(-log(res[[2]]$ps)),max(-log(res[[3]]$ps)),max(-log(res[[4]]$ps)),max(-log(res[[5]]$ps))));
 
 res[["xlim"]] <- c(min(res[[1]]$pos),max(res[[5]]$pos));
 
@@ -296,7 +289,10 @@ res[["FLC"]]<-c(3173498+res[[4]]$pos[length(res[[4]]$pos)],3179449+res[[4]]$pos[
 
 """
 	if name:
-		rstr += 'res[["lab"]]= "Emma p-values for '+name+'";\n'
+		if binary:
+			rstr += 'res[["lab"]]= "Chi-Square p-values for '+name+'";\n'
+		else:
+			rstr += 'res[["lab"]]= "Kruskal Wallis p-values for '+name+'";\n'
 	else:
 		rstr += 'res[["lab"]]="";\n'
 	rstr += 'save(file="'+rDataFile+'",res);\n'
