@@ -281,8 +281,14 @@ def _run_():
 	rstr = "#Snps error rates\n"
 	rstr = "par(mfrow=c(5,1));\n"
 	snpsErrorRate = []
+
+ 	totalCounts = 0
+ 	totalFails = 0
+
 	for i in range(0,len(res)): #for all chromosomes
 		r = res[i]
+		totalCounts += r[9][0]
+		totalFails += r[9][1]
 		snpsErrorRate +=r[1]
 		totalCommonPos += len(r[0])
 		totalPos[0] += len(snpsds1[i].positions)
@@ -298,7 +304,6 @@ def _run_():
 			accOverlappingCallRate[1][j]+=r[4][1][j]*float(len(r[0]))
 			accCallRate[0][j]+=r[8][0][j]
 			accCallRate[1][j]+=r[8][1][j]
-			print "Calc. error rate, r[3][j] =",r[3][j], ", float(r[6][j]) =",float(r[6][j])
 			accErrorRate[j]+=r[3][j]*float(r[6][j])
 
 	statstr += "#Number of common SNPs positions:\n"
@@ -312,6 +317,8 @@ def _run_():
 
 	statstr += "#Average Snp Error:\n"
 	statstr += str(sum(snpsErrorRate)/float(len(snpsErrorRate)))+"\n"
+	statstr += "#Weighted Average Snp Error:\n"
+	statstr += str(totalFails/float(totalCounts))+"\n"
 	
 	statstr += "#Commmon accessions:\n"
 	statstr += str(commonAccessions)+'\n'
@@ -346,7 +353,6 @@ def _run_():
 		accOverlappingCallRate[1][i]=accOverlappingCallRate[1][i]/float(totalCommonPos)
 		accCallRate[0][i]=accCallRate[0][i]/float(totalPos[0])
 		accCallRate[1][i]=accCallRate[1][i]/float(totalPos[1])
-		print "Calc. error rate, accErrorRate[i] =",accErrorRate[i], ", float(totalAccessionCounts[i]) =",float(totalAccessionCounts[i])
 		accErrorRate[i]=accErrorRate[i]/float(totalAccessionCounts[i])
 
 	accErrAndID = []

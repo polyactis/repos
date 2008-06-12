@@ -363,6 +363,8 @@ class RawSnpsData(_SnpsData_):
 		snpErrorRate = []
 		snpCallRate = [[],[]]
 		goodSnpsCounts = []
+		totalCounts = 0
+		totalFails = 0
 		i = 0
 		j = 0
 		while i <= len(self.positions) and j <= len(snpsd.positions):
@@ -399,6 +401,8 @@ class RawSnpsData(_SnpsData_):
 							missing2 += 1
 				goodSnpsCounts.append(counts)
 				error = 0
+				totalCounts += counts
+				totalFails += fails
 				if counts>0:
 					error = float(fails)/float(counts)
 					snpErrorRate.append(error) 
@@ -411,7 +415,6 @@ class RawSnpsData(_SnpsData_):
 				break
 		
 		for i in range(0,len(accessionErrorRate)):
-			print "accessionCounts[i]:",accessionCounts[i]
 			if accessionCounts[i]>0:
 				accessionErrorRate[i] = accessionErrorRate[i]/float(accessionCounts[i])
 			no_of_common_snps_pos = len(commonSnpsPos)
@@ -448,7 +451,8 @@ class RawSnpsData(_SnpsData_):
 				if snp==self.missingVal:
 					naCounts2[k] += 1
 		
-		return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate, [naCounts1,naCounts2]]
+		
+		return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate, [naCounts1,naCounts2], [totalCounts,totalFails]]
 
 	def getSnpsData(self, noNA=True):
 		"""
