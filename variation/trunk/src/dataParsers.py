@@ -53,7 +53,10 @@ def getEcotypeToAccessionDictionary(host="papaya.usc.edu", user=None, passwd=Non
             break;
         ecotypeID = str(int(row[0]))
         ecotDict[ecotypeID]=(str(int(row[1])),str(row[2]))
+    cursor.close ()
+    conn.close ()
     return ecotDict
+
 
 def getEcotypeToNameDictionary(host="papaya.usc.edu", user=None, passwd=None, defaultValue=None):
     class _ecotypeDict_(dict):
@@ -86,6 +89,8 @@ def getEcotypeToNameDictionary(host="papaya.usc.edu", user=None, passwd=None, de
             break;
         ecotypeID = str(int(row[0]))
         ecotDict[ecotypeID]=str(row[1])
+    cursor.close ()
+    conn.close ()
     return ecotDict
 
      
@@ -271,6 +276,7 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
         probFile.close()
         os.system("rm "+probFileName)
 
+
     else: #Without call probabilities
         print "Starting to read file"
         f = open(fileName,"r")
@@ -316,6 +322,8 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
             snpsds.append(RawSnpsData(snpsList[i-1], positionsList[i-1], accessions=accessions, arrayIds=arrayIds))
     dif = int(time.time() - rt)
     print "It took "+str(dif/60)+" min. and "+str(dif%60)+" sec. to fetch data."
+    cursor.close ()
+    conn.close ()
     return snpsds
 
   
@@ -496,13 +504,22 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     rt = time.time()
     perlgenTo2010 = {'bay-0':'Bay-0','bor-4':'Bor-4','br-0':'Br-0','bur-0':'Bur-0',
                      'c24':'C24','col-0':'Col-0','cvi-0':'Cvi-0','est-1':'Est-1',
-                     'fei-0':'Fei-0','got-7':'Got-7','ler-1':'Ler-1','lov-5':'Lov-5',
-                     'nfa-8':'NFA-8','rrs-10':'RRS-10','rrs-7':'RRS-7','sha':'Shahdara',
+                     'fei-0':'Fei-0','got-7':'Got-7','ler-1':'Ler-1','lov-5':'L\xf6v-5',
+                     'nfa-8':'NFA-8','rrs-10':'RRS-10','rrs-7':'RRS-7','sha':'Sha',
                      'tamm-2':'Tamm-2','ts-1':'Ts-1','tsu-1':'Tsu-1','van-0':'Van-0'}
     
     perlgenAccessionToId = {}  #Get accession id's (or ecotype id?)  from DB
+    e2n = getEcotypeToNameDictionary(host=host, user=user, passwd=passwd)
+    n2e = {}
+    #accessions = []
+    for e in e2n:
+        n2e[e2n[e]]=e
+        #accessions.append(e2n[e])
+    #print n2e
+    #accessions.sort()
+    #print accessions
     
-
+    
     decoder = {'N':'NA','A':'A','C':'C','G':'G','T':'T'} 
     print "Connecting to db, host="+host
     if not user:
@@ -528,7 +545,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
         if not row:
             break;
         dict[row[0]]=i
-        accessions.append(accessionName2EcotypeId[perlgenTo2010[row[0]]])
+        accessions.append(n2e[perlgenTo2010[row[0]]])
         i = i+1
 
     print "Fetching Perlgen data:"
@@ -571,7 +588,8 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
     05/12/08 yh. add '-':'-' (deletion) and '|':'NA' (untouched) check nt2number in 'variation.common' to decoder
     05/12/2008 yh. more correct reporting of snp loading counts
     05/11/2008 yh. add chromosome. use RawSnpsData directly. ...
-    
+    06/25/2008 bjv. withArrayIds is now detected, i.e. the argument doesn't matter.    
+
     Parses raw CSV SNPs data files into a RawSnpsData.
 
     format=1: the function return a RawSnpsData object list
@@ -599,6 +617,8 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
     snpsList = []
     accessions = []
     arrayIds = None
+    line = lines[1].split(deliminator)
+    withArrayIds = line[0]=="Chromosome"
     i=0
     if withArrayIds:
         line = lines[i].split(deliminator)

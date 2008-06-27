@@ -13,6 +13,9 @@ Option:
 	--parallel=...              Run emma on the cluster with standard parameters.  The arguement is used for runid 
                                     as well as output files.  Note that if this option is used then no output file should be specified.
 	--parallelAll               Run Emma on all phenotypes.
+	--addToDB                   Adds the result to the DB.
+	--callMethodID=...          What data set is used. (Only applicable if result is added to DB.)
+	--comment=...               Comment for DB. (Only applicable if result is added to DB.)
 
 Examples:
 	KW.py -o outputFile  250K.csv phenotypes.tsv phenotype_index 
@@ -26,13 +29,18 @@ Description:
 import sys, getopt, traceback
 import os, env
 import phenotypeData
+import AddResults2DB
+
+resultDir="/home/cmb-01/bvilhjal/results/"
+scriptDir="/home/cmb-01/bvilhjal/Projects/Python-snps/"
+
 
 def _run_():
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["outputFile=", "delim=", "missingval=", "withArrayId=", "phenotypeFileType=", "help", "parallel=", "parallelAll"]
+	long_options_list = ["outputFile=", "delim=", "missingval=", "withArrayId=", "phenotypeFileType=", "help", "parallel=", "parallelAll", "addToDB","callMethodID=", "comment="]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:c:d:m:a:h", long_options_list)
 
@@ -51,6 +59,9 @@ def _run_():
 	withArrayIds = 1
 	parallel = None
 	parallelAll = False
+	addToDB=False
+	callMethodID=None
+	comment=""
 
 	for opt, arg in opts:
             if opt in ("-h", "--help"):
@@ -66,6 +77,12 @@ def _run_():
                 parallel = arg
             elif opt in ("--parallelAll"):
                 parallelAll = True
+            elif opt in ("--addToDB"):
+                addToDB = True
+            elif opt in ("--callMethodID"):
+                callMethodID = int(arg)
+            elif opt in ("--comment"):
+                comment = arg
             elif opt in ("-d","--delim"):
                 delim = arg
             elif opt in ("-m","--missingval"):
@@ -84,14 +101,11 @@ def _run_():
 
 	def runParallel(phenotypeIndex):
 		#Cluster specific parameters
-		resultDir = env.homedir+'results/'
-		scriptDir = env.homedir+'Projects/Python-snps/'
 		phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
 		phenName = phed.phenotypeNames[phenotypeIndex]
 		phenName = phenName.replace("/","_div_")
 		phenName = phenName.replace("*","_star_")
-		outFileName = resultDir+"KW_"+parallel+"_"+phenName
-		outputFile = outFileName 
+		outputFile = resultDir+"KW_"+parallel+"_"+phenName
 
 		shstr = """#!/bin/csh
 #PBS -l walltime=72:00:00
@@ -105,7 +119,7 @@ def _run_():
 		shstr += "(python "+scriptDir+"KW.py -o "+outputFile+" "
 		shstr += " -a "+str(withArrayIds)+" "			
 		shstr += snpsDataFile+" "+phenotypeDataFile+" "+str(phenotypeIndex)+" "
-		shstr += "> "+outFileName+"_job"+".out) >& "+outFileName+"_job"+".err\n"
+		shstr += "> "+outputFile+"_job"+".out) >& "+outputFile+"_job"+".err\n"
 
 		f = open(parallel+".sh",'w')
 		f.write(shstr)
@@ -189,9 +203,8 @@ def _run_():
 	print ""
 
 	#Writing files
-	bamboo = "/Users/bjarni/"==env.homedir #Am I running on the cluster?
 	import tempfile
-	if bamboo:
+	if env.user == "bjarni":
 		tempfile.tempdir='/tmp'
 	(fId, phenotypeTempFile) = tempfile.mkstemp()
 	os.close(fId)
@@ -215,20 +228,21 @@ def _run_():
 	pvalFile = outputFile+".pvals"
 	binary = phed.isBinary(phenotype)
 	rstr = _generateRScript_(genotypeTempFile, phenotypeTempFile, rDataFile, pvalFile, name = phenotypeName, binary=binary)
-	f = open(outputFile,'w')
+	rFileName = outputFile+".r"
+	f = open(rFileName,'w')
 	f.write(rstr)
 	f.close()
-	outRfile = outputFile+"_R.out"
-	errRfile = outputFile+"_R.err"
+	outRfile = rFileName+".out"
+	errRfile = rFileName+".err"
 	print "Running R file:"
-        cmdStr = "(R --vanilla < "+outputFile+" > "+outRfile+") >& "+errRfile
+        cmdStr = "(R --vanilla < "+rFileName+" > "+outRfile+") >& "+errRfile
 	sys.stdout.write(cmdStr+"\n")
 	sys.stdout.flush()
 	os.system(cmdStr)
 	print "Emma output saved in R format in", rDataFile
 	
 	
-def _generateRScript_(genotypeFile, phenotypeFile, rDataFile, pvalFile, name=None, binary=False):
+def _generateRScript_(genotypeFile, phenotypeFile, rDataFile, pvalFile, name=None, binary=False, chiSquare=False):
 	
 	rstr = 'data250K <- read.csv("'+str(genotypeFile)+'", header=TRUE);\n'
 	rstr += 'phenotData <- read.csv("'+str(phenotypeFile)+'",header=TRUE);\n'
@@ -249,12 +263,26 @@ for (chr in (1:5)){
   for (j in (1:length(mat250K[,1]))){
 """
 	if binary: 
-		rstr += "    v <- chisq.test(as.vector(phenMat),as.vector(mat250K[j,]));"
+		if chiSquare:
+			rstr += "    v <- chisq.test(as.vector(phenMat),as.vector(mat250K[j,]));"
+			rstr += """
+    res[[chr]]$ps[j] <- as.double(v$p.value);
+    res[[chr]]$stat[j] <- as.double(v[1]);		
+"""
+		else:
+			rstr += "    v <- fisher.test(as.vector(phenMat),as.vector(mat250K[j,]));"			
+			rstr += """
+    res[[chr]]$ps[j] <- as.double(v$p.value);
+    res[[chr]]$stat[j] <- as.double(v$p.value);		
+"""
+
 	else:
 		rstr += "    v <- kruskal.test(as.vector(phenMat),as.vector(mat250K[j,]));"
+		rstr += """
+    res[[chr]]$ps[j] <- as.double(v$p.value);
+    res[[chr]]$stat[j] <- as.double(v[1]);		
+"""
 	rstr +="""
-    res[[chr]]$ps[j] <- as.double(v[3]);
-    res[[chr]]$stat[j] <- as.double(v[1]);
   }  
   res[[chr]][["pos"]] <- pos;
   res[[chr]][["chr_pos"]] <- pos;
@@ -271,7 +299,7 @@ l[["Positions"]]<-positions;
 l[["Pvalues"]]<-pvals;
 dl <- as.data.frame(l)
 """
-	rstr +=' write.table(dl,file="'+pvalFile+'", sep=", ", row.names = FALSE);\n'		
+	rstr +='write.table(dl,file="'+pvalFile+'", sep=", ", row.names = FALSE);\n'		
 	rstr += """
 #Save data as R object.
 res[[2]]$pos <- res[[2]]$pos+res[[1]]$pos[length(res[[1]]$pos)];
@@ -290,7 +318,10 @@ res[["FLC"]]<-c(3173498+res[[4]]$pos[length(res[[4]]$pos)],3179449+res[[4]]$pos[
 """
 	if name:
 		if binary:
-			rstr += 'res[["lab"]]= "Chi-Square p-values for '+name+'";\n'
+			if chiSquare:
+				rstr += 'res[["lab"]]= "Chi-Square p-values for '+name+'";\n'
+			else:
+				rstr += 'res[["lab"]]= "Fisher p-values for '+name+'";\n'
 		else:
 			rstr += 'res[["lab"]]= "Kruskal Wallis p-values for '+name+'";\n'
 	else:

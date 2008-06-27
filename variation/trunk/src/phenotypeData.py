@@ -1,4 +1,3 @@
-
 class PhenotypeData:
     """
     A class that knows how to read simple tsv or csv phenotypefiles and facilitates their interactions with SnpsData objects.    
@@ -6,19 +5,30 @@ class PhenotypeData:
     accessions = []
     phenotypeNames = []
     phenotypeValues = [] # list[accession_index][phenotype_index]
-
-    def __init__(self, accessions, phenotypeNames, phenotypeValues):
+    accessionNames = None
+    
+    def __init__(self, accessions, phenotypeNames, phenotypeValues, accessionNames=None):
         self.accessions = accessions
         self.phenotypeNames = phenotypeNames
         self.phenotypeValues=phenotypeValues
+        self.accessionNames = accessionNames
 
     def logTransform(self, phenotypeIndex):
-        if not self.isBinary(phenotypeIndex):
+        if not self.isBinary(phenotypeIndex) and not self._lessOrEqualZero_(phenotypeIndex):
             import math
             for i in range(0,len(self.accessions)):
                 self.phenotypeValues[i][phenotypeIndex] = str(math.log(float(self.phenotypeValues[i][phenotypeIndex])))
         else:
-            print "Can't log-transform, since phenotype is binary"
+            print "Can't log-transform, since phenotype is binary OR values are out of logarithm range!"
+
+    def _lessOrEqualZero_(self,phenotypeIndex):
+        lessOrEqualZero = False
+        for i in range(0,len(self.accessions)):
+            if self.phenotypeValues[i][phenotypeIndex] <= 0:
+                lessOrEqualZero = True
+                break
+        return lessOrEqualZero
+            
 
     def isBinary(self, phenotypeIndex):
         l = []
@@ -40,9 +50,11 @@ class PhenotypeData:
         """
         print "Ordering phenotype data accessions."
         newAccessions = []
+        newAccessionNames = []
         newPhenotVals = []
         for acc in self.accessions:
             newAccessions.append("")
+            newAccessionNames.append("")
             newPhenotVals.append([])
 
         if not accessionMapping:
@@ -56,9 +68,12 @@ class PhenotypeData:
                 j += 1
 
         for (i,j) in accessionMapping:
+            #print j, len(newAccessions)
             newAccessions[j] = self.accessions[i]
+            newAccessionNames[j] = self.accessionNames[i]
             newPhenotVals[j] = self.phenotypeValues[i]
         self.accessions = newAccessions
+        self.accessionNames = newAccessionNames
         self.phenotypeValues = newPhenotVals
         
     def removeAccessions(self, indicesToKeep):
@@ -68,19 +83,25 @@ class PhenotypeData:
         numAccessionsRemoved = len(self.accessions)-len(indicesToKeep)
         print "Removing",numAccessionsRemoved,"accessions in phenotype data, out of",len(self.accessions), "accessions."
         newAccessions = []
+        newAccessionNames = []
         newPhenotVals = []
         print len(indicesToKeep)
         for i in indicesToKeep:
             newAccessions.append(self.accessions[i])
+            newAccessionNames.append(self.accessionNames[i])
             newPhenotVals.append(self.phenotypeValues[i])
         self.accessions = newAccessions
+        self.accessionNames = newAccessionNames
         self.phenotypeValues = newPhenotVals
         print "len(self.accessions):",len(self.accessions)
+        print "len(self.accessionNames):",len(self.accessionNames)
         print "len(self.phenotypeValues):",len(self.phenotypeValues)
         
     def writeToFile(self, outputFile, phenotypes=None, delimiter=','):
         print "Writing out phenotype file:",outputFile
         outStr = "ecotype_id"
+        if self.accessionNames:
+            outStr += delimiter+"accession_name"
         if phenotypes:
             for i in phenotypes:
                 name = self.phenotypeNames[i]
@@ -97,9 +118,12 @@ class PhenotypeData:
             outStr += '\n'
             for i in range(0,len(self.accessions)):
                 outStr += str(self.accessions[i])
+                if self.accessionNames:
+                    outStr += delimiter+str(self.accessionNames[i])
                 for j in range(0, len(self.phenotypeNames)):
                     outStr += delimiter+str(self.phenotypeValues[i][j])
                 outStr +="\n"
+                #print outStr
 
         f = open(outputFile,"w")
         f.write(outStr)

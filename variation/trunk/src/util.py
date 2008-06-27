@@ -9,10 +9,17 @@ def valListToStrList(l):
     return newl
 
 
-def calcVar(self,list):
-    mean = sum(list)/float(len(list))
+def calcVar(self,l):
+    mean = sum(l)/float(len(l))
     var = 0
-    for i in range(0,len(list)):
-        var = var + (list[i]-mean)*(list[i]-mean)
-    var = var/float(len(list)-1)
+    for i in range(0,len(l)):
+        var = var + (l[i]-mean)*(l[i]-mean)
+    var = var/float(len(l)-1)
     return var
+
+def transposeDoubleLists(l):
+    newl = [[] for i in range(0,len(l[0]))]
+    for i in range(0,len(l)):
+        for j in range(0,len(l[0])):
+            newl[j].append(l[i][j])
+    return newl
