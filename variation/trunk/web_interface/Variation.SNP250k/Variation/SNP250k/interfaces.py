@@ -289,8 +289,10 @@ class IResults2DB_250k(Interface):
 								  description=u"File containing Genome-Wide Results. tab or comma delimited 3-column (chromosome, position, score) or 4-column (chromosome, start_position, end_position, score).",
 								  required=True)
 	commit_type = schema.Choice(title=u'Commit Type',
-						 description=u'Which type of database commit action you want.',
-						 required=True, vocabulary=SimpleVocabulary.fromItems([("No commit this transaction. Leave it to the next transaction. Save Time!", 0),\
-																			("Commit this and all previous transactions.", 1),\
-																			("Commit all previous (excluding the current page) transactions. Fill in the required field in the current page with whatever. They won't go into database.", 2),\
-																			("Rollback all previous transactions. This = Undo!", 3)]))
+						description=u'Which type of database commit action you want.',
+						required=True, vocabulary=SimpleVocabulary.fromItems([("No commit. Test Run!", 0),\
+																			("Commit this transaction.", 1)]))
+						#required=True, vocabulary=SimpleVocabulary.fromItems([("No commit this transaction. Leave it to the next transaction. Save Time!", 0),\
+						#													("Commit this and all previous transactions.", 1),\
+						#													("Commit all previous (excluding the current page) transactions. Fill in the required field in the current page with whatever. They won't go into database.", 2),\
+						#													("Rollback all previous transactions. This = Undo!", 3)]))

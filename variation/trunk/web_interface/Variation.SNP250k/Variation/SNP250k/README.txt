@@ -183,8 +183,8 @@ Create a phenotype in variation3 folder.
 	>>> control = browser.getControl(name='form.input_fname')
 	>>> fileControl = control.mech_control
 	>>> fileControl.add_file(myResults, 'text/plain', filename='myResults.tsv')
-	>>> browser.getControl('No commit this transaction.').selected = True	#this doesn't work: browser.getControl(name='form.commit_type').value = ["1"]		#radio button
-	>>> browser.getControl(name='form.actions.save').click()
+	>>> browser.getControl('No commit').selected = True	#this doesn't work: browser.getControl(name='form.commit_type').value = ["1"]		#radio button
+	>>> browser.getControl(name='form.actions.submit').click()
 	>>> browser.title
 	>>> browser.headers
 	>>> browser.contents

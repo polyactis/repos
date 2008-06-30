@@ -66,7 +66,7 @@ class Results2DB_250kForm(FieldsetsEditForm):
 	#	self.request.set('disable_border', True)
 	#	return super(StockDatabaseSettingsForm, self).__call__()
 	
-	@form.action(_(u'label_save', default=u'Save'), name=u'save')
+	@form.action(_(u'label_submit', default=u'Submit'), name=u'submit')
 	def handle_edit_action(self, action, data):
 		"""
 		2008-05-25
@@ -74,8 +74,12 @@ class Results2DB_250kForm(FieldsetsEditForm):
 		2008-05-25
 			check commit_type
 		"""
+		is_form_changed = form.applyChanges(self.context, self.form_fields, data,
+							 self.adapters)
 		if data['results_method_type_id'] is None and not data['results_method_type_short_name']:
-			IStatusMessage(self.request).addStatusMessage(_("Either results_method_type_id or results_method_type_short_name has to be something."), type='error')
+			IStatusMessage(self.request).addStatusMessage(_("Either 'Results Method Type ID' or 'New Results Method Type Short Name' has to be something."), type='error')
+		elif data['phenotype_method_id'] is None and data['results_method_type_id']==1:
+			IStatusMessage(self.request).addStatusMessage(_("Phenotype method ID required for 'association' results."), type='error')
 		elif data['commit_type']==2:	#don't care whether contents change or not
 			start_time = self.context.ZopeTime().timeTime()
 			db = getUtility(IDatabase, name='variation.stockdatabase')
@@ -98,8 +102,7 @@ class Results2DB_250kForm(FieldsetsEditForm):
 				self.status = _("Took %f seconds to rollback all previous transactions."%(self.context.ZopeTime().timeTime()-start_time))
 			else:
 				IStatusMessage(self.request).addStatusMessage(_("Warning: No rollback as no previous transaction exists."), type='warning')
-		elif form.applyChanges(self.context, self.form_fields, data,
-							 self.adapters):
+		elif is_form_changed:
 			locator = getUtility(IDBLocator)
 			if locator.checkIfResultsMethodExist(data['short_name']):
 				IStatusMessage(self.request).addStatusMessage(_("Error: Short Name, %s already exists in database"%data['short_name']), type='error')
