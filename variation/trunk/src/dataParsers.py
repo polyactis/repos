@@ -44,7 +44,7 @@ def getEcotypeToAccessionDictionary(host="papaya.usc.edu", user=None, passwd=Non
     cursor = conn.cursor ()
     #Retrieve the filenames
     print "Fetching data"
-    numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, e2a.accession_id, ei.nativename from stock.ecotypeid2tg_ecotypeid ei, at.accession2tg_ecotypeid e2a where e2a.tg_ecotypeid=ei.tg_ecotypeid"))
+    numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, e2a.accession_id, ei.nativename from stock.ecotypeid2tg_ecotypeid ei, at.complete_2010_strains_in_stock2tg_ecotypeid e2a where e2a.tg_ecotypeid=ei.tg_ecotypeid"))
     
     ecotDict = _ecotypeDict_()
     while(1):

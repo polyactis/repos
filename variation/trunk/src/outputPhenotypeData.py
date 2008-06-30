@@ -135,7 +135,7 @@ def _run_():
 
 def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=False, onlyQuantitative=False, onlyCategorical=False, onlyReplicates=False, includeSD=False, rawPhenotypes=False, onlyPublishable=False):
 	import dataParsers
-	e2a = dataParsers.getEcotypeToAccessionDictionary(host,user=user,passwd=passwd,defaultValue=100)
+	e2a = dataParsers.getEcotypeToAccessionDictionary(host,user=user,passwd=passwd,defaultValue='100')
 
 	import MySQLdb
 	print "Connecting to db, host="+host
@@ -215,15 +215,24 @@ def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=Fals
 	cursor.close ()
 	conn.close ()
 	import util
-	phenotypeValues = util.transposeDoubleLists(phenotypeValues)
 
 	if onlyPublishable:  #Censor the data.
 		for i in range(0,len(phenotypeValues)):
+			if onlyFirst96[i]:
+				print phenotypeNames[i],onlyFirst96[i],(len(phenotypeValues[i])-phenotypeValues[i].count("NA"))
+
+		for i in range(0,len(phenotypeValues)):
 			for j in range(0,len(ecotypes)):
 				if onlyFirst96[i]:
-					if e2a[ecotypes[j]][0]>97:
+					if int(e2a[ecotypes[j]][0])>97:
 						phenotypeValues[i][j]='NA'
 
+
+		for i in range(0,len(phenotypeValues)):
+			if onlyFirst96[i]:
+				print phenotypeNames[i],onlyFirst96[i],(len(phenotypeValues[i])-phenotypeValues[i].count("NA"))
+	
+	phenotypeValues = util.transposeDoubleLists(phenotypeValues)
 	phenDat = phenotypeData.PhenotypeData(ecotypes, phenotypeNames, phenotypeValues, accessionNames=accessions)
 	return phenDat
 	
