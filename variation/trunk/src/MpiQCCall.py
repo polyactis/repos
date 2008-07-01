@@ -41,9 +41,7 @@ from common import nt2number,number2nt, RawSnpsData_ls2SNPData
 import dataParsers, FilterAccessions, FilterSnps, MergeSnpsData
 from variation.genotyping.NPUTE.SNPData import SNPData as NPUTESNPData
 from variation.genotyping.NPUTE.NPUTE import imputeData, NPUTE
-from variation.src.QC_250k import SNPData, TwoSNPData
-from pymodule import PassingData, importNumericArray
-from pymodule.SNP import SNPData, TwoSNPData
+from pymodule import PassingData, importNumericArray, SNPData, TwoSNPData
 import copy
 import snpsdata
 
