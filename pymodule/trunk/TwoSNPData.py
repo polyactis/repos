@@ -725,6 +725,10 @@ class QualityControl(object):
 	
 	def create_qc_cross_match_table(self, curs, qc_cross_match_table):
 		"""
+		2008-07-01
+			rename some fields in the cross_match_table
+				duplicate => call_info_id
+				accession_id => vs_ecotype_id
 		2008-01-11
 			create the qc_cross_match_table
 		"""
@@ -732,15 +736,17 @@ class QualityControl(object):
 		curs.execute("create table %s(\
 			id	integer primary key auto_increment,\
 			ecotype_id	integer	not null,\
-			duplicate	integer,\
-			accession_id	integer,\
+			call_info_id	integer,\
+			vs_ecotype_id	integer,\
 			mismatch_rate	float,\
 			no_of_mismatches	integer,\
-			no_of_non_NA_pairs	integer)"%qc_cross_match_table)
+			no_of_non_NA_pairs	integer)engine=INNODB"%qc_cross_match_table)
 		sys.stderr.write("Done.\n")
 	
 	def submit_row_id2pairwise_dist(self, curs, qc_cross_match_table, row_id2pairwise_dist):
 		"""
+		2008-07-01
+			some fields in qc_cross_match_table renamed
 		2008-01-11
 			submit row_id2pairwise_dist
 		"""
@@ -751,10 +757,10 @@ class QualityControl(object):
 				accession_id = row_id2
 				if type(row_id)==tuple:
 					ecotype_id, duplicate = row_id
-					sql_string = "insert into %s(ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
+					sql_string = "insert into %s(ecotype_id, call_info_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
 				else:
 					ecotype_id = row_id
-					sql_string = "insert into %s(ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
+					sql_string = "insert into %s(ecotype_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
 				curs.execute(sql_string)
 		sys.stderr.write("Done.\n")
 
@@ -1109,6 +1115,17 @@ class TwoSNPData(QualityControl):
 		cols_to_be_tossed_out = Set(range(no_of_cols)) - col_indices_wanted_set
 		sys.stderr.write("%s loci sampled around %s reference loci. Done.\n"%(len(col_indices_wanted_set), len(self.col_id12col_id2)))
 		return cols_to_be_tossed_out
+	
+	def cal_row_id2pairwise_dist(self):
+		"""
+		2008-07-01
+			cross-match the two data matricies
+		"""
+		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		if getattr(self, 'qc_cross_match_table', None):
+			if getattr(self, 'new_QC_cross_match_table', None):
+				self.create_qc_cross_match_table(self.curs, self.qc_cross_match_table)
+			self.submit_row_id2pairwise_dist(self.curs, self.qc_cross_match_table, self.row_id2pairwise_dist)
 	
 class MergeTwoSNPData(object):
 	__doc__ = __doc__
