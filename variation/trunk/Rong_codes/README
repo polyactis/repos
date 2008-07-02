@@ -17,7 +17,7 @@ other associated R/shell/c-binary programs
 - process-calls:
 
   program to refine the output of new_basecall.R to be in format compliant of db stock_250k's requirement.
-  it takes file with fixed name 'calls.txt' in the current directory as implicit input.
+  It takes file with fixed name 'calls.txt' in the current directory as implicit input and outputs 'calls.tsv'.
   function transform_oligo_prob_out2std_call_format() in variation/src/impute.py can do this same job in a much nicer way.
 
   ./process-calls $array_id $min_oligo_prob
