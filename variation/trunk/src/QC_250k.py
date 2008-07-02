@@ -64,7 +64,25 @@ from pymodule import SNPData, TwoSNPData
 
 class QC_250k(object):
 	__doc__ = __doc__
-	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock_250k', 'd', 1, 'database name', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('input_dir', 0, ): [None, 'n', 1, 'If given, call data would be read from this directory/file rather than from call info table.\
+								Does not work for QC_method_id=0. The data is sorted according to array_id. No call_info_id available. No db submission.', ],\
+							('cmp_data_filename', 0,): [None, 'i', 1, 'the data file to be compared with. if not given, it gets figured out by QC_method_id.'],\
+							('min_probability', 0, float, ):[-1, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.'],\
+							('output_fname', 0, ): [None, 'o', 1, 'if given, QC results will be outputed into it.'],\
+							('call_QC_table', 1, ): ['call_QC', 'q', 1, ''],\
+							('QC_method_id', 1, ): [None, 'm', 1, 'id in table QC_method'],\
+							('call_method_id', 1, int): [None, 'l', 1, 'id in table call_method'],\
+							('run_type', 1, int): [1, 'e', 1, 'QC on 1=accession-wise or 2=snp-wise'],\
+							('max_call_info_mismatch_rate', 0, float,):[-1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.'],\
+							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	
+	old_option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
 							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
 							('u', 'user', 1, 'database username', 1, ):None,\
 							('p', 'passwd', 1, 'database password', 1, ):None,\
@@ -90,19 +108,14 @@ class QC_250k(object):
 	"""
 	def __init__(self,  **keywords):
 		"""
+		2008-07-01
+			use the new-version option_default_dict, and ProcessOptions
 		2008-05-04
 			if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
 		2008-04-20
 		"""
-		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
-		"""
-		2008-02-28
-			argument_default_dict is a dictionary of default arguments
-			the key is a tuple, ('argument_name', is_argument_required, argument_type)
-			argument_type is optional
-		"""
-		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		from pymodule import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
 		#QC_method_id2cmp_data_filename = {1:"/home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv",\
 		#		2:'/home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv',\
@@ -112,6 +125,8 @@ class QC_250k(object):
 
 	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0):
 		"""
+		2008-07-01
+			add max_call_info_mismatch_rate <1 in the condition.
 		2008-05-18
 			add array_id to the call_info_id2fname structure
 		2008-05-06
@@ -145,7 +160,7 @@ class QC_250k(object):
 						break
 			
 			#choose the call_QC with maximum no of non-NA pairs to get mismatch_rate
-			if call_info.call_QC:
+			if call_info.call_QC and max_call_info_mismatch_rate<1:	#2008-07-01
 				call_QC_with_max_no_of_non_NA_pairs = call_info.call_QC[0]
 				for call_QC in call_info.call_QC:
 					if call_QC.no_of_non_NA_pairs>call_QC_with_max_no_of_non_NA_pairs.no_of_non_NA_pairs:
@@ -396,6 +411,15 @@ class QC_250k(object):
 	
 	get_snps_name2snps_id = classmethod(get_snps_name2snps_id)
 	
+	QC_method_id2snps_table = {1:'at.locus',\
+									2:'',\
+									3:'stock.snps',\
+									4:'',\
+									5:'at.locus',\
+									6:'',\
+									7:'stock.snps',\
+									8:'dbsnp.snps'}
+	
 	def run(self):
 		"""
 		2008-04-25
@@ -431,14 +455,9 @@ class QC_250k(object):
 		
 		readme = formReadmeObj(sys.argv, self.ad, README)
 		session.save(readme)
-		QC_method_id2snps_table = {1:'at.locus',\
-											2:'',\
-											3:'stock.snps',\
-											4:'',\
-											5:'at.locus',\
-											6:'',\
-											7:'stock.snps',\
-											8:'dbsnp.snps'}
+		
+		QC_method_id2snps_table = self.QC_method_id2snps_table
+		
 		if self.QC_method_id==0:
 			self.cal_independent_NA_rate(db, self.min_probability, readme)
 			row_id2NA_mismatch_rate = None
@@ -520,8 +539,17 @@ class QC_250k(object):
 		self.row_id2NA_mismatch_rate = row_id2NA_mismatch_rate	#for plone to get the data structure
 
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = QC_250k
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	
+	"""
 	from pymodule import process_options, generate_program_doc
 	opts_dict = process_options(sys.argv, QC_250k.option_default_dict, error_doc=generate_program_doc(sys.argv[0], QC_250k.option_default_dict)+QC_250k.__doc__)
 	
 	instance = QC_250k(**opts_dict)
 	instance.run()
+	"""
