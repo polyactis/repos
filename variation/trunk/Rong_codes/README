@@ -5,13 +5,24 @@ normalization data of 107 out of initial 163 arrays.
 other associated R/shell/c-binary programs
 
 
-The stucture of all programs here is:
+2008-07-01 The stucture of all programs here is:
 
-wrap_basecall.sh
-	new_basecall.sh
-		new_basecall.R
-			...
-	process-calls
+- new_basecall.R
 
-	
-plot-mean-intensity-348arrays.R
+  program to do oligo calls. running it without arguments will output help. it loads some other R scripts
+  and R data file in the same directory.
+
+- wrap_basecall.sh and new_basecall.sh are deprecated because new_basecall.R can now handle arguments.
+
+- process-calls:
+
+  program to refine the output of new_basecall.R to be in format compliant of db stock_250k's requirement.
+  it takes file with fixed name 'calls.txt' in the current directory as implicit input.
+  function transform_oligo_prob_out2std_call_format() in variation/src/impute.py can do this same job in a much nicer way.
+
+  ./process-calls $array_id $min_oligo_prob
+
+
+- plot-mean-intensity-348arrays.R:
+
+  program to plot mean intensity histogram of any arrays. running it without arguments will output help.
