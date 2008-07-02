@@ -15,6 +15,7 @@ if (length(command_args)!=9)	#2008-07-01 command_args starts with ["/usr/lib/R/b
 	cat("Usage:", program_name, "INPUT_DIR START_ARRAY_ID END_ARRAY_ID OUTPUT_DIR\n")
 	cat("\n")
 	cat("	Do oligo genotype call on arrays in input_dir(/Network/Data/250k/db/raw_data/) \n")
+	cat("	it loads some other R scripts and R data file in the same directory. It assumes cel files are named like $(array_id)_raw_data.cel in the input directory.\n")
 	q('no')	#dont' save this session
 }
 
