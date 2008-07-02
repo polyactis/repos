@@ -10,7 +10,7 @@ other associated R/shell/c-binary programs
 - new_basecall.R
 
   program to do oligo calls. running it without arguments will output help. it loads some other R scripts
-  and R data file in the same directory.
+  and R data file in the same directory. It assumes cel files are named like $(array_id)_raw_data.cel in the input directory.
 
 - wrap_basecall.sh and new_basecall.sh are deprecated because new_basecall.R can now handle arguments.
 
