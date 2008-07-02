@@ -12,14 +12,15 @@ echo -n "Array " $i
 dir_prefix="/Network/Data/250k/db/raw_data/"
 call_output="$output_dir/call_output_$c"
 other_output="$output_dir/other_output"
-mkdir $call_output
-mkdir $other_output
+mkdirhier $call_output
+mkdirhier $other_output
 rm raw_data.cel
 ln -s $dir_prefix$i\_raw_data.cel raw_data.cel
 R CMD BATCH new_basecall.R 
-#cp mprobe.mean.rda $other_output/${i}_mprobe_mean.rda
-cp mprobe.norm.rda $other_output/${i}_mprobe.norm.rda		#after quantile-normalization
+cp mprobe_mean.rda $other_output/${i}_mprobe_mean.rda
+cp mprobe_norm.rda $other_output/${i}_mprobe_norm.rda		#after quantile-normalization
 cp genocalls.txt $other_output/${i}_genocalls.txt		#called genotypes with probability
+echo ""
 
 cp genocalls.txt calls.txt
 ./process-calls $i $c
