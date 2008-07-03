@@ -2,7 +2,7 @@
 """
 
 Examples:
-	#cross match for call_info_id=1449,1452,1455,1457, from call_method_id=3, use 0.85 as oligo cutoff. QC_cross_match is new.
+	#cross match for call_info_id=1449,1452,1455,1457, from call_method_id=3, use 0.85 as oligo cutoff. Table QC_cross_match is new.
 	QC_250k_cross_match.py -l 3 -m 9 -c -a 1449,1452,1455,1457 -w -y 0.85
 
 Description:
@@ -47,6 +47,8 @@ class QC_250k_cross_match(QC_250k):
 		
 	def plone_run(self):
 		"""
+		2008-07-02
+			fix a bug which causes the program to continue read data even while call_info_id2fname is empty and input_dir is null.
 		2008-07-01
 			adjust to the newest functions in QC_250k.py
 		2008-04-25
@@ -113,7 +115,7 @@ class QC_250k_cross_match(QC_250k):
 			array_id_ls = pdata.array_id_ls
 			ecotype_id_ls = pdata.ecotype_id_ls
 			data_matrix = pdata.data_matrix
-		else:
+		elif self.input_dir:	#2008-07-02
 			#input file is SNP by strain format. double header (1st two lines)
 			header, snps_name_ls, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_dir, double_header=1)
 			ecotype_id_ls = header[0][2:]
@@ -121,6 +123,9 @@ class QC_250k_cross_match(QC_250k):
 			data_matrix = numpy.array(data_matrix)
 			data_matrix = data_matrix.transpose()
 			header = ['', ''] + snps_name_ls	#fake a header for SNPData
+		else:	#2008-07-02
+			sys.stderr.write("No good arrays.\n")
+			return None
 		
 		snps_name2snps_id = None
 		
