@@ -561,10 +561,15 @@ SOURCES.ReadatSNPtilgeno=\
 
 OBJECTS.ReadatSNPtilgeno=$(SOURCES.ReadatSNPtilgeno:.cpp=.o)
 
+SOURCES.OutputQCIntensity=\
+	./OutputQCIntensity.cpp
+
+OBJECTS.OutputQCIntensity=$(SOURCES.OutputQCIntensity:.cpp=.o)
+
 BoostPythonLib  = -lboost_python `python-config --libs`
 
 #all: $(TEST.writers) $(TEST.array) $(TEST.data) $(TEST.exception) $(TEST.parameters) $(TEST.portability) $(TEST.utils) $(TEST.template) $(TEST.parsers) $(TEST.fusion)
-all: libfusion.so read_cel ReadatSNPtilgeno.so ReadatSNPtilgeno
+all: libfusion.so read_cel ReadatSNPtilgeno.so ReadatSNPtilgeno OutputQCIntensity
 
 run_tests: 
 	-cd $(PATH.array) && ./$(TEST.array)
@@ -579,8 +584,11 @@ run_tests:
 	-cd $(PATH.fusion) && ./$(TEST.fusion) -i ../../../TestDataFiles
 
 read_cel:	$(OBJECTS.read_cel) libfusion.so
-	-$(CC) $(CPPFLAGS) -R ~/script/affy/sdk/calvin_files/libfusion.so $(OBJECTS.read_cel)  -o $@
+	-$(CC) $(CPPFLAGS) -R ~/script/affy/sdk/calvin_files/libfusion.so $(OBJECTS.read_cel) -o $@
 	#-$(CC) $(CPPFLAGS) -L./ -lfusion $(OBJECTS.read_cel)  -o $@
+
+OutputQCIntensity:	$(OBJECTS.OutputQCIntensity) libfusion.so
+	-$(CC) $(CPPFLAGS) -R ~/script/affy/sdk/calvin_files/libfusion.so $(BoostPythonLib) $(OBJECTS.OutputQCIntensity) -o $@
 
 libfusion.so:	$(OBJECTS.fusion_lib)
 	-$(CC) $(SharedLibFlags) $(OBJECTS.fusion_lib) -o $@
