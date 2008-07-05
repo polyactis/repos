@@ -133,7 +133,7 @@ void ReadatSNPtilgeno::_readCEL(char* celFileName, char* cdfFileName, intensity_
 	cel.SetFileName(celFileName);
 	if (cel.Read() == false)
 	{
-		cout << "Failed to read the file." << endl;
+		std::cerr << "Failed to read the file." << endl;
 		exit(4);
 	}
 	
