@@ -19,18 +19,33 @@ void CheckCDF(FusionCDFData &cdf)
 	for (int i=0; i<chipTypes.size(); i++)
 		cout << chipTypes[i] << " ";
 	cout << endl;
-	cout << "\t" << cdfheader.GetNumProbeSets() << " probesets;" << endl;
 	cout << '\t' << cdfheader.GetNumQCProbeSets() << " QC probesets;\n";
+	cout << "\t" << cdfheader.GetNumProbeSets() << " probesets;" << endl;
 	cout << '\t' << cdfheader.GetCols() << " columns;" << endl;
 	cout << '\t' << cdfheader.GetRows() << " rows;" << endl;
 	cout << endl;
 	std::string name;
 	FusionCDFProbeSetInformation cdfProbeSetInfo;
-	FusionCDFQCProbeSetInformation qcProbeSetInfo;
 	affxcdf::GeneChipProbeSetType probeSetType;
 	affxcdf::DirectionType directionType;
 	FusionCDFProbeGroupInformation group;
 	FusionCDFProbeInformation probe;
+	
+	FusionCDFQCProbeSetInformation qcProbeSetInfo;
+	FusionCDFQCProbeInformation qcProbeInfo;
+	for (int i=0; i<cdfheader.GetNumQCProbeSets(); i++)	//2008-07-04 output QC probeset information
+	{
+		cdf.GetQCProbeSetInformation(i, qcProbeSetInfo);
+		cout << "\tQCProbeSet: " << i << " has " << qcProbeSetInfo.GetNumCells() << " cells/probes." << endl;
+		for (int icell=0; icell<qcProbeSetInfo.GetNumCells(); icell++)
+		{
+			qcProbeSetInfo.GetProbeInformation(icell, qcProbeInfo);
+			cout <<"\t\tProbe: " << icell << " X=" << qcProbeInfo.GetX() \
+			<< " Y="<<qcProbeInfo.GetY() << " Plen=" << qcProbeInfo.GetPLen() \
+			<< " IsPerfectMatchProbe=" << qcProbeInfo.IsPerfectMatchProbe()\
+			<< " IsBackgroundProbe=" << qcProbeInfo.IsBackgroundProbe() << endl;
+		}
+	}
 	for (int i=0; i<cdfheader.GetNumProbeSets(); i++)
 	{
 		name = cdf.GetProbeSetName(i);
