@@ -55,6 +55,7 @@ class PlotQCProbeIntensityHistogram:
 		qc_intensity_fname = '/tmp/%s.tsv'%self.array_id
 		OutputQCIntensity_command = os.path.expanduser('~/script/affy/sdk/calvin_files/OutputQCIntensity')
 		cmd_p = subprocess.Popen([OutputQCIntensity_command, '-i', array_cel_fname, '-d', self.cdf_fname, '-o', qc_intensity_fname ], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+		cmd_p.wait()
 		cmd_out = cmd_p.stdout.read()
 		print cmd_out
 		cmd_err = cmd_p.stderr.read()
