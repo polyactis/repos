@@ -341,12 +341,41 @@ CREATE TRIGGER before_insert_snps BEFORE INSERT ON snps
 
 CREATE TRIGGER before_update_snps BEFORE UPDATE ON snps
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
                 set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
                 set NEW.date_updated = CURRENT_TIMESTAMP();
+  END;
+|
+DELIMITER ;
+
+--2008-07-02 a table to store the relevant genes, based on table snp_locus_context in dbSNP_pg.sql
+create table snps_context(
+	id	serial primary key,
+	snps_id integer,
+	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
+	disp_pos integer,
+	gene_id integer,
+	gene_strand varchar(1),
+	disp_pos_comment varchar(2000),
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_snps_context BEFORE INSERT ON snps_context
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
         end if;
+  END;
+|
+
+CREATE TRIGGER before_update_snps_context BEFORE UPDATE ON snps_context
+  FOR EACH ROW BEGIN
+                set NEW.updated_by = USER();
+                set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 DELIMITER ;
@@ -401,12 +430,8 @@ CREATE TRIGGER before_insert_probes BEFORE INSERT ON probes
 
 CREATE TRIGGER before_update_probes BEFORE UPDATE ON probes
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
                 set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
                 set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
   END;
 |
 DELIMITER ;
@@ -490,12 +515,8 @@ CREATE TRIGGER before_insert_array_info BEFORE INSERT ON array_info
 
 CREATE TRIGGER before_update_array_info BEFORE UPDATE ON array_info
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
                 set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
                 set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
   END;
 |
 
@@ -537,12 +558,8 @@ CREATE TRIGGER before_insert_c_method BEFORE INSERT ON call_method
 
 CREATE TRIGGER before_update_c_method BEFORE UPDATE ON call_method
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
                 set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
                 set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
   END;
 |
 
@@ -577,12 +594,8 @@ CREATE TRIGGER before_insert_call_info BEFORE INSERT ON call_info
 
 CREATE TRIGGER before_update_call_info BEFORE UPDATE ON call_info
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
-                set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
+        set NEW.updated_by = USER();
+        set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 
@@ -624,12 +637,8 @@ CREATE TRIGGER before_insert_qc_method BEFORE INSERT ON qc_method
 
 CREATE TRIGGER before_update_qc_method BEFORE UPDATE ON qc_method
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
-                set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
+        set NEW.updated_by = USER();
+        set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 
@@ -674,12 +683,8 @@ CREATE TRIGGER before_insert_call_qc BEFORE INSERT ON call_qc
 
 CREATE TRIGGER before_update_call_qc BEFORE UPDATE ON call_qc
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
-                set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
+        set NEW.updated_by = USER();
+        set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 
@@ -726,12 +731,8 @@ CREATE TRIGGER before_insert_snps_qc BEFORE INSERT ON snps_qc
 
 CREATE TRIGGER before_update_snps_qc BEFORE UPDATE ON snps_qc
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
-                set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
+        set NEW.updated_by = USER();
+        set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 
@@ -762,12 +763,8 @@ CREATE TRIGGER before_insert_r_m_type BEFORE INSERT ON results_method_type
 
 CREATE TRIGGER before_update_r_m_type BEFORE UPDATE ON results_method_type
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
-                set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
+        set NEW.updated_by = USER();
+        set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 
@@ -804,12 +801,8 @@ CREATE TRIGGER before_insert_r_method BEFORE INSERT ON results_method
 
 CREATE TRIGGER before_update_r_method BEFORE UPDATE ON results_method
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
-                set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
+    set NEW.updated_by = USER();
+    set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 
@@ -832,13 +825,16 @@ create index results_results_method_id_idx on results(results_method_id);
 create table phenotype_method(
 	id integer auto_increment primary key,
 	short_name varchar(20),
+	only_first_96 bool default 0,
 	method_description varchar(8000),
 	data_description varchar(8000),
 	comment varchar(8000),
 	created_by varchar(200),
 	updated_by varchar(200),
 	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
+	date_updated TIMESTAMP,
+	data_type varchar(200),
+	transformation_description varchar(8000)
 	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
@@ -853,12 +849,8 @@ CREATE TRIGGER before_insert_p_method BEFORE INSERT ON phenotype_method
 
 CREATE TRIGGER before_update_p_method BEFORE UPDATE ON phenotype_method
   FOR EACH ROW BEGIN
-        if NEW.updated_by is null then
-                set NEW.updated_by = USER();
-        end if;
-        if NEW.date_updated=0 then
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-        end if;
+    set NEW.updated_by = USER();
+    set NEW.date_updated = CURRENT_TIMESTAMP();
   END;
 |
 
@@ -887,8 +879,76 @@ create table phenotype_avg(
 	)engine=INNODB;
 
 
+--2008-07-03 create a gene-list and gene-list-description table
+create table gene_list_description(
+	id serial primary key,
+	short_name varchar(200),
+	description varchar(8000),
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_g_l_desc BEFORE INSERT ON gene_list_description
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_g_l_desc BEFORE UPDATE ON gene_list_description
+  FOR EACH ROW BEGIN
+    set NEW.updated_by = USER();
+    set NEW.date_updated = CURRENT_TIMESTAMP();
+  END;
+|
+
+DELIMITER ;
+
+create table gene_list(
+	id integer auto_increment primary key,
+	gene_id integer,
+	list_id integer,
+	foreign key (list_id) references gene_list_description(id) on delete cascade on update cascade,
+	created_by varchar(200),
+	updated_by varchar(200),
+	date_created timestamp default CURRENT_TIMESTAMP,
+	date_updated TIMESTAMP
+	)engine=INNODB;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_g_list BEFORE INSERT ON gene_list
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_g_list BEFORE UPDATE ON gene_list
+  FOR EACH ROW BEGIN
+    set NEW.updated_by = USER();
+    set NEW.date_updated = CURRENT_TIMESTAMP();
+  END;
+|
+
+DELIMITER ;
+
 --2008-04-30 create a view to view qc results for arrays
-create or replace view view_qc as select e.id as ecotype_id, e.nativename, q.tg_ecotype_id, q.call_info_id, q.call_method_id, a.id as array_id, a.original_filename as array_original_filename, a.date_created as array_created, c.NA_rate, group_concat(q.mismatch_rate order by q.qc_method_id) as mismatch_rate, group_concat(q.qc_method_id order by q.qc_method_id) as qc_method, group_concat(q.no_of_non_NA_pairs order by q.qc_method_id) as no_of_non_NA_pairs from call_info c, array_info a, call_qc q , stock.ecotype e where e.id=q.ecotype_id and q.call_info_id = c.id and a.id=c.array_id group by q.ecotype_id, q.call_info_id, q.call_method_id order by nativename,  call_method_id, NA_rate,array_created, original_filename;
+create or replace view view_qc as select e.id as ecotype_id, e.nativename, q.tg_ecotype_id, q.call_info_id, 
+q.call_method_id, a.id as array_id, a.original_filename as array_original_filename, a.date_created as array_created, 
+c.NA_rate as call_NA_rate, q.NA_rate as QC_NA_rate, group_concat(q.mismatch_rate order by q.qc_method_id) as mismatch_rate, 
+group_concat(q.no_of_mismatches order by q.qc_method_id) as no_of_mismatches, 
+group_concat(q.no_of_non_NA_pairs order by q.qc_method_id) as no_of_non_NA_pairs, 
+group_concat(q.qc_method_id order by q.qc_method_id) as qc_method 
+from call_info c, array_info a, call_qc q , stock.ecotype e where e.id=q.ecotype_id 
+and q.call_info_id = c.id and a.id=c.array_id group by q.ecotype_id, q.call_info_id, 
+q.call_method_id order by nativename,  call_method_id, call_NA_rate, QC_NA_rate, array_created, original_filename;
 
 --2008-05-20 view the calls, arrays, ecotypes all together
 
