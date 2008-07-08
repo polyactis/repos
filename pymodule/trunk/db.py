@@ -32,6 +32,7 @@ class Database(object):
 	option_default_dict = {('v', 'drivername', 1, '', 1, ):'mysql',\
 							('z', 'hostname', 1, '', 1, ):'papaya.usc.edu',\
 							('d', 'database',1, '', 1, ):None,\
+							('k', 'schema',0, '', 1, ):None,\
 							('u', 'username',1, '', 1, ):None,\
 							('p', 'password',1, '', 1, ):None,\
 							('o', 'port', 1, '', 0, ):None,\
@@ -115,6 +116,10 @@ class Database(object):
 	# Helper methods
 	
 	def _initialize_engine(self):
+		"""
+		2008-07-08
+			for postgres, set the schema
+		"""
 		kwargs = dict(self._engine_properties).copy()
 		if 'strategy' not in kwargs:
 			kwargs['strategy'] = 'threadlocal'
@@ -123,7 +128,11 @@ class Database(object):
 		
 		engine = sqlalchemy.create_engine(self._url, **kwargs)
 		metadata = sqlalchemy.MetaData(engine)
-		
+		if getattr(self, 'schema', None):	#2008-07-08 for postgres, set the schema
+			con = engine.connect()
+			con.execute("set search_path to %s"%self.schema)
+			#sys.stderr.write('set schema')
+			metadata.bind = con	#necessary. otherwise, schema is still not set.
 		# We will only initialize once, but we may rebind metadata if
 		# necessary
 
