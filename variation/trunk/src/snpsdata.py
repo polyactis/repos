@@ -41,6 +41,31 @@ class _SnpsData_(object):
 		self.positions.append(position)
 
 
+	def orderAccessions(self,accessionMapping):
+		newAccessions = [""]*len(self.accessions)
+		for (i,j) in accessionMapping:
+			newAccessions[j]=self.accessions[i]
+
+		newSnps = []
+		for pos in self.positions:
+			newSnps.append([""]*len(self.accessions))
+		
+		for (i,j) in accessionMapping:
+			for posIndex in range(0,len(self.positions)):
+				newSnps[posIndex][j] = self.snps[posIndex][i]	
+
+		self.accessions = newAccessions
+		self.snps = newSnps
+
+		if self.arrayIds:
+			newArrayIds = [""]*len(self.arrayIds)
+			for (i,j) in accessionMapping:
+				newArrayIds[j]=self.arrayIds(i)
+
+			self.arrayIds = arrayIds
+
+			
+
 class RawDecoder(dict):
 	def __missing__(self, key):
 		return 'NA'
@@ -454,16 +479,16 @@ class RawSnpsData(_SnpsData_):
 		
 		return [commonSnpsPos, snpErrorRate, commonAccessions, accessionErrorRate, accessionCallRates, arrayIds, accessionCounts, snpCallRate, [naCounts1,naCounts2], [totalCounts,totalFails]]
 
-	def getSnpsData(self, noNA=True):
+	def getSnpsData(self, missingVal=-1):
 		"""
 		Returns a SnpsData object correspoding to this RawSnpsData object.
 
 		Note that some of the SnpsData attributes are a shallow copy of the RawSnpsData obj.
+
+		Note that 
 		"""
-		if noNA:
-			decoder = {self.missingVal:0}  #A REALLY UGLY HACK!!!
-		else:
-			decoder = {self.missingVal:-1}
+		decoder = {self.missingVal:missingVal} #Might cause errors somewhere???!!!
+		
 		snps = []
 		for i in range(0,len(self.snps)):
 			k = 0
@@ -485,7 +510,7 @@ class RawSnpsData(_SnpsData_):
 					elif c>max2:
 						max2 = c
 						maxnt2 = nt
-					decoder[nt]=-1
+					decoder[nt]=missingVal
 				decoder[maxnt1]=0
 				decoder[maxnt2]=1
 			for nt in self.snps[i]:
@@ -646,6 +671,9 @@ class RawSnpsData(_SnpsData_):
 				c = snp.count(nt)
 				ntCounts[j] = c
 				totalCount += c
+			if totalCount==0 :
+				print "snp:",snp
+				print "self.alphabet:",self.alphabet
 			for j in range(0,len(self.alphabet)):
 				ntCounts[j] = ntCounts[j]/float(totalCount)
 			maxAF = max(ntCounts)
@@ -762,10 +790,10 @@ class RawSnpsData(_SnpsData_):
 			self.snps[i] = newSnp
 		self.accessions = newAccessions
 		if self.arrayIds:
-			print "removeAccessionIndices: has array IDs: self.arrayIds =",self.arrayIds
+			#print "removeAccessionIndices: has array IDs: self.arrayIds =",self.arrayIds
 			self.arrayIds = newArrayIds
-			print "len(self.arrayIds):",len(self.arrayIds)
-		print "len(self.accessions):",len(self.accessions)
+			#print "len(self.arrayIds):",len(self.arrayIds)
+		#print "len(self.accessions):",len(self.accessions)
 			
 		
 	def mergeIdenticalAccessions(self,accessionIndexList, priority):
@@ -1212,11 +1240,13 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	f = open(filename, 'w')
 	outStr += deliminator.join(fieldStrings)+"\n"
 	f.write(outStr)
+	import util  #Used to convert val list to stringlist.
 	for i in range(0,len(chromosomes)):
 		outStr=""
 		for j in range(0,len(snpsds[i].positions)):
 			outStr += str(chromosomes[i])+deliminator+str(snpsds[i].positions[j])+deliminator
-			outStr += deliminator.join(snpsds[i].snps[j])+"\n"
+			snp = util.valListToStrList(snpsds[i].snps[j])
+			outStr += deliminator.join(snp)+"\n"
 			
                         #data_row = [chromosomes[i], snpsds[i].positions[j]]
 	                #for k in range(0, len(snpsds[0].accessions)):

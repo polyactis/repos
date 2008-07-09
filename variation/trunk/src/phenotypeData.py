@@ -50,11 +50,9 @@ class PhenotypeData:
         """
         print "Ordering phenotype data accessions."
         newAccessions = []
-        newAccessionNames = []
         newPhenotVals = []
         for acc in self.accessions:
             newAccessions.append("")
-            newAccessionNames.append("")
             newPhenotVals.append([])
 
         if not accessionMapping:
@@ -70,11 +68,18 @@ class PhenotypeData:
         for (i,j) in accessionMapping:
             #print j, len(newAccessions)
             newAccessions[j] = self.accessions[i]
-            newAccessionNames[j] = self.accessionNames[i]
             newPhenotVals[j] = self.phenotypeValues[i]
         self.accessions = newAccessions
-        self.accessionNames = newAccessionNames
         self.phenotypeValues = newPhenotVals
+        
+        if self.accessionNames:
+            newAccessionNames = []
+            for acc in self.accessions:
+                newAccessionNames.append("")
+            for (i,j) in accessionMapping:
+                newAccessionNames[j] = self.accessionNames[i]
+            self.accessionNames = newAccessionNames
+                        
         
     def removeAccessions(self, indicesToKeep):
         """
@@ -83,20 +88,21 @@ class PhenotypeData:
         numAccessionsRemoved = len(self.accessions)-len(indicesToKeep)
         print "Removing",numAccessionsRemoved,"accessions in phenotype data, out of",len(self.accessions), "accessions."
         newAccessions = []
-        newAccessionNames = []
         newPhenotVals = []
-        print len(indicesToKeep)
         for i in indicesToKeep:
             newAccessions.append(self.accessions[i])
-            newAccessionNames.append(self.accessionNames[i])
             newPhenotVals.append(self.phenotypeValues[i])
         self.accessions = newAccessions
-        self.accessionNames = newAccessionNames
         self.phenotypeValues = newPhenotVals
         print "len(self.accessions):",len(self.accessions)
-        print "len(self.accessionNames):",len(self.accessionNames)
         print "len(self.phenotypeValues):",len(self.phenotypeValues)
-        
+        if self.accessionNames:
+            newAccessionNames = []
+            for i in indicesToKeep:
+                newAccessionNames.append(self.accessionNames[i])
+            self.accessionNames = newAccessionNames
+            print "len(self.accessionNames):",len(self.accessionNames)
+
     def writeToFile(self, outputFile, phenotypes=None, delimiter=','):
         print "Writing out phenotype file:",outputFile
         outStr = "ecotype_id"

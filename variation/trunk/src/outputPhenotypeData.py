@@ -218,19 +218,15 @@ def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=Fals
 
 	if onlyPublishable:  #Censor the data.
 		for i in range(0,len(phenotypeValues)):
-			if onlyFirst96[i]:
-				print phenotypeNames[i],onlyFirst96[i],(len(phenotypeValues[i])-phenotypeValues[i].count("NA"))
-
-		for i in range(0,len(phenotypeValues)):
 			for j in range(0,len(ecotypes)):
 				if onlyFirst96[i]:
 					if int(e2a[ecotypes[j]][0])>97:
 						phenotypeValues[i][j]='NA'
 
 
-		for i in range(0,len(phenotypeValues)):
-			if onlyFirst96[i]:
-				print phenotypeNames[i],onlyFirst96[i],(len(phenotypeValues[i])-phenotypeValues[i].count("NA"))
+		#for i in range(0,len(phenotypeValues)):
+		#	if onlyFirst96[i]:
+		#		print phenotypeNames[i],onlyFirst96[i],(len(phenotypeValues[i])-phenotypeValues[i].count("NA"))
 	
 	phenotypeValues = util.transposeDoubleLists(phenotypeValues)
 	phenDat = phenotypeData.PhenotypeData(ecotypes, phenotypeNames, phenotypeValues, accessionNames=accessions)
@@ -246,17 +242,19 @@ def _transformPhenotypes_():
 	"""
 	
 	transformationDict = {0:"None", 1:"Log(x)", 2:"Log(0.5+x)", 3:"Log(5+x)", 4:"(x-3)"}
-	#                                                                                        74                     116                       134        152
-	transformationList = 7*[1]+[3]+5*[0]+18*[1]+7*[0]+24*[1]+3*[0]+[1]+[2]+3*[0]+[2]+[0]+[2]+[0]+2*[1]+3*[0]+35*[1]+[2]+7*[1]+2*[0]+7*[1]+[0]+[2]+17*[1]+[0]+5*[1]+[0]+2*[1]+[0]+[4]+[0]+2*[1]+18*[0]+2*[1]+[0]
+	#                                                                             32               58                        66                            74                                  90                   110 
+	transformationList = 4*[1]+[0]+2*[1]+[3]+6*[0]+6*[1]+2*[0]+[1]+5*[0]+3*[1]+7*[0]+13*[1]+[0]+4*[1]+[0]+5*[1]+[2]+[0]+[2]+[0]+[2]+2*[0]+[1]+[2]+[1]+[2]+[0]+2*[1]+3*[0]+3*[1]+2*[0]+4*[1]+2*[0]+7*[1]+9*[0]+2*[1]+[0]
+	#                              116       123         126           130                             146                   161     163
+	transformationList +=4*[1]+[0]+[2]+6*[1]+[0]+[1]+[0]+[1]+2*[0]+[1]+[0]+2*[1]+2*[2]+2*[1]+[0]+8*[1]+[0]+5*[1]+2*[0]+7*[1]+[0]+[4]+[0]+2*[1]+17*[0]+2*[1]+2*[0]
 
-	#for i in range(0,len(transformationList)):
-	#	print (i+1), transformationList[i]
+	for i in range(0,len(transformationList)):
+		print (i+1), transformationList[i]
 	
 	datatypeDict = {1:"quantitative",2:"ordered_categorical",3:"binary"}
 	datatypeList = 8*[1]+5*[3]+18*[1]+7*[3]+38*[1]+3*[3]+52*[1]+[2]+24*[1]+2*[2]+[1]+[2]+[3]+[2]+3*[1]+6*[3]+3*[2]+3*[3]+3*[2]+5*[1]
 
 	
-	phenData = getPhenotypes(user="bvilhjal", passwd="bamboo123")
+	phenData = getPhenotypes(user="bvilhjal", passwd="bamboo123", rawPhenotypes=True)
 	print phenData.phenotypeNames
         hostname="papaya.usc.edu"
 	user="bvilhjal"

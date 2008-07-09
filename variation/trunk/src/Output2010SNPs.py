@@ -97,7 +97,10 @@ def _run_():
 	
 	accDecoder=None
 	if useAccessionName:
-		accDecoder = dataParsers.ecotypeId2Name
+		tmpDecoder = dataParsers.getEcotypeToAccessionDictionary(user="bvilhjal",passwd="bamboo123")
+		accDecoder={}
+		for acc in tmpDecoder:
+			accDecoder[acc]=tmpDecoder[acc][1]
 	import snpsdata
 	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, accDecoder=accDecoder)
 

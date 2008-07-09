@@ -13,9 +13,10 @@ Option:
         --callProbFile=...          a csv file with call probabilities.
 	--maxMissing=...            maximum allowed missing percentage.
 	--monomorphic               filter monomorphic SNPs.
-	--onlyBinary                filter all SNPs which are not binary (monomorphic, tertiary and quaternary alleled SNPs are removed).
+	--onlyBinary                filter all SNPs which are not bimorphic (monomorphic, tertiary and quaternary alleled SNPs are removed).
 	--minCallProb=...           minimum allowed call probability. SNPs below the threshold are set to NA. (Requires a callProbFile file.)
 	--minMAF=...                minimum allowed minor allele frequency.
+	--output01Format            Output SNPs data in 01 format.  (Discards all SNPs that are not bimorphic.)
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
@@ -37,7 +38,7 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "onlyBinary", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minMAF=", "minCallProb=", "debug", "report", "help"]
+	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "onlyBinary", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minMAF=", "minCallProb=", "debug", "report", "help", "output01Format"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
 
@@ -64,6 +65,7 @@ def _run_():
 	minMAF=None
 	callProbFile = None
 	onlyBinary = False
+	output01Format = False
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -97,6 +99,8 @@ def _run_():
 			monomorphic = True
 		elif opt in ("--onlyBinary"):
 			onlyBinary = True
+		elif opt in ("--output01Format"):
+			output01Format = True
 		else:
 			if help==0:
 				print "Unkown option!!\n"
@@ -126,7 +130,7 @@ def _run_():
 		for snpsd in snpsds:
 			print "Removed", str(snpsd.filterMonoMorphicSnps()),"Snps"
 
-	if onlyBinary:
+	if onlyBinary or output01Format:
 		print "Filtering non-binary SNPs"
 		for snpsd in snpsds:
 			print "Removed", str(snpsd.onlyBinarySnps()),"Snps"
@@ -158,7 +162,14 @@ def _run_():
 	
 		
 	import snpsdata
-	snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+	if output01Format:
+		snpsds01format = []
+		for snpsd in snpsds:
+			snpsds01format.append(snpsd.getSnpsData(missingVal=missingVal))
+		#FINISH
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds01format,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+	else:
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 
 
 def filterByError(snpsds,comparisonSnpsds,maxError):

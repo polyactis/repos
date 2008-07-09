@@ -252,6 +252,7 @@ res <- list();
 pvals <- c();
 positions <- c();
 chrs <- c();
+maf <- c();
 for (chr in (1:5)){
   mat250K <- as.matrix(data250K);
   mat250K <- mat250K[mat250K[,1]==chr,];
@@ -290,6 +291,15 @@ for (chr in (1:5)){
   pvals <- append(pvals,res[[chr]]$ps);
   positions <- append(positions,pos);
   chrs <- append(chrs,rep(chr,length(pos)));
+
+  af <- c();
+  for(i in (1:length(mat250K[,1]))){
+    f = factor(mat250K[i,]);
+    v <- summary(f)[[1]]/length(f);
+    af[i] <- min(v,1-v);
+  }
+  res[[chr]][["maf"]] <- af;
+  maf <- append(maf,af);
 }
 
 #write to a pvalue-file
@@ -297,6 +307,7 @@ l <- list();
 l[["Chromasome"]]<-chrs;
 l[["Positions"]]<-positions;
 l[["Pvalues"]]<-pvals;
+l[["MAF"]]<-maf;
 dl <- as.data.frame(l)
 """
 	rstr +='write.table(dl,file="'+pvalFile+'", sep=", ", row.names = FALSE);\n'		
