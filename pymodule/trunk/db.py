@@ -13,8 +13,8 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import sqlalchemy, threading
 from sqlalchemy.engine.url import URL
 from sqlalchemy import Table
-from sqlalchemy.orm.session import Session
 from sqlalchemy.orm import mapper, relation
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 class TableClass(object):
 	"""
@@ -91,11 +91,17 @@ class Database(object):
 	
 	#@property
 	def session(self):
+		"""
+		2008-07-09
+			use the new sessionmaker() in version 0.4 to create Session
+			use scoped_session to create a thread-local context
+		"""
 		if getattr(self._threadlocal, 'session', None) is None:
 			# Without this, we may not have mapped things properly, nor
 			# will we necessarily start a transaction when the client
 			# code begins to use the session.
 			ignore = self.engine
+			Session = scoped_session(sessionmaker(autoflush=True, transactional=True, bind=self.engine))
 			self._threadlocal.session = Session()
 		return self._threadlocal.session
 	session = property(session)
@@ -117,8 +123,11 @@ class Database(object):
 	
 	def _initialize_engine(self):
 		"""
+		2008-07-09
+			close and reset the old session if self._threadlocal.session is not None
+			change  self._metadata to metadata in "self.tables[name] = table.tometadata(metadata)"
 		2008-07-08
-			for postgres, set the schema
+			for postgres, set the schema	(doesn't work)
 		"""
 		kwargs = dict(self._engine_properties).copy()
 		if 'strategy' not in kwargs:
@@ -128,11 +137,18 @@ class Database(object):
 		
 		engine = sqlalchemy.create_engine(self._url, **kwargs)
 		metadata = sqlalchemy.MetaData(engine)
-		if getattr(self, 'schema', None):	#2008-07-08 for postgres, set the schema
+		
+		if getattr(self._threadlocal, 'session', None) is not None:	#2008-07-09 close and reset the old session
+			self._threadlocal.session.close()
+			self._threadlocal.session = None
+		"""
+		if getattr(self, 'schema', None):	#2008-07-08 for postgres, set the schema, doesn't help. specify "schema=" in Table()
 			con = engine.connect()
 			con.execute("set search_path to %s"%self.schema)
 			#sys.stderr.write('set schema')
 			metadata.bind = con	#necessary. otherwise, schema is still not set.
+		"""
+		
 		# We will only initialize once, but we may rebind metadata if
 		# necessary
 
@@ -141,7 +157,7 @@ class Database(object):
 			self._setup_mappers(self.tables, self.mappers)
 		else:
 			for name, table in self.tables.items():
-				self.tables[name] = table.tometadata(self._metadata)
+				self.tables[name] = table.tometadata(metadata)	#2008-07-09 change self._metadata to metadata
 		
 		self._engine = engine
 		self._metadata = metadata
