@@ -42,6 +42,8 @@ class PassingData(object):
 
 def importNumericArray():
 	"""
+	2008-07-09
+		numarray doesn't have int128
 	2008-05-18
 		give same numpy types (int, int8 ...) to other numeric modules
 	2008-05-18
@@ -53,12 +55,12 @@ def importNumericArray():
 	try:
 		import numpy as num
 	except:
-		numpy_type2other_ls = ['int', 'int8', 'int16', 'int32', 'int64', 'int128']
+		numpy_type2other_ls = ['int', 'int8', 'int16', 'int32', 'int64']
 		try:
 			import numarray as num
 		except:
 			import Numeric as num
-		for numpy_type in self.numpy_type2other_ls:	#make sure it has same type names
+		for numpy_type in numpy_type2other_ls:	#make sure it has same type names
 			numpy_type_in_other = numpy_type[0].upper() + numpy_type[1:]
 			setattr(num, numpy_type, getattr(num, numpy_type_in_other))
 	return num
