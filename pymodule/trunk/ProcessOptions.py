@@ -379,6 +379,8 @@ class ProcessOptions(object):
 
 	def process_function_arguments(cls, keywords, argument_default_dict, error_doc='', class_to_have_attr=None, howto_deal_with_required_none=1):
 		"""
+		2008-07-09
+			not just ='passwd', if the option name (variable 'argument' here) contains 'passwd', use getpass().
 		2008-05-06
 			return ad as well, just like the standalone function
 		2008-04-28
@@ -409,7 +411,7 @@ class ProcessOptions(object):
 						default_value = keywords[argument]
 			if is_argument_required==1 and (default_value=='' or default_value==None):
 				if howto_deal_with_required_none==1:
-					if argument=='passwd' or argument=='Passwd' or argument=='password':
+					if argument.find('passwd')!=-1 or argument.find('Passwd')!=-1 or argument.find('password')!=-1:
 						import getpass
 						default_value = getpass.getpass("%s: "%argument)
 					else:
