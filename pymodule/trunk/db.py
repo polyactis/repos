@@ -123,6 +123,7 @@ class Database(object):
 	
 	def _initialize_engine(self):
 		"""
+		metadata.create_all()	#2008-07-09 create all tables
 		2008-07-09
 			close and reset the old session if self._threadlocal.session is not None
 			change  self._metadata to metadata in "self.tables[name] = table.tometadata(metadata)"
@@ -154,6 +155,7 @@ class Database(object):
 
 		if not self.tables:
 			self._setup_tables(metadata, self.tables)
+			metadata.create_all()	#2008-07-09 create all tables
 			self._setup_mappers(self.tables, self.mappers)
 		else:
 			for name, table in self.tables.items():
