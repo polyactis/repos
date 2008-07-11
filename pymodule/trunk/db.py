@@ -164,6 +164,54 @@ class Database(object):
 		self._engine = engine
 		self._metadata = metadata
 
+class ElixirDB(object):
+	"""
+	2008-07-11
+		elixir db base class
+	"""
+	option_default_dict = {('drivername', 1,):['postgres', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ):['localhost', 'z', 1, 'hostname of the db server', ],\
+							('database', 1, ):[None, 'd', 1, '',],\
+							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
+							('username', 1, ):[None, 'u', 1, 'database username',],\
+							('password', 1, ):[None, 'p', 1, 'database password', ],\
+							('port', 0, ):[None, 'o', 1, 'database port number'],\
+							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	def __init__(self, **keywords):
+		"""
+		2008-07-09
+		"""
+		from pymodule import ProcessOptions
+		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		
+		from elixir import setup_all, metadata, entities
+		if getattr(self, 'schema', None):	#for postgres
+			for entity in entities:
+				using_table_options_handler(entity, schema=self.schema)
+		
+		metadata.bind = self._url
+		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
+	
+	def _url(self):
+		return URL(drivername=self.drivername, username=self.username,
+				   password=self.password, host=self.hostname,
+				   port=self.port, database=self.database)
+	_url = property(_url)
+	
+	def session(self):
+		"""
+		2008-07-09
+		"""
+		from elixir import session
+		return session
+	session = property(session)
+	
+	def connection(self):
+		return self.session.connection
+	connection = property(connection)
+
 def formReadmeObj(argv, ad, READMEClass):
 	"""
 	2008-05-06
