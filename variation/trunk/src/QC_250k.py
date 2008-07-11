@@ -74,7 +74,7 @@ class QC_250k(object):
 							('min_probability', 0, float, ):[-1, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.'],\
 							('output_fname', 0, ): [None, 'o', 1, 'if given, QC results will be outputed into it.'],\
 							('call_QC_table', 1, ): ['call_QC', 'q', 1, ''],\
-							('QC_method_id', 1, ): [None, 'm', 1, 'id in table QC_method'],\
+							('QC_method_id', 1, int): [None, 'm', 1, 'id in table QC_method'],\
 							('call_method_id', 1, int): [None, 'l', 1, 'id in table call_method'],\
 							('run_type', 1, int): [1, 'e', 1, 'QC on 1=accession-wise or 2=snp-wise'],\
 							('max_call_info_mismatch_rate', 0, float,):[-1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.'],\
@@ -436,7 +436,7 @@ class QC_250k(object):
 		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
 		if not self.cmp_data_filename and self.QC_method_id!=0:
 			qm = session.query(QCMethod).get_by(id=self.QC_method_id)
-			if qm.data_description:
+			if qm and qm.data_description:
 				data_description_ls = qm.data_description.split('=')
 				if len(data_description_ls)>1:
 					self.cmp_data_filename = qm.data_description.split('=')[1].strip()
