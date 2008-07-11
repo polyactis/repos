@@ -119,7 +119,7 @@ class DataObject(TableClass):
 	value = None
 	genome_wide_result_id = None
 
-class GenomeBrowser:
+class GenomeBrowser(object):
 	def __init__(self):
 		"""
 		2008-01-30
@@ -220,7 +220,7 @@ class GenomeBrowser:
 		
 		self.debug = 0
 	
-	def getGenomeWideResultFromFile(self, input_fname, min_value_cutoff=None, do_log10_transformation=False):
+	def getGenomeWideResultFromFile(cls, input_fname, min_value_cutoff=None, do_log10_transformation=False):
 		"""
 		2008-05-31
 			automatically detect if header exists on the first line.
@@ -234,8 +234,6 @@ class GenomeBrowser:
 		genome_wide_result_id = id(gwr)
 		import csv
 		reader = csv.reader(open(input_fname), delimiter='\t')
-		self.snp_pos_ls = []
-		self.pvalue_ls = []
 		no_of_lines = 0
 		for row in reader:
 			#check if 1st line is header or not
@@ -267,6 +265,8 @@ class GenomeBrowser:
 		del reader
 		sys.stderr.write("Done.\n")
 		return gwr
+	
+	getGenomeWideResultFromFile = classmethod(getGenomeWideResultFromFile)
 	
 	def load_data(self, mysql_curs, postgres_curs):
 		"""
@@ -715,7 +715,8 @@ class GenomeBrowser:
 		2008-05-28
 		"""
 		self.gene_width = float(self.entry_gene_width.get_text())
-	
-prog = gnome.program_init('GenomeBrowser', '0.1')
-instance = GenomeBrowser()
-gtk.main()
+
+if __name__ == '__main__':
+	prog = gnome.program_init('GenomeBrowser', '0.1')
+	instance = GenomeBrowser()
+	gtk.main()
