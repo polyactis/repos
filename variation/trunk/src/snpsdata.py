@@ -60,7 +60,7 @@ class _SnpsData_(object):
 		if self.arrayIds:
 			newArrayIds = [""]*len(self.arrayIds)
 			for (i,j) in accessionMapping:
-				newArrayIds[j]=self.arrayIds(i)
+				newArrayIds[j]=self.arrayIds[i]
 
 			self.arrayIds = arrayIds
 
@@ -125,9 +125,9 @@ class RawSnpsData(_SnpsData_):
 		Merges two data, where the resulting data has the union of the SNPs or/and accessions
 
 		unionType=
-		1: All SNPs are included in the dataset  (not implemented)
+		1: All SNPs are included in the dataset  
 		2: All accessions are included in the merged dataset 
-		3: Both all SNPs and accessions are included in the merged dataset (not implemented)
+		3: Both all SNPs and accessions are included in the merged dataset 
 		
 		It doesn't deal with multiple identical ecotypes/accession
 		"""
@@ -275,9 +275,147 @@ class RawSnpsData(_SnpsData_):
 		self.accessions = newAccessions
 		self.arrayIds = None
 
+	def mergeDataIntersection(self, snpsd, priority=1, intersectionType=2):
+		"""
+		Merges two data, where the resulting data has the intersection of the SNPs or/and accessions
+
+		intersectionType=
+		1: Only common SNPs are included in the dataset  (not implemented)
+		2: Only common accessions are included in the merged dataset 
+		3: Only common SNPs and accessions are included in the merged dataset (not implemented)
+		
+		It doesn't deal with multiple identical ecotypes/accession
+		"""
+		
+		print "Merging datas"
+		print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
+		
+		#Find new accession indices
+		newAccessions = []
+		accessionsIndices = []
+		commonAccessions = list(set(self.accessions).intersection(set(snpsd.accessions)))
+		commonPositions = list(set(self.positions).intersection(set(snpsd.positions)))
+		allAccessions = list(set(self.accessions).union(set(snpsd.accessions)))
+		
+		if intersectionType==2 or intersectionType==3:
+			newAccessions = commonAccessions
+		elif intersectionType==1:
+			newAccessions = self.accessions
+
+		for acc in newAccessions:
+			index1=-1
+			index2=-1
+			if self.accessions.count(acc):
+				index1=self.accessions.index(acc)
+			if snpsd.accessions.count(acc):
+				index2=snpsd.accessions.index(acc)
+			accessionsIndices.append([index1, index2])
+			
+			
+		print "Number of common accessions:", len(commonAccessions)
+		print "Total number of accessions:",len(allAccessions)
+		print "Number of common Snps:",len(commonPositions)
+		#print "Only in 1st data set", list(set(self.accessions).difference(set(commonAccessions)))
+		#print "Only in 2st data set", list(set(snpsd.accessions).difference(set(commonAccessions)))
+			
+		snpErrorRate = []
+		newSnps = []
+		newPositions = []
+		i = 0
+		j = 0 
+		while i <= len(self.positions) and j <= len(snpsd.positions):
+			if i < len(self.positions):
+				pos1 = self.positions[i]
+			if j < len(snpsd.positions):
+				pos2 = snpsd.positions[j] 
+			if i < len(self.positions) and pos1 < pos2:
+				if intersectionType == 2:
+					newPositions.append(pos1)
+					newSnp = []
+					oldSnp = self.snps[i]
+					for index in accessionsIndices:
+						if index[0]!=-1:
+							newSnp.append(oldSnp[index[0]])				   
+						else:
+							newSnp.append(self.missingVal)
+					newSnps.append(newSnp)
+				i = i+1
+			elif j < len(snpsd.positions) and pos2 < pos1:
+				j = j+1
+			elif i < len(self.positions) and j < len(snpsd.positions) and pos1==pos2:
+				counts = 0
+				fails = 0
+				for index in accessionsIndices:
+					if index[0]!=-1 and index[1]!=-1:
+						snp1 = self.snps[i][index[0]]
+						snp2 = snpsd.snps[j][index[1]]
+						if snp1!=self.missingVal and snp2!=self.missingVal:
+							counts += 1
+							if snp1!=snp2:
+								fails = fails+1
+				error = 0
+				if counts>0:
+					error = float(fails)/float(counts)
+				snpErrorRate.append(error)										
+
+				newPositions.append(pos1)
+				newSnp = []
+				oldSnp1 = self.snps[i]
+				oldSnp2 = snpsd.snps[j]
+				for index in accessionsIndices:
+					if index[0] != -1 and oldSnp1[index[0]]!=self.missingVal and priority==1:
+						newSnp.append(oldSnp1[index[0]])
+					elif index[0] != -1 and oldSnp1[index[0]]!=self.missingVal and priority==2:
+						if index[1] != -1:
+							if oldSnp2[index[1]]==self.missingVal:
+								newSnp.append(oldSnp1[index[0]])
+							else:
+								newSnp.append(oldSnp2[index[1]])
+						else:
+							newSnp.append(oldSnp1[index[0]])
+					elif index[1] != -1:
+						newSnp.append(oldSnp2[index[1]])
+					else:
+						newSnp.append(self.missingVal)
+				newSnps.append(newSnp)
+				i = i+1
+				j = j+1
+
+			else: 
+				# One pointer has reached the end and the end and the other surpassed it, i.e. we only need to copy the remaining one..
+				while i<len(self.positions):
+					if intersectionType == 2:
+						newPositions.append(self.positions[i])
+						newSnp = []
+						oldSnp = self.snps[i]
+						for index in accessionsIndices:
+							if index[0]!=-1:
+								newSnp.append(oldSnp[index[0]])				   
+							else:
+								newSnp.append(self.missingVal)
+						newSnps.append(newSnp)
+					i = i+1
+
+				while j<len(snpsd.positions):
+					j = j+1
+				 
+				break
+		
+		
+		print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
+		print "Number of SNPs in merged data:",len(newPositions)
+		print "Number of SNPs in merged data:",len(newSnps)
+		print "Number of accessions in merged data:",len(newAccessions)
+
+		self.snps = newSnps
+		self.positions = newPositions
+		self.accessions = newAccessions
+		self.arrayIds = None
+
 
 	def mergeData(self,snpsd, priority=1, debug=0):
 		"""
+
 		Merges two RawSnpsData objects.
 
 		If snps disagree, then the snps from the object called from is used.		

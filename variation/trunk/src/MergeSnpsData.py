@@ -12,9 +12,9 @@ Option:
 	                                2: All accessions are included in the merged dataset 
 					3: Both all SNPs and accessions are included in the merged dataset
 
-        -i ..., --intersection=...      1: Only common SNPs are included in the dataset (not implemented)
-	                                2: Only common accessions are included in the merged dataset (not implemented)
-					3: Only common SNPs and accessions are included in the merged dataset (not implemented)
+        -i ..., --intersection=...      1: Only common SNPs are included in the dataset 
+	                                2: Only common accessions are included in the merged dataset 
+					3: Only common SNPs and accessions are included in the merged dataset 
 
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
@@ -116,9 +116,13 @@ def _run_():
 		for i in range(0,len(snpsds1)):
 			snpsds1[i].mergeData(snpsds2[i],priority=priority)
 		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
-	elif union>0 and union<4 and intersection==0:
+	elif 0<union<4 and intersection==0:
 		for i in range(0,len(snpsds1)):
 			snpsds1[i].mergeDataUnion(snpsds2[i], priority=priority, unionType=union)
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal)
+	elif 0<intersection<4 and union==0:
+		for i in range(0,len(snpsds1)):
+			snpsds1[i].mergeDataIntersection(snpsds2[i], priority=priority, intersectionType=intersection)
 		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal)
 	else:
 		if help==0:

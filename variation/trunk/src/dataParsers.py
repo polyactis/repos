@@ -582,7 +582,7 @@ def getPerlgenDataFromDb(host="papaya.usc.edu", db = "chip", chromosomes=[1,2,3,
     return snpsds
 
 
-def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False, use_nt2number=0, returnChromosomes=False):
+def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArrayIds=False, use_nt2number=0, returnChromosomes=False, useDecoder=True):
     """
     05/12/08 yh. add argument use_nt2number, to turn nucleotide into numbers. default is not
     05/12/08 yh. add '-':'-' (deletion) and '|':'NA' (untouched) check nt2number in 'variation.common' to decoder
@@ -648,8 +648,12 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
             oldChr = int(line[0])
             rawSnpsData.positions.append(int(line[1]))
             snp = []
-            for nt in line[2:]:
-                snp.append(decoder[(nt.strip())])
+            if useDecoder:
+                for nt in line[2:]:
+                    snp.append(decoder[(nt.strip())])
+            else:
+                for nt in line[2:]:
+                    snp.append(nt.strip())
             rawSnpsData.snps.append(snp)
             i += 1
             if i < len(lines):
