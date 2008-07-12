@@ -327,6 +327,9 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int):
 	"""
+	2008-07-11
+		use p_char to judge whether there is character in the data, then use nt2number to convert them.
+		input_alphabet is deprecated.
 	2008-05-21
 		add matrix_data_type, default=int. data_row = map(matrix_data_type, data_row)
 	2008-05-18
@@ -354,12 +357,14 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	data_matrix = []
 	strain_acc_list = []
 	category_list = []
+	import re
+	p_char = re.compile(r'[a-zA-Z]')
 	for row in reader:
 		strain_acc_list.append(row[0])
 		category_list.append(row[1])
 		data_row = row[2:]
 		no_of_snps = len(data_row)
-		if input_alphabet:
+		if p_char.search(data_row[0]):
 			data_row = dict_map(nt2number, data_row)
 			if no_of_snps!=len(data_row):
 				print row
