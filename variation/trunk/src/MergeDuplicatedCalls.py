@@ -12,7 +12,7 @@ Description:
 	duplicates could exist between either different (ecotype_duplicate2tg_ecotypeid_table given) or same ecotypeids.
 	
 	Input format is strain X snp. 1st two columns are ecotypeid, duplicate.
-		delimiter (either tab or comma) is automatically detected.
+		delimiter (either tab or comma) is automatically detected. Type of representation of nucleotides is also automatically detected.
 	
 	Output format is strain X snp. 1st two columns are ecotypeid, nativename.
 		same delimiter as input would be used.
@@ -27,7 +27,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
 import getopt, math, numpy
-from pymodule import process_function_arguments, write_data_matrix
+from pymodule import process_function_arguments, write_data_matrix, read_data, PassingData
 from variation.src.common import get_ecotypeid2nativename
 from variation.src.dbSNP2data import dbSNP2data
 from sets import Set
@@ -77,6 +77,9 @@ class MergeDuplicatedCalls(object):
 	
 	def get_tg_ecotypeid2ecotypeid_duplicate_index_ls(cls, strain_acc_list, category_list, ecotype_duplicate2tg_ecotypeid=None):
 		"""
+		2008-07-11
+			stop exitting the program if key_pair not found in ecotype_duplicate2tg_ecotypeid.
+			use its immediate ecotypeid as target ecotypeid
 		2008-05-12
 			if ecotype_duplicate2tg_ecotypeid is None, assume duplicates with same ecotypeid but different duplicate
 		2008-04-04
@@ -92,8 +95,9 @@ class MergeDuplicatedCalls(object):
 			else:	#either None or not dictionary
 				tg_ecotypeid = ecotypeid
 			if tg_ecotypeid==None:
-				sys.stderr.write("Error: %s not found in ecotype_duplicate2tg_ecotypeid.\n"%(key_pair))
-				sys.exit(2)
+				sys.stderr.write("warning: %s not found in ecotype_duplicate2tg_ecotypeid.\n"%(repr(key_pair)))
+				#sys.exit(2)
+				tg_ecotypeid = ecotypeid
 			if tg_ecotypeid not in tg_ecotypeid2ecotypeid_duplicate_index_ls:
 				tg_ecotypeid2ecotypeid_duplicate_index_ls[tg_ecotypeid] = []
 			tg_ecotypeid2ecotypeid_duplicate_index_ls[tg_ecotypeid].append(i)
@@ -104,10 +108,16 @@ class MergeDuplicatedCalls(object):
 	
 	def get_merged_matrix(self, tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix):
 		"""
+		2008-07-11
+			calculate the inconsistency ratio among duplicates
 		"""
 		sys.stderr.write("Merging calls from duplicates ... ")
 		tg_ecotypeid_ls = tg_ecotypeid2ecotypeid_duplicate_index_ls.keys()
 		tg_ecotypeid_ls.sort()
+		
+		no_of_non_NA_pairs = 0
+		no_of_non_NA_inconsistent_pairs = 0
+		no_of_duplicated_rows = 0
 		
 		no_of_cols = len(data_matrix[0])
 		merge_matrix = numpy.zeros([len(tg_ecotypeid_ls), no_of_cols], numpy.int)
@@ -117,24 +127,42 @@ class MergeDuplicatedCalls(object):
 			if len(ecotypeid_duplicate_index_ls)==1:	#no merging needed. just copy it over
 				merge_matrix[i] = data_matrix[ecotypeid_duplicate_index_ls[0]]
 			else:
-				merge_matrix[i] = self.merge_call_on_one_row(ecotypeid_duplicate_index_ls, data_matrix, no_of_cols)
-		sys.stderr.write("Done.\n")
+				passingdata = self.merge_call_on_one_row(ecotypeid_duplicate_index_ls, data_matrix, no_of_cols)
+				merge_matrix[i] = passingdata.one_row
+				no_of_duplicated_rows += 1
+				no_of_non_NA_pairs += passingdata.no_of_non_NA_pairs
+				no_of_non_NA_inconsistent_pairs += passingdata.no_of_non_NA_inconsistent_pairs
+		sys.stderr.write("%s/%s=%s inconsistency among %s ecotypes who have duplicates. Done.\n"%\
+						(no_of_non_NA_inconsistent_pairs, no_of_non_NA_pairs, \
+						no_of_non_NA_inconsistent_pairs/float(no_of_non_NA_pairs), no_of_duplicated_rows))
 		return tg_ecotypeid_ls, merge_matrix
 	
 	def merge_call_on_one_row(cls, ecotypeid_duplicate_index_ls, data_matrix, no_of_cols, NA_set=Set([0, -2])):
 		"""
+		2008-07-11
+			calculate the inconsistency ratio among duplicates
 		2008-05-12
 			-2 is also ruled out, add NA_set
 		"""
 		one_row = numpy.zeros(no_of_cols)
+		passingdata = PassingData()
+		passingdata.no_of_non_NA_pairs = 0
+		passingdata.no_of_non_NA_inconsistent_pairs = 0
 		for i in range(no_of_cols):
 			call_counter_ls = [0]*11
+			non_NA_call_number_set = Set()
 			for index in ecotypeid_duplicate_index_ls:
 				call_number = data_matrix[index][i]
 				if call_number not in NA_set:	#dont' need NA and non-touched bit
 					call_counter_ls[call_number] += 1
+					non_NA_call_number_set.add(call_number)
+			if len(non_NA_call_number_set)>0:
+				passingdata.no_of_non_NA_pairs += 1
+				if len(non_NA_call_number_set)>1:
+					passingdata.no_of_non_NA_inconsistent_pairs += 1
 			one_row[i] = dbSNP2data.get_majority_call_number(call_counter_ls)
-		return one_row
+		passingdata.one_row = one_row
+		return passingdata
 	merge_call_on_one_row = classmethod(merge_call_on_one_row)
 	
 	def run(self):
@@ -150,11 +178,9 @@ class MergeDuplicatedCalls(object):
 			ecotype_duplicate2tg_ecotypeid = self.get_ecotype_duplicate2tg_ecotypeid(curs, self.ecotype_duplicate2tg_ecotypeid_table)
 		else:
 			ecotype_duplicate2tg_ecotypeid = None
-		
 		from pymodule import figureOutDelimiter
-		delimiter = figureOutDelimiter(self.input_fname, report=self.report)
-		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname, delimiter=delimiter)
+		delimiter = figureOutDelimiter(self.input_fname)
+		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, delimiter=delimiter)
 		
 		tg_ecotypeid2ecotypeid_duplicate_index_ls = self.get_tg_ecotypeid2ecotypeid_duplicate_index_ls(strain_acc_list, category_list, ecotype_duplicate2tg_ecotypeid)
 		
