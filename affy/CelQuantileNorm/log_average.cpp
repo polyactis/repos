@@ -25,6 +25,7 @@ void log_average(float (*intensity)[N_MATCH_TYPES][MAX_PQ], int (*count)[N_MATCH
 	*/
 	vA_il += log(intensity[0][0][0]) + log(intensity[0][0][1]);	//03/16/08 yh: sum of log(antisense)+ log(sense) of allele A 
 	vB_il += log(intensity[1][0][0]) + log(intensity[1][0][1]);	//03/16/08 yh: ditto for allele B
+	//background = (vA_il + vB_il)/4;
 	*A_il = vA_il / count[0][0];
 	*B_il = vB_il / count[0][0];
 	return;
