@@ -127,6 +127,8 @@ class ArrayInfo(object):
 	
 	def assignNewIdToThisArray(self, array_filename, output_dir):
 		"""
+		2008-07-12
+			ignore files whose filename extension is not .cel.
 		2008-04-23
 			allow arrays with no maternal_ecotype_id, paternal_ecotype_id imported into db
 		2008-04-12
@@ -136,7 +138,10 @@ class ArrayInfo(object):
 		
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
-		
+		file_ext = os.path.splitext(array_filename)[1].lower()	#the extension of a filename and lower case
+		if file_ext!='.cel':
+			sys.stderr.write("The filename extension of %s is not .cel.\n"%(array_filename))
+			return -1
 		md5sum = self.get_md5sum(array_filename)
 		if md5sum in self.md5sum2array_id:
 			sys.stderr.write("%s already exists in db with md5sum=%s and array_id=%s. ignored.\n"%\
