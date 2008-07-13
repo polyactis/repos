@@ -108,6 +108,8 @@ class DB_250k2Array(object):
 		
 	def get_snps(self, curs, snps_table):
 		"""
+		2008-07-13
+			add condition that alleles must be not null, to select SNPs in snps_table
 		"""
 		sys.stderr.write("Getting snps ... ")
 		snps = snps_class()
