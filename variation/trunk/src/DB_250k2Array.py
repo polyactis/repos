@@ -95,7 +95,7 @@ class DB_250k2Array(object):
 						('snps_table', 1, ): ['snps', 's', 1],\
 						('probes_table', 1, ): ['probes', 'e'],\
 						('array_info_table', 1, ):['array_info', 'y'],\
-						('array_id', 0, ): [None, 'a'],\
+						('array_id_ls', 0, ): [None, 'a', 1, 'comma-separated array id list, used to choose some arrays. Not specifying this means all arrays.'],\
 						('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 						('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -139,7 +139,7 @@ class DB_250k2Array(object):
 		sys.stderr.write("Done.\n")
 		return probes
 	
-	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id):
+	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id_ls):
 		"""
 		2008-07-12
 			add option array_id
@@ -151,8 +151,8 @@ class DB_250k2Array(object):
 		array_size = None
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
-		if array_id:
-			curs.execute("select id, filename from %s where id=%s"%(array_info_table, array_id))
+		if array_id_ls:
+			curs.execute("select id, filename from %s where id in (%s)"%(array_info_table, array_id_ls))
 		else:
 			curs.execute("select id, filename from %s"%(array_info_table))
 		rows = curs.fetchall()
@@ -199,7 +199,7 @@ class DB_250k2Array(object):
 		curs = conn.cursor()
 		snps = self.get_snps(curs, self.snps_table)
 		probes = self.get_probes(curs, self.probes_table, snps)
-		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes, self.array_id)
+		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes, self.array_id_ls)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
