@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 """
-Usage: DB_250k2Array.py [OPTIONS] -o OUTPUT_DIR
 
-Argument list:
-	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
-	-d ..., --dbname=...	the database name, stock_250k(default)
-	-u ..., --user=...	the db username, (otherwise it will ask for it).
-	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
-	-o ...,	output_dir*
-	-a ...,	snps_table, 'stock_250k.snps'(default)
-	-e ...,	probes_table, 'stock_250k.probes'(default)
-	-g ...,	array_info_table, 'stock_250k.array_info'(default)
-	-b,	toggle debug
-	-r, toggle report
 Examples:
 	#put intensity matrices into designated file-system storage
 	DB_250k2Array.py -o /Network/Data/250k/db/intensity/
@@ -99,35 +87,31 @@ class snps_class:
 
 class DB_250k2Array(object):
 	__doc__ = __doc__
+	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+						('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
+						('db_user', 1, ): [None, 'u', 1, 'database username', ],\
+						('db_passwd', 1, ):[None, 'p', 1, 'database password', ],\
+						('output_dir', 1, ): [None, 'o', 1, ],\
+						('snps_table', 1, ): ['snps', 's', 1],\
+						('probes_table', 1, ): ['probes', 'e'],\
+						('array_info_table', 1, ):['array_info', 'y'],\
+						('array_id', 0, ): [None, 'a'],\
+						('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+						('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	
 	def __init__(self, **keywords):
 		"""
 		2008-04-08
 		"""
-		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
-								('dbname',1, ):'stock_250k',\
-								('user',1, ):None,\
-								('passwd',1, ):None,\
-								('output_dir',1, ):None,\
-								('snps_table',1, ):'stock_250k.snps',\
-								('probes_table',1, ):'stock_250k.probes',\
-								('array_info_table',1, ):'stock_250k.array_info',\
-								('commit',0, int):0,\
-								('debug',0, int):0,\
-								('report',0, int):0}
-		"""
-		2008-02-28
-			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
-			argument_type is optional
-		"""
-		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-	
+		from pymodule import ProcessOptions
+		self.ad=ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		
 	def get_snps(self, curs, snps_table):
 		"""
 		"""
 		sys.stderr.write("Getting snps ... ")
 		snps = snps_class()
-		curs.execute("select id, snpid, allele1, allele2 from %s order by chromosome, position"%snps_table)
+		curs.execute("select id, name, allele1, allele2 from %s where allele1 is not null and allele2 is not null order by chromosome, position"%snps_table)
 		rows = curs.fetchall()
 		for row in rows:
 			snps_id, snpid, allele1, allele2 = row
@@ -153,8 +137,10 @@ class DB_250k2Array(object):
 		sys.stderr.write("Done.\n")
 		return probes
 	
-	def outputArray(self, curs, output_dir, array_info_table, snps, probes):
+	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id):
 		"""
+		2008-07-12
+			add option array_id
 		2008-04-08
 		"""
 		sys.stderr.write("Outputting arrays ... \n")
@@ -163,7 +149,10 @@ class DB_250k2Array(object):
 		array_size = None
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
-		curs.execute("select id, filename from %s"%(array_info_table))
+		if array_id:
+			curs.execute("select id, filename from %s where id=%s"%(array_info_table, array_id))
+		else:
+			curs.execute("select id, filename from %s"%(array_info_table))
 		rows = curs.fetchall()
 		no_of_objects = len(rows)
 		for i in range(no_of_objects):
@@ -200,15 +189,25 @@ class DB_250k2Array(object):
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
+		if self.debug:
+			import pdb
+			pdb.set_trace()
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
-		
 		snps = self.get_snps(curs, self.snps_table)
 		probes = self.get_probes(curs, self.probes_table, snps)
-		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes)
+		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes, self.array_id)
 
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = DB_250k2Array
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	
+	"""
 	if len(sys.argv) == 1:
 		print DB_250k2Array.__doc__
 		sys.exit(2)
@@ -279,4 +278,4 @@ if __name__ == '__main__':
 				probes_table=argument2, array_info_table=argument3,\
 				debug=debug, report=report)
 	ins.run()
-		
+	"""
