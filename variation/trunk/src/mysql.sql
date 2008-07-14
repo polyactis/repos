@@ -879,28 +879,22 @@ create table phenotype_avg(
 	)engine=INNODB;
 
 
---2008-07-03 create a gene-list and gene-list-description table
-create table gene_list_description(
-	id serial primary key,
-	short_name varchar(200),
-	description varchar(8000),
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
+--2008-07-03 create triggers for gene-list and gene-list-type table (table defined in Stock_250kDB.py)
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
-CREATE TRIGGER before_insert_g_l_desc BEFORE INSERT ON gene_list_description
+CREATE TRIGGER before_insert_g_l_type BEFORE INSERT ON gene_list_type
   FOR EACH ROW BEGIN
         if NEW.created_by is null then
                set NEW.created_by = USER();
         end if;
+        if NEW.date_created is null then
+               set NEW.date_created = CURRENT_TIMESTAMP();
+        end if;
   END;
 |
 
-CREATE TRIGGER before_update_g_l_desc BEFORE UPDATE ON gene_list_description
+CREATE TRIGGER before_update_g_l_type BEFORE UPDATE ON gene_list_type
   FOR EACH ROW BEGIN
     set NEW.updated_by = USER();
     set NEW.date_updated = CURRENT_TIMESTAMP();
@@ -909,16 +903,6 @@ CREATE TRIGGER before_update_g_l_desc BEFORE UPDATE ON gene_list_description
 
 DELIMITER ;
 
-create table gene_list(
-	id integer auto_increment primary key,
-	gene_id integer,
-	list_id integer,
-	foreign key (list_id) references gene_list_description(id) on delete cascade on update cascade,
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
 
 DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
 
@@ -926,6 +910,9 @@ CREATE TRIGGER before_insert_g_list BEFORE INSERT ON gene_list
   FOR EACH ROW BEGIN
         if NEW.created_by is null then
                set NEW.created_by = USER();
+        end if;
+        if NEW.date_created is null then
+               set NEW.date_created = CURRENT_TIMESTAMP();
         end if;
   END;
 |
