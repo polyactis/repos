@@ -7,6 +7,9 @@ Examples:
 Description:
 	2008-07-03 put gene list into db, stock_250k
 	
+	If list_type_name is given, list_type_id would be ignored although it's still required option (put a random number there).
+	
+	Program will avoid redundant genes in the input files. 
 
 """
 import sys, os, math
@@ -54,6 +57,8 @@ class PutGeneListIntoDb(object):
 		"""
 		2008-07-15
 			if the list_type_name is given, forget about list_type_id. program will first search db for the given list_type_name, if search failed, create a new entry.
+		2008-07-15
+			use gene_id2original_name to avoid redundancy in gene list
 		"""
 		import csv, sys, os
 		from pymodule import get_gene_symbol2gene_id_set
@@ -68,12 +73,15 @@ class PutGeneListIntoDb(object):
 		success_counter = 0
 		import re
 		p_acc_ver = re.compile(r'(\w+)\.(\d+)')
+		
 		if list_type_name:	#if the short name is given, forget about list_type_id
 			glt = GeneListType.query.filter_by(short_name=list_type_name).first()	#try search the db first.
 			if not glt:
 				glt = GeneListType(short_name=list_type_name)
 				session.save(glt)
 				session.flush()
+		
+		gene_id2original_name = {}	#to avoid redundancy in gene list
 		for row in reader:
 			original_name = row[0]
 			gene_symbol = row[0].upper()
@@ -84,11 +92,8 @@ class PutGeneListIntoDb(object):
 				sys.stderr.write("Linking to gene id failed for %s. No such gene_symbol, %s, in gene_symbol2gene_id_set.\n"%(original_name, gene_symbol))
 			elif len(gene_id_set)==1:
 				gene_id = list(gene_id_set)[0]
-				if list_type_name:
-					gl = GeneList(gene_id=gene_id, list_type=glt, original_name=original_name)
-				else:
-					gl = GeneList(gene_id=gene_id, list_type_id=list_type_id, original_name=original_name)
-				session.save(gl)
+				if gene_id not in gene_id2original_name:
+					gene_id2original_name[gene_id] = original_name
 				success_counter += 1
 			elif len(gene_id_set)>1:
 				sys.stderr.write("Too many gene_ids: %s, %s.\n"%(gene_symbol, gene_id_set))
@@ -98,6 +103,13 @@ class PutGeneListIntoDb(object):
 				sys.stderr.write("not supposed to happen: original_name=%s, gene_symbol=%s, gene_id_set=%s\n."%(original_name, gene_symbol, gene_id_set))
 			counter += 1
 		del reader
+		
+		for gene_id, original_name in gene_id2original_name.iteritems():
+			if list_type_name:
+				gl = GeneList(gene_id=gene_id, list_type=glt, original_name=original_name)
+			else:
+				gl = GeneList(gene_id=gene_id, list_type_id=list_type_id, original_name=original_name)
+			session.save(gl)
 		sys.stderr.write("%s/%s linked successfully.\n"%(success_counter, counter))
 		
 
