@@ -2,7 +2,7 @@
 """
 
 Examples:
-	~/script/variation/src/PutGeneListIntoDB.py -i /Network/Data/250k/candidate_genes_GWA/anthocyanin.csv -l 4 -u yh -c
+	PutGeneListIntoDB.py -i /Network/Data/250k/candidate_genes_GWA/anthocyanin.csv -l 4 -u yh -c
 
 Description:
 	2008-07-03 put gene list into db, stock_250k
@@ -21,7 +21,7 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 
-from Stock_250kDB import Stock_250kDB, GeneList
+from Stock_250kDB import Stock_250kDB, GeneList, GeneListType
 
 class PutGeneListIntoDb(object):
 	__doc__ = __doc__
@@ -50,7 +50,11 @@ class PutGeneListIntoDb(object):
 		2008-07-03 put gene list into db, stock_250k
 		"""
 		
-	def putGeneListIntoDb(self, input_fname, list_type_id, mysql_curs, db):
+	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, mysql_curs, db):
+		"""
+		2008-07-15
+			if the list_type_name is given, forget about list_type_id. program will first search db for the given list_type_name, if search failed, create a new entry.
+		"""
 		import csv, sys, os
 		from pymodule import get_gene_symbol2gene_id_set
 		gene_symbol2gene_id_set = get_gene_symbol2gene_id_set(mysql_curs, 3702, table='genome.gene_symbol2id', upper_case_gene_symbol=1)	#3702 is At's tax id
@@ -64,6 +68,12 @@ class PutGeneListIntoDb(object):
 		success_counter = 0
 		import re
 		p_acc_ver = re.compile(r'(\w+)\.(\d+)')
+		if list_type_name:	#if the short name is given, forget about list_type_id
+			glt = GeneListType.query.filter_by(short_name=list_type_name).first()	#try search the db first.
+			if not glt:
+				glt = GeneListType(short_name=list_type_name)
+				session.save(glt)
+				session.flush()
 		for row in reader:
 			original_name = row[0]
 			gene_symbol = row[0].upper()
@@ -71,16 +81,21 @@ class PutGeneListIntoDb(object):
 				gene_symbol, version = p_acc_ver.search(gene_symbol).groups()
 			gene_id_set = gene_symbol2gene_id_set.get(gene_symbol)
 			if gene_id_set==None:
-				sys.stderr.write("Linking to gene id failed: %s.\n"%original_name)
+				sys.stderr.write("Linking to gene id failed for %s. No such gene_symbol, %s, in gene_symbol2gene_id_set.\n"%(original_name, gene_symbol))
 			elif len(gene_id_set)==1:
-				gene_id = gene_id_set.pop()
-				gl = GeneList(gene_id=gene_id, list_type_id=list_type_id, original_name=original_name)
+				gene_id = list(gene_id_set)[0]
+				if list_type_name:
+					gl = GeneList(gene_id=gene_id, list_type=glt, original_name=original_name)
+				else:
+					gl = GeneList(gene_id=gene_id, list_type_id=list_type_id, original_name=original_name)
 				session.save(gl)
 				success_counter += 1
 			elif len(gene_id_set)>1:
 				sys.stderr.write("Too many gene_ids: %s, %s.\n"%(gene_symbol, gene_id_set))
+			elif len(gene_id_set)==0:
+				sys.stderr.write("Linking to gene id failed for %s. There is gene_symbol, %s, in gene_symbol2gene_id_set but it's empty.\n"%(original_name, gene_symbol))
 			else:
-				sys.stderr.write("not supposed to happen: %s, %s.\n."%(gene_symbol, gene_id_set))
+				sys.stderr.write("not supposed to happen: original_name=%s, gene_symbol=%s, gene_id_set=%s\n."%(original_name, gene_symbol, gene_id_set))
 			counter += 1
 		del reader
 		sys.stderr.write("%s/%s linked successfully.\n"%(success_counter, counter))
@@ -98,7 +113,7 @@ class PutGeneListIntoDb(object):
 		
 		session = db.session
 		session.begin()
-		self.putGeneListIntoDb(self.input_fname, self.list_type_id, mysql_curs, db)
+		self.putGeneListIntoDb(self.input_fname, self.list_type_id, self.list_type_name, mysql_curs, db)
 		if self.commit:
 			session.commit()
 
