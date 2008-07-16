@@ -21,7 +21,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 from sqlalchemy.engine.url import URL
-from elixir import Unicode, DateTime, String, Integer, UnicodeText, Text, Boolean
+from elixir import Unicode, DateTime, String, Integer, UnicodeText, Text, Boolean, Float
 from elixir import Entity, Field, using_options, using_table_options
 from elixir import OneToMany, ManyToOne, ManyToMany
 from elixir import setup_all, session, metadata, entities
@@ -39,7 +39,7 @@ class GeneListType(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='gene_list_type')
+	using_options(tablename='candidate_gene_list_type')
 	using_table_options(mysql_engine='InnoDB')
 
 class GeneList(Entity):
@@ -50,7 +50,7 @@ class GeneList(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='gene_list')
+	using_options(tablename='candidate_gene_list')
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('gene_id', 'list_type_id'))
 
@@ -111,6 +111,16 @@ class PhenotypeMethod(Entity):
 	using_options(tablename='phenotype_method')
 	using_table_options(mysql_engine='InnoDB')
 
+class AnalysisMethod(Entity):
+	short_name = Field(String(60))
+	method_description = Field(String(8000))
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='analysis_method')
+	using_table_options(mysql_engine='InnoDB')
+	
 class ResultsMethodType(Entity):
 	short_name = Field(String(30), unique=True)
 	method_description = Field(String(8000))
@@ -131,11 +141,19 @@ class ResultsMethod(Entity):
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='phenotype_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	results_method_type = ManyToOne('ResultsMethodType', colname='results_method_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	analysis_method = ManyToOne('AnalysisMethod', colname='analysis_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
 	using_options(tablename='results_method')
+	using_table_options(mysql_engine='InnoDB')
+
+class Results(Entity):
+	snp = ManyToOne('Snps', colname='snps_id', ondelete='CASCADE', onupdate='CASCADE')
+	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	score = Field(Float)
+	using_options(tablename='results')
 	using_table_options(mysql_engine='InnoDB')
 
 class Stock_250kDB(ElixirDB):
