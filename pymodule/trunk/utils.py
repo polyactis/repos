@@ -109,3 +109,22 @@ def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ','])
 	if report:
 		sys.stderr.write("Done.\n")
 	return delimiter_chosen
+
+def get_gene_symbol2gene_id_set(curs, tax_id, table='genome.gene_symbol2id', upper_case_gene_symbol=0):
+	"""
+	2008-07-10 derived from annot.bin.codense.common.get_gene_symbol2gene_id()
+	"""
+	sys.stderr.write("Getting gene_symbol2gene_id_set...")
+	gene_symbol2gene_id_set = {}
+	from sets import Set
+	curs.execute("select gene_id, gene_symbol from %s where tax_id=%s"%(table, tax_id))
+	rows = curs.fetchall()
+	for row in rows:
+		gene_id, gene_symbol = row
+		if upper_case_gene_symbol:
+			gene_symbol = gene_symbol.upper()
+		if gene_symbol not in gene_symbol2gene_id_set:
+			gene_symbol2gene_id_set[gene_symbol] = Set()
+		gene_symbol2gene_id_set[gene_symbol].add(gene_id)
+	sys.stderr.write("Done.\n")
+	return gene_symbol2gene_id_set
