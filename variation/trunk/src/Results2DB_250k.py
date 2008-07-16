@@ -32,7 +32,9 @@ else:   #32bit
 
 import csv, stat, getopt, re
 import traceback, gc, subprocess
-from db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs, ResultsMethodType
+from Stock_250kDB import Stock_250kDB, Results, ResultsMethod, PhenotypeMethod, CallMethod, ResultsMethodType, AnalysisMethod
+from Stock_250kDB import Snps as SNPs
+#from db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, CallMethod, SNPs, ResultsMethodType
 from pymodule import figureOutDelimiter
 
 import sqlalchemy as sql
@@ -45,24 +47,27 @@ import sqlalchemy as sql
 
 class Results2DB_250k(object):
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
-	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
 							('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
-							('user', 1, ): [None, 'u', 1, 'database username', ],\
-							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
+							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
+							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							('input_fname',1, ): [None, 'i', 1, 'File containing association results'],\
 							('output_dir',1, ): ['/Network/Data/250k/db/results/', 'o', 1, 'file system storage for the results files. results_method.filename'],\
 							('short_name',1, ): [None, 'f', 1, 'short name for this result. Must be unique from previous ones. combining your name, phenotype, data, method is a good one.' ],\
 							('phenotype_method_id',1,int): [None, 'e', 1, 'which phenotype you used, check table phenotype_method'],\
 							('call_method_id', 1, int ): [None, 'a', 1, 'data from which call_method, field id in table call_method'],\
-							('data_description', 1, ): [None, 'n', 1, 'Describe how your data is derived from that call method. like non-redundant set, 1st 96, etc.'],\
-							('method_description', 1, ): [None, 'm', 1, 'Describe your method and what type of score, association (-log or not), recombination etc.'],\
+							('data_description', 0, ): [None, 'n', 1, 'Describe how your data is derived from that call method. like non-redundant set, 1st 96, etc.'],\
+							('method_description', 0, ): [None, 'm', 1, 'Describe your method and what type of score, association (-log or not), recombination etc.'],\
 							('results_method_type_id', 1, int): [1, 's', 1, 'which type of method. field id in table results_method_type. 1="association"',],\
+							('analysis_method_id', 1, int): [None, 'l', 1, ''],\
 							('comment',0, ): [None, 't', 1, 'Anything more worth for other people to know?'],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
-	pa_has_characters = re.compile(r'^[a-zA-Z_]')	#2008-05-30 check if a string has character in it, used to judge whether the 1st line is header or not.
+	pa_has_characters = re.compile(r'[a-zA-Z_]')	#2008-05-30 check if a string has character in it, used to judge whether the 1st line is header or not.
 	"""
 	04/28/08 no longer needed
 							('results_table',1, ): 'results',\
@@ -136,6 +141,9 @@ class Results2DB_250k(object):
 	
 	def submit_results(cls, db, input_fname, rm, user, output_fname=None):
 		"""
+		2008-07-16
+			if it's 4-column, the last one is MAF.
+			can't deal with segment score anymore.
 		2008-05-30
 			merged with store_file()
 				dump the file onto file system storage if output_fname is given
@@ -194,9 +202,12 @@ class Results2DB_250k(object):
 				score = row[2]
 				marker_name = '%s_%s'%(chr, start_pos)
 			elif len(row)==4:
-				stop_pos = int(row[2])
-				score = row[3]
-				marker_name = '%s_%s_%s'%(chr, start_pos, stop_pos)
+				score = row[2]
+				column_4th=row[3]
+				stop_pos = None
+				#stop_pos = int(row[2])
+				#score = row[3]
+				marker_name = '%s_%s'%(chr, start_pos)
 			else:
 				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
 				return
@@ -207,12 +218,13 @@ class Results2DB_250k(object):
 						position_header = ['start_position', 'stop_position']
 					else:
 						position_header = ['position']
-					writer.writerow(['chromosome'] + position_header + ['score'])
+					writer.writerow(['chromosome'] + position_header + ['score', 'MAF'])
 					header_outputted = 1
 				data_row = [chr, start_pos]
 				if stop_pos is not None:
 					data_row.append(stop_pos)
 				data_row.append(score)
+				data_row.append(column_4th)
 				writer.writerow(data_row)
 			else:
 				key = (chr, start_pos, stop_pos)
@@ -260,8 +272,11 @@ class Results2DB_250k(object):
 	
 	def plone_run(cls, db, short_name, phenotype_method_id, call_method_id, data_description, \
 				method_description, comment, input_fname, user, results_method_type_id=None, \
-				results_method_type_short_name=None, output_dir=None, commit=0):
+				analysis_method_id=None, results_method_type_short_name=None, output_dir=None, commit=0):
 		"""
+		2008-07-16
+			adjust to new Elixir-based db api.
+			new analysis_method_id is added to results_method.
 		2008-05-30
 			go to output_dir
 			drop submit_results()
@@ -272,8 +287,9 @@ class Results2DB_250k(object):
 			to conveniently wrap up all codes so that both this program and plone can call
 		"""
 		session = db.session
-		if getattr(db, 'transaction', None) is None:
-			db.transaction = session.create_transaction()
+		session.begin()
+		#if getattr(db, 'transaction', None) is None:
+		#	db.transaction = session.create_transaction()
 		
 		if not output_dir:
 			output_dir = cls.option_default_dict[('output_dir',1)][0]	#to get default from option_default_dict
@@ -285,14 +301,36 @@ class Results2DB_250k(object):
 		#cm = session.query(CallMethod).filter_by(id=call_method_id).one()
 		
 		rmt = session.query(ResultsMethodType).get(results_method_type_id)
-		#rmt = session.query(ResultsMethodType).filter_by(id=results_method_type_id).one()
+		#rmt = session.query(ResultsMethodType).filter_by(id=results_method_type_id).one()		
 		if not rmt and results_method_type_short_name is not None:	#create a new results method type
 			rmt = ResultsMethodType(short_name=results_method_type_short_name)
 			session.save(rmt)
 		
+		if not rmt:
+			sys.stderr.write("No results method type available for results_method_type_id=%s.\n"%results_method_type_id)
+			sys.exit(3)
+		
+		pm = PhenotypeMethod.query.get(phenotype_method_id)
+		if not pm:
+			sys.stderr.write("No phenotype method available for phenotype_method_id=%s.\n"%phenotype_method_id)
+			sys.exit(3)
+		
+		cm = CallMethod.query.get(call_method_id)
+		if not cm:
+			sys.stderr.write("No call method available for call_method_id=%s.\n"%call_method_id)
+			sys.exit(3)
+		
+		am = AnalysisMethod.query.get(analysis_method_id)
+		if not am:
+			sys.stderr.write("No analysis method available for analysis_method_id=%s.\n"%analysis_method_id)
+			sys.exit(3)
+		
 		rm = ResultsMethod(short_name=short_name, method_description=method_description, \
-						data_description=data_description, comment=comment, phenotype_method_id=phenotype_method_id,\
-						call_method_id=call_method_id, created_by=user)
+						data_description=data_description, comment=comment, created_by=user)
+		rm.phenotype_method = pm
+		rm.call_method = cm
+		rm.analysis_method = am
+		
 		session.save(rm)
 		if rmt:
 			rm.results_method_type = rmt
@@ -300,46 +338,50 @@ class Results2DB_250k(object):
 		#2008-05-30 no submit_results() to database
 		#cls.submit_results(db, input_fname, rm, user)
 		
-		#session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
+		session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if commit:
-			db.transaction.commit()
-			
+			#db.transaction.commit()
 			rm.filename = cls.come_up_new_results_filename(output_dir, rm.id, rm.results_method_type.id)
-			session.save(rm)
-			db.transaction.commit()	#to save the filename
+			session.save_or_update(rm)
+			#db.transaction.commit()	#to save the filename
 			
 			#copy content to file system storage
 			cls.submit_results(db, input_fname, rm, user, rm.filename)
 			#session.clear()	#Remove all object instances from this Session, doesn't help to cleanup memory
 			#del session
-			db.transaction = None	#delete the transaction
+			#db.transaction = None	#delete the transaction
+			session.flush()
+			session.commit()
+			session.clear()
 			cls.reset_marker_pos2snp_id()
 		else:	#default is also rollback(). to demonstrate good programming
-			db.transaction.rollback()
+			session.rollback()
+			#db.transaction.rollback()
 			cls.reset_marker_pos2snp_id()
 	plone_run = classmethod(plone_run)
 	
 	def run(self):
 		"""
+		2008-07-15
+			adjust to new Elixir-based db api.
 		2008-04-28
 			use Stock_250kDatabase to do database stuff
 		2008-04-16
 		"""
-		#import MySQLdb
-		#conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
-		#curs = conn.cursor()
 		if self.debug:
 			import pdb
 			pdb.set_trace()
+		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
+				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		
-		db = Stock_250kDatabase(username=self.user,
-				   password=self.passwd, hostname=self.hostname, database=self.dbname)
+		#db = Stock_250kDatabase(username=self.user,
+		#		   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		if not self.short_name:
 			sys.stderr.write("Error: short_name unspecified.\n"%(self.short_name))
 			sys.stderr.exit(2)
 		self.plone_run(db, self.short_name, self.phenotype_method_id, self.call_method_id, self.data_description, \
-				self.method_description, self.comment, self.input_fname, self.user, results_method_type_id=self.results_method_type_id,\
-				output_dir=self.output_dir, commit=self.commit)
+				self.method_description, self.comment, self.input_fname, self.db_user, results_method_type_id=self.results_method_type_id,\
+				analysis_method_id=self.analysis_method_id, output_dir=self.output_dir, commit=self.commit)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
@@ -348,57 +390,3 @@ if __name__ == '__main__':
 	
 	instance = main_class(**po.long_option2value)
 	instance.run()
-	"""
-	if len(sys.argv) == 1:
-		print __doc__
-		sys.exit(2)
-	
-	long_options_list = ["hostname=", "dbname=", "user=", "passwd=", "help", "type=", "debug", "report"]
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hz:d:u:p:i:e:cbr", long_options_list)
-	except:
-		traceback.print_exc()
-		print sys.exc_info()
-		print __doc__
-		sys.exit(2)
-	
-	
-	hostname = None
-	dbname = None
-	user = None
-	passwd = None
-	input_fname =None
-	phenotype_method_id = None
-	commit = None
-	debug = None
-	report = None
-	
-	for opt, arg in opts:
-		if opt in ("-h", "--help"):
-			help = 1
-			print __doc__
-			sys.exit(2)
-		elif opt in ("-z", "--hostname"):
-			hostname = arg
-		elif opt in ("-d", "--dbname"):
-			dbname = arg
-		elif opt in ("-u", "--user"):
-			user = arg
-		elif opt in ("-p", "--passwd"):
-			passwd = arg
-		elif opt in ("-e", ):
-			phenotype_method_id = int(arg)
-		elif opt in ("-i",):
-			input_fname = arg
-		elif opt in ("-c",):
-			commit = 1
-		elif opt in ("-b", "--debug"):
-			debug = 1
-		elif opt in ("-r", "--report"):
-			report = 1
-	
-	instance = Results2DB_250k(hostname=hostname, dbname=dbname, user=user, passwd=passwd, input_fname=input_fname, \
-							phenotype_method_id=phenotype_method_id,
-							commit=commit, debug=debug, report=report)
-	instance.run()
-	"""
