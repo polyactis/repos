@@ -142,6 +142,9 @@ class Results2DB_250k(object):
 	def submit_results(cls, db, input_fname, rm, user, output_fname=None):
 		"""
 		2008-07-16
+			if input_fname is neither file name nor file object, exit the program
+			better handling of the column_4th and its header
+		2008-07-16
 			if it's 4-column, the last one is MAF.
 			can't deal with segment score anymore.
 		2008-05-30
@@ -180,7 +183,7 @@ class Results2DB_250k(object):
 			reader = csv.reader(input_fname, delimiter=delimiter)
 		else:
 			sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
-			return
+			sys.exit(4)
 		
 		if output_fname:
 			writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
@@ -201,6 +204,7 @@ class Results2DB_250k(object):
 				stop_pos = None
 				score = row[2]
 				marker_name = '%s_%s'%(chr, start_pos)
+				column_4th = None
 			elif len(row)==4:
 				score = row[2]
 				column_4th=row[3]
@@ -218,13 +222,17 @@ class Results2DB_250k(object):
 						position_header = ['start_position', 'stop_position']
 					else:
 						position_header = ['position']
-					writer.writerow(['chromosome'] + position_header + ['score', 'MAF'])
+					header = ['chromosome'] + position_header + ['score']
+					if column_4th is not None:
+						header.append('MAF')
+					writer.writerow(header)
 					header_outputted = 1
 				data_row = [chr, start_pos]
 				if stop_pos is not None:
 					data_row.append(stop_pos)
 				data_row.append(score)
-				data_row.append(column_4th)
+				if column_4th is not None:
+					data_row.append(column_4th)
 				writer.writerow(data_row)
 			else:
 				key = (chr, start_pos, stop_pos)
@@ -377,8 +385,11 @@ class Results2DB_250k(object):
 		#db = Stock_250kDatabase(username=self.user,
 		#		   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		if not self.short_name:
-			sys.stderr.write("Error: short_name unspecified.\n"%(self.short_name))
-			sys.stderr.exit(2)
+			sys.stderr.write("Error: short_name, %s, unspecified.\n"%(self.short_name))
+			sys.exit(2)
+		if not os.path.isfile(self.input_fname):
+			sys.stderr.write("Error: file, %s,  is not a file.\n"%(self.input_fname))
+			sys.exit(3)
 		self.plone_run(db, self.short_name, self.phenotype_method_id, self.call_method_id, self.data_description, \
 				self.method_description, self.comment, self.input_fname, self.db_user, results_method_type_id=self.results_method_type_id,\
 				analysis_method_id=self.analysis_method_id, output_dir=self.output_dir, commit=self.commit)
