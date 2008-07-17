@@ -680,3 +680,115 @@ class SNPData(object):
 		sys.stderr.write("%s heterozygous calls. Done.\n"%no_of_hets)
 		return newSnpData
 	convertHetero2NA = classmethod(convertHetero2NA)
+
+from db import TableClass
+class GenomeWideResults(TableClass):
+	genome_wide_result_ls = None
+	genome_wide_result_obj_id2index = None
+	max_value = 0	#the current top value for all genome wide results
+	gap = 1.0	#gap between two genome wide results
+	def get_genome_wide_result_by_obj_id(self, obj_id):
+		return self.genome_wide_result_ls[self.genome_wide_result_obj_id2index[obj_id]]
+	
+	def add_genome_wide_result(self, genome_wide_result):
+		genome_wide_result_index = len(self.genome_wide_result_ls)
+		if genome_wide_result_index==0:	#the first result, no gap necessary
+			genome_wide_result.base_value = self.max_value
+		else:
+			genome_wide_result.base_value = self.max_value + self.gap
+		new_max_value = genome_wide_result.base_value + genome_wide_result.max_value - genome_wide_result.min_value
+		if self.max_value is None or new_max_value > self.max_value:
+			self.max_value = new_max_value
+		
+		self.genome_wide_result_ls.append(genome_wide_result)
+		self.genome_wide_result_obj_id2index[id(genome_wide_result)] = genome_wide_result_index
+
+class GenomeWideResult(TableClass):
+	data_obj_ls = None
+	data_obj_id2index = None
+	name = None
+	results_method_id = None
+	results_method = None
+	min_value = None
+	max_value = None
+	base_value = 0
+	
+	def get_data_obj_by_obj_id(self, obj_id):
+		return self.data_obj_ls[self.data_obj_id2index[obj_id]]
+	
+	def get_data_obj_by_obj_index(self, obj_index):
+		return self.data_obj_ls[obj_index]
+	
+	def add_one_data_obj(self, data_obj):
+		data_obj_index = len(self.data_obj_ls)
+		self.data_obj_ls.append(data_obj)
+		
+		self.data_obj_id2index[id(data_obj)] = data_obj_index
+		if self.min_value is None or data_obj.value<self.min_value:
+			self.min_value = data_obj.value
+		if self.max_value is None or data_obj.value>self.max_value:
+			self.max_value = data_obj.value
+
+class DataObject(TableClass):
+	chromosome = None
+	position = None
+	stop_position = None
+	name = None
+	value = None
+	genome_wide_result_id = None
+
+import re
+pa_has_characters = re.compile(r'[a-zA-Z_]')
+import math
+
+def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False):
+	"""
+	2008-07-17
+		moved from GenomeBrowser.py
+	2008-05-31
+		automatically detect if header exists on the first line.
+	2008-05-28
+		handle both 3/4-column input file
+	"""
+	sys.stderr.write("Getting genome wide result from %s ... "%input_fname)
+	gwr = GenomeWideResult(name=os.path.basename(input_fname))
+	gwr.data_obj_ls = []	#list and dictionary are crazy references.
+	gwr.data_obj_id2index = {}
+	genome_wide_result_id = id(gwr)
+	import csv
+	reader = csv.reader(open(input_fname), delimiter='\t')
+	no_of_lines = 0
+	for row in reader:
+		#check if 1st line is header or not
+		if no_of_lines ==0 and pa_has_characters.search(row[1]):
+			continue
+		chr = int(row[0])
+		start_pos = int(row[1])
+		if len(row)==3:
+			stop_pos = None
+			score = float(row[2])
+			column_4th = None
+		elif len(row)==4:
+			score = float(row[2])
+			column_4th=row[3]
+			stop_pos = None
+			#stop_pos = int(row[2])
+			#score = float(row[3])
+		else:
+			sys.stderr.write("only 3 or 4 columns are allowed in input file.\n")
+			return gwr
+		if do_log10_transformation:
+			score = -math.log10(score)
+		if min_value_cutoff is None or score>=min_value_cutoff:
+			if stop_pos is not None:
+				data_obj = DataObject(chromosome=chr, position=start_pos, stop_position=stop_pos, value =score)
+			else:
+				data_obj = DataObject(chromosome=chr, position=start_pos, value =score)
+			data_obj.genome_wide_result_id = genome_wide_result_id
+			gwr.add_one_data_obj(data_obj)
+		
+		no_of_lines += 1
+		
+	del reader
+	sys.stderr.write("Done.\n")
+	return gwr
