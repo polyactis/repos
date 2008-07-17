@@ -156,6 +156,21 @@ class Results(Entity):
 	using_options(tablename='results')
 	using_table_options(mysql_engine='InnoDB')
 
+class CandidateGeneRankSumTestResult(Entity):
+	"""
+	2008-07-17
+	"""
+	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	statistic = Field(Float)
+	pvalue = Field(Float)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_gene_rank_sum_test_result')
+	using_table_options(mysql_engine='InnoDB')
+
 class Stock_250kDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
@@ -186,5 +201,4 @@ if __name__ == '__main__':
 	from pymodule import ProcessOptions
 	main_class = Stock_250kDB
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
-	
 	instance = main_class(**po.long_option2value)
