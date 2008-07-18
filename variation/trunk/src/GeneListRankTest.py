@@ -73,7 +73,7 @@ class GeneListRankTest(object):
 							("min_distance", 1, int): [50000, 'm', 1, ''],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							("output_fname", 0, ): [None, 'o', 1, ''],\
-							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
+							('commit', 0, int):[0, 'c', 0, 'this commit means something different. if enabled, it will commit in the end. If not, commit every db operation.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -126,8 +126,10 @@ class GeneListRankTest(object):
 		sys.stderr.write("Done.\n")
 		return chrpos2pvalue
 	
-	def getGeneID2hit(self, rm, snps_context_wrapper):
+	def getGeneID2hit(self, rm, snps_context_wrapper, results_directory=None):
 		"""
+		2008-07-17
+			add results_directory in case of results in a different directory
 		2008-07-17
 			no do_log10_transformation
 		2008-07-16
@@ -135,7 +137,11 @@ class GeneListRankTest(object):
 		"""
 		sys.stderr.write("Getting gene_id2hit ... \n")
 		
-		genome_wide_result = getGenomeWideResultFromFile(rm.filename)
+		if results_directory:	#given a directory where all results are.
+			result_fname = os.path.join(results_directory, os.path.basename(rm.filename))
+		else:
+			result_fname = rm.filename
+		genome_wide_result = getGenomeWideResultFromFile(result_fname)
 		
 		gene_id2hit = {}
 		counter = 0
