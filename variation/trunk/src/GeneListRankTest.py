@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 """
 Examples:
-	GeneListRankTest.py -e 389 -l 1 -u yh
+	GeneListRankTest.py -e 389 -l 1 -u yh -c
+	
+	#debug, quick testing
+	GeneListRankTest.py -e 389,190 -l 1 -u yh -b
 	
 Description:
 	2008-07-14 program to do pvalue rank test based on a given candidate gene list.
+	
+	It verifies against the db several things:
+	1. whether the results_method_id is available
+	2. whether results_method_type_id is 1 (association)
+	3. whether the same (results_method_id, list_type_id) pair has been in the candidate_gene_rank_sum_test_result table.
 	
 """
 
@@ -20,10 +28,9 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import PassingData, figureOutDelimiter
-from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList
+from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, CandidateGeneRankSumTestResult
 from Results2DB_250k import Results2DB_250k
-from GenomeBrowser import GenomeBrowser
-import rpy
+from pymodule import getGenomeWideResultFromFile
 
 from pymodule.db import TableClass
 class SnpsContextWrapper(TableClass):
@@ -112,22 +119,23 @@ class GeneListRankTest(object):
 		sys.stderr.write("Getting chrpos2pvalue ...")
 		rm = ResultsMethod.get(results_method_id)
 		
-		genome_wide_result = GenomeBrowser.getGenomeWideResultFromFile(rm.filename, do_log10_transformation=True)
+		genome_wide_result = getGenomeWideResultFromFile(rm.filename, do_log10_transformation=True)
 		chrpos2pvalue = {}
 		for data_obj in genome_wide_result.data_obj_ls:
 			chrpos2pvalue[(data_obj.chromosome, data_obj.position)] = data_obj.value
 		sys.stderr.write("Done.\n")
 		return chrpos2pvalue
 	
-	def getGeneID2hit(self, results_method_id, snps_context_wrapper):
+	def getGeneID2hit(self, rm, snps_context_wrapper):
 		"""
+		2008-07-17
+			no do_log10_transformation
 		2008-07-16
 			reverse the order of 1st-read results file, 2nd-read db.snps_context
 		"""
 		sys.stderr.write("Getting gene_id2hit ... \n")
 		
-		rm = ResultsMethod.get(results_method_id)
-		genome_wide_result = GenomeBrowser.getGenomeWideResultFromFile(rm.filename, do_log10_transformation=True)
+		genome_wide_result = getGenomeWideResultFromFile(rm.filename)
 		
 		gene_id2hit = {}
 		counter = 0
@@ -187,7 +195,8 @@ class GeneListRankTest(object):
 		writer.writerow(['gene-id', 'chromosome', 'position', 'snps-id', 'disp_pos', 'pvalue', 'rank'])
 		gene_id_ls = gene_id2hit.keys()
 		gene_id_ls.sort()
-		pvalue_ls = [-gene_id2hit[gene_id].pvalue for gene_id in gene_id_ls]
+		pvalue_ls = [gene_id2hit[gene_id].pvalue for gene_id in gene_id_ls]
+		import rpy
 		rank_ls = rpy.r.rank(pvalue_ls)
 		for i in range(len(gene_id_ls)):
 			gene_id = gene_id_ls[i]
@@ -198,29 +207,73 @@ class GeneListRankTest(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
+	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id):
+		"""
+		2008-07-17
+			split out as a standalone function so that MpiGeneListRankTest.py could call it more easily.
+		"""
+		if self.debug:
+			sys.stderr.write("Running wilcox test ... ")
+		rm = ResultsMethod.get(results_method_id)
+		if not rm:
+			sys.stderr.write("No results method available for results_method_id=%s.\n"%results_method_id)
+			return None
+		if rm.results_method_type_id!=1:
+			sys.stderr.write("skip non-association results. results_method_type_id=%s, results_method_id=%s.\n"%(rm.results_method_type_id, results_method_id))
+			return None
+		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=results_method_id).filter_by(list_type_id=self.list_type_id)
+		if db_results.count()>0:	#done before
+			db_result = db_results.first()
+			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
+							(db_result.id, db_result.results_method_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
+			return None
+		
+		try:
+			gene_id2hit = self.getGeneID2hit(rm, snps_context_wrapper)
+			#if getattr(self, 'output_fname', None):
+			#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
+			candidate_gene_list = self.getGeneList(list_type_id)
+			passingdata = self.prepareDataForRankTest(candidate_gene_list, gene_id2hit)
+			import rpy
+			w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
+		except:
+			traceback.print_exc()
+			print sys.exc_info()
+			return None
+		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=list_type_id, statistic=w_result['statistic']['W'],\
+																			pvalue=w_result['p.value'])
+		candidate_gene_rank_sum_test_result.results_method = rm
+		if self.debug:
+			sys.stderr.write("Done.\n")
+		return candidate_gene_rank_sum_test_result
+	
 	def run(self):
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		session = db.session
+		if self.commit:
+			session.begin()
 		#chrpos2pvalue = self.getChrPos2Pvalue(self.results_method_id)
 		#gene_id2hit = self.getGeneID2hit(chrpos2pvalue, self.min_distance)
 		snps_context_wrapper = self.constructDataStruc(self.min_distance)
+		
 		if getattr(self, 'output_fname', None):
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
-			writer.writerow(['results_method_id', 'wilcox.test.pvalue', 'statistic'])
+			writer.writerow(['results_method_id', 'list_type_id', 'wilcox.test.pvalue', 'statistic'])
 		else:
 			writer = None
 		for results_method_id in self.results_method_id_ls:
-			gene_id2hit = self.getGeneID2hit(results_method_id, snps_context_wrapper)
-			#if getattr(self, 'output_fname', None):
-			#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
-			candidate_gene_list = self.getGeneList(self.list_type_id)
-			passingdata = self.prepareDataForRankTest(candidate_gene_list, gene_id2hit)
-			
-			w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
-			row = [ results_method_id, w_result['p.value'], w_result['statistic']]
-			print row
-			if writer:
-				writer.writerow(row)
+			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id)
+			if candidate_gene_rank_sum_test_result is not None:
+				row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, candidate_gene_rank_sum_test_result.statistic]
+				print row
+				if writer:
+					writer.writerow(row)
+				session.save(candidate_gene_rank_sum_test_result)
+				session.flush()
+		if self.commit:
+			session.flush()
+			session.commit()
 		#print passingdata.candidate_gene_pvalue_list
 		
 if __name__ == '__main__':
