@@ -1069,45 +1069,10 @@ def parse250KDataFiles(imputed = True):
 
 
 
-
-"""
-def parseDataFile(filename, missingDataLimit = 0, filterProb=1):
-    snps = []
-    positions = []
-    f = open(filename, 'r')
-    lines =	f.readlines()
-    f.close()
-    accessions = (lines[0].rstrip()).split()
-    accessions = accessions[1:len(accessions)-1]
-    num = len(accessions)	
-    decoder	= {'N':-1}
-    i =1
-    while i < len(lines) and lines[i][0].isdigit():
-        if random.random()<=filterProb:
-            line = (lines[i].rstrip()).split()
-            snp = line[1:num+1]
-            if (snp.count('N') <= float(num)*missingDataLimit) and int('A' in snp)+ int('C' in snp) + int('G' in snp) + int('T' in snp)==2:
-                snp = []
-                k = 0
-                
-                for lt in ['A','C','G','T']:
-                    if lt in line[1:num+1]:
-                        decoder[lt]=k
-                        k = k+1
-                for j in range(1,num+1):
-                    snp.append(decoder[line[j]])
-                snps.append(snp)
-                positions.append(int(line[0]))
-		
-        i = i+1
-    print "File loaded, filtered, and converted."		
-    snpsd = SnpsData(snps,positions)
-    return snpsd
-"""
-
 def parseMSFile(filename, baseScale=1000000):
+    import random
     f = open(filename, 'r')
-    lines =	f.readlines()
+    lines = f.readlines()
     f.close()
     i=0
     data = []

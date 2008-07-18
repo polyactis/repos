@@ -16,7 +16,8 @@ Option:
 	--onlyQuantitative          Outputs only quantitative phenotypes
 	--onlyReplicates            Outputs phenotypes which have replicates, with the replicates
 	--includeSD                 Include standard deviations (if available) as phenotypes.
-	--orderByGenotypeFile=...   Order the accessions so that they match the accessions in the given genotype file.
+	--orderByGenotypeFile=...   Order the accessions so that they match the accessions in the given genotype file. 
+	                            Phenotypes which are not in the genotype file are not included in the phenotype file.
 	--onlyPublishable           Outputs only the publishable phentotypic values.
 	-h, --help	            show this help
 
