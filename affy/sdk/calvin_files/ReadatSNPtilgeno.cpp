@@ -16,8 +16,8 @@ ReadatSNPtilgeno::ReadatSNPtilgeno(int _ecotypeid)\
 	#endif
 }
 
-ReadatSNPtilgeno::ReadatSNPtilgeno(char* _celFileName, char* _cdfFileName, char* _probeSubsetFname, char* _outputFileName, int _ecotypeid)\
-	:celFileName(_celFileName), cdfFileName(_cdfFileName), probeSubsetFname(_probeSubsetFname), outputFileName(_outputFileName), ecotypeid(_ecotypeid)
+ReadatSNPtilgeno::ReadatSNPtilgeno(char* _celFileName, char* _cdfFileName, char* _probeSubsetFname, char* _outputFileName, int _ecotypeid, int _debug)\
+	:celFileName(_celFileName), cdfFileName(_cdfFileName), probeSubsetFname(_probeSubsetFname), outputFileName(_outputFileName), ecotypeid(_ecotypeid), debug(_debug)
 {
 	#if defined(DEBUG)
 		std::cerr<<"ReadatSNPtilgeno Begins"<<std::endl;
@@ -169,17 +169,15 @@ void ReadatSNPtilgeno::_readCEL(char* celFileName, char* cdfFileName, intensity_
 			{
 				cdfProbeSetInfo.GetGroupInformation(igroup, group);
 				alleles += group.GetName();
-				#if defined(DEBUG)
+				if (debug!=0)
 					std::cerr<< probeSetName << " group " << igroup << " " << group.GetName() << " " << alleles <<std::endl;
-				#endif
 				group.GetCell(0, probe);
 				intensity = cel.GetIntensity(probe.GetX(), probe.GetY());
 				data_matrix[row_index][igroup] = intensity;
 			}
 			snpID2alleles[probeSetName] = alleles;
-			#if defined(DEBUG)
+			if (debug!=0)
 				std::cerr<< (probeSetName==(*snpID2index_it).first) <<std::endl;
-			#endif
 		}
 	}
 	#if defined(DEBUG)
@@ -259,9 +257,8 @@ void ReadatSNPtilgeno::_outputCEL(char* outputFileName, intensity_matrix_type& d
 		snpID += "_";
 		if (snpID2alleles_it!=snpID2alleles.end())
 			snpID += (*snpID2alleles_it).second;
-		#if defined(DEBUG)
+		if (debug!=0)
 			std::cerr<< (*snpID2alleles_it).second <<std::endl;
-		#endif
 		out << snpID;
 		for (int j=0; j<numberOfColumns; j++)
 		{
@@ -302,22 +299,25 @@ BOOST_PYTHON_MODULE(ReadatSNPtilgeno)
 void print_usage(FILE* stream,int exit_code)
 {
 	assert(stream !=NULL);
-        fprintf(stream,"Usage: ReadatSNPtilgeno options -i celFileName -d cdfFileName -e ecotypeid -p probeSubsetFname\n");
+    fprintf(stream,"Usage: ReadatSNPtilgeno options -i celFileName -d cdfFileName -e ecotypeid -p probeSubsetFname\n");
 	fprintf(stream,"\t-h  --help	Display the usage infomation.\n"\
 		"\t-o ..., --output=...	Write output to file, ReadatSNPtilgeno.output(default)\n"\
 		"\t-i ..., --input=...	celFileName\n"\
 		"\t-d ...,	cdfFileName\n"\
 		"\t-e ...,	ecotypeid\n"\
 		"\t-p ...,	probeSubsetFname\n"\
+		"\t-b,	toggle debug mode, more output\n"\
 		"\tFor long option, = or ' '(blank) is same.\n"\
 		"\tLine tokenizer is one tab\n");
+	fprintf(stream, "Examples:\n");
+	fprintf(stream, "\tReadatSNPtilgeno -i /Network/Data/250k/db/raw_data/160_raw_data.cel -d /Network/Data/250k/raw_data/atSNPtil_geno.cdf -e 1 -p ~/script/affy/250k_test/250kprobe_subset.txt  -o /tmp/160.tsv\n");
 	exit(3);
 }
 
 int main(int argc, char* argv[])
 {
 	int next_option;
-	const char* const short_options="ho:i:d:e:p:";
+	const char* const short_options="ho:i:d:e:p:b";
 	const struct option long_options[]={
 	  {"help",0,NULL,'h'},
 	  {"output",1,NULL,'o'},
@@ -330,6 +330,7 @@ int main(int argc, char* argv[])
 	char* cdfFileName = NULL;
 	char* probeSubsetFname = NULL;
 	int ecotypeid = -1;
+	int debug = 0;
 
 	do
 	{
@@ -354,6 +355,9 @@ int main(int argc, char* argv[])
 		case 'p':
 			probeSubsetFname = optarg;
 			break;
+		case 'b':
+			debug = 1;
+			break;
 		case '?':
 			print_usage(stderr,-1);
 		case -1:
@@ -366,7 +370,7 @@ int main(int argc, char* argv[])
 	if (celFileName!=NULL && cdfFileName!=NULL && ecotypeid!=-1 && probeSubsetFname!=NULL)
 	{
 		
-		ReadatSNPtilgeno instance(celFileName, cdfFileName, probeSubsetFname, output_filename, ecotypeid);
+		ReadatSNPtilgeno instance(celFileName, cdfFileName, probeSubsetFname, output_filename, ecotypeid, debug);
 		instance.run();
 		
 	}

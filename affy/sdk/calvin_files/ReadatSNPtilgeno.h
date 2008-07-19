@@ -42,12 +42,13 @@ class ReadatSNPtilgeno
 		char* celFileName;
 		char* cdfFileName;
 		char* outputFileName;
+		int debug;	//2008-07-18
 		
 		std::map<std::string, int > snpID2index;
 		std::map<std::string, std::string> snpID2alleles;
 		//boost::python::numeric::array data_matrix;
 		
-		ReadatSNPtilgeno(char* _celFileName, char* _cdfFileName, char* _probeSubsetFname, char* _outputFileName, int _ecotypeid);
+		ReadatSNPtilgeno(char* _celFileName, char* _cdfFileName, char* _probeSubsetFname, char* _outputFileName, int _ecotypeid, int _debug);
 		ReadatSNPtilgeno(int _ecotypeid);
 		~ReadatSNPtilgeno();
 		void constructsnpID2index(char* probeSubsetFname);
