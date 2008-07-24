@@ -72,8 +72,9 @@ class GeneListRankTest(object):
 							("results_method_id_ls", 1, ): [None, 'e', 1, 'comma-separated results_method_id list'],\
 							("min_distance", 1, int): [50000, 'm', 1, ''],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
+							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_fname", 0, ): [None, 'o', 1, ''],\
-							('commit', 0, int):[0, 'c', 0, 'this commit means something different. if enabled, it will commit in the end. If not, commit every db operation.'],\
+							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -128,6 +129,8 @@ class GeneListRankTest(object):
 	
 	def getGeneID2hit(self, rm, snps_context_wrapper, results_directory=None):
 		"""
+		2008-07-21
+			based on the analysis method id, whether do -log() or not. it'll affect the later step of taking maximum pvalue out of SNPs associated with one gene
 		2008-07-17
 			add results_directory in case of results in a different directory
 		2008-07-17
@@ -136,12 +139,17 @@ class GeneListRankTest(object):
 			reverse the order of 1st-read results file, 2nd-read db.snps_context
 		"""
 		sys.stderr.write("Getting gene_id2hit ... \n")
-		
 		if results_directory:	#given a directory where all results are.
 			result_fname = os.path.join(results_directory, os.path.basename(rm.filename))
 		else:
 			result_fname = rm.filename
-		genome_wide_result = getGenomeWideResultFromFile(result_fname)
+		
+		#based on the analysis method id, whether do -log() or not. it'll affect the later step of taking maximum pvalue out of SNPs associated with one gene
+		if rm.analysis_method_id==5 or rm.analysis_method_id==6:
+			do_log10_transformation = False
+		else:
+			do_log10_transformation = True
+		genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation)
 		
 		gene_id2hit = {}
 		counter = 0
@@ -213,7 +221,7 @@ class GeneListRankTest(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id):
+	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id, results_directory=None):
 		"""
 		2008-07-17
 			split out as a standalone function so that MpiGeneListRankTest.py could call it more easily.
@@ -233,9 +241,8 @@ class GeneListRankTest(object):
 			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
 							(db_result.id, db_result.results_method_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
 			return None
-		
 		try:
-			gene_id2hit = self.getGeneID2hit(rm, snps_context_wrapper)
+			gene_id2hit = self.getGeneID2hit(rm, snps_context_wrapper, results_directory)
 			#if getattr(self, 'output_fname', None):
 			#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
 			candidate_gene_list = self.getGeneList(list_type_id)
@@ -257,8 +264,8 @@ class GeneListRankTest(object):
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		session = db.session
-		if self.commit:
-			session.begin()
+		#if self.commit:
+		#	session.begin()
 		#chrpos2pvalue = self.getChrPos2Pvalue(self.results_method_id)
 		#gene_id2hit = self.getGeneID2hit(chrpos2pvalue, self.min_distance)
 		snps_context_wrapper = self.constructDataStruc(self.min_distance)
@@ -269,17 +276,18 @@ class GeneListRankTest(object):
 		else:
 			writer = None
 		for results_method_id in self.results_method_id_ls:
-			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id)
+			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id, results_directory=self.results_directory)
 			if candidate_gene_rank_sum_test_result is not None:
 				row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, candidate_gene_rank_sum_test_result.statistic]
 				print row
 				if writer:
 					writer.writerow(row)
 				session.save(candidate_gene_rank_sum_test_result)
-				session.flush()
-		if self.commit:
-			session.flush()
-			session.commit()
+				if self.commit:
+					session.flush()
+		#if self.commit:
+		#	session.flush()
+		#	session.commit()
 		#print passingdata.candidate_gene_pvalue_list
 		
 if __name__ == '__main__':
