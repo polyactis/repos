@@ -55,7 +55,6 @@ class GeneList(Entity):
 	using_table_options(UniqueConstraint('gene_id', 'list_type_id'))
 
 
-
 class Snps(Entity):
 	name = Field(String(200), unique=True, nullable = False)
 	chromosome = Field(Integer)
@@ -82,7 +81,7 @@ class SnpsContext(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='snps_context')
 	using_table_options(mysql_engine='InnoDB')
-
+	using_table_options(UniqueConstraint('snps_id', 'gene_id'))
 
 class CallMethod(Entity):
 	short_name = Field(String(20))
@@ -170,6 +169,21 @@ class CandidateGeneRankSumTestResult(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_rank_sum_test_result')
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('results_method_id', 'list_type_id'))
+
+class ResultsByGene(Entity):
+	"""
+	2008-07-19
+	"""
+	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	snp = ManyToOne('Snps', colname='snps_id', ondelete='CASCADE', onupdate='CASCADE')
+	gene_id = Field(Integer)
+	disp_pos = Field(Integer)
+	score = Field(Float)
+	rank = Field(Float)
+	using_options(tablename='results_by_gene')
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('results_method_id', 'snps_id', 'gene_id'))
 
 class Stock_250kDB(ElixirDB):
 	__doc__ = __doc__
