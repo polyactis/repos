@@ -35,6 +35,7 @@ from pymodule.db import ElixirDB
 class GeneListType(Entity):
 	short_name = Field(String(256), unique=True)
 	description = Field(String(8192))
+	gene_list = OneToMany('GeneList')
 	created_by = Field(String(128))
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
@@ -44,7 +45,7 @@ class GeneListType(Entity):
 
 class GeneList(Entity):
 	gene_id = Field(Integer)
-	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE', inverse='gene_list')
 	original_name = Field(String(128))
 	created_by = Field(String(128))
 	updated_by = Field(String(128))
@@ -216,3 +217,9 @@ if __name__ == '__main__':
 	main_class = Stock_250kDB
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
+	
+	"""
+	rows = GeneListType.query.all()
+	for row in rows:
+		print row.gene_list[0].list_type_id
+	"""
