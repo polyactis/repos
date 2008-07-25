@@ -2,7 +2,8 @@
 """
 
 Examples:
-	mpiexec ~/script/variation/src/MpiGeneListRankTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -o ~/mpigene_list_rank_test.out -s 100 -c -b
+	#run it on hpc-cmb cluster
+	mpiexec ~/script/variation/src/MpiGeneListRankTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -o ~/mpigene_list_rank_test.out -s 100 -c
 
 	#test parallel run on desktop, using Strain X SNP format
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiGeneListRankTest.py -u yh -p passw**d -s 100 -b -c
@@ -66,7 +67,6 @@ class MpiGeneListRankTest(GeneListRankTest):
 					list_type_id_ls.append(row.id)
 				i += 1
 			rows = GeneListType.query.offset(i).limit(block_size)
-		print list_type_id_ls
 		sys.stderr.write("%s candidate gene lists. "%(len(list_type_id_ls)))
 		
 		i = 0
