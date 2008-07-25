@@ -174,7 +174,7 @@ class GeneListRankTest(object):
 		candidate_gene_list = []
 		for row in rows:
 			candidate_gene_list.append(row.gene_id)
-		sys.stderr.write("Done.\n")
+		sys.stderr.write("%s genes. Done.\n"%(len(candidate_gene_list)))
 		return candidate_gene_list
 	
 	def prepareDataForRankTest(self, candidate_gene_list, gene_id2hit):
@@ -223,6 +223,8 @@ class GeneListRankTest(object):
 	
 	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id, results_directory=None):
 		"""
+		2008-07-24
+			fix a bug. still using self.list_type_id, rather than just list_type_id in one line
 		2008-07-17
 			split out as a standalone function so that MpiGeneListRankTest.py could call it more easily.
 		"""
@@ -235,7 +237,7 @@ class GeneListRankTest(object):
 		if rm.results_method_type_id!=1:
 			sys.stderr.write("skip non-association results. results_method_type_id=%s, results_method_id=%s.\n"%(rm.results_method_type_id, results_method_id))
 			return None
-		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=results_method_id).filter_by(list_type_id=self.list_type_id)
+		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=results_method_id).filter_by(list_type_id=list_type_id)
 		if db_results.count()>0:	#done before
 			db_result = db_results.first()
 			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
@@ -250,8 +252,9 @@ class GeneListRankTest(object):
 			import rpy
 			w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
 		except:
+			sys.stderr.write("results_method_id=%s, list_type_id=%s.\n"%(results_method_id, list_type_id))
 			traceback.print_exc()
-			print sys.exc_info()
+			sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 			return None
 		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=list_type_id, statistic=w_result['statistic']['W'],\
 																			pvalue=w_result['p.value'])
