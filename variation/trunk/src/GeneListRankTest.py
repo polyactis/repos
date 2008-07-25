@@ -80,14 +80,19 @@ class GeneListRankTest(object):
 	
 	def __init__(self,  **keywords):
 		"""
+		2008-07-24
+			split results_method_id_ls if it exists, to accomodate MpiGeneListRankTest which removed this option
 		2008-07-10
 		"""
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
-		results_method_id_ls = self.results_method_id_ls.split(',')
-		self.results_method_id_ls = map(int, results_method_id_ls)
-		self.results_method_id_ls.sort()
+		if getattr(self, 'results_method_id_ls', None):
+			results_method_id_ls = self.results_method_id_ls.split(',')
+			self.results_method_id_ls = map(int, results_method_id_ls)
+			self.results_method_id_ls.sort()
+		else:
+			self.results_method_id_ls = []
 			
 	def constructDataStruc(self, min_distance=50000):
 		"""
