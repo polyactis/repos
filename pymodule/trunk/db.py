@@ -228,6 +228,39 @@ def formReadmeObj(argv, ad, READMEClass):
 	readme = READMEClass(title=' '.join(argv), description='; '.join(readme_description_ls))
 	return readme
 
+def db_connect(hostname, dbname, schema=None, password=None, user=None):
+	"""
+	2008-07-29
+		copied from annot.bin.codense.common
+		add the code to deal with importing psycopg
+	2007-03-07
+		add password and user two options
+	02-28-05
+		establish database connection, return (conn, curs).
+		copied from CrackSplat.py
+	03-08-05
+		parameter schema is optional
+	"""
+	connection_string = 'host=%s dbname=%s'%(hostname, dbname)
+	if password:
+		connection_string += ' password=%s'%password
+	if user:
+		connection_string += ' user=%s'%user
+	
+	try:
+		import psycopg
+	except ImportError:
+		try:
+			import psycopg2 as psycopg
+		except ImportError:
+			sys.stderr.write("Neither psycopg nor psycopg2 is installed.\n")
+			raise
+	conn = psycopg.connect(connection_string)
+	curs = conn.cursor()
+	if schema:
+		curs.execute("set search_path to %s"%schema)
+	return (conn, curs)
+
 if __name__ == '__main__':
 	from pymodule import process_options, generate_program_doc
 	main_class = Database
