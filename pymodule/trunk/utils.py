@@ -128,3 +128,55 @@ def get_gene_symbol2gene_id_set(curs, tax_id, table='genome.gene_symbol2id', upp
 		gene_symbol2gene_id_set[gene_symbol].add(gene_id)
 	sys.stderr.write("Done.\n")
 	return gene_symbol2gene_id_set
+
+class FigureOutTaxID(object):
+	__doc__ = "2008-07-29 class to figure out tax_id using postgres database taxonomy schema"
+	option_default_dict = {('hostname', 1, ): ['localhost', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['graphdb', 'd', 1, 'database name', ],\
+							('schema', 1, ): ['taxonomy', 'k', 1, 'database schema name', ],\
+							('db_user', 0, ): [None, 'u', 1, 'database username', ],\
+							('db_passwd', 0, ): [None, 'p', 1, 'database password', ],\
+							}
+	def __init__(self,  **keywords):
+		"""
+		2008-07-29
+		"""
+		from ProcessOptions import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)		
+	
+	def curs(self):
+		from db import db_connect
+		conn, curs =  db_connect(self.hostname, self.dbname, self.schema, user=self.db_user, password=self.db_passwd)
+		return curs
+	
+	curs = property(curs)
+	
+	def scientific_name2tax_id(self):
+		scientific_name2tax_id = {}
+		curs = self.curs
+		curs.execute("SELECT n.name_txt, n.tax_id FROM taxonomy.names n, taxonomy.nodes o where n.name_class='scientific name' and n.tax_id=o.tax_id and o.rank='species'")
+		rows = curs.fetchall()
+		for row in rows:
+			scientific_name, tax_id = row
+			scientific_name2tax_id[scientific_name] = tax_id
+		return scientific_name2tax_id
+	
+	scientific_name2tax_id = property(scientific_name2tax_id)
+	
+	def returnTaXIDGivenScientificName(self, scientific_name):
+		return self.scientific_name2tax_id.get(scientific_name)
+	
+	def returnTaxIDGivenSentence(self, sentence):
+		"""
+		2008-07-29
+		"""
+		tax_id_to_return = None
+		for scientific_name, tax_id in self.scientific_name2tax_id.iteritems():
+			if sentence.find(scientific_name)>=0:
+				tax_id_to_return = tax_id
+				break
+		return tax_id_to_return
+	
+if __name__ == '__main__':
+	FigureOutTaxID_ins = FigureOutTaxID()
+	print FigureOutTaxID_ins.returnTaxIDGivenSentence('>gi|172045488|ref|NW_001867254.1| Physcomitrella patens subsp. patens PHYPAscaffold_10696, whole genome shotgun sequence')
