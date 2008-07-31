@@ -34,6 +34,7 @@ from pymodule.db import ElixirDB
 
 class GeneListType(Entity):
 	short_name = Field(String(256), unique=True)
+	original_filename = Field(String(760), unique=True)	#for unique constraint in mysql, max key length is 767 bytes
 	description = Field(String(8192))
 	gene_list = OneToMany('GeneList')
 	created_by = Field(String(128))
