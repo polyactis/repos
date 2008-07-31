@@ -3,11 +3,12 @@
 
 Examples:
 	PutGeneListIntoDB.py -i /Network/Data/250k/candidate_genes_GWA/anthocyanin.csv -l 4 -u yh -c
-
+	
+	PutGeneListIntoDB.py -i /Network/Data/250k/candidate_genes_GWA/hyaloperonaspora2.csv -s Hyaloperonaspora2 -u yh -c
 Description:
 	2008-07-03 put gene list into db, stock_250k
 	
-	If list_type_name is given, list_type_id would be ignored although it's still required option (put a random number there).
+	If list_type_name is given, list_type_id would be ignored.
 	
 	Program will avoid redundant genes in the input files. 
 
@@ -36,7 +37,7 @@ class PutGeneListIntoDb(object):
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							("input_fname", 1, ): [None, 'i', 1, ''],\
 							("delimiter", 1, ): [',', '', 1, ''],\
-							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
+							("list_type_id", 0, int): [-1, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							("list_type_name", 0, ): [None, '', 1, 'Gene list type short name. if given, list_type_id would be ignored.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -49,9 +50,9 @@ class PutGeneListIntoDb(object):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-		"""
-		2008-07-03 put gene list into db, stock_250k
-		"""
+		if self.list_type_id==-1 and self.list_type_name is None:
+			sys.stderr.write("Error: None of list_type_id and list_type_name is specified.\n")
+			sys.exit(3)
 		
 	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, mysql_curs, db):
 		"""
@@ -73,13 +74,6 @@ class PutGeneListIntoDb(object):
 		success_counter = 0
 		import re
 		p_acc_ver = re.compile(r'(\w+)\.(\d+)')
-		
-		if list_type_name:	#if the short name is given, forget about list_type_id
-			glt = GeneListType.query.filter_by(short_name=list_type_name).first()	#try search the db first.
-			if not glt:
-				glt = GeneListType(short_name=list_type_name)
-				session.save(glt)
-				session.flush()
 		
 		gene_id2original_name = {}	#to avoid redundancy in gene list
 		for row in reader:
@@ -104,11 +98,19 @@ class PutGeneListIntoDb(object):
 			counter += 1
 		del reader
 		
+		if list_type_name:	#if the short name is given, forget about list_type_id
+			glt = GeneListType.query.filter_by(short_name=list_type_name).first()	#try search the db first.
+			if not glt:
+				glt = GeneListType(short_name=list_type_name)
+				session.save(glt)
+				session.flush()
+		else:	#use the list_type_id to get it
+			glt = GeneListType.get(list_type_id)
+		glt.original_filename = input_fname	#save the filename
+		session.save_or_update(glt)
+		
 		for gene_id, original_name in gene_id2original_name.iteritems():
-			if list_type_name:
-				gl = GeneList(gene_id=gene_id, list_type=glt, original_name=original_name)
-			else:
-				gl = GeneList(gene_id=gene_id, list_type_id=list_type_id, original_name=original_name)
+			gl = GeneList(gene_id=gene_id, list_type=glt, original_name=original_name)
 			session.save(gl)
 		sys.stderr.write("%s/%s linked successfully.\n"%(success_counter, counter))
 		
