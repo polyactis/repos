@@ -3,6 +3,9 @@
 
 Examples:
 	DrawSNPMatrix.py -i ./2010_with_149snps_ecotype2accession.csv -o /tmp/2010_with_149snps_ecotype2accession_y4 -y4
+	
+	#use a custom font and a smaller font size to reduce memory usage
+	DrawSNPMatrix.py -i /tmp/alignment_1843.matrix  -o /tmp/alignment_1843_fig_y4 -f FreeSerif.ttf  -n 6 -y4
 
 Description:
 	Program to draw image for a strain X snp matrix. input_fname's format is like the one outputted by dbSNP2data.py
@@ -44,6 +47,7 @@ class DrawSNPMatrix:
 							('row_label_type', 1, int):[1, 'x', 1, 'type of labels for row, check Description'],\
 							('drawing_type', 1, int):[1, 'y', 1, 'Drawing type, check Description'],\
 							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'f', 1, 'path of the font used to draw labels'],\
+							('font_size', 1, int):[20, 'n', 1, 'size of font, which determines the size of the whole figure.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	"""
@@ -51,6 +55,8 @@ class DrawSNPMatrix:
 	"""
 	def __init__(self,  **keywords):
 		"""
+		2008-08-01
+			add font_path and font_size
 		2008-07-31
 			use option_default_dict
 		2007-11-02
@@ -173,7 +179,7 @@ class DrawSNPMatrix:
 		row_label_type2label_ls = {1:strain_acc_list,
 			2:category_list}
 		
-		font = get_font(self.font_path)
+		font = get_font(self.font_path, font_size=self.font_size)	#2008-08-01
 		im = drawLegend(matrix_value2label, matrix_value2color, font)
 		im.save('%s_legend.png'%self.output_fname_prefix)
 		im = drawMatrix(data_matrix, matrix_value2color, row_label_type2label_ls[self.row_label_type], snp_acc_ls, with_grid=1, font=font)
