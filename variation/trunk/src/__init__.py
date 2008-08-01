@@ -6,7 +6,14 @@ if bit_number>40:       #64bit
 else:   #32bit
     sys.path.insert(0, os.path.expanduser('~/lib/python'))
     sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-import psycopg2 as psycopg
+try:
+	import psycopg2 as psycopg
+except ImportError:
+	try:
+		import psycopg
+	except ImportError:
+		sys.stderr.write("Neither psycopg nor psycopg2 is installed.\n")
+		raise
 import sys, getopt, csv, re
 from codense.common import db_connect, dict_map
 from common import nt2number, number2nt
