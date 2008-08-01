@@ -1,19 +1,5 @@
 #!/usr/bin/env python
 """
-Usage: DrawSNPMatrix.py [OPTIONS] -i XXX -o OUTPUT_FNAME_PREFIX
-
-Option:
-	-z ..., --hostname=...	the hostname, localhost(default)
-	-d ..., --dbname=...	the database name, dbsnp(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)
-	-i ...,	input_fname
-	-o ...,	output_fname_prefix
-	-s ...,	snps_sequenom_info_table, 'dbsnp.snps_sequenom_info'(default)
-	-x ...,	row label type, 1 (default)
-	-y ...,	drawing_type, 1 (default)
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
 	DrawSNPMatrix.py -i ./2010_with_149snps_ecotype2accession.csv -o /tmp/2010_with_149snps_ecotype2accession_y4 -y4
@@ -42,30 +28,37 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import numpy
-from pymodule.DrawMatrix import drawMatrix, drawLegend
+from pymodule.DrawMatrix import drawMatrix, drawLegend, get_font
 from variation.src.common import nt2number, number2color, number2nt
 
 class DrawSNPMatrix:
+	__doc__ = __doc__
+	option_default_dict = {('hostname', 1, ): ['localhost', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['dbsnp', 'd', 1, 'database name', ],\
+							('schema', 1, ): ['dbsnp', 'k', 1, 'database schema name', ],\
+							('db_user', 0, ): [None, 'u', 1, 'database username', ],\
+							('db_passwd', 0, ): [None, 'p', 1, 'database password', ],\
+							('input_fname', 1, ):[None, 'i', 1, 'SNP matrix to be drawn'],\
+							('output_fname_prefix', 1, ):[None, 'o', 1, 'common prefix for legend and matrix output figures'],\
+							('snps_sequenom_info_table', 1, ):['dbsnp.snps_sequenom_info', 's', 1, 'to get SNP alleles, indices, only for drawing type=2'],\
+							('row_label_type', 1, int):[1, 'x', 1, 'type of labels for row, check Description'],\
+							('drawing_type', 1, int):[1, 'y', 1, 'Drawing type, check Description'],\
+							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'f', 1, 'path of the font used to draw labels'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	"""
 	2007-11-02
 	"""
-	def __init__(self, hostname='localhost', dbname='dbsnp', schema='dbsnp', input_fname='',\
-		output_fname_prefix='', snps_sequenom_info_table='dbsnp.snps_sequenom_info', row_label_type=1, drawing_type=1, debug=0, report=0):
+	def __init__(self,  **keywords):
 		"""
+		2008-07-31
+			use option_default_dict
 		2007-11-02
 		2007-11-05
 			add row_label_type
 		"""
-		self.hostname = hostname
-		self.dbname = dbname
-		self.schema = schema
-		self.input_fname = input_fname
-		self.output_fname_prefix = output_fname_prefix
-		self.snps_sequenom_info_table = snps_sequenom_info_table
-		self.row_label_type = int(row_label_type)
-		self.drawing_type = int(drawing_type)
-		self.debug = int(debug)
-		self.report = int(report)
+		from pymodule import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def transformMatrixIntoTwoAllelesAndHetero(self, data_matrix, snp_allele2index_ls=None):
 		sys.stderr.write("Transforming matrix into Two Alleles and Hetero ...")
@@ -179,12 +172,21 @@ class DrawSNPMatrix:
 			sys.exit(2)
 		row_label_type2label_ls = {1:strain_acc_list,
 			2:category_list}
-		im = drawLegend(matrix_value2label, matrix_value2color)
+		
+		font = get_font(self.font_path)
+		im = drawLegend(matrix_value2label, matrix_value2color, font)
 		im.save('%s_legend.png'%self.output_fname_prefix)
-		im = drawMatrix(data_matrix, matrix_value2color, row_label_type2label_ls[self.row_label_type], snp_acc_ls, with_grid=1)
+		im = drawMatrix(data_matrix, matrix_value2color, row_label_type2label_ls[self.row_label_type], snp_acc_ls, with_grid=1, font=font)
 		im.save('%s.png'%self.output_fname_prefix)
 
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = DrawSNPMatrix
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -239,3 +241,4 @@ if __name__ == '__main__':
 	else:
 		print __doc__
 		sys.exit(2)
+	"""
