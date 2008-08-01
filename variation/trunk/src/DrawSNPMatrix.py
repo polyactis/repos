@@ -16,7 +16,7 @@ Description:
 	 1. original, all 12 colors (including '-'/deletion , 'NA', A,C,G,T, all hets)
 	 2. into 5 colors, '-', NA, allele1, allele2, heterozygous (allele1/allele2 determined by snps_sequenom_info_table)
 	 3. into 4 colors, '-', NA, homozygous, heterozygous
-	 4. into 5 colors, '-', NA, allele1, allele2, heterozygous (allele1/allele2 randomly assigned)
+	 4. into 5 colors, '-', NA, allele1, allele2, heterozygous (allele1/allele2 assigned by "First See, First Assigned")
 	 5. into 6 colors, '-', NA, A,C,G,T (every strain duplicates into two rows (haplotypes))
 	Row label type:
 	 1. 1st column
