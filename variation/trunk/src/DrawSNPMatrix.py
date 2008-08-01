@@ -143,9 +143,10 @@ class DrawSNPMatrix:
 		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
 		curs = conn.cursor()
 		
-		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(self.input_fname)
+		#from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
+		#FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
+		from pymodule import read_data
+		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname)
 		snp_acc_ls = header[2:]
 		if self.debug:
 			import pdb
