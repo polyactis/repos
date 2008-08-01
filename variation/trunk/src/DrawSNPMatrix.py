@@ -138,13 +138,6 @@ class DrawSNPMatrix:
 		return snp_allele2index_ls
 	
 	def run(self):
-		import MySQLdb
-		#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
-		conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
-		curs = conn.cursor()
-		
-		#from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		#FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		from pymodule import read_data
 		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname)
 		snp_acc_ls = header[2:]
@@ -156,6 +149,10 @@ class DrawSNPMatrix:
 			matrix_value2color = number2color
 			data_matrix = numpy.array(data_matrix)
 		elif self.drawing_type==2:
+			import MySQLdb
+			#conn = MySQLdb.connect(db="stock",host='natural.uchicago.edu', user='iamhere', passwd='iamhereatusc')
+			conn = MySQLdb.connect(db=self.dbname,host=self.hostname)
+			curs = conn.cursor()
 			snp_allele2index_ls = self.get_snp_allele2index_ls(curs, snp_acc_ls, self.snps_sequenom_info_table)
 			data_matrix = self.transformMatrixIntoTwoAllelesAndHetero(data_matrix, snp_allele2index_ls)
 			matrix_value2label= {-1:'deletion', 0:'NA', 1:'allele1', 2:'allele2', 3:'hetero'}
