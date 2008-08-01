@@ -41,8 +41,11 @@ def get_text_region(text, dimension, rotate=1, foreground=(0,0,255), background=
 2007-11-02
 	copied from annot.bin.codense.common
 """
-def get_font(font_path = '/usr/share/fonts/truetype/freefont/FreeSerif.ttf'):
-	font_size=20
+def get_font(font_path = '/usr/share/fonts/truetype/freefont/FreeSerif.ttf', font_size=20):
+	"""
+	2008-08-01
+		add font_size option
+	"""
 	import ImageFont
 	font = ImageFont.truetype(font_path, font_size)
 	return font
