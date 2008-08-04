@@ -414,10 +414,12 @@ class GenomeBrowser(object):
 		self.postgres_conn, self.postgres_curs = db_connect(hostname, dbname, schema)
 		sys.stderr.write("Done.\n")
 	
-	def get_gene_id2model(self, curs, entrezgene_mapping_table='sequence.entrezgene_mapping', \
-						annot_assembly_table = 'annot_assembly', gene_table='gene.gene', \
-						gene2go_table='gene.gene2go', tax_id=3702):
+	def get_gene_id2model(self, curs, entrezgene_mapping_table='genome.entrezgene_mapping', \
+						annot_assembly_table = 'genome.annot_assembly', gene_table='genome.gene', \
+						gene2go_table='genome.gene2go', tax_id=3702):
 		"""
+		2008-08-03
+			schema where tables about genes are from is renamed from 'sequence' to 'genome'
 		2008-02-02
 			get all the necessary info for genes.
 			watch, chromosome here is varchar type (because of chromosome X, Y etc)
