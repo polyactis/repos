@@ -747,8 +747,10 @@ import re
 pa_has_characters = re.compile(r'[a-zA-Z_]')
 import math
 
-def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False):
+def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-08-03
+		add pdata (chromosome, start, stop) to restrain data
 	2008-07-17
 		moved from GenomeBrowser.py
 	2008-05-31
@@ -774,15 +776,27 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			stop_pos = None
 			score = float(row[2])
 			column_4th = None
-		elif len(row)==4:
+		elif len(row)>=4:
 			score = float(row[2])
 			column_4th=row[3]
 			stop_pos = None
 			#stop_pos = int(row[2])
 			#score = float(row[3])
+		"""
 		else:
 			sys.stderr.write("only 3 or 4 columns are allowed in input file.\n")
 			return gwr
+		"""
+		if pdata:	#2008-08-03
+			pdata.chromosome = getattr(pdata, 'chromosome', None)
+			pdata.start = getattr(pdata, 'start', None)
+			pdata.stop = getattr(pdata, 'stop', None)
+			if pdata.chromosome!=None and chr!=pdata.chromosome:
+				continue
+			if pdata.start!=None and start_pos<pdata.start:
+				continue
+			if pdata.stop!=None and start_pos>pdata.stop:
+				continue
 		if do_log10_transformation:
 			score = -math.log10(score)
 		if min_value_cutoff is None or score>=min_value_cutoff:
