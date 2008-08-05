@@ -28,6 +28,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
 import getopt, math, numpy
 from pymodule import process_function_arguments, write_data_matrix, read_data, PassingData
+from pymodule.SNP import pa_has_characters
 from variation.src.common import get_ecotypeid2nativename
 from variation.src.dbSNP2data import dbSNP2data
 from sets import Set
@@ -77,6 +78,8 @@ class MergeDuplicatedCalls(object):
 	
 	def get_tg_ecotypeid2ecotypeid_duplicate_index_ls(cls, strain_acc_list, category_list, ecotype_duplicate2tg_ecotypeid=None):
 		"""
+		2008-08-05
+			convert ecotypeid or duplicate into integer if there's no character in it.
 		2008-07-11
 			stop exitting the program if key_pair not found in ecotype_duplicate2tg_ecotypeid.
 			use its immediate ecotypeid as target ecotypeid
@@ -87,8 +90,14 @@ class MergeDuplicatedCalls(object):
 		sys.stderr.write("Getting tg_ecotypeid2ecotypeid_duplicate_index_ls ... ")
 		tg_ecotypeid2ecotypeid_duplicate_index_ls = {}
 		for i in range(len(strain_acc_list)):
-			ecotypeid = int(strain_acc_list[i])
-			duplicate = int(category_list[i])
+			if pa_has_characters.search(strain_acc_list[i]):
+				ecotypeid = strain_acc_list[i]
+			else:
+				ecotypeid = int(strain_acc_list[i])
+			if pa_has_characters.search(category_list[i]):
+				duplicate = category_list[i]
+			else:
+				duplicate = int(category_list[i])
 			key_pair = (ecotypeid, duplicate)
 			if isinstance(ecotype_duplicate2tg_ecotypeid, dict):
 				tg_ecotypeid = ecotype_duplicate2tg_ecotypeid.get(key_pair)
@@ -132,6 +141,12 @@ class MergeDuplicatedCalls(object):
 				no_of_duplicated_rows += 1
 				no_of_non_NA_pairs += passingdata.no_of_non_NA_pairs
 				no_of_non_NA_inconsistent_pairs += passingdata.no_of_non_NA_inconsistent_pairs
+				
+				if passingdata.no_of_non_NA_pairs>0:
+					inconsistent_ratio = passingdata.no_of_non_NA_inconsistent_pairs/float(passingdata.no_of_non_NA_pairs)
+				else:
+					inconsistent_ratio = None
+				print '%s\t%s\t%s\t%s'%(tg_ecotypeid, passingdata.no_of_non_NA_inconsistent_pairs, passingdata.no_of_non_NA_pairs, inconsistent_ratio)
 		sys.stderr.write("%s/%s=%s inconsistency among %s ecotypes who have duplicates. Done.\n"%\
 						(no_of_non_NA_inconsistent_pairs, no_of_non_NA_pairs, \
 						no_of_non_NA_inconsistent_pairs/float(no_of_non_NA_pairs), no_of_duplicated_rows))
