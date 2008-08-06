@@ -1040,8 +1040,8 @@ class SnpsData(_SnpsData_):
 			else:
 				break
 		self.freqs = freqs
-		#return self.freqs
-		return numPairs
+		return self.freqs
+		#return numPairs
 		
 
 
@@ -1380,19 +1380,14 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 	f.write(outStr)
 	import util  #Used to convert val list to stringlist.
 	for i in range(0,len(chromosomes)):
-		outStr=""
 		for j in range(0,len(snpsds[i].positions)):
-			outStr += str(chromosomes[i])+deliminator+str(snpsds[i].positions[j])+deliminator
+			outStr = str(chromosomes[i])+deliminator+str(snpsds[i].positions[j])+deliminator
 			snp = util.valListToStrList(snpsds[i].snps[j])
 			outStr += deliminator.join(snp)+"\n"
-			
-                        #data_row = [chromosomes[i], snpsds[i].positions[j]]
-	                #for k in range(0, len(snpsds[0].accessions)):
-			#	data_row.append(decoder[snpsds[i].snps[j][k]])
-			#writer.writerow(data_row)
-		f.write(outStr)
-	#del writer
-	
+			f.write(outStr)
+			f.flush()
+	f.close()
+
 	if callProbFile:
 		outStr = ""
 		if withArrayIds:
@@ -1402,17 +1397,16 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 		f.write(outStr)
 		f.flush()
 		for i in range(0,len(chromosomes)):
-			outStr = ""
 			snpsd = snpsds[i]
-			snpsds[i] = []
 			for j in range(0,len(snpsd.positions)):
-				outStr += str(chromosomes[i])+deliminator+str(snpsd.positions[j])
+				outStr = str(chromosomes[i])+deliminator+str(snpsd.positions[j])
 				for k in range(0, len(snpsd.accessions)):
 					outStr += deliminator+str(snpsd.callProbabilities[j][k])
 				outStr +="\n"
+				f.write(outStr)
+				f.flush()
 			del snpsd
-			f.write(outStr)
-			f.flush()
+			
 		f.close()
 		
 	sys.stderr.write("Done.\n")

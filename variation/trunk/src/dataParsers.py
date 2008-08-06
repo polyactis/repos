@@ -239,7 +239,7 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
         print "Starting to read file (snps and probabilities)"
         f = open(fileName,"r")
         f.readline()
-        i = 1
+        i = 1  #Skipping first line!
         while i < len(lines):
             chromosomes.append(int(newChr))
             oldChr = newChr
@@ -432,13 +432,18 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
         print "Error %d: %s" % (e.args[0], e.args[1])
         sys.exit (1)
     cursor = conn.cursor ()
-        #Get distinct accessions and their id.
+    
+    locStr = " and l.offset=0 "  
+    if int(dataVersion)==4:           #If using version=4, then allow any locus.offset.
+        locStr = ""
+
+    #Get distinct accessions and their id.
     if only96accessions:
         print 'starting'
-        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and eva.accession_id<97 and l.chromosome=1 order by eva.nativename"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+locStr+" and g.accession=eva.accession_id and eva.accession_id<97 order by eva.nativename"))
         print 'done'
     else:
-        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and l.chromosome=1 order by eva.nativename"))
+        numRows = int(cursor.execute("select distinct eva.ecotype_id, eva.accession_id, eva.nativename from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version="+dataVersion+locStr+" and g.accession=eva.accession_id order by eva.nativename"))
 
     dict = {}
     accessions = []
@@ -458,9 +463,9 @@ def get2010DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", 
     for chromosome in chromosomes:
         print "    Chromosome",chromosome
         if only96accessions:
-            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and eva.accession_id<97 and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
+            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+locStr+" and g.accession=eva.accession_id and eva.accession_id<97 and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
         else:
-            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+" and l.offset=0 and g.accession=eva.accession_id and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
+            numRows = int(cursor.execute("select distinct l.position, g.accession, eva.nativename, al.base from at.genotype g, at.allele al, at.locus l, at.alignment an, at.accession2tg_ecotypeid eva where g.allele=al.id and l.id=al.locus and l.alignment=an.id  and an.version>="+dataVersion+locStr+" and g.accession=eva.accession_id and l.chromosome="+str(chromosome)+" order by l.position, eva.nativename"))
         print "    ",numRows,"rows retrieved."
         positions = []
         snps = []
@@ -857,8 +862,10 @@ def parse2010Data(datafile=None):
     #print positions[4]
     return(chromasomes)
 
+
 def parse250DataRaw(imputed = True):
     """
+    WARNING: OUTDATED
     Returns 250K Data in a list of RawSnpsData objects (one for each chromosome).
 
     Set imputed to False, if un-imputed data is preferred.
@@ -957,6 +964,7 @@ def parse250DataRaw(imputed = True):
 
 def parse250KDataFiles(imputed = True):
     """
+    WARNING: OUTDATED
     Returns 250K Data as a list of SnpsData objects (not RawSnpsData).
     
     Set imputed to False, if un-imputed data is preferred.
@@ -1067,9 +1075,69 @@ def parse250KDataFiles(imputed = True):
     return(chromasomes)
 
 
+def parseMSFile(filename):
+    """
+    Parses a Hudson's ms file.
+
+    Returns a list of snpsdata.
+    """
+    import random
+    f = open(filename, 'r')
+    lines = f.readlines()
+    f.close()
+    i=0
+    data = []
+    while i	< len(lines):
+        line = lines[i]
+        if line.startswith("//"):
+            num =0
+            positions = []
+            snps = []
+            i = i+1			
+            while i < len(lines) and not lines[i].startswith("//"):
+                line = lines[i]	
+                if line.startswith("segsites:"):
+                    num = int(line[9:].rstrip())
+                if line.startswith("positions:"):
+                    l1 = line[10:].rstrip().split()
+                    l2 = [0.0]*len(l1)
+                    for j in range(0,len(l1)):
+                        l2[j]=float(l1[j])
+                        snps.append([])	    #Initializing the snps.
+                    positions = l2
+                if line[0].isdigit():
+                    line = line.rstrip()
+                    snps[0].append(int(line[0]))
+                    for j in range(1,len(positions)):
+                        snps[j].append(int(line[j]))
+                                    
+                i = i+1
+            newSnps = []
+            newPositions = []
+            if len(positions)>0:
+                newSnps.append(snps[0])
+                newPositions.append(positions[0])
+            k = 0 
+            for j in range(1,len(positions)):
+                newSnps.append(snps[j])
+                newPositions.append(positions[j])
+                	
+            newSnpsd = SnpsData(newSnps,newPositions)
+            #print newSnpsd.snps
+            data.append(newSnpsd)
+        else:
+            i = i+1
+    #print len(data[0].snps)
+    return data
 
 
-def parseMSFile(filename, baseScale=1000000):
+
+def parseMSFileBasescale(filename, baseScale=100000):
+    """
+    Parses a Hudson's ms file.
+
+    Returns a list of snpsdata.
+    """
     import random
     f = open(filename, 'r')
     lines = f.readlines()
@@ -1125,9 +1193,12 @@ def parseMSFile(filename, baseScale=1000000):
                             newSnps.append(snps[j])
                             newPositions.append(positions[j])
 			
-            data.append(SnpsData(newSnps,newPositions,baseScale))
+            newSnpsd = SnpsData(newSnps,newPositions,baseScale)
+            #print newSnpsd.snps
+            data.append(newSnpsd)
         else:
             i = i+1
+    #print len(data[0].snps)
     return data
 
 
