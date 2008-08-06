@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg7693"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="alignment_1843_FRI.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/crocea/script/variation/doc/FRI/alignment_1843_FRI.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs7695">
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path8340"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective7701" />
+    <inkscape:perspective
+       id="perspective7787"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective9161"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.1476306"
+     inkscape:cx="290.09275"
+     inkscape:cy="757.62376"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1489"
+     inkscape:window-height="874"
+     inkscape:window-x="311"
+     inkscape:window-y="148" />
+  <metadata
+     id="metadata7698">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       y="246.89684"
+       x="-238.26237"
+       id="image7789"
+       height="104"
+       width="1229"
+       sodipodi:absref="/tmp/alignment_1843_fig_y4_small.png"
+       xlink:href="alignment_1843_fig_y4_small.png" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-125.74257"
+       y="199.88693"
+       id="text7793"><tspan
+         sodipodi:role="line"
+         id="tspan7795"
+         x="-125.74257"
+         y="199.88693">Deletion 1/Insertion 1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="94.514847"
+       y="199.88693"
+       id="text7797"><tspan
+         sodipodi:role="line"
+         id="tspan7799"
+         x="94.514847"
+         y="199.88693">polymorphism Bsm FI site</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="296.45544"
+       y="199.88693"
+       id="text7801"><tspan
+         sodipodi:role="line"
+         id="tspan7803"
+         x="296.45544"
+         y="199.88693">Insertion 2/Deletion 2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="639.48517"
+       y="199.88693"
+       id="text7805"><tspan
+         sodipodi:role="line"
+         id="tspan7807"
+         x="639.48517"
+         y="199.88693">Deletion 3?</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-79.445541"
+       y="405.01566"
+       id="text7809"><tspan
+         sodipodi:role="line"
+         x="-79.445541"
+         y="405.01566"
+         id="tspan9193">Insertion 3?</tspan><tspan
+         sodipodi:role="line"
+         x="-79.445541"
+         y="420.01566"
+         id="tspan9195">  deleted in most strains. but some strains has extra 3 bases.</tspan><tspan
+         sodipodi:role="line"
+         x="-79.445541"
+         y="435.01566"
+         id="tspan9199">this is near where FRI starts.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="176.23763"
+       y="387.01566"
+       id="text7813"><tspan
+         sodipodi:role="line"
+         id="tspan7815"
+         x="176.23763"
+         y="387.01566">Numerous other SNPs (green)</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="M -71.451564,203.65702 L -71.451564,255.93865"
+       id="path7817" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 163.2017,202.82569 L 163.2017,255.10732"
+       id="path9109" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 360.51881,204.56904 L 360.51881,256.85067"
+       id="path9111" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 673.17207,203.73771 L 673.17207,256.01934"
+       id="path9113" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -55.235578,391.41583 L -55.235578,339.1342"
+       id="path9115" />
+    <image
+       y="152.95798"
+       x="-237.54155"
+       id="image9163"
+       height="77"
+       width="76"
+       sodipodi:absref="/tmp/alignment_1843_fig_y4_legend.png"
+       xlink:href="alignment_1843_fig_y4_legend.png" />
+    <rect
+       style="fill:none;stroke:#06e0cc;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect9167"
+       width="44.439392"
+       height="19.169939"
+       x="649.16357"
+       y="283.82217" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="81.03653"
+       y="127.84865"
+       id="text9169"><tspan
+         sodipodi:role="line"
+         id="tspan9171"
+         x="81.03653"
+         y="127.84865">Alignment id=1843, chromosome 4, 268482-271540, encompassing FRI (269026-271503)</tspan></text>
+  </g>
+</svg>
