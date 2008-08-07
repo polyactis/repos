@@ -166,6 +166,8 @@ class Database(object):
 
 class ElixirDB(object):
 	"""
+	2008-08-07
+		expose metadata from elixir
 	2008-07-11
 		elixir db base class
 	"""
@@ -179,6 +181,8 @@ class ElixirDB(object):
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	from elixir import metadata	#2008-08-07
+	metadata = metadata
 	def __init__(self, **keywords):
 		"""
 		2008-07-09
