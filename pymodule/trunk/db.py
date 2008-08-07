@@ -216,6 +216,22 @@ class ElixirDB(object):
 		return self.session.connection
 	connection = property(connection)
 
+from elixir import Entity, Field, using_options, using_table_options
+from elixir import DateTime, String
+from datetime import datetime
+class ElixirREADME(Entity):
+	"""
+	2008-08-07
+	"""
+	title = Field(String(2000))
+	description = Field(String(60000))
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='readme')
+	using_table_options(mysql_engine='InnoDB')
+
 def formReadmeObj(argv, ad, READMEClass):
 	"""
 	2008-05-06
