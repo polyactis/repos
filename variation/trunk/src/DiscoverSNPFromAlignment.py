@@ -36,6 +36,7 @@ class DiscoverSNPFromAlignment(object):
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							("alignment_id", 1, ): [None, 'a', 1, 'id in table at.alignment'],\
 							("output_fname", 1, ): [None, 'o', 1, 'to store the SNP matrix'],\
+							("strain_id_type", 1, int): [1, 'y', 1, 'which type of id used to identify strain. 1(ecotype_id), 2(accession_id)'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -107,11 +108,24 @@ class DiscoverSNPFromAlignment(object):
 		passingdata = self.getAlignmentMatrix(self.alignment_id)
 		self.pickPolymorphicColumns(passingdata)
 		
-		header = ['accession', 'name']
+		header = ['id', 'name']
 		for snp_pos in passingdata.snp_pos_ls:
 			header.append('%s_%s_%s'%snp_pos)
+		
+		if self.strain_id_type==1:
+			ecotype_id_ls = []
+			for accession_id in passingdata.accession_id_ls:
+				rows = db.metadata.bind.execute("select * from %s where accession_id=%s"%('accession2tg_ecotypeid', accession_id))
+				row = rows.fetchone()
+				ecotype_id_ls.append(row.ecotype_id)
+			strain_acc_list = ecotype_id_ls
+		elif self.strain_id_type==2:
+			strain_acc_list = passingdata.accession_id_ls
+		else:
+			sys.stderr.write("strain_id_type %s not supported.\n"%(self.strain_id_type))
+			sys.exit(2)
 		write_data_matrix(passingdata.data_matrix, self.output_fname, header, \
-						passingdata.accession_id_ls, passingdata.name_ls)
+						strain_acc_list, passingdata.name_ls)
 
 
 if __name__ == '__main__':
