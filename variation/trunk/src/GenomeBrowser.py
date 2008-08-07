@@ -42,7 +42,7 @@ from pymodule.yh_matplotlib_artists import Gene
 from variation.src.common import get_chr_pos_from_x_axis_pos
 from pymodule.db import TableClass
 from Results2DB_250k import Results2DB_250k
-from pymodule import GenomeWideResults, GenomeWideResult, DataObject, getGenomeWideResultFromFile
+from pymodule import GenomeWideResults, GenomeWideResult, DataObject, getGenomeWideResultFromFile, PassingData
 
 class GeneModel:
 	def __init__(self, gene_id=None, chromosome=None, symbol = None, description = None, type_of_gene = None, \
@@ -354,6 +354,8 @@ class GenomeBrowser(object):
 	
 	def on_button_filechooser_ok_clicked(self, widget, data=None):
 		"""
+		2008-08-03
+			restrict the data by (chromosome, start, stop)
 		2008-05-31
 			add check button to handle log10 transformation
 		2008-05-28
@@ -377,7 +379,19 @@ class GenomeBrowser(object):
 			min_value_cutoff = float(self.entry_min_value_cutoff.get_text())
 		else:
 			min_value_cutoff = None
-		genome_wide_result = getGenomeWideResultFromFile(input_fname, min_value_cutoff, do_log10_transformation)
+		#2008-08-03
+		pdata = PassingData()
+		entry_chromosome = self.xml.get_widget("entry_chromosome")
+		if entry_chromosome.get_text():
+			pdata.chromosome = int(entry_chromosome.get_text())
+		entry_start = self.xml.get_widget("entry_start")
+		if entry_start.get_text():
+			pdata.start = int(entry_start.get_text())
+		entry_stop = self.xml.get_widget("entry_stop")
+		if entry_stop.get_text():
+			pdata.stop = int(entry_stop.get_text())
+		
+		genome_wide_result = getGenomeWideResultFromFile(input_fname, min_value_cutoff, do_log10_transformation, pdata)
 		if len(genome_wide_result.data_obj_ls)>0:
 			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
 			#self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
