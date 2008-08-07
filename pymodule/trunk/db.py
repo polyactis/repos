@@ -219,7 +219,7 @@ class ElixirDB(object):
 from elixir import Entity, Field, using_options, using_table_options
 from elixir import DateTime, String
 from datetime import datetime
-class ElixirREADME(Entity):
+class README(Entity):
 	"""
 	2008-08-07
 	"""
