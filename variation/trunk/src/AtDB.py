@@ -102,7 +102,6 @@ class Sequence(Entity):
 	using_options(tablename='sequence')
 	using_table_options(mysql_engine='InnoDB')
 
-
 class AtDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
@@ -135,6 +134,11 @@ if __name__ == '__main__':
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
 	
+	#test how to do raw sql on a view
+	accession_id=1
+	rows = instance.metadata.bind.execute("select * from %s where accession_id=%s"%('accession2tg_ecotypeid', accession_id))
+	row = rows.fetchone()
+	print "ecotype_id for accession_id %s is %s.\n"%(accession_id, row.ecotype_id)
 	"""
 	rows = Accession.query.all()
 	for row in rows:
