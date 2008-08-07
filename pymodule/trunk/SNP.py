@@ -327,6 +327,8 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int):
 	"""
+	2008-08-07
+		turn_into_integer has to be toggled as well as p_char() detects character before nt2number is used.
 	2008-08-03
 		if p_char() detects character but dict_map() via nt2number fails to convert every entry in the row, turn data_row back to original un-converted.
 	2008-07-11
@@ -367,7 +369,7 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 		data_row = row[2:]
 		no_of_snps = len(data_row)
 		p_char_used = 0	#whether p_char is used to successfully dict_map the data_row
-		if p_char.search(data_row[0]):
+		if p_char.search(data_row[0]) and turn_into_integer:
 			data_row = dict_map(nt2number, data_row)
 			p_char_used = 1
 			if no_of_snps!=len(data_row):
@@ -686,6 +688,36 @@ class SNPData(object):
 		sys.stderr.write("%s heterozygous calls. Done.\n"%no_of_hets)
 		return newSnpData
 	convertHetero2NA = classmethod(convertHetero2NA)
+	
+	def removeSNPsWithMoreThan2Alleles(cls, snpData):
+		"""
+		2008-08-05
+			NA and -2 (not touched) are not considered as an allele
+		"""
+		sys.stderr.write("Removing SNPs with more than 2 alleles ...")
+		no_of_rows, no_of_cols = snpData.data_matrix.shape
+		col_index_wanted_ls = []
+		for j in range(no_of_cols):
+			allele_set = Set(snpData.data_matrix[:,j])
+			if 0 in allele_set:	#remove NA if it's there
+				allele_set.remove(0)
+			if -2 in allele_set:	#remove -2 as well
+				allele_set.remove(-2)
+			if len(allele_set)==2:	#polymorphic
+				col_index_wanted_ls.append(j)
+		
+		newSnpData = SNPData(row_id_ls=snpData.row_id_ls, col_id_ls=[])
+		newSnpData.data_matrix = num.zeros([no_of_rows, len(col_index_wanted_ls)], num.int8)
+		col_index = 0
+		for i in col_index_wanted_ls:
+			col_id = snpData.col_id_ls[i]
+			newSnpData.col_id_ls.append(col_id)
+			newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
+			col_index += 1
+		newSnpData.no_of_cols_removed = no_of_cols-len(newSnpData.col_id_ls)
+		sys.stderr.write("%s columns removed. Done.\n"%(newSnpData.no_of_cols_removed))
+		return newSnpData
+	removeSNPsWithMoreThan2Alleles = classmethod(removeSNPsWithMoreThan2Alleles)
 
 from db import TableClass
 class GenomeWideResults(TableClass):
