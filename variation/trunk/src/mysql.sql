@@ -28,11 +28,17 @@ create table magnus_192_status(
 	);
 
 -- 2008-05-15 view to link entries in at.accession to target ecotypeid thru another view complete_2010_strains_in_stock and table stock.ecotypeid2tg_ecotypeid. target ecotypeid is the final ecotypeid for a group of duplicated ecotypeids.
-create or replace view complete_2010_strains_in_stock2tg_ecotypeid as select distinct e.tg_ecotypeid, c.*, a.origin, a.number from complete_2010_strains_in_stock c, stock.ecotypeid2tg_ecotypeid e , accession a where c.ecotypeid=e.ecotypeid and c.accession_id=a.id order by accession_id;
+create or replace view complete_2010_strains_in_stock2tg_ecotypeid as 
+	select distinct e.tg_ecotypeid, c.*, a.origin, a.number from complete_2010_strains_in_stock c,
+	stock.ecotypeid2tg_ecotypeid e , accession a where c.ecotypeid=e.ecotypeid and c.accession_id=a.id order by accession_id;
 
 
 --2008-05-18 offering the final linking between accession id and ecotype id. a view linking each accession.id to a stock.ecotypeid2tg_ecotypeid.tg_ecotypeid thru at.ecotype2accession.
-create or replace view accession2tg_ecotypeid as select distinct e1.accession_id, a.name as accession_name, a.origin, a.number, e2.tg_ecotypeid as ecotype_id, e.name, e.nativename, e.stockparent, e1.ecotype_id as intermediate_ecotype_id from ecotype2accession e1, stock.ecotype e, stock.ecotypeid2tg_ecotypeid e2, accession a where e1.accession_id=a.id and e1.ecotype_id=e2.ecotypeid and e2.tg_ecotypeid=e.id order by accession_id;
+create or replace view accession2tg_ecotypeid as select distinct e1.accession_id,
+	a.name as accession_name, a.origin, a.number, e2.tg_ecotypeid as ecotype_id, e.name,
+	e.nativename, e.stockparent, e1.ecotype_id as intermediate_ecotype_id from ecotype2accession e1,
+	stock.ecotype e, stock.ecotypeid2tg_ecotypeid e2, accession a where e1.accession_id=a.id and
+	e1.ecotype_id=e2.ecotypeid and e2.tg_ecotypeid=e.id order by accession_id;
 
 /*
 create table readme(
@@ -123,7 +129,9 @@ alter table genotyping_all_na_ecotype add foreign key (ecotypeid) references eco
 alter table nativename_stkparent2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
 
 -- 2008-05-18 view to check other info (where and country) about ecotype
-create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent, e.nativename, e.alias, e.siteid, s.name as site_name, c.abbr as country from ecotype e, site s, address a, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
+create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent,
+	e.nativename, e.alias, e.siteid, s.name as site_name, c.abbr as country from ecotype e,
+	site s, address a, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
 
 
 --2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
@@ -315,128 +323,6 @@ DELIMITER ;
 use stock_250k;
 SET storage_engine=INNODB;
 
-create table snps(
-	id integer auto_increment primary key,
-	name varchar(200) not null unique,
-	chromosome integer,
-	position integer,
-	end_position integer,
-	allele1 varchar(1),
-	allele2 varchar(2),
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_snps BEFORE INSERT ON snps
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_snps BEFORE UPDATE ON snps
-  FOR EACH ROW BEGIN
-                set NEW.updated_by = USER();
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-DELIMITER ;
-
---2008-07-02 a table to store the relevant genes, based on table snp_locus_context in dbSNP_pg.sql
-create table snps_context(
-	id	serial primary key,
-	snps_id integer,
-	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
-	disp_pos integer,
-	gene_id integer,
-	gene_strand varchar(1),
-	disp_pos_comment varchar(2000),
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_snps_context BEFORE INSERT ON snps_context
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_snps_context BEFORE UPDATE ON snps_context
-  FOR EACH ROW BEGIN
-                set NEW.updated_by = USER();
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-DELIMITER ;
-
---2008-02-25 expand it to include tiling probe info
-create table probes(
-	id integer auto_increment primary key,
-	snps_id integer,
-	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
-	seq varchar(25),
-	chromosome integer,
-	position integer,
-	allele varchar(1),
-	strand varchar(20),
-	xpos integer,
-	ypos integer,
-	direction varchar(20),
-	gene varchar(50),
-	RNA varchar(50),
-	tu varchar(50),
-	flank varchar(50),
-	expressedClones float,
-	totalClones integer,
-	multiTranscript varchar(50),
-	LerDel varchar(50),
-	LerCopy integer,
-	LerSNPdelL integer,
-	LerSNPdelR integer,
-	LerSNPpos integer,
-	promoter BOOL,
-	utr5 BOOL,
-	utr3 BOOL,
-	intron BOOL,
-	intergenic BOOL,
-	downstream BOOL,
-	cda BOOL,
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_probes BEFORE INSERT ON probes
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_probes BEFORE UPDATE ON probes
-  FOR EACH ROW BEGIN
-                set NEW.updated_by = USER();
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-DELIMITER ;
-
-
 create table strain_info(
 	id integer auto_increment primary key,
 	name varchar(40),
@@ -473,55 +359,6 @@ CREATE TRIGGER before_update_strain_info BEFORE UPDATE ON strain_info
 
 DELIMITER ;
 
-create table array_info(
-	id integer auto_increment primary key,
-	name varchar(40),
-	filename varchar(1000),
-	original_filename varchar(1000),
-	description varchar(2000),
-	ecotype_id integer,
-	maternal_ecotype_id integer,
-	paternal_ecotype_id integer,
-	strain_id integer,
-	md5sum varchar(100),
-	experimenter varchar(200),
-	samples varchar(20),
-	dna_amount varchar(20),
-	S260_280 float,
-	total_vol varchar(20),
-	hyb_vol varchar(20),
-	seed_source varchar(100),
-	method_name varchar(250),
-	readme_id integer,
-	foreign key (readme_id) references readme(id) on update cascade,
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP,
-	CONSTRAINT array_info_strain_id_fk_constraint foreign key (strain_id) references strain_info(id) on delete cascade on update cascade
-	)engine=INNODB;
-
-
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_array_info BEFORE INSERT ON array_info
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_array_info BEFORE UPDATE ON array_info
-  FOR EACH ROW BEGIN
-                set NEW.updated_by = USER();
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
 create table array_data(
 	id integer auto_increment primary key,
 	array_id integer,
@@ -534,73 +371,6 @@ create table array_data(
 	ypos integer
 	)engine=INNODB;
 
-create table call_method(
-	id integer auto_increment primary key,
-	short_name varchar(20),
-	method_description varchar(8000),
-	data_description varchar(8000),
-	comment varchar(8000),
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_c_method BEFORE INSERT ON call_method
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_c_method BEFORE UPDATE ON call_method
-  FOR EACH ROW BEGIN
-                set NEW.updated_by = USER();
-                set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
-create table call_info(
-	id integer auto_increment primary key,
-	filename varchar(1000),
-	description varchar(2000),
-	array_id integer,
-	NA_rate float,
-	readme_id integer,
-	foreign key (readme_id) references readme(id) on update cascade,
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP,
-	foreign key (array_id) references array_info(id) on delete cascade on update cascade,
-	method_id integer,
-	foreign key (method_id) references call_method(id) on delete cascade on update cascade
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_call_info BEFORE INSERT ON call_info
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_call_info BEFORE UPDATE ON call_info
-  FOR EACH ROW BEGIN
-        set NEW.updated_by = USER();
-        set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
 create table call_data(
 	id integer auto_increment primary key,
 	call_info_id integer,
@@ -610,321 +380,9 @@ create table call_data(
 	snpcall varchar(2)
 	)engine=INNODB;
 
-
-create table if not exists qc_method(
-	id integer auto_increment primary key,
-	short_name varchar(30) unique,
-	data1_type varchar(30) not NULL,
-	data2_type varchar(30) not NULL,
-	method_description varchar(8000),
-	data_description varchar(8000),
-	comment varchar(8000),
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_qc_method BEFORE INSERT ON qc_method
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_qc_method BEFORE UPDATE ON qc_method
-  FOR EACH ROW BEGIN
-        set NEW.updated_by = USER();
-        set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
-create table if not exists call_qc(
-	id integer auto_increment primary key,
-	call_info_id integer,
-	min_probability float,
-	ecotype_id integer,
-	duplicate integer,
-	tg_ecotype_id integer,
-	tg_duplicate integer,
-	NA_rate float,
-	no_of_NAs integer,
-	no_of_totals integer,
-	mismatch_rate float,
-	no_of_mismatches integer,
-	no_of_non_NA_pairs integer,
-	created_by varchar(200),
-	updated_by varchar(200),
-	call_method_id integer,
-	foreign key (call_method_id) references call_method(id) on delete cascade on update cascade,
-	readme_id integer,
-	foreign key (readme_id) references readme(id) on delete cascade on update cascade,
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP,
-	foreign key (call_info_id) references call_info(id) on delete cascade on update cascade,
-	qc_method_id integer,
-	foreign key (qc_method_id) references qc_method(id) on delete cascade on update cascade
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_call_qc BEFORE INSERT ON call_qc
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_call_qc BEFORE UPDATE ON call_qc
-  FOR EACH ROW BEGIN
-        set NEW.updated_by = USER();
-        set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
-create table if not exists snps_qc(
-	id integer auto_increment primary key,
-	snps_id integer,
-	min_probability float,
-	max_call_info_mismatch_rate float,
-	snps_name varchar(200),
-	tg_snps_name varchar(200),
-	NA_rate float,
-	no_of_NAs integer,
-	no_of_totals integer,
-	relative_NA_rate float,
-	relative_no_of_NAs integer,
-	relative_no_of_totals integer,
-	mismatch_rate float,
-	no_of_mismatches integer,
-	no_of_non_NA_pairs integer,
-	foreign key (snps_id) references snps(id) on delete cascade on update cascade,
-	qc_method_id integer,
-	foreign key (qc_method_id) references qc_method(id) on delete cascade on update cascade,
-	call_method_id integer,
-	foreign key (call_method_id) references call_method(id) on delete cascade on update cascade,
-	readme_id integer,
-	foreign key (readme_id) references readme(id) on delete cascade on update cascade,
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_snps_qc BEFORE INSERT ON snps_qc
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_snps_qc BEFORE UPDATE ON snps_qc
-  FOR EACH ROW BEGIN
-        set NEW.updated_by = USER();
-        set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
-
---store the results
-create table results_method_type(
-	id integer auto_increment primary key,
-	short_name varchar(30) unique,
-	method_description varchar(8000),
-	data_description varchar(8000),
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_r_m_type BEFORE INSERT ON results_method_type
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_r_m_type BEFORE UPDATE ON results_method_type
-  FOR EACH ROW BEGIN
-        set NEW.updated_by = USER();
-        set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
-create table results_method(
-	id integer auto_increment primary key,
-	short_name varchar(30) unique,
-	filename varchar(1000) unique,
-	method_description varchar(8000),
-	data_description varchar(8000),
-	comment varchar(8000),
-	phenotype_method_id integer,
-	call_method_id integer,
-	results_method_type_id integer,
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP,
-	foreign key (phenotype_method_id) references phenotype_method(id) on delete RESTRICT on update cascade,
-	foreign key (call_method_id) references call_method(id) on delete RESTRICT on update cascade,
-	foreign key (results_method_type_id) references results_method_type(id) on delete RESTRICT on update cascade
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_r_method BEFORE INSERT ON results_method
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_r_method BEFORE UPDATE ON results_method
-  FOR EACH ROW BEGIN
-    set NEW.updated_by = USER();
-    set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
---store the results
-create table if not exists results(
-	id integer auto_increment primary key,
-	snps_id integer,
-	foreign key (snps_id) references snps(id) on delete restrict on update cascade,
-	results_method_id integer,
-	foreign key (results_method_id) references results_method(id) on delete cascade on update cascade,
-	score float
-	)engine=INNODB;
-
 -- 2008-05-31 add two indices
 create index results_snps_id_results_method_id_idx on results(snps_id, results_method_id);
 create index results_results_method_id_idx on results(results_method_id);
-
-create table phenotype_method(
-	id integer auto_increment primary key,
-	short_name varchar(20),
-	only_first_96 bool default 0,
-	method_description varchar(8000),
-	data_description varchar(8000),
-	comment varchar(8000),
-	created_by varchar(200),
-	updated_by varchar(200),
-	date_created timestamp default CURRENT_TIMESTAMP,
-	date_updated TIMESTAMP,
-	data_type varchar(200),
-	transformation_description varchar(8000)
-	)engine=INNODB;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_p_method BEFORE INSERT ON phenotype_method
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_p_method BEFORE UPDATE ON phenotype_method
-  FOR EACH ROW BEGIN
-    set NEW.updated_by = USER();
-    set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
---store the phenotype
-create table phenotype(
-	id integer auto_increment primary key,
-	ecotype_id integer not null,
-	value float,
-	replicate integer,
-	method_id integer not null,
-	foreign key (method_id) references phenotype_method(id) on delete cascade on update cascade
-	)engine=INNODB;
-
-create table phenotype_avg(
-	id integer auto_increment primary key,
-	ecotype_id integer not null,
-	value float,
-	stdev float,
-	sample_size integer,
-	method_id integer not null,
-	foreign key (method_id) references phenotype_method(id) on delete cascade on update cascade,
-	readme_id integer,
-	foreign key (readme_id) references readme(id) on delete cascade on update cascade
-	)engine=INNODB;
-
-
---2008-07-03 create triggers for gene-list and gene-list-type table (table defined in Stock_250kDB.py)
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_g_l_type BEFORE INSERT ON gene_list_type
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-        if NEW.date_created is null then
-               set NEW.date_created = CURRENT_TIMESTAMP();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_g_l_type BEFORE UPDATE ON gene_list_type
-  FOR EACH ROW BEGIN
-    set NEW.updated_by = USER();
-    set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
-
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_g_list BEFORE INSERT ON gene_list
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-        if NEW.date_created is null then
-               set NEW.date_created = CURRENT_TIMESTAMP();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_g_list BEFORE UPDATE ON gene_list
-  FOR EACH ROW BEGIN
-    set NEW.updated_by = USER();
-    set NEW.date_updated = CURRENT_TIMESTAMP();
-  END;
-|
-
-DELIMITER ;
 
 --2008-04-30 create a view to view qc results for arrays
 create or replace view view_qc as select e.id as ecotype_id, e.nativename, q.tg_ecotype_id, q.call_info_id, 
@@ -939,8 +397,27 @@ q.call_method_id order by nativename,  call_method_id, call_NA_rate, QC_NA_rate,
 
 --2008-05-20 view the calls, arrays, ecotypes all together
 
-create or replace view view_call as select c.id as call_info_id, c.filename, c.method_id as call_method_id, a.id as array_id, a.original_filename, a.maternal_ecotype_id as ecotype_id, e.nativename, e.stockparent from call_info c, array_info a, stock.ecotype e where a.id=c.array_id and e.id=a.maternal_ecotype_id order by nativename;
+create or replace view view_call as select c.id as call_info_id, c.filename, 
+	c.method_id as call_method_id, a.id as array_id, a.original_filename,
+	a.maternal_ecotype_id as ecotype_id, e.nativename, e.stockparent from call_info c,
+	array_info a, stock.ecotype e where a.id=c.array_id and e.id=a.maternal_ecotype_id order by nativename;
 
 --2008-05-27 view the arrays
 
-create or replace view view_array as select a.id as array_id, a.filename, a.original_filename as array_filename,  a.maternal_ecotype_id, e1.nativename as maternal_nativename, e1.stockparent as maternal_stockparent, a.paternal_ecotype_id, e2.nativename as paternal_nativename, e2.stockparent as paternal_stockparent from array_info a, stock.ecotype e1, stock.ecotype e2 where e1.id=a.maternal_ecotype_id and e2.id=a.paternal_ecotype_id order by maternal_nativename, paternal_nativename;
+create or replace view view_array as select a.id as array_id, a.filename, 
+	a.original_filename as array_filename,  a.maternal_ecotype_id,
+	e1.nativename as maternal_nativename, e1.stockparent as maternal_stockparent,
+	a.paternal_ecotype_id, e2.nativename as paternal_nativename,
+	e2.stockparent as paternal_stockparent from array_info a, stock.ecotype e1,
+	stock.ecotype e2 where e1.id=a.maternal_ecotype_id and e2.id=a.paternal_ecotype_id
+	order by maternal_nativename, paternal_nativename;
+
+--2008-07-18 view the rank sum test results
+create or replace view view_rank_sum_test as select cgr.results_method_id,
+	r.short_name as results_short_name, a.short_name as analysis_short_name, p.short_name as pheno_short_name,
+	r.call_method_id, group_concat(cgr.pvalue order by cgr.list_type_id),
+	group_concat(cgr.list_type_id order by cgr.list_type_id)
+	from candidate_gene_rank_sum_test_result  cgr, results_method r,
+	phenotype_method p, analysis_method a where cgr.results_method_id=r.id
+	and r.phenotype_method_id=p.id and r.analysis_method_id=a.id group by cgr.results_method_id
+	order by pheno_short_name, analysis_short_name;
