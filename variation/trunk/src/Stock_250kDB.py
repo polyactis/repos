@@ -248,6 +248,19 @@ class QCMethod(Entity):
 	using_options(tablename='qc_method')
 	using_table_options(mysql_engine='InnoDB')
 
+class ContaminantType(Entity):
+	"""
+	2008-08-07
+	"""
+	short_name = Field(String(100), unique=True)
+	description = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='contaminant_type')
+	using_table_options(mysql_engine='InnoDB')
+
 class ArrayInfo(Entity):
 	name = Field(String(40))
 	filename = Field(String(1000))
@@ -256,6 +269,7 @@ class ArrayInfo(Entity):
 	ecotype_id = Field(Integer)
 	maternal_ecotype_id = Field(Integer)
 	paternal_ecotype_id = Field(Integer)
+	contaminant_type = ManyToOne("ContaminantType", colname='contaminant_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	strain_id = Field(Integer)
 	md5sum = Field(String(100))
 	experimenter = Field(String(200))
