@@ -140,7 +140,7 @@ class QC_250k_cross_match(QC_250k):
 		row_id2NA_mismatch_rate = None
 		
 		#2008-05-01 create a cross match table temporarily
-		twoSNPData.qc_cross_match_table = 'QC_cross_match'
+		twoSNPData.qc_cross_match_table = 'qc_cross_match'
 		twoSNPData.new_QC_cross_match_table = self.new_QC_cross_match_table
 		twoSNPData.cal_row_id2pairwise_dist()
 		return row_id2NA_mismatch_rate
