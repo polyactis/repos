@@ -26,6 +26,25 @@ else:   #32bit
 import csv, numpy
 from pymodule import read_data, ProcessOptions, PassingData
 
+def returnTop2Allele(snp_allele2count):
+	"""
+	2008-08-06 copied from misc.py
+	2008-08-06 remove redundant argument snp_allele_ls
+	2008-08-05 in the descending order of count for each allele, assign index ascending
+	"""
+	snp_allele_count_ls = []
+	snp_allele_ls = snp_allele2count.keys()
+	for snp_allele in snp_allele_ls:
+		snp_allele_count_ls.append(snp_allele2count[snp_allele])
+	import numpy
+	argsort_ls = numpy.argsort(snp_allele_count_ls)
+	new_snp_allele2index = {}
+	for i in [-1, -2]:
+		snp_index = argsort_ls[i]	#-1 is index for biggest, -2 is next biggest
+		new_snp_allele2index[snp_allele_ls[snp_index]] = -i-1
+	return new_snp_allele2index
+
+
 class Kruskal_Wallis:
 	__doc__ = __doc__
 	option_default_dict = {('input_fname', 1, ): ['', 'i', 1, 'input genotype matrix. Strain X SNP format.', ],\
@@ -99,6 +118,7 @@ class Kruskal_Wallis:
 			non_NA_genotype_ls = []
 			non_NA_phenotype_ls = []
 			non_NA_genotype2count = {}
+			#non_NA_genotype2phenotype_ls = {}	#2008-08-06 try wilcox
 			for i in range(no_of_rows):
 				if genotype_ls[i]!=0 and phenotype_ls[i]!=None:
 					non_NA_genotype = genotype_ls[i]
@@ -106,10 +126,21 @@ class Kruskal_Wallis:
 					non_NA_phenotype_ls.append(phenotype_ls[i])
 					if non_NA_genotype not in non_NA_genotype2count:
 						non_NA_genotype2count[non_NA_genotype] = 0
+						#non_NA_genotype2phenotype_ls[non_NA_genotype] = []	#2008-08-06 try wilcox
 					non_NA_genotype2count[non_NA_genotype] += 1
+					#non_NA_genotype2phenotype_ls[non_NA_genotype].append(phenotype_ls[i])	#2008-08-06 try wilcox
+			"""
+			#2008-08-06 try wilcox
+			new_snp_allele2index = returnTop2Allele(non_NA_genotype2count)
+			top_2_allele_ls = new_snp_allele2index.keys()
+			non_NA_genotype2count = {top_2_allele_ls[0]: non_NA_genotype2count[top_2_allele_ls[0]],
+									top_2_allele_ls[1]: non_NA_genotype2count[top_2_allele_ls[1]]}
+			"""
 			count_ls = non_NA_genotype2count.values()
-			if len(count_ls)>=2 and count_ls[0]>=min_data_point and count_ls[1]>=min_data_point:
+			if len(count_ls)>=2 and min(count_ls)>=min_data_point:	#require all alleles meet the min data point requirement
 				pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
+				#2008-08-06 try wilcox
+				#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
 				pdata = PassingData(snp_index=j, pvalue=pvalue, count_ls=count_ls)
 				results.append(pdata)
 				real_counter += 1
