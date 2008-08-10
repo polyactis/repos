@@ -82,9 +82,9 @@ def _run_():
 		elif opt in ("--maxMissing"):
 			maxMissing = float(arg)
 		elif opt in ("--removeEcotypeId"):
-			removeEcotype = float(arg)
+			removeEcotype = int(arg)
 		elif opt in ("--removeArrayId"):
-			removeArray = float(arg)
+			removeArray = int(arg)
 		elif opt in ("--removeIdentical"):
 			removeIdentical = True
 		elif opt in ("--onlyCommon"):
@@ -257,11 +257,11 @@ def _run_():
 
 
 	if removeEcotype:
-		accessionsToRemove.append(removeEcotype)
+		accessionsToRemove.append(str(int(removeEcotype)))
 	if removeArray:
 		if not arraysToRemove:
 			arraysToRemove = []
-		arraysToRemove.append(removeArray)
+		arraysToRemove.append(str(removeArray))
 		
 
 	numAccessions = len(snpsds[0].accessions)

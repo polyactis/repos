@@ -61,7 +61,7 @@ def _run_():
 	logTransform = False
 	parallelAll = False
 	lrt = False
-	kinshipDatafile = "/home/cmb-01/bvilhjal/Projects/data/2010_01format_070808.csv"  #This default path should perhaps be something else..
+	kinshipDatafile = "/home/cmb-01/bvilhjal/Projects/data/250K_f9_080608.csv"  #This default path should perhaps be something else..
 
 	for opt, arg in opts:
             if opt in ("-h", "--help"):

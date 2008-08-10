@@ -265,7 +265,8 @@ class RawSnpsData(_SnpsData_):
 				break
 		
 		
-		print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
+		if snpErrorRate :
+			print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
 		print "Number of SNPs in merged data:",len(newPositions)
 		print "Number of SNPs in merged data:",len(newSnps)
 		print "Number of accessions in merged data:",len(newAccessions)

@@ -108,6 +108,13 @@ def _run_():
 		sys.exit(2)
 
 
+	if not user:
+		sys.stdout.write("Username: ")
+		user = sys.stdin.readline().rstrip()
+	if not passwd:
+		import getpass
+		passwd = getpass.getpass()
+
         #Retrieve phenotype data.
 	phenData = getPhenotypes(host=host,user=user,passwd=passwd,onlyBinary=onlyBinary, onlyQuantitative=onlyQuantitative, onlyCategorical=onlyCategorical, onlyReplicates=onlyReplicates, includeSD=includeSD, rawPhenotypes=rawPhenotypes, onlyPublishable=onlyPublishable)
 
@@ -135,18 +142,12 @@ def _run_():
 	phenData.writeToFile(output_fname, delimiter='\t')
 
 def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=False, onlyQuantitative=False, onlyCategorical=False, onlyReplicates=False, includeSD=False, rawPhenotypes=False, onlyPublishable=False):
+	print "onlyPublishable:",onlyPublishable
 	import dataParsers
 	e2a = dataParsers.getEcotypeToAccessionDictionary(host,user=user,passwd=passwd,defaultValue='100')
 
 	import MySQLdb
 	print "Connecting to db, host="+host
-	if not user:
-		import sys
-		sys.stdout.write("Username: ")
-		user = sys.stdin.readline().rstrip()
-	if not passwd:
-		import getpass
-		passwd = getpass.getpass()
 	try:
 		conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "at")
 	except MySQLdb.Error, e:
@@ -158,9 +159,10 @@ def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=Fals
         
         #Retrieve the ecotypes
 	print "Fetching ecotypes"
-	#numRows = int(cursor.execute("select distinct pa.ecotype_id, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id order by pa.ecotype_id"))
-	
-	numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id order by ei.tg_ecotypeid"))
+	if onlyPublishable:
+		numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id and pa.ready_for_publication=1 order by ei.tg_ecotypeid"))
+	else:
+		numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id order by ei.tg_ecotypeid"))
 	
     
 	ecotypes = []
@@ -182,25 +184,24 @@ def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=Fals
 		valueColumn = "pa.value"
 	else:
 		print "Fetching phenotypic values"
-	#numRows = int(cursor.execute("select distinct pa.method_id, pa.ecotype_id, pa.value, pm.short_name from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id order by pa.method_id, pa.ecotype_id"))
-	
-	numRows = int(cursor.execute("select distinct pa.method_id, ei.tg_ecotypeid, "+valueColumn+", pm.short_name, pm.only_first_96 from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id order by pa.method_id, ei.tg_ecotypeid"))
 		
-	onlyFirst96 = []
+	if onlyPublishable:
+		numRows = int(cursor.execute("select distinct pa.method_id, ei.tg_ecotypeid, "+valueColumn+", pm.short_name from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id and pa.ready_for_publication=1 order by pa.method_id, ei.tg_ecotypeid"))
+	else:
+		numRows = int(cursor.execute("select distinct pa.method_id, ei.tg_ecotypeid, "+valueColumn+", pm.short_name from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id order by pa.method_id, ei.tg_ecotypeid"))
+		
 	pvalues = ['NA' for j in range(0,len(ecotypes))]
 	row = cursor.fetchone()
 	currentMethod = int(row[0])
 	phenotypeNames.append(str(int(row[0]))+"_"+row[3])
 	i=ecotypes.index(str(int(row[1])))
 	pvalues[i]=float(row[2])
-	onlyFirst96.append(bool(int(row[4])))
 	while(1):
 		row = cursor.fetchone()
 		if not row:
 			break;
 		nextMethod = int(row[0])
 		if currentMethod != nextMethod:
-			onlyFirst96.append(bool(int(row[4])))
 			phenotypeNames.append(str(int(row[0]))+"_"+row[3])
 			phenotypeValues.append(pvalues)
 			pvalues = ['NA' for j in range(0,len(ecotypes))]
@@ -216,18 +217,6 @@ def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=Fals
 	cursor.close ()
 	conn.close ()
 	import util
-
-	if onlyPublishable:  #Censor the data.
-		for i in range(0,len(phenotypeValues)):
-			for j in range(0,len(ecotypes)):
-				if onlyFirst96[i]:
-					if int(e2a[ecotypes[j]][0])>97:
-						phenotypeValues[i][j]='NA'
-
-
-		#for i in range(0,len(phenotypeValues)):
-		#	if onlyFirst96[i]:
-		#		print phenotypeNames[i],onlyFirst96[i],(len(phenotypeValues[i])-phenotypeValues[i].count("NA"))
 	
 	phenotypeValues = util.transposeDoubleLists(phenotypeValues)
 	phenDat = phenotypeData.PhenotypeData(ecotypes, phenotypeNames, phenotypeValues, accessionNames=accessions)
