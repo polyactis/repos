@@ -46,8 +46,10 @@ class PhenotypeAvg(Entity):
 	value = Field(Float)
 	stdev = Field(Float)	
 	sample_size = Field(Integer)
+	ready_for_publication = Field(Integer, default=0)
 	phenotype_method = ManyToOne('Phenotype', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
 	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	transformed_value = Field(Float)
 	using_options(tablename='phenotype_avg')
 	using_table_options(mysql_engine='InnoDB')
 
