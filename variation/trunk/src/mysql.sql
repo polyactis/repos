@@ -112,15 +112,19 @@ create table country2continent(
 --2007-10-21 for database stock or its replicates
 use stock;
 create table person(
-	id	integer primary key auto_increment,
-	title	varchar(4),
-	surname	varchar(40) not null,
-	firstname	varchar(40) not null,
-	email	varchar(100),
-	donor	integer not null
-	);
+	id integer unsigned primary key auto_increment,
+	title varchar(4),
+	surname varchar(40) not null,
+	firstname varchar(40) not null,
+	email varchar(100),
+	username varchar(10),
+	password varchar(15),
+	usertype integer,
+	donor integer not null
+	)engine=INNODB;
 
---2008-05-15 add foreign key constraints for tables created by GroupDuplicateEcotype.py but can't run, get "ERROR 1005 (HY000): Can't create table './stock/#sql-99_17.frm' (errno: 150)"
+-- 2008-05-15 attempt to add foreign key constraints for tables created by GroupDuplicateEcotype.py but all failed. get "ERROR 1005 (HY000): Can't create table './stock/#sql-99_17.frm' (errno: 150)"
+-- 2008-08-11 turns out that the type of id in table ecotype is 'integer unsigned'. after modifying those columns to be unsigned, succeed.
 alter table ecotype_duplicate2tg_ecotypeid add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
 alter table ecotype_duplicate2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
 
@@ -133,6 +137,11 @@ create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stock
 	e.nativename, e.alias, e.siteid, s.name as site_name, c.abbr as country from ecotype e,
 	site s, address a, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
 
+
+-- 2008-08-08 manual tg_ecotypeid linking after GroupDuplicateEcotype.py http://papaya.usc.edu/2010/149-snps/149SNP-data-introduction
+-- for Kas-1 & Kas-2
+update ecotype_duplicate2tg_ecotypeid set tg_ecotypeid=7183 where ecotypeid in (7185, 7183);
+update ecotype_duplicate2tg_ecotypeid set tg_ecotypeid=8424 where ecotypeid in (6925, 7184, 8315, 8424);
 
 --2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
 use dbsnp;
