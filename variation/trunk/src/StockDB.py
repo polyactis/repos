@@ -122,6 +122,7 @@ class Strain(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='strain')
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('ecotypeid', 'plateid'))
 	
 class Extraction(Entity):
 	namelabel = Field(String(25))
@@ -174,8 +175,7 @@ class Ecotype(Entity):
 class Calls(Entity):
 	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
 	snp = ManyToOne("SNPs", colname='snpid', ondelete='CASCADE', onupdate='CASCADE')
-	call1 = Field(String(1))
-	call2 = Field(String(1))
+	allele = Field(String(5))	#'call' is mysql reserved keyword
 	using_options(tablename='calls')
 	using_table_options(mysql_engine='InnoDB')
 	
