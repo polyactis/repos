@@ -31,6 +31,8 @@ import sqlalchemy
 
 def get_snps_id2mapping(hostname, dbname=None, user=None, passwd=None, readme_id=2):
 	"""
+	2008-08-11
+		the database interface changed in variation.src.dbsnp
 	2008-05-07
 		only readme_id=2
 	2008-05-06
@@ -40,7 +42,7 @@ def get_snps_id2mapping(hostname, dbname=None, user=None, passwd=None, readme_id
 			password=passwd, hostname=hostname, database=dbname)
 	session = db.session
 	snps_id2mapping = {}
-	rows = session.query(SNPsABAlleleMapping).filter_by(readme_id=readme_id).order_by(db.tables['snps_ab_allele_mapping'].c.snps_id).list()
+	rows = SNPsABAlleleMapping.query.filter_by(readme_id=readme_id).order_by(SNPsABAlleleMapping.snps_id).all()
 	#below is same
 	#rows = session.query(SNPsABAlleleMapping).filter(db.tables['snps_ab_allele_mapping'].c.readme_id==readme_id).order_by(db.tables['snps_ab_allele_mapping'].c.snps_id).list()
 	for i in range(0, len(rows), 2):
@@ -122,10 +124,12 @@ class FigureOut384IlluminaABMapping(object):
 	
 	def get_snps_name2possible_mappings(self, db):
 		"""
+		2008-08-11
+			the database interface changed in variation.src.dbsnp
 		2008-05-06
 		"""
 		sys.stderr.write("Getting snps_name2possible_mappings ...")
-		snps_ls = db.session.query(SNPs).list()
+		snps_ls = SNPs.query.all()
 		snps_name2possible_mappings = {}
 		snps_name2snps_id = {}
 		for snps in snps_ls:
@@ -137,6 +141,11 @@ class FigureOut384IlluminaABMapping(object):
 		return snps_name2possible_mappings, snps_name2snps_id
 	
 	def run(self):
+		"""
+		2008-08-11
+			the database interface changed in variation.src.dbsnp
+		2008-05-06
+		"""
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
@@ -147,7 +156,8 @@ class FigureOut384IlluminaABMapping(object):
 		db = DBSNP(username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		session = db.session
-		transaction = session.create_transaction()
+		session.begin()
+		#transaction = session.create_transaction()
 		
 		snps_name2possible_mappings, snps_name2snps_id = self.get_snps_name2possible_mappings(db)
 		
@@ -164,12 +174,13 @@ class FigureOut384IlluminaABMapping(object):
 		
 		readme = formReadmeObj(sys.argv, self.ad, README)
 		session.save(readme)
+		session.flush()
 		twoSNPData.figureOutABMapping(session, readme, snps_name2possible_mappings)
 		if self.commit:
 			curs.execute("commit")
-			transaction.commit()
+			session.commit()
 		else:
-			transaction.rollback()
+			session.rollback()
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
