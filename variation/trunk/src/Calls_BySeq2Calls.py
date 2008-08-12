@@ -46,11 +46,13 @@ class Calls_BySeq2Calls(object):
 	def splitCalls_BySeq(self, session):
 		"""
 		2008-08-11
+			when checking out Calls_BySeq, order by ecotypeid, plateid
+		2008-08-11
 		"""
 		sys.stderr.write("Splitting calls_byseq ....\n")
 		offset_index = 0
 		block_size = 5000
-		rows = Calls_BySeq.query.offset(offset_index).limit(block_size)
+		rows = Calls_BySeq.query.order_by(Calls_BySeq.ecotypeid).order_by(Calls_BySeq.plateid).offset(offset_index).limit(block_size)
 		counter = 0
 		while rows.count()!=0:
 			for row in rows:
@@ -76,7 +78,7 @@ class Calls_BySeq2Calls(object):
 			sys.stderr.write("%s%s\t%s"%('\x08'*40, offset_index, counter))
 			if self.debug and offset_index > 1000:
 				break
-			rows = Calls_BySeq.query.offset(offset_index).limit(block_size)
+			rows = Calls_BySeq.query.order_by(Calls_BySeq.ecotypeid).order_by(Calls_BySeq.plateid).offset(offset_index).limit(block_size)
 			session.flush()
 		sys.stderr.write("Done.\n")
 		
