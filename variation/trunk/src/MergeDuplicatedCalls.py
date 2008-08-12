@@ -59,11 +59,13 @@ class MergeDuplicatedCalls(object):
 		
 	def get_ecotype_duplicate2tg_ecotypeid(cls, curs, ecotype_duplicate2tg_ecotypeid_table):
 		"""
+		2008-08-11
+			ecotype_duplicate2tg_ecotypeid_table structure changed
 		2008-04-04
 		"""
 		sys.stderr.write("Getting ecotype_duplicate2tg_ecotypeid ... ")
 		ecotype_duplicate2tg_ecotypeid = {}
-		curs.execute("select ecotypeid, duplicate, tg_ecotypeid from %s"%ecotype_duplicate2tg_ecotypeid_table)
+		curs.execute("select ecotypeid, strainid, tg_ecotypeid from %s"%ecotype_duplicate2tg_ecotypeid_table)
 		rows = curs.fetchall()
 		for row in rows:
 			ecotypeid, duplicate, tg_ecotypeid = row
@@ -115,7 +117,7 @@ class MergeDuplicatedCalls(object):
 	
 	get_tg_ecotypeid2ecotypeid_duplicate_index_ls = classmethod(get_tg_ecotypeid2ecotypeid_duplicate_index_ls)
 	
-	def get_merged_matrix(self, tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix):
+	def get_merged_matrix(self, tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix, ecotypeid2nativename):
 		"""
 		2008-07-11
 			calculate the inconsistency ratio among duplicates
@@ -130,6 +132,7 @@ class MergeDuplicatedCalls(object):
 		
 		no_of_cols = len(data_matrix[0])
 		merge_matrix = numpy.zeros([len(tg_ecotypeid_ls), no_of_cols], numpy.int)
+		print 'ecotypeid\tnativename\tno_of_non_NA_inconsistent_pairs\tno_of_non_NA_pairs\tinconsistent_ratio'
 		for i in range(len(tg_ecotypeid_ls)):
 			tg_ecotypeid = tg_ecotypeid_ls[i]
 			ecotypeid_duplicate_index_ls = tg_ecotypeid2ecotypeid_duplicate_index_ls[tg_ecotypeid]
@@ -146,7 +149,7 @@ class MergeDuplicatedCalls(object):
 					inconsistent_ratio = passingdata.no_of_non_NA_inconsistent_pairs/float(passingdata.no_of_non_NA_pairs)
 				else:
 					inconsistent_ratio = None
-				print '%s\t%s\t%s\t%s'%(tg_ecotypeid, passingdata.no_of_non_NA_inconsistent_pairs, passingdata.no_of_non_NA_pairs, inconsistent_ratio)
+				print '%s\t%s\t%s\t%s\t%s'%(tg_ecotypeid, ecotypeid2nativename[tg_ecotypeid], passingdata.no_of_non_NA_inconsistent_pairs, passingdata.no_of_non_NA_pairs, inconsistent_ratio)
 		sys.stderr.write("%s/%s=%s inconsistency among %s ecotypes who have duplicates. Done.\n"%\
 						(no_of_non_NA_inconsistent_pairs, no_of_non_NA_pairs, \
 						no_of_non_NA_inconsistent_pairs/float(no_of_non_NA_pairs), no_of_duplicated_rows))
@@ -199,9 +202,9 @@ class MergeDuplicatedCalls(object):
 		
 		tg_ecotypeid2ecotypeid_duplicate_index_ls = self.get_tg_ecotypeid2ecotypeid_duplicate_index_ls(strain_acc_list, category_list, ecotype_duplicate2tg_ecotypeid)
 		
-		tg_ecotypeid_ls, merge_matrix = self.get_merged_matrix(tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix)
-		
 		ecotypeid2nativename = get_ecotypeid2nativename(curs, ecotype_table=self.ecotype_table)
+		tg_ecotypeid_ls, merge_matrix = self.get_merged_matrix(tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix, ecotypeid2nativename)
+		
 		tg_nativename_ls = []
 		for ecotypeid in tg_ecotypeid_ls:
 			tg_nativename_ls.append(ecotypeid2nativename[ecotypeid])
