@@ -290,11 +290,14 @@ class data2dbSNP(object):
 	
 	def main(self):
 		"""
+		2008-08-11
+			the database interface changed in variation.src.dbsnp
 		"""
 		db = DBSNP(username=self.user,
 				   password=self.passwd, host=self.hostname, database=self.dbname)
 		session = db.session
-		transaction = session.create_transaction()
+		session.begin()
+		#transaction = session.create_transaction()
 		if self.debug:
 			import pdb
 			pdb.set_trace()
@@ -308,9 +311,9 @@ class data2dbSNP(object):
 		self.readin_calls(self.input_fname, name_duplicate2accession, session, callmethod, chromosome_pos2snp_obj)
 		session.flush()
 		if self.commit:
-			transaction.commit()
+			session.commit()
 		else:	#default is also rollback(). to demonstrate good programming
-			transaction.rollback()
+			session.rollback()
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
