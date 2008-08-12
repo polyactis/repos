@@ -125,6 +125,7 @@ create table person(
 
 -- 2008-05-15 attempt to add foreign key constraints for tables created by GroupDuplicateEcotype.py but all failed. get "ERROR 1005 (HY000): Can't create table './stock/#sql-99_17.frm' (errno: 150)"
 -- 2008-08-11 turns out that the type of id in table ecotype is 'integer unsigned'. after modifying those columns to be unsigned, succeed.
+-- 2008-08-11 don't need these anymore. GroupDuplicateEcotype.py can create these on the fly
 alter table ecotype_duplicate2tg_ecotypeid add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
 alter table ecotype_duplicate2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
 
@@ -140,8 +141,38 @@ create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stock
 
 -- 2008-08-08 manual tg_ecotypeid linking after GroupDuplicateEcotype.py http://papaya.usc.edu/2010/149-snps/149SNP-data-introduction
 -- for Kas-1 & Kas-2
-update ecotype_duplicate2tg_ecotypeid set tg_ecotypeid=7183 where ecotypeid in (7185, 7183);
-update ecotype_duplicate2tg_ecotypeid set tg_ecotypeid=8424 where ecotypeid in (6925, 7184, 8315, 8424);
+update ecotypeid_strainid2tg_ecotypeid set tg_ecotypeid=7183 where ecotypeid in (7185, 7183);
+update ecotypeid_strainid2tg_ecotypeid set tg_ecotypeid=8424 where ecotypeid in (6925, 7184, 8315, 8424);
+
+-- 2008-08-11 two new tables to split calls_byseq, in StockDB.py, but due to this f*** unsigned, have to manually create them
+CREATE TABLE strain (
+	id INTEGER NOT NULL AUTO_INCREMENT primary key, 
+	ecotypeid INTEGER unsigned, 
+	extractionid tinyINT unsigned, 
+	seqinfoid smallINT unsigned, 
+	plateid VARCHAR(25), 
+	wellid VARCHAR(3), 
+	replicate BOOL,
+	contaminant_type_id integer,
+	created_by VARCHAR(128), 
+	updated_by VARCHAR(128), 
+	date_created DATETIME, 
+	date_updated DATETIME, 
+	UNIQUE (ecotypeid, plateid),
+	 CONSTRAINT strain_ecotypeid_fk FOREIGN KEY(ecotypeid) REFERENCES ecotype (id) ON DELETE CASCADE ON UPDATE CASCADE, 
+	 CONSTRAINT strain_extractionid_fk FOREIGN KEY(extractionid) REFERENCES extraction (id) ON DELETE CASCADE ON UPDATE CASCADE, 
+	 CONSTRAINT strain_seqinfoid_fk FOREIGN KEY(seqinfoid) REFERENCES seqinfo (id) ON DELETE CASCADE ON UPDATE CASCADE,
+	 FOREIGN KEY(contaminant_type_id) REFERENCES contaminant_type (id) ON DELETE restrict ON UPDATE CASCADE,
+)ENGINE=InnoDB;
+
+CREATE TABLE calls (
+	id INTEGER NOT NULL AUTO_INCREMENT primary key, 
+	strainid INTEGER, 
+	snpid INTEGER unsigned, 
+	allele VARCHAR(5),	--#'call' is mysql reserved keyword
+	 CONSTRAINT calls_strainid_fk FOREIGN KEY(strainid) REFERENCES strain (id) ON DELETE CASCADE ON UPDATE CASCADE, 
+	 CONSTRAINT calls_snpid_fk FOREIGN KEY(snpid) REFERENCES snps (id) ON DELETE CASCADE ON UPDATE CASCADE
+)ENGINE=InnoDB;
 
 --2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
 use dbsnp;
@@ -174,7 +205,6 @@ create table readme(
 	);
 
 --2007-10-29 a table copying http://naturalsystems.uchicago.edu/naturalvariation/149SNPposII.csv
-use dbsnp;
 create table snps_sequenom_info(
 	snpfragpos	varchar(200),
 	chromosome	varchar(200),
