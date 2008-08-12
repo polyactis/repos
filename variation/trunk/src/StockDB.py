@@ -5,7 +5,7 @@ Examples:
 	StockDB.py -v postgres -u crocea -z localhost -d graphdb -k public
 	
 	#setup database in mysql
-	StockDB.py -u yh
+	StockDB.py -z papaya -u yh
 	
 Description:
 	2008-08-11
@@ -108,6 +108,19 @@ class SeqInfo(Entity):
 	creation_date = Field(DateTime, default=datetime.now)
 	using_options(tablename='seqinfo')
 	using_table_options(mysql_engine='InnoDB')
+
+class ContaminantType(Entity):
+	"""
+	2008-08-11
+	"""
+	short_name = Field(String(100), unique=True)
+	description = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='contaminant_type')
+	using_table_options(mysql_engine='InnoDB')
 	
 class Strain(Entity):
 	ecotype = ManyToOne("Ecotype", colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
@@ -116,6 +129,7 @@ class Strain(Entity):
 	plateid = Field(String(25))
 	wellid = Field(String(3))
 	replicate = Field(Boolean)
+	contaminant_type = ManyToOne("ContaminantType", colname='contaminant_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	created_by = Field(String(128))
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
@@ -233,4 +247,4 @@ if __name__ == '__main__':
 	main_class = StockDB
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
-	
+
