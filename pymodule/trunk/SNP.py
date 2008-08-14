@@ -781,6 +781,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-08-14
+		add min_MAF into pdata
 	2008-08-03
 		add pdata (chromosome, start, stop) to restrain data
 	2008-07-17
@@ -823,11 +825,14 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			pdata.chromosome = getattr(pdata, 'chromosome', None)
 			pdata.start = getattr(pdata, 'start', None)
 			pdata.stop = getattr(pdata, 'stop', None)
+			pdata.min_MAF = getattr(pdata, 'min_MAF', None)
 			if pdata.chromosome!=None and chr!=pdata.chromosome:
 				continue
 			if pdata.start!=None and start_pos<pdata.start:
 				continue
 			if pdata.stop!=None and start_pos>pdata.stop:
+				continue
+			if pdata.min_MAF!=None and column_4th!=None and float(column_4th)<pdata.min_MAF:	#MAF too small
 				continue
 		if do_log10_transformation:
 			score = -math.log10(score)
