@@ -209,20 +209,20 @@ class ElixirDB(object):
 		2008-07-09
 		"""
 		from elixir import session
+		#session = scoped_session(sessionmaker(autoflush=True, transactional=True, bind=self._url))
 		return session
+	
 	session = property(session)
 	
 	def connection(self):
 		return self.session.connection
 	connection = property(connection)
-
+"""
 from elixir import Entity, Field, using_options, using_table_options
 from elixir import DateTime, String
 from datetime import datetime
 class README(Entity):
-	"""
-	2008-08-07
-	"""
+	#2008-08-07
 	title = Field(String(2000))
 	description = Field(String(60000))
 	created_by = Field(String(128))
@@ -231,6 +231,7 @@ class README(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='readme')
 	using_table_options(mysql_engine='InnoDB')
+"""
 
 def formReadmeObj(argv, ad, READMEClass):
 	"""
