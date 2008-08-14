@@ -334,7 +334,12 @@ class GeneListRankTest(object):
 			passingdata = self.prepareDataForRankTest(rm, snps_context_wrapper, candidate_gene_list, results_directory, min_MAF)
 			#passingdata = self.prepareDataForRankTest(candidate_gene_list, gene_id2hit)
 			import rpy
-			w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
+			candidate_sample_size = len(passingdata.candidate_gene_pvalue_list)
+			non_candidate_sample_size = len(passingdata.non_candidate_gene_pvalue_list)
+			if candidate_sample_size>5 and non_candidate_sample_size>5:	#2008-08-14
+				w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
+			else:
+				return None
 		except:
 			sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(results_method_id, list_type_id))
 			traceback.print_exc()
@@ -344,7 +349,7 @@ class GeneListRankTest(object):
 																			pvalue=w_result['p.value'])
 		candidate_gene_rank_sum_test_result.results_method = rm
 		candidate_gene_rank_sum_test_result.comment = 'min_distance=%s, min_MAF=%s, get_closest=%s, candidate size=%s, non-candidate size=%s'\
-			%(self.min_distance, self.min_MAF, self.get_closest, len(passingdata.candidate_gene_pvalue_list), len(passingdata.non_candidate_gene_pvalue_list))
+			%(self.min_distance, self.min_MAF, self.get_closest, candidate_sample_size, non_candidate_sample_size)
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
