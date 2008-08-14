@@ -33,33 +33,59 @@ from Results2DB_250k import Results2DB_250k
 from pymodule import getGenomeWideResultFromFile
 
 from pymodule.db import TableClass
-class SnpsContextWrapper(TableClass):
-	chrpos2row_index_ls = None
-	data_matrix = None
-	no_of_rows = 0
+class SnpsContextWrapper(object):
+	def __init__(self, get_closest=False):
+		self.get_closest = get_closest
+		self.chrpos2snps_id = {}
+		self.snps_id2left_or_right2gene_id_ls = {}
+		self.data_matrix = None
+		self.no_of_rows = 0
 	
 	def addOneSnpsContext(self, snps_context):
+		"""
 		if self.data_matrix is None:
 			self.data_matrix = []
 		self.data_matrix.append([snps_context.snps_id, snps_context.disp_pos, snps_context.gene_id])
-		self.no_of_rows += 1
-		if self.chrpos2row_index_ls is None:
-			self.chrpos2row_index_ls = {}
+		"""
+		snps_id = snps_context.snps_id
+		if snps_id not in self.snps_id2left_or_right2gene_id_ls:
+			self.snps_id2left_or_right2gene_id_ls[snps_id] = {}
+		left_or_right = snps_context.left_or_right
+		if left_or_right not in self.snps_id2left_or_right2gene_id_ls[snps_id]:
+			self.snps_id2left_or_right2gene_id_ls[snps_id][left_or_right] = [(snps_context.disp_pos, snps_context.gene_id)]
+			self.no_of_rows += 1
+		elif left_or_right=='touch':
+			self.snps_id2left_or_right2gene_id_ls[snps_id][left_or_right].append((snps_context.disp_pos, snps_context.gene_id))
+			self.no_of_rows += 1
+		elif self.get_closest:	#it's left or right. and get closest
+			if abs(snps_context.disp_pos)==abs(self.snps_id2left_or_right2gene_id_ls[snps_id][left_or_right][0][0]):
+				self.snps_id2left_or_right2gene_id_ls[snps_id][left_or_right].append((snps_context.disp_pos, snps_context.gene_id))
+				self.no_of_rows += 1
+			elif abs(snps_context.disp_pos)<abs(self.snps_id2left_or_right2gene_id_ls[snps_id][left_or_right][0][0]):
+				self.snps_id2left_or_right2gene_id_ls[snps_id][left_or_right] = [(snps_context.disp_pos, snps_context.gene_id)]
+		else:
+			self.snps_id2left_or_right2gene_id_ls[snps_id][left_or_right].append((snps_context.disp_pos, snps_context.gene_id))
+			self.no_of_rows += 1
 		chrpos_key = (snps_context.snp.chromosome, snps_context.snp.position)
-		if chrpos_key not in self.chrpos2row_index_ls:
-			self.chrpos2row_index_ls[chrpos_key] = []
-		self.chrpos2row_index_ls[chrpos_key].append(self.no_of_rows-1)
+		if chrpos_key not in self.chrpos2snps_id:
+			self.chrpos2snps_id[chrpos_key] = snps_context.snps_id
+		
+		#self.chrpos2row_index_ls[chrpos_key].append(self.no_of_rows-1)
 	
 	def returnGeneLs(self, chromosome, position):
 		return_matrix = []
 		chrpos_key = (chromosome, position)
-		row_index_ls = self.chrpos2row_index_ls.get(chrpos_key)
-		if row_index_ls is not None:
-			for row_index in row_index_ls:
-				return_matrix.append(self.data_matrix[row_index])
+		snps_id = self.chrpos2snps_id.get(chrpos_key)
+		if snps_id is not None:
+			if self.get_closest and 'touch' in self.snps_id2left_or_right2gene_id_ls[snps_id]:	#'touch' is closest, forget about all others if there's 'touch'
+				for disp_pos, gene_id in self.snps_id2left_or_right2gene_id_ls[snps_id]['touch']:
+					return_matrix.append([snps_id, disp_pos, gene_id])
+			else:
+				for left_or_right, gene_id_ls in self.snps_id2left_or_right2gene_id_ls[snps_id].iteritems():
+					for disp_pos, gene_id in gene_id_ls:
+						return_matrix.append([snps_id, disp_pos, gene_id])
 		return return_matrix
-		
-	
+
 
 class GeneListRankTest(object):
 	__doc__ = __doc__
@@ -70,9 +96,11 @@ class GeneListRankTest(object):
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							("results_method_id_ls", 1, ): [None, 'e', 1, 'comma-separated results_method_id list'],\
-							("min_distance", 1, int): [50000, 'm', 1, ''],\
+							("min_distance", 1, int): [50000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
+							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
+							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency'],\
 							("output_fname", 0, ): [None, 'o', 1, ''],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -94,19 +122,24 @@ class GeneListRankTest(object):
 		else:
 			self.results_method_id_ls = []
 			
-	def constructDataStruc(self, min_distance=50000):
+	def constructDataStruc(self, min_distance=50000, get_closest=0):
 		"""
+		2008-08-14
+			add get_closest
 		2008-07-16
 		"""
 		sys.stderr.write("Loading data structure from db ... \n")
 		offset_index = 0
-		block_size = 5000
+		block_size = 10000
 		rows = SnpsContext.query.offset(offset_index).limit(block_size)
-		data_struc = SnpsContextWrapper()
+		data_struc = SnpsContextWrapper(get_closest)
 		counter = 0
 		while rows.count()!=0:
 			for row in rows:
-				if row.disp_pos>=-min_distance and row.snp.end_position==None:	#it's a true SNP, not segment					
+				if row.left_or_right=='touch':
+					data_struc.addOneSnpsContext(row)
+					counter += 1
+				elif abs(row.disp_pos)<=min_distance and row.snp.end_position==None:	#it's a true SNP, not segment					
 					data_struc.addOneSnpsContext(row)
 					counter += 1
 				offset_index += 1
@@ -132,18 +165,11 @@ class GeneListRankTest(object):
 		sys.stderr.write("Done.\n")
 		return chrpos2pvalue
 	
-	def getGeneID2hit(self, rm, snps_context_wrapper, results_directory=None):
+	def getResultMethodContent(self, rm, results_directory=None, min_MAF=0.1):
 		"""
-		2008-07-21
-			based on the analysis method id, whether do -log() or not. it'll affect the later step of taking maximum pvalue out of SNPs associated with one gene
-		2008-07-17
-			add results_directory in case of results in a different directory
-		2008-07-17
-			no do_log10_transformation
-		2008-07-16
-			reverse the order of 1st-read results file, 2nd-read db.snps_context
+		2008-08-13
+			split from getGeneID2MostSignificantHit()
 		"""
-		sys.stderr.write("Getting gene_id2hit ... \n")
 		if results_directory:	#given a directory where all results are.
 			result_fname = os.path.join(results_directory, os.path.basename(rm.filename))
 		else:
@@ -154,7 +180,26 @@ class GeneListRankTest(object):
 			do_log10_transformation = False
 		else:
 			do_log10_transformation = True
-		genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation)
+		pdata = PassingData()
+		pdata.min_MAF = min_MAF
+		genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation, pdata=pdata)
+		return genome_wide_result
+	
+	def getGeneID2MostSignificantHit(self, rm, snps_context_wrapper, results_directory=None, min_MAF=0.1):
+		"""
+		2008-08-13
+			add min_MAF
+		2008-07-21
+			based on the analysis method id, whether do -log() or not. it'll affect the later step of taking maximum pvalue out of SNPs associated with one gene
+		2008-07-17
+			add results_directory in case of results in a different directory
+		2008-07-17
+			no do_log10_transformation
+		2008-07-16
+			reverse the order of 1st-read results file, 2nd-read db.snps_context
+		"""
+		sys.stderr.write("Getting gene_id2hit ... \n")
+		genome_wide_result = self.getResultMethodContent(rm, results_directory, min_MAF)
 		
 		gene_id2hit = {}
 		counter = 0
@@ -182,7 +227,7 @@ class GeneListRankTest(object):
 		sys.stderr.write("%s genes. Done.\n"%(len(candidate_gene_list)))
 		return candidate_gene_list
 	
-	def prepareDataForRankTest(self, candidate_gene_list, gene_id2hit):
+	def prepareDataForRankTestGivenGeneID2Hit(self, candidate_gene_list, gene_id2hit):
 		sys.stderr.write("Preparing data for rank test ... ")
 		candidate_gene_pvalue_list = []
 		from sets import Set
@@ -207,6 +252,36 @@ class GeneListRankTest(object):
 								non_candidate_gene_ls=non_candidate_gene_ls, non_candidate_gene_pvalue_list=non_candidate_gene_pvalue_list)
 		return passingdata
 	
+	def prepareDataForRankTest(self, rm, snps_context_wrapper, candidate_gene_list, results_directory=None, min_MAF=0.1):
+		"""
+		2008-08-13
+			for each gene, don't take the most significant hit
+		"""
+		sys.stderr.write("Preparing data for rank test ... ")
+		from sets import Set
+		candidate_gene_set = Set(candidate_gene_list)
+		candidate_gene_ls = []
+		candidate_gene_pvalue_list = []
+		non_candidate_gene_ls = []
+		non_candidate_gene_pvalue_list = []
+		
+		genome_wide_result = self.getResultMethodContent(rm, results_directory, min_MAF)
+		
+		counter = 0
+		for data_obj in genome_wide_result.data_obj_ls:
+			pvalue = data_obj.value
+			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
+			for snps_context in snps_context_matrix:
+				snps_id, disp_pos, gene_id = snps_context
+				if gene_id in candidate_gene_set:
+					candidate_gene_pvalue_list.append(pvalue)
+				else:
+					non_candidate_gene_pvalue_list.append(pvalue)
+		passingdata = PassingData(candidate_gene_ls=candidate_gene_ls, candidate_gene_pvalue_list=candidate_gene_pvalue_list,\
+								non_candidate_gene_ls=non_candidate_gene_ls, non_candidate_gene_pvalue_list=non_candidate_gene_pvalue_list)
+		sys.stderr.write("Done.\n")
+		return passingdata
+	
 	def output_gene_id2hit(self, gene_id2hit, output_fname):
 		sys.stderr.write("Outputting gene_id2hit ... ")
 		
@@ -226,8 +301,11 @@ class GeneListRankTest(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id, results_directory=None):
+	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id, results_directory=None, min_MAF=0.1):
 		"""
+		2008-08-14
+			add min_MAF
+			just prepareDataForRankTest().
 		2008-07-24
 			fix a bug. still using self.list_type_id, rather than just list_type_id in one line
 		2008-07-17
@@ -249,26 +327,31 @@ class GeneListRankTest(object):
 							(db_result.id, db_result.results_method_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
 			return None
 		try:
-			gene_id2hit = self.getGeneID2hit(rm, snps_context_wrapper, results_directory)
+			#gene_id2hit = self.getGeneID2hit(rm, snps_context_wrapper, results_directory, min_MAF)
 			#if getattr(self, 'output_fname', None):
 			#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
 			candidate_gene_list = self.getGeneList(list_type_id)
-			passingdata = self.prepareDataForRankTest(candidate_gene_list, gene_id2hit)
+			passingdata = self.prepareDataForRankTest(rm, snps_context_wrapper, candidate_gene_list, results_directory, min_MAF)
+			#passingdata = self.prepareDataForRankTest(candidate_gene_list, gene_id2hit)
 			import rpy
 			w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
 		except:
-			sys.stderr.write("results_method_id=%s, list_type_id=%s.\n"%(results_method_id, list_type_id))
+			sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(results_method_id, list_type_id))
 			traceback.print_exc()
 			sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 			return None
 		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=list_type_id, statistic=w_result['statistic']['W'],\
 																			pvalue=w_result['p.value'])
 		candidate_gene_rank_sum_test_result.results_method = rm
+		candidate_gene_rank_sum_test_result.comment = 'min_distance=%s, min_MAF=%s, get_closest=%s'%(self.min_distance, self.min_MAF, self.get_closest)
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
 	
 	def run(self):
+		if self.debug:
+			import pdb
+			pdb.set_trace()
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		session = db.session
@@ -276,7 +359,7 @@ class GeneListRankTest(object):
 		#	session.begin()
 		#chrpos2pvalue = self.getChrPos2Pvalue(self.results_method_id)
 		#gene_id2hit = self.getGeneID2hit(chrpos2pvalue, self.min_distance)
-		snps_context_wrapper = self.constructDataStruc(self.min_distance)
+		snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
 		
 		if getattr(self, 'output_fname', None):
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
@@ -284,13 +367,14 @@ class GeneListRankTest(object):
 		else:
 			writer = None
 		for results_method_id in self.results_method_id_ls:
-			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id, results_directory=self.results_directory)
+			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id, \
+																	results_directory=self.results_directory, min_MAF=self.min_MAF)
 			if candidate_gene_rank_sum_test_result is not None:
 				row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, candidate_gene_rank_sum_test_result.statistic]
 				print row
 				if writer:
 					writer.writerow(row)
-				session.save(candidate_gene_rank_sum_test_result)
+				#session.save(candidate_gene_rank_sum_test_result)
 				if self.commit:
 					session.flush()
 		#if self.commit:
