@@ -343,7 +343,8 @@ class GeneListRankTest(object):
 		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=list_type_id, statistic=w_result['statistic']['W'],\
 																			pvalue=w_result['p.value'])
 		candidate_gene_rank_sum_test_result.results_method = rm
-		candidate_gene_rank_sum_test_result.comment = 'min_distance=%s, min_MAF=%s, get_closest=%s'%(self.min_distance, self.min_MAF, self.get_closest)
+		candidate_gene_rank_sum_test_result.comment = 'min_distance=%s, min_MAF=%s, get_closest=%s, candidate size=%s, non-candidate size=%s'\
+			%(self.min_distance, self.min_MAF, self.get_closest, len(passingdata.candidate_gene_pvalue_list), len(passingdata.non_candidate_gene_pvalue_list))
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
@@ -370,7 +371,8 @@ class GeneListRankTest(object):
 			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id, \
 																	results_directory=self.results_directory, min_MAF=self.min_MAF)
 			if candidate_gene_rank_sum_test_result is not None:
-				row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, candidate_gene_rank_sum_test_result.statistic]
+				row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, \
+					candidate_gene_rank_sum_test_result.statistic, candidate_gene_rank_sum_test_result.comment]
 				print row
 				if writer:
 					writer.writerow(row)
