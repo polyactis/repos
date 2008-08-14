@@ -27,11 +27,22 @@ from elixir import OneToMany, ManyToOne, ManyToMany
 from elixir import setup_all, session, metadata, entities
 from elixir.options import using_table_options_handler	#using_table_options() can only work inside Entity-inherited class.
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.schema import ThreadLocalMetaData
 
 from datetime import datetime
 
 from pymodule.db import ElixirDB
-from pymodule.db import README
+
+class README(Entity):
+	#2008-08-07
+	title = Field(String(2000))
+	description = Field(String(60000))
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='readme')
+	using_table_options(mysql_engine='InnoDB')
 
 class Phenotype(Entity):
 	ecotype_id = Field(Integer, nullable=False)
@@ -97,6 +108,7 @@ class SnpsContext(Entity):
 	disp_pos = Field(Integer)
 	gene_id = Field(Integer)
 	gene_strand = Field(String(1))
+	left_or_right = Field(String(200))
 	disp_pos_comment = Field(String(2000))
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
@@ -104,7 +116,7 @@ class SnpsContext(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='snps_context')
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('snps_id', 'gene_id'))
+	#using_table_options(UniqueConstraint('snps_id', 'gene_id'))
 
 class CallMethod(Entity):
 	short_name = Field(String(20))
@@ -186,13 +198,14 @@ class CandidateGeneRankSumTestResult(Entity):
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	statistic = Field(Float)
 	pvalue = Field(Float)
+	comment = Field(Text)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_rank_sum_test_result')
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('results_method_id', 'list_type_id'))
+	#using_table_options(UniqueConstraint('results_method_id', 'list_type_id'))
 
 class ResultsByGene(Entity):
 	"""
@@ -267,7 +280,7 @@ class ArrayInfo(Entity):
 	name = Field(String(40))
 	filename = Field(String(1000))
 	original_filename = Field(String(1000))
-	description = Field((2000))
+	description = Field(String(2000))
 	ecotype_id = Field(Integer)
 	maternal_ecotype_id = Field(Integer)
 	paternal_ecotype_id = Field(Integer)
@@ -386,6 +399,7 @@ class Stock_250kDB(ElixirDB):
 			for entity in entities:
 				using_table_options_handler(entity, schema=self.schema)
 		
+		#metadata = ThreadLocalMetaData()
 		metadata.bind = self._url
 		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 
@@ -395,8 +409,8 @@ if __name__ == '__main__':
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
 	
-	"""
+	
 	rows = GeneListType.query.all()
 	for row in rows:
 		print row.gene_list[0].list_type_id
-	"""
+	
