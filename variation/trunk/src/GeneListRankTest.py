@@ -100,6 +100,7 @@ class GeneListRankTest(object):
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency'],\
 							('max_pvalue_per_gene', 0, int): [0, 'a', 0, 'take the most significant among all SNPs associated with one gene'],\
+							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_fname", 0, ): [None, 'o', 1, ''],\
@@ -304,6 +305,8 @@ class GeneListRankTest(object):
 	
 	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id, results_directory=None, min_MAF=0.1):
 		"""
+		2008-08-15
+			fix option max_pvalue_per_gene, to have the choice to take the most significant SNP associated with one gene or not
 		2008-08-14
 			add min_MAF
 			just prepareDataForRankTest().
@@ -334,13 +337,15 @@ class GeneListRankTest(object):
 				#if getattr(self, 'output_fname', None):
 				#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
 				passingdata = self.prepareDataForRankTestGivenGeneID2Hit(candidate_gene_list, gene_id2hit)
-			passingdata = self.prepareDataForRankTest(rm, snps_context_wrapper, candidate_gene_list, results_directory, min_MAF)
+			else:
+				passingdata = self.prepareDataForRankTest(rm, snps_context_wrapper, candidate_gene_list, results_directory, min_MAF)
 			import rpy
 			candidate_sample_size = len(passingdata.candidate_gene_pvalue_list)
 			non_candidate_sample_size = len(passingdata.non_candidate_gene_pvalue_list)
-			if candidate_sample_size>5 and non_candidate_sample_size>5:	#2008-08-14
+			if candidate_sample_size>=self.min_sample_size and non_candidate_sample_size>=self.min_sample_size:	#2008-08-14
 				w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
 			else:
+				sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(self.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 				return None
 		except:
 			sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(results_method_id, list_type_id))
@@ -354,8 +359,8 @@ class GeneListRankTest(object):
 		candidate_gene_rank_sum_test_result.min_MAF = min_MAF
 		candidate_gene_rank_sum_test_result.get_closest = self.get_closest
 		candidate_gene_rank_sum_test_result.max_pvalue_per_gene = self.max_pvalue_per_gene
-		candidate_gene_rank_sum_test_result.comment = 'candidate size=%s, non-candidate size=%s'\
-			%(candidate_sample_size, non_candidate_sample_size)
+		candidate_gene_rank_sum_test_result.candidate_sample_size = candidate_sample_size
+		candidate_gene_rank_sum_test_result.non_candidate_sample_size = non_candidate_sample_size
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
