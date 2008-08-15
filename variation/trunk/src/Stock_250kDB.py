@@ -202,6 +202,8 @@ class CandidateGeneRankSumTestResult(Entity):
 	get_closest = Field(Integer)
 	min_MAF = Field(Float)
 	max_pvalue_per_gene = Field(Integer)
+	candidate_sample_size = Field(Integer)
+	non_candidate_sample_size = Field(Integer)
 	comment = Field(Text)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
