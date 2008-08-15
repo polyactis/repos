@@ -349,7 +349,7 @@ class GeneListRankTest(object):
 			return None
 		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=list_type_id, statistic=w_result['statistic']['W'],\
 																			pvalue=w_result['p.value'])
-		candidate_gene_rank_sum_test_result.results_method = rm
+		candidate_gene_rank_sum_test_result.results_method_id = results_method_id
 		candidate_gene_rank_sum_test_result.min_distance = self.min_distance
 		candidate_gene_rank_sum_test_result.min_MAF = min_MAF
 		candidate_gene_rank_sum_test_result.get_closest = self.get_closest
