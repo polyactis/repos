@@ -781,6 +781,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-08-15
+		skips non-positive values if need to do_log10_transformation
 	2008-08-14
 		add min_MAF into pdata
 	2008-08-03
@@ -835,7 +837,11 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			if pdata.min_MAF!=None and column_4th!=None and float(column_4th)<pdata.min_MAF:	#MAF too small
 				continue
 		if do_log10_transformation:
-			score = -math.log10(score)
+			if score<=0:
+				sys.stderr.write("score <=0. can't do log10. skip %s.\n"%(repr(row)))
+				continue
+			else:
+				score = -math.log10(score)
 		if min_value_cutoff is None or score>=min_value_cutoff:
 			if stop_pos is not None:
 				data_obj = DataObject(chromosome=chr, position=start_pos, stop_position=stop_pos, value =score)
