@@ -40,6 +40,8 @@ class MpiGeneListRankTest(GeneListRankTest):
 	
 	def generate_params(self, min_no_of_genes=10):
 		"""
+		2008-08-15
+			stop filtering if CandidateGeneRankSumTestResult has (results_method_id, list_type_id) combo
 		2008-07-24
 			only association results (results_method_type_id=1)
 			only candidate gene lists with >min_no_of_genes genes
@@ -69,15 +71,17 @@ class MpiGeneListRankTest(GeneListRankTest):
 			rows = GeneListType.query.offset(i).limit(block_size)
 		sys.stderr.write("%s candidate gene lists. "%(len(list_type_id_ls)))
 		
+		rm_id_lt_id_set = Set()
+		"""
 		i = 0
 		rows = CandidateGeneRankSumTestResult.query.offset(i).limit(block_size)
-		rm_id_lt_id_set = Set()
 		while rows.count()!=0:
 			for row in rows:
 				rm_id_lt_id_set.add((row.results_method_id, row.list_type_id))
 				i += 1
 			rows = CandidateGeneRankSumTestResult.query.offset(i).limit(block_size)
 		sys.stderr.write("%s candidate gene rank sum test results. "%(len(rm_id_lt_id_set)))
+		"""
 		
 		params_ls = []
 		for results_method_id in results_method_id_ls:
@@ -115,7 +119,7 @@ class MpiGeneListRankTest(GeneListRankTest):
 		result_ls = []
 		for results_method_id, list_type_id in data:
 			result = self.run_wilcox_test(results_method_id, computing_parameter_obj.snps_context_wrapper, \
-										list_type_id, results_directory=computing_parameter_obj.results_directory)
+										list_type_id, results_directory=computing_parameter_obj.results_directory, min_MAF=computing_parameter_obj.min_MAF)
 			if result is not None:
 				result_ls.append(result)
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
@@ -133,11 +137,21 @@ class MpiGeneListRankTest(GeneListRankTest):
 		writer, session, commit = parameter_list
 		table_obj_ls = cPickle.loads(data)
 		for table_obj in table_obj_ls:
-			row = [table_obj.results_method.id, table_obj.list_type_id, table_obj.pvalue, table_obj.statistic]
+			row = []
+			
+			candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult()
+			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
+			#can't save table_obj because it's associated with a different db thread
+			for column in table_obj.c.keys():
+				row.append(getattr(table_obj, column))
+				setattr(candidate_gene_rank_sum_test_result, column, getattr(table_obj, column))
 			if writer:
 				writer.writerow(row)
-			candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=table_obj.list_type_id, statistic=table_obj.statistic,\
-																				pvalue=table_obj.pvalue, results_method_id=table_obj.results_method.id)
+			"""
+								list_type_id=table_obj.list_type_id, statistic=table_obj.statistic,\
+								pvalue=table_obj.pvalue, results_method_id=table_obj.results_method.id, \
+								comment=table_obj.comment)
+			"""
 			session.save(candidate_gene_rank_sum_test_result)
 			if commit:
 				session.flush()
@@ -149,14 +163,19 @@ class MpiGeneListRankTest(GeneListRankTest):
 		self.communicator = MPI.world.duplicate()
 		node_rank = self.communicator.rank
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
-		
+		free_computing_node_set = Set(free_computing_nodes)
+		output_node_rank = self.communicator.size-1
+		if node_rank != output_node_rank:	#to reduce the number of connections on papaya
+			self.hostname = 'banyan.usc.edu'
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
-				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		session = db.session
 		
 		if node_rank == 0:
-			snps_context_wrapper = self.constructDataStruc(self.min_distance)
+			snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
 			params_ls = self.generate_params()
+			if self.debug:
+				params_ls = params_ls[:100]
 			snps_context_wrapper_pickle = cPickle.dumps(snps_context_wrapper, -1)
 			for node in free_computing_nodes:	#send it to the computing_node
 				sys.stderr.write("passing initial data to nodes from %s to %s ... "%(node_rank, node))
@@ -164,7 +183,7 @@ class MpiGeneListRankTest(GeneListRankTest):
 				sys.stderr.write(".\n")
 			del snps_context_wrapper_pickle
 			del snps_context_wrapper
-		elif node_rank in free_computing_nodes:
+		elif node_rank in free_computing_node_set:
 			data, source, tag = self.communicator.receiveString(0, 0)
 			snps_context_wrapper =  cPickle.loads(data)
 			del data
@@ -177,14 +196,17 @@ class MpiGeneListRankTest(GeneListRankTest):
 		if node_rank == 0:
 			parameter_list = [params_ls]
 			mw.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
-		elif node_rank in free_computing_nodes:
+		elif node_rank in free_computing_node_set:
 			computing_parameter_obj = PassingData(snps_context_wrapper=snps_context_wrapper, \
-												results_directory=self.results_directory)
+												results_directory=self.results_directory, min_MAF=self.min_MAF)
 			mw.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			if getattr(self, 'output_fname', None):
 				writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
-				writer.writerow(['results_method_id', 'list_type_id', 'wilcox.test.pvalue', 'statistic'])
+				header_row = []
+				for column in CandidateGeneRankSumTestResult.c.keys():
+					header_row.append(column)
+				writer.writerow(header_row)
 			else:
 				writer = None
 			
