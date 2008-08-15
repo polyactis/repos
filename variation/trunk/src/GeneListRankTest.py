@@ -98,9 +98,10 @@ class GeneListRankTest(object):
 							("results_method_id_ls", 1, ): [None, 'e', 1, 'comma-separated results_method_id list'],\
 							("min_distance", 1, int): [50000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
+							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency'],\
+							('max_pvalue_per_gene', 0, int): [0, 'a', 0, 'take the most significant among all SNPs associated with one gene'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
-							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency'],\
 							("output_fname", 0, ): [None, 'o', 1, ''],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -242,10 +243,10 @@ class GeneListRankTest(object):
 		for gene_id in gene_id_ls:
 			hit = gene_id2hit[gene_id]
 			if gene_id in candidate_gene_set:
-				candidate_gene_ls.append(gene_id)
+				#candidate_gene_ls.append(gene_id)
 				candidate_gene_pvalue_list.append(hit.pvalue)
 			else:
-				non_candidate_gene_ls.append(gene_id)
+				#non_candidate_gene_ls.append(gene_id)
 				non_candidate_gene_pvalue_list.append(hit.pvalue)
 		sys.stderr.write("Done.\n")
 		passingdata = PassingData(candidate_gene_ls=candidate_gene_ls, candidate_gene_pvalue_list=candidate_gene_pvalue_list,\
@@ -320,19 +321,20 @@ class GeneListRankTest(object):
 		if rm.results_method_type_id!=1:
 			sys.stderr.write("skip non-association results. results_method_type_id=%s, results_method_id=%s.\n"%(rm.results_method_type_id, results_method_id))
 			return None
-		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=results_method_id).filter_by(list_type_id=list_type_id)
+		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=results_method_id).filter_by(list_type_id=list_type_id).filter_by(min_distance=self.min_distance).filter_by(min_MAF=min_MAF).filter_by(get_closest=self.get_closest).filter_by(max_pvalue_per_gene=self.max_pvalue_per_gene)
 		if db_results.count()>0:	#done before
 			db_result = db_results.first()
 			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
 							(db_result.id, db_result.results_method_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
 			return None
 		try:
-			#gene_id2hit = self.getGeneID2hit(rm, snps_context_wrapper, results_directory, min_MAF)
-			#if getattr(self, 'output_fname', None):
-			#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
 			candidate_gene_list = self.getGeneList(list_type_id)
+			if self.max_pvalue_per_gene:
+				gene_id2hit = self.getGeneID2MostSignificantHit(rm, snps_context_wrapper, results_directory, min_MAF)
+				#if getattr(self, 'output_fname', None):
+				#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
+				passingdata = self.prepareDataForRankTestGivenGeneID2Hit(candidate_gene_list, gene_id2hit)
 			passingdata = self.prepareDataForRankTest(rm, snps_context_wrapper, candidate_gene_list, results_directory, min_MAF)
-			#passingdata = self.prepareDataForRankTest(candidate_gene_list, gene_id2hit)
 			import rpy
 			candidate_sample_size = len(passingdata.candidate_gene_pvalue_list)
 			non_candidate_sample_size = len(passingdata.non_candidate_gene_pvalue_list)
@@ -348,8 +350,12 @@ class GeneListRankTest(object):
 		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=list_type_id, statistic=w_result['statistic']['W'],\
 																			pvalue=w_result['p.value'])
 		candidate_gene_rank_sum_test_result.results_method = rm
-		candidate_gene_rank_sum_test_result.comment = 'min_distance=%s, min_MAF=%s, get_closest=%s, candidate size=%s, non-candidate size=%s'\
-			%(self.min_distance, self.min_MAF, self.get_closest, candidate_sample_size, non_candidate_sample_size)
+		candidate_gene_rank_sum_test_result.min_distance = self.min_distance
+		candidate_gene_rank_sum_test_result.min_MAF = min_MAF
+		candidate_gene_rank_sum_test_result.get_closest = self.get_closest
+		candidate_gene_rank_sum_test_result.max_pvalue_per_gene = self.max_pvalue_per_gene
+		candidate_gene_rank_sum_test_result.comment = 'candidate size=%s, non-candidate size=%s'\
+			%(candidate_sample_size, non_candidate_sample_size)
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
@@ -376,9 +382,11 @@ class GeneListRankTest(object):
 			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id, \
 																	results_directory=self.results_directory, min_MAF=self.min_MAF)
 			if candidate_gene_rank_sum_test_result is not None:
-				row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, \
-					candidate_gene_rank_sum_test_result.statistic, candidate_gene_rank_sum_test_result.comment]
-				print row
+				for column in candidate_gene_rank_sum_test_result.c.keys():
+					print '%s: %s'%(column, getattr(candidate_gene_rank_sum_test_result, column))
+				#row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, \
+				#	candidate_gene_rank_sum_test_result.statistic, candidate_gene_rank_sum_test_result.comment]
+				#print row
 				if writer:
 					writer.writerow(row)
 				#session.save(candidate_gene_rank_sum_test_result)
