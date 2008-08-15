@@ -853,5 +853,5 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 		no_of_lines += 1
 		
 	del reader
-	sys.stderr.write("Done.\n")
+	sys.stderr.write(" %s results. Done.\n"%(len(gwr.data_obj_ls)))
 	return gwr
