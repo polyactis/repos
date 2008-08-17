@@ -471,42 +471,111 @@ def draw_SNP_gap_histogram(curs, snp_locus_table, output_fname, need_savefig=0):
 	return SNP_gap_ls
 
 """
+2008-08-12
+	add max_upstream_distance and max_downstream_distance
+	take target genes, which the SNP touches, is upstream or is downstream (within distance allowed)
+	if none found, will try grab genes without strand info (no idea if it's upstream or downstream) if they exist
+2008-07-02
+	modify to deal with stock_250k (mysql db on papaya)
 2007-04-29
 	to determine which SNP is in coding or non-coding region
 """
-def find_SNP_context(curs, snp_locus_table, snp_locus_context_table, entrezgene_mapping_table='sequence.entrezgene_mapping',\
-	annot_assembly_table='sequence.annot_assembly', tax_id=3702, need_commit=0):
+def find_SNP_context(db, curs, snp_locus_table, snp_locus_context_table, entrezgene_mapping_table='genome.entrezgene_mapping',\
+					annot_assembly_table='genome.annot_assembly', tax_id=3702, max_upstream_distance=50000, max_downstream_distance=50000, need_commit=0, debug=0):
 	import os,sys
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/annot/bin')))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/transfac/src')))
-	from TFBindingSiteParse import TFBindingSiteParse
-	TFBindingSiteParse_instance =TFBindingSiteParse()
+	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+	from transfac.src.TFBindingSiteParse import TFBindingSiteParse
 	from codense.common import get_entrezgene_annotated_anchor
-	chromosome2anchor_gene_tuple_ls, gene_id2coord = get_entrezgene_annotated_anchor(curs, tax_id, entrezgene_mapping_table,\
-		annot_assembly_table)
-	curs.execute("select id, chromosome, position from %s"%(snp_locus_table))
+	chromosome2anchor_gene_tuple_ls, gene_id2coord = get_entrezgene_annotated_anchor(curs, tax_id, entrezgene_mapping_table, annot_assembly_table)
+	
+	#from variation.src.Stock_250kDB import SnpsContext, Snps
+	#session = db.session
+	#if not debug:
+	#	session.begin()
+	curs.execute("select id, chromosome, position from %s where end_position is null"%(snp_locus_table))	#only SNPs, not segments
 	rows = curs.fetchall()
+	offset_index = 0
+	block_size = 5000
+	#rows = Snps.query.filter_by(end_position!=None).offset(offset_index).limit(block_size)
 	counter = 0
+	#while rows.count()!=0:
 	for row in rows:
 		snp_locus_id, chromosome, position = row
+		chromosome = str(chromosome)
 		regulatory_coord = (chromosome, position, position)
-		target_gene_ls, target_gene_ls_type = TFBindingSiteParse_instance.return_target_gene_ls(regulatory_coord, \
-			chromosome2anchor_gene_tuple_ls, gene_id2coord)
-		for gene_id, gene_start, gene_stop, gene_strand, gene_genomic_gi in target_gene_ls:
-			if gene_strand == '+':
-				disp_pos = position - gene_start
-			else:
-				disp_pos = gene_stop - position
-			curs.execute("insert into %s(snp_locus_id, disp_pos, gene_id, gene_strand, disp_pos_comment) values (%s, %s, %s, '%s', '%s')"%\
-				(snp_locus_context_table, snp_locus_id, disp_pos, gene_id, gene_strand, target_gene_ls_type))
-		sys.stderr.write("%s%s"%('\x08'*10, counter))
+		pdata = TFBindingSiteParse.return_target_gene_ls(regulatory_coord, chromosome2anchor_gene_tuple_ls, gene_id2coord, \
+														max_upstream_distance, max_downstream_distance)
+		target_gene_ls = []
+		if pdata.regulatory_touch_target_gene_ls:
+			target_gene_ls += pdata.regulatory_touch_target_gene_ls
+		if pdata.regulatory_is_left_upstream_target_gene_ls or pdata.regulatory_is_right_upstream_target_gene_ls:
+			target_gene_ls += pdata.regulatory_is_left_upstream_target_gene_ls + pdata.regulatory_is_right_upstream_target_gene_ls
+		if pdata.regulatory_is_left_downstream_target_gene_ls or pdata.regulatory_is_right_downstream_target_gene_ls:
+			target_gene_ls += pdata.regulatory_is_left_downstream_target_gene_ls + pdata.regulatory_is_right_downstream_target_gene_ls
+		
+		if not target_gene_ls:
+			if pdata.regulatory_is_left_target_gene_ls:
+				target_gene_ls += pdata.regulatory_is_left_target_gene_ls
+			if pdata.regulatory_is_right_target_gene_ls:
+				target_gene_ls += pdata.regulatory_is_right_target_gene_ls
+		
+		for target_gene_tuple in target_gene_ls:
+			gene_id = target_gene_tuple[1]
+			left_or_right = target_gene_tuple[2]
+			upstream_or_downstream = target_gene_tuple[3]
+			disp_pos = target_gene_tuple[4]
+			gene_start, gene_stop, gene_strand, gene_genomic_gi = gene_id2coord[gene_id]
+			#snps_context = SnpsContext(snps_id=snp_locus_id, disp_pos=disp_pos, gene_id=gene_id, gene_strand=gene_strand,\
+			#						left_or_right=left_or_right, disp_pos_comment=upstream_or_downstream)
+			#session.save(snps_context)
+			curs.execute("insert into %s(snps_id, disp_pos, gene_id, gene_strand, left_or_right, disp_pos_comment) values (%s, %s, %s, '%s', '%s', '%s')"%\
+				(snp_locus_context_table, snp_locus_id, disp_pos, gene_id, gene_strand, left_or_right, upstream_or_downstream))
+		offset_index += 1
 		counter += 1
+		#session.flush()
+		if counter%5000==0:
+			sys.stderr.write("%s%s"%('\x08'*10, counter))
+		#rows = Snps.query.filter_by(end_position!=None).offset(offset_index).limit(block_size)
 	if need_commit:
-		curs.execute("end")
+		curs.execute("commit")
+		#session.commit()
+		#session.clear()
 
 """
-conn, curs = db_connect(hostname, dbname, schema)
-find_SNP_context(curs, 'snp_locus', 'snp_locus_context', need_commit=1)
+#conn, curs = db_connect(hostname, dbname, schema)
+#find_SNP_context(curs, 'snp_locus', 'snp_locus_context', need_commit=1)
+import os,sys
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+
+#2008-07-02
+hostname='localhost'
+dbname='graphdb'
+schema = 'dbsnp'
+from annot.bin.codense.common import db_connect
+pg_conn, pg_curs = db_connect(hostname, dbname, schema)
+
+hostname='papaya.usc.edu'
+dbname='stock_250k'
+user='yh'
+passwd=''
+import MySQLdb
+mysql_conn = MySQLdb.connect(db=dbname,host=hostname, user = user, passwd = passwd)
+mysql_curs = mysql_conn.cursor()
+
+#create table snps_context in stock_250k
+from variation.src import misc
+
+#2008-08-13 2 elixir dbs are bad. it causes tables to be cross-created in the two databases.
+#from transfac.src.GenomeDB import GenomeDatabase
+#genome_db = GenomeDatabase(drivername='mysql', username=user, password=passwd, hostname=hostname, database='genome')
+#from transfac.src.GenomeDB import getEntrezgeneAnnotatedAnchor
+#chromosome2anchor_gene_tuple_ls, gene_id2coord = getEntrezgeneAnnotatedAnchor(genome_db, tax_id=3702)
+#del genome_db
+
+from variation.src.Stock_250kDB import Stock_250kDB, SnpsContext
+db = Stock_250kDB(drivername='mysql', username=user, password=passwd, hostname=hostname, database='stock_250k')
+mysql_conn.autocommit(True)
+misc.find_SNP_context(db, mysql_curs, 'snps', 'snps_context', need_commit=1, debug=1)
 """
 
 """
@@ -1677,11 +1746,33 @@ def cal_maf_vector(input_fname):
 	return maf_vector
 """
 input_fname = 'script/variation/stock20070829/data_row_na_col_na_bad_snps.tsv'
+input_fname = '/mnt/hpc-cmb/KW/input/250K_method_5_after_imputation_noRedundant_051908.tsv'
 maf_vector = cal_maf_vector(input_fname)
 import pylab
 pylab.clf()
 pylab.plot(range(len(maf_vector)), maf_vector)
 """
+
+"""
+2008-06-27 read in pvalues from a file
+"""
+pvalue_fname = '/Network/Data/250k/db/results/type_1/394_results.tsv'
+def plot_maf_vs_pvalue(maf_vector, input_fname, do_log10_transformation=True):
+	from GenomeBrowser import GenomeBrowser
+	genome_wide_result = GenomeBrowser.getGenomeWideResultFromFile(input_fname, do_log10_transformation=do_log10_transformation)
+	pvalue_ls = [genome_wide_result.data_obj_ls[i].value for i in range(len(genome_wide_result.data_obj_ls))]
+	import pylab
+	pylab.clf()
+	pylab.plot(maf_vector, pvalue_ls, '.')
+	pylab.show()
+
+"""
+plot_maf_vs_pvalue(maf_vector, pvalue_fname)
+for i in range(389, 758):
+	pvalue_fname = '/Network/Data/250k/db/results/type_1/%s_results.tsv'%i
+	plot_maf_vs_pvalue(maf_vector, pvalue_fname)
+"""
+
 
 """
 2007-09-21
@@ -2690,13 +2781,19 @@ def convertChiamoOutput(chiamo_infname, chiamo_outfname, ref_250k_infname, outpu
 	header = ['ecotypeid', 'ecotypeid'] + snp_acc_ls
 	FilterStrainSNPMatrix_instance.write_data_matrix(data_matrix, output_fname, header, strain_id_ls, [1]*len(strain_id_ls))
 	sys.stderr.write("Finished.\n")
-	
+
+"""
 chiamo_infname = os.path.expanduser('~/script/affy/250k_test/yanli8-29-07_chiamo_14SNPs.in')
 chiamo_outfname = os.path.expanduser('~/script/affy/250k_test/yanli8-29-07_chiamo.out_0_mcmc')
 ref_250k_infname = os.path.expanduser('~/script/variation/genotyping/250ksnp/data/data_250k.tsv')
 output_fname = os.path.expanduser('~/script/affy/250k_test/yanli8-29-07_chiamo_out.tsv')
 
 convertChiamoOutput(chiamo_infname, chiamo_outfname, ref_250k_infname, output_fname, posterior_min=0.95)
+"""
+
+
+
+
 
 """
 2008-04-11
@@ -2724,11 +2821,13 @@ def output_intensity_fname(curs, new_array_info_table, old_array_info_table, out
 		writer.writerow([old_fname, new_fname])
 	del writer
 
-
+"""
 new_array_info_table='stock_250k.array_info'
 old_array_info_table='stock_250k.array_info_2008_04_11'
 output_fname = '/tmp/intensity_fname.rename.tsv'
 output_intensity_fname(curs, new_array_info_table, old_array_info_table, output_fname)
+"""
+
 
 """
 2008-05-31
@@ -2761,14 +2860,357 @@ def outputResults(db, results_method_id, output_fname):
 	del writer
 	sys.stderr.write("Done.\n")
 
-
+"""
 from variation.src.db import Stock_250kDatabase
 db = Stock_250kDatabase(username='nordborglab',
 				   password='papaya', hostname='papaya.usc.edu', database='stock_250k')
 conn = db.connection	#establish the connection before referring db.tables (it needs to be setup)
 outputResults(db, 5, '/tmp/5_results.tsv')
 outputResults(db, 6, '/tmp/6_results.tsv')
+"""
 
+
+
+
+
+"""
+2008-07-21
+"""
+def drawScoreHistogram(curs, results_method_id, list_type_id=1, do_log10_transformation=True, min_or_max_func='min'):
+	from Stock_250kDB import ResultsMethod, GeneList, ResultsByGene, CandidateGeneRankSumTestResult
+	rm = ResultsMethod.get(results_method_id)
+	db_rows = GeneList.query.filter_by(list_type_id=list_type_id)
+	from sets import Set
+	gene_set = Set()
+	for gl in db_rows:
+		gene_set.add(gl.gene_id)
+	
+	import math
+	score_ls1 = []
+	score_ls2 = []
+	#db_rows = ResultsByGene.query.filter_by(results_method_id=results_method_id)
+	curs.execute("select r.gene_id, %s(r.score) as score from results_by_gene r  where r.results_method_id=%s group by r.gene_id"%(min_or_max_func, results_method_id))
+	db_rows = curs.fetchall()
+	for row in db_rows:
+		gene_id, score = row
+		if do_log10_transformation:
+			score = -math.log(score)
+		if gene_id in gene_set:
+			score_ls1.append(score)
+		else:
+			score_ls2.append(score)
+	import pylab
+	pylab.clf()
+	pylab.title('results_method_id=%s, (%s on %s) by list type: %s.'%(rm.id, rm.analysis_method.short_name, rm.phenotype_method.short_name, gl.list_type.short_name))
+	n1 = pylab.hist(score_ls1, 100, alpha=0.4, normed=1)
+	n2 = pylab.hist(score_ls2, 100, alpha=0.4, normed=1, facecolor='r')
+	pylab.legend(['candidate gene list', 'non-candidate gene list'])
+	pylab.show()
+	return score_ls1, score_ls2
+
+"""
+score_ls1, score_ls2 = drawScoreHistogram(curs, 23, 1)
+"""
+
+
+
+"""
+2008-07-31
+"""
+def getFRIAlignment(output_fname, alignment_id=1843):
+	from variation.src.AtDB import AtDB, Sequence, Alignment
+	db = AtDB(hostname='localhost')
+	rows = Sequence.query.filter_by(alignment=alignment_id).order_by(Sequence.accession).all()
+	"""
+	#2008-07-31 output in fasta format
+	outf = open(output_fname, 'w')
+	is_target_alignment_outputted = 0
+	for row in rows:
+		if not is_target_alignment_outputted:
+			outf.write('>ref\n')
+			outf.write('%s\n'%row.alignment_obj.target)
+			is_target_alignment_outputted = 1
+		outf.write('>%s %s\n'%(row.accession, row.accession_obj.name))
+		outf.write('%s\n'%(row.bases))
+	del outf
+	"""
+	#2008-08-01 output in a yh SNP matrix format for DrawSNPMatrix.py
+	import csv
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	is_target_alignment_outputted = 0
+	for row in rows:
+		if not is_target_alignment_outputted:
+			header_row = ['name', 1]
+			one_row = ['ref', 1]
+			for i in range(len(row.alignment_obj.target)):
+				base = row.alignment_obj.target[i]
+				one_row.append(base)
+				header_row.append(i+1)
+			writer.writerow(header_row)
+			writer.writerow(one_row)
+			is_target_alignment_outputted = 1
+		one_row = ['%s %s'%(row.accession, row.accession_obj.name), 1]
+		for base in row.bases:
+			one_row.append(base)
+		writer.writerow(one_row)
+	del writer
+
+"""		
+getFRIAlignment('/tmp/alignment_1843.fasta')
+"""
+
+"""
+2008-08-04 investigate whether throwing off some rows help to increase significance
+"""
+def removeRowsBasedOnSNPAllele(input_fname, output_fname, SNP_label, allele='-'):
+	from pymodule import read_data, write_data_matrix, nt2number
+	header, strain_acc_list, category_list, data_matrix = read_data(input_fname, turn_into_integer=1)
+	snp_acc_ls = header[2:]
+	snp_index = -1
+	for i in range(len(snp_acc_ls)):
+		if snp_acc_ls[i]==SNP_label:
+			snp_index = i
+	
+	allele = nt2number[allele]
+	rows_to_be_tossed_out = set()
+	for i in range(len(data_matrix)):
+		if data_matrix[i][snp_index]==allele:
+			rows_to_be_tossed_out.add(i)
+	
+	write_data_matrix(data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=rows_to_be_tossed_out)
+
+"""
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_2.tsv')
+SNP_label = '4_268809_0'
+removeRowsBasedOnSNPAllele(input_fname, output_fname, SNP_label, allele='-')
+"""
+
+
+"""
+2008-08-05
+	NPUTE can't work with SNPs with >2 alleles
+"""
+def removeSNPsWithMoreThan2Alleles(input_fname, output_fname):
+	from pymodule import SNPData
+	snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1)
+	newSNPData = snpData.removeSNPsWithMoreThan2Alleles(snpData)
+	newSNPData.tofile(output_fname)
+
+"""
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_only_2_alleles.tsv')
+removeSNPsWithMoreThan2Alleles(input_fname, output_fname)
+"""
+
+
+"""
+2008-08-05
+	NPUTE output format is SNPXStrain by and large.
+		1st and 2nd column are same as input's 1st row. 1st row is input's 1st column. 2nd row is input's 2nd column.
+	
+"""
+def turnNPUTEOutputIntoYuFormat(input_fname, output_fname):
+	from pymodule import SNPData
+	snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1, double_header=1, ignore_2nd_column=1)
+	snpData.col_id_ls = snpData.header[0][2:]	#take the first header
+	
+	from pymodule.SNP import transposeSNPData
+	newSNPData = transposeSNPData(snpData)
+	newSNPData.strain_acc_list = newSNPData.row_id_ls
+	newSNPData.category_list = snpData.header[1][2:]
+	newSNPData.tofile(output_fname)
+"""
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.NPUTE.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.NPUTE.yh.tsv')
+turnNPUTEOutputIntoYuFormat(input_fname, output_fname)
+"""
+
+"""
+2008-08-05
+	test boolean relationship between SNPs
+"""
+
+def returnTop2Allele(snp_allele2count):
+	"""
+	2008-08-06 remove redundant argument snp_allele_ls
+	2008-08-05 in the descending order of count for each allele, assign index ascending
+	"""
+	snp_allele_count_ls = []
+	snp_allele_ls = snp_allele2count.keys()
+	for snp_allele in snp_allele_ls:
+		snp_allele_count_ls.append(snp_allele2count[snp_allele])
+	import numpy
+	argsort_ls = numpy.argsort(snp_allele_count_ls)
+	new_snp_allele2index = {}
+	for i in [-1, -2]:
+		snp_index = argsort_ls[i]	#-1 is index for biggest, -2 is next biggest
+		new_snp_allele2index[snp_allele_ls[snp_index]] = -i-1
+	return new_snp_allele2index
+
+def booleanMergeSNPs(input_fname, output_fname, SNP_label1, SNP_label2, operator_type=1):	#1 is and, 2 is or
+	"""
+	2008-08-05
+		alleles not in the top 2 are taken as NA. major allele is coded as 0. minor allele is coded as 1.
+	"""
+	from pymodule import read_data, write_data_matrix, nt2number
+	header, strain_acc_list, category_list, data_matrix = read_data(input_fname, turn_into_integer=1)
+	
+	snp_acc_ls = header[2:]
+	snp_index1 = -1
+	snp_index2 = -1
+	for i in range(len(snp_acc_ls)):
+		if snp_acc_ls[i]==SNP_label1:
+			snp_index1 = i
+		if snp_acc_ls[i]==SNP_label2:
+			snp_index2 = i
+	
+	snp_allele2count1 = {}
+	snp_allele2count2 = {}
+	no_of_rows = len(data_matrix)
+	
+	for i in range(no_of_rows):
+		snp1_allele = data_matrix[i][snp_index1]
+		snp2_allele = data_matrix[i][snp_index2]
+		if snp1_allele!=0:
+			if snp1_allele not in snp_allele2count1:
+				snp_allele2count1[snp1_allele] = 0
+			snp_allele2count1[snp1_allele] += 1
+		if snp2_allele!=0:
+			if snp2_allele not in snp_allele2count2:
+				snp_allele2count2[snp2_allele] = 0
+			snp_allele2count2[snp2_allele] += 1
+	print snp_allele2count1
+	print snp_allele2count2
+	snp_allele2index1 = returnTop2Allele(snp_allele2count1)
+	
+	snp_allele2index2 = returnTop2Allele(snp_allele2count2)
+	print snp_allele2index1
+	print snp_allele2index2
+	
+	no_of_cols = 1
+	new_data_matrix = data_matrix	#replace the 1st SNP's data with the new boolean result
+	for i in range(no_of_rows):
+		snp1_allele = data_matrix[i][snp_index1]
+		snp2_allele = data_matrix[i][snp_index2]
+		if snp1_allele in snp_allele2index1:
+			snp_code1 = snp_allele2index1[snp1_allele]
+		else:
+			snp_code1 = 0
+		
+		if snp2_allele in snp_allele2index2:
+			snp_code2 = snp_allele2index2[snp2_allele]
+		else:
+			snp_code2 = 0
+		if operator_type==1:
+			if snp1_allele in snp_allele2index1 and snp2_allele in snp_allele2index2:
+				new_data_matrix[i][snp_index1] = (snp_code1 and snp_code2) + 1
+		elif operator_type==2:
+			if snp1_allele in snp_allele2index1 or snp2_allele in snp_allele2index2:
+				new_data_matrix[i][snp_index1] = (snp_code1 or snp_code2) + 1
+	write_data_matrix(new_data_matrix, output_fname, header, strain_acc_list, category_list)
+
+"""
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_1_or_2.tsv')
+SNP_label1 = '4_268809_0'
+SNP_label2 = '4_269962_8'
+booleanMergeSNPs(input_fname, output_fname, SNP_label1, SNP_label2, operator_type=2)
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_1_or_2.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_1_or_2_or_3.tsv')
+SNP_label3 = '4_270712_0'
+booleanMergeSNPs(input_fname, output_fname, SNP_label1, SNP_label3, operator_type=2)
+"""
+
+
+"""
+	in processing FRI deletion data from Shindo2005. check plone doc, /research/variation/log-2008-07.
+2008-08-05
+"""
+def outputShindo2005(input_fname, output_fname, which_type_of_id_to_output=1):
+	"""
+	2008-08-06
+		in output. if which_type_of_id_to_output==1, output in ecotypeid; else output in accession_id
+	"""
+	from variation.src.AtDB import AtDB, Sequence, Alignment
+	db = AtDB(hostname='localhost')
+	from pymodule import read_data, write_data_matrix
+	header, strain_acc_list, category_list, data_matrix = read_data(input_fname, turn_into_integer=0)
+	
+	no_of_rows = len(strain_acc_list)
+	import numpy
+	new_data_matrix = numpy.ones([no_of_rows, 2], numpy.int8)
+	new_strain_acc_list = []
+	new_category_list = []
+	for i in range(len(strain_acc_list)):
+		strain_acc = strain_acc_list[i].upper()
+		#2008-08-06 for magnus's data.csv	no swedish letters.
+		rows = db.metadata.bind.execute("select a2e.ecotype_id, a2e.nativename, a2e.accession_id from accession2tg_ecotypeid a2e, magnus_192_vs_accession m2a where upper(m2a.linename)='%s' and m2a.accession_id=a2e.accession_id"%\
+								(strain_acc))
+		
+		#2008-08-06 for stuff extracted from Supplemental Figure 4A, Figure 4B. this query doesn't help to recognize those swedish letters
+		#rows = db.metadata.bind.execute("select a2e.ecotype_id, a2e.nativename, a2e.accession_id from accession2tg_ecotypeid a2e where upper(a2e.accession_name)='%s'"%\
+		#						(strain_acc))
+		try:
+			row = rows.fetchone()
+			if which_type_of_id_to_output==1:
+				new_strain_acc_list.append(row.ecotype_id)
+			else:
+				new_strain_acc_list.append(row.accession_id)
+			new_category_list.append(row.nativename)
+			deletion_code = int(category_list[i])
+			deletion_code_index = deletion_code-2
+			if deletion_code_index>=0:
+				new_data_matrix[i][deletion_code_index] = 2	#allele 2
+		except:
+			print i, strain_acc
+			new_strain_acc_list.append(strain_acc)
+			new_category_list.append(strain_acc)
+		
+	new_header = header[:2] + ['4_268809_0', '4_269962_8']
+	write_data_matrix(new_data_matrix, output_fname, new_header, new_strain_acc_list, new_category_list)
+
+"""
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/Shindo2005_data.csv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/Shindo2005_data_SNP.tsv')
+outputShindo2005(input_fname, output_fname)
+"""
+
+
+"""
+2008-08-16
+	check if the array_ids and ecotype_ids in call files generated by bjarni match the ones in db
+"""
+def checkBjarniFile(input_fname, curs):
+	import csv
+	reader = csv.reader(open(input_fname))
+	array_id_ls = reader.next()[2:]
+	array_id_ls = map(int, array_id_ls)
+	print "%s arrays"%(len(array_id_ls))
+	ecotype_id_ls = reader.next()[2:]
+	ecotype_id_ls = map(int, ecotype_id_ls)
+	print "%s ecotypes"%(len(ecotype_id_ls))
+	for i in range(len(array_id_ls)):
+		array_id = array_id_ls[i]
+		ecotype_id = ecotype_id_ls[i]
+		curs.execute("select tg_ecotypeid from stock.ecotypeid2tg_ecotypeid where ecotypeid=%s"%ecotype_id)
+		rows = curs.fetchall()
+		if rows:
+			bjarni_ecotype_id = rows[0][0]
+		else:
+			sys.stderr.write( "ecotype_id %s has no tg_ecotypeid in ecotypeid2tg_ecotypeid.\n"%(ecotype_id))
+			bjarni_ecotype_id = ecotype_id
+		curs.execute("select maternal_ecotype_id from stock_250k.array_info where id=%s"%array_id)
+		rows = curs.fetchall()
+		maternal_ecotype_id = rows[0][0]
+		if bjarni_ecotype_id!=maternal_ecotype_id:
+			print i, array_id, bjarni_ecotype_id, maternal_ecotype_id
+	del reader
+
+"""
+input_fname = '/Network/Data/250k/dataFreeze_080608/250K_f8_080608.csv'
+checkBjarniFile(input_fname, curs)
+"""
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
@@ -2786,6 +3228,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
+"""
 from codense.common import db_connect, form_schema_tables
 hostname='dl324b-1'
 dbname='yhdb'
@@ -2801,11 +3244,20 @@ import MySQLdb
 conn0 = MySQLdb.connect(db=dbname,host=hostname)
 curs0 = conn0.cursor()
 
-hostname='localhost'
-dbname='stock20071008'
+hostname='papaya.usc.edu'
+dbname='stock_250k'
+db_user='yh'
+db_passwd = ''
 import MySQLdb
-conn = MySQLdb.connect(db=dbname,host=hostname)
+conn = MySQLdb.connect(db=dbname,host=hostname, user=db_user, passwd=db_passwd)
 curs = conn.cursor()
+
+drivername='mysql'
+schema = None
+from Stock_250kDB import Stock_250kDB
+db = Stock_250kDB(drivername=drivername, username=db_user,
+				password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+"""
 
 if __name__ == '__main__':
 	ecotype_table = 'ecotype'
