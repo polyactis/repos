@@ -165,7 +165,7 @@ class MpiGeneListRankTest(GeneListRankTest):
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
 		free_computing_node_set = Set(free_computing_nodes)
 		output_node_rank = self.communicator.size-1
-		if node_rank != output_node_rank:	#to reduce the number of connections on papaya
+		if node_rank in free_computing_node_set:	#to reduce the number of connections on papaya
 			self.hostname = 'banyan.usc.edu'
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
