@@ -23,7 +23,8 @@ Examples:
 	
 	#accession-wise QC between 250k (call_method_id=3) and 149SNP
 	QC_250k.py -m 3 -l 3 -y 0.85 -c
-	QC_250k.py -m 8 -l 3 -y 0.85 -c
+	#accession-wise QC between 250k (call_method_id=3) and 384-illumina, one by one
+	QC_250k.py -m 8 -l 3 -y 0.85 -c -a
 	
 	#do snp-wise QC between 250k (call_method_id=3, excluding arrays with > 20% mismatch rate, according to the QC with maximum no_of_non_NA_pairs) and Perlegen
 	QC_250k.py -m 2 -l 3 -y 0.85 -e 2 -x 0.20 -c
@@ -77,35 +78,12 @@ class QC_250k(object):
 							('QC_method_id', 1, int): [None, 'm', 1, 'id in table QC_method'],\
 							('call_method_id', 1, int): [None, 'l', 1, 'id in table call_method'],\
 							('run_type', 1, int): [1, 'e', 1, 'QC on 1=accession-wise or 2=snp-wise'],\
+							('one_by_one', 0, int): [0, 'a', 0, 'whether to do QC of call_info entries one by one or as a whole. only for run_type=1.'],\
 							('max_call_info_mismatch_rate', 0, float,):[-1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
-	old_option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
-							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
-							('u', 'user', 1, 'database username', 1, ):None,\
-							('p', 'passwd', 1, 'database password', 1, ):None,\
-							('n', 'input_dir', 1, 'If given, call data would be read from this directory/file rather than from call info table. \
-								Does not work for QC_method_id=0. The data is sorted according to array_id. No call_info_id available. No db submission.', 0, ): None,\
-							('i', 'cmp_data_filename', 1, 'the data file to be compared with. if not given, it gets figured out by QC_method_id.', 0, ): None,\
-							('y', 'min_probability', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', 0, float): -1,\
-							('o', 'output_fname', 1, 'if given, QC results will be outputed into it.', 0, ): None,\
-							('q', 'call_QC_table', 1, '', 1, ): 'call_QC',\
-							('m', 'QC_method_id', 1, 'id in table QC_method', 1, int): None,\
-							('l', 'call_method_id', 1, 'id in table call_method', 1, int): None,\
-							('e', 'run_type', 1, 'QC on 1=accession-wise or 2=snp-wise', 1, int): 1,\
-							('x', 'max_call_info_mismatch_rate', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.', 0, float): 1,\
-							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
-							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
-							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
-	
-	"""
-	2008-04-40
-		option_default_dict is a dictionary for option handling, including argument_default_dict info
-		the key is a tuple, ('short_option', 'long_option', has_argument, description_for_option, is_option_required, argument_type)
-		argument_type is optional
-	"""
 	def __init__(self,  **keywords):
 		"""
 		2008-07-01
@@ -314,6 +292,8 @@ class QC_250k(object):
 	
 	def cal_independent_NA_rate(cls, db, min_probability, readme):
 		"""
+		2008-07-13
+			save_or_update(call_info)
 		2008-05-06
 			use sqlalchemy connection
 		2008-04-20
@@ -325,7 +305,7 @@ class QC_250k(object):
 		#			(call_info_table))
 		#rows = curs.fetchall()
 		#call_info_ls = db.session.query(CallInfo).filter_by(NA_rate=None).all()
-		call_info_ls = db.session.query(CallInfo).filter(sqlalchemy.or_(db.tables['call_info'].c.NA_rate==0.0, db.tables['call_info'].c.NA_rate==None)).all()
+		call_info_ls = db.session.query(CallInfo).filter(sqlalchemy.or_(db.tables['call_info'].c.NA_rate==None)).all()
 		no_of_rows = len(call_info_ls)
 		sys.stderr.write("\tTotally, %d call_info entries to be processed.\n"%no_of_rows)
 		for i in range(no_of_rows):
@@ -346,7 +326,9 @@ class QC_250k(object):
 					no_of_NAs += 1
 			if no_of_totals!=0:
 				call_info.NA_rate = float(no_of_NAs)/no_of_totals
+				sys.stderr.write("%s\n"%call_info.NA_rate)
 				call_info.readme = readme
+				db.session.save_or_update(call_info)
 			del reader
 			#curs.execute("update " + call_info_table + " set NA_rate=%s where id=%s",\
 			#		(NA_rate, call_info_id))
@@ -420,6 +402,33 @@ class QC_250k(object):
 									7:'stock.snps',\
 									8:'dbsnp.snps'}
 	
+	
+	def qcDataMatrixVSsnpData(self, pdata, snps_name2snps_id, snpData2, curs, session, readme):
+		"""
+		2008-08-16
+			split from run() to enable one_by_one option
+		"""
+		#swap the ecotype_id_ls and call_info_id_ls when passing them to SNPData. now strain_acc_list=ecotype_id_ls
+		snpData1 = SNPData(header=pdata.header, strain_acc_list=pdata.ecotype_id_ls, category_list=pdata.call_info_id_ls, data_matrix=pdata.data_matrix, \
+						min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
+						max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
+		
+		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
+							QC_method_id=self.QC_method_id, user=self.user, row_matching_by_which_value=0, debug=self.debug)
+		
+		if self.run_type==1:
+			row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
+		elif self.run_type==2:
+			twoSNPData.save_col_wise(session, readme)
+			row_id2NA_mismatch_rate = {}
+		else:
+			sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
+			sys.exit(5)
+		passingdata = PassingData()
+		passingdata.row_id2NA_mismatch_rate = row_id2NA_mismatch_rate
+		passingdata.row_id12row_id2 = twoSNPData.row_id12row_id2
+		return passingdata
+		
 	def run(self):
 		"""
 		2008-04-25
@@ -485,43 +494,45 @@ class QC_250k(object):
 					sys.exit(5)
 				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, \
 																						filter_calls_QCed, self.max_call_info_mismatch_rate, self.debug)
-			if call_info_id2fname:
-				pdata = self.read_call_matrix(call_info_id2fname, self.min_probability)
-				header = pdata.header
-				call_info_id_ls = pdata.call_info_id_ls
-				array_id_ls = pdata.array_id_ls
-				ecotype_id_ls = pdata.ecotype_id_ls
-				data_matrix = pdata.data_matrix
-			else:
-				#input file is SNP by strain format. double header (1st two lines)
-				header, snps_name_ls, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_dir, double_header=1)
-				ecotype_id_ls = header[0][2:]
-				call_info_id_ls = header[1][2:]
-				data_matrix = numpy.array(data_matrix)
-				data_matrix = data_matrix.transpose()
-				header = ['', ''] + snps_name_ls	#fake a header for SNPData
-			
 			if self.run_type==2:
 				snps_name2snps_id = self.get_snps_name2snps_id(db)
 			else:
 				snps_name2snps_id = None
 			
-			#swap the ecotype_id_ls and call_info_id_ls when passing them to SNPData. now strain_acc_list=ecotype_id_ls
-			snpData1 = SNPData(header=header, strain_acc_list=ecotype_id_ls, category_list= call_info_id_ls, data_matrix=data_matrix, \
-							min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
-							max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
-			
-			twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
-								QC_method_id=self.QC_method_id, user=self.user, row_matching_by_which_value=0, debug=self.debug)
-			
-			if self.run_type==1:
-				row_id2NA_mismatch_rate = twoSNPData.cmp_row_wise()
-			elif self.run_type==2:
-				twoSNPData.save_col_wise(session, readme)
-				row_id2NA_mismatch_rate = None
+			if call_info_id2fname:
+				if self.one_by_one and self.run_type==1:	#one_by_one only for QC by accession
+					row_id2NA_mismatch_rate = {}
+					row_id12row_id2 = {}
+					counter = 0
+					for call_info_id, value in call_info_id2fname.iteritems():
+						counter += 1
+						print "No", counter
+						tmp_dict = {}
+						tmp_dict[call_info_id] = value
+						pdata = self.read_call_matrix(tmp_dict, self.min_probability)
+						passingdata = self.qcDataMatrixVSsnpData(pdata, snps_name2snps_id, snpData2, curs, session, readme)
+						row_id2NA_mismatch_rate.update(passingdata.row_id2NA_mismatch_rate)
+						row_id12row_id2.update(passingdata.row_id12row_id2)
+						del pdata
+				else:
+					pdata = self.read_call_matrix(call_info_id2fname, self.min_probability)
+					passingdata = self.qcDataMatrixVSsnpData(pdata, snps_name2snps_id, snpData2, curs, session, readme)
+					row_id2NA_mismatch_rate = passingdata.row_id2NA_mismatch_rate
+					row_id12row_id2 = passingdata.row_id12row_id2
+					del pdata
 			else:
-				sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
-				sys.exit(5)
+				#input file is SNP by strain format. double header (1st two lines)
+				header, snps_name_ls, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_dir, double_header=1)
+				pdata = PassingData()
+				pdata.ecotype_id_ls = header[0][2:]
+				pdata.call_info_id_ls = header[1][2:]
+				data_matrix = numpy.array(data_matrix)
+				pdata.data_matrix = data_matrix.transpose()
+				pdata.header = ['', ''] + snps_name_ls	#fake a header for SNPData
+				passingdata = self.qcDataMatrixVSsnpData(pdata, snps_name2snps_id, snpData2, curs, session, readme)
+				row_id2NA_mismatch_rate = passingdata.row_id2NA_mismatch_rate
+				row_id12row_id2 = passingdata.row_id12row_id2
+				del pdata
 		
 		if self.output_fname and self.run_type==1 and row_id2NA_mismatch_rate:
 			self.output_row_id2NA_mismatch_rate(row_id2NA_mismatch_rate, self.output_fname)
@@ -529,7 +540,8 @@ class QC_250k(object):
 		if self.run_type==1 and self.commit and not self.input_dir and row_id2NA_mismatch_rate:
 			#if self.input_dir is given, no db submission. call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
 			#row_id2NA_mismatch_rate might be None if it's method 0.
-			self.submit_to_call_QC(session, row_id2NA_mismatch_rate, self.QC_method_id, self.user, self.min_probability, twoSNPData.row_id12row_id2, self.call_method_id, readme)
+			self.submit_to_call_QC(session, row_id2NA_mismatch_rate, self.QC_method_id, self.user, self.min_probability, \
+								row_id12row_id2, self.call_method_id, readme)
 		if self.commit:
 			curs.execute("commit")
 			transaction.commit()
