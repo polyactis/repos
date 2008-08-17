@@ -41,6 +41,7 @@ class MergeDuplicatedCalls(object):
 						('passwd', 1, ):[None, 'p', 1, 'database password', ],\
 						('input_fname', 1, ): [None, 'i', 1, ],\
 						('output_fname', 1, ): [None, 'o', 1, 'Output Filename'],\
+						('stat_output_fname', 0, ): [None, '', 1, 'file to hold the mismatch rates for each row and column if given'],\
 						('ecotype_table', 1, ): ['stock.ecotype', 'e', 1, 'ecotype Table to get ecotypeid2nativename'],\
 						('ecotype_duplicate2tg_ecotypeid_table', 0, ):[None, 't', 1, 'table containing who are duplicates to each other. if not given, use ecotypeid to figure out duplicates'],\
 						('processing_bits', 1, ): ['0000111100', 'y', 1, 'processing bits to control which processing step should be turned on.\
@@ -59,16 +60,18 @@ class MergeDuplicatedCalls(object):
 		
 	def get_ecotype_duplicate2tg_ecotypeid(cls, curs, ecotype_duplicate2tg_ecotypeid_table):
 		"""
+		2008-08-12
+			modify the sql sentence to adjust to both old and new ecotype_duplicate2tg_ecotypeid_table (ecotype_duplicate2tg_ecotypeid and ecotypeid_strainid2tg_ecotypeid)
 		2008-08-11
 			ecotype_duplicate2tg_ecotypeid_table structure changed
 		2008-04-04
 		"""
 		sys.stderr.write("Getting ecotype_duplicate2tg_ecotypeid ... ")
 		ecotype_duplicate2tg_ecotypeid = {}
-		curs.execute("select ecotypeid, strainid, tg_ecotypeid from %s"%ecotype_duplicate2tg_ecotypeid_table)
+		curs.execute("select * from %s"%ecotype_duplicate2tg_ecotypeid_table)
 		rows = curs.fetchall()
 		for row in rows:
-			ecotypeid, duplicate, tg_ecotypeid = row
+			row_id, ecotypeid, duplicate, tg_ecotypeid = row
 			key_pair = (ecotypeid, duplicate)
 			if key_pair in ecotype_duplicate2tg_ecotypeid:
 				sys.stderr.write("Warning: %s already appears in ecotype_duplicate2tg_ecotypeid.\n"%(repr(key_pair)))
@@ -117,8 +120,10 @@ class MergeDuplicatedCalls(object):
 	
 	get_tg_ecotypeid2ecotypeid_duplicate_index_ls = classmethod(get_tg_ecotypeid2ecotypeid_duplicate_index_ls)
 	
-	def get_merged_matrix(self, tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix, ecotypeid2nativename):
+	def get_merged_matrix(self, tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix, ecotypeid2nativename, stat_output_fname=None):
 		"""
+		2008-08-17
+			add stat_output_fname
 		2008-07-11
 			calculate the inconsistency ratio among duplicates
 		"""
@@ -132,7 +137,10 @@ class MergeDuplicatedCalls(object):
 		
 		no_of_cols = len(data_matrix[0])
 		merge_matrix = numpy.zeros([len(tg_ecotypeid_ls), no_of_cols], numpy.int)
-		print 'ecotypeid\tnativename\tno_of_non_NA_inconsistent_pairs\tno_of_non_NA_pairs\tinconsistent_ratio'
+		if stat_output_fname:
+			stat_output_writer = csv.writer(open(stat_output_fname, 'w'), delimiter='\t')
+			header_row = ['ecotypeid', 'nativename', 'no_of_non_NA_inconsistent_pairs', 'no_of_non_NA_pairs', 'inconsistent_ratio']
+			stat_output_writer.writerow(header_row)
 		for i in range(len(tg_ecotypeid_ls)):
 			tg_ecotypeid = tg_ecotypeid_ls[i]
 			ecotypeid_duplicate_index_ls = tg_ecotypeid2ecotypeid_duplicate_index_ls[tg_ecotypeid]
@@ -149,10 +157,15 @@ class MergeDuplicatedCalls(object):
 					inconsistent_ratio = passingdata.no_of_non_NA_inconsistent_pairs/float(passingdata.no_of_non_NA_pairs)
 				else:
 					inconsistent_ratio = None
-				print '%s\t%s\t%s\t%s\t%s'%(tg_ecotypeid, ecotypeid2nativename[tg_ecotypeid], passingdata.no_of_non_NA_inconsistent_pairs, passingdata.no_of_non_NA_pairs, inconsistent_ratio)
+				if stat_output_fname:
+					writer.writerow([tg_ecotypeid, ecotypeid2nativename[tg_ecotypeid], passingdata.no_of_non_NA_inconsistent_pairs, passingdata.no_of_non_NA_pairs, inconsistent_ratio])
+		if no_of_non_NA_pairs>0:
+			inconsistent_ratio = no_of_non_NA_inconsistent_pairs/float(no_of_non_NA_pairs)
+		else:
+			inconsistent_ratio = 'NULL'
 		sys.stderr.write("%s/%s=%s inconsistency among %s ecotypes who have duplicates. Done.\n"%\
 						(no_of_non_NA_inconsistent_pairs, no_of_non_NA_pairs, \
-						no_of_non_NA_inconsistent_pairs/float(no_of_non_NA_pairs), no_of_duplicated_rows))
+						inconsistent_ratio, no_of_duplicated_rows))
 		return tg_ecotypeid_ls, merge_matrix
 	
 	def merge_call_on_one_row(cls, ecotypeid_duplicate_index_ls, data_matrix, no_of_cols, NA_set=Set([0, -2])):
@@ -203,7 +216,8 @@ class MergeDuplicatedCalls(object):
 		tg_ecotypeid2ecotypeid_duplicate_index_ls = self.get_tg_ecotypeid2ecotypeid_duplicate_index_ls(strain_acc_list, category_list, ecotype_duplicate2tg_ecotypeid)
 		
 		ecotypeid2nativename = get_ecotypeid2nativename(curs, ecotype_table=self.ecotype_table)
-		tg_ecotypeid_ls, merge_matrix = self.get_merged_matrix(tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix, ecotypeid2nativename)
+		tg_ecotypeid_ls, merge_matrix = self.get_merged_matrix(tg_ecotypeid2ecotypeid_duplicate_index_ls, data_matrix, \
+															ecotypeid2nativename, self.stat_output_fname)
 		
 		tg_nativename_ls = []
 		for ecotypeid in tg_ecotypeid_ls:
