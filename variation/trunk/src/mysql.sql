@@ -424,15 +424,13 @@ create index results_snps_id_results_method_id_idx on results(snps_id, results_m
 create index results_results_method_id_idx on results(results_method_id);
 
 --2008-04-30 create a view to view qc results for arrays
-create or replace view view_qc as select e.id as ecotype_id, e.nativename, q.tg_ecotype_id, q.call_info_id, 
-q.call_method_id, a.id as array_id, a.original_filename as array_original_filename, a.date_created as array_created, 
-c.NA_rate as call_NA_rate, q.NA_rate as QC_NA_rate, group_concat(q.mismatch_rate order by q.qc_method_id) as mismatch_rate, 
-group_concat(q.no_of_mismatches order by q.qc_method_id) as no_of_mismatches, 
-group_concat(q.no_of_non_NA_pairs order by q.qc_method_id) as no_of_non_NA_pairs, 
-group_concat(q.qc_method_id order by q.qc_method_id) as qc_method 
-from call_info c, array_info a, call_qc q , stock.ecotype e where e.id=q.ecotype_id 
-and q.call_info_id = c.id and a.id=c.array_id group by q.ecotype_id, q.call_info_id, 
-q.call_method_id order by nativename,  call_method_id, call_NA_rate, QC_NA_rate, array_created, original_filename;
+create or replace view view_qc as select e.id as ecotype_id, e.nativename, a.id as array_id, q.tg_ecotype_id, q.call_info_id, 
+q.call_method_id, c.NA_rate as call_NA_rate,  q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
+q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, 
+a.original_filename as array_original_filename, a.date_created as array_created
+from call_info c, array_info a, call_qc q , stock.ecotype e, qc_method qm where e.id=q.ecotype_id 
+and q.call_info_id = c.id and a.id=c.array_id and qm.id=q.qc_method_id order by nativename, array_id, call_method_id,
+array_created, qc_method_id;
 
 --2008-05-20 view the calls, arrays, ecotypes all together
 
