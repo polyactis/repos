@@ -166,7 +166,7 @@ class dbSNP2data(object):
 		sys.stderr.write("Done.\n")
 		return snp_id2index, snp_id_list
 	
-	def get_snp_id2index_m(self, curs, input_table, snp_locus_table):
+	def get_snp_id2index_m(cls, curs, input_table, snp_locus_table):
 		"""
 		2008-05-12
 			return snp_id2info as well
@@ -208,6 +208,8 @@ class dbSNP2data(object):
 		sys.stderr.write("Done.\n")
 		return snp_id2index, snp_id_list, snp_id2info
 	
+	get_snp_id2index_m = classmethod(get_snp_id2index_m)
+	
 	def get_strain_id2index(self, curs, input_table):
 		sys.stderr.write("Getting strain_id2index ...")
 		strain_id2index = {}
@@ -221,7 +223,7 @@ class dbSNP2data(object):
 		sys.stderr.write("Done.\n")
 		return strain_id2index, strain_id_list
 	
-	def get_strain_id2index_m(self, curs, input_table, strain_info_table, only_include_strains_with_GPS=0, resolve_duplicated_calls=0):
+	def get_strain_id2index_m(cls, curs, input_table, strain_info_table, only_include_strains_with_GPS=0, resolve_duplicated_calls=0):
 		"""
 		2008-08-11
 			no more code for resolve_duplicated_calls
@@ -288,6 +290,8 @@ class dbSNP2data(object):
 			strain_id2category[strain_id] = duplicate
 		sys.stderr.write("Done.\n")
 		return strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category
+	
+	get_strain_id2index_m = classmethod(get_strain_id2index_m)
 	
 	def get_strain_id_info(self, curs, strain_id_list, strain_info_table):
 		sys.stderr.write("Getting strain_id_info ...")
@@ -395,7 +399,9 @@ class dbSNP2data(object):
 		sys.stderr.write("Done.\n")
 		return data_matrix
 	
-	def get_data_matrix_m(self, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call, snps_id2mapping=None):
+	report = 0
+	
+	def get_data_matrix_m(cls, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call=0, snps_id2mapping=None):
 		"""
 		2008-08-11
 			adjust code to the new stock.calls table (after Calls_BySeq2Calls.py)
@@ -433,7 +439,7 @@ class dbSNP2data(object):
 		for snp_id in snp_id2index:
 			snp_counter += 1
 			counter = 0
-			if self.report:
+			if cls.report:
 				sys.stderr.write("%s\tSNP %s=%s"%('\x08'*80, snp_counter, snp_id))
 			if input_table == 'dbsnp.calls':
 				curs.execute("%s where snps_id=%s"%(common_sql_string, snp_id))
@@ -469,10 +475,12 @@ class dbSNP2data(object):
 							data_matrix[strain_id2index[strain_id], snp_id2index[snp_id]] = call_number
 					counter += 1
 				rows = curs.fetchmany(5000)
-				if self.report:
+				if cls.report:
 					sys.stderr.write("%s\tSNP %s=%s\t\t%s"%('\x08'*80, snp_counter, snp_id, counter))
 		sys.stderr.write("Done.\n")
 		return data_matrix
+	
+	get_data_matrix_m = classmethod(get_data_matrix_m)
 	
 	def get_majority_call_number(cls, call_counter_ls):
 		"""
