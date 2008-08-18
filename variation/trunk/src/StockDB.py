@@ -32,7 +32,17 @@ from sqlalchemy import UniqueConstraint
 from datetime import datetime
 
 from pymodule.db import ElixirDB
-from pymodule.db import README
+
+class README(Entity):
+	#2008-08-07
+	title = Field(String(2000))
+	description = Field(String(60000))
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='readme')
+	using_table_options(mysql_engine='InnoDB')
 
 class BatchEcotype(Entity):
 	batch = ManyToOne('Batch', colname='batchid', ondelete='CASCADE', onupdate='CASCADE')
@@ -216,6 +226,45 @@ class Calls_BySeq(Entity):
 	using_options(tablename='calls_byseq')
 	using_table_options(mysql_engine='InnoDB')
 
+class QCMethod(Entity):
+	"""
+	2008-08-17
+	"""
+	short_name = Field(String(30), unique=True)
+	data1_type = Field(String(30), nullable=False)
+	data2_type = Field(String(30), nullable=False)
+	method_description = Field(Text)
+	data_description = Field(Text)
+	comment = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='qc_method')
+	using_table_options(mysql_engine='InnoDB')
+
+class CallQC(Entity):
+	"""
+	2008-08-17
+	"""
+	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
+	ecotype = ManyToOne("Ecotype", colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
+	target_id = Field(Integer)
+	NA_rate = Field(Float)
+	no_of_NAs = Field(Integer)
+	no_of_totals = Field(Integer)
+	mismatch_rate = Field(Float)
+	no_of_mismatches = Field(Integer)
+	no_of_non_NA_pairs = Field(Integer)
+	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	qc_method = ManyToOne("QCMethod", colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='call_qc')
+	using_table_options(mysql_engine='InnoDB')
+
 class StockDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
@@ -247,4 +296,3 @@ if __name__ == '__main__':
 	main_class = StockDB
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
-
