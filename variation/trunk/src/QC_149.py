@@ -4,7 +4,10 @@
 Examples:
 	#QC between 149 and perlegen
 	QC_149.py -m 2 -o /tmp/149_vs_perlegen.QC.tsv -c
-
+	
+	#QC between 149 and 384
+	QC_149.py -m 3 -o /tmp/149_vs_384.QC.tsv -c
+	
 Description:
 	QC for 149SNP data from db stock against 2010, perlegen, etc.
 	
@@ -27,11 +30,12 @@ else:   #32bit
 
 import time, csv, getopt
 import warnings, traceback
-from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data, nt2number
+from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data, nt2number, importNumericArray
 from variation.src.QualityControl import QualityControl
-from variation.src.StockDB import StockDB, QCMethod, CallQC, Calls, SNPs, README, Ecotype
+from variation.src.StockDB import StockDB, QCMethod, CallQC, Calls, SNPs, README, Ecotype, Strain, EcotypeIDStrainID2TGEcotypeID
 from pymodule.db import formReadmeObj
-import sqlalchemy, numpy
+
+num = importNumericArray()
 
 class QC_149(object):
 	__doc__ = __doc__
@@ -134,6 +138,57 @@ class QC_149(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
+	def get_strain_id_info(self, QC_method_id):
+		"""
+		2008-08-18
+			to generate data structure related to strain_id, preparation to get data_matrix
+			strainid not QCed yet
+			link to tg_ecotypeid
+		"""
+		sys.stderr.write("Getting strain_id info  ... ")
+		strain_id2index = {}
+		strain_id_list = []
+		strain_id2acc = {}
+		strain_id2category = {}
+		
+		rows = Strain.query.all()
+		for row in rows:
+			ignore_this = 0
+			for call_qc in row.call_qc_ls:
+				if call_qc.qc_method_id==QC_method_id:	#QC already done
+					ignore_this = 1
+					break
+			if ignore_this:
+				continue
+			strain_id = row.id
+			strain_index = len(strain_id_list)
+			strain_id_list.append(strain_id)
+			strain_id2index[strain_id] = strain_index
+			strain_id2acc[strain_id] = row.ecotypeid_strainid2tg_ecotypeid.tg_ecotypeid
+			strain_id2category[strain_id] = strain_id
+		passingdata = PassingData(strain_id2index=strain_id2index, strain_id_list=strain_id_list, strain_id2acc=strain_id2acc,\
+								strain_id2category=strain_id2category)
+		sys.stderr.write("%s strains. Done.\n"%(len(strain_id_list)))
+		return passingdata
+	
+	def get_data_matrix(self, db, strain_id2index, snp_id2index, call_table_name):
+		"""
+		2008-08-18
+		"""
+		sys.stderr.write("Getting data_matrix ...\n")
+		data_matrix = num.zeros([len(strain_id2index), len(snp_id2index)], num.int8)
+		i = 0
+		#block_size = 5000
+		#rows = Calls.query.offset(i).limit(block_size)
+		rows = db.metadata.bind.execute("select * from %s"%call_table_name)
+		for row in rows:
+			if row.strainid in strain_id2index:
+				data_matrix[strain_id2index[row.strainid], snp_id2index[row.snpid]] = nt2number[row.allele]
+			i += 1
+			#rows = Calls.query.offset(i).limit(block_size)
+		sys.stderr.write("Done.\n")
+		return data_matrix
+	
 	def run(self):
 		
 		if self.debug:
@@ -159,10 +214,10 @@ class QC_149(object):
 		curs = conn.cursor()
 		from dbSNP2data import dbSNP2data
 		snp_id2index, snp_id_list, snp_id2info = dbSNP2data.get_snp_id2index_m(curs, Calls.table.name, SNPs.table.name)
-		strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category = dbSNP2data.get_strain_id2index_m(curs, Calls.table.name, Ecotype.table.name)			
-		data_matrix = dbSNP2data.get_data_matrix_m(curs, strain_id2index, snp_id2index, nt2number, Calls.table.name, need_heterozygous_call=1)
-		strain_acc_list = [strain_id2acc[strain_id] for strain_id in strain_id_list]
-		category_list = [strain_id2category[strain_id] for strain_id in strain_id_list]
+		strain_info_data = self.get_strain_id_info(self.QC_method_id)
+		data_matrix = self.get_data_matrix(db, strain_info_data.strain_id2index, snp_id2index, Calls.table.name)
+		strain_acc_list = [strain_info_data.strain_id2acc[strain_id] for strain_id in strain_info_data.strain_id_list]
+		category_list = [strain_info_data.strain_id2category[strain_id] for strain_id in strain_info_data.strain_id_list]
 		header = ['ecotypeid', 'strainid']
 		for snp_id in snp_id_list:
 			snp_name, chromosome, position = snp_id2info[snp_id]
