@@ -136,7 +136,7 @@ class CallMethod(Entity):
 	using_table_options(mysql_engine='InnoDB')
 	
 class PhenotypeMethod(Entity):
-	short_name = Field(String(20))
+	short_name = Field(String(20), unique=True)
 	only_first_96 = Field(Boolean, default=0)
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
@@ -172,8 +172,9 @@ class ResultsMethodType(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class ResultsMethod(Entity):
-	short_name = Field(String(30), unique=True)
+	short_name = Field(String(60), unique=True)
 	filename = Field(String(1000), unique=True)
+	original_filename = Field(Text)
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
 	comment = Field(String(8000))
