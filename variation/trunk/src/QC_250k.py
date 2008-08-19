@@ -65,7 +65,8 @@ import sqlalchemy, numpy
 
 class QC_250k(object):
 	__doc__ = __doc__
-	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
 							('dbname', 1, ): ['stock_250k', 'd', 1, 'database name', ],\
 							('user', 1, ): [None, 'u', 1, 'database username', ],\
 							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
@@ -460,7 +461,7 @@ class QC_250k(object):
 			for plone to call it just to get row_id2NA_mismatch_rate
 		"""
 		#database connection and etc
-		db = Stock_250kDatabase(username=self.user,
+		db = Stock_250kDatabase(drivername=self.drivername, username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		session = db.session
 		session.begin()
