@@ -866,11 +866,15 @@ class TwoSNPData(QualityControl):
 	
 	def update_row_col_matching(self):
 		"""
+		2008-08-18
+			all reference datasets used in 250k QC use chromsome_position as column header
 		2008-05-19
 			add row_id2row_index and col_id2col_index to each SNPData
 		2008-05-11
 			fake two headers from col_id_ls
 		"""
+		"""
+		#2008-08-18
 		if self.QC_method_id==3 or self.QC_method_id==7 or self.QC_method_id==8:	#149SNP data is SNPData2. use database to find out which SNP matches which
 			if self.curs==None:
 				sys.stderr.write("Error: no database connection but it's required to link SNP ids.\n")
@@ -881,7 +885,8 @@ class TwoSNPData(QualityControl):
 			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = Cmp250kVs149SNP.get_col_matching_dstruc(header1, \
 					header2, self.curs, self.SNPData1.snps_table, self.SNPData2.snps_table, columns_to_be_selected=self.columns_to_be_selected)
 		else:	#use the default from QualityControl
-			self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.col_id_ls, self.SNPData2.col_id_ls)
+		"""
+		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.col_id_ls, self.SNPData2.col_id_ls)
 		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.row_id_ls, self.SNPData2.row_id_ls)
 		
 		self.SNPData1.row_id2row_index = self.row_id2row_index1
