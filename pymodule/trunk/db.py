@@ -181,8 +181,8 @@ class ElixirDB(object):
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
-	from elixir import metadata	#2008-08-07
-	metadata = metadata
+	#from elixir import metadata	#2008-08-07
+	#metadata = metadata
 	def __init__(self, **keywords):
 		"""
 		2008-07-09
@@ -204,10 +204,9 @@ class ElixirDB(object):
 				   port=self.port, database=self.database)
 	_url = property(_url)
 	
+	"""
 	def session(self):
-		"""
-		2008-07-09
-		"""
+		#2008-07-09
 		from elixir import session
 		#session = scoped_session(sessionmaker(autoflush=True, transactional=True, bind=self._url))
 		return session
@@ -217,6 +216,8 @@ class ElixirDB(object):
 	def connection(self):
 		return self.session.connection
 	connection = property(connection)
+	"""
+
 """
 from elixir import Entity, Field, using_options, using_table_options
 from elixir import DateTime, String
