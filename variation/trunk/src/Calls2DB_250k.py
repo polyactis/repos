@@ -206,6 +206,8 @@ class Calls2DB_250k(object):
 
 	Examples:
 		Calls2DB_250k.py -i /tmp/simplecalls -m 1 -c
+		
+		Calls2DB_250k.py -i /Network/Data/250k/finalData_051808/250K_method_5_after_imputation_noRedundant_051908.csv -m 6 -u yh -y 2 -c
 	
 	Description:
 		Turn calling algorithm's results into db and associated filesystem directory.
@@ -382,7 +384,7 @@ class Calls2DB_250k(object):
 		del reader
 		for column_index, writer in column_index2writer.iteritems():
 			del writer
-		sys.stderr.write("Done.\n")
+		sys.stderr.write(" %s arrays. Done.\n"%(len(column_index2writer)))
 	
 	def submit_StrainxSNP_file2db(self, curs, input_fname, call_info_table, output_dir, method_id, user):
 		"""
@@ -396,6 +398,7 @@ class Calls2DB_250k(object):
 		
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		header = reader.next()
+		counter = 0
 		for row in reader:
 			ecotype_id, array_id = row[:2]
 			sys.stderr.write("%s\tAssign new call info id to array id=%s ."%('\x08'*80, array_id))
@@ -413,8 +416,9 @@ class Calls2DB_250k(object):
 				del writer
 				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
 						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
+				counter += 1
 		del reader
-		sys.stderr.write("Done.\n")
+		sys.stderr.write(" %s arrays. Done.\n"%counter)
 	
 	def run(self):
 		"""
