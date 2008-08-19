@@ -339,8 +339,9 @@ class Results2DB_250k(object):
 		rm = ResultsMethod.query.filter_by(call_method_id=cm.id).filter_by(phenotype_method_id=pm.id).\
 			filter_by(analysis_method_id=am.id).filter_by(results_method_type_id=rmt.id)
 		if rm.count()>0:
-			sys.stderr.write("There is already an entry in results_method with same (call_method_id, phenotype_method_id, analysis_method_id, results_method_type_id)=(%s, %s, %s, %s).\n"\
-							%(call_method_id, phenotype_method_id, analysis_method_id, results_method_type_id))
+			rm = rm.first()
+			sys.stderr.write("There is already an entry in results_method (id=%s) with same (call_method_id, phenotype_method_id, analysis_method_id, results_method_type_id)=(%s, %s, %s, %s).\n"\
+							%(rm.id, call_method_id, phenotype_method_id, analysis_method_id, results_method_type_id))
 			sys.exit(3)
 		
 		if not short_name:
