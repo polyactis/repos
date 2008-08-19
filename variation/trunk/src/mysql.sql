@@ -109,6 +109,68 @@ create table country2continent(
 	continent	varchar(30)
 	);
 
+--2008-02-12 table for processed/averaged phenotype
+use at;
+create table phenotype_p(
+	id  integer auto_increment primary key,
+	accession_id  integer  unique,
+	region  varchar(200),
+	LD  float,
+	LD_sample_size  integer,
+	LD_stdev  float,
+	avrPph3  integer,
+	avrRpm1  integer,
+	avrRpt2  integer,
+	avrB  integer,
+	FRI_1Ler_2Col  varchar(1),
+	Rps5  varchar(1),
+	Rpm1  varchar(1),
+	Rps2  varchar(1),
+	LDV  float,
+	SD  float,
+	SDV  float,
+	JIC0W  float,
+	JIC2W  float,
+	JIC4W  float,
+	JIC8W  float,
+	FLC  float,
+	FRI  float);
+
+--2008-04-14 add auto-updated created, modified, created_by, modified_by columns to at.phenotype
+use at;
+
+alter table phenotype add created_by varchar(200)  AFTER modified;
+
+alter table phenotype add modified_by varchar(200) AFTER created_by;
+
+DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
+
+CREATE TRIGGER before_insert_phenotype BEFORE INSERT ON phenotype
+  FOR EACH ROW BEGIN
+        if NEW.created_by is null then
+               set NEW.created_by = USER();
+        end if;
+        if NEW.created is null then
+               set NEW.created = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+CREATE TRIGGER before_update_phentoype BEFORE UPDATE ON phenotype
+  FOR EACH ROW BEGIN
+        if NEW.modified_by is null then
+                set NEW.modified_by = USER();
+        end if;
+        if NEW.modified=0 then
+                set NEW.modified = CURRENT_TIMESTAMP();
+        end if;
+  END;
+|
+
+DELIMITER ;
+
+
+
 --2007-10-21 for database stock or its replicates
 use stock;
 create table person(
@@ -173,6 +235,14 @@ CREATE TABLE calls (
 	 CONSTRAINT calls_strainid_fk FOREIGN KEY(strainid) REFERENCES strain (id) ON DELETE CASCADE ON UPDATE CASCADE, 
 	 CONSTRAINT calls_snpid_fk FOREIGN KEY(snpid) REFERENCES snps (id) ON DELETE CASCADE ON UPDATE CASCADE
 )ENGINE=InnoDB;
+
+--2008-08-18 create a view to view qc results for db stock
+create or replace view view_qc as select q.strainid, e.id as ecotype_id, e.nativename, q.target_id, 
+q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
+q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, q.created_by, q.updated_by, q.date_created, q.date_updated
+from call_qc q , ecotype e, qc_method qm where e.id=q.ecotypeid 
+and qm.id=q.qc_method_id order by nativename, strainid, qc_method_id;
+
 
 --2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
 use dbsnp;
@@ -296,66 +366,6 @@ create table popid2s_100(id integer primary key auto_increment,
 	avg_s_Nordborg1997 float,
 	std_s_Nordborg1997 float,
 	s_g2_David2007 float)engine=INNODB;
-
---2008-02-12 table for processed/averaged phenotype
-use at;
-create table phenotype_p(
-	id  integer auto_increment primary key,
-	accession_id  integer  unique,
-	region  varchar(200),
-	LD  float,
-	LD_sample_size  integer,
-	LD_stdev  float,
-	avrPph3  integer,
-	avrRpm1  integer,
-	avrRpt2  integer,
-	avrB  integer,
-	FRI_1Ler_2Col  varchar(1),
-	Rps5  varchar(1),
-	Rpm1  varchar(1),
-	Rps2  varchar(1),
-	LDV  float,
-	SD  float,
-	SDV  float,
-	JIC0W  float,
-	JIC2W  float,
-	JIC4W  float,
-	JIC8W  float,
-	FLC  float,
-	FRI  float);
-
---2008-04-14 add auto-updated created, modified, created_by, modified_by columns to at.phenotype
-use at;
-
-alter table phenotype add created_by varchar(200)  AFTER modified;
-
-alter table phenotype add modified_by varchar(200) AFTER created_by;
-
-DELIMITER |     -- change the delimiter ';' to '|' because ';' is used as part of one statement.
-
-CREATE TRIGGER before_insert_phenotype BEFORE INSERT ON phenotype
-  FOR EACH ROW BEGIN
-        if NEW.created_by is null then
-               set NEW.created_by = USER();
-        end if;
-        if NEW.created is null then
-               set NEW.created = CURRENT_TIMESTAMP();
-        end if;
-  END;
-|
-
-CREATE TRIGGER before_update_phentoype BEFORE UPDATE ON phenotype
-  FOR EACH ROW BEGIN
-        if NEW.modified_by is null then
-                set NEW.modified_by = USER();
-        end if;
-        if NEW.modified=0 then
-                set NEW.modified = CURRENT_TIMESTAMP();
-        end if;
-  END;
-|
-
-DELIMITER ;
 
 
 --2008-02-18 database for 250k
