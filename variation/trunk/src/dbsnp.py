@@ -22,10 +22,25 @@ from elixir import OneToMany, ManyToOne, ManyToMany
 from elixir import setup_all, session, metadata, entities
 from elixir.options import using_table_options_handler	#using_table_options() can only work inside Entity-inherited class.
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.schema import ThreadLocalMetaData
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import datetime
 from pymodule.db import ElixirDB
-from pymodule.db import README
+
+__session__ = scoped_session(sessionmaker(autoflush=True, transactional=False))
+__metadata__ = ThreadLocalMetaData()
+
+class README(Entity):
+	#2008-08-07
+	title = Field(String(2000))
+	description = Field(String(60000))
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='readme')
+	using_table_options(mysql_engine='InnoDB')
 
 class SNPset(Entity):
 	name = Field(String(200), nullable=False, unique=True)
@@ -199,7 +214,10 @@ class DBSNP(ElixirDB):
 			for entity in entities:
 				using_table_options_handler(entity, schema=self.schema)
 		
-		metadata.bind = self._url
+		__metadata__.bind = self._url
+		self.metadata = __metadata__
+		self.session = __session__
+		#__session__.bind = self._url
 		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 
 if __name__ == '__main__':
