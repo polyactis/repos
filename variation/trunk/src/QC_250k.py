@@ -55,13 +55,13 @@ else:   #32bit
 
 import time, csv, getopt
 import warnings, traceback
-from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict, ProcessOptions, PassingData
+from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README
+from variation.src.Stock_250kDB import Stock_250kDB as Stock_250kDatabase
+from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, Snps, SnpsQC, CallInfo, README
 from pymodule.db import formReadmeObj
 import sqlalchemy, numpy
-from pymodule import SNPData, TwoSNPData
 
 class QC_250k(object):
 	__doc__ = __doc__
@@ -121,26 +121,26 @@ class QC_250k(object):
 		#		from %s a, %s c left join %s q on c.id=q.call_info_id where c.array_id=a.id and a.maternal_ecotype_id=a.paternal_ecotype_id and c.method_id=%s"%\
 		#		(array_info_table, call_info_table, call_QC_table, call_method_id))
 		#rows = curs.fetchall()
-		call_info_ls = db.session.query(CallInfo).filter(db.tables['call_info'].c.method_id==call_method_id).all()
+		call_info_ls = CallInfo.query.filter_by(method_id=call_method_id).all()
 		
 		call_info_id2fname = {}
 		call_info_ls_to_return = []
 		for call_info in call_info_ls:
-			if call_info.array_info.maternal_ecotype_id!=call_info.array_info.paternal_ecotype_id:	#ignore crosses
+			if call_info.array.maternal_ecotype_id!=call_info.array.paternal_ecotype_id:	#ignore crosses
 				continue
-			if not call_info.array_info.maternal_ecotype_id:	#not linked to ecotypeid yet
+			if not call_info.array.maternal_ecotype_id:	#not linked to ecotypeid yet
 				continue
 			ignore_this = 0
 			if filter_calls_QCed:
-				for call_QC in call_info.call_QC:
-					if call_QC.QC_method_id==QC_method_id:	#same QC method has been done on this
+				for call_QC in call_info.call_qc_ls:
+					if call_QC.qc_method_id==QC_method_id:	#same QC method has been done on this
 						ignore_this = 1
 						break
 			
 			#choose the call_QC with maximum no of non-NA pairs to get mismatch_rate
-			if call_info.call_QC and max_call_info_mismatch_rate<1:	#2008-07-01
-				call_QC_with_max_no_of_non_NA_pairs = call_info.call_QC[0]
-				for call_QC in call_info.call_QC:
+			if call_info.call_qc_ls and max_call_info_mismatch_rate<1:	#2008-07-01
+				call_QC_with_max_no_of_non_NA_pairs = call_info.call_qc_ls[0]
+				for call_QC in call_info.call_qc_ls:
 					if call_QC.no_of_non_NA_pairs>call_QC_with_max_no_of_non_NA_pairs.no_of_non_NA_pairs:
 						call_QC_with_max_no_of_non_NA_pairs = call_QC
 				if call_QC_with_max_no_of_non_NA_pairs.mismatch_rate>max_call_info_mismatch_rate:
@@ -151,10 +151,10 @@ class QC_250k(object):
 			
 			if ignore_this:
 				continue
-			call_info_id2fname[call_info.id] = [call_info.array_info.maternal_ecotype_id, call_info.filename, call_info.array_id]
+			call_info_id2fname[call_info.id] = [call_info.array.maternal_ecotype_id, call_info.filename, call_info.array_id]
 			call_info_ls_to_return.append(call_info)
-			if debug and len(call_info_id2fname)>40:
-				break
+			#if debug and len(call_info_id2fname)>40:
+			#	break
 		
 		sys.stderr.write("%s call files. Done.\n"%(len(call_info_id2fname)))
 		return call_info_id2fname, call_info_ls_to_return
@@ -276,7 +276,7 @@ class QC_250k(object):
 			#call_QC stores the relative NA rate. call_info already stores the independent NA rate
 			NA_rate, no_of_NAs, no_of_totals = relative_NA_rate, relative_no_of_NAs, relative_no_of_totals
 			callqc = CallQC(call_info_id=call_info_id, min_probability=min_probability, ecotype_id=ecotype_id, tg_ecotype_id=tg_ecotype_id,\
-						QC_method_id=QC_method_id, call_method_id=call_method_id, NA_rate=NA_rate, mismatch_rate=mismatch_rate,\
+						qc_method_id=QC_method_id, call_method_id=call_method_id, NA_rate=NA_rate, mismatch_rate=mismatch_rate,\
 						no_of_NAs=no_of_NAs, no_of_totals=no_of_totals, no_of_mismatches=no_of_mismatches, no_of_non_NA_pairs=no_of_non_NA_pairs,\
 						created_by=user)
 			callqc.readme = readme
@@ -305,7 +305,7 @@ class QC_250k(object):
 		#			(call_info_table))
 		#rows = curs.fetchall()
 		#call_info_ls = db.session.query(CallInfo).filter_by(NA_rate=None).all()
-		call_info_ls = db.session.query(CallInfo).filter(sqlalchemy.or_(db.tables['call_info'].c.NA_rate==None)).all()
+		call_info_ls = CallInfo.query.filter_by(NA_rate=None).all()
 		no_of_rows = len(call_info_ls)
 		sys.stderr.write("\tTotally, %d call_info entries to be processed.\n"%no_of_rows)
 		for i in range(no_of_rows):
@@ -378,12 +378,15 @@ class QC_250k(object):
 	
 	def get_snps_name2snps_id(cls, db):
 		"""
+		2008-08-17
+			new db interface from Stock_250kDB.py
 		2008-05-05
 		"""
 		sys.stderr.write("Getting snps_name2snps_id ...")
-		from sqlalchemy.sql import select
-		s = select([db.tables['snps'].c.id, db.tables['snps'].c.name])
-		result = db.connection.execute(s)
+		#from sqlalchemy.sql import select
+		#s = select([db.tables['snps'].c.id, db.tables['snps'].c.name])
+		#result = db.connection.execute(s)
+		result = db.session.execute("select id, name from %s"%(Snps.table.name))	#2008-08-17
 		snps_name2snps_id = {}
 		for row in result:
 			snps_id, snps_name = row
@@ -428,7 +431,27 @@ class QC_250k(object):
 		passingdata.row_id2NA_mismatch_rate = row_id2NA_mismatch_rate
 		passingdata.row_id12row_id2 = twoSNPData.row_id12row_id2
 		return passingdata
-		
+	
+	def findOutCmpDataFilename(cls, cmp_data_filename, QC_method_id):
+		"""
+		2008-08-16
+			split from run() to let QC_149.py to call it
+		"""
+		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
+		if not cmp_data_filename and QC_method_id!=0:
+			qm = QCMethod.query.get(QC_method_id)
+			if qm and qm.data_description:
+				data_description_ls = qm.data_description.split('=')
+				if len(data_description_ls)>1:
+					cmp_data_filename = qm.data_description.split('=')[1].strip()
+					return cmp_data_filename
+		#after db query, cmp_data_filename is still nothing, exit program.
+		if not cmp_data_filename and QC_method_id!=0:
+			sys.stderr.write("cmp_data_filename is still nothing even after db query. please specify it on the commandline.\n")
+			sys.exit(3)
+	
+	findOutCmpDataFilename = classmethod(findOutCmpDataFilename)
+	
 	def run(self):
 		"""
 		2008-04-25
@@ -440,19 +463,10 @@ class QC_250k(object):
 		db = Stock_250kDatabase(username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		session = db.session
-		transaction = session.create_transaction()
+		session.begin()
+		#transaction = session.create_transaction()
 		
-		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
-		if not self.cmp_data_filename and self.QC_method_id!=0:
-			qm = session.query(QCMethod).get_by(id=self.QC_method_id)
-			if qm and qm.data_description:
-				data_description_ls = qm.data_description.split('=')
-				if len(data_description_ls)>1:
-					self.cmp_data_filename = qm.data_description.split('=')[1].strip()
-		#after db query, cmp_data_filename is still nothing, exit program.
-		if not self.cmp_data_filename and self.QC_method_id!=0:
-			sys.stderr.write("cmp_data_filename is still nothing even after db query. please specify it on the commandline.\n")
-			sys.exit(3)
+		self.cmp_data_filename = self.findOutCmpDataFilename(self.cmp_data_filename, self.QC_method_id)
 		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
@@ -471,8 +485,8 @@ class QC_250k(object):
 			self.cal_independent_NA_rate(db, self.min_probability, readme)
 			row_id2NA_mismatch_rate = None
 		else:
-			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.cmp_data_filename)
+			#from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
+			header, strain_acc_list, category_list, data_matrix = read_data(self.cmp_data_filename)
 			strain_acc_list = map(int, strain_acc_list)	#it's ecotypeid, cast it to integer to be compatible to the later ecotype_id_ls from db
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, \
 							data_matrix=data_matrix, snps_table=QC_method_id2snps_table.get(self.QC_method_id))	#category_list is not used.
@@ -514,6 +528,9 @@ class QC_250k(object):
 						row_id2NA_mismatch_rate.update(passingdata.row_id2NA_mismatch_rate)
 						row_id12row_id2.update(passingdata.row_id12row_id2)
 						del pdata
+						
+						if self.debug and counter==10:
+							break
 				else:
 					pdata = self.read_call_matrix(call_info_id2fname, self.min_probability)
 					passingdata = self.qcDataMatrixVSsnpData(pdata, snps_name2snps_id, snpData2, curs, session, readme)
@@ -544,9 +561,9 @@ class QC_250k(object):
 								row_id12row_id2, self.call_method_id, readme)
 		if self.commit:
 			curs.execute("commit")
-			transaction.commit()
+			session.commit()
 		else:
-			transaction.rollback()
+			session.rollback()
 		
 		self.row_id2NA_mismatch_rate = row_id2NA_mismatch_rate	#for plone to get the data structure
 
