@@ -418,18 +418,32 @@ class SNPData(object):
 		from __init__ import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		#read it from file
-		if not self.data_matrix and isinstance(self.input_fname,str) and os.path.isfile(self.input_fname):
+		if self.isDataMatrixEmpty(self.data_matrix) and isinstance(self.input_fname,str) and os.path.isfile(self.input_fname):
 			self.header, self.strain_acc_list, self.category_list, self.data_matrix = read_data(self.input_fname, self.input_alphabet, self.turn_into_integer, self.double_header)
 			if self.ignore_2nd_column:
 				self.category_list = None
 		self.processRowIDColID()
+	
+	def isDataMatrixEmpty(self, data_matrix):
+		"""
+		2008-08-19
+			common function to judge whether data_matrix is empty
+		"""
+		if data_matrix=='':
+			return True
+		elif data_matrix is None:
+			return True
+		elif hasattr(data_matrix, '__len__') and len(data_matrix)==0:
+			return True
+		else:
+			return False
 	
 	def processRowIDColID(self):
 		"""
 		2008-06-02
 			correct a bug here, opposite judgement of self.data_matrix
 		"""
-		if self.data_matrix and self.turn_into_array:
+		if not self.isDataMatrixEmpty(self.data_matrix) and self.turn_into_array:
 			self.data_matrix = num.array(self.data_matrix, num.int8)
 		
 		if self.row_id_ls is None and self.strain_acc_list is not None:
