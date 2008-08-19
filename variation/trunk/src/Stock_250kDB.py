@@ -28,10 +28,15 @@ from elixir import setup_all, session, metadata, entities
 from elixir.options import using_table_options_handler	#using_table_options() can only work inside Entity-inherited class.
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.schema import ThreadLocalMetaData
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import datetime
 
 from pymodule.db import ElixirDB
+
+__session__ = scoped_session(sessionmaker(autoflush=True, transactional=False))
+__metadata__ = ThreadLocalMetaData()
+
 
 class README(Entity):
 	#2008-08-07
@@ -41,7 +46,7 @@ class README(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='readme')
+	using_options(tablename='readme', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Phenotype(Entity):
@@ -49,7 +54,7 @@ class Phenotype(Entity):
 	value = Field(Float)
 	replicate = Field(Integer)
 	phenotype_method = ManyToOne('Phenotype', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
-	using_options(tablename='phenotype')
+	using_options(tablename='phenotype', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class PhenotypeAvg(Entity):
@@ -61,7 +66,7 @@ class PhenotypeAvg(Entity):
 	phenotype_method = ManyToOne('Phenotype', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
 	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	transformed_value = Field(Float)
-	using_options(tablename='phenotype_avg')
+	using_options(tablename='phenotype_avg', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class GeneListType(Entity):
@@ -73,7 +78,7 @@ class GeneListType(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='candidate_gene_list_type')
+	using_options(tablename='candidate_gene_list_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class GeneList(Entity):
@@ -84,7 +89,7 @@ class GeneList(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='candidate_gene_list')
+	using_options(tablename='candidate_gene_list', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('gene_id', 'list_type_id'))
 
@@ -100,7 +105,7 @@ class Snps(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='snps')
+	using_options(tablename='snps', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class SnpsContext(Entity):
@@ -114,7 +119,7 @@ class SnpsContext(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='snps_context')
+	using_options(tablename='snps_context', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	#using_table_options(UniqueConstraint('snps_id', 'gene_id'))
 
@@ -127,7 +132,7 @@ class CallMethod(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='call_method')
+	using_options(tablename='call_method', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class PhenotypeMethod(Entity):
@@ -142,7 +147,7 @@ class PhenotypeMethod(Entity):
 	date_updated = Field(DateTime)
 	data_type = Field(String(200))
 	transformation_description = Field(String(8000))
-	using_options(tablename='phenotype_method')
+	using_options(tablename='phenotype_method', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class AnalysisMethod(Entity):
@@ -152,7 +157,7 @@ class AnalysisMethod(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='analysis_method')
+	using_options(tablename='analysis_method', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class ResultsMethodType(Entity):
@@ -163,7 +168,7 @@ class ResultsMethodType(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='results_method_type')
+	using_options(tablename='results_method_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class ResultsMethod(Entity):
@@ -180,14 +185,14 @@ class ResultsMethod(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='results_method')
+	using_options(tablename='results_method', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Results(Entity):
 	snp = ManyToOne('Snps', colname='snps_id', ondelete='CASCADE', onupdate='CASCADE')
 	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	score = Field(Float)
-	using_options(tablename='results')
+	using_options(tablename='results', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class CandidateGeneRankSumTestResult(Entity):
@@ -209,7 +214,7 @@ class CandidateGeneRankSumTestResult(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='candidate_gene_rank_sum_test_result')
+	using_options(tablename='candidate_gene_rank_sum_test_result', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	#using_table_options(UniqueConstraint('results_method_id', 'list_type_id'))
 
@@ -223,7 +228,7 @@ class ResultsByGene(Entity):
 	disp_pos = Field(Integer)
 	score = Field(Float)
 	rank = Field(Float)
-	using_options(tablename='results_by_gene')
+	using_options(tablename='results_by_gene', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('results_method_id', 'snps_id', 'gene_id'))
 
@@ -252,7 +257,7 @@ class SnpsQC(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='snps_qc')
+	using_options(tablename='snps_qc', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class QCMethod(Entity):
@@ -266,7 +271,7 @@ class QCMethod(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='qc_method')
+	using_options(tablename='qc_method', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class ContaminantType(Entity):
@@ -279,7 +284,7 @@ class ContaminantType(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='contaminant_type')
+	using_options(tablename='contaminant_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class ArrayInfo(Entity):
@@ -305,7 +310,7 @@ class ArrayInfo(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='array_info')
+	using_options(tablename='array_info', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class CallInfo(Entity):
@@ -320,7 +325,7 @@ class CallInfo(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='call_info')
+	using_options(tablename='call_info', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class CallQC(Entity):
@@ -343,7 +348,7 @@ class CallQC(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='call_qc')
+	using_options(tablename='call_qc', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Probes(Entity):
@@ -379,7 +384,7 @@ class Probes(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='probes')
+	using_options(tablename='probes', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Stock_250kDB(ElixirDB):
@@ -406,7 +411,10 @@ class Stock_250kDB(ElixirDB):
 				using_table_options_handler(entity, schema=self.schema)
 		
 		#metadata = ThreadLocalMetaData()
-		metadata.bind = self._url
+		__metadata__.bind = self._url
+		self.metadata = __metadata__
+		#__session__.bind = self._url
+		self.session = __session__
 		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 
 if __name__ == '__main__':
