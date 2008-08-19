@@ -7,7 +7,10 @@ Examples:
 	
 	#commit transaction
 	./src/Results2DB_250k.py -i /home/nordborglab/pvalue.log -a 1 -e 1 -f kw_test_96_LD -m kw -n best_96_by_tina -u yh -c
-
+	
+	#omit short_name
+	Results2DB_250k.py -a 17 -e 186 -i /Network/KW_newDataset_186_Bact_titer.pvals -l 1 -u yh -c
+	
 Description:
 	This program would submit simple association results into database.
 
@@ -55,7 +58,7 @@ class Results2DB_250k(object):
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							('input_fname',1, ): [None, 'i', 1, 'File containing association results'],\
 							('output_dir',1, ): ['/Network/Data/250k/db/results/', 'o', 1, 'file system storage for the results files. results_method.filename'],\
-							('short_name',1, ): [None, 'f', 1, 'short name for this result. Must be unique from previous ones. combining your name, phenotype, data, method is a good one.' ],\
+							('short_name', 0, ): [None, 'f', 1, 'short name for this result. Must be unique from previous ones. combining phenotype, data, method is a good one. If not given, will be automatically generated.' ],\
 							('phenotype_method_id',1,int): [None, 'e', 1, 'which phenotype you used, check table phenotype_method'],\
 							('call_method_id', 1, int ): [None, 'a', 1, 'data from which call_method, field id in table call_method'],\
 							('data_description', 0, ): [None, 'n', 1, 'Describe how your data is derived from that call method. like non-redundant set, 1st 96, etc.'],\
@@ -141,6 +144,8 @@ class Results2DB_250k(object):
 	
 	def submit_results(cls, db, input_fname, rm, user, output_fname=None):
 		"""
+		2008-08-19
+			add original_filename to ResultsMethod
 		2008-07-16
 			if input_fname is neither file name nor file object, exit the program
 			better handling of the column_4th and its header
@@ -169,6 +174,7 @@ class Results2DB_250k(object):
 			sys.stderr.write("Submitting results from %s ..."%(os.path.basename(input_fname)))
 			delimiter = figureOutDelimiter(input_fname)
 			reader = csv.reader(open(input_fname), delimiter=delimiter)
+			rm.original_filename = input_fname
 		elif hasattr(input_fname, 'readline') or hasattr(input_fname, 'read'):	#input_fname is not a file name, but direct file object. it could also be <ZPublisher.HTTPRequest.FileUpload instance at 0xa1774f4c>
 			sys.stderr.write("Submitting results from %s on plone ..."%input_fname.filename)
 			cs = csv.Sniffer()
@@ -181,6 +187,10 @@ class Results2DB_250k(object):
 				delimiter = figureOutDelimiter(test_line)	#counting is a safer solution. if test_line include '\n', cs.sniff() won't figure it out.
 			input_fname.seek(0)
 			reader = csv.reader(input_fname, delimiter=delimiter)
+			if getattr(input_fname, 'filename', None):
+				rm.original_filename = getattr(input_fname, 'filename', None)
+			else:
+				rm.original_filename = getattr(input_fname, 'name', None)
 		else:
 			sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
 			sys.exit(4)
@@ -282,6 +292,8 @@ class Results2DB_250k(object):
 				method_description, comment, input_fname, user, results_method_type_id=None, \
 				analysis_method_id=None, results_method_type_short_name=None, output_dir=None, commit=0):
 		"""
+		2008-08-19
+			automatically generate short_name if it's NULL
 		2008-07-16
 			adjust to new Elixir-based db api.
 			new analysis_method_id is added to results_method.
@@ -296,20 +308,11 @@ class Results2DB_250k(object):
 		"""
 		session = db.session
 		session.begin()
-		#if getattr(db, 'transaction', None) is None:
-		#	db.transaction = session.create_transaction()
 		
 		if not output_dir:
 			output_dir = cls.option_default_dict[('output_dir',1)][0]	#to get default from option_default_dict
 		
-		#pm = session.query(PhenotypeMethod).filter_by(id=phenotype_method_id).one()
-		#if not pm:	#no corresponding phentype method id
-		#	phenotype_method_id = None
-		
-		#cm = session.query(CallMethod).filter_by(id=call_method_id).one()
-		
 		rmt = session.query(ResultsMethodType).get(results_method_type_id)
-		#rmt = session.query(ResultsMethodType).filter_by(id=results_method_type_id).one()		
 		if not rmt and results_method_type_short_name is not None:	#create a new results method type
 			rmt = ResultsMethodType(short_name=results_method_type_short_name)
 			session.save(rmt)
@@ -333,6 +336,16 @@ class Results2DB_250k(object):
 			sys.stderr.write("No analysis method available for analysis_method_id=%s.\n"%analysis_method_id)
 			sys.exit(3)
 		
+		rm = ResultsMethod.query.filter_by(call_method_id=cm.id).filter_by(phenotype_method_id=pm.id).\
+			filter_by(analysis_method_id=am.id).filter_by(results_method_type_id=rmt.id)
+		if rm.count()>0:
+			sys.stderr.write("There is already an entry in results_method with same (call_method_id, phenotype_method_id, analysis_method_id, results_method_type_id)=(%s, %s, %s, %s).\n"\
+							%(call_method_id, phenotype_method_id, analysis_method_id, results_method_type_id))
+			sys.exit(3)
+		
+		if not short_name:
+			short_name = '%s_%s_%s'%(am.short_name, pm.short_name, cm.id)
+		
 		rm = ResultsMethod(short_name=short_name, method_description=method_description, \
 						data_description=data_description, comment=comment, created_by=user)
 		rm.phenotype_method = pm
@@ -348,23 +361,15 @@ class Results2DB_250k(object):
 		
 		session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if commit:
-			#db.transaction.commit()
 			rm.filename = cls.come_up_new_results_filename(output_dir, rm.id, rm.results_method_type.id)
-			session.save_or_update(rm)
-			#db.transaction.commit()	#to save the filename
-			
-			#copy content to file system storage
 			cls.submit_results(db, input_fname, rm, user, rm.filename)
-			#session.clear()	#Remove all object instances from this Session, doesn't help to cleanup memory
-			#del session
-			#db.transaction = None	#delete the transaction
+			session.save_or_update(rm)
 			session.flush()
 			session.commit()
 			session.clear()
 			cls.reset_marker_pos2snp_id()
 		else:	#default is also rollback(). to demonstrate good programming
 			session.rollback()
-			#db.transaction.rollback()
 			cls.reset_marker_pos2snp_id()
 	plone_run = classmethod(plone_run)
 	
@@ -384,9 +389,6 @@ class Results2DB_250k(object):
 		
 		#db = Stock_250kDatabase(username=self.user,
 		#		   password=self.passwd, hostname=self.hostname, database=self.dbname)
-		if not self.short_name:
-			sys.stderr.write("Error: short_name, %s, unspecified.\n"%(self.short_name))
-			sys.exit(2)
 		if not os.path.isfile(self.input_fname):
 			sys.stderr.write("Error: file, %s,  is not a file.\n"%(self.input_fname))
 			sys.exit(3)
