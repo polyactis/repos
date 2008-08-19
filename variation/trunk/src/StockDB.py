@@ -24,14 +24,18 @@ else:   #32bit
 from sqlalchemy.engine.url import URL
 from elixir import Unicode, DateTime, String, Integer, UnicodeText, Text, Boolean, Float
 from elixir import Entity, Field, using_options, using_table_options
-from elixir import OneToMany, ManyToOne, ManyToMany
-from elixir import setup_all, session, metadata, entities
+from elixir import OneToMany, ManyToOne, ManyToMany, OneToOne
+from elixir import setup_all, entities, create_all
 from elixir.options import using_table_options_handler	#using_table_options() can only work inside Entity-inherited class.
 from sqlalchemy import UniqueConstraint
-
+from sqlalchemy.schema import ThreadLocalMetaData
+from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
 
 from pymodule.db import ElixirDB
+
+__session__ = scoped_session(sessionmaker(autoflush=True, transactional=False))
+__metadata__ = ThreadLocalMetaData()
 
 class README(Entity):
 	#2008-08-07
@@ -41,19 +45,19 @@ class README(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='readme')
+	using_options(tablename='readme', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class BatchEcotype(Entity):
 	batch = ManyToOne('Batch', colname='batchid', ondelete='CASCADE', onupdate='CASCADE')
 	ecotype = ManyToOne('Ecotype', colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
 	lineorder = Field(Integer, nullable=False)
-	using_options(tablename='batch_ecotype')
+	using_options(tablename='batch_ecotype', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class Batch(Entity):
 	batchname = Field(String(30), nullable=False)
-	using_options(tablename='batch')
+	using_options(tablename='batch', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Person(Entity):
@@ -65,13 +69,13 @@ class Person(Entity):
 	password = Field(String(15))
 	usertype = Field(Integer)
 	donor = Field(Integer)
-	using_options(tablename='person')
+	using_options(tablename='person', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Country(Entity):
 	name = Field(String(100))
 	abbr = Field(String(10))
-	using_options(tablename='country')
+	using_options(tablename='country', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Address(Entity):
@@ -83,20 +87,20 @@ class Address(Entity):
 	region = Field(String(100))
 	zippostal = Field(String(20))
 	country = ManyToOne("Country", colname='countryid', ondelete='CASCADE', onupdate='CASCADE')
-	using_options(tablename='address')
+	using_options(tablename='address', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class Site(Entity):
 	address = ManyToOne("Address", colname='addressid', ondelete='CASCADE', onupdate='CASCADE')
 	name = Field(String(100))
 	description = Field(String(500))
-	using_options(tablename='site')
+	using_options(tablename='site', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class Organism(Entity):
 	genus = Field(String(30))
 	species = Field(String(30))
-	using_options(tablename='organism')
+	using_options(tablename='organism', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class SNPs(Entity):
@@ -106,7 +110,7 @@ class SNPs(Entity):
 	chromosome = Field(Integer)
 	position = Field(Integer)
 	refcall = Field(String(1))
-	using_options(tablename='snps')
+	using_options(tablename='snps', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class SeqInfo(Entity):
@@ -116,7 +120,7 @@ class SeqInfo(Entity):
 	experiment_type = Field(String(40))
 	ms_name = Field(String(40))
 	creation_date = Field(DateTime, default=datetime.now)
-	using_options(tablename='seqinfo')
+	using_options(tablename='seqinfo', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class ContaminantType(Entity):
@@ -129,7 +133,7 @@ class ContaminantType(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='contaminant_type')
+	using_options(tablename='contaminant_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class Strain(Entity):
@@ -140,11 +144,13 @@ class Strain(Entity):
 	wellid = Field(String(3))
 	replicate = Field(Boolean)
 	contaminant_type = ManyToOne("ContaminantType", colname='contaminant_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	call_qc_ls = OneToMany("CallQC")
+	ecotypeid_strainid2tg_ecotypeid = OneToOne("EcotypeIDStrainID2TGEcotypeID", inverse="strain")
 	created_by = Field(String(128))
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='strain')
+	using_options(tablename='strain', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('ecotypeid', 'plateid'))
 	
@@ -152,13 +158,13 @@ class Extraction(Entity):
 	namelabel = Field(String(25))
 	datesubmitted = Field(DateTime, default=datetime.now)
 	notes = Field(String(255))
-	using_options(tablename='extraction')
+	using_options(tablename='extraction', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Trip(Entity):
 	collectiondate = Field(DateTime)
 	notes = Field(String(500))
-	using_options(tablename='trip')
+	using_options(tablename='trip', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Cross(Entity):
@@ -167,7 +173,7 @@ class Cross(Entity):
 	name = Field(String(40))
 	barcode = Field(String(25))
 	generation = Field(Integer)
-	using_options(tablename='crosses')
+	using_options(tablename='crosses', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Ecotype(Entity):
@@ -193,14 +199,14 @@ class Ecotype(Entity):
 	bulkdate = Field(DateTime)
 	labderived = Field(Boolean)
 	incompleteplex = Field(Integer)
-	using_options(tablename='ecotype')
+	using_options(tablename='ecotype', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class Calls(Entity):
 	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
 	snp = ManyToOne("SNPs", colname='snpid', ondelete='CASCADE', onupdate='CASCADE')
 	allele = Field(String(5))	#'call' is mysql reserved keyword
-	using_options(tablename='calls')
+	using_options(tablename='calls', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class Calls_BySeq(Entity):
@@ -223,7 +229,7 @@ class Calls_BySeq(Entity):
 	probesnr = Field(Float)
 	replicate = Field(Boolean)
 	description = Field(String(40))
-	using_options(tablename='calls_byseq')
+	using_options(tablename='calls_byseq', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class QCMethod(Entity):
@@ -240,7 +246,7 @@ class QCMethod(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='qc_method')
+	using_options(tablename='qc_method', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class CallQC(Entity):
@@ -262,9 +268,20 @@ class CallQC(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='call_qc')
+	using_options(tablename='call_qc', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('strainid', 'qc_method_id', 'target_id'))
 
+class EcotypeIDStrainID2TGEcotypeID(Entity):
+	"""
+	2008-08-18
+	"""
+	ecotype = ManyToOne("Ecotype", colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
+	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
+	tg_ecotype = ManyToOne("Ecotype", colname='tg_ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
+	using_options(tablename='ecotypeid_strainid2tg_ecotypeid', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	
 class StockDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
@@ -288,7 +305,14 @@ class StockDB(ElixirDB):
 			for entity in entities:
 				using_table_options_handler(entity, schema=self.schema)
 		
-		metadata.bind = self._url
+		__metadata__.bind = self._url
+		self.metadata = __metadata__
+		#stockdb_session.bind = self._url
+		self.session = __session__
+		#for entity in entities:
+			#print entity
+			#print dir(entity)
+		
 		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 
 if __name__ == '__main__':
@@ -296,3 +320,6 @@ if __name__ == '__main__':
 	main_class = StockDB
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
+	
+	import pdb
+	pdb.set_trace()
