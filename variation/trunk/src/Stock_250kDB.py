@@ -388,6 +388,27 @@ class Probes(Entity):
 	using_options(tablename='probes', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
+class CandidateGeneTopSNPTest(Entity):
+	"""
+	2008-08-20
+	"""
+	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	pvalue = Field(Float)
+	min_distance = Field(Integer)
+	get_closest = Field(Integer)
+	min_MAF = Field(Float)
+	no_of_top_candidate_genes = Field(Integer)
+	no_of_top_genes = Field(Integer)
+	no_of_top_snps = Field(Integer)
+	comment = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_gene_top_snp_test', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
 class Stock_250kDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
