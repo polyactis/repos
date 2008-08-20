@@ -5,8 +5,8 @@ Examples:
 	#run it on hpc-cmb cluster
 	mpiexec ~/script/variation/src/MpiGeneListRankTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -o ~/mpigene_list_rank_test.out -s 100 -c
 
-	#test parallel run on desktop, using Strain X SNP format
-	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiGeneListRankTest.py -u yh -p passw**d -s 100 -b -c
+	#test parallel run on desktop
+	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiGeneListRankTest.py -u yh -m 20000 -g -p passw**d -s 100 -b -c
 	
 Description:
 	MPI version GeneListRankTest.py. No need to specify list_type_id and results_method_id_ls. Automatically calculates
@@ -32,7 +32,7 @@ from sets import Set
 class MpiGeneListRankTest(GeneListRankTest):
 	__doc__ = __doc__
 	option_default_dict = GeneListRankTest.option_default_dict.copy()
-	option_default_dict.update({('message_size', 1, int):[1, 's', 1, 'How many results one computing node should handle.']})
+	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))
 	option_default_dict.pop(("results_method_id_ls", 1, ))
