@@ -54,7 +54,7 @@ class PutGeneListIntoDb(object):
 			sys.stderr.write("Error: None of list_type_id and list_type_name is specified.\n")
 			sys.exit(3)
 		
-	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, mysql_curs, db):
+	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, gene_symbol2gene_id_set, db):
 		"""
 		2008-07-15
 			if the list_type_name is given, forget about list_type_id. program will first search db for the given list_type_name, if search failed, create a new entry.
@@ -62,12 +62,7 @@ class PutGeneListIntoDb(object):
 			use gene_id2original_name to avoid redundancy in gene list
 		"""
 		import csv, sys, os
-		from pymodule import get_gene_symbol2gene_id_set
-		gene_symbol2gene_id_set = get_gene_symbol2gene_id_set(mysql_curs, 3702, table='genome.gene_symbol2id', upper_case_gene_symbol=1)	#3702 is At's tax id
-		sys.stderr.write("%s entries in gene_symbol2gene_id.\n"%len(gene_symbol2gene_id_set))
-		
-		session = db.session
-		
+		session = db.session		
 		reader = csv.reader(open(input_fname), delimiter=',')
 		reader.next()	#skips the 1st line
 		counter = 0
@@ -117,17 +112,20 @@ class PutGeneListIntoDb(object):
 
 	def run(self):
 		"""
+		2008-08-19
 		"""
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		
 		import MySQLdb
-		mysql_conn = MySQLdb.connect(db=self.dbname,host=self.hostname, user = self.db_user, passwd = self.db_passwd)
+		mysql_conn = MySQLdb.connect(db=self.dbname, host='banyan.usc.edu', user = self.db_user, passwd = self.db_passwd)
 		mysql_curs = mysql_conn.cursor()
+		from pymodule import get_gene_symbol2gene_id_set
+		gene_symbol2gene_id_set = get_gene_symbol2gene_id_set(mysql_curs, 3702, table='genome.gene_symbol2id', upper_case_gene_symbol=1)	#3702 is At's tax id
 		
 		session = db.session
 		session.begin()
-		self.putGeneListIntoDb(self.input_fname, self.list_type_id, self.list_type_name, mysql_curs, db)
+		self.putGeneListIntoDb(self.input_fname, self.list_type_id, self.list_type_name, gene_symbol2gene_id_set, db)
 		if self.commit:
 			session.commit()
 
