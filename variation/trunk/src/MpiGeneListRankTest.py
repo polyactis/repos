@@ -28,9 +28,10 @@ from GeneListRankTest import GeneListRankTest
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, CandidateGeneRankSumTestResult
 from sets import Set
 
+
 class MpiGeneListRankTest(GeneListRankTest):
 	__doc__ = __doc__
-	option_default_dict = GeneListRankTest.option_default_dict
+	option_default_dict = GeneListRankTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[1, 's', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))
@@ -118,15 +119,23 @@ class MpiGeneListRankTest(GeneListRankTest):
 	
 	def computing_node_handler(self, communicator, data, computing_parameter_obj):
 		"""
-		2007-03-07
+		2008-08-20
+			wrap all parameters into pd and pass it to run_wilcox_test
+		2008-07-17
+		
 		"""
 		node_rank = communicator.rank
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
 		result_ls = []
+		pd = PassingData(snps_context_wrapper=computing_parameter_obj.snps_context_wrapper,\
+							results_directory=computing_parameter_obj.results_directory, max_pvalue_per_gene=self.max_pvalue_per_gene,\
+							min_MAF=computing_parameter_obj.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance, \
+							min_sample_size=self.min_sample_size)
 		for results_method_id, list_type_id in data:
-			result = self.run_wilcox_test(results_method_id, computing_parameter_obj.snps_context_wrapper, \
-										list_type_id, results_directory=computing_parameter_obj.results_directory, min_MAF=computing_parameter_obj.min_MAF)
+			pd.results_method_id = results_method_id
+			pd.list_type_id = list_type_id
+			result = self.run_wilcox_test(pd)
 			if result is not None:
 				result_ls.append(result)
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
@@ -154,11 +163,6 @@ class MpiGeneListRankTest(GeneListRankTest):
 				setattr(candidate_gene_rank_sum_test_result, column, getattr(table_obj, column))
 			if writer:
 				writer.writerow(row)
-			"""
-								list_type_id=table_obj.list_type_id, statistic=table_obj.statistic,\
-								pvalue=table_obj.pvalue, results_method_id=table_obj.results_method.id, \
-								comment=table_obj.comment)
-			"""
 			session.save(candidate_gene_rank_sum_test_result)
 			if commit:
 				session.flush()
