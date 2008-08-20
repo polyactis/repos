@@ -65,7 +65,8 @@ class TopSNPTest(GeneListRankTest):
 		"""
 		sys.stderr.write("Preparing data for HG test ... ")
 		genome_wide_result = self.getResultMethodContent(rm, results_directory, min_MAF)
-		genome_wide_result.data_obj_ls.sort(reverse=True)	#in value descending order. each SNP object has a defined method for comparison based on its value
+		genome_wide_result.data_obj_ls.sort()	#in value descending order. each SNP object has a defined method for comparison based on its value
+		genome_wide_result.data_obj_ls.reverse()
 		candidate_gene_set = Set(candidate_gene_list)
 		candidate_gene_in_top_set = Set([])
 		non_candidate_gene_in_top_set = Set([])
