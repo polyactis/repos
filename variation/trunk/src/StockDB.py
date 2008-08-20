@@ -34,7 +34,7 @@ from datetime import datetime
 
 from pymodule.db import ElixirDB
 
-__session__ = scoped_session(sessionmaker(autoflush=True, transactional=False))
+__session__ = scoped_session(sessionmaker(autoflush=False, transactional=False))
 __metadata__ = ThreadLocalMetaData()
 
 class README(Entity):
