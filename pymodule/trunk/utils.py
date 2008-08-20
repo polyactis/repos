@@ -126,7 +126,7 @@ def get_gene_symbol2gene_id_set(curs, tax_id, table='genome.gene_symbol2id', upp
 		if gene_symbol not in gene_symbol2gene_id_set:
 			gene_symbol2gene_id_set[gene_symbol] = Set()
 		gene_symbol2gene_id_set[gene_symbol].add(gene_id)
-	sys.stderr.write("Done.\n")
+	sys.stderr.write(" %s entries. Done.\n"%len(gene_symbol2gene_id_set))
 	return gene_symbol2gene_id_set
 
 class FigureOutTaxID(object):
