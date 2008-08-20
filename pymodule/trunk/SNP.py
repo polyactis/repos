@@ -788,6 +788,13 @@ class DataObject(TableClass):
 	name = None
 	value = None
 	genome_wide_result_id = None
+	
+	def __cmp__(self, other):
+		"""
+		2008-08-20
+			define how to compare DataObject
+		"""
+		return cmp(self.value, other.value)
 
 import re
 pa_has_characters = re.compile(r'[a-zA-Z_]')
