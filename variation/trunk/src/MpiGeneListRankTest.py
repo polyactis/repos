@@ -32,14 +32,17 @@ class MpiGeneListRankTest(GeneListRankTest):
 	__doc__ = __doc__
 	option_default_dict = GeneListRankTest.option_default_dict
 	option_default_dict.update({('message_size', 1, int):[1, 's', 1, 'How many results one computing node should handle.']})
+	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))
 	option_default_dict.pop(("results_method_id_ls", 1, ))
 	
 	def __init__(self,  **keywords):
 		GeneListRankTest.__init__(self, **keywords)
 	
-	def generate_params(self, min_no_of_genes=10):
+	def generate_params(self, call_method_id, min_no_of_genes=10):
 		"""
+		2008-08-19
+			add call_method_id
 		2008-08-15
 			stop filtering if CandidateGeneRankSumTestResult has (results_method_id, list_type_id) combo
 		2008-07-24
@@ -50,13 +53,17 @@ class MpiGeneListRankTest(GeneListRankTest):
 		sys.stderr.write("Generating parameters ...")
 		i = 0
 		block_size = 5000
-		rows = ResultsMethod.query.filter_by(results_method_type_id=1).offset(i).limit(block_size)
+		if call_method_id!=0:
+			query = ResultsMethod.query.filter_by(results_method_type_id=1).filter_by(call_method_id=call_method_id)
+		else:
+			query = ResultsMethod.query.filter_by(results_method_type_id=1)
+		rows = query.offset(i).limit(block_size)
 		results_method_id_ls = []
 		while rows.count()!=0:
 			for row in rows:
 				results_method_id_ls.append(row.id)
 				i += 1
-			rows = ResultsMethod.query.offset(i).limit(block_size)
+			rows = query.offset(i).limit(block_size)
 		
 		sys.stderr.write("%s results. "%(len(results_method_id_ls)))
 		
@@ -173,7 +180,7 @@ class MpiGeneListRankTest(GeneListRankTest):
 		
 		if node_rank == 0:
 			snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
-			params_ls = self.generate_params()
+			params_ls = self.generate_params(self.call_method_id)
 			if self.debug:
 				params_ls = params_ls[:100]
 			snps_context_wrapper_pickle = cPickle.dumps(snps_context_wrapper, -1)
