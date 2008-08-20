@@ -34,19 +34,19 @@ from pymodule import getGenomeWideResultFromFile
 from GeneListRankTest import GeneListRankTest
 from sets import Set
 
+
+
 class TopSNPTest(GeneListRankTest):
 	__doc__ = __doc__
-	option_default_dict = GeneListRankTest.option_default_dict
-	option_default_dict.update({('tax_id', 1, int): [3702, 's', 1, 'to get the number of total genes from database, which species.']})
-	option_default_dict.update({('gene_table', 1, ): ['genome.gene', '', 1, 'to get the number of total genes from database, which table.']})
-	option_default_dict.update({('no_of_top_snps', 1, int): [50, '', 1, 'how many number of top snps based on score or -log(pvalue).']})
+	option_default_dict = GeneListRankTest.option_default_dict.copy()
+	option_default_dict.update({('tax_id', 1, int): [3702, 'x', 1, 'to get the number of total genes from database, which species.']})
+	option_default_dict.update({('gene_table', 1, ): ['genome.gene', 'a', 1, 'to get the number of total genes from database, which table.']})
+	option_default_dict.update({('no_of_top_snps', 1, int): [50, 'f', 1, 'how many number of top snps based on score or -log(pvalue).']})
 	option_default_dict.pop(('max_pvalue_per_gene', 0, int))
 	
 	def __init__(self,  **keywords):
 		"""
-		2008-07-24
-			split results_method_id_ls if it exists, to accomodate MpiGeneListRankTest which removed this option
-		2008-07-10
+		2008-08-20
 		"""
 		GeneListRankTest.__init__(self, **keywords)
 	
