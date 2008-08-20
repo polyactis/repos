@@ -31,8 +31,9 @@ from pymodule import PassingData, figureOutDelimiter
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, CandidateGeneRankSumTestResult
 from Results2DB_250k import Results2DB_250k
 from pymodule import getGenomeWideResultFromFile
-
+from sets import Set
 from pymodule.db import TableClass
+
 class SnpsContextWrapper(object):
 	def __init__(self, get_closest=False):
 		self.get_closest = get_closest
@@ -260,7 +261,6 @@ class GeneListRankTest(object):
 			for each gene, don't take the most significant hit
 		"""
 		sys.stderr.write("Preparing data for rank test ... ")
-		from sets import Set
 		candidate_gene_set = Set(candidate_gene_list)
 		candidate_gene_ls = []
 		candidate_gene_pvalue_list = []
@@ -303,8 +303,10 @@ class GeneListRankTest(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def run_wilcox_test(self, results_method_id, snps_context_wrapper, list_type_id, results_directory=None, min_MAF=0.1):
+	def run_wilcox_test(self, pd):
 		"""
+		2008-08-20
+			use pd to summarize all parameters
 		2008-08-15
 			fix option max_pvalue_per_gene, to have the choice to take the most significant SNP associated with one gene or not
 		2008-08-14
@@ -317,48 +319,48 @@ class GeneListRankTest(object):
 		"""
 		if self.debug:
 			sys.stderr.write("Running wilcox test ... ")
-		rm = ResultsMethod.get(results_method_id)
+		rm = ResultsMethod.get(pd.results_method_id)
 		if not rm:
-			sys.stderr.write("No results method available for results_method_id=%s.\n"%results_method_id)
+			sys.stderr.write("No results method available for results_method_id=%s.\n"%pd.results_method_id)
 			return None
 		if rm.results_method_type_id!=1:
-			sys.stderr.write("skip non-association results. results_method_type_id=%s, results_method_id=%s.\n"%(rm.results_method_type_id, results_method_id))
+			sys.stderr.write("skip non-association results. results_method_type_id=%s, results_method_id=%s.\n"%(rm.results_method_type_id, pd.results_method_id))
 			return None
-		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=results_method_id).filter_by(list_type_id=list_type_id).filter_by(min_distance=self.min_distance).filter_by(min_MAF=min_MAF).filter_by(get_closest=self.get_closest).filter_by(max_pvalue_per_gene=self.max_pvalue_per_gene)
+		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=pd.results_method_id).filter_by(list_type_id=pd.list_type_id).filter_by(min_distance=pd.min_distance).filter_by(min_MAF=pd.min_MAF).filter_by(get_closest=pd.get_closest).filter_by(max_pvalue_per_gene=pd.max_pvalue_per_gene)
 		if db_results.count()>0:	#done before
 			db_result = db_results.first()
 			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
 							(db_result.id, db_result.results_method_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
 			return None
 		try:
-			candidate_gene_list = self.getGeneList(list_type_id)
-			if self.max_pvalue_per_gene:
-				gene_id2hit = self.getGeneID2MostSignificantHit(rm, snps_context_wrapper, results_directory, min_MAF)
+			candidate_gene_list = self.getGeneList(pd.list_type_id)
+			if pd.max_pvalue_per_gene:
+				gene_id2hit = self.getGeneID2MostSignificantHit(rm, pd.snps_context_wrapper, pd.results_directory, pd.min_MAF)
 				#if getattr(self, 'output_fname', None):
 				#	self.output_gene_id2hit(gene_id2hit, self.output_fname)
 				passingdata = self.prepareDataForRankTestGivenGeneID2Hit(candidate_gene_list, gene_id2hit)
 			else:
-				passingdata = self.prepareDataForRankTest(rm, snps_context_wrapper, candidate_gene_list, results_directory, min_MAF)
+				passingdata = self.prepareDataForRankTest(rm, pd.snps_context_wrapper, candidate_gene_list, pd.results_directory, pd.min_MAF)
 			import rpy
 			candidate_sample_size = len(passingdata.candidate_gene_pvalue_list)
 			non_candidate_sample_size = len(passingdata.non_candidate_gene_pvalue_list)
-			if candidate_sample_size>=self.min_sample_size and non_candidate_sample_size>=self.min_sample_size:	#2008-08-14
+			if candidate_sample_size>=pd.min_sample_size and non_candidate_sample_size>=pd.min_sample_size:	#2008-08-14
 				w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
 			else:
-				sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(self.min_sample_size, candidate_sample_size, non_candidate_sample_size))
+				sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 				return None
 		except:
-			sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(results_method_id, list_type_id))
+			sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(pd.results_method_id, pd.list_type_id))
 			traceback.print_exc()
 			sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 			return None
-		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=list_type_id, statistic=w_result['statistic']['W'],\
+		candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult(list_type_id=pd.list_type_id, statistic=w_result['statistic']['W'],\
 																			pvalue=w_result['p.value'])
-		candidate_gene_rank_sum_test_result.results_method_id = results_method_id
-		candidate_gene_rank_sum_test_result.min_distance = self.min_distance
-		candidate_gene_rank_sum_test_result.min_MAF = min_MAF
-		candidate_gene_rank_sum_test_result.get_closest = self.get_closest
-		candidate_gene_rank_sum_test_result.max_pvalue_per_gene = self.max_pvalue_per_gene
+		candidate_gene_rank_sum_test_result.results_method_id = pd.results_method_id
+		candidate_gene_rank_sum_test_result.min_distance = pd.min_distance
+		candidate_gene_rank_sum_test_result.min_MAF = pd.min_MAF
+		candidate_gene_rank_sum_test_result.get_closest = pd.get_closest
+		candidate_gene_rank_sum_test_result.max_pvalue_per_gene = pd.max_pvalue_per_gene
 		candidate_gene_rank_sum_test_result.candidate_sample_size = candidate_sample_size
 		candidate_gene_rank_sum_test_result.non_candidate_sample_size = non_candidate_sample_size
 		if self.debug:
@@ -380,18 +382,24 @@ class GeneListRankTest(object):
 		
 		if getattr(self, 'output_fname', None):
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
-			writer.writerow(['results_method_id', 'list_type_id', 'wilcox.test.pvalue', 'statistic'])
+			header_row = []
+			for column in CandidateGeneRankSumTestResult.c.keys():
+				header_row.append(column)
+			writer.writerow(header_row)
 		else:
 			writer = None
+		pd = PassingData(snps_context_wrapper=snps_context_wrapper, list_type_id=self.list_type_id, \
+							results_directory=self.results_directory, max_pvalue_per_gene=self.max_pvalue_per_gene,\
+							min_MAF=self.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance, \
+							min_sample_size=self.min_sample_size)
 		for results_method_id in self.results_method_id_ls:
-			candidate_gene_rank_sum_test_result = self.run_wilcox_test(results_method_id, snps_context_wrapper, self.list_type_id, \
-																	results_directory=self.results_directory, min_MAF=self.min_MAF)
+			pd.results_method_id = results_method_id
+			candidate_gene_rank_sum_test_result = self.run_wilcox_test(pd)
 			if candidate_gene_rank_sum_test_result is not None:
+				row = []
 				for column in candidate_gene_rank_sum_test_result.c.keys():
-					print '%s: %s'%(column, getattr(candidate_gene_rank_sum_test_result, column))
-				#row = [results_method_id, self.list_type_id, candidate_gene_rank_sum_test_result.pvalue, \
-				#	candidate_gene_rank_sum_test_result.statistic, candidate_gene_rank_sum_test_result.comment]
-				#print row
+					row.append(getattr(candidate_gene_rank_sum_test_result, column))
+					print '%s: %s'%(column, row[-1])
 				if writer:
 					writer.writerow(row)
 				#session.save(candidate_gene_rank_sum_test_result)
