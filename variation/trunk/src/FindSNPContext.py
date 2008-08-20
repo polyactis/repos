@@ -37,6 +37,7 @@ class FindSNPContext(object):
 								a negative value results the program to take the closest upstream gene."],\
 							('max_downstream_distance', 0, int): [50000, 'm', 1, "maximum distance allowed between a SNP and a gene's stop position given the SNP is downstream.\
 								a negative value results the program to take the closest downstream gene."],\
+							('tax_id', 0, int): [3702, '', 1, 'Taxonomy ID to get gene position and coordinates.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -48,8 +49,8 @@ class FindSNPContext(object):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def find_SNP_context(self, db, curs, snp_locus_table, snp_locus_context_table, entrezgene_mapping_table='genome.entrezgene_mapping',\
-						annot_assembly_table='genome.annot_assembly', tax_id=3702, max_upstream_distance=50000, max_downstream_distance=50000, need_commit=0, debug=0):
+	def find_SNP_context(self, db, curs, snp_locus_table, snp_locus_context_table, chromosome2anchor_gene_tuple_ls, gene_id2coord,\
+						max_upstream_distance=50000, max_downstream_distance=50000, need_commit=0, debug=0):
 		"""
 		2008-08-12
 			add max_upstream_distance and max_downstream_distance
@@ -61,14 +62,13 @@ class FindSNPContext(object):
 			to determine which SNP is in coding or non-coding region
 		"""
 		sys.stderr.write("Finding SNP context ... \n")
-		chromosome2anchor_gene_tuple_ls, gene_id2coord = get_entrezgene_annotated_anchor(curs, tax_id, entrezgene_mapping_table, annot_assembly_table)
 		
 		#from variation.src.Stock_250kDB import SnpsContext, Snps
 		#session = db.session
 		#if not debug:
 		#	session.begin()
 		"""
-		for the 3 deletions
+		2008-08-19 just for the 3 deletions
 		4,268809,0
 		4,269962,8
 		4,270712,0
@@ -140,7 +140,11 @@ class FindSNPContext(object):
 		
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user, password=self.db_passwd, hostname=self.hostname, database=self.dbname)
 		mysql_conn.autocommit(True)
-		self.find_SNP_context(db, mysql_curs, Snps.table.name, SnpsContext.table.name, max_upstream_distance=self.max_upstream_distance,\
+		entrezgene_mapping_table='genome.entrezgene_mapping'
+		annot_assembly_table='genome.annot_assembly'
+		chromosome2anchor_gene_tuple_ls, gene_id2coord = get_entrezgene_annotated_anchor(mysql_curs, self.tax_id, entrezgene_mapping_table, annot_assembly_table)
+		self.find_SNP_context(db, mysql_curs, Snps.table.name, SnpsContext.table.name, chromosome2anchor_gene_tuple_ls, gene_id2coord,\
+							max_upstream_distance=self.max_upstream_distance,\
 							max_downstream_distance=self.max_downstream_distance, need_commit=self.commit, debug=self.debug)
 
 if __name__ == '__main__':
