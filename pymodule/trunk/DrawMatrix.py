@@ -61,11 +61,17 @@ def draw_grid(image_object, draw_object, region_to_draw, x_gap, y_gap, color='bl
 
 def drawLegend(matrix_value2label, matrix_value2color, font=None):
 	"""
+	2008-08-21
+		matrix_value2color could be a dictionary or function. if it's a dictionary, turn it into lambda function.
 	2007-10-23
 	2007-11-02
 		add line to get default font
 	"""
 	import Image, ImageDraw
+	if type(matrix_value2color)==dict:
+		matrix_value2color_func = lambda x: matrix_value2color[x]
+	else:
+		matrix_value2color_func = matrix_value2color
 	if not font:
 		font = get_font()
 	char_dimension = font.getsize('W')	#W is the the biggest(widest)
@@ -94,7 +100,7 @@ def drawLegend(matrix_value2label, matrix_value2color, font=None):
 		y_offset_upper = y_offset1 + i*2*char_height
 		y_offset_lower = y_offset1 + i*2*char_height + char_height
 		#draw a sample color for this label
-		draw.rectangle((x_offset1, y_offset_upper, x_offset1+char_height, y_offset_lower), fill=matrix_value2color[matrix_value])
+		draw.rectangle((x_offset1, y_offset_upper, x_offset1+char_height, y_offset_lower), fill=matrix_value2color_func(matrix_value))
 		
 		#draw the label
 		label = matrix_value2label[matrix_value]
@@ -105,8 +111,86 @@ def drawLegend(matrix_value2label, matrix_value2color, font=None):
 	return im
 
 
+def drawContinousLegend(min_value, max_value, no_of_ticks, value2color, font=None, no_of_bands_per_char_height=5):
+	"""
+	2008-08-21
+		draw legend for continous values
+	"""
+	import Image, ImageDraw
+	if type(value2color)==dict:
+		value2color_func = lambda x: value2color[x]
+	else:
+		value2color_func = value2color
+	if not font:
+		font = get_font()
+	char_dimension = font.getsize('W')	#W is the the biggest(widest)
+	char_width, char_height = char_dimension
+	band_height = int(char_height/no_of_bands_per_char_height)
+	no_of_bands = 2*(no_of_ticks-1)*no_of_bands_per_char_height	#this is the number of bands to draw
+	min_value = min_value
+	max_value = max_value
+	band_value_step = (max_value-min_value)/no_of_bands
+	band_value_ls = []
+	band_value = max_value
+	while band_value >= min_value:
+		band_value_ls.append(band_value)
+		band_value -= band_value_step
+	tick_step = (max_value-min_value)/(no_of_ticks-1)
+	tick_value_ls = []
+	tick_value = max_value
+	while tick_value>=min_value:
+		tick_value_ls.append(tick_value)
+		tick_value -= tick_step
+		
+	value_label_ls = []
+	tick_index = 0
+	max_label_len = 0
+	for i in range(len(band_value_ls)):
+		band_value = band_value_ls[i]
+		tick_value = tick_value_ls[tick_index]
+		if abs(band_value-tick_value)<band_value_step:	#if the tick_value and band_value is close enough, bind them together
+			label = '%.2f'%tick_value
+			if len(label)>max_label_len:
+				max_label_len = len(label)
+			tick_index += 1
+		else:
+			label = None
+		value_label_ls.append((band_value, label))
+	
+	label_dimension = (char_width*max_label_len, char_height)
+	x_offset0 = 0
+	x_offset1 = char_height	#sample color starts here
+	x_offset2 = x_offset1 + 2*char_height	#label starts here
+	x_offset3 = x_offset2 + label_dimension[0]	#the margin to the right starts here
+	y_offset0 = 0
+	y_offset1 = y_offset0 + char_height	#sample color starts here
+	y_offset2 = y_offset1 + len(value_label_ls)*band_height	# len(label_ls)-1 gaps among char_height's
+	whole_dimension = (x_offset3+char_height, \
+			y_offset2+char_height)
+	im = Image.new('RGB',(whole_dimension[0],whole_dimension[1]),(255,255,255))
+	draw = ImageDraw.Draw(im)
+	for i in range(len(value_label_ls)):
+		band_value, label = value_label_ls[i]
+		
+		y_offset_upper = y_offset1 + i*band_height
+		y_offset_lower = y_offset1 + (i+1)*band_height
+		#draw a sample color for this label
+		draw.rectangle((x_offset1, y_offset_upper, x_offset1+char_height, y_offset_lower), fill=value2color_func(band_value))
+		
+		if label!=None:
+			#draw a line here
+			draw.line((x_offset1, y_offset_upper, x_offset1+char_height, y_offset_upper), fill='black')
+			#draw the label
+			text_region = get_text_region(label, label_dimension, rotate=0, font=font)	#no rotate
+			box = (x_offset2, y_offset_upper, x_offset3, y_offset_upper+label_dimension[1])
+			im.paste(text_region, box)
+	return im
+
 def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], right_label_ls=[], bottom_label_ls=[], with_grid=0, font=None):
 	"""
+	2008-08-21
+		matrix_value2color could be a dictionary or function. if it's a dictionary, turn it into lambda function.
+		use real font-rendition length as maximum label length
 	2007-10-23
 		matrix is either Numeric, numarray or numpy array.
 		use PIL to draw a matrix
@@ -116,29 +200,36 @@ def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], ri
 	import Image, ImageDraw
 	if not font:
 		font = get_font()
+	if type(matrix_value2color)==dict:
+		matrix_value2color_func = lambda x: matrix_value2color[x]
+	else:
+		matrix_value2color_func = matrix_value2color
 	char_dimension = font.getsize('W')	#W is the the biggest(widest)
 	char_width, char_height = char_dimension
+	
+	word_font_length = lambda word: font.getsize(word)[0]
+	
 	if left_label_ls:	#not empty
-		max_left_label_length = max(map(len, left_label_ls))
+		max_left_label_length = max(map(word_font_length, left_label_ls))
 	else:
 		max_left_label_length = 0
 	if top_label_ls:
-		max_top_label_length = max(map(len, top_label_ls))
+		max_top_label_length = max(map(word_font_length, top_label_ls))
 	else:
 		max_top_label_length = 0
 	if right_label_ls:
-		max_right_label_length = max(map(len, right_label_ls))
+		max_right_label_length = max(map(word_font_length, right_label_ls))
 	else:
 		max_right_label_length = 0
 	if bottom_label_ls:
-		max_bottom_label_length = max(map(len, bottom_label_ls))
+		max_bottom_label_length = max(map(word_font_length, bottom_label_ls))
 	else:
 		max_bottom_label_length = 0
 	
-	left_label_dimension = (char_width*max_left_label_length, char_height)
-	top_label_dimension = (char_width*max_top_label_length, char_height)	#need rotation
-	right_label_dimension = (char_width*max_right_label_length, char_height)
-	bottom_label_dimension = (char_width*max_bottom_label_length, char_height)	#need rotation
+	left_label_dimension = (max_left_label_length + char_width, char_height)
+	top_label_dimension = (max_top_label_length + char_width, char_height)	#need rotation
+	right_label_dimension = (max_right_label_length + char_width, char_height)
+	bottom_label_dimension = (max_bottom_label_length + char_width, char_height)	#need rotation
 	
 	x_offset0 = 0
 	x_offset1 = left_label_dimension[0]
@@ -171,7 +262,7 @@ def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], ri
 			im.paste(text_region, box)
 		for j in range(matrix.shape[0]):	#y-axis
 			draw.rectangle((x_offset_left, y_offset1+j*left_label_dimension[1], \
-					x_offset_right, y_offset1+(j+1)*left_label_dimension[1]), fill=matrix_value2color[matrix[j,i]])
+					x_offset_right, y_offset1+(j+1)*left_label_dimension[1]), fill=matrix_value2color_func(matrix[j,i]))
 		#draw bottom_label_ls
 		if bottom_label_ls:
 			bottom_label = bottom_label_ls[i]
