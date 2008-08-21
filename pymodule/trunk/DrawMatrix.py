@@ -114,6 +114,8 @@ def drawLegend(matrix_value2label, matrix_value2color, font=None):
 def drawContinousLegend(min_value, max_value, no_of_ticks, value2color, font=None, no_of_bands_per_char_height=5):
 	"""
 	2008-08-21
+		deal with the case that tick_index goes out of bound
+	2008-08-21
 		draw legend for continous values
 	"""
 	import Image, ImageDraw
@@ -147,14 +149,14 @@ def drawContinousLegend(min_value, max_value, no_of_ticks, value2color, font=Non
 	max_label_len = 0
 	for i in range(len(band_value_ls)):
 		band_value = band_value_ls[i]
-		tick_value = tick_value_ls[tick_index]
-		if abs(band_value-tick_value)<band_value_step:	#if the tick_value and band_value is close enough, bind them together
-			label = '%.2f'%tick_value
-			if len(label)>max_label_len:
-				max_label_len = len(label)
-			tick_index += 1
-		else:
-			label = None
+		label = None
+		if tick_index<len(tick_value_ls):	#2008-08-21
+			tick_value = tick_value_ls[tick_index]
+			if abs(band_value-tick_value)<band_value_step:	#if the tick_value and band_value is close enough, bind them together
+				label = '%.2f'%tick_value
+				if len(label)>max_label_len:
+					max_label_len = len(label)
+				tick_index += 1			
 		value_label_ls.append((band_value, label))
 	
 	label_dimension = (char_width*max_label_len, char_height)
