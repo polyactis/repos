@@ -1,0 +1,175 @@
+#!/usr/bin/env python
+"""
+
+Examples:
+	OutputTestResultInMatrix.py  -l 6 -o /tmp/rank_test_call_method_6_m40000.tsv -m 40000
+	
+	OutputTestResultInMatrix.py  -l 6 -o /tmp/rank_test_call_method_6_a.tsv -a
+
+Description:
+	Output Test result in data matrix. either CandidateGeneRankSumTestResult or CandidateGeneTopSNPTest
+	
+"""
+import sys, os, math
+#bit_number = math.log(sys.maxint)/math.log(2)
+#if bit_number>40:       #64bit
+sys.path.insert(0, os.path.expanduser('~/lib/python'))
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+
+import getopt, csv, math
+import Numeric, cPickle
+from pymodule import PassingData, importNumericArray, write_data_matrix
+from TopSNPTest import TopSNPTest
+from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
+	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod
+from sets import Set
+
+num = importNumericArray()
+
+class OutputTestResultInMatrix(object):
+	__doc__ = __doc__
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock_250k', 'd', 1, 'database name', ],\
+							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
+							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
+							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							("min_distance", 1, int): [20000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
+							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
+							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
+							('max_pvalue_per_gene', 0, int): [0, 'a', 0, 'take the most significant among all SNPs associated with one gene'],\
+							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
+							('no_of_top_snps', 1, int): [100, 'f', 1, 'how many number of top snps based on score or -log(pvalue).'],\
+							('call_method_id', 1, int):[None, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
+							("result_type", 1, int): [1, 'y', 1, 'Which test result to output. 1: CandidateGeneRankSumTestResult, 2: CandidateGeneTopSNPTest'],\
+							("output_fname", 1, ): [None, 'o', 1, ''],\
+							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	
+	def __init__(self,  **keywords):
+		"""
+		2008-07-24
+			split results_method_id_ls if it exists, to accomodate MpiGeneListRankTest which removed this option
+		2008-07-10
+		"""
+		from pymodule import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+	
+	def getListTypeInfo(self, db, result_class, call_method_id, where_condition):
+		sys.stderr.write("Getting list type info ...")
+		rows = db.metadata.bind.execute("select distinct c.list_type_id from %s r, %s c where r.id=c.results_method_id and r.call_method_id=%s and %s order by list_type_id"\
+								%(ResultsMethod.table.name, result_class.table.name, call_method_id, where_condition))
+		list_type_id_ls = []
+		
+		for row in rows:
+			list_type_id_ls.append(row.list_type_id)
+		sys.stderr.write("Done.\n")
+		return list_type_id_ls
+			
+	
+	def getAnalysisMethodInfo(self, db, result_class, call_method_id, where_condition):
+		sys.stderr.write("Getting analysis method info ...")
+		rows = db.metadata.bind.execute("select distinct r.analysis_method_id from %s r, %s c where r.id=c.results_method_id and r.call_method_id=%s and %s order by analysis_method_id"\
+								%(ResultsMethod.table.name, result_class.table.name, call_method_id, where_condition))
+		analysis_method_id_ls = []
+		for row in rows:
+			analysis_method_id_ls.append(row.analysis_method_id)
+		sys.stderr.write("Done.\n")
+		return analysis_method_id_ls
+	
+	def getPhenotypeInfo(self, db, result_class, call_method_id, where_condition):
+		sys.stderr.write("Getting phenotype method info ...")
+		rows = db.metadata.bind.execute("select distinct r.phenotype_method_id from %s r, %s c where r.id=c.results_method_id and r.call_method_id=%s and %s order by phenotype_method_id"\
+								%(ResultsMethod.table.name, result_class.table.name, call_method_id, where_condition))
+		phenotype_method_id_ls = []
+		phenotype_method_id2index = {}
+		phenotype_method_label_ls = []
+		for row in rows:
+			phenotype_method_id2index[row.phenotype_method_id] = len(phenotype_method_id_ls)
+			phenotype_method_id_ls.append(row.phenotype_method_id)
+			pm = PhenotypeMethod.get(row.phenotype_method_id)
+			phenotype_method_label_ls.append('%s_%s'%(pm.id, pm.short_name))
+		phenotype_info = PassingData()
+		phenotype_info.phenotype_method_id2index = phenotype_method_id2index
+		phenotype_info.phenotype_method_id_ls = phenotype_method_id_ls
+		phenotype_info.phenotype_method_label_ls = phenotype_method_label_ls
+		sys.stderr.write("Done.\n")
+		return phenotype_info
+	
+	def orderListTypeAnalysisMethodID(self, list_type_id_ls, analysis_method_id_ls):
+		sys.stderr.write("Orderinig list type id and analysis_method id ... ")
+		list_type_id_analysis_method_id_ls = []
+		list_type_id_analysis_method_id2index = {}
+		list_type_analysis_method_label_ls = []
+		for list_type_id in list_type_id_ls:
+			list_type_short_name = GeneListType.get(list_type_id).short_name
+			for analysis_method_id in analysis_method_id_ls:
+				analysis_method_short_name = AnalysisMethod.get(analysis_method_id).short_name
+				tup = (list_type_id, analysis_method_id)
+				list_type_id_analysis_method_id2index[tup] = len(list_type_id_analysis_method_id_ls)
+				list_type_id_analysis_method_id_ls.append(tup)
+				list_type_analysis_method_label_ls.append('%s_%s_%s'%(list_type_short_name, list_type_id, analysis_method_short_name))
+		return_data = PassingData()
+		return_data.list_type_id_analysis_method_id_ls = list_type_id_analysis_method_id_ls
+		return_data.list_type_id_analysis_method_id2index = list_type_id_analysis_method_id2index
+		return_data.list_type_analysis_method_label_ls = list_type_analysis_method_label_ls
+		sys.stderr.write("Done.\n")
+		return return_data
+	
+	def get_data_matrix(self, db, phenotype_info, list_type_analysis_method_info, result_class, call_method_id, where_condition):
+		sys.stderr.write("Getting data matrix ...")
+		data_matrix = num.zeros([len(list_type_analysis_method_info.list_type_id_analysis_method_id2index), len(phenotype_info.phenotype_method_id2index)], num.float)
+		data_matrix[:] = -2
+		i = 0
+		rows = db.metadata.bind.execute("select r.analysis_method_id, r.phenotype_method_id, c.* from %s r, %s c where r.id=c.results_method_id and r.call_method_id=%s and %s order by analysis_method_id"\
+								%(ResultsMethod.table.name, result_class.table.name, call_method_id, where_condition))
+		for row in rows:
+			tup = (row.list_type_id, row.analysis_method_id)
+			row_index = list_type_analysis_method_info.list_type_id_analysis_method_id2index[tup]
+			col_index = phenotype_info.phenotype_method_id2index[row.phenotype_method_id]
+			if row.pvalue>0:
+				data_matrix[row_index, col_index] = -math.log(row.pvalue)
+			else:
+				data_matrix[row_index, col_index] = -1	#0 pvalue
+		sys.stderr.write("Done.\n")
+		return data_matrix
+	
+	def run(self):
+		where_condition = "c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
+				%(self.get_closest, self.min_distance, self.min_MAF)	#the condition for min_MAF is tricky because of the floating precision.
+		if self.result_type==1:
+			result_class = CandidateGeneRankSumTestResult
+			where_condition += " and c.max_pvalue_per_gene=%s"%(self.max_pvalue_per_gene)
+		elif self.result_type==2:
+			result_class = CandidateGeneTopSNPTest
+			where_condition += " and c.no_of_top_snps=%s"%(self.no_of_top_snps)
+		else:
+			sys.stderr.write(" result_type %s not supported.\n"%(self.result_type))
+			sys.exit(2)
+		
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
+				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		session = db.session
+		
+		list_type_id_ls = self.getListTypeInfo(db, result_class, self.call_method_id, where_condition)
+		analysis_method_id_ls = self.getAnalysisMethodInfo(db, result_class, self.call_method_id, where_condition)
+		list_type_analysis_method_info = self.orderListTypeAnalysisMethodID(list_type_id_ls, analysis_method_id_ls)
+		phenotype_info = self.getPhenotypeInfo(db, result_class, self.call_method_id, where_condition)
+		data_matrix = self.get_data_matrix(db, phenotype_info, list_type_analysis_method_info, result_class, self.call_method_id, where_condition)
+		
+		header = ['list_type_analysis_method', ''] + phenotype_info.phenotype_method_label_ls
+		strain_acc_list = list_type_analysis_method_info.list_type_analysis_method_label_ls
+		category_list = list_type_analysis_method_info.list_type_id_analysis_method_id_ls
+		write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list)
+
+if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = OutputTestResultInMatrix
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
