@@ -8,6 +8,7 @@
 """
 10-31-05 basic functions to draw images
 """
+import sys,os
 def get_char_dimension():
 	import Image, ImageDraw
 	im = Image.new('RGB', (50,50))
@@ -67,6 +68,7 @@ def drawLegend(matrix_value2label, matrix_value2color, font=None):
 	2007-11-02
 		add line to get default font
 	"""
+	sys.stderr.write("Drawing legend ...")
 	import Image, ImageDraw
 	if type(matrix_value2color)==dict:
 		matrix_value2color_func = lambda x: matrix_value2color[x]
@@ -108,6 +110,7 @@ def drawLegend(matrix_value2label, matrix_value2color, font=None):
 		box = (x_offset2, y_offset_upper, x_offset3, y_offset_lower)
 		im.paste(text_region, box)
 	#im = im.rotate(270)
+	sys.stderr.write("Done.\n")
 	return im
 
 
@@ -118,6 +121,7 @@ def drawContinousLegend(min_value, max_value, no_of_ticks, value2color, font=Non
 	2008-08-21
 		draw legend for continous values
 	"""
+	sys.stderr.write("Drawing continous legend ...")
 	import Image, ImageDraw
 	if type(value2color)==dict:
 		value2color_func = lambda x: value2color[x]
@@ -186,10 +190,13 @@ def drawContinousLegend(min_value, max_value, no_of_ticks, value2color, font=Non
 			text_region = get_text_region(label, label_dimension, rotate=0, font=font)	#no rotate
 			box = (x_offset2, y_offset_upper, x_offset3, y_offset_upper+label_dimension[1])
 			im.paste(text_region, box)
+	sys.stderr.write("Done.\n")
 	return im
 
 def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], right_label_ls=[], bottom_label_ls=[], with_grid=0, font=None):
 	"""
+	2008-08-21
+		shift the left_label to the right to stick next to the matrix
 	2008-08-21
 		matrix_value2color could be a dictionary or function. if it's a dictionary, turn it into lambda function.
 		use real font-rendition length as maximum label length
@@ -199,6 +206,7 @@ def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], ri
 	2007-11-02
 		add line to get default font
 	"""
+	sys.stderr.write("Drawing matrix ...")
 	import Image, ImageDraw
 	if not font:
 		font = get_font()
@@ -233,7 +241,7 @@ def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], ri
 	right_label_dimension = (max_right_label_length + char_width, char_height)
 	bottom_label_dimension = (max_bottom_label_length + char_width, char_height)	#need rotation
 	
-	x_offset0 = 0
+	x_offset0 = char_width
 	x_offset1 = left_label_dimension[0]
 	x_offset2 = x_offset1 + matrix.shape[1]*char_height
 	y_offset0 = 0
@@ -248,8 +256,10 @@ def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], ri
 	if left_label_ls:
 		for i in range(len(left_label_ls)):
 			left_label = left_label_ls[i]
-			text_region = get_text_region(left_label, left_label_dimension, rotate=0, font=font)	#no rotate
-			box = (x_offset0, y_offset1+i*left_label_dimension[1], x_offset1, y_offset1+(i+1)*left_label_dimension[1])
+			_left_label_dimension = font.getsize(left_label)
+			text_region = get_text_region(left_label, _left_label_dimension, rotate=0, font=font)	#no rotate
+			label_shift = max_left_label_length - _left_label_dimension[0]	#shift the left_label to the right to stick next to the matrix
+			box = (x_offset0+label_shift, y_offset1+i*left_label_dimension[1], x_offset1, y_offset1+(i+1)*left_label_dimension[1])
 			im.paste(text_region, box)
 	
 	#draw matrix and top_label_ls and bottom_label_ls
@@ -283,6 +293,7 @@ def drawMatrix(matrix, matrix_value2color, left_label_ls=[], top_label_ls=[], ri
 		draw_grid(im, draw, [x_offset1, y_offset1, x_offset2, y_offset2], char_height, char_height)
 	
 	#im = im.rotate(270)
+	sys.stderr.write("Done.\n")
 	return im
 
 
