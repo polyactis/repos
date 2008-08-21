@@ -23,6 +23,7 @@ from TopSNPTest import TopSNPTest
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
 	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod
 from sets import Set
+from pymodule.DrawMatrix import drawMatrix, drawLegend, drawContinousLegend, get_font
 
 num = importNumericArray()
 
@@ -39,10 +40,14 @@ class OutputTestResultInMatrix(object):
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
 							('max_pvalue_per_gene', 0, int): [0, 'a', 0, 'take the most significant among all SNPs associated with one gene'],\
 							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
-							('no_of_top_snps', 1, int): [100, 'f', 1, 'how many number of top snps based on score or -log(pvalue).'],\
+							('no_of_top_snps', 1, int): [100, 'f', 1, 'how many number of top snps based on score or -log10(pvalue).'],\
 							('call_method_id', 1, int):[None, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
 							("result_type", 1, int): [1, 'y', 1, 'Which test result to output. 1: CandidateGeneRankSumTestResult, 2: CandidateGeneTopSNPTest'],\
-							("output_fname", 1, ): [None, 'o', 1, ''],\
+							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
+							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
+							("output_fname", 0, ): [None, 'o', 1, 'Filename tot store data matrix'],\
+							("fig_fname_prefix", 1, ): [None, 'x', 1, 'File name prefix for the figure'],\
+							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -124,16 +129,49 @@ class OutputTestResultInMatrix(object):
 		i = 0
 		rows = db.metadata.bind.execute("select r.analysis_method_id, r.phenotype_method_id, c.* from %s r, %s c where r.id=c.results_method_id and r.call_method_id=%s and %s order by analysis_method_id"\
 								%(ResultsMethod.table.name, result_class.table.name, call_method_id, where_condition))
+		min_value = None
+		max_value = None
 		for row in rows:
 			tup = (row.list_type_id, row.analysis_method_id)
 			row_index = list_type_analysis_method_info.list_type_id_analysis_method_id2index[tup]
 			col_index = phenotype_info.phenotype_method_id2index[row.phenotype_method_id]
 			if row.pvalue>0:
-				data_matrix[row_index, col_index] = -math.log(row.pvalue)
+				data_value = -math.log10(row.pvalue)
+				if min_value==None:
+					min_value = data_value
+				elif data_value<min_value:
+					min_value = data_value
+				
+				if max_value==None:
+					max_value=data_value
+				elif data_value>max_value:
+					max_value =data_value
 			else:
-				data_matrix[row_index, col_index] = -1	#0 pvalue
+				data_value = -1	#0 pvalue
+			data_matrix[row_index, col_index] = data_value
 		sys.stderr.write("Done.\n")
-		return data_matrix
+		return_data = PassingData()
+		return_data.data_matrix = data_matrix
+		return_data.min_value = min_value
+		return_data.max_value = max_value
+		return return_data
+	
+	def value2RGBcolor(cls, value, min_value=0., max_value=255.):
+		"""
+		2008-08-21
+			color span is (0,0,0) to (255,255,255).
+		"""
+		if value==-1:	#pvalue=0
+			return (255,0,0)
+		elif value==-2:	#NA
+			return (0,255,0)
+		else:
+			Y = (value-min_value)/(max_value-min_value)*(255-0)
+			R_value = G_value = B_value = 255-int(Y)	#the bigger value is, the darker the color is
+			#R_value = int(Y/math.pow(2,8))
+			#G_value = int(Y- R_value*math.pow(2,8))
+			return (R_value, G_value, B_value)
+		
 	
 	def run(self):
 		where_condition = "c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
@@ -159,13 +197,23 @@ class OutputTestResultInMatrix(object):
 		analysis_method_id_ls = self.getAnalysisMethodInfo(db, result_class, self.call_method_id, where_condition)
 		list_type_analysis_method_info = self.orderListTypeAnalysisMethodID(list_type_id_ls, analysis_method_id_ls)
 		phenotype_info = self.getPhenotypeInfo(db, result_class, self.call_method_id, where_condition)
-		data_matrix = self.get_data_matrix(db, phenotype_info, list_type_analysis_method_info, result_class, self.call_method_id, where_condition)
+		rdata = self.get_data_matrix(db, phenotype_info, list_type_analysis_method_info, result_class, self.call_method_id, where_condition)
 		
 		header = ['list_type_analysis_method', ''] + phenotype_info.phenotype_method_label_ls
 		strain_acc_list = list_type_analysis_method_info.list_type_analysis_method_label_ls
 		category_list = list_type_analysis_method_info.list_type_id_analysis_method_id_ls
-		write_data_matrix(data_matrix, self.output_fname, header, strain_acc_list, category_list)
-
+		if self.output_fname:
+			write_data_matrix(rdata.data_matrix, self.output_fname, header, strain_acc_list, category_list)
+		
+		if self.fig_fname_prefix:
+			font = get_font(self.font_path, font_size=self.font_size)	#2008-08-01
+			value2color_func = lambda x: self.value2RGBcolor(x, rdata.min_value, rdata.max_value)
+			im = drawContinousLegend(rdata.min_value, rdata.max_value, self.no_of_ticks, value2color_func, font)
+			im.save('%s_legend.png'%self.fig_fname_prefix)
+			im = drawMatrix(rdata.data_matrix, value2color_func, list_type_analysis_method_info.list_type_analysis_method_label_ls,\
+						phenotype_info.phenotype_method_label_ls, with_grid=1, font=font)
+			im.save('%s.png'%self.fig_fname_prefix)
+		
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
 	main_class = OutputTestResultInMatrix
