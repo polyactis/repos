@@ -424,8 +424,10 @@ class SNPData(object):
 				self.category_list = None
 		self.processRowIDColID()
 	
-	def isDataMatrixEmpty(self, data_matrix):
+	def isDataMatrixEmpty(cls, data_matrix):
 		"""
+		2008-08-21
+			make it a classmethod
 		2008-08-19
 			common function to judge whether data_matrix is empty
 		"""
@@ -437,6 +439,8 @@ class SNPData(object):
 			return True
 		else:
 			return False
+	
+	isDataMatrixEmpty = classmethod(isDataMatrixEmpty)
 	
 	def processRowIDColID(self):
 		"""
