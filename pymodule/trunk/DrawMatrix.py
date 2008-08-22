@@ -400,6 +400,31 @@ def display_matrix_of_component(input_fname, ecotypeid_ls, ecotypeid2pos, output
 		pylab.savefig('%s.png'%output_fname, dpi=300)
 	pylab.show()
 
+def combineTwoImages(im1, im2, font=None):
+	"""
+	2008-08-21
+		combine im1 and im2 horizontally
+	"""
+	sys.stderr.write("Combining two images ...")
+	import Image, ImageDraw
+	im1_size = im1.size
+	im2_size = im2.size
+	if not font:
+		font = get_font()
+	char_dimension = font.getsize('W')	#W is the the biggest(widest)
+	char_width, char_height = char_dimension
+	whole_dimension = (im1_size[0]+im2_size[0]+char_width, \
+			max(im1_size[1], im2_size[1]))
+	im = Image.new('RGB',(whole_dimension[0],whole_dimension[1]),(255,255,255))
+	im1_box = (0, 0, im1_size[0], im1_size[1])
+	im.paste(im1, im1_box)
+	
+	im2_box = (im1_size[0]+char_width, 0, whole_dimension[0], im2_size[1])
+	im.paste(im2, im2_box)
+	sys.stderr.write("Done.\n")
+	return im
+	
+	
 if __name__ == '__main__':
 	matrix_value2label= {0:'NA', 1:'A', 2:'C', 3:'G', 4:'T'}
 	matrix_value2color = {0:(0,0,122), 1:(0,0,255), 2:(0,122,122), 3:(122,122,0), 4:(255,0,0)}
