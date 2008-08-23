@@ -326,7 +326,9 @@ class GeneListRankTest(object):
 		if rm.results_method_type_id!=1:
 			sys.stderr.write("skip non-association results. results_method_type_id=%s, results_method_id=%s.\n"%(rm.results_method_type_id, pd.results_method_id))
 			return None
-		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=pd.results_method_id).filter_by(list_type_id=pd.list_type_id).filter_by(min_distance=pd.min_distance).filter_by(min_MAF=pd.min_MAF).filter_by(get_closest=pd.get_closest).filter_by(max_pvalue_per_gene=pd.max_pvalue_per_gene)
+		db_results = CandidateGeneRankSumTestResult.query.filter_by(results_method_id=pd.results_method_id).\
+			filter_by(list_type_id=pd.list_type_id).filter_by(min_distance=pd.min_distance).\
+			filter_by(min_MAF=pd.min_MAF).filter_by(get_closest=pd.get_closest).filter_by(max_pvalue_per_gene=pd.max_pvalue_per_gene)
 		if db_results.count()>0:	#done before
 			db_result = db_results.first()
 			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
