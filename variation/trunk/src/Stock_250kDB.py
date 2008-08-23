@@ -83,7 +83,7 @@ class BiologyCategory(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class GeneListType(Entity):
-	short_name = Field(String(256), unique=True)
+	short_name = Field(String(256))
 	biology_category = ManyToOne("BiologyCategory", colname='biology_category_id', ondelete='CASCADE', onupdate='CASCADE')
 	type = ManyToOne("GeneListSuperType", colname='super_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	original_filename = Field(String(760), unique=True)	#for unique constraint in mysql, max key length is 767 bytes
@@ -95,6 +95,7 @@ class GeneListType(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_list_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('short_name', 'super_type_id'))
 
 class GeneListSuperType(Entity):
 	#2008-08-22
