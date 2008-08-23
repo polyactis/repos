@@ -5,7 +5,7 @@ Examples:
 	Stock_250kDB.py -v postgres -u crocea -z localhost -d graphdb -k public
 	
 	#setup database in mysql
-	Stock_250kDB.py -u yh
+	Stock_250kDB.py -u yh -z papaya.usc.edu
 	
 Description:
 	2008-07-09
@@ -69,8 +69,23 @@ class PhenotypeAvg(Entity):
 	using_options(tablename='phenotype_avg', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
+class BiologyCategory(Entity):
+	#2008-08-21
+	short_name = Field(String(256), unique=True)
+	description = Field(String(8192))
+	gene_list_type_ls = OneToMany("GeneListType")
+	phenotype_method_ls = OneToMany("PhenotypeMethod")
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='biology_category', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
 class GeneListType(Entity):
 	short_name = Field(String(256), unique=True)
+	biology_category = ManyToOne("BiologyCategory", colname='biology_category_id', ondelete='CASCADE', onupdate='CASCADE')
+	type = ManyToOne("GeneListSuperType", colname='super_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	original_filename = Field(String(760), unique=True)	#for unique constraint in mysql, max key length is 767 bytes
 	description = Field(String(8192))
 	gene_list = OneToMany('GeneList')
@@ -79,6 +94,18 @@ class GeneListType(Entity):
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_list_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
+class GeneListSuperType(Entity):
+	#2008-08-22
+	short_name = Field(String(256), unique=True)
+	description = Field(String(8192))
+	list_type_ls = OneToMany(GeneListType)
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_list_super_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class GeneList(Entity):
@@ -138,6 +165,7 @@ class CallMethod(Entity):
 class PhenotypeMethod(Entity):
 	short_name = Field(String(20), unique=True)
 	only_first_96 = Field(Boolean, default=0)
+	biology_category = ManyToOne("BiologyCategory", colname='biology_category_id', ondelete='CASCADE', onupdate='CASCADE')
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
 	comment = Field(String(8000))
@@ -182,6 +210,8 @@ class ResultsMethod(Entity):
 	call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	results_method_type = ManyToOne('ResultsMethodType', colname='results_method_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	analysis_method = ManyToOne('AnalysisMethod', colname='analysis_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	rank_test = OneToMany("CandidateGeneRankSumTestResult")
+	top_snp_test = OneToMany("CandidateGeneTopSNPTest")
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
