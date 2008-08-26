@@ -46,6 +46,7 @@ class OutputTestResultInMatrix(object):
 							('call_method_id_ls', 1, ):[None, 'l', 1, 'Restrict results based on these call_methods, coma-separated list of ids.'],\
 							('analysis_method_id_ls', 0, ):[None, 'j', 1, 'Restrict results based on these analysis, coma-separated. Default is no such restriction.'],\
 							("result_type", 1, int): [1, 'y', 1, 'Which test result to output. 1: CandidateGeneRankSumTestResult, 2: CandidateGeneTopSNPTest'],\
+							("super_type_id", 0, int): [1, 'q', 1, 'Super Type ID for candidate gene lists'],\
 							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
 							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'Filename to store data matrix'],\
@@ -66,8 +67,8 @@ class OutputTestResultInMatrix(object):
 	
 	def getListTypeInfo(self, db, result_class,  where_condition):
 		sys.stderr.write("Getting list type info ...")
-		rows = db.metadata.bind.execute("select distinct c.list_type_id, g.biology_category_id from %s r, %s c, %s g where %s and g.id=c.list_type_id order by g.biology_category_id, list_type_id"\
-								%(ResultsMethod.table.name, result_class.table.name, GeneListType.table.name, where_condition))
+		rows = db.metadata.bind.execute("select distinct c.list_type_id, g.biology_category_id from %s order by g.biology_category_id, list_type_id"\
+								%(where_condition))
 		list_type_id_ls = []
 		
 		for row in rows:
@@ -78,8 +79,8 @@ class OutputTestResultInMatrix(object):
 	
 	def getAnalysisMethodInfo(self, db, result_class, where_condition):
 		sys.stderr.write("Getting analysis method info ...")
-		rows = db.metadata.bind.execute("select distinct r.analysis_method_id from %s r, %s c where %s order by analysis_method_id"\
-								%(ResultsMethod.table.name, result_class.table.name, where_condition))
+		rows = db.metadata.bind.execute("select distinct r.analysis_method_id from %s order by analysis_method_id"\
+								%(where_condition))
 		analysis_method_id_ls = []
 		for row in rows:
 			analysis_method_id_ls.append(row.analysis_method_id)
@@ -88,8 +89,8 @@ class OutputTestResultInMatrix(object):
 	
 	def getPhenotypeInfo(self, db, result_class,  where_condition):
 		sys.stderr.write("Getting phenotype method info ...")
-		rows = db.metadata.bind.execute("select distinct r.phenotype_method_id, p.biology_category_id from %s r, %s c, %s p where %s and p.id=r.phenotype_method_id order by p.biology_category_id, r.phenotype_method_id"\
-								%(ResultsMethod.table.name, result_class.table.name, PhenotypeMethod.table.name, where_condition))
+		rows = db.metadata.bind.execute("select distinct r.phenotype_method_id, p.biology_category_id from %s p, %s and p.id=r.phenotype_method_id order by p.biology_category_id, r.phenotype_method_id"\
+								%(PhenotypeMethod.table.name, where_condition))
 		phenotype_method_id_ls = []
 		phenotype_method_id2index = {}
 		phenotype_method_label_ls = []
@@ -130,8 +131,8 @@ class OutputTestResultInMatrix(object):
 		data_matrix = num.zeros([len(list_type_analysis_method_info.list_type_id_analysis_method_id2index), len(phenotype_info.phenotype_method_id2index)], num.float)
 		data_matrix[:] = -2
 		i = 0
-		rows = db.metadata.bind.execute("select r.analysis_method_id, r.phenotype_method_id, c.* from %s r, %s c where %s order by analysis_method_id"\
-								%(ResultsMethod.table.name, result_class.table.name, where_condition))
+		rows = db.metadata.bind.execute("select r.analysis_method_id, r.phenotype_method_id, c.* from %s order by analysis_method_id"\
+								%(where_condition))
 		min_value = None
 		max_value = None
 		for row in rows:
@@ -176,13 +177,33 @@ class OutputTestResultInMatrix(object):
 			return (R_value, G_value, B_value)
 		
 	
-	def run(self):
-		where_condition = "r.analysis_method_id is not null and r.id=c.results_method_id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
-				%(self.get_closest, self.min_distance, self.min_MAF)	#the condition for min_MAF is tricky because of the floating precision.
+	def run(self):	
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
+						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		session = db.session
+		
+		if self.result_type==1:
+			result_class = CandidateGeneRankSumTestResult
+		elif self.result_type==2:
+			result_class = CandidateGeneTopSNPTest
+		else:
+			sys.stderr.write(" result_type %s not supported.\n"%(self.result_type))
+			sys.exit(2)
+		
+		where_condition = "%s r, %s c, %s g where g.id=c.list_type_id and r.analysis_method_id is not null and r.id=c.results_method_id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
+				%(ResultsMethod.table.name, result_class.table.name, GeneListType.table.name, self.get_closest, self.min_distance, self.min_MAF)	#the condition for min_MAF is tricky because of the floating precision.
+		
 		if self.call_method_id_ls:
 			where_condition += " and r.call_method_id in (%s)"%self.call_method_id_ls
+		
 		if self.analysis_method_id_ls:
 			where_condition += " and r.analysis_method_id in (%s)"%self.analysis_method_id_ls
+		if self.super_type_id:
+			where_condition += " and g.super_type_id=%s"%self.super_type_id
+		
 		if self.result_type==1:
 			result_class = CandidateGeneRankSumTestResult
 			where_condition += " and c.max_pvalue_per_gene=%s"%(self.max_pvalue_per_gene)
@@ -192,13 +213,6 @@ class OutputTestResultInMatrix(object):
 		else:
 			sys.stderr.write(" result_type %s not supported.\n"%(self.result_type))
 			sys.exit(2)
-		
-		if self.debug:
-			import pdb
-			pdb.set_trace()
-		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
-				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
-		session = db.session
 		
 		list_type_id_ls = self.getListTypeInfo(db, result_class, where_condition)
 		analysis_method_id_ls = self.getAnalysisMethodInfo(db, result_class, where_condition)
