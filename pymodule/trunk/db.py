@@ -236,6 +236,8 @@ class README(Entity):
 
 def formReadmeObj(argv, ad, READMEClass):
 	"""
+	2008-08-26
+		if argument contains 'password' or 'passwd', mark its value as '*'
 	2008-05-06
 		create a readme instance (like a log) based on the program's sys.argv and argument dictionary
 	"""
@@ -243,9 +245,10 @@ def formReadmeObj(argv, ad, READMEClass):
 	argument_ls = ad.keys()
 	argument_ls.sort()
 	for argument in argument_ls:
-		if argument=='passwd' or argument=='password':	#password info not into db
-			continue
-		value = ad[argument]
+		if argument.find('passwd')!=-1 or argument.find('password')!=-1:	#password info not into db
+			value = '*'
+		else:
+			value = ad[argument]
 		readme_description_ls.append('%s=%s'%(argument, value))
 	readme = READMEClass(title=' '.join(argv), description='; '.join(readme_description_ls))
 	return readme
