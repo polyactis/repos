@@ -461,21 +461,25 @@ class Stock_250kDB(ElixirDB):
 		
 		if getattr(self, 'schema', None):	#for postgres
 			for entity in entities:
-				using_table_options_handler(entity, schema=self.schema)
+				if entity.__module__==self.__module__:	#entity in the same module
+					using_table_options_handler(entity, schema=self.schema)
 		
 		#metadata = ThreadLocalMetaData()
 		__metadata__.bind = self._url
 		self.metadata = __metadata__
-		#__session__.bind = self._url
 		self.session = __session__
+	
+	def setup(self):
 		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
+		#2008-08-26 setup_all() would setup other databases as well if they also appear in the program. Seperate this to be envoked after initialization
+		# to ensure the metadata of other databases is setup properly.
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
 	main_class = Stock_250kDB
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
-	
+	instance.setup()
 	
 	rows = GeneListType.query.all()
 	for row in rows:
