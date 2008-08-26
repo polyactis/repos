@@ -303,16 +303,15 @@ class StockDB(ElixirDB):
 		
 		if getattr(self, 'schema', None):	#for postgres
 			for entity in entities:
-				using_table_options_handler(entity, schema=self.schema)
+				if entity.__module__==self.__module__:	#entity in the same module
+					using_table_options_handler(entity, schema=self.schema)
 		
 		__metadata__.bind = self._url
 		self.metadata = __metadata__
-		#stockdb_session.bind = self._url
 		self.session = __session__
-		#for entity in entities:
-			#print entity
-			#print dir(entity)
-		
+	
+	def setup(self):
+		#2008-08-26
 		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 
 if __name__ == '__main__':
@@ -320,6 +319,6 @@ if __name__ == '__main__':
 	main_class = StockDB
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
-	
+	instance.setup()
 	import pdb
 	pdb.set_trace()
