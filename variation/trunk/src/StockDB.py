@@ -10,7 +10,7 @@ Examples:
 Description:
 	2008-08-11
 	This is a wrapper for the stock database, build on top of elixir. Several tables need to be manually created because
-	exlixir can't represent 'unsigned' integer very well.
+	elixir can't represent 'unsigned' integer very well.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -281,7 +281,21 @@ class EcotypeIDStrainID2TGEcotypeID(Entity):
 	tg_ecotype = ManyToOne("Ecotype", colname='tg_ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
 	using_options(tablename='ecotypeid_strainid2tg_ecotypeid', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	
+
+class QCCrossMatch(Entity):
+	"""
+	2008-08-26
+	"""
+	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
+	target_id = Field(Integer)
+	qc_method = ManyToOne("QCMethod", colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	mismatch_rate = Field(Float)
+	no_of_mismatches = Field(Integer)
+	no_of_non_NA_pairs = Field(Integer)
+	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	using_options(tablename='qc_cross_match')
+	using_table_options(mysql_engine='InnoDB')
+
 class StockDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
@@ -310,9 +324,14 @@ class StockDB(ElixirDB):
 		self.metadata = __metadata__
 		self.session = __session__
 	
-	def setup(self):
-		#2008-08-26
-		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
+	def setup(self, create_tables=True):
+		"""
+		2008-08-27
+			add option create_tables to disable create_tables in the case that 
+				another database metadata gets added into a program because it's imported but no binding at all.
+		2008-08-26
+		"""
+		setup_all(create_tables=create_tables)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
