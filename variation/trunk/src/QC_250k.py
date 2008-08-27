@@ -58,7 +58,7 @@ import warnings, traceback
 from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
-from variation.src.Stock_250kDB import Stock_250kDB as Stock_250kDatabase
+from variation.src import Stock_250kDB
 from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, Snps, SnpsQC, CallInfo, README
 from pymodule.db import formReadmeObj
 import sqlalchemy, numpy
@@ -433,14 +433,16 @@ class QC_250k(object):
 		passingdata.row_id12row_id2 = twoSNPData.row_id12row_id2
 		return passingdata
 	
-	def findOutCmpDataFilename(cls, cmp_data_filename, QC_method_id):
+	def findOutCmpDataFilename(cls, cmp_data_filename, QC_method_id, QCMethod_class):
 		"""
+		2008-08-26
+			add QCMethod_class
 		2008-08-16
 			split from run() to let QC_149.py to call it
 		"""
 		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
 		if not cmp_data_filename and QC_method_id!=0:
-			qm = QCMethod.query.get(QC_method_id)
+			qm = QCMethod_class.query.get(QC_method_id)
 			if qm and qm.data_description:
 				data_description_ls = qm.data_description.split('=')
 				if len(data_description_ls)>1:
@@ -461,8 +463,9 @@ class QC_250k(object):
 			for plone to call it just to get row_id2NA_mismatch_rate
 		"""
 		#database connection and etc
-		db = Stock_250kDatabase(drivername=self.drivername, username=self.user,
+		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
+		db.setup()
 		session = db.session
 		session.begin()
 		#transaction = session.create_transaction()
