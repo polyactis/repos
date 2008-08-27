@@ -75,7 +75,6 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
-import psycopg2 as psycopg
 import sys, getopt, csv, re
 from annot.bin.codense.common import db_connect, org_short2long, org2tax_id
 from variation.src.common import nt2number, number2nt, ab2number, number2ab
