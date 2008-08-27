@@ -32,12 +32,13 @@ import time, csv, getopt
 import warnings, traceback
 from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data, nt2number, importNumericArray
 from variation.src.QualityControl import QualityControl
-from variation.src.StockDB import StockDB, QCMethod, CallQC, Calls, SNPs, README, Ecotype, Strain, EcotypeIDStrainID2TGEcotypeID
+from variation.src import StockDB
 from pymodule.db import formReadmeObj
+from QC_250k import QC_250k
 
 num = importNumericArray()
 
-class QC_149(object):
+class QC_149(QC_250k):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
 							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
@@ -77,7 +78,7 @@ class QC_149(object):
 			NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs, relative_NA_rate, relative_no_of_NAs, relative_no_of_totals = NA_mismatch_ls
 			#call_QC stores the relative NA rate. call_info already stores the independent NA rate
 			NA_rate, no_of_NAs, no_of_totals = relative_NA_rate, relative_no_of_NAs, relative_no_of_totals
-			callqc = CallQC(strainid=strainid, ecotypeid=ecotypeid, target_id=target_id,\
+			callqc = StockDB.CallQC(strainid=strainid, ecotypeid=ecotypeid, target_id=target_id,\
 						qc_method_id=QC_method_id, NA_rate=NA_rate, mismatch_rate=mismatch_rate,\
 						no_of_NAs=no_of_NAs, no_of_totals=no_of_totals, no_of_mismatches=no_of_mismatches, no_of_non_NA_pairs=no_of_non_NA_pairs,\
 						created_by=user)
@@ -85,60 +86,7 @@ class QC_149(object):
 			session.save(callqc)
 		sys.stderr.write("Done.\n")
 	
-	def findOutCmpDataFilename(self, cmp_data_filename, QC_method_id):
-		"""
-		2008-08-18
-			copied from QC_250k.py. can't inherit QC_149 from QC_250k because database classes clash
-		"""
-		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
-		if not cmp_data_filename and QC_method_id!=0:
-			qm = QCMethod.query.get(QC_method_id)
-			if qm and qm.data_description:
-				data_description_ls = qm.data_description.split('=')
-				if len(data_description_ls)>1:
-					cmp_data_filename = qm.data_description.split('=')[1].strip()
-					return cmp_data_filename
-		#after db query, cmp_data_filename is still nothing, exit program.
-		if not cmp_data_filename and QC_method_id!=0:
-			sys.stderr.write("cmp_data_filename is still nothing even after db query. please specify it on the commandline.\n")
-			sys.exit(3)
-	
-	def output_row_id2NA_mismatch_rate(self, row_id2NA_mismatch_rate, output_fname, file_1st_open=1):
-		"""
-		2008-08-18
-			copied from QC_250k.py
-		"""
-		sys.stderr.write("Outputting row_id2NA_mismatch_rate to %s ..."%(output_fname))
-		if file_1st_open:
-			open_flag = 'w'
-		else:
-			open_flag = 'a'
-		writer = csv.writer(open(output_fname, open_flag))
-		NA_mismatch_ls_header = ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', \
-				'no_of_mismatches', 'no_of_non_NA_pairs', 'relative_NA_rate', 'relative_no_of_NAs', 'relative_no_of_totals']
-		row_id_ls = row_id2NA_mismatch_rate.keys()
-		row_id_ls.sort()	#try to keep them in call_info_id order
-		if len(row_id_ls)>0:
-			row_id0 = row_id_ls[0]
-			if not isinstance(row_id0, str) and hasattr(row_id0, '__len__'):
-				header = ['']*len(row_id0)
-			else:
-				header = ['']
-			header += NA_mismatch_ls_header
-			writer.writerow(header)
-			for row_id in row_id_ls:
-				NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
-				if isinstance(row_id, tuple):
-					row_id_ls = list(row_id)
-				elif isinstance(row_id, list):
-					row_id_ls = row_id
-				else:
-					row_id_ls = [row_id]
-				writer.writerow(row_id_ls + NA_mismatch_ls)
-		del writer
-		sys.stderr.write("Done.\n")
-	
-	def get_strain_id_info(self, QC_method_id):
+	def get_strain_id_info(self, QC_method_id, ignore_strains_with_qc=True):
 		"""
 		2008-08-18
 			to generate data structure related to strain_id, preparation to get data_matrix
@@ -151,15 +99,16 @@ class QC_149(object):
 		strain_id2acc = {}
 		strain_id2category = {}
 		
-		rows = Strain.query.all()
+		rows = StockDB.Strain.query.all()
 		for row in rows:
-			ignore_this = 0
-			for call_qc in row.call_qc_ls:
-				if call_qc.qc_method_id==QC_method_id:	#QC already done
-					ignore_this = 1
-					break
-			if ignore_this:
-				continue
+			if ignore_strains_with_qc:
+				ignore_this = 0
+				for call_qc in row.call_qc_ls:
+					if call_qc.qc_method_id==QC_method_id:	#QC already done
+						ignore_this = 1
+						break
+				if ignore_this:
+					continue
 			strain_id = row.id
 			strain_index = len(strain_id_list)
 			strain_id_list.append(strain_id)
@@ -195,27 +144,28 @@ class QC_149(object):
 			import pdb
 			pdb.set_trace()
 		
-		db = StockDB(drivername=self.drivername, username=self.db_user,
+		db = StockDB.StockDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname)
+		db.setup(create_tables=False)
 		session = db.session
 		session.begin()
 		
-		self.cmp_data_filename = self.findOutCmpDataFilename(self.cmp_data_filename, self.QC_method_id)
+		self.cmp_data_filename = self.findOutCmpDataFilename(self.cmp_data_filename, self.QC_method_id, StockDB.QCMethod)
 		header, strain_acc_list, category_list, data_matrix = read_data(self.cmp_data_filename)
 		strain_acc_list = map(int, strain_acc_list)	#it's ecotypeid, cast it to integer to be compatible to the later ecotype_id_ls from db
 		snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, \
 							data_matrix=data_matrix)	#category_list is not used.
 		
-		readme = formReadmeObj(sys.argv, self.ad, README)
+		readme = formReadmeObj(sys.argv, self.ad, StockDB.README)
 		session.save(readme)
 		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
 		from dbSNP2data import dbSNP2data
-		snp_id2index, snp_id_list, snp_id2info = dbSNP2data.get_snp_id2index_m(curs, Calls.table.name, SNPs.table.name)
+		snp_id2index, snp_id_list, snp_id2info = dbSNP2data.get_snp_id2index_m(curs, StockDB.Calls.table.name, StockDB.SNPs.table.name)
 		strain_info_data = self.get_strain_id_info(self.QC_method_id)
-		data_matrix = self.get_data_matrix(db, strain_info_data.strain_id2index, snp_id2index, Calls.table.name)
+		data_matrix = self.get_data_matrix(db, strain_info_data.strain_id2index, snp_id2index, StockDB.Calls.table.name)
 		strain_acc_list = [strain_info_data.strain_id2acc[strain_id] for strain_id in strain_info_data.strain_id_list]
 		category_list = [strain_info_data.strain_id2category[strain_id] for strain_id in strain_info_data.strain_id_list]
 		header = ['ecotypeid', 'strainid']
