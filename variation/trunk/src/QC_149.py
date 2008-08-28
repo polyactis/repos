@@ -31,7 +31,6 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data, nt2number, importNumericArray
-from variation.src.QualityControl import QualityControl
 from variation.src import StockDB
 from pymodule.db import formReadmeObj
 from QC_250k import QC_250k

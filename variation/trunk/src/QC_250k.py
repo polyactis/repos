@@ -56,7 +56,6 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data
-from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 from variation.src import Stock_250kDB
 from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, Snps, SnpsQC, CallInfo, README
