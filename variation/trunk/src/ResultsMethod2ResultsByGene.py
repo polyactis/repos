@@ -64,12 +64,12 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			for snps_context in snps_context_matrix:
 				snps_id, disp_pos, gene_id = snps_context
-				rbg = Stock_250kDB.ResultsByGene(gene_id=gene_id, snps_id=snps_id, disp_pos=disp_pos, score=data_obj.score, rank=i+1)
+				rbg = Stock_250kDB.ResultsByGene(gene_id=gene_id, snps_id=snps_id, disp_pos=disp_pos, score=data_obj.value, rank=i+1)
 				rbg.results_method = rm
-				rbg.readme = readme
+				rbg.readme = param_data.readme
 				session.save(rbg)
 				if param_data.commit:
-					session.flush()				
+					session.flush()
 			counter += 1
 			if counter%5000==0:
 				sys.stderr.write("%s%s"%('\x08'*40, counter))
