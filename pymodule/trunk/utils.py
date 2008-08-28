@@ -67,6 +67,9 @@ def importNumericArray():
 
 def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ',']):
 	"""
+	2008-08-28
+		try 'open(input_fname)' anyway if input_fname escapes all condition checking.
+		something weird happened during a mpi job on hpc-cmb. the file is there. but escape the first condition.
 	2008-05-25
 		now 3 possible types of input_fname
 		1. a file name (path)
@@ -92,8 +95,10 @@ def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ','])
 		import StringIO
 		inf = StringIO.StringIO(input_fname)
 	else:
-		sys.stderr.write("Error: %s is neither a file name nor a file object.\n"%input_fname)
-		return None
+		import sys
+		sys.stderr.write("Error: %s is neither a file name nor a file object. But try 'open' anyway.\n"%input_fname)
+		inf = open(input_fname)
+		#return None
 	if getattr(inf, 'readline', None) is not None:	
 		line = inf.readline()
 		delimiter_chosen = cs.sniff(line).delimiter
