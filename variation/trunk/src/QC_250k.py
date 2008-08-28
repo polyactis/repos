@@ -434,23 +434,28 @@ class QC_250k(object):
 	
 	def findOutCmpDataFilename(cls, cmp_data_filename, QC_method_id, QCMethod_class):
 		"""
+		2008-08-28
+			fix a bug. if cmp_data_filename is already available, return it immediately
 		2008-08-26
 			add QCMethod_class
 		2008-08-16
 			split from run() to let QC_149.py to call it
 		"""
-		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
-		if not cmp_data_filename and QC_method_id!=0:
+		if cmp_data_filename:
+			return cmp_data_filename
+		elif not cmp_data_filename and QC_method_id!=0:
+			# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
 			qm = QCMethod_class.query.get(QC_method_id)
 			if qm and qm.data_description:
 				data_description_ls = qm.data_description.split('=')
 				if len(data_description_ls)>1:
 					cmp_data_filename = qm.data_description.split('=')[1].strip()
-					return cmp_data_filename
 		#after db query, cmp_data_filename is still nothing, exit program.
 		if not cmp_data_filename and QC_method_id!=0:
 			sys.stderr.write("cmp_data_filename is still nothing even after db query. please specify it on the commandline.\n")
 			sys.exit(3)
+		else:
+			return cmp_data_filename
 	
 	findOutCmpDataFilename = classmethod(findOutCmpDataFilename)
 	
@@ -469,7 +474,7 @@ class QC_250k(object):
 		session.begin()
 		#transaction = session.create_transaction()
 		
-		self.cmp_data_filename = self.findOutCmpDataFilename(self.cmp_data_filename, self.QC_method_id)
+		self.cmp_data_filename = self.findOutCmpDataFilename(self.cmp_data_filename, self.QC_method_id, Stock_250kDB.QCMethod)
 		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
