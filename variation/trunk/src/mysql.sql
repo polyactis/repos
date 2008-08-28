@@ -197,8 +197,8 @@ alter table nativename_stkparent2tg_ecotypeid add foreign key (tg_ecotypeid) ref
 
 -- 2008-05-18 view to check other info (where and country) about ecotype
 create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent,
-	e.nativename, e.alias, e.siteid, s.name as site_name, c.abbr as country from ecotype e,
-	site s, address a, country c where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
+	e.nativename, e.alias, e.siteid, s.name as site_name, c.abbr as country, p.firstname, p.surname from ecotype e,
+	site s, address a, country c , person p where p.id=e.collectorid and e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
 
 
 -- 2008-08-08 manual tg_ecotypeid linking after GroupDuplicateEcotype.py http://papaya.usc.edu/2010/149-snps/149SNP-data-introduction
@@ -468,3 +468,11 @@ create or replace view view_rank_sum_test as select cgr.results_method_id,
 	phenotype_method p, analysis_method a where cgr.results_method_id=r.id
 	and r.phenotype_method_id=p.id and r.analysis_method_id=a.id group by cgr.results_method_id
 	order by pheno_short_name, analysis_short_name;
+
+-- 2008-08-21 view the different parameter setting of top SNP HG test
+create view view_top_snp_test_param as select distinct c.min_distance, c.get_closest, c.min_MAF, 
+c.no_of_top_snps, r.call_method_id from results_method r, candidate_gene_top_snp_test c where r.id=c.results_method_id;
+ 
+-- 2008-08-21 view the different parameter setting of rank sum test
+create view view_rank_test_param as select distinct c.min_distance, c.get_closest, c.min_MAF, 
+c.max_pvalue_per_gene, r.call_method_id from results_method r, candidate_gene_rank_sum_test_result c where r.id=c.results_method_id;
