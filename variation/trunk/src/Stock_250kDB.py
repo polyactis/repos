@@ -252,6 +252,9 @@ class CandidateGeneRankSumTestResult(Entity):
 
 class ResultsByGene(Entity):
 	"""
+	2008-08-27
+		add readme_id
+		modify unique constraint to include readme_id
 	2008-07-19
 	"""
 	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
@@ -260,9 +263,10 @@ class ResultsByGene(Entity):
 	disp_pos = Field(Integer)
 	score = Field(Float)
 	rank = Field(Float)
+	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	using_options(tablename='results_by_gene', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('results_method_id', 'snps_id', 'gene_id'))
+	using_table_options(UniqueConstraint('results_method_id', 'snps_id', 'gene_id', 'readme_id'))
 
 class SnpsQC(Entity):
 	"""
