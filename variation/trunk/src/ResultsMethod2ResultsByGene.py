@@ -35,6 +35,8 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 	option_default_dict.update({("results_method_id_ls", 0, ): [None, 'e', 1, 'comma-separated results_method_id list']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))
+	option_default_dict.pop(('tax_id', 1, int))
+	option_default_dict.pop(('min_sample_size', 0, int))
 	
 	def __init__(self,  **keywords):
 		"""
