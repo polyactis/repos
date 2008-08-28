@@ -25,14 +25,15 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data, nt2number, importNumericArray
-from variation.src.QualityControl import QualityControl
 from variation.src import StockDB
 from pymodule.db import formReadmeObj
 from QC_149 import QC_149
 
 class QC_149_cross_match(QC_149):
 	__doc__ = __doc__
-	option_default_dict = QC_149.option_default_dict
+	option_default_dict = QC_149.option_default_dict.copy()
+	option_default_dict.pop(('input_dir', 0, ))
+	option_default_dict.pop(('max_call_info_mismatch_rate', 0, float,))
 	
 	def __init__(self,  **keywords):
 		"""
@@ -41,8 +42,10 @@ class QC_149_cross_match(QC_149):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def submitToQCCrossMatch(self, session, row_id2pairwise_dist, QC_method_id, readme):
+	def submitToQCCrossMatch(self, session, row_id2pairwise_dist, QC_method_id, readme, commit):
 		"""
+		2008-8-28
+			assign target_id based on QC_method_id
 		2008-08-26
 		"""
 		sys.stderr.write("Submitting row_id2pairwise_dist to database ...")
@@ -51,29 +54,25 @@ class QC_149_cross_match(QC_149):
 			for pairwise_dist in pairwise_dist_ls:
 				mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs = pairwise_dist
 				#the 2nd position in the both row-id tuples is strain id
-				qc_cross_match = StockDB.QCCrossMatch(strainid=row_id[1], target_id=row_id2[1], mismatch_rate=mismatch_rate, no_of_mismatches=no_of_mismatches,\
+				if QC_method_id==4:	#the 2nd position in the row-id2 tuple is strain id
+					target_id = row_id2[1]
+				else:
+					target_id = row_id2[0]
+				qc_cross_match = StockDB.QCCrossMatch(strainid=row_id[1], target_id=target_id, mismatch_rate=mismatch_rate, no_of_mismatches=no_of_mismatches,\
 									no_of_non_NA_pairs=no_of_non_NA_pairs)
 				qc_cross_match.qc_method_id = QC_method_id
 				qc_cross_match.readme = readme
 				session.save(qc_cross_match)
-				session.flush()
+				if commit:
+					session.flush()
 				counter += 1
 		sys.stderr.write("%s entries. Done.\n"%counter)
 	
-	def run(self):
-		if self.debug:
-			import pdb
-			pdb.set_trace()
-		
-		db = StockDB.StockDB(drivername=self.drivername, username=self.db_user,
-				   password=self.db_passwd, hostname=self.hostname, database=self.dbname)
-		db.setup(create_tables=False)
-		session = db.session
-		#session.begin()
-		
-		readme = formReadmeObj(sys.argv, self.ad, StockDB.README)
-		session.save(readme)
-		
+	def prepareTwoSNPData(self, db):
+		"""
+		2008-8-28
+			split out of run() so that MpiQC149CrossMatch could call this easily
+		"""
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
@@ -99,11 +98,28 @@ class QC_149_cross_match(QC_149):
 							data_matrix=data_matrix)	#category_list is not used.
 		
 		
-		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
+		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, \
 							QC_method_id=self.QC_method_id, user=self.db_user, row_matching_by_which_value=0, debug=self.debug)
+		return twoSNPData
+	
+	def run(self):
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		
+		db = StockDB.StockDB(drivername=self.drivername, username=self.db_user,
+				   password=self.db_passwd, hostname=self.hostname, database=self.dbname)
+		db.setup(create_tables=False)
+		session = db.session
+		#session.begin()
+		
+		readme = formReadmeObj(sys.argv, self.ad, StockDB.README)
+		session.save(readme)
+		
+		twoSNPData = self.prepareTwoSNPData(db)
 		twoSNPData.cal_row_id2pairwise_dist()
 		
-		self.submitToQCCrossMatch(session, twoSNPData.row_id2pairwise_dist, self.QC_method_id, readme)
+		self.submitToQCCrossMatch(session, twoSNPData.row_id2pairwise_dist, self.QC_method_id, readme, self.commit)
 		
 		"""
 		if self.commit:
