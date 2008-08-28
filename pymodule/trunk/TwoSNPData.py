@@ -210,6 +210,8 @@ class QualityControl(object):
 	
 	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
 		"""
+		2008-08-28
+			report no valid pairs only when self.debug=1
 		2007-12-21
 		2008-01-07
 			change the non_NA criteria from !=0 to >0. in 2010 data matrix, there's substantial amount of -2 (not tried).
@@ -232,7 +234,7 @@ class QualityControl(object):
 				if no_of_non_NA_pairs>0:
 					mismatch_rate = no_of_mismatches/float(no_of_non_NA_pairs)
 					pairwise_dist.append([mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs])
-				else:
+				elif self.debug:
 					sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
 			pairwise_dist.sort()
 			row_id2pairwise_dist[row_id1] = pairwise_dist
@@ -893,7 +895,16 @@ class TwoSNPData(QualityControl):
 		self.SNPData1.col_id2col_index = self.col_id2col_index1
 		self.SNPData2.row_id2row_index = self.row_id2row_index2
 		self.SNPData2.col_id2col_index = self.col_id2col_index2
-		
+	
+	def cmpOneRow(self, row_id1, row_id2):
+		"""
+		2008-08-28
+			for convenience
+		"""
+		row_index1 = self.SNPData1.row_id2row_index[row_id1]
+		row_index2 = self.SNPData2.row_id2row_index[row_id2]
+		return QualityControl.cmp_one_row(self.SNPData1.data_matrix, self.SNPData2.data_matrix, row_index1, row_index2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2)
+	
 	def cmp_row_wise(self):
 		return QualityControl.cmp_row_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 	
