@@ -423,8 +423,54 @@ def combineTwoImages(im1, im2, font=None):
 	im.paste(im2, im2_box)
 	sys.stderr.write("Done.\n")
 	return im
+
+class Value2Color(object):
+	"""
+	2008-08-28
+		a class handles conversion between numerical value and color
+		initial functions copied from OutputTestResultInMatrix.py
+	"""
+	max_gray_value = 255
+	def value2GrayScale(cls, value, min_value=0., max_value=255.):
+		"""
+		2008-08-21
+			color span is (0,0,0) to (255,255,255).
+		"""
+		if value==-1:	#pvalue=0
+			return "red"	#(255,0,0)
+		elif value==-2:	#NA
+			return "green"	#(0,255,0)
+		else:
+			Y = (value-min_value)/(max_value-min_value)*(cls.max_gray_value-0)
+			R_value = cls.max_gray_value-int(Y)	#the smaller the value is, the higher hue_value is.
+			#in (R,G,B) mode, the bigger R/G/B is, the darker the color is
+			#R_value = int(Y/math.pow(2,8))
+			#G_value = int(Y- R_value*math.pow(2,8))
+			return (R_value, R_value, R_value)
 	
+	value2GrayScale = classmethod(value2GrayScale)
 	
+	max_hue_value = 255	#In Inkscape, the maximum possible hue value, 255, looks almost same as hue=0. cut off before reaching 255.
+	#but it's not the case in PIL.
+	def value2HSLcolor(cls, value, min_value=0., max_value=255.):
+		"""
+		2008-08-28
+			use Hue-Saturation-Lightness (HSL) color to replace the simple gray gradient represented by (R,G,B)
+		"""
+		if value==-1:	#pvalue=0
+			return "red"	#(255,0,0)
+		elif value==-2:	#NA
+			return (255,255,255)	#white
+		else:
+			Y = (value-min_value)/(max_value-min_value)*(cls.max_hue_value-0)
+			hue_value = cls.max_hue_value-int(Y)	#the smaller the value is, the higher hue_value is.
+			#in (R,G,B) mode, the bigger R/G/B is, the darker the color is
+			#R_value = int(Y/math.pow(2,8))
+			#G_value = int(Y- R_value*math.pow(2,8))
+			return "hsl(%s"%(hue_value)+",100%,50%)"
+	
+	value2HSLcolor = classmethod(value2HSLcolor)
+
 if __name__ == '__main__':
 	matrix_value2label= {0:'NA', 1:'A', 2:'C', 3:'G', 4:'T'}
 	matrix_value2color = {0:(0,0,122), 1:(0,0,255), 2:(0,122,122), 3:(122,122,0), 4:(255,0,0)}
