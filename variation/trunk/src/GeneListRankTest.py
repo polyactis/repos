@@ -127,6 +127,8 @@ class GeneListRankTest(object):
 			
 	def constructDataStruc(self, min_distance=50000, get_closest=0):
 		"""
+		2008-08-28
+			in debug mode, increase the break-off offset_index from 10000 to 50000
 		2008-08-14
 			add get_closest
 		2008-07-16
@@ -147,7 +149,7 @@ class GeneListRankTest(object):
 					counter += 1
 				offset_index += 1
 			sys.stderr.write("%s%s\t%s"%('\x08'*40, offset_index, counter))
-			if self.debug and offset_index > 1000:
+			if self.debug and offset_index > 50000:
 				break
 			rows = SnpsContext.query.offset(offset_index).limit(block_size)
 		sys.stderr.write("Done.\n")
