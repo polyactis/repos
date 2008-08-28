@@ -3,6 +3,9 @@
 Examples:
 	ResultsMethod2ResultsByGene.py -e 758 -u yh -c
 	
+	#input is all results with call_method_id=17
+	ResultsMethod2ResultsByGene.py -l 17 -u yh -c
+	
 Description:
 	program to pull one results_method from db and convert its SNP-based score from a file into gene-based score.
 	The results go into table results_by_gene.
@@ -28,6 +31,9 @@ from TopSNPTest import TopSNPTest
 class ResultsMethod2ResultsByGene(TopSNPTest):
 	__doc__ = __doc__
 	option_default_dict = TopSNPTest.option_default_dict.copy()
+	option_default_dict.pop(("results_method_id_ls", 1, ))
+	option_default_dict.update({("results_method_id_ls", 0, ): [None, 'e', 1, 'comma-separated results_method_id list']})
+	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))
 	
 	def __init__(self,  **keywords):
@@ -82,6 +88,29 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		session.clear()
 		sys.stderr.write("Done.\n")
 	
+	def getResultsMethodIDLs(self, call_method_id):
+		"""
+		2008-08-27
+			get all results method id given call_method_id
+		"""
+		sys.stderr.write("Getting all results method ids ...")
+		i = 0
+		block_size = 5000
+		if call_method_id!=0:
+			query = Stock_250kDB.ResultsMethod.query.filter_by(results_method_type_id=1).filter_by(call_method_id=call_method_id)
+		else:
+			query = Stock_250kDB.ResultsMethod.query.filter_by(results_method_type_id=1)
+		rows = query.offset(i).limit(block_size)
+		results_method_id_ls = []
+		while rows.count()!=0:
+			for row in rows:
+				results_method_id_ls.append(row.id)
+				i += 1
+			rows = query.offset(i).limit(block_size)
+		
+		sys.stderr.write("%s results.\n"%(len(results_method_id_ls)))
+		return results_method_id_ls
+	
 	def run(self):
 		"""
 		2008-07-17
@@ -103,6 +132,10 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		readme = formReadmeObj(sys.argv, self.ad, Stock_250kDB.README)
 		session.save(readme)
 		param_data.readme = readme
+		
+		if not self.results_method_id_ls:
+			self.results_method_id_ls = self.getResultsMethodIDLs(self.call_method_id)
+		
 		for results_method_id in self.results_method_id_ls:
 			rm = Stock_250kDB.ResultsMethod.get(results_method_id)
 			if not rm:
