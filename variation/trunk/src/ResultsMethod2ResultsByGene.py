@@ -21,47 +21,47 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import PassingData, figureOutDelimiter
-from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, ResultsByGene
-from Results2DB_250k import Results2DB_250k
-from pymodule import getGenomeWideResultFromFile
-from GeneListRankTest import GeneListRankTest
+from pymodule.db import formReadmeObj
+import Stock_250kDB
+from TopSNPTest import TopSNPTest
 
-class ResultsMethod2ResultsByGene(GeneListRankTest):
+class ResultsMethod2ResultsByGene(TopSNPTest):
 	__doc__ = __doc__
-	option_default_dict = GeneListRankTest.option_default_dict
+	option_default_dict = TopSNPTest.option_default_dict.copy()
 	option_default_dict.pop(("list_type_id", 1, int))
 	
 	def __init__(self,  **keywords):
-		GeneListRankTest.__init__(self, **keywords)
-	
-	def saveResultsByGene(self, session, rm, snps_context_wrapper, results_directory=None, commit=False):
 		"""
+		2008-08-27
+			inherit from TopSNPTest
+		"""
+		TopSNPTest.__init__(self, **keywords)
+	
+	def saveResultsByGene(self, session, rm, snps_context_wrapper, param_data):
+		"""
+		2008-08-27
+			derive the rank from the SNP in genome_wide_result
+			ResultsByGene has one more column, readme_id.
 		2008-07-19
 		"""
 		sys.stderr.write("Saving ResultsByGene ... \n")
-		if results_directory:	#given a directory where all results are.
-			result_fname = os.path.join(results_directory, os.path.basename(rm.filename))
-		else:
-			result_fname = rm.filename
-		genome_wide_result = getGenomeWideResultFromFile(result_fname)
-		
-		gene_id2hit = {}
+		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF)
+		genome_wide_result.data_obj_ls.sort()	#in value descending order. each SNP object has a defined method for comparison based on its value
+		genome_wide_result.data_obj_ls.reverse()
 		counter = 0
-		score_ls = []
 		id_ls = []
-		for data_obj in genome_wide_result.data_obj_ls:
-			pvalue = data_obj.value
+		score_ls = []
+		for i in range(param_data.no_of_top_snps):
+			data_obj = genome_wide_result.data_obj_ls[i]
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			for snps_context in snps_context_matrix:
 				snps_id, disp_pos, gene_id = snps_context
-				rbg = ResultsByGene(gene_id=gene_id, snps_id=snps_id, disp_pos=disp_pos, score = pvalue)
+				rbg = Stock_250kDB.ResultsByGene(gene_id=gene_id, snps_id=snps_id, disp_pos=disp_pos, score=data_obj.score, rank=i+1)
 				rbg.results_method = rm
+				rbg.readme = readme
 				session.save(rbg)
-				if commit:
-					session.flush()
-				score_ls.append(rbg.score)
-				id_ls.append(rbg.id)
-				
+				if param_data.commit:
+					session.flush()				
 			counter += 1
 			if counter%5000==0:
 				sys.stderr.write("%s%s"%('\x08'*40, counter))
@@ -86,16 +86,29 @@ class ResultsMethod2ResultsByGene(GeneListRankTest):
 		"""
 		2008-07-17
 		"""
-		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		db.setup()
 		session = db.session
-		snps_context_wrapper = self.constructDataStruc(self.min_distance)
+		snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
+		param_data = PassingData()
+		param_data.results_directory = self.results_directory
+		param_data.commit = self.commit
+		param_data.min_MAF = self.min_MAF
+		param_data.no_of_top_snps = self.no_of_top_snps
+		
+		readme = formReadmeObj(sys.argv, self.ad, Stock_250kDB.README)
+		session.save(readme)
+		param_data.readme = readme
 		for results_method_id in self.results_method_id_ls:
-			rm = ResultsMethod.get(results_method_id)
+			rm = Stock_250kDB.ResultsMethod.get(results_method_id)
 			if not rm:
 				sys.stderr.write("No results method available for results_method_id=%s.\n"%results_method_id)
 				continue
-			self.saveResultsByGene(session, rm, snps_context_wrapper, commit=self.commit)
+			self.saveResultsByGene(session, rm, snps_context_wrapper, param_data)
 	
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
