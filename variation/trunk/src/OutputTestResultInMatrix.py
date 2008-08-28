@@ -25,7 +25,7 @@ from TopSNPTest import TopSNPTest
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
 	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod
 from sets import Set
-from pymodule.DrawMatrix import drawMatrix, drawLegend, drawContinousLegend, get_font, combineTwoImages
+from pymodule.DrawMatrix import drawMatrix, drawLegend, drawContinousLegend, get_font, combineTwoImages, Value2Color
 
 num = importNumericArray()
 
@@ -160,28 +160,6 @@ class OutputTestResultInMatrix(object):
 		return_data.max_value = max_value
 		return return_data
 	
-	max_hue_value = 255	#In Inkscape, the maximum possible hue value, 255, looks almost same as hue=0. cut off before reaching 255.
-	#but it's not the case in PIL.
-	def value2RGBcolor(cls, value, min_value=0., max_value=255.):
-		"""
-		2008-08-28
-			use Hue-Saturation-Lightness (HSL) color to replace the simple gray gradient represented by (R,G,B)
-		2008-08-21
-			color span is (0,0,0) to (255,255,255).
-		"""
-		if value==-1:	#pvalue=0
-			return "red"	#(255,0,0)
-		elif value==-2:	#NA
-			return (255,255,255)	#white #(0,255,0)
-		else:
-			Y = (value-min_value)/(max_value-min_value)*(cls.max_hue_value-0)
-			hue_value = cls.max_hue_value-int(Y)	#the smaller the value is, the higher hue_value is.
-			#in (R,G,B) mode, the bigger R/G/B is, the darker the color is
-			#R_value = int(Y/math.pow(2,8))
-			#G_value = int(Y- R_value*math.pow(2,8))
-			return "hsl(%s"%(hue_value)+",100%,50%)"
-		
-	
 	def run(self):	
 		if self.debug:
 			import pdb
@@ -237,7 +215,7 @@ class OutputTestResultInMatrix(object):
 		
 		if self.fig_fname:
 			font = get_font(self.font_path, font_size=self.font_size)	#2008-08-01
-			value2color_func = lambda x: self.value2RGBcolor(x, rdata.min_value, rdata.max_value)
+			value2color_func = lambda x: Value2Color.value2HSLcolor(x, rdata.min_value, rdata.max_value)
 			im_legend = drawContinousLegend(rdata.min_value, rdata.max_value, self.no_of_ticks, value2color_func, font)
 			#im.save('%s_legend.png'%self.fig_fname_prefix)
 			im = drawMatrix(rdata.data_matrix, value2color_func, list_type_analysis_method_info.list_type_analysis_method_label_ls,\
