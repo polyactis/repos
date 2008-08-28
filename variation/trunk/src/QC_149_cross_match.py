@@ -44,6 +44,9 @@ class QC_149_cross_match(QC_149):
 	
 	def submitToQCCrossMatch(self, session, row_id2pairwise_dist, QC_method_id, readme, commit):
 		"""
+		2008-08-28
+			if QC_method_id!=4
+				target_id = row_id2
 		2008-8-28
 			assign target_id based on QC_method_id
 		2008-08-26
@@ -57,7 +60,7 @@ class QC_149_cross_match(QC_149):
 				if QC_method_id==4:	#the 2nd position in the row-id2 tuple is strain id
 					target_id = row_id2[1]
 				else:
-					target_id = row_id2[0]
+					target_id = row_id2
 				qc_cross_match = StockDB.QCCrossMatch(strainid=row_id[1], target_id=target_id, mismatch_rate=mismatch_rate, no_of_mismatches=no_of_mismatches,\
 									no_of_non_NA_pairs=no_of_non_NA_pairs)
 				qc_cross_match.qc_method_id = QC_method_id
@@ -95,7 +98,7 @@ class QC_149_cross_match(QC_149):
 			header, strain_acc_list, category_list, data_matrix = read_data(self.cmp_data_filename)
 			strain_acc_list = map(int, strain_acc_list)	#it's ecotypeid, cast it to integer to be compatible to the later ecotype_id_ls from db
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, \
-							data_matrix=data_matrix)	#category_list is not used.
+							data_matrix=data_matrix)	#category_list is not used to facilitate row-id matching
 		
 		
 		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, \
