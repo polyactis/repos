@@ -147,7 +147,6 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 		else:
 			parameter_list = [session, self.commit, self.QC_method_id, readme]
 			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
-			del writer
 		mw.synchronize()	#to avoid some node early exits
 
 if __name__ == '__main__':
