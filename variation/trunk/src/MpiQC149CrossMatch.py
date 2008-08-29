@@ -10,7 +10,8 @@ Examples:
 	
 Description:
 	MPI version QC_149_cross_match.py. Message_size determines how many pairs one computing node should handle.
-	
+
+	If it's 149 self-cross-match (QC_method_id=4) and output_fname is specified, it'll do half pairwise calculation.
 """
 import sys, os, math
 #bit_number = math.log(sys.maxint)/math.log(2)
@@ -32,37 +33,56 @@ from pymodule.db import formReadmeObj
 class MpiQC149CrossMatch(QC_149_cross_match):
 	__doc__ = __doc__
 	option_default_dict = QC_149_cross_match.option_default_dict.copy()
+	option_default_dict.update({('output_fname', 0, ): [None, 'o', 1, 'if given, QC results will be outputted into it and NOT to the db.']})
 	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
 	
 	def __init__(self,  **keywords):
 		QC_149_cross_match.__init__(self, **keywords)
 	
-	def input_node(self, communicator, parameter_list, free_computing_nodes, message_size, report=0):
+	def inputNodeHandler(self, param_obj, row_id_pair_list):
+		"""
+		2008-08-28
+			split out of input_node()
+		"""
+		param_obj.communicator.send("1", param_obj.output_node_rank, 1)	#WATCH: tag is 1, to the output_node.
+		free_computing_node, source, tag = param_obj.communicator.receiveString(param_obj.output_node_rank, 2)
+		#WATCH: tag is 2, from the output_node
+		data_pickle = cPickle.dumps(row_id_pair_list, -1)
+		param_obj.communicator.send(data_pickle, int(free_computing_node),0)	#WATCH: int()
+		if param_obj.report:
+			sys.stderr.write("block %s sent to %s.\n"%(param_obj.counter, free_computing_node))
+		param_obj.counter += 1
+	
+	def input_node(self, param_obj, free_computing_nodes, message_size):
 		"""
 		2008-08-28
 		"""
-		node_rank = communicator.rank
+		node_rank = param_obj.communicator.rank
 		sys.stderr.write("Input node(%s) working...\n"%node_rank)
-		twoSNPData = parameter_list[0]
-		output_node_rank = parameter_list[1]
-		counter = 0
+		twoSNPData = param_obj.twoSNPData
+		output_node_rank = param_obj.output_node_rank
+		
+		param_obj.counter = 0
 		row_id_pair_list = []
-		for row_id1 in twoSNPData.SNPData1.row_id_ls:
-			for row_id2 in twoSNPData.SNPData2.row_id_ls:
-				row_id_pair_list.append((row_id1, row_id2))
-				if len(row_id_pair_list)==message_size:
-					communicator.send("1", output_node_rank, 1)	#WATCH: tag is 1, to the output_node.
-					free_computing_node, source, tag = communicator.receiveString(output_node_rank, 2)
-					#WATCH: tag is 2, from the output_node
-					data_pickle = cPickle.dumps(row_id_pair_list, -1)
-					communicator.send(data_pickle, int(free_computing_node),0)	#WATCH: int()
-					row_id_pair_list = []	#clear the list
-					if report:
-						sys.stderr.write("block %s sent to %s.\n"%(counter, free_computing_node))
-					counter += 1
+		if param_obj.QC_method_id==4 and param_obj.output_fname:	#if it's 149 self-cross-match and output goes to file
+			for i in range(len(twoSNPData.SNPData1.row_id_ls)):
+				for j in range(i, len(twoSNPData.SNPData1.row_id_ls)):	#SNPData2 is same data as SNPData1
+					row_id1 = twoSNPData.SNPData1.row_id_ls[i]
+					row_id2 = twoSNPData.SNPData1.row_id_ls[j]
+					row_id_pair_list.append((row_id1, row_id2))
+					if len(row_id_pair_list)==message_size:
+						self.inputNodeHandler(param_obj, row_id_pair_list)
+						row_id_pair_list = []	#clear the list
+		else:
+			for row_id1 in twoSNPData.SNPData1.row_id_ls:
+				for row_id2 in twoSNPData.SNPData2.row_id_ls:
+					row_id_pair_list.append((row_id1, row_id2))
+					if len(row_id_pair_list)==message_size:
+						self.inputNodeHandler(param_obj, row_id_pair_list)
+						row_id_pair_list = []	#clear the list
 		#tell computing_node to exit the loop
 		for node in free_computing_nodes:	#send it to the computing_node
-			communicator.send("-1", node, 0)
+			param_obj.communicator.send("-1", node, 0)
 		sys.stderr.write("Input node(%s) done\n"%(node_rank))
 	
 	def computing_node_handler(self, communicator, data, computing_parameter_obj):
@@ -91,20 +111,31 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 	def output_node_handler(self, communicator, parameter_list, data):
 		"""
 		2008-08-28
+			add functionality to output into file
+		2008-08-28
 		"""
-		session, commit, QC_method_id, readme = parameter_list
+		writer, session, commit, QC_method_id, readme = parameter_list
 		table_obj_ls = cPickle.loads(data)
-		for table_obj in table_obj_ls:			
-			qc_cross_match = StockDB.QCCrossMatch()
-			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
-			#can't save table_obj because it's associated with a different db thread
-			for column in qc_cross_match.c.keys():	#it's qc_cross_match, not table_obj because table_obj is not linked to db.
-				setattr(qc_cross_match, column, getattr(table_obj, column, None))
-			qc_cross_match.qc_method_id = QC_method_id
-			qc_cross_match.readme = readme
-			session.save(qc_cross_match)
-			if commit:
-				session.flush()
+		for table_obj in table_obj_ls:
+			if writer:
+				row = []
+				for column in StockDB.QCCrossMatch.c.keys():
+					if column=='qc_method_id':
+						row.append(QC_method_id)
+					else:
+						row.append(getattr(table_obj, column, None))
+				writer.writerow(row)
+			else:
+				qc_cross_match = StockDB.QCCrossMatch()
+				#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
+				#can't save table_obj because it's associated with a different db thread
+				for column in qc_cross_match.c.keys():	#it's qc_cross_match, not table_obj because table_obj is not linked to db.
+					setattr(qc_cross_match, column, getattr(table_obj, column, None))
+				qc_cross_match.qc_method_id = QC_method_id
+				qc_cross_match.readme = readme
+				session.save(qc_cross_match)
+				if commit:
+					session.flush()
 	
 	def run(self):
 		self.communicator = MPI.world.duplicate()
@@ -139,14 +170,24 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 		mw = MPIwrapper(self.communicator, debug=self.debug, report=self.report)
 		mw.synchronize()
 		if node_rank == 0:
-			parameter_list = [twoSNPData, output_node_rank]
-			self.input_node(self.communicator, parameter_list, free_computing_nodes, message_size=self.message_size, report=self.report)
+			param_obj = PassingData(communicator=self.communicator, twoSNPData=twoSNPData, output_node_rank=output_node_rank, \
+								QC_method_id=self.QC_method_id, output_fname=getattr(self, 'output_fname', None), report=self.report)
+			self.input_node(param_obj, free_computing_nodes, self.message_size)
 		elif node_rank in free_computing_node_set:
 			computing_parameter_obj = PassingData(twoSNPData=twoSNPData, QC_method_id=self.QC_method_id)
 			mw.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
-			parameter_list = [session, self.commit, self.QC_method_id, readme]
+			if getattr(self, 'output_fname', None):
+				writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
+				header_row = []
+				for column in StockDB.QCCrossMatch.c.keys():
+					header_row.append(column)
+				writer.writerow(header_row)
+			else:
+				writer = None
+			parameter_list = [writer, session, self.commit, self.QC_method_id, readme]
 			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
+			del writer
 		mw.synchronize()	#to avoid some node early exits
 
 if __name__ == '__main__':
