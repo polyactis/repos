@@ -437,12 +437,15 @@ class Value2Color(object):
 		a class handles conversion between numerical value and color
 		initial functions copied from OutputTestResultInMatrix.py
 		
-		super_value is a special value out of (min_value, max_value) range.
-		NA_value is a value that means the data is missing.
+		3 special values:
+		-3: separator values
+		-2: super_value is a special value out of (min_value, max_value) range.
+		-1: NA_value is a value that means the data is missing.
 	"""
 	max_gray_value = 255
 	special_value2color = {-1:(255,255,255),\
-						-2:'red'}
+						-2:'red',\
+						-3:'black'}
 	#usually -1 is NA_value, -2 is super_value.
 	def value2GrayScale(cls, value, min_value=0., max_value=255.):
 		"""
@@ -487,9 +490,11 @@ class DrawMatrix(object):
 	option_default_dict = {('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
 							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
 							("input_fname", 1, ): [None, 'i', 1, 'Filename that stores data matrix. 1st two columns are labels for rows. Top row is header.'],\
-							('min_value_non_negative', 0, ):[0, '', 0, 'whether minimum value must be >=0 (minus value has special meaning), force min_value=0 if data_matrix gives negative min_value.'],\
+							('min_value_non_negative', 0, ):[0, 'm', 0, 'whether minimum value must be >=0 (minus value has special meaning), force min_value=0 if data_matrix gives negative min_value.'],\
 							("fig_fname", 1, ): [None, 'x', 1, 'File name for the figure'],\
 							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
+							("split_legend_and_matrix", 0, ): [0, 'p', 0, 'whether to split legend and matrix into 2 different images or not. Default is to combine them.'],\
+							('super_value_color', 0,): ["red", 'u', 1, 'color for matrix value -2, like "black", or "red" etc.' ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -502,7 +507,10 @@ class DrawMatrix(object):
 	
 	def run(self):
 		from SNP import read_data
-		header, row_label_ls1, row_label_ls2, data_matrix = read_data(self.input_fname, matrix_data_type=float)
+		from utils import figureOutDelimiter
+		delimiter = figureOutDelimiter(self.input_fname)
+		print delimiter
+		header, row_label_ls1, row_label_ls2, data_matrix = read_data(self.input_fname, matrix_data_type=float, delimiter='\t')
 		import numpy
 		data_matrix = numpy.array(data_matrix)
 		min_value = numpy.min(data_matrix)
@@ -510,11 +518,20 @@ class DrawMatrix(object):
 			min_value = 0
 		max_value = numpy.max(data_matrix)
 		font = get_font(self.font_path, font_size=self.font_size)
+		Value2Color.special_value2color[-2] = self.super_value_color
 		value2color_func = lambda x: Value2Color.value2HSLcolor(x, min_value, max_value)
 		im_legend = drawContinousLegend(min_value, max_value, self.no_of_ticks, value2color_func, font)
 		im = drawMatrix(data_matrix, value2color_func, row_label_ls1, header[2:], with_grid=1, font=font)
-		im = combineTwoImages(im, im_legend, font=font)
-		im.save(self.fig_fname)
+		if self.split_legend_and_matrix:
+			im_legend.save('%s_legend.png'%os.path.splitext(self.fig_fname)[0])
+			im.save(self.fig_fname)
+		else:
+			try:
+				im_all = combineTwoImages(im, im_legend, font=font)
+				im_legend.save(self.fig_fname)
+			except:
+				im_legend.save('%s_legend.png'%os.path.splitext(self.fig_fname)[0])
+				im.save(self.fig_fname)
 		
 if __name__ == '__main__':
 	from ProcessOptions import ProcessOptions
