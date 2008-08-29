@@ -66,12 +66,21 @@ class OutputTestResultInMatrix(object):
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def getListTypeInfo(self, db, result_class,  where_condition):
+		"""
+		2008-08-29
+			add -1 as a separator into list_type_id_ls
+		"""
 		sys.stderr.write("Getting list type info ...")
 		rows = db.metadata.bind.execute("select distinct c.list_type_id, g.biology_category_id from %s order by g.biology_category_id, list_type_id"\
 								%(where_condition))
 		list_type_id_ls = []
-		
+		prev_biology_category_id = None
 		for row in rows:
+			if prev_biology_category_id == None:
+				prev_biology_category_id = row.biology_category_id
+			elif row.biology_category_id!=prev_biology_category_id:
+				prev_biology_category_id = row.biology_category_id
+				list_type_id_ls.append(-1)
 			list_type_id_ls.append(row.list_type_id)
 		sys.stderr.write("Done.\n")
 		return list_type_id_ls
@@ -88,13 +97,28 @@ class OutputTestResultInMatrix(object):
 		return analysis_method_id_ls
 	
 	def getPhenotypeInfo(self, db, result_class,  where_condition):
+		"""
+		2008-08-29
+			add -1 as a separator into phenotype_method_id_ls and others
+		"""
 		sys.stderr.write("Getting phenotype method info ...")
 		rows = db.metadata.bind.execute("select distinct r.phenotype_method_id, p.biology_category_id from %s p, %s and p.id=r.phenotype_method_id order by p.biology_category_id, r.phenotype_method_id"\
 								%(PhenotypeMethod.table.name, where_condition))
 		phenotype_method_id_ls = []
 		phenotype_method_id2index = {}
 		phenotype_method_label_ls = []
+		prev_biology_category_id = None
+		no_of_separators = 0
 		for row in rows:
+			if prev_biology_category_id == None:
+				prev_biology_category_id = row.biology_category_id
+			elif row.biology_category_id!=prev_biology_category_id:
+				prev_biology_category_id = row.biology_category_id
+				#add a blank phenotype id as separator
+				no_of_separators += 1
+				phenotype_method_id2index[-no_of_separators] = len(phenotype_method_id_ls)
+				phenotype_method_id_ls.append(-no_of_separators)
+				phenotype_method_label_ls.append('')
 			phenotype_method_id2index[row.phenotype_method_id] = len(phenotype_method_id_ls)
 			phenotype_method_id_ls.append(row.phenotype_method_id)
 			pm = PhenotypeMethod.get(row.phenotype_method_id)
@@ -107,11 +131,23 @@ class OutputTestResultInMatrix(object):
 		return phenotype_info
 	
 	def orderListTypeAnalysisMethodID(self, list_type_id_ls, analysis_method_id_ls):
+		"""
+		2008-08-29
+			deal with separator (list_type_id=-1) in list_type_id_ls
+		"""
 		sys.stderr.write("Orderinig list type id and analysis_method id ... ")
 		list_type_id_analysis_method_id_ls = []
 		list_type_id_analysis_method_id2index = {}
 		list_type_analysis_method_label_ls = []
+		no_of_separators = 0
 		for list_type_id in list_type_id_ls:
+			if list_type_id==-1:	#separator
+				no_of_separators += 1
+				tup = (-no_of_separators,-1)
+				list_type_id_analysis_method_id2index[tup] = len(list_type_id_analysis_method_id_ls)
+				list_type_id_analysis_method_id_ls.append(tup)
+				list_type_analysis_method_label_ls.append('')
+				continue
 			list_type_short_name = GeneListType.get(list_type_id).short_name
 			for analysis_method_id in analysis_method_id_ls:
 				analysis_method_short_name = AnalysisMethod.get(analysis_method_id).short_name
@@ -129,7 +165,7 @@ class OutputTestResultInMatrix(object):
 	def get_data_matrix(self, db, phenotype_info, list_type_analysis_method_info, result_class,  where_condition):
 		sys.stderr.write("Getting data matrix ...")
 		data_matrix = num.zeros([len(list_type_analysis_method_info.list_type_id_analysis_method_id2index), len(phenotype_info.phenotype_method_id2index)], num.float)
-		data_matrix[:] = -2
+		data_matrix[:] = -1
 		i = 0
 		rows = db.metadata.bind.execute("select r.analysis_method_id, r.phenotype_method_id, c.* from %s order by analysis_method_id"\
 								%(where_condition))
@@ -151,7 +187,7 @@ class OutputTestResultInMatrix(object):
 				elif data_value>max_value:
 					max_value =data_value
 			else:
-				data_value = -1	#0 pvalue
+				data_value = -2	#0 pvalue
 			data_matrix[row_index, col_index] = data_value
 		sys.stderr.write("Done.\n")
 		return_data = PassingData()
@@ -215,7 +251,7 @@ class OutputTestResultInMatrix(object):
 		
 		if self.fig_fname:
 			font = get_font(self.font_path, font_size=self.font_size)	#2008-08-01
-			value2color_func = lambda x: Value2Color.value2HSLcolor(x, rdata.min_value, rdata.max_value)
+			value2color_func = lambda x: Value2Color.value2HSLcolor(x, rdata.min_value, rdata.max_value, NA_value=-1, super_value=-2)
 			im_legend = drawContinousLegend(rdata.min_value, rdata.max_value, self.no_of_ticks, value2color_func, font)
 			#im.save('%s_legend.png'%self.fig_fname_prefix)
 			im = drawMatrix(rdata.data_matrix, value2color_func, list_type_analysis_method_info.list_type_analysis_method_label_ls,\
