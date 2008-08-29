@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 """
-2007-10-23
+Examples:
+	DrawMatrix.py -i /tmp/149CrossMatch_m3.tsv -x /tmp/149CrossMatch_m3.png -s 5
+
+Description:
+	2007-10-23
 	module to draw matrix into an image
 	some functions copied form annot.bin.codense.common and variation.src.common
+	
+	2008-08-29
+	DrawMatrix is a class to draw matrix values (>=0) in HSL color. values <0 are deemed as special values.
 """
 
 """
@@ -434,15 +441,16 @@ class Value2Color(object):
 		NA_value is a value that means the data is missing.
 	"""
 	max_gray_value = 255
-	def value2GrayScale(cls, value, min_value=0., max_value=255., NA_value=-1, super_value=-2):
+	special_value2color = {-1:(255,255,255),\
+						-2:'red'}
+	#usually -1 is NA_value, -2 is super_value.
+	def value2GrayScale(cls, value, min_value=0., max_value=255.):
 		"""
 		2008-08-21
 			color span is (0,0,0) to (255,255,255).
 		"""
-		if value==NA_value:	#NA
-			return "green"	#(0,255,0)
-		elif value==super_value:	#pvalue=0
-			return "red"	#(255,0,0)
+		if value in cls.special_value2color:
+			return cls.special_value2color[value]
 		else:
 			Y = (value-min_value)/(max_value-min_value)*(cls.max_gray_value-0)
 			R_value = cls.max_gray_value-int(Y)	#the smaller the value is, the higher hue_value is.
@@ -455,16 +463,14 @@ class Value2Color(object):
 	
 	max_hue_value = 255	#In Inkscape, the maximum possible hue value, 255, looks almost same as hue=0. cut off before reaching 255.
 	#but it's not the case in PIL.
-	def value2HSLcolor(cls, value, min_value=0., max_value=255., NA_value=-1, super_value=-2):
+	def value2HSLcolor(cls, value, min_value=0., max_value=255.):
 		"""
 		
 		2008-08-28
 			use Hue-Saturation-Lightness (HSL) color to replace the simple gray gradient represented by (R,G,B)
 		"""
-		if value==NA_value:	#NA
-			return (255,255,255)	#white
-		elif value==super_value:	#pvalue=0
-			return "red"	#(255,0,0)
+		if value in cls.special_value2color:
+			return cls.special_value2color[value]
 		else:
 			Y = (value-min_value)/(max_value-min_value)*(cls.max_hue_value-0)
 			hue_value = cls.max_hue_value-int(Y)	#the smaller the value is, the higher hue_value is.
@@ -475,7 +481,49 @@ class Value2Color(object):
 	
 	value2HSLcolor = classmethod(value2HSLcolor)
 
+
+class DrawMatrix(object):
+	__doc__ = __doc__
+	option_default_dict = {('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
+							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
+							("input_fname", 1, ): [None, 'i', 1, 'Filename that stores data matrix. 1st two columns are labels for rows. Top row is header.'],\
+							('min_value_non_negative', 0, ):[0, '', 0, 'whether minimum value must be >=0 (minus value has special meaning), force min_value=0 if data_matrix gives negative min_value.'],\
+							("fig_fname", 1, ): [None, 'x', 1, 'File name for the figure'],\
+							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	
+	def __init__(self,  **keywords):
+		"""
+		2008-08-29
+		"""
+		from ProcessOptions import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+	
+	def run(self):
+		from SNP import read_data
+		header, row_label_ls1, row_label_ls2, data_matrix = read_data(self.input_fname, matrix_data_type=float)
+		import numpy
+		data_matrix = numpy.array(data_matrix)
+		min_value = numpy.min(data_matrix)
+		if self.min_value_non_negative and min_value < 0:
+			min_value = 0
+		max_value = numpy.max(data_matrix)
+		font = get_font(self.font_path, font_size=self.font_size)
+		value2color_func = lambda x: Value2Color.value2HSLcolor(x, min_value, max_value)
+		im_legend = drawContinousLegend(min_value, max_value, self.no_of_ticks, value2color_func, font)
+		im = drawMatrix(data_matrix, value2color_func, row_label_ls1, header[2:], with_grid=1, font=font)
+		im = combineTwoImages(im, im_legend, font=font)
+		im.save(self.fig_fname)
+		
 if __name__ == '__main__':
+	from ProcessOptions import ProcessOptions
+	main_class = DrawMatrix
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	matrix_value2label= {0:'NA', 1:'A', 2:'C', 3:'G', 4:'T'}
 	matrix_value2color = {0:(0,0,122), 1:(0,0,255), 2:(0,122,122), 3:(122,122,0), 4:(255,0,0)}
 	font_path = '/usr/share/fonts/truetype/freefont/FreeSerif.ttf'
@@ -501,3 +549,4 @@ if __name__ == '__main__':
 	from variation.src.common import number2nt
 	im = drawMatrix(data_matrix, matrix_value2color, strain_acc_list, header[2:], with_grid=1, font=font)
 	im.save('/tmp/justin_data.png')
+	"""
