@@ -8,8 +8,10 @@ Examples:
 	
 	#check TopSNP test results
 	OutputTestResultInMatrix.py  -l 17 -x /tmp/top_snp_test_call_method_17_g_f200.png -g  -y 2 -f 200
+	
 Description:
 	Output Test result in data matrix. either CandidateGeneRankSumTestResult or CandidateGeneTopSNPTest
+	In the outputted matrix, -1 = NA. -2 = (pvalue=0).
 	
 """
 import sys, os, math
@@ -21,7 +23,6 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import getopt, csv, math
 import Numeric, cPickle
 from pymodule import PassingData, importNumericArray, write_data_matrix, SNPData
-from TopSNPTest import TopSNPTest
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
 	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod
 from sets import Set
@@ -251,7 +252,7 @@ class OutputTestResultInMatrix(object):
 		
 		if self.fig_fname:
 			font = get_font(self.font_path, font_size=self.font_size)	#2008-08-01
-			value2color_func = lambda x: Value2Color.value2HSLcolor(x, rdata.min_value, rdata.max_value, NA_value=-1, super_value=-2)
+			value2color_func = lambda x: Value2Color.value2HSLcolor(x, rdata.min_value, rdata.max_value)
 			im_legend = drawContinousLegend(rdata.min_value, rdata.max_value, self.no_of_ticks, value2color_func, font)
 			#im.save('%s_legend.png'%self.fig_fname_prefix)
 			im = drawMatrix(rdata.data_matrix, value2color_func, list_type_analysis_method_info.list_type_analysis_method_label_ls,\
