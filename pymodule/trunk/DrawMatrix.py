@@ -2,7 +2,11 @@
 """
 Examples:
 	DrawMatrix.py -i /tmp/149CrossMatch_m3.tsv -x /tmp/149CrossMatch_m3.png -s 5
-
+	
+	#font size=10, use custom font, matrix value is non-negative. only some special negative value is not ignored.
+	#value -2 is colored as black
+	DrawMatrix.py -i ./149CrossMatch_m4_a0.3.tsv -x ./banyan_fs//tmp/149CrossMatch_m4_a0.3.png -s 10 -e ./FreeSerif.ttf -m -u black
+	
 Description:
 	2007-10-23
 	module to draw matrix into an image
@@ -433,6 +437,9 @@ def combineTwoImages(im1, im2, font=None):
 
 class Value2Color(object):
 	"""
+	2008-08-29
+		for out of range values, treat them as NA
+	
 	2008-08-28
 		a class handles conversion between numerical value and color
 		initial functions copied from OutputTestResultInMatrix.py
@@ -441,6 +448,8 @@ class Value2Color(object):
 		-3: separator values
 		-2: super_value is a special value out of (min_value, max_value) range.
 		-1: NA_value is a value that means the data is missing.
+		
+		
 	"""
 	max_gray_value = 255
 	special_value2color = {-1:(255,255,255),\
@@ -454,6 +463,8 @@ class Value2Color(object):
 		"""
 		if value in cls.special_value2color:
 			return cls.special_value2color[value]
+		elif value<min_value or value > max_value:	#out of range, treat them as NA
+			return cls.special_value2color[-1]
 		else:
 			Y = (value-min_value)/(max_value-min_value)*(cls.max_gray_value-0)
 			R_value = cls.max_gray_value-int(Y)	#the smaller the value is, the higher hue_value is.
@@ -474,6 +485,8 @@ class Value2Color(object):
 		"""
 		if value in cls.special_value2color:
 			return cls.special_value2color[value]
+		elif value<min_value or value > max_value:	#out of range, treat them as NA
+			return cls.special_value2color[-1]
 		else:
 			Y = (value-min_value)/(max_value-min_value)*(cls.max_hue_value-0)
 			hue_value = cls.max_hue_value-int(Y)	#the smaller the value is, the higher hue_value is.
@@ -495,6 +508,7 @@ class DrawMatrix(object):
 							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
 							("split_legend_and_matrix", 0, ): [0, 'p', 0, 'whether to split legend and matrix into 2 different images or not. Default is to combine them.'],\
 							('super_value_color', 0,): ["red", 'u', 1, 'color for matrix value -2, like "black", or "red" etc.' ],\
+							("col_step_size", 0, int): [200, 'c', 1, 'partition columns into blocks according to this size.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -505,6 +519,18 @@ class DrawMatrix(object):
 		from ProcessOptions import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
+	def _drawMatrix(self, data_matrix, value2color_func, row_label_ls, col_label_ls, im_legend, font, split_legend_and_matrix, fig_fname):
+		"""
+		2008-08-29
+			split out of run() to be reusable
+		"""
+		im = drawMatrix(data_matrix, value2color_func, row_label_ls, col_label_ls, with_grid=1, font=font)
+		if split_legend_and_matrix:
+			im.save(fig_fname)
+		else:
+			im = combineTwoImages(im, im_legend, font=font)
+			im.save(fig_fname)
+		
 	def run(self):
 		from SNP import read_data
 		from utils import figureOutDelimiter
@@ -521,17 +547,24 @@ class DrawMatrix(object):
 		Value2Color.special_value2color[-2] = self.super_value_color
 		value2color_func = lambda x: Value2Color.value2HSLcolor(x, min_value, max_value)
 		im_legend = drawContinousLegend(min_value, max_value, self.no_of_ticks, value2color_func, font)
-		im = drawMatrix(data_matrix, value2color_func, row_label_ls1, header[2:], with_grid=1, font=font)
+		
+		fig_fname_prefix = os.path.splitext(self.fig_fname)[0]
 		if self.split_legend_and_matrix:
-			im_legend.save('%s_legend.png'%os.path.splitext(self.fig_fname)[0])
-			im.save(self.fig_fname)
-		else:
-			try:
-				im_all = combineTwoImages(im, im_legend, font=font)
-				im_legend.save(self.fig_fname)
-			except:
-				im_legend.save('%s_legend.png'%os.path.splitext(self.fig_fname)[0])
-				im.save(self.fig_fname)
+			im_legend.save('%s_legend.png'%fig_fname_prefix)
+		
+		no_of_cols = len(header[2:])
+		
+		if no_of_cols <= self.col_step_size:
+			self._drawMatrix(data_matrix, value2color_func, row_label_ls1, header[2:], im_legend, font, self.split_legend_and_matrix, self.fig_fname)
+		else:	#split into blocks
+			col_step_size = self.col_step_size
+			no_of_steps = no_of_cols/col_step_size+1
+			for i in range(no_of_steps):
+				col_start_index = i*col_step_size
+				col_end_index = (i+1)*col_step_size
+				if col_start_index<no_of_cols:
+					fig_fname = '%s_%s.png'%(fig_fname_prefix, i)
+					self._drawMatrix(data_matrix[:,col_start_index:col_end_index], value2color_func, row_label_ls1, header[2+col_start_index:2+col_end_index], im_legend, font, self.split_legend_and_matrix, fig_fname)
 		
 if __name__ == '__main__':
 	from ProcessOptions import ProcessOptions
