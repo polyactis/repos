@@ -327,6 +327,8 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int):
 	"""
+	2008-08-29
+		put the handling of each row into a "try ... except ..."
 	2008-08-07
 		turn_into_integer has to be toggled as well as p_char() detects character before nt2number is used.
 	2008-08-03
@@ -363,23 +365,32 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	category_list = []
 	import re
 	p_char = re.compile(r'[a-zA-Z]')
+	i = 0
 	for row in reader:
-		strain_acc_list.append(row[0])
-		category_list.append(row[1])
-		data_row = row[2:]
-		no_of_snps = len(data_row)
-		p_char_used = 0	#whether p_char is used to successfully dict_map the data_row
-		if p_char.search(data_row[0]) and turn_into_integer:
-			data_row = dict_map(nt2number, data_row)
-			p_char_used = 1
-			if no_of_snps!=len(data_row):
-				sys.stderr.write('\n dict_map() via nt2number only maps %s out of %s entries from this row, %s, to integer. Back to original data.\n'%(len(data_row), no_of_snps, repr(row[:5])))
-				data_row = row[2:]	#back to original data_row
-				p_char_used = 0
-		
-		if turn_into_integer and not p_char_used:	#if p_char_used ==1, it's already integer.
-			data_row = map(matrix_data_type, data_row)
-		data_matrix.append(data_row)
+		i += 1
+		try:
+			strain_acc_list.append(row[0])
+			category_list.append(row[1])
+			data_row = row[2:]
+			no_of_snps = len(data_row)
+			p_char_used = 0	#whether p_char is used to successfully dict_map the data_row
+			if p_char.search(data_row[0]) and turn_into_integer:
+				data_row = dict_map(nt2number, data_row)
+				p_char_used = 1
+				if no_of_snps!=len(data_row):
+					sys.stderr.write('\n dict_map() via nt2number only maps %s out of %s entries from this row, %s, to integer. Back to original data.\n'%(len(data_row), no_of_snps, repr(row[:5])))
+					data_row = row[2:]	#back to original data_row
+					p_char_used = 0
+			
+			if turn_into_integer and not p_char_used:	#if p_char_used ==1, it's already integer.
+				data_row = map(matrix_data_type, data_row)
+			data_matrix.append(data_row)
+		except:
+			sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
+			import traceback
+			traceback.print_exc()
+			sys.stderr.write("Row no: %s. %s.\n"%(i, repr(row)))
+			raise
 	del reader
 	sys.stderr.write("Done.\n")
 	return header, strain_acc_list, category_list, data_matrix
