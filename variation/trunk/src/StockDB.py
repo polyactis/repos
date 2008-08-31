@@ -75,6 +75,9 @@ class Person(Entity):
 class Country(Entity):
 	name = Field(String(100))
 	abbr = Field(String(10))
+	capital = Field(Text)
+	latitude = Field(Float)
+	longitude = Field(Float)
 	using_options(tablename='country', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
