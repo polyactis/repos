@@ -246,7 +246,7 @@ class Output149CrossMatch(object):
 						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		db.setup(create_tables=False)
 		session = db.session
-		order_by_sentence = " order by c.longitude, c.latitude, e.longitude, e.latitude, e.nativename "
+		order_by_sentence = " order by c.longitude, c.latitude, e.longitude, e.latitude, e.nativename "	#how to order strains.
 		if self.input_fname and self.QC_method_id==4:
 			id_set_data = self.getStrainidTargetidFromFile(db, self.QC_method_id, self.input_fname, self.max_mismatch_rate, self.min_no_of_non_NAs)
 			sql_table_str = "from %s e, %s s, %s a, %s c"%(StockDB.Ecotype.table.name, StockDB.Site.table.name, StockDB.Address.table.name,\
