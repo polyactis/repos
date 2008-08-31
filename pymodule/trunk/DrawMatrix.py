@@ -7,6 +7,9 @@ Examples:
 	#value -2 is colored as black
 	DrawMatrix.py -i ./149CrossMatch_m4_a0.3.tsv -x ./banyan_fs//tmp/149CrossMatch_m4_a0.3.png -s 10 -e ./FreeSerif.ttf -m -u black
 	
+	#partition rows into 2500-row blocks. Color legend is cut into 10 bands.
+	DrawMatrix.py -i ./149CrossMatch_m4_a0.1.tsv -x ./banyan_fs//tmp/149CrossMatch_m4_a0.1.png -s 10 -e ./FreeSerif.ttf -m -u black -o 2500 -t 10
+
 Description:
 	2007-10-23
 	module to draw matrix into an image
@@ -509,6 +512,7 @@ class DrawMatrix(object):
 							("split_legend_and_matrix", 0, ): [0, 'p', 0, 'whether to split legend and matrix into 2 different images or not. Default is to combine them.'],\
 							('super_value_color', 0,): ["red", 'u', 1, 'color for matrix value -2, like "black", or "red" etc.' ],\
 							("col_step_size", 0, int): [200, 'c', 1, 'partition columns into blocks according to this size.'],\
+							("row_step_size", 0, int): [3500, 'o', 1, 'partition rows into blocks according to this size.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -552,20 +556,23 @@ class DrawMatrix(object):
 		if self.split_legend_and_matrix:
 			im_legend.save('%s_legend.png'%fig_fname_prefix)
 		
-		no_of_cols = len(header[2:])
-		
+		no_of_rows, no_of_cols = data_matrix.shape
 		if no_of_cols <= self.col_step_size:
 			self._drawMatrix(data_matrix, value2color_func, row_label_ls1, header[2:], im_legend, font, self.split_legend_and_matrix, self.fig_fname)
 		else:	#split into blocks
-			col_step_size = self.col_step_size
-			no_of_steps = no_of_cols/col_step_size+1
-			for i in range(no_of_steps):
-				col_start_index = i*col_step_size
-				col_end_index = (i+1)*col_step_size
+			no_of_col_blocks = no_of_cols/self.col_step_size+1
+			no_of_row_blocks = no_of_rows/self.row_step_size + 1
+			for i in range(no_of_col_blocks):
+				col_start_index = i*self.col_step_size
+				col_end_index = (i+1)*self.col_step_size
 				if col_start_index<no_of_cols:
-					fig_fname = '%s_%s.png'%(fig_fname_prefix, i)
-					self._drawMatrix(data_matrix[:,col_start_index:col_end_index], value2color_func, row_label_ls1, header[2+col_start_index:2+col_end_index], im_legend, font, self.split_legend_and_matrix, fig_fname)
-		
+					for j in range(no_of_row_blocks):
+						row_start_index = j*self.row_step_size
+						row_end_index = (j+1)*self.row_step_size
+						if row_start_index<no_of_rows:
+							fig_fname = '%s_%s_%s.png'%(fig_fname_prefix, i, j)
+							self._drawMatrix(data_matrix[row_start_index:row_end_index,col_start_index:col_end_index], value2color_func, row_label_ls1[row_start_index:row_end_index], header[2+col_start_index:2+col_end_index], im_legend, font, self.split_legend_and_matrix, fig_fname)
+			
 if __name__ == '__main__':
 	from ProcessOptions import ProcessOptions
 	main_class = DrawMatrix
