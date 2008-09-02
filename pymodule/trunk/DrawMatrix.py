@@ -513,6 +513,7 @@ class DrawMatrix(object):
 							('super_value_color', 0,): ["red", 'u', 1, 'color for matrix value -2, like "black", or "red" etc.' ],\
 							("col_step_size", 0, int): [200, 'c', 1, 'partition columns into blocks according to this size.'],\
 							("row_step_size", 0, int): [3500, 'o', 1, 'partition rows into blocks according to this size.'],\
+							("no_grid", 0, ): [0, 'n', 0, 'toggle to remove the grid on top of the whole 2-D structure'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -523,21 +524,23 @@ class DrawMatrix(object):
 		from ProcessOptions import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def _drawMatrix(self, data_matrix, value2color_func, row_label_ls, col_label_ls, im_legend, font, split_legend_and_matrix, fig_fname):
+	def _drawMatrix(self, data_matrix, row_label_ls, col_label_ls, fig_fname, passParam):
 		"""
+		2008-09-01
+			parameters come in wrapped passParam=PassingData()
 		2008-08-29
 			split out of run() to be reusable
 		"""
-		im = drawMatrix(data_matrix, value2color_func, row_label_ls, col_label_ls, with_grid=1, font=font)
-		if split_legend_and_matrix:
+		im = drawMatrix(data_matrix, passParam.value2color_func, row_label_ls, col_label_ls, with_grid=1-passParam.no_grid, font=passParam.font)
+		if passParam.split_legend_and_matrix:
 			im.save(fig_fname)
 		else:
-			im = combineTwoImages(im, im_legend, font=font)
+			im = combineTwoImages(im, passParam.im_legend, font=passParam.font)
 			im.save(fig_fname)
 		
 	def run(self):
 		from SNP import read_data
-		from utils import figureOutDelimiter
+		from utils import figureOutDelimiter, PassingData
 		delimiter = figureOutDelimiter(self.input_fname)
 		print delimiter
 		header, row_label_ls1, row_label_ls2, data_matrix = read_data(self.input_fname, matrix_data_type=float, delimiter='\t')
@@ -557,8 +560,11 @@ class DrawMatrix(object):
 			im_legend.save('%s_legend.png'%fig_fname_prefix)
 		
 		no_of_rows, no_of_cols = data_matrix.shape
+		passParam = PassingData(value2color_func=value2color_func, im_legend=im_legend, font=font, \
+							split_legend_and_matrix=self.split_legend_and_matrix, no_grid=self.no_grid)
+		
 		if no_of_cols <= self.col_step_size:
-			self._drawMatrix(data_matrix, value2color_func, row_label_ls1, header[2:], im_legend, font, self.split_legend_and_matrix, self.fig_fname)
+			self._drawMatrix(data_matrix, row_label_ls1, header[2:], self.fig_fname, passParam)
 		else:	#split into blocks
 			no_of_col_blocks = no_of_cols/self.col_step_size+1
 			no_of_row_blocks = no_of_rows/self.row_step_size + 1
@@ -571,7 +577,8 @@ class DrawMatrix(object):
 						row_end_index = (j+1)*self.row_step_size
 						if row_start_index<no_of_rows:
 							fig_fname = '%s_%s_%s.png'%(fig_fname_prefix, i, j)
-							self._drawMatrix(data_matrix[row_start_index:row_end_index,col_start_index:col_end_index], value2color_func, row_label_ls1[row_start_index:row_end_index], header[2+col_start_index:2+col_end_index], im_legend, font, self.split_legend_and_matrix, fig_fname)
+							self._drawMatrix(data_matrix[row_start_index:row_end_index,col_start_index:col_end_index], row_label_ls1[row_start_index:row_end_index], \
+											header[2+col_start_index:2+col_end_index], fig_fname, passParam)
 			
 if __name__ == '__main__':
 	from ProcessOptions import ProcessOptions
