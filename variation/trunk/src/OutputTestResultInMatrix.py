@@ -197,6 +197,24 @@ class OutputTestResultInMatrix(object):
 		return_data.max_value = max_value
 		return return_data
 	
+	def markDataMatrixBoundary(self, data_matrix, phenotype_info, list_type_analysis_method_info):
+		"""
+		2008-09-01
+			mark boundary between different groups of rows and columns
+			all those separators have id <0 and mark them with a value different from NA_value, -3.
+		"""
+		sys.stderr.write("Marking data matrix boundaries ...")
+		for row_id in list_type_analysis_method_info.list_type_id_analysis_method_id2index:
+			if row_id[0]<0:	#row_id is a tuple
+				row_index = list_type_analysis_method_info.list_type_id_analysis_method_id2index[row_id]
+				data_matrix[row_index,:] = -3
+		for col_id in phenotype_info.phenotype_method_id2index:
+			if col_id<0:
+				col_index = phenotype_info.phenotype_method_id2index[col_id]
+				data_matrix[:, col_index] = -3
+		sys.stderr.write("Done.\n")
+		return data_matrix
+	
 	def run(self):	
 		if self.debug:
 			import pdb
@@ -240,6 +258,8 @@ class OutputTestResultInMatrix(object):
 		list_type_analysis_method_info = self.orderListTypeAnalysisMethodID(list_type_id_ls, analysis_method_id_ls)
 		phenotype_info = self.getPhenotypeInfo(db, result_class, where_condition)
 		rdata = self.get_data_matrix(db, phenotype_info, list_type_analysis_method_info, result_class, where_condition)
+		
+		rdata.data_matrix = self.markDataMatrixBoundary(rdata.data_matrix, phenotype_info, list_type_analysis_method_info)
 		
 		header = ['list_type_analysis_method', ''] + phenotype_info.phenotype_method_label_ls
 		strain_acc_list = list_type_analysis_method_info.list_type_analysis_method_label_ls
