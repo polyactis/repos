@@ -132,6 +132,23 @@ class MPIwrapper(object):
 		sys.stderr.flush()
 		self.communicator.barrier()
 	
+	def inputNodeHandler(self, param_obj, data_to_send):
+		"""
+		2008-09-05
+			to be called by input_node
+			coming from variation/src/MpiQC149CrossMatch.py
+			1. query the output_node to get a free computing node
+			2. send the data to the computing node
+		"""
+		self.communicator.send("1", param_obj.output_node_rank, 1)	#WATCH: tag is 1, to the output_node.
+		free_computing_node, source, tag = self.communicator.receiveString(param_obj.output_node_rank, 2)
+		#WATCH: tag is 2, from the output_node
+		data_pickle = cPickle.dumps(data_to_send, -1)
+		self.communicator.send(data_pickle, int(free_computing_node),0)	#WATCH: int()
+		if param_obj.report:
+			sys.stderr.write("block %s sent to %s.\n"%(param_obj.counter, free_computing_node))
+		param_obj.counter += 1
+	
 	def output_node(self, free_computing_nodes, parameter_list, handler, type=1):
 		"""
 		10-20-05
