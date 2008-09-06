@@ -470,113 +470,6 @@ def draw_SNP_gap_histogram(curs, snp_locus_table, output_fname, need_savefig=0):
 	pylab.show()
 	return SNP_gap_ls
 
-"""
-2008-08-12
-	add max_upstream_distance and max_downstream_distance
-	take target genes, which the SNP touches, is upstream or is downstream (within distance allowed)
-	if none found, will try grab genes without strand info (no idea if it's upstream or downstream) if they exist
-2008-07-02
-	modify to deal with stock_250k (mysql db on papaya)
-2007-04-29
-	to determine which SNP is in coding or non-coding region
-"""
-def find_SNP_context(db, curs, snp_locus_table, snp_locus_context_table, entrezgene_mapping_table='genome.entrezgene_mapping',\
-					annot_assembly_table='genome.annot_assembly', tax_id=3702, max_upstream_distance=50000, max_downstream_distance=50000, need_commit=0, debug=0):
-	import os,sys
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-	from transfac.src.TFBindingSiteParse import TFBindingSiteParse
-	from codense.common import get_entrezgene_annotated_anchor
-	chromosome2anchor_gene_tuple_ls, gene_id2coord = get_entrezgene_annotated_anchor(curs, tax_id, entrezgene_mapping_table, annot_assembly_table)
-	
-	#from variation.src.Stock_250kDB import SnpsContext, Snps
-	#session = db.session
-	#if not debug:
-	#	session.begin()
-	curs.execute("select id, chromosome, position from %s where end_position is null"%(snp_locus_table))	#only SNPs, not segments
-	rows = curs.fetchall()
-	offset_index = 0
-	block_size = 5000
-	#rows = Snps.query.filter_by(end_position!=None).offset(offset_index).limit(block_size)
-	counter = 0
-	#while rows.count()!=0:
-	for row in rows:
-		snp_locus_id, chromosome, position = row
-		chromosome = str(chromosome)
-		regulatory_coord = (chromosome, position, position)
-		pdata = TFBindingSiteParse.return_target_gene_ls(regulatory_coord, chromosome2anchor_gene_tuple_ls, gene_id2coord, \
-														max_upstream_distance, max_downstream_distance)
-		target_gene_ls = []
-		if pdata.regulatory_touch_target_gene_ls:
-			target_gene_ls += pdata.regulatory_touch_target_gene_ls
-		if pdata.regulatory_is_left_upstream_target_gene_ls or pdata.regulatory_is_right_upstream_target_gene_ls:
-			target_gene_ls += pdata.regulatory_is_left_upstream_target_gene_ls + pdata.regulatory_is_right_upstream_target_gene_ls
-		if pdata.regulatory_is_left_downstream_target_gene_ls or pdata.regulatory_is_right_downstream_target_gene_ls:
-			target_gene_ls += pdata.regulatory_is_left_downstream_target_gene_ls + pdata.regulatory_is_right_downstream_target_gene_ls
-		
-		if not target_gene_ls:
-			if pdata.regulatory_is_left_target_gene_ls:
-				target_gene_ls += pdata.regulatory_is_left_target_gene_ls
-			if pdata.regulatory_is_right_target_gene_ls:
-				target_gene_ls += pdata.regulatory_is_right_target_gene_ls
-		
-		for target_gene_tuple in target_gene_ls:
-			gene_id = target_gene_tuple[1]
-			left_or_right = target_gene_tuple[2]
-			upstream_or_downstream = target_gene_tuple[3]
-			disp_pos = target_gene_tuple[4]
-			gene_start, gene_stop, gene_strand, gene_genomic_gi = gene_id2coord[gene_id]
-			#snps_context = SnpsContext(snps_id=snp_locus_id, disp_pos=disp_pos, gene_id=gene_id, gene_strand=gene_strand,\
-			#						left_or_right=left_or_right, disp_pos_comment=upstream_or_downstream)
-			#session.save(snps_context)
-			curs.execute("insert into %s(snps_id, disp_pos, gene_id, gene_strand, left_or_right, disp_pos_comment) values (%s, %s, %s, '%s', '%s', '%s')"%\
-				(snp_locus_context_table, snp_locus_id, disp_pos, gene_id, gene_strand, left_or_right, upstream_or_downstream))
-		offset_index += 1
-		counter += 1
-		#session.flush()
-		if counter%5000==0:
-			sys.stderr.write("%s%s"%('\x08'*10, counter))
-		#rows = Snps.query.filter_by(end_position!=None).offset(offset_index).limit(block_size)
-	if need_commit:
-		curs.execute("commit")
-		#session.commit()
-		#session.clear()
-
-"""
-#conn, curs = db_connect(hostname, dbname, schema)
-#find_SNP_context(curs, 'snp_locus', 'snp_locus_context', need_commit=1)
-import os,sys
-sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-
-#2008-07-02
-hostname='localhost'
-dbname='graphdb'
-schema = 'dbsnp'
-from annot.bin.codense.common import db_connect
-pg_conn, pg_curs = db_connect(hostname, dbname, schema)
-
-hostname='papaya.usc.edu'
-dbname='stock_250k'
-user='yh'
-passwd=''
-import MySQLdb
-mysql_conn = MySQLdb.connect(db=dbname,host=hostname, user = user, passwd = passwd)
-mysql_curs = mysql_conn.cursor()
-
-#create table snps_context in stock_250k
-from variation.src import misc
-
-#2008-08-13 2 elixir dbs are bad. it causes tables to be cross-created in the two databases.
-#from transfac.src.GenomeDB import GenomeDatabase
-#genome_db = GenomeDatabase(drivername='mysql', username=user, password=passwd, hostname=hostname, database='genome')
-#from transfac.src.GenomeDB import getEntrezgeneAnnotatedAnchor
-#chromosome2anchor_gene_tuple_ls, gene_id2coord = getEntrezgeneAnnotatedAnchor(genome_db, tax_id=3702)
-#del genome_db
-
-from variation.src.Stock_250kDB import Stock_250kDB, SnpsContext
-db = Stock_250kDB(drivername='mysql', username=user, password=passwd, hostname=hostname, database='stock_250k')
-mysql_conn.autocommit(True)
-misc.find_SNP_context(db, mysql_curs, 'snps', 'snps_context', need_commit=1, debug=1)
-"""
 
 """
 2007-04-30
@@ -3211,6 +3104,7 @@ def checkBjarniFile(input_fname, curs):
 input_fname = '/Network/Data/250k/dataFreeze_080608/250K_f8_080608.csv'
 checkBjarniFile(input_fname, curs)
 """
+
 
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
