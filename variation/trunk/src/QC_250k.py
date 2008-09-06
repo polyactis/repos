@@ -80,6 +80,7 @@ class QC_250k(object):
 							('run_type', 1, int): [1, 'e', 1, 'QC on 1=accession-wise or 2=snp-wise'],\
 							('one_by_one', 0, int): [0, 'a', 0, 'whether to do QC of call_info entries one by one or as a whole. only for run_type=1.'],\
 							('max_call_info_mismatch_rate', 0, float,):[-1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.'],\
+							('min_no_of_non_NA_pairs', 1, int): [40, 'f', 1, 'QC on 1=accession-wise or 2=snp-wise'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -101,8 +102,12 @@ class QC_250k(object):
 		#if self.cmp_data_filename == None:
 		#	self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
 
-	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0):
+	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0, min_no_of_non_NA_pairs=40):
 		"""
+		2008-09-05
+			add option min_no_of_non_NA_pairs.
+			change the way to filter out data with too high mismatch rate. previously, if the QC with the most no_of_non_NA_pairs has mismatch_rate>max_call_info_mismatch_rate, ignore.
+			now if any QC with min_no_of_non_NA_pairs has mismatch_rate>max_call_info_mismatch_rate, ignore.
 		2008-07-01
 			add max_call_info_mismatch_rate <1 in the condition.
 		2008-05-18
@@ -141,11 +146,12 @@ class QC_250k(object):
 			if call_info.call_qc_ls and max_call_info_mismatch_rate<1:	#2008-07-01
 				call_QC_with_max_no_of_non_NA_pairs = call_info.call_qc_ls[0]
 				for call_QC in call_info.call_qc_ls:
+					if call_QC.no_of_non_NA_pairs>=min_no_of_non_NA_pairs and call_QC.mismatch_rate>max_call_info_mismatch_rate:	#if enough pairs and mismatch_rate too high, ignore
+						ignore_this=1
+						break
 					if call_QC.no_of_non_NA_pairs>call_QC_with_max_no_of_non_NA_pairs.no_of_non_NA_pairs:
 						call_QC_with_max_no_of_non_NA_pairs = call_QC
-				if call_QC_with_max_no_of_non_NA_pairs.mismatch_rate>max_call_info_mismatch_rate:
-					ignore_this = 1
-				call_info.call_QC_with_max_no_of_non_NA_pairs = call_QC_with_max_no_of_non_NA_pairs				
+				call_info.call_QC_with_max_no_of_non_NA_pairs = call_QC_with_max_no_of_non_NA_pairs
 			else:
 				call_info.call_QC_with_max_no_of_non_NA_pairs = None
 			
@@ -515,7 +521,8 @@ class QC_250k(object):
 					sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
 					sys.exit(5)
 				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, \
-																						filter_calls_QCed, self.max_call_info_mismatch_rate, self.debug)
+																						filter_calls_QCed, self.max_call_info_mismatch_rate, self.debug,\
+																						min_no_of_non_NA_pairs=self.min_no_of_non_NA_pairs)
 			if self.run_type==2:
 				snps_name2snps_id = self.get_snps_name2snps_id(db)
 			else:
