@@ -7,7 +7,7 @@ import os, sys
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 from ProcessOptions import  ProcessOptions
-from utils import dict_map, importNumericArray, figureOutDelimiter
+from utils import dict_map, importNumericArray, figureOutDelimiter, PassingData
 import copy
 
 num = importNumericArray()
@@ -455,6 +455,8 @@ class SNPData(object):
 	
 	def processRowIDColID(self):
 		"""
+		2008-09-05
+			generate id2index for both row and column
 		2008-06-02
 			correct a bug here, opposite judgement of self.data_matrix
 		"""
@@ -470,11 +472,21 @@ class SNPData(object):
 					row_id = self.strain_acc_list[i]
 				self.row_id_ls.append(row_id)
 		
+		self.row_id2row_index = {}
+		for i in range(len(self.row_id_ls)):
+			row_id = self.row_id_ls[i]
+			self.row_id2row_index[row_id] = i
+		
 		if self.col_id_ls is None and self.header is not None:
 			self.col_id_ls = []
 			for i in range(2,len(self.header)):
 				col_id = self.header[i]
 				self.col_id_ls.append(col_id)
+		
+		self.col_id2col_index = {}
+		for i in range(len(self.col_id_ls)):
+			col_id = self.col_id_ls[i]
+			self.col_id2col_index[col_id] = i
 	
 	def fromfile(self, input_fname, **keywords):
 		"""
@@ -747,7 +759,80 @@ class SNPData(object):
 		sys.stderr.write("%s columns removed. Done.\n"%(newSnpData.no_of_cols_removed))
 		return newSnpData
 	removeSNPsWithMoreThan2Alleles = classmethod(removeSNPsWithMoreThan2Alleles)
-
+	
+	def fill_in_snp_allele2index(self, diploid_allele, allele2index):
+		"""
+		2008-09-05
+			used in calLD
+		"""
+		if diploid_allele>4:
+			nt = number2nt[diploid_allele]
+			allele1 = nt2number[nt[0]]
+			allele2 = nt2number[nt[1]]
+		else:
+			allele1 = allele2 = diploid_allele
+		if allele1 not in allele2index:
+			allele2index[allele1] = len(allele2index)
+		if allele2 not in allele2index:
+			allele2index[allele2] = len(allele2index)
+		return allele1, allele2
+	
+	def calLD(self, col1_id, col2_id):
+		"""
+		2008-09-05
+			adapted from variation.src.misc's LD.calculate_LD class
+			only deal with 2-allele loci
+			skip if either is NA, or if both are heterozygous (not phased)
+		"""
+		snp1_index = self.col_id2col_index[col1_id]
+		snp2_index = self.col_id2col_index[col2_id]
+		counter_matrix = num.zeros([2,2])	#only 2 alleles
+		snp1_allele2index = {}
+		snp2_allele2index = {}
+		for k in range(len(self.row_id_ls)):
+			snp1_allele = self.data_matrix[k][snp1_index]
+			snp2_allele = self.data_matrix[k][snp2_index]
+			if snp1_allele!=0 and snp2_allele!=0 and not (snp1_allele>4 and snp2_allele>4):	#doesn't allow both loci are heterozygous
+				snp1_allele1, snp1_allele2 = self.fill_in_snp_allele2index(snp1_allele, snp1_allele2index)
+				snp2_allele1, snp2_allele2 = self.fill_in_snp_allele2index(snp2_allele, snp2_allele2index)
+				counter_matrix[snp1_allele2index[snp1_allele1],snp2_allele2index[snp2_allele1]] += 1
+				counter_matrix[snp1_allele2index[snp1_allele2],snp2_allele2index[snp2_allele2]] += 1
+		PA = sum(counter_matrix[0,:])
+		Pa = sum(counter_matrix[1,:])
+		PB = sum(counter_matrix[:,0])
+		Pb = sum(counter_matrix[:,1])
+		total_num = float(PA+Pa)
+		try:
+			PA = PA/total_num
+			Pa = Pa/total_num
+			PB = PB/total_num
+			Pb = Pb/total_num
+			PAB = counter_matrix[0,0]/total_num
+			D = PAB-PA*PB
+			PAPB = PA*PB
+			PAPb = PA*Pb
+			PaPB = Pa*PB
+			PaPb = Pa*Pb
+			Dmin = max(-PAPB, -PaPb)
+			Dmax = min(PAPb, PaPB)
+			if D<0:
+				D_prime = D/Dmin
+			else:
+				D_prime = D/Dmax
+			r2 = D*D/(PA*Pa*PB*Pb)
+		except:	#2008-01-23 exceptions.ZeroDivisionError, Dmin or Dmax could be 0 if one of(-PAPB, -PaPb)  is >0 or <0
+			sys.stderr.write('Unknown except, ignore: %s\n'%repr(sys.exc_info()[0]))
+			return None
+		allele_freq = (min(PA, Pa),min(PB, Pb))
+		return_data = PassingData()
+		return_data.D = D
+		return_data.D_prime = D_prime
+		return_data.r2 = r2
+		return_data.allele_freq = allele_freq
+		return_data.snp_pair_ls = (col1_id, col2_id)
+		return_data.no_of_pairs = total_num
+		return return_data
+		
 from db import TableClass
 class GenomeWideResults(TableClass):
 	genome_wide_result_ls = None
