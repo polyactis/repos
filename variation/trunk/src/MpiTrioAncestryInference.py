@@ -93,6 +93,8 @@ class MpiTrioAncestryInference:
 	
 	def input_node(self, communicator, parameter_list, free_computing_nodes, message_size, report=0):
 		"""
+		2008-09-06
+			fix a bug that forgets the last batch
 		2007-03-09
 			the queue is way too slow
 		"""
@@ -115,6 +117,17 @@ class MpiTrioAncestryInference:
 						if report:
 							sys.stderr.write("block %s sent to %s.\n"%(counter, free_computing_node))
 						counter += 1
+		
+		if trio_list:	#don't forget the last batch
+			communicator.send("1", communicator.size-1, 1)	#WATCH: tag is 1, to the output_node.
+			free_computing_node, source, tag = communicator.receiveString(communicator.size-1, 2)
+			#WATCH: tag is 2, from the output_node
+			data_pickle = cPickle.dumps(trio_list, -1)
+			communicator.send(data_pickle,int(free_computing_node),0)	#WATCH: int()
+			trio_list = []	#clear the list
+			if report:
+				sys.stderr.write("block %s sent to %s.\n"%(counter, free_computing_node))
+			counter += 1
 		#tell computing_node to exit the loop
 		for node in free_computing_nodes:	#send it to the computing_node
 			communicator.send("-1", node, 0)
