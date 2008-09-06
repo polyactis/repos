@@ -55,6 +55,9 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 	
 	def input_node(self, param_obj, free_computing_nodes, message_size):
 		"""
+		2008-09-06
+			found a bug in this program
+			after the double-for loop, row_id_pair_list can still have some entries in it if the last one's size !=message_size. send it out.
 		2008-08-28
 		"""
 		node_rank = param_obj.communicator.rank
@@ -80,6 +83,8 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 					if len(row_id_pair_list)==message_size:
 						self.inputNodeHandler(param_obj, row_id_pair_list)
 						row_id_pair_list = []	#clear the list
+		if len(row_id_pair_list)>0:	#don't forget the last batch
+			self.inputNodeHandler(param_obj, row_id_pair_list)
 		#tell computing_node to exit the loop
 		for node in free_computing_nodes:	#send it to the computing_node
 			param_obj.communicator.send("-1", node, 0)
