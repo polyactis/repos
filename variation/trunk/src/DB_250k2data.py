@@ -7,6 +7,8 @@ Examples:
 	
 	#output matrix with no SNP filtering -w 1 -v 1
 	DB_250k2data.py -l 3 -y 0.85 -w 1 -x 0.20 -v 1 -o /tmp/250k_l3_v1_w1_x0.20_y0.85.tsv
+	
+	DB_250k2data.py -l 17 -o /mnt/nfs/250k/call_method_17.tsv
 
 Description:
 	Simple program to output/filter 250k data based on QC recorded in database in Strain X SNP format.
@@ -29,13 +31,15 @@ import warnings, traceback
 from pymodule import write_data_matrix
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, SNPs, README
+from variation.src import Stock_250kDB
+from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, SnpsQC, CallInfo, Snps, README
 from variation.src.QC_250k import QC_250k
 import sqlalchemy
 
 class DB_250k2Data(object):
 	__doc__ = __doc__
-	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
 							('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
 							('user', 1, ): [None, 'u', 1, 'database username', ],\
 							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
@@ -44,7 +48,7 @@ class DB_250k2Data(object):
 							('call_method_id', 1, int): [None, 'l', 1, 'id in table call_method', ],\
 							('max_call_info_mismatch_rate', 0, float): [1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate', 0, float): [1, 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
-							('max_snp_NA_rate', 1, float): [1, 'v', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
+							('max_snp_NA_rate', 1, float): [1, 'm', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -61,7 +65,7 @@ class DB_250k2Data(object):
 			deprecated, too much memory
 		"""
 		sys.stderr.write("Getting snps_with_best_QC_ls ... ")
-		snps_ls = db.session.query(SNPs).options(sqlalchemy.orm.eagerload('snps_qc')).join('snps_qc').filter(db.tables['snps_qc'].c.call_method_id==call_method_id).all()
+		snps_ls = Snps.query.options(sqlalchemy.orm.eagerload('snps_qc')).join('snps_qc').filter(db.tables['snps_qc'].c.call_method_id==call_method_id).all()
 		
 		snps_with_best_QC_ls = []
 		no_of_entries = len(snps_ls)
@@ -162,8 +166,9 @@ class DB_250k2Data(object):
 		"""
 		2008-05-20 read_call_matrix returns PassingData object
 		"""
-		db = Stock_250kDatabase(username=self.user,
+		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
+		db.setup()
 		session = db.session
 		QC_method_id = 0 	#just for QC_250k.get_call_info_id2fname()
 		call_info_id2fname, call_info_ls_to_return = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, max_call_info_mismatch_rate=self.max_call_info_mismatch_rate)
