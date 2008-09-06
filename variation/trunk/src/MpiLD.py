@@ -3,7 +3,7 @@
 
 Examples:
 	#run it on hpc-cmb cluster
-	mpiexec ~/script/variation/src/MpiLD.py -i /tmp/SNPmatrix.tsv -o /tmp/LD.tsv -s 1000
+	mpiexec ~/script/variation/src/MpiLD.py -i /tmp/SNPmatrix.tsv -o /tmp/LD.tsv -s 100
 
 	#test parallel run on desktop
 	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython ~/script/...
@@ -33,15 +33,60 @@ class MpiLD(MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = {('input_fname',1, ): [None, 'i', 1, 'a file containing StrainXSNP matrix.'],\
 							("output_fname", 1, ): [None, 'o', 1, 'Filename to store data matrix'],\
-							('message_size', 1, int):[1000, 's', 1, 'How many results one computing node should handle.'],\
+							('block_size', 1, int):[1000, 's', 1, 'square of it is the number (or half of that) of LDs each computing node handles. Imagine a SNPXSNP LD matrix. block_size is the dimension of the block each node handles.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def input_node(self, param_obj, free_computing_nodes, message_size):
+	def generate_params(self, no_of_snps, block_size=1000):
 		"""
+		2008-09-06
+			cut the SNPXSNP LD matrix into blocks and put the two dimensions into params_ls
+		"""
+		sys.stderr.write("Generating parameters ...")
+		params_ls = []
+		no_of_blocks = int(no_of_snps/block_size)+1
+		for i in range(no_of_blocks+1):
+			min_index1 = i*block_size
+			if min_index1>=no_of_snps:	#out of bound ignore
+				continue
+			stop1 = min((i+1)*block_size, no_of_snps)
+			
+			for j in range(i, no_of_blocks+1):	#the 2nd index is equal or bigger than the 1st index
+				min_index2 = j*block_size
+				if min_index2>=no_of_snps:	#out of bound
+					continue
+				stop2 = min((j+1)*block_size, no_of_snps)
+				params_ls.append([(min_index1,stop1), (min_index2,stop2)])
+		sys.stderr.write("Done.\n")
+		return params_ls
+				
+	def input_handler(self, param_obj, message_size=1, report=0):
+		"""
+		2008-09-06
+		"""
+		if param_obj.report:
+			sys.stderr.write("Fetching stuff...\n")
+		params_ls = param_obj.params_ls
+		data_to_return = []
+		for i in range(message_size):
+			if len(params_ls)>0:
+				one_parameter = params_ls.pop(0)
+				data_to_return.append(one_parameter)
+				param_obj.counter += 1
+			else:
+				break
+		if param_obj.report:
+			sys.stderr.write("Fetching done at counter=%s.\n"%(param_obj.counter))
+		return data_to_return
+	
+	def _input_node(self, param_obj, free_computing_nodes, message_size):
+		"""
+		2008-09-06
+			deprecated
+			use generate_params() and call MPIwrapper's input_node()
 		2008-09-05
 			similar to MpiQC149CrossMatch.py's input_node()
 		"""
@@ -62,6 +107,8 @@ class MpiLD(MPIwrapper):
 					self.inputNodeHandler(param_obj, id_pair_list)
 					id_pair_list = []	#clear the list
 		
+		if id_pair_list:	#don't forget the last batch
+			self.inputNodeHandler(param_obj, id_pair_list)
 		#tell computing_node to exit the loop
 		for node in free_computing_nodes:	#send it to the computing_node
 			self.communicator.send("-1", node, 0)
@@ -69,25 +116,32 @@ class MpiLD(MPIwrapper):
 	
 	def computing_node_handler(self, communicator, data, computing_parameter_obj):
 		"""
-		2008-08-28
+		2008-09-06
+			data from input_node is changed
+		2008-09-05
 		"""
 		node_rank = communicator.rank
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
 		result_ls = []
 		snpData = computing_parameter_obj.snpData
-		for col_id1, col_id2 in data:
-			LD_data = snpData.calLD(col_id1, col_id2)
-			if LD_data is not None:
-				result_ls.append(LD_data)
+		for col1_range, col2_range in data:
+			min_index1, stop1 = col1_range
+			min_index2, stop2 = col2_range
+			for i in range(min_index1, stop1):
+				for j in range(max(i+1, min_index2), stop2):	#the lower bound of j is the bigger one of i+1 and min_index2
+					col_id1 = snpData.col_id_ls[i]
+					col_id2 = snpData.col_id_ls[j]
+					LD_data = snpData.calLD(col_id1, col_id2)
+					if LD_data is not None:
+						result_ls.append(LD_data)
+						
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
 		return result_ls
 	
 	def output_node_handler(self, communicator, param_obj, data):
 		"""
-		2008-08-28
-			add functionality to output into file
-		2008-08-28
+		2008-09-05
 		"""
 		writer = param_obj.writer
 		result_ls = cPickle.loads(data)
@@ -142,6 +196,8 @@ class MpiLD(MPIwrapper):
 				self.communicator.send(snpData_pickle, node, 0)
 				sys.stderr.write(".\n")
 			del snpData_pickle
+			params_ls = self.generate_params(len(snpData.col_id_ls), self.block_size)
+			del snpData
 		elif node_rank in free_computing_node_set:
 			data, source, tag = self.communicator.receiveString(0, 0)
 			snpData =  cPickle.loads(data)
@@ -152,8 +208,9 @@ class MpiLD(MPIwrapper):
 		
 		self.synchronize()
 		if node_rank == 0:
-			param_obj = PassingData(snpData=snpData, output_node_rank=output_node_rank, report=self.report)
-			self.input_node(param_obj, free_computing_nodes, self.message_size)
+			param_obj = PassingData(params_ls=params_ls, output_node_rank=output_node_rank, report=self.report, counter=0)
+			self.input_node(param_obj, free_computing_nodes, input_handler=self.input_handler, message_size=1)
+			#self.input_node(param_obj, free_computing_nodes, self.message_size)
 		elif node_rank in free_computing_node_set:
 			computing_parameter_obj = PassingData(snpData=snpData)
 			self.computing_node(computing_parameter_obj, self.computing_node_handler)
