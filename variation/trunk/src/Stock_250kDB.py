@@ -473,8 +473,12 @@ class Stock_250kDB(ElixirDB):
 		self.metadata = __metadata__
 		self.session = __session__
 	
-	def setup(self):
-		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
+	def setup(self, create_tables=True):
+		"""
+		2008-09-07
+			expose option create_tables, default=True. assign it to False if no new table is to be created.
+		"""
+		setup_all(create_tables=create_tables)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 		#2008-08-26 setup_all() would setup other databases as well if they also appear in the program. Seperate this to be envoked after initialization
 		# to ensure the metadata of other databases is setup properly.
 
@@ -488,4 +492,3 @@ if __name__ == '__main__':
 	rows = GeneListType.query.all()
 	for row in rows:
 		print row.gene_list[0].list_type_id
-	
