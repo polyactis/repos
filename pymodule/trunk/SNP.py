@@ -832,6 +832,36 @@ class SNPData(object):
 		return_data.snp_pair_ls = (col1_id, col2_id)
 		return_data.no_of_pairs = total_num
 		return return_data
+	
+	def convertSNPAllele2Index(self, report=0):
+		"""
+		2008-09-07
+			Convert SNP matrix into index (0,1,2...) is assigned as first-encounter, first-assign. if only two alleles, it's binary.
+			heterozygote is regarded as a different allele.
+		"""
+		sys.stderr.write("Converting SNP allele to index ...")
+		no_of_hets = 0
+		newSnpData = SNPData(row_id_ls=self.row_id_ls, col_id_ls=self.col_id_ls)
+		no_of_rows = len(self.data_matrix)
+		no_of_cols = len(self.data_matrix[0])
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		allele2index_ls = []
+		for j in range(no_of_cols):
+			allele2index_ls.append({})
+			for i in range(no_of_rows):
+				allele = self.data_matrix[i][j]
+				if allele==0 or allele==-2:
+					allele_index = -2
+				elif allele not in allele2index_ls[j]:
+					allele_index = len(allele2index_ls[j])
+					allele2index_ls[j][allele] = allele_index
+				else:
+					allele_index = allele2index_ls[j][allele]
+				newSnpData.data_matrix[i][j] = allele_index
+				if report and allele_index>1:
+					sys.stderr.write("%s alleles at SNP %s (id=%s).\n"%((allele_index+1), j, self.col_id_ls[j]))
+		sys.stderr.write("Done.\n")
+		return newSnpData, allele2index_ls
 		
 from db import TableClass
 class GenomeWideResults(TableClass):
