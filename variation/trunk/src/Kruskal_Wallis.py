@@ -72,76 +72,96 @@ class Kruskal_Wallis:
 		self.report = int(report)
 		"""
 	
-	def get_phenotype_ls_in_data_matrix_order(self, strain_acc_list, strain_acc_list_phen, category_list_phen, data_type=float):
+	def get_phenotype_matrix_in_data_matrix_order(self, strain_acc_list, strain_acc_list_phen, data_matrix_phen):
 		"""
+		2008-09-07
+			order the whole phenotype matrix, not just one column.
+			convert the phenotype matrix to numpy.float, NA to numpy.nan
 		2008-05-21
 			strain_acc could be missing in strain_acc_phen2index
 			phenotype_value could be 'NA'
 		2008-02-14
 		"""
-		sys.stderr.write("Getting phenotype_ls in order with data_matrix ...")
+		sys.stderr.write("Getting phenotype_matrix in data_matrix order ...")
 		strain_acc_phen2index = dict(zip(strain_acc_list_phen, range(len(strain_acc_list_phen)) ) )
-		phenotype_ls = []
-		for strain_acc in strain_acc_list:
+		no_of_rows = len(strain_acc_list)	#this is the number of strains in the input matrix, not the phenotype matrix
+		no_of_cols = len(data_matrix_phen[0])
+		new_data_matrix_phen = numpy.zeros([no_of_rows, no_of_cols], numpy.float)
+		for i in range(len(strain_acc_list)):
+			strain_acc = strain_acc_list[i]
 			if strain_acc in strain_acc_phen2index:
 				phen_index = strain_acc_phen2index[strain_acc]
-				phenotype_value = category_list_phen[phen_index]
-				if phenotype_value !='NA':
-					phenotype_ls.append(data_type(phenotype_value))
-				else:
-					phenotype_ls.append(None)
+				for j in range(no_of_cols):
+					if data_matrix_phen[phen_index][j]=='NA':
+						new_data_matrix_phen[i,j] = numpy.nan
+					else:
+						new_data_matrix_phen[i,j] = float(data_matrix_phen[phen_index][j])
 			else:
-				phenotype_ls.append(None)
+				new_data_matrix_phen[i,:] = numpy.nan
 		sys.stderr.write("Done.\n")
-		return phenotype_ls
+		return new_data_matrix_phen
+	get_phenotype_matrix_in_data_matrix_order = classmethod(get_phenotype_matrix_in_data_matrix_order)
 	
-	def _kruskal_wallis(self, data_matrix, phenotype_ls, min_data_point=3):
+	def _kruskal_wallis(cls, genotype_ls, phenotype_ls, min_data_point=3, snp_index=None):
 		"""
+		2008-09-07
+			split out of _kruskal_wallis_whole_matrix()
+			input is one genotype list, one phenotype list
+		"""
+		import rpy
+		rpy.r.as_factor.local_mode(rpy.NO_CONVERSION)
+		non_NA_genotype_ls = []
+		non_NA_phenotype_ls = []
+		non_NA_genotype2count = {}
+		#non_NA_genotype2phenotype_ls = {}	#2008-08-06 try wilcox
+		for i in range(len(genotype_ls)):
+			if genotype_ls[i]!=0 and genotype_ls[i]!=-2 and not numpy.isnan(phenotype_ls[i]):
+				non_NA_genotype = genotype_ls[i]
+				non_NA_genotype_ls.append(non_NA_genotype)
+				non_NA_phenotype_ls.append(phenotype_ls[i])
+				if non_NA_genotype not in non_NA_genotype2count:
+					non_NA_genotype2count[non_NA_genotype] = 0
+					#non_NA_genotype2phenotype_ls[non_NA_genotype] = []	#2008-08-06 try wilcox
+				non_NA_genotype2count[non_NA_genotype] += 1
+				#non_NA_genotype2phenotype_ls[non_NA_genotype].append(phenotype_ls[i])	#2008-08-06 try wilcox
+		"""
+		#2008-08-06 try wilcox
+		new_snp_allele2index = returnTop2Allele(non_NA_genotype2count)
+		top_2_allele_ls = new_snp_allele2index.keys()
+		non_NA_genotype2count = {top_2_allele_ls[0]: non_NA_genotype2count[top_2_allele_ls[0]],
+								top_2_allele_ls[1]: non_NA_genotype2count[top_2_allele_ls[1]]}
+		"""
+		count_ls = non_NA_genotype2count.values()
+		if len(count_ls)>=2 and min(count_ls)>=min_data_point:	#require all alleles meet the min data point requirement
+			pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
+			#2008-08-06 try wilcox
+			#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
+			pdata = PassingData(snp_index=snp_index, pvalue=pvalue, count_ls=count_ls)
+			
+		else:
+			pdata = None
+		return pdata
+	
+	_kruskal_wallis = classmethod(_kruskal_wallis)
+	
+	def _kruskal_wallis_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3):
+		"""
+		2008-09-07
+			_kruskal_wallis() spinned off.
 		2008-05-21
 			phenotype_ls could have None value, skip them
 			each kw result is wrapped in PassingData
 		2008-02-14
 		"""
 		sys.stderr.write("Doing kruskal wallis test ...\n")
-		import rpy
-		rpy.r.as_factor.local_mode(rpy.NO_CONVERSION)
-		
-		if type(data_matrix)==list:
-			import numpy
-			data_matrix = numpy.array(data_matrix)
 		no_of_rows, no_of_cols = data_matrix.shape
 		results = []
 		counter = 0
 		real_counter = 0
 		for j in range(no_of_cols):
 			genotype_ls = data_matrix[:,j]
-			non_NA_genotype_ls = []
-			non_NA_phenotype_ls = []
-			non_NA_genotype2count = {}
-			#non_NA_genotype2phenotype_ls = {}	#2008-08-06 try wilcox
-			for i in range(no_of_rows):
-				if genotype_ls[i]!=0 and phenotype_ls[i]!=None:
-					non_NA_genotype = genotype_ls[i]
-					non_NA_genotype_ls.append(non_NA_genotype)
-					non_NA_phenotype_ls.append(phenotype_ls[i])
-					if non_NA_genotype not in non_NA_genotype2count:
-						non_NA_genotype2count[non_NA_genotype] = 0
-						#non_NA_genotype2phenotype_ls[non_NA_genotype] = []	#2008-08-06 try wilcox
-					non_NA_genotype2count[non_NA_genotype] += 1
-					#non_NA_genotype2phenotype_ls[non_NA_genotype].append(phenotype_ls[i])	#2008-08-06 try wilcox
-			"""
-			#2008-08-06 try wilcox
-			new_snp_allele2index = returnTop2Allele(non_NA_genotype2count)
-			top_2_allele_ls = new_snp_allele2index.keys()
-			non_NA_genotype2count = {top_2_allele_ls[0]: non_NA_genotype2count[top_2_allele_ls[0]],
-									top_2_allele_ls[1]: non_NA_genotype2count[top_2_allele_ls[1]]}
-			"""
-			count_ls = non_NA_genotype2count.values()
-			if len(count_ls)>=2 and min(count_ls)>=min_data_point:	#require all alleles meet the min data point requirement
-				pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
-				#2008-08-06 try wilcox
-				#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
-				pdata = PassingData(snp_index=j, pvalue=pvalue, count_ls=count_ls)
+			pdata = self._kruskal_wallis(genotype_ls, phenotype_ls, min_data_point, snp_index=j)
+			if pdata is not None:
 				results.append(pdata)
 				real_counter += 1
 			counter += 1
@@ -184,10 +204,11 @@ class Kruskal_Wallis:
 			pdb.set_trace()
 		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.phenotype_fname, turn_into_integer=0)
 		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname)
-		data_matrix_phen = numpy.array(data_matrix_phen)
-		#2008-05-21 take the 1st phenotype
-		phenotype_ls = self.get_phenotype_ls_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen[:, self.which_phenotype], data_type=float)
-		kw_results = self._kruskal_wallis(data_matrix, phenotype_ls, self.min_data_point)
+		if type(data_matrix)==list:
+			data_matrix = numpy.array(data_matrix)
+		
+		data_matrix_phen = self.get_phenotype_matrix_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen)
+		kw_results = self._kruskal_wallis_whole_matrix(data_matrix, data_matrix_phen[:, self.which_phenotype], self.min_data_point)
 		self.output_kw_results(kw_results, header[2:], self.output_fname, self.minus_log_pvalue)
 
 if __name__ == '__main__':
