@@ -99,6 +99,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest):
 			self.hostname = 'banyan.usc.edu'
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		db.setup()
 		session = db.session
 		
 		if node_rank == 0:
