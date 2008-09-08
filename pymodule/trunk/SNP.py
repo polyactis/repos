@@ -455,13 +455,15 @@ class SNPData(object):
 	
 	def processRowIDColID(self):
 		"""
+		2008-09-07
+			if turn the data_matrix into array, do not force num.int8 type.
 		2008-09-05
 			generate id2index for both row and column
 		2008-06-02
 			correct a bug here, opposite judgement of self.data_matrix
 		"""
 		if not self.isDataMatrixEmpty(self.data_matrix) and self.turn_into_array:
-			self.data_matrix = num.array(self.data_matrix, num.int8)
+			self.data_matrix = num.array(self.data_matrix)
 		
 		if self.row_id_ls is None and self.strain_acc_list is not None:
 			self.row_id_ls = []
