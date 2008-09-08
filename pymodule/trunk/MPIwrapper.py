@@ -132,7 +132,7 @@ class MPIwrapper(object):
 		sys.stderr.flush()
 		self.communicator.barrier()
 	
-	def inputNodeHandler(self, param_obj, data_to_send):
+	def input_query_send_handler(self, param_obj, data_to_send):
 		"""
 		2008-09-05
 			to be called by input_node
@@ -148,6 +148,28 @@ class MPIwrapper(object):
 		if param_obj.report:
 			sys.stderr.write("block %s sent to %s.\n"%(param_obj.counter, free_computing_node))
 		param_obj.counter += 1
+	
+	def input_fetch_handler(self, param_obj, message_size=1, report=0):
+		"""
+		2008-09-06
+			coming from variation/src/MpiLD.py
+			param_obj has 3 variables, params_ls, counter, report(optional)
+			it pops a message_size number of entries out of param_obj.params_ls and then return it.
+		"""
+		if param_obj.report:
+			sys.stderr.write("Fetching stuff...\n")
+		params_ls = param_obj.params_ls
+		data_to_return = []
+		for i in range(message_size):
+			if len(params_ls)>0:
+				one_parameter = params_ls.pop(0)
+				data_to_return.append(one_parameter)
+				param_obj.counter += 1
+			else:
+				break
+		if getattr(param_obj, 'report', None):
+			sys.stderr.write("Fetching done at counter=%s.\n"%(param_obj.counter))
+		return data_to_return
 	
 	def output_node(self, free_computing_nodes, parameter_list, handler, type=1):
 		"""
