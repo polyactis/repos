@@ -202,7 +202,6 @@ class MpiLD(MPIwrapper):
 			data, source, tag = self.communicator.receiveString(0, 0)
 			snpData =  cPickle.loads(data)
 			del data
-			sys.stderr.write(".\n")
 		else:
 			pass
 		
