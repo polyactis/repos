@@ -31,9 +31,9 @@ from pymodule import PassingData, figureOutDelimiter
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, CandidateGeneRankSumTestResult, CandidateGeneTopSNPTest
 from Results2DB_250k import Results2DB_250k
 from pymodule import getGenomeWideResultFromFile
-from GeneListRankTest import GeneListRankTest
+from GeneListRankTest import GeneListRankTest, SnpsContextWrapper
 from sets import Set
-
+from heapq import heappush, heappop, heapreplace
 
 
 class TopSNPTest(GeneListRankTest):
@@ -82,9 +82,51 @@ class TopSNPTest(GeneListRankTest):
 		passingdata = PassingData(candidate_gene_in_top_set=candidate_gene_in_top_set, non_candidate_gene_in_top_set=non_candidate_gene_in_top_set)
 		sys.stderr.write("Done.\n")
 		return passingdata
-		
+	
+	def prepareDataForHGTest_SNPPair(self, rm, snps_context_wrapper, candidate_gene_list, results_directory, min_MAF, no_of_top_snps):
+		"""
+		2008-09-08
+			a different format in the results file, which is output of MpiIntraGeneSNPPairAsso.py
+		"""
+		sys.stderr.write("Preparing data for HG test from SNP pair results ... ")
+		if results_directory:	#given a directory where all results are.
+			result_fname = os.path.join(results_directory, os.path.basename(rm.filename))
+		else:
+			result_fname = rm.filename
+		reader = csv.reader(open(result_fname), delimiter='\t')
+		reader.next()
+		heap_ls = []
+		for row in reader:
+			gene_id = int(row[1])
+			pvalue = float(row[5])
+			count1 = int(row[-2])
+			count2 = int(row[-1])
+			maf = float(min(count1, count2))/(count1+count2)
+			if maf>=min_MAF:
+				if len(heap_ls)<no_of_top_snps:
+					heappush(heap_ls, (-pvalue, gene_id))
+				else:
+					heapreplace(heap_ls, (-pvalue, gene_id))
+		candidate_gene_set = Set(candidate_gene_list)
+		candidate_gene_in_top_set = Set([])
+		non_candidate_gene_in_top_set = Set([])
+		while heap_ls:
+			pvalue_gene_id = heappop(heap_ls)
+			gene_id = pvalue_gene_id[1]
+			if gene_id in candidate_gene_set:
+				candidate_gene_in_top_set.add(gene_id)
+			else:
+				non_candidate_gene_in_top_set.add(gene_id)
+		passingdata = PassingData(candidate_gene_in_top_set=candidate_gene_in_top_set, non_candidate_gene_in_top_set=non_candidate_gene_in_top_set)
+		sys.stderr.write("Done.\n")
+		return passingdata
+	
+	
+	
 	def runHGTest(self, pd):
 		"""
+		2008-09-09
+			call prepareDataForHGTest_SNPPair if analysis_method_id==13
 		2008-08-20
 		"""
 		if self.debug:
@@ -104,7 +146,10 @@ class TopSNPTest(GeneListRankTest):
 			return None
 		try:
 			candidate_gene_list = self.getGeneList(pd.list_type_id)
-			passingdata = self.prepareDataForHGTest(rm, pd.snps_context_wrapper, candidate_gene_list, pd.results_directory, pd.min_MAF, pd.no_of_top_snps)
+			if rm.analysis_method_id==13:
+				passingdata = self.prepareDataForHGTest_SNPPair(rm, pd.snps_context_wrapper, candidate_gene_list, pd.results_directory, pd.min_MAF, pd.no_of_top_snps)
+			else:
+				passingdata = self.prepareDataForHGTest(rm, pd.snps_context_wrapper, candidate_gene_list, pd.results_directory, pd.min_MAF, pd.no_of_top_snps)
 			import rpy
 			x = len(passingdata.candidate_gene_in_top_set)
 			m = len(candidate_gene_list)
@@ -137,12 +182,13 @@ class TopSNPTest(GeneListRankTest):
 			pdb.set_trace()
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		db.setup()
 		session = db.session
 		no_of_total_genes = self.getNoOfTotalGenes(db, self.gene_table, self.tax_id)
 		#if self.commit:
 		#	session.begin()
 		
-		snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
+		snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 		pd = PassingData(snps_context_wrapper=snps_context_wrapper, list_type_id=self.list_type_id, \
 							no_of_total_genes=no_of_total_genes, results_directory=self.results_directory, \
 							min_MAF=self.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance,\
