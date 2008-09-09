@@ -7,7 +7,7 @@ Examples:
 	GeneListRankTest.py -e 389,190 -l 1 -u yh -b
 	
 	#apart from doing rank test, pickle the snps_context_wrapper into a file.
-	GeneListRankTest.py -e 389 -l 1 -u yh -c -s /tmp/snps_context
+	GeneListRankTest.py -e 389 -l 1 -u yh -c -x /tmp/snps_context
 	
 Description:
 	2008-07-14 program to do pvalue rank test based on a given candidate gene list.
@@ -108,7 +108,7 @@ class GeneListRankTest(object):
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
-							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
+							("snps_context_picklef", 0, ): [None, 'x', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
