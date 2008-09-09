@@ -6,6 +6,9 @@ Examples:
 	#debug, quick testing
 	GeneListRankTest.py -e 389,190 -l 1 -u yh -b
 	
+	#apart from doing rank test, pickle the snps_context_wrapper into a file.
+	GeneListRankTest.py -e 389 -l 1 -u yh -c -s /tmp/snps_context
+	
 Description:
 	2008-07-14 program to do pvalue rank test based on a given candidate gene list.
 	
@@ -104,7 +107,8 @@ class GeneListRankTest(object):
 							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
-							("output_fname", 0, ): [None, 'o', 1, ''],\
+							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
+							("snps_context_picklef", 0, ): [None, 's', 1, 'file if given, to store a pickled snps_context_wrapper. min_distance and flag get_closest will be attached to the filename.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -377,12 +381,19 @@ class GeneListRankTest(object):
 			pdb.set_trace()
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		db.setup(create_tables=False)
 		session = db.session
 		#if self.commit:
 		#	session.begin()
 		#chrpos2pvalue = self.getChrPos2Pvalue(self.results_method_id)
 		#gene_id2hit = self.getGeneID2hit(chrpos2pvalue, self.min_distance)
 		snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
+		
+		if self.snps_context_picklef:
+			import cPickle	#2008-09-07 pickle the snps_context_wrapper object
+			picklef = open('%s_g%s_m%s'%(self.snps_context_picklef, self.get_closest, self.min_distance), 'w')
+			cPickle.dump(snps_context_wrapper, picklef, -1)
+			picklef.close()
 		
 		if getattr(self, 'output_fname', None):
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
