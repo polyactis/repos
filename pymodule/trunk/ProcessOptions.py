@@ -175,6 +175,9 @@ class ProcessOptions(object):
 	
 	def prepare_for_getopt(self, option_default_dict):
 		"""
+		2008-09-09
+			in the case that short_option is not provided,
+				get the has_argument and description_for_option if they are provided.
 		2008-05-02
 			correct a bug in deal with the rest with no short_option specified
 		2008-04-28
@@ -252,7 +255,7 @@ class ProcessOptions(object):
 		for option_key in options_with_no_short_option:
 			long_option = option_key[0]
 			option_value = option_default_dict[option_key]
-			#get the has_argument and description_for_option if it's provided.
+			#2008-09-09 get the has_argument and description_for_option if they are provided.
 			if type(option_value)==list and len(option_value)>=4:
 				has_argument = option_value[2]
 				description_for_option = option_value[3]
