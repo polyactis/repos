@@ -28,7 +28,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import time, csv, getopt
+import time, csv, cPickle
 import warnings, traceback
 from pymodule import PassingData, figureOutDelimiter
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, CandidateGeneRankSumTestResult
@@ -108,7 +108,7 @@ class GeneListRankTest(object):
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
-							("snps_context_picklef", 0, ): [None, 's', 1, 'file if given, to store a pickled snps_context_wrapper. min_distance and flag get_closest will be attached to the filename.'],\
+							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -375,6 +375,30 @@ class GeneListRankTest(object):
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
 	
+	def dealWithSnpsContextWrapper(self, snps_context_picklef, min_distance, get_closest):
+		"""
+		2008-09-08
+			split out of run()
+			
+			--constructDataStruc()
+		"""
+		sys.stderr.write("Dealing with snps_context_wrapper ...")
+		if snps_context_picklef:
+			if os.path.isfile(snps_context_picklef):	#if this file is already there, suggest to un-pickle it.
+				picklef = open(snps_context_picklef)
+				snps_context_wrapper = cPickle.load(picklef)
+				del picklef
+			else:	#if the file doesn't exist, but the filename is given, pickle snps_context_wrapper into it
+				snps_context_wrapper = self.constructDataStruc(min_distance, get_closest)
+				#2008-09-07 pickle the snps_context_wrapper object
+				picklef = open('%s_g%s_m%s'%(snps_context_picklef, get_closest, min_distance), 'w')
+				cPickle.dump(snps_context_wrapper, picklef, -1)
+				picklef.close()
+		else:
+			snps_context_wrapper = self.constructDataStruc(min_distance, get_closest)
+		sys.stderr.write("Done.\n")
+		return snps_context_wrapper
+	
 	def run(self):
 		if self.debug:
 			import pdb
@@ -387,13 +411,7 @@ class GeneListRankTest(object):
 		#	session.begin()
 		#chrpos2pvalue = self.getChrPos2Pvalue(self.results_method_id)
 		#gene_id2hit = self.getGeneID2hit(chrpos2pvalue, self.min_distance)
-		snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
-		
-		if self.snps_context_picklef:
-			import cPickle	#2008-09-07 pickle the snps_context_wrapper object
-			picklef = open('%s_g%s_m%s'%(self.snps_context_picklef, self.get_closest, self.min_distance), 'w')
-			cPickle.dump(snps_context_wrapper, picklef, -1)
-			picklef.close()
+		snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 		
 		if getattr(self, 'output_fname', None):
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
