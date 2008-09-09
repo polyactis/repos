@@ -252,6 +252,16 @@ class ProcessOptions(object):
 		for option_key in options_with_no_short_option:
 			long_option = option_key[0]
 			option_value = option_default_dict[option_key]
+			#get the has_argument and description_for_option if it's provided.
+			if type(option_value)==list and len(option_value)>=4:
+				has_argument = option_value[2]
+				description_for_option = option_value[3]
+			elif type(option_value)==list and len(option_value)>=3:
+				has_argument = option_value[2]
+				description_for_option = ''
+			else:
+				has_argument = 1
+				description_for_option = ''
 			short_option = None
 			for letter in long_option + eng_letters:	#start with the long_option, then try all english letters
 				if letter not in eng_letter_ls:	#this character has to be english letters. long_option might contain non-letters. like '_'.
@@ -266,7 +276,7 @@ class ProcessOptions(object):
 				sys.exit(3)
 			long_option2has_argument[long_option] = 1
 			long_options_list.append('%s='%long_option)
-			std_option_default_dict[option_key] = [option_value[0], short_option, 1, '']
+			std_option_default_dict[option_key] = [option_value[0], short_option, has_argument, description_for_option]
 			
 		self.short_options_str  = ''.join(short_options_list)
 		self.short_option2long_option = short_option2long_option
