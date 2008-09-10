@@ -275,6 +275,8 @@ class MPIwrapper(object):
 	
 	def computing_node(self, parameter_list, node_fire_handler, cleanup_handler=None):
 		"""
+		2008-09-08
+			delete result and result_pickle right after they are useless to free up memory
 		10-21-05
 			0 is the node where the data is from
 			size-1 is the node where output goes
@@ -293,7 +295,9 @@ class MPIwrapper(object):
 			else:
 				result = node_fire_handler(communicator, data, parameter_list)
 				result_pickle = cPickle.dumps(result, -1)
+				del result
 				communicator.send(result_pickle, communicator.size-1, 1)
+				del result_pickle
 			data, source, tag = communicator.receiveString(0, 0)	#get data from node 0
 		if not cleanup_handler:
 			MPIwrapper.computing_cleanup_handler(communicator)
