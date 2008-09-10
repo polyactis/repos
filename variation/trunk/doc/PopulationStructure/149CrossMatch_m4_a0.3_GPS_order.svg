@@ -1,0 +1,1489 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg12145"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="149CrossMatch_m4_a0.3_GPS_order.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/usr/local/home_ubuntu/crocea/script/variation/doc/PopulationStructure/149CrossMatch_m4_a0.3_GPS_order_svg.png"
+   inkscape:export-xdpi="130"
+   inkscape:export-ydpi="130">
+  <defs
+     id="defs12147">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path4417"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mstart"
+       style="overflow:visible">
+      <path
+         id="path4420"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.4) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path4423"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective12153" />
+    <inkscape:perspective
+       id="perspective12236"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective35186"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.94"
+     inkscape:cx="429.15519"
+     inkscape:cy="207.44002"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1790"
+     inkscape:window-height="1123"
+     inkscape:window-x="12"
+     inkscape:window-y="46" />
+  <metadata
+     id="metadata12150">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       y="-28.994978"
+       x="-299.14285"
+       id="image12238"
+       height="1197"
+       width="1204"
+       sodipodi:absref="149CrossMatch_m4_a0.3_GPS_order.png"
+       xlink:href="149CrossMatch_m4_a0.3_GPS_order.png" />
+    <text
+       xml:space="preserve"
+       style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-383.40802"
+       y="205.46855"
+       id="text12242"><tspan
+         sodipodi:role="line"
+         id="tspan12244"
+         x="-383.40802"
+         y="205.46855">USA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-403.23419"
+       y="-19.212286"
+       id="text12246"><tspan
+         sodipodi:role="line"
+         id="tspan12248"
+         x="-403.23419"
+         y="-19.212286">UNKNOWN</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-404.81036"
+       y="415.51111"
+       id="text12250"><tspan
+         sodipodi:role="line"
+         id="tspan12252"
+         x="-404.81036"
+         y="415.51111">Canada</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-428.5174"
+       y="428.53241"
+       id="text12254"><tspan
+         sodipodi:role="line"
+         id="tspan12256"
+         x="-428.5174"
+         y="428.53241">Cape Verde</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-408.81818"
+       y="440.48984"
+       id="text12258"><tspan
+         sodipodi:role="line"
+         id="tspan12260"
+         x="-408.81818"
+         y="440.48984">Portugal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-407.95099"
+       y="451.63879"
+       id="text12262"><tspan
+         sodipodi:role="line"
+         id="tspan12264"
+         x="-407.95099"
+         y="451.63879">Morroco</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-400.64435"
+       y="462.14941"
+       id="text12266"><tspan
+         sodipodi:role="line"
+         id="tspan12268"
+         x="-400.64435"
+         y="462.14941">Ireland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-356.71075"
+       y="468.10687"
+       id="text12270"><tspan
+         sodipodi:role="line"
+         id="tspan12272"
+         x="-356.71075"
+         y="468.10687">Spain</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans;font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;line-height:125%"
+       x="-372.88654"
+       y="587.51111"
+       id="text12274"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan12276"
+         x="-372.88654"
+         y="587.51111">UK</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-373.0213"
+       y="754.14941"
+       id="text12278"><tspan
+         sodipodi:role="line"
+         id="tspan12280"
+         x="-373.0213"
+         y="754.14941">France</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-441.22833"
+       y="771.04303"
+       id="text12282"><tspan
+         sodipodi:role="line"
+         id="tspan12284"
+         x="-441.22833"
+         y="771.04303">Belgium</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-473.0213"
+       y="783.80896"
+       id="text12286"><tspan
+         sodipodi:role="line"
+         id="tspan12288"
+         x="-473.0213"
+         y="783.80896">Neatherlands</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-434.88263"
+       y="796.70264"
+       id="text12290"><tspan
+         sodipodi:role="line"
+         id="tspan12292"
+         x="-434.88263"
+         y="796.70264">Finland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-461.99982"
+       y="806.66003"
+       id="text12294"><tspan
+         sodipodi:role="line"
+         id="tspan12296"
+         x="-461.99982"
+         y="806.66003">Switzerland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-438.24005"
+       y="818.36218"
+       id="text12298"><tspan
+         sodipodi:role="line"
+         id="tspan12300"
+         x="-438.24005"
+         y="818.36218">Norway</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-418.74005"
+       y="829.76642"
+       id="text12302"><tspan
+         sodipodi:role="line"
+         id="tspan12304"
+         x="-418.74005"
+         y="829.76642">Italy</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-448.20685"
+       y="841.97919"
+       id="text12306"><tspan
+         sodipodi:role="line"
+         id="tspan12308"
+         x="-448.20685"
+         y="841.97919">Denmark</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-424.04865"
+       y="854.74518"
+       id="text12310"><tspan
+         sodipodi:role="line"
+         id="tspan12312"
+         x="-424.04865"
+         y="854.74518">Libya</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-374.5174"
+       y="856.83026"
+       id="text12314"><tspan
+         sodipodi:role="line"
+         id="tspan12316"
+         x="-374.5174"
+         y="856.83026">Germany</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-366.5174"
+       y="920.06433"
+       id="text12318"><tspan
+         sodipodi:role="line"
+         id="tspan12320"
+         x="-366.5174"
+         y="920.06433">Czech</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-418.5174"
+       y="954.8728"
+       id="text12322"><tspan
+         sodipodi:role="line"
+         id="tspan12324"
+         x="-418.5174"
+         y="954.8728">Croatia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-417.93732"
+       y="975.63879"
+       id="text12326"><tspan
+         sodipodi:role="line"
+         id="tspan12328"
+         x="-417.93732"
+         y="975.63879">Austria</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+       x="-396.63458"
+       y="1041.2983"
+       id="text12330"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan12332"
+         x="-396.63458"
+         y="1041.2983">Sweden</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-489.99591"
+       y="1051.0005"
+       id="text12334"><tspan
+         sodipodi:role="line"
+         id="tspan12336"
+         x="-489.99591"
+         y="1051.0005">Serbia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-491.8299"
+       y="1065.7664"
+       id="text12338"><tspan
+         sodipodi:role="line"
+         id="tspan12340"
+         x="-491.8299"
+         y="1065.7664">Poland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-501.52716"
+       y="1078.5323"
+       id="text12342"><tspan
+         sodipodi:role="line"
+         id="tspan12344"
+         x="-501.52716"
+         y="1078.5323">Bulgaria</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-507.3631"
+       y="1091.426"
+       id="text12346"><tspan
+         sodipodi:role="line"
+         id="tspan12348"
+         x="-507.3631"
+         y="1091.426">Lithuania</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-504.24591"
+       y="1103.0005"
+       id="text12350"><tspan
+         sodipodi:role="line"
+         id="tspan12352"
+         x="-504.24591"
+         y="1103.0005">Romania</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-498.58575"
+       y="1116.9579"
+       id="text12354"><tspan
+         sodipodi:role="line"
+         id="tspan12356"
+         x="-498.58575"
+         y="1116.9579">Ukraine</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-491.57794"
+       y="1130.7877"
+       id="text12358"><tspan
+         sodipodi:role="line"
+         id="tspan12360"
+         x="-491.57794"
+         y="1130.7877">Turkey</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-490.37091"
+       y="1142.6176"
+       id="text12362"><tspan
+         sodipodi:role="line"
+         id="tspan12364"
+         x="-490.37091"
+         y="1142.6176">Russia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-502.06622"
+       y="1158.3196"
+       id="text12366"><tspan
+         sodipodi:role="line"
+         id="tspan12368"
+         x="-502.06622"
+         y="1158.3196">Armenia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-498.80841"
+       y="1171.2133"
+       id="text12370"><tspan
+         sodipodi:role="line"
+         id="tspan12372"
+         x="-498.80841"
+         y="1171.2133">Georgia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-515.25568"
+       y="1184.2345"
+       id="text12374"><tspan
+         sodipodi:role="line"
+         id="tspan12376"
+         x="-515.25568"
+         y="1184.2345">Azerbaijan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-507.40411"
+       y="1199.1281"
+       id="text12378"><tspan
+         sodipodi:role="line"
+         id="tspan12380"
+         x="-507.40411"
+         y="1199.1281">Tajikistan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-518.13849"
+       y="1211.4686"
+       id="text12382"><tspan
+         sodipodi:role="line"
+         id="tspan12384"
+         x="-518.13849"
+         y="1211.4686">Uzbekistan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-521.0213"
+       y="1224.4897"
+       id="text12386"><tspan
+         sodipodi:role="line"
+         id="tspan12388"
+         x="-521.0213"
+         y="1224.4897">Kazakhstan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-517.62286"
+       y="1238.192"
+       id="text12390"><tspan
+         sodipodi:role="line"
+         id="tspan12392"
+         x="-517.62286"
+         y="1238.192">Kyrgyzstan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-481.20685"
+       y="1253.2133"
+       id="text12394"><tspan
+         sodipodi:role="line"
+         id="tspan12396"
+         x="-481.20685"
+         y="1253.2133">India</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-486.05841"
+       y="1268.1069"
+       id="text12398"><tspan
+         sodipodi:role="line"
+         id="tspan12400"
+         x="-486.05841"
+         y="1268.1069">China</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-485.30255"
+       y="1279.809"
+       id="text12402"><tspan
+         sodipodi:role="line"
+         id="tspan12404"
+         x="-485.30255"
+         y="1279.809">Japan</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="M -334.04255,-23.169732 L -301.06383,-23.169732"
+       id="path12406" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend)"
+       d="M -308.51064,-14.659094 C -308.51064,-14.659094 -324.71996,-20.384302 -324.40271,40.847062 C -324.19362,80.50116 -318.18212,164.13138 -335.10638,200.23452 C -321.17959,236.33766 -323.1905,291.65666 -323.43833,380.03974 C -323.60199,437.70242 -307.44681,433.21325 -307.44681,433.21325"
+       id="path13434"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -307.80356,464.77157 C -307.80356,464.77157 -319.45547,458.01816 -322.6318,508.57559 C -324.18527,533.30208 -323.85802,559.51949 -337.59079,582.85667 C -325.79166,600.8747 -323.54725,615.76817 -322.73125,642.44912 C -320.96853,700.08509 -301.42058,708.38859 -301.42058,708.38859"
+       id="path14995"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -304.29265,972.08945 C -304.29265,972.08945 -332.04866,974.07212 -330.82302,1008.4466 C -330.27931,1023.6957 -334.1769,1030.6672 -339.39903,1039.1107 C -327.5999,1057.1288 -323.71252,1069.8687 -323.47566,1081.6819 C -322.68487,1120.0582 -300.03733,1113.5788 -300.03733,1113.5788"
+       id="path14997"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.85;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -447.87867,1139.7239 L -301.03611,1139.7239"
+       id="path14999" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.7023989;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -447.97137,1129.5831 L -301.25911,1134.6985"
+       id="path15522" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.64221948;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -447.94506,1115.6895 L -302.96204,1131.2444"
+       id="path16045" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.58242315;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.03136,1048.0981 L -304.38556,1116.204"
+       id="path16568" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.02257,1063.0005 L -303.34172,1117.2558"
+       id="path17091" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.61796939;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.01358,1075.7754 L -301.24959,1120.4385"
+       id="path17614" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.63788778;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.00363,1088.5513 L -302.35323,1123.6199"
+       id="path18137" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.528;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.00845,1099.1848 L -302.35353,1125.7625"
+       id="path18660" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.65813184;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -447.9935,1155.5247 L -304.47773,1145.0216"
+       id="path19203" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.56867605;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.00012,1168.1696 L -304.46341,1150.1756"
+       id="path19726" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.55351746;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.04581,1180.931 L -305.62993,1154.3888"
+       id="path20249" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.01132,1194.9041 L -307.65456,1158.7534"
+       id="path20772" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.43496501;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.10509,1207.6638 L -307.77072,1160.8895"
+       id="path21295" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -447.99171,1221.4802 L -306.64678,1163.0318"
+       id="path21818" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.05167,1235.32 L -307.71655,1165.1509"
+       id="path22341" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.43319204;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.10597,1249.1541 L -304.56219,1166.2085"
+       id="path22864" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.33315146;stroke-linecap:butt;stroke-linejoin:miter;marker-mid:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.15599,1264.0477 L -302.48114,1167.2723"
+       id="path23387" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -448.09766,1277.8692 L -301.38955,1168.3444"
+       id="path24952" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -301.95146,883.80609 C -301.95146,883.80609 -311.86097,875.1281 -312.52438,898.88664 C -312.80136,908.80598 -315.87826,908.34129 -321.10039,916.78479 C -315.92692,923.77787 -314.95653,937.62514 -314.75149,942.33471 C -313.9607,960.49824 -307.27061,955.08267 -307.27061,955.08267"
+       id="path25475"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -301.8469,717.85166 C -301.8469,717.85166 -313.88407,713.42899 -314.54748,737.18753 C -314.82446,747.10687 -318.96519,744.51452 -324.18732,752.95802 C -319.01385,759.9511 -313.78814,762.09624 -314.64693,774.25262 C -315.92812,792.38816 -303.97456,790.19207 -303.97456,790.19207"
+       id="path25477"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.59999999999999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -390.42553,768.31963 L -303.19149,800.23452"
+       id="path25479" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.59999999999999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -389.3617,781.08559 L -302.12766,806.6175"
+       id="path26002" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -389.3617,793.85154 L -304.25532,810.87282"
+       id="path26525" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.58309281;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -389.37015,803.41756 L -303.19429,815.17573"
+       id="path27048" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.76646799;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -389.27847,815.21137 L -303.27386,818.69012"
+       id="path27571" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -391.48936,827.8941 L -303.19149,822.57495"
+       id="path28094" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -391.48936,838.5324 L -305.31915,826.83027"
+       id="path28617" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -389.48936,850.23452 L -304.38298,828.95793"
+       id="path29140" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.84246361px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -302.06616,833.37864 C -302.06616,833.37864 -308.85712,826.78949 -309.59663,841.91668 C -309.90538,848.23238 -310.14376,844.74502 -315.96494,850.12104 C -310.198,854.57358 -309.11629,863.39021 -308.88773,866.38881 C -308.00622,877.95363 -300.54868,874.50551 -300.54868,874.50551"
+       id="path29663"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.73183268;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -371.33833,951.23661 L -304.42174,961.35142"
+       id="path29665" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.89461714;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -373.3846,972.42764 L -303.46458,965.30272"
+       id="path30188" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -357.44681,413.00048 L -304.25532,437.46857"
+       id="path30945" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.43243381;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -357.43059,424.71883 L -305.3603,439.57919"
+       id="path31468" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -356.38298,439.59623 L -304.25532,442.78771"
+       id="path31991" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -356.38298,447.04303 L -307.44681,444.91537"
+       id="path32514" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -357.44681,457.68133 L -308.51064,447.04303"
+       id="path33037" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.7;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="M -322.34043,463.00048 L -304.25532,453.42601"
+       id="path33560" />
+    <text
+       xml:space="preserve"
+       style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-90.844673"
+       y="-64.061768"
+       id="text34083"><tspan
+         sodipodi:role="line"
+         id="tspan34085"
+         x="-90.844673"
+         y="-64.061768">USA</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-326.37854"
+       y="-75.456787"
+       id="text34087"><tspan
+         sodipodi:role="line"
+         id="tspan34089"
+         x="-326.37854"
+         y="-75.456787">UNKNOWN</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="85.023682"
+       y="145.09485"
+       id="text34091"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34093"
+         x="85.023682"
+         y="145.09485">Canada</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="85.023682"
+       y="158.11613"
+       id="text34095"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34097"
+         x="85.023682"
+         y="158.11613">Cape Verde</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="84.519775"
+       y="170.07359"
+       id="text34099"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34101"
+         x="84.519775"
+         y="170.07359">Portugal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="84.519775"
+       y="181.22252"
+       id="text34103"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34105"
+         x="84.519775"
+         y="181.22252">Morroco</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="84.519775"
+       y="191.73314"
+       id="text34107"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34109"
+         x="84.519775"
+         y="191.73314">Ireland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="48.906494"
+       y="197.6906"
+       id="text34111"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34113"
+         x="48.906494"
+         y="197.6906">Spain</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+       x="301.61835"
+       y="-73.259392"
+       id="text34115"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan34117"
+         x="301.61835"
+         y="-73.259392">UK</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="459.19409"
+       y="-61.616943"
+       id="text34119"><tspan
+         sodipodi:role="line"
+         id="tspan34121"
+         x="459.19409"
+         y="-61.616943">France</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.37523"
+       y="500.62677"
+       id="text34123"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34125"
+         x="117.37523"
+         y="500.62677">Belgium</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.37523"
+       y="513.3927"
+       id="text34127"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34129"
+         x="117.37523"
+         y="513.3927">Neatherlands</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.37523"
+       y="526.28644"
+       id="text34131"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34133"
+         x="117.37523"
+         y="526.28644">Finland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.76195"
+       y="536.24384"
+       id="text34135"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34137"
+         x="117.76195"
+         y="536.24384">Switzerland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.37523"
+       y="547.94598"
+       id="text34139"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34141"
+         x="117.37523"
+         y="547.94598">Norway</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.37523"
+       y="559.35028"
+       id="text34143"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34145"
+         x="117.37523"
+         y="559.35028">Italy</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.37523"
+       y="571.56299"
+       id="text34147"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34149"
+         x="117.37523"
+         y="571.56299">Denmark</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="117.37523"
+       y="584.32898"
+       id="text34151"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34153"
+         x="117.37523"
+         y="584.32898">Libya</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="565.45312"
+       y="-47.051025"
+       id="text34155"><tspan
+         sodipodi:role="line"
+         id="tspan34157"
+         x="565.45312"
+         y="-47.051025">Germany</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="627.20081"
+       y="-59.564697"
+       id="text34159"><tspan
+         sodipodi:role="line"
+         id="tspan34161"
+         x="627.20081"
+         y="-59.564697">Czech</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="101.26196"
+       y="684.45654"
+       id="text34163"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34165"
+         x="101.26196"
+         y="684.45654">Croatia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="101.84204"
+       y="705.22253"
+       id="text34167"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34169"
+         x="101.84204"
+         y="705.22253">Austria</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+       x="738.1311"
+       y="-72.355225"
+       id="text34171"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan34173"
+         x="738.1311"
+         y="-72.355225">Sweden</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.54517"
+       y="780.58423"
+       id="text34175"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34177"
+         x="177.54517"
+         y="780.58423">Serbia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="795.3501"
+       id="text34179"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34181"
+         x="177.15845"
+         y="795.3501">Poland</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="808.11609"
+       id="text34183"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34185"
+         x="177.15845"
+         y="808.11609">Bulgaria</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="821.00977"
+       id="text34187"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34189"
+         x="177.15845"
+         y="821.00977">Lithuania</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="832.58423"
+       id="text34191"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34193"
+         x="177.15845"
+         y="832.58423">Romania</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.29321"
+       y="846.54163"
+       id="text34195"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34197"
+         x="177.29321"
+         y="846.54163">Ukraine</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="178.37134"
+       y="860.37146"
+       id="text34199"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34201"
+         x="178.37134"
+         y="860.37146">Turkey</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="872.20129"
+       id="text34203"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34205"
+         x="177.15845"
+         y="872.20129">Russia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="178.24243"
+       y="887.90332"
+       id="text34207"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34209"
+         x="178.24243"
+         y="887.90332">Armenia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.66235"
+       y="900.797"
+       id="text34211"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34213"
+         x="177.66235"
+         y="900.797">Georgia</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="178.24243"
+       y="913.81824"
+       id="text34215"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34217"
+         x="178.24243"
+         y="913.81824">Azerbaijan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="178.37134"
+       y="928.71179"
+       id="text34219"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34221"
+         x="178.37134"
+         y="928.71179">Tajikistan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.29321"
+       y="941.05237"
+       id="text34223"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34225"
+         x="177.29321"
+         y="941.05237">Uzbekistan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="954.07349"
+       id="text34227"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34229"
+         x="177.15845"
+         y="954.07349">Kazakhstan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="967.77576"
+       id="text34231"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34233"
+         x="177.15845"
+         y="967.77576">Kyrgyzstan</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.15845"
+       y="982.79694"
+       id="text34235"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34237"
+         x="177.15845"
+         y="982.79694">India</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="177.66235"
+       y="997.69067"
+       id="text34239"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34241"
+         x="177.66235"
+         y="997.69067">China</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="178.95728"
+       y="1009.3926"
+       id="text34243"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan34245"
+         x="178.95728"
+         y="1009.3926">Japan</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -293.58598,-59.537103 L -293.58598,-26.558403"
+       id="path34247" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M -285.07534,-34.005203 C -285.07534,-34.005203 -290.80055,-50.214603 -229.56918,-49.897303 C -189.91509,-49.688203 -106.28486,-43.676703 -70.181732,-60.601003 C -34.078592,-46.674203 21.240408,-48.685103 109.62349,-48.932903 C 167.28617,-49.096603 162.797,-32.941403 162.797,-32.941403"
+       id="path34249"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 194.35532,-33.298203 C 194.35532,-33.298203 187.60191,-44.950103 238.15934,-48.126403 C 262.88583,-49.679903 289.10324,-49.352603 312.44042,-63.085403 C 330.45845,-51.286303 345.35192,-49.041903 372.03287,-48.225903 C 429.66884,-46.463103 437.97234,-26.915203 437.97234,-26.915203"
+       id="path34251"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 701.67316,-29.787203 C 701.67316,-29.787203 703.65586,-57.543303 738.03036,-56.317603 C 753.27946,-55.773903 760.25096,-59.671503 768.69446,-64.893603 C 786.71256,-53.094503 799.45246,-49.207103 811.26566,-48.970303 C 849.64196,-48.179503 843.16256,-25.531903 843.16256,-25.531903"
+       id="path34253"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.85000002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 869.30766,-173.3733 L 869.30766,-26.530703"
+       id="path34255" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.7023989;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 859.16686,-173.466 L 864.28226,-26.753703"
+       id="path34257" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.64221948;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 845.27326,-173.4397 L 860.82816,-28.456603"
+       id="path34259" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.58242315;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 777.68186,-173.526 L 845.78776,-29.880203"
+       id="path34261" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 792.58426,-173.5172 L 846.83956,-28.836303"
+       id="path34263" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.61796939;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 805.35916,-173.5082 L 850.02226,-26.744203"
+       id="path34265" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.63788778;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 818.13506,-173.4982 L 853.20366,-27.847803"
+       id="path34267" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.528;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 828.76856,-173.503 L 855.34626,-27.848103"
+       id="path34269" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.65813184;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 885.10846,-173.4881 L 874.60536,-29.972303"
+       id="path34271" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.56867605;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 897.75336,-173.4947 L 879.75936,-29.958003"
+       id="path34273" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.55351746;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 910.51476,-173.5404 L 883.97256,-31.124503"
+       id="path34275" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 924.48786,-173.5059 L 888.33716,-33.149203"
+       id="path34277" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.43496501;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 937.24756,-173.5997 L 890.47326,-33.265303"
+       id="path34279" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 951.06396,-173.4863 L 892.61556,-32.141403"
+       id="path34281" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 964.90378,-173.5463 L 894.73466,-33.211203"
+       id="path34283" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.43319204;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 978.73788,-173.6006 L 895.79226,-30.056803"
+       id="path34285" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.33315146;stroke-linecap:butt;stroke-linejoin:miter;marker-mid:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 993.63148,-173.6506 L 896.85606,-27.975703"
+       id="path34287" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.40000001;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 1007.453,-173.5923 L 897.92816,-26.884103"
+       id="path34289" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 613.38985,-27.446103 C 613.38985,-27.446103 604.71185,-37.355603 628.47035,-38.019003 C 638.38975,-38.296003 637.92505,-41.372903 646.36855,-46.595003 C 653.36165,-41.421503 667.20885,-40.451103 671.91845,-40.246103 C 690.08196,-39.455303 684.66646,-32.765203 684.66646,-32.765203"
+       id="path34291"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 447.43541,-27.341503 C 447.43541,-27.341503 443.01274,-39.378703 466.77128,-40.042103 C 476.69062,-40.319103 474.09827,-44.459803 482.54177,-49.681903 C 489.53484,-44.508403 491.67998,-39.282703 503.83636,-40.141503 C 521.9719,-41.422703 519.77581,-29.469203 519.77581,-29.469203"
+       id="path34293"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 497.90337,-115.9201 L 529.81826,-28.686103"
+       id="path34295" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 510.66933,-114.8563 L 536.20124,-27.622303"
+       id="path34297" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 523.43528,-114.8563 L 540.45656,-29.749903"
+       id="path34299" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.58309281;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 533.0013,-114.8648 L 544.75947,-28.688903"
+       id="path34301" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.76646799;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 544.79511,-114.7731 L 548.27386,-28.768503"
+       id="path34303" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.80000001;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 557.47785,-116.984 L 552.15869,-28.686103"
+       id="path34305" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 568.11615,-116.984 L 556.41405,-30.813803"
+       id="path34307" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 579.81825,-114.984 L 558.54165,-29.877603"
+       id="path34309" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.84246361px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-opacity:1"
+       d="M 562.96235,-27.560803 C 562.96235,-27.560803 556.37325,-34.351703 571.50045,-35.091203 C 577.81615,-35.400003 574.32875,-35.638403 579.70475,-41.459503 C 584.15735,-35.692603 592.97395,-34.610903 595.97255,-34.382303 C 607.53735,-33.500803 604.08925,-26.043303 604.08925,-26.043303"
+       id="path34311"
+       sodipodi:nodetypes="cscsc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.73183268;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 680.82035,-96.8329 L 690.93516,-29.916303"
+       id="path34313" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.89461714;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 702.01136,-98.8792 L 694.88646,-28.959203"
+       id="path34315" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.40000001;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 142.58423,-82.941403 L 167.05232,-29.749903"
+       id="path34317" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.43243381;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 154.30258,-82.925203 L 169.16294,-30.854903"
+       id="path34319" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 169.17998,-81.877603 L 172.37146,-29.749903"
+       id="path34321" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.40000001;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 176.62678,-81.877603 L 174.49912,-32.941403"
+       id="path34323" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.30000001;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 187.26508,-82.941403 L 176.62678,-34.005203"
+       id="path34325" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 192.58423,-47.835003 L 183.00976,-29.749903"
+       id="path34327" />
+    <image
+       y="-24.552685"
+       x="922.18079"
+       id="image35188"
+       height="190"
+       width="45"
+       sodipodi:absref="/usr/local/home_ubuntu/crocea/script/variation/doc/PopulationStructure/0_0.3_legend.png"
+       xlink:href="0_0.3_legend.png" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.69999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path35192"
+       sodipodi:cx="47.340427"
+       sodipodi:cy="315.12814"
+       sodipodi:rx="12.234042"
+       sodipodi:ry="10.638298"
+       d="M 59.57447,315.12814 A 12.234042,10.638298 0 1 1 35.106385,315.12814 A 12.234042,10.638298 0 1 1 59.57447,315.12814 z"
+       transform="matrix(1.0007027,0,0,0.9508081,-3.3267568e-2,16.969824)" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.60000001999999997;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:7.20000029000000019, 7.20000029000000019;marker-mid:none;stroke-dashoffset:0;marker-end:url(#Arrow1Lend)"
+       d="M 47.872341,325.76644 C 47.872341,325.76644 283.48109,1095.5982 139.36171,1192.7877 C 88.043797,1227.3949 47.87234,1171.5111 47.87234,1171.5111"
+       id="path35715"
+       sodipodi:nodetypes="csc" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="72.127663"
+       y="1218.9579"
+       id="text37809"><tspan
+         sodipodi:role="line"
+         id="tspan37811"
+         x="72.127663"
+         y="1218.9579">From Ex-Soviet Area? The American strains come from MNF-River, a town on the east side of lake Michigan.</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.8,4.8;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -44.68086,1228.9579 L -229.78723,481.08559"
+       id="path37813" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.36;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.32,4.32;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -45.670794,1228.4458 L -229.75502,559.25726"
+       id="path39396" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.38;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.56,4.56;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -45.09082,1229.691 L -229.19741,605.16098"
+       id="path39398" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.38;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.56,4.56;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -44.100223,1230.6014 L -229.30404,673.0592"
+       id="path39400" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.38;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.56,4.56;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -44.551282,1233.4269 L -227.78914,931.04215"
+       id="path39402" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.38;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.56,4.56;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -44.519797,1232.3945 L -226.75681,1008.6702"
+       id="path39404" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.40000001;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.80000007,4.80000007;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -44.95889,1229.5938 L -226.31771,1145.0455"
+       id="path39406" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.35013106;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.20157292, 4.20157292;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -43.508422,1231.9805 L -225.98094,1167.5951"
+       id="path39408" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-118.08511"
+       y="1244.9154"
+       id="text39410"><tspan
+         sodipodi:role="line"
+         id="tspan39412"
+         x="-118.08511"
+         y="1244.9154">American strains are mixup of strains from several different countries? Those non-US strains are mostly not close under 0.3 cutoff except Gifu-2 from</tspan><tspan
+         sodipodi:role="line"
+         x="-118.08511"
+         y="1259.9154"
+         id="tspan39418">japan, Bij from russia, 13B5 from UK's 13 Strato and Doubravnik6 from Czech.</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.35195562;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.22346747, 4.22346747;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -45.681942,1231.9984 L -229.84997,751.02387"
+       id="path39414" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.32136106;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:3.85633297, 3.85633297;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -45.022388,1233.4026 L -227.31804,1073.4495"
+       id="path39416" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.77999997;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path39420"
+       sodipodi:cx="335.63831"
+       sodipodi:cy="868.31964"
+       sodipodi:rx="4.7872338"
+       sodipodi:ry="8.5106382"
+       d="M 340.42554,868.31964 A 4.7872338,8.5106382 0 1 1 330.85107,868.31964 A 4.7872338,8.5106382 0 1 1 340.42554,868.31964 z" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:6, 6;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 409.72893,1178.2556 L 338.45233,878.25556"
+       id="path39422" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="386.1702"
+       y="1187.4686"
+       id="text40478"><tspan
+         sodipodi:role="line"
+         id="tspan40480"
+         x="386.1702"
+         y="1187.4686">Contamination example:</tspan><tspan
+         sodipodi:role="line"
+         x="386.1702"
+         y="1202.4686"
+         id="tspan42085">    One contaminated UK strain from a Germany haplotype group from &quot;GOT&quot;.</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.57333368;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:4.58666946, 4.58666946;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -200.03667,-163.5586 L -284.00588,-20.01491"
+       id="path40484" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="-204.25531"
+       y="-167.51016"
+       id="text41013"><tspan
+         sodipodi:role="line"
+         id="tspan41015"
+         x="-204.25531"
+         y="-167.51016">This american haplotype group got spread both within US and in other countries.</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.49065879;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:5.88790542, 5.88790542;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 936.17488,842.78304 L 609.5698,874.74701"
+       id="path41017" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="939.36169"
+       y="842.78772"
+       id="text42073"><tspan
+         sodipodi:role="line"
+         id="tspan42075"
+         x="939.36169"
+         y="842.78772">Contamination example:</tspan><tspan
+         sodipodi:role="line"
+         x="939.36169"
+         y="857.78772"
+         id="tspan42087">    One 7-member Germany group</tspan><tspan
+         sodipodi:role="line"
+         x="939.36169"
+         y="872.78772"
+         id="tspan42077">has matches from UK, France, Czech, Sweden.</tspan><tspan
+         sodipodi:role="line"
+         x="939.36169"
+         y="887.78772"
+         id="tspan42079" /><tspan
+         sodipodi:role="line"
+         x="939.36169"
+         y="902.78772"
+         id="tspan42081">It turns out this group is from &quot;Ler&quot;.</tspan><tspan
+         sodipodi:role="line"
+         x="939.36169"
+         y="917.78772"
+         id="tspan42083">I suppose it's the famous Landsberg.</tspan></text>
+  </g>
+</svg>
