@@ -34,14 +34,17 @@ class MpiGeneListRankTest(GeneListRankTest):
 	option_default_dict = GeneListRankTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
+	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))
 	option_default_dict.pop(("results_method_id_ls", 1, ))
 	
 	def __init__(self,  **keywords):
 		GeneListRankTest.__init__(self, **keywords)
 	
-	def generate_params(self, call_method_id, min_no_of_genes=10):
+	def generate_params(self, param_obj, min_no_of_genes=10):
 		"""
+		2008-09-10
+			add results_method filtering by analysis_method_id
 		2008-08-19
 			add call_method_id
 		2008-08-15
@@ -54,10 +57,11 @@ class MpiGeneListRankTest(GeneListRankTest):
 		sys.stderr.write("Generating parameters ...")
 		i = 0
 		block_size = 5000
-		if call_method_id!=0:
-			query = ResultsMethod.query.filter_by(results_method_type_id=1).filter_by(call_method_id=call_method_id)
-		else:
-			query = ResultsMethod.query.filter_by(results_method_type_id=1)
+		query = ResultsMethod.query.filter_by(results_method_type_id=1)
+		if param_obj.call_method_id!=0:
+			query = query.filter_by(call_method_id=param_obj.call_method_id)
+		if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
+			query = query.filter_by(analysis_method_id=param_obj.analysis_method_id)
 		rows = query.offset(i).limit(block_size)
 		results_method_id_ls = []
 		while rows.count()!=0:
@@ -185,7 +189,8 @@ class MpiGeneListRankTest(GeneListRankTest):
 		
 		if node_rank == 0:
 			snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
-			params_ls = self.generate_params(self.call_method_id)
+			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id)
+			params_ls = self.generate_params(param_obj)
 			if self.debug:
 				params_ls = params_ls[:100]
 			snps_context_wrapper_pickle = cPickle.dumps(snps_context_wrapper, -1)
