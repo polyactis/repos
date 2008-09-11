@@ -32,6 +32,7 @@ from QC_149 import QC_149
 class QC_149_cross_match(QC_149):
 	__doc__ = __doc__
 	option_default_dict = QC_149.option_default_dict.copy()
+	option_default_dict.update({('input_fname', 0, ):[None, '', 1, 'Get 149SNP data from this file instead of database.']})
 	option_default_dict.pop(('input_dir', 0, ))
 	option_default_dict.pop(('max_call_info_mismatch_rate', 0, float,))
 	
@@ -73,22 +74,27 @@ class QC_149_cross_match(QC_149):
 	
 	def prepareTwoSNPData(self, db):
 		"""
+		2008-09-10
+			if self.input_fname is given, get 149SNP data from it , instead of database
 		2008-8-28
 			split out of run() so that MpiQC149CrossMatch could call this easily
 		"""
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
-		from dbSNP2data import dbSNP2data
-		snp_id2index, snp_id_list, snp_id2info = dbSNP2data.get_snp_id2index_m(curs, StockDB.Calls.table.name, StockDB.SNPs.table.name)
-		strain_info_data = self.get_strain_id_info(self.QC_method_id, ignore_strains_with_qc=False)
-		data_matrix = self.get_data_matrix(db, strain_info_data.strain_id2index, snp_id2index, StockDB.Calls.table.name)
-		strain_acc_list = [strain_info_data.strain_id2acc[strain_id] for strain_id in strain_info_data.strain_id_list]	#tg_ecotypeid
-		category_list = [strain_info_data.strain_id2category[strain_id] for strain_id in strain_info_data.strain_id_list]	#strainid
-		header = ['ecotypeid', 'strainid']
-		for snp_id in snp_id_list:
-			snp_name, chromosome, position = snp_id2info[snp_id]
-			header.append(snp_name)
+		if self.input_fname:
+			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname)
+		else:
+			from dbSNP2data import dbSNP2data
+			snp_id2index, snp_id_list, snp_id2info = dbSNP2data.get_snp_id2index_m(curs, StockDB.Calls.table.name, StockDB.SNPs.table.name)
+			strain_info_data = self.get_strain_id_info(self.QC_method_id, ignore_strains_with_qc=False)
+			data_matrix = self.get_data_matrix(db, strain_info_data.strain_id2index, snp_id2index, StockDB.Calls.table.name)
+			strain_acc_list = [strain_info_data.strain_id2acc[strain_id] for strain_id in strain_info_data.strain_id_list]	#tg_ecotypeid
+			category_list = [strain_info_data.strain_id2category[strain_id] for strain_id in strain_info_data.strain_id_list]	#strainid
+			header = ['ecotypeid', 'strainid']
+			for snp_id in snp_id_list:
+				snp_name, chromosome, position = snp_id2info[snp_id]
+				header.append(snp_name)
 		snpData1 = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix, \
 						snps_table='stock.snps')	#snps_table is set to the stock_250k snps_table
 		if self.QC_method_id==4:
