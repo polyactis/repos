@@ -539,6 +539,10 @@ class DrawMatrix(object):
 			im.save(fig_fname)
 		
 	def run(self):
+		"""
+		2008-09-10
+			in case chop the whole figure into blocks, swap col_block_index and row_block_index to make row first, column 2nd
+		"""
 		from SNP import read_data
 		from utils import figureOutDelimiter, PassingData
 		delimiter = figureOutDelimiter(self.input_fname)
@@ -576,7 +580,7 @@ class DrawMatrix(object):
 						row_start_index = j*self.row_step_size
 						row_end_index = (j+1)*self.row_step_size
 						if row_start_index<no_of_rows:
-							fig_fname = '%s_%s_%s.png'%(fig_fname_prefix, i, j)
+							fig_fname = '%s_%s_%s.png'%(fig_fname_prefix, j, i)	#row first, column 2nd
 							self._drawMatrix(data_matrix[row_start_index:row_end_index,col_start_index:col_end_index], row_label_ls1[row_start_index:row_end_index], \
 											header[2+col_start_index:2+col_end_index], fig_fname, passParam)
 			
