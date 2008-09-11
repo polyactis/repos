@@ -28,12 +28,14 @@ from TopSNPTest import TopSNPTest
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, CandidateGeneTopSNPTest
 from sets import Set
 from MpiGeneListRankTest import MpiGeneListRankTest
+from GeneListRankTest import SnpsContextWrapper
 
 class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest):
 	__doc__ = __doc__
 	option_default_dict = TopSNPTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
+	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))	#already poped in MpiGeneListRankTest
 	option_default_dict.pop(("results_method_id_ls", 1, ))
 	
@@ -104,9 +106,10 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest):
 		
 		if node_rank == 0:
 			pdata_for_computing = PassingData()
-			pdata_for_computing.snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
+			pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 			pdata_for_computing.no_of_total_genes = self.getNoOfTotalGenes(db, self.gene_table, self.tax_id)
-			params_ls = self.generate_params(self.call_method_id)
+			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=getattr(self, 'analysis_method_id', None))
+			params_ls = self.generate_params(param_obj)
 			if self.debug:
 				params_ls = params_ls[:100]
 			pdata_for_computing_pickle = cPickle.dumps(pdata_for_computing, -1)
