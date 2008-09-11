@@ -92,6 +92,8 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 	
 	def computing_node_handler(self, communicator, data, computing_parameter_obj):
 		"""
+		2008-09-10
+			add source_id to PassingData
 		2008-08-28
 		"""
 		node_rank = communicator.rank
@@ -107,39 +109,46 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 				target_id = row_id2[1]
 			else:
 				target_id = row_id2
-			qc_cross_match = PassingData(strainid=row_id1[1], target_id=target_id, mismatch_rate=mismatch_rate, \
+			qc_cross_match = PassingData(source_id=row_id1[0], strainid=row_id1[1], target_id=target_id, mismatch_rate=mismatch_rate, \
 												no_of_mismatches=no_of_mismatches, no_of_non_NA_pairs=no_of_non_NA_pairs)
 			result_ls.append(qc_cross_match)
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
 		return result_ls
 	
-	def output_node_handler(self, communicator, parameter_list, data):
+	def output_node_handler(self, communicator, param_obj, data):
 		"""
+		2008-09-10
+			write header in this function. the output columns are directly guessed from the data passed from computing_node.
 		2008-08-28
 			add functionality to output into file
 		2008-08-28
 		"""
-		writer, session, commit, QC_method_id, readme = parameter_list
+		#writer, session, commit, QC_method_id, readme = parameter_list
 		table_obj_ls = cPickle.loads(data)
 		for table_obj in table_obj_ls:
-			if writer:
+			if param_obj.writer:
+				if not param_obj.is_header_written:
+					header_row = []
+					for column_name in table_obj.__dict__:
+						header_row.append(column_name)
+					header_row.append('qc_method_id')
+					param_obj.writer.writerow(header_row)
+					param_obj.is_header_written = True
 				row = []
-				for column in StockDB.QCCrossMatch.c.keys():
-					if column=='qc_method_id':
-						row.append(QC_method_id)
-					else:
-						row.append(getattr(table_obj, column, None))
-				writer.writerow(row)
+				for column in table_obj.__dict__:	#table_obj has one id that QCCrossMatch table doesn't, source_id
+					row.append(getattr(table_obj, column, None))
+				row.append(param_obj.QC_method_id)
+				param_obj.writer.writerow(row)
 			else:
 				qc_cross_match = StockDB.QCCrossMatch()
 				#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
 				#can't save table_obj because it's associated with a different db thread
 				for column in qc_cross_match.c.keys():	#it's qc_cross_match, not table_obj because table_obj is not linked to db.
 					setattr(qc_cross_match, column, getattr(table_obj, column, None))
-				qc_cross_match.qc_method_id = QC_method_id
-				qc_cross_match.readme = readme
-				session.save(qc_cross_match)
-				if commit:
+				qc_cross_match.qc_method_id = param_obj.QC_method_id
+				qc_cross_match.readme = param_obj.readme
+				param_obj.session.save(qc_cross_match)
+				if param_obj.commit:
 					session.flush()
 	
 	def run(self):
@@ -184,14 +193,10 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 		else:
 			if getattr(self, 'output_fname', None):
 				writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
-				header_row = []
-				for column in StockDB.QCCrossMatch.c.keys():
-					header_row.append(column)
-				writer.writerow(header_row)
 			else:
 				writer = None
-			parameter_list = [writer, session, self.commit, self.QC_method_id, readme]
-			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
+			param_obj = PassingData(writer=writer, session=session, commit=self.commit, QC_method_id=self.QC_method_id, readme=readme, is_header_written=False)
+			mw.output_node(free_computing_nodes, param_obj, self.output_node_handler)
 			del writer
 		mw.synchronize()	#to avoid some node early exits
 
