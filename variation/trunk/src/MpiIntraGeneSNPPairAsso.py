@@ -16,7 +16,9 @@ Description:
 	Program to do intra-gene SNP pair association. Each SNP pair is tested by 5 different boolean operations
 	(AND, Inhibition, Inhibition, XOR, OR).
 	
-	Input is StrainXSNP matrix with SNP 0 or 1 or <0(=NA).
+	Input is StrainXSNP matrix with SNP 0 or 1 or <0(=NA). Be careful in choosing the block_size which determines the lower bound of #tests each computing node handles.
+		The input node tells the computing node which genes it should work on. A computing node might have to deal with lots of tests regardless of the block_size, if one gene has lots of SNPs in it with #tests far exceeding the lower bound.
+		The amount each computing node handles is multiplied by the number of phenotypes. Different genes harbor different no of SNPs.
 	
 """
 import sys, os, math
@@ -51,7 +53,7 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 							('phenotype_fname', 1, ): [None, 'p', 1, 'phenotype file. Same format as input_fname. but replace the data matrix with phenotype data.', ],\
 							('min_data_point', 1, int): [3, 'm', 1, 'minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test'],\
 							('phenotype_index_ls', 0, ): [None, 'w', 1, 'which phenotypes to work on. a comma-separated list of column index in the phenotype file, starting from 0. Default is to take all.',],\
-							('block_size', 1, int):[500, 's', 1, 'square of it is the number (or half of that) of LDs each computing node handles. Imagine a SNPXSNP LD matrix. block_size is the dimension of the block each node handles.'],\
+							('block_size', 1, int):[1000, 's', 1, 'Minimum number of tests each computing node is gonna handle. The computing node loops over all phenotypes, test all pairwise SNPs within a gene.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -92,20 +94,32 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 		sys.stderr.write("Done.\n")
 		return gene_id2snps_id_ls
 	
-	def generate_params(self, no_of_genes, block_size=1000):
+	def generate_params(self, pdata, block_size=1000):
 		"""
+		2008-09-09
+			estimate the number of tests each gene would encompass, and decide how many genes should be included in a set to send out
 		2008-09-06
 			each node handles a certain number of genes.
 		"""
 		sys.stderr.write("Generating parameters ...")
 		params_ls = []
-		no_of_blocks = int(no_of_genes/block_size)+1
-		for i in range(no_of_blocks+1):
-			min_index1 = i*block_size
-			if min_index1>=no_of_genes:	#out of bound ignore
-				continue
-			stop1 = min((i+1)*block_size, no_of_genes)
-			params_ls.append((min_index1,stop1))
+		no_of_phenotypes = len(pdata.phenotype_index_ls)
+		start_index = 0	#for each computing node: the index of gene >= start_index
+		no_of_genes = len(pdata.gene_id2snps_id_ls)
+		no_of_tests_per_node = 0
+		for i in range(no_of_genes):
+			gene_id = pdata.gene_id_ls[i]
+			n = len(pdata.gene_id2snps_id_ls[gene_id])	#no_of_snps_of_this_gene
+			est_no_of_tests = (n*(n-1)*5/2.0 + n)*no_of_phenotypes	#this is the upper bound for the number of tests for each gene on a computing node. data missing would make the number smaller.
+			no_of_tests_per_node += est_no_of_tests
+			if no_of_tests_per_node>=block_size:
+				params_ls.append((start_index, i+1))
+				#reset the starting pointer to the index of the next gene
+				start_index = i+1
+				no_of_tests_per_node = 0	#reset this to 0
+			elif i==no_of_genes-1:	#this is the last gene, have to include them
+				params_ls.append((start_index, i+1))
+				#no need to cleanup because this is the end of loop
 		sys.stderr.write("Done.\n")
 		return params_ls
 	
@@ -237,6 +251,11 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 			phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, data_matrix=data_matrix_phen)
 			phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, phenData.row_id_ls, phenData.data_matrix)
 			
+			if not self.phenotype_index_ls:
+				self.phenotype_index_ls = range(len(phenData.col_id_ls))
+			pdata = PassingData(gene_id_ls=gene_id_ls, gene_id2snps_id_ls=gene_id2snps_id_ls, phenotype_index_ls=self.phenotype_index_ls)
+			params_ls = self.generate_params(pdata, self.block_size)
+			
 			other_data = PassingData(gene_id2snps_id_ls=gene_id2snps_id_ls, gene_id_ls=gene_id_ls, phenData=phenData)
 			other_data_pickle = cPickle.dumps(other_data, -1)
 			phenotype_label_ls_pickle = cPickle.dumps(phenData.col_id_ls, -1)
@@ -254,7 +273,6 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 				self.communicator.send(other_data_pickle, node, 0)
 				sys.stderr.write(".\n")
 			del snpData_pickle, other_data_pickle
-			params_ls = self.generate_params(len(gene_id_ls), self.block_size)
 			del other_data
 			
 		elif node_rank in free_computing_node_set:
