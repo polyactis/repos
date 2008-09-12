@@ -34,6 +34,7 @@ class MpiLD(MPIwrapper):
 	option_default_dict = {('input_fname',1, ): [None, 'i', 1, 'a file containing StrainXSNP matrix.'],\
 							("output_fname", 1, ): [None, 'o', 1, 'Filename to store data matrix'],\
 							('block_size', 1, int):[1000, 's', 1, 'square of it is the number (or half of that) of LDs each computing node handles. Imagine a SNPXSNP LD matrix. block_size is the dimension of the block each node handles.'],\
+							("min_r2_to_output", 1, float): [0.3, 'm', 1, 'output LD data with r2 above this cutoff'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -116,6 +117,8 @@ class MpiLD(MPIwrapper):
 	
 	def computing_node_handler(self, communicator, data, computing_parameter_obj):
 		"""
+		2008-09-12
+			filter r2 below min_r2_to_output
 		2008-09-06
 			data from input_node is changed
 		2008-09-05
@@ -133,7 +136,7 @@ class MpiLD(MPIwrapper):
 					col_id1 = snpData.col_id_ls[i]
 					col_id2 = snpData.col_id_ls[j]
 					LD_data = snpData.calLD(col_id1, col_id2)
-					if LD_data is not None:
+					if LD_data is not None and LD_data.r2>=computing_parameter_obj.min_r2_to_output:
 						result_ls.append(LD_data)
 						
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
@@ -211,7 +214,7 @@ class MpiLD(MPIwrapper):
 			self.input_node(param_obj, free_computing_nodes, input_handler=self.input_handler, message_size=1)
 			#self.input_node(param_obj, free_computing_nodes, self.message_size)
 		elif node_rank in free_computing_node_set:
-			computing_parameter_obj = PassingData(snpData=snpData)
+			computing_parameter_obj = PassingData(snpData=snpData, min_r2_to_output=self.min_r2_to_output)
 			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			if getattr(self, 'output_fname', None):
