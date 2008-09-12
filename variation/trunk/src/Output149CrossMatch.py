@@ -58,23 +58,31 @@ class Output149CrossMatch(object):
 	
 	def getStrainidTargetidFromFile(self, db, QC_method_id, input_fname, max_mismatch_rate, min_no_of_non_NAs=20):
 		"""
+		2008-09-10
+			column in input_fname is determined on the fly
 		2008-08-29
 			to get strain id and target id set from the qc_cross_match result file.
 		"""
 		sys.stderr.write("Getting set of strain_id & target_id ... \n")
-		i = 0
 		reader = csv.reader(open(input_fname), delimiter='\t')
-		reader.next()
+		#figure out which variable is in which column
+		header = reader.next()
+		col_name2index = {}
+		for i in range(len(header)):
+			column_name = header[i]
+			col_name2index[column_name] = i
+		
 		strain_id_set = Set()
 		target_id_set = Set()
+		i = 0
 		for row in reader:
-			id, strainid, target_id, qc_method_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, readme_id =row
-			strainid = int(strainid)
-			target_id = int(target_id)
-			qc_method_id = int(qc_method_id)
-			mismatch_rate = float(mismatch_rate)
-			no_of_mismatches = int(no_of_mismatches)
-			no_of_non_NA_pairs = int(no_of_non_NA_pairs)
+			#id, strainid, target_id, qc_method_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, readme_id =row
+			strainid = int(row[col_name2index['strainid']])	#2008-09-10
+			target_id = int(row[col_name2index['target_id']])
+			qc_method_id = int(row[col_name2index['qc_method_id']])
+			mismatch_rate = float(row[col_name2index['mismatch_rate']])
+			no_of_mismatches = int(row[col_name2index['no_of_mismatches']])
+			no_of_non_NA_pairs = int(row[col_name2index['no_of_non_NA_pairs']])
 			if qc_method_id == QC_method_id and no_of_non_NA_pairs>=min_no_of_non_NAs and mismatch_rate<=max_mismatch_rate:
 				if QC_method_id==4:	#strain_id_set = target_id_set
 					strain_id_set.add(strainid)
@@ -173,15 +181,25 @@ class Output149CrossMatch(object):
 		return return_data
 	
 	def get_data_matrixFromFile(self, db, strain_id_info, target_id_info,  QC_method_id, input_fname, max_mismatch_rate, min_no_of_non_NAs=20):
+		"""
+		2008-09-10
+			column in input_fname is determined on the fly
+		"""
 		sys.stderr.write("Getting data matrix from  %s ... \n"%input_fname)
 		data_matrix = num.zeros([len(strain_id_info.strain_id_ls), len(target_id_info.strain_id_ls)], num.float)
 		data_matrix[:] = -1
 		reader = csv.reader(open(input_fname), delimiter='\t')
-		reader.next()
+		#figure out which variable is in which column
+		header = reader.next()
+		col_name2index = {}
+		for i in range(len(header)):
+			column_name = header[i]
+			col_name2index[column_name] = i
 		min_value = None
 		max_value = None
 		i = 0
 		for row in reader:
+			"""
 			id, strainid, target_id, qc_method_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, readme_id =row
 			strainid = int(strainid)
 			target_id = int(target_id)
@@ -189,6 +207,13 @@ class Output149CrossMatch(object):
 			mismatch_rate = float(mismatch_rate)
 			no_of_mismatches = int(no_of_mismatches)
 			no_of_non_NA_pairs = int(no_of_non_NA_pairs)
+			"""
+			strainid = int(row[col_name2index['strainid']])
+			target_id = int(row[col_name2index['target_id']])
+			qc_method_id = int(row[col_name2index['qc_method_id']])
+			mismatch_rate = float(row[col_name2index['mismatch_rate']])
+			no_of_mismatches = int(row[col_name2index['no_of_mismatches']])
+			no_of_non_NA_pairs = int(row[col_name2index['no_of_non_NA_pairs']])
 			if qc_method_id == QC_method_id and no_of_non_NA_pairs>=min_no_of_non_NAs and mismatch_rate<=max_mismatch_rate:
 				row_index = strain_id_info.strain_id2index.get(strainid)
 				col_index = target_id_info.strain_id2index.get(target_id)
