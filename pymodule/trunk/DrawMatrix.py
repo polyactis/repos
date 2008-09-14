@@ -5,11 +5,14 @@ Examples:
 	
 	#font size=10, use custom font, matrix value is non-negative. only some special negative value is not ignored.
 	#value -2 is colored as black
-	DrawMatrix.py -i ./149CrossMatch_m4_a0.3.tsv -x ./banyan_fs//tmp/149CrossMatch_m4_a0.3.png -s 10 -e ./FreeSerif.ttf -m -u black
+	DrawMatrix.py -i ./149CrossMatch_m4_a0.3.tsv -x ./banyan_fs/tmp/149CrossMatch_m4_a0.3.png -s 10 -e ./FreeSerif.ttf -m -u black
 	
 	#partition rows into 2500-row blocks. Color legend is cut into 10 bands.
-	DrawMatrix.py -i ./149CrossMatch_m4_a0.1.tsv -x ./banyan_fs//tmp/149CrossMatch_m4_a0.1.png -s 10 -e ./FreeSerif.ttf -m -u black -o 2500 -t 10
-
+	DrawMatrix.py -i ./149CrossMatch_m4_a0.1.tsv -x ./banyan_fs/tmp/149CrossMatch_m4_a0.1.png -s 10 -e ./FreeSerif.ttf -m -u black -o 2500 -t 10
+	
+	#draw the whole matrix into one figure with small font (size=2) and do NOT draw the cell-separating grid.
+	DrawMatrix.py -i ./149CrossMatch_m4_a0.1.tsv -x ./banyan_fs/tmp/149CrossMatch_m4_a0.1.png -s 2 -e ./FreeSerif.ttf -m -u black -o 7000 -c 7000 -t 20 -n
+	
 Description:
 	2007-10-23
 	module to draw matrix into an image
