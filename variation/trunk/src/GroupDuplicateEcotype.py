@@ -299,6 +299,7 @@ class GroupDuplicateEcotype(object):
 		"""
 		db = StockDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		db.setup(create_tables=False)
 		session = db.session
 		session.begin()
 		
