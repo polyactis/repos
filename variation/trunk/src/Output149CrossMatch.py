@@ -7,10 +7,13 @@ Examples:
 	#QC_method_id=4, self-cross-match results are too huge and stored in a file. Image rendition is relegated to pymodule/DrawMatrix.py.
 	Output149CrossMatch.py -m 4 -i ~/panfs/149CrossMatch/149_cross_match.tsv -o /tmp/149CrossMatch_m4_a0.2.tsv -s 5 -r -a 0.2
 	
+	#pretty similar to above, but no drawing. and align strains according to sequenom plates.
+	Output149CrossMatch.py -m 4 -i ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match.tsv -o ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match_matrix_a0.3_g.tsv -a 0.3 -g
+	
 Description:
 	Output 149 QCCrossMatch results (output of QC_149_cross_match.py/MpiQC149CrossMatch.py) into matrix (and draw the matrix).
 	
-	All strains are grouped by country. Countries are in the order of longitude, latitude.
+	By default, all strains are grouped by country. Countries are in the order of longitude, latitude.
 	Within each country, strains are in the order of longitude, latitude.
 """
 import sys, os, math
@@ -22,7 +25,7 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import getopt, csv, math
 import Numeric, cPickle
 from pymodule import PassingData, importNumericArray, write_data_matrix, SNPData
-from variation.src import StockDB
+import StockDB
 from sets import Set
 from pymodule.DrawMatrix import drawMatrix, drawLegend, drawContinousLegend, get_font, combineTwoImages, Value2Color
 
@@ -45,6 +48,7 @@ class Output149CrossMatch(object):
 							("output_fname", 0, ): [None, 'o', 1, 'Filename to store data matrix'],\
 							("fig_fname", 0, ): [None, 'x', 1, 'File name for the figure'],\
 							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
+							("group_strains_by_sequenom_plate", 0, ): [0, 'g', 0, 'By default this program order/group strains by country, strain longitude. This option order/group strains by sequenom plate, country, strain longitude.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -133,6 +137,152 @@ class Output149CrossMatch(object):
 			else:
 				sitename = row.sitename
 			strain_label_ls.append('%s_%s_%s_%s'%(row.abbr, sitename, row.nativename, row.strainid))
+		strain_id_info = PassingData()
+		strain_id_info.strain_id_ls = strain_id_ls
+		strain_id_info.strain_id2index = strain_id2index
+		strain_id_info.strain_label_ls = strain_label_ls
+		sys.stderr.write("Done.\n")
+		return strain_id_info
+	
+	
+	def testAllPlateIDinPlateSet(self, plate_id_ls, plate_id2plate_set):
+		"""
+		2008-09-12
+		"""
+		plate_set = None
+		all_plate_id_in_plate_set = 1	#test whether all plate ids in previous plate sets or not
+		for plate_id in plate_id_ls:
+			if plate_id!=0:
+				if plate_id not in plate_id2plate_set:
+					all_plate_id_in_plate_set = 0
+					break
+				else:
+					if plate_set==None:
+						plate_set = plate_id2plate_set[plate_id]
+					elif plate_id2plate_set[plate_id]!=plate_set:
+						sys.stderr.write("This plate_id_ls, %s, has >1 plate_sets: %s, %s.\n"%(repr(plate_id_ls), plate_set, plate_id2plate_set[plate_id]))
+						all_plate_id_in_plate_set = 0
+						break
+		return_data = PassingData()
+		return_data.all_plate_id_in_plate_set = all_plate_id_in_plate_set
+		return_data.plate_set = plate_set
+		return return_data
+	
+	def alignStrainsAccordingToSeqPlate(self, db):
+		"""
+		2008-09-12
+			group strains by sequenom plate set(usually 4 plates comprise 1 set)
+		"""
+		sys.stderr.write("Aligning strainid according to sequenom plate ...")
+		#rows = db.metadata.bind.execute("select id, group_concat(seqinfoid order by seqinfoid) as plate_set from (select distinct s.id, c.seqinfoid from calls_byseq c, strain s where s.ecotypeid=c.ecotypeid and (s.plateid=c.plateid or s.plateid is NULL ) and (s.wellid=c.wellid  or s.wellid is null) order by s.id, c.seqinfoid, c.snpid ) as newt group by id order by plate_set")
+		rows = StockDB.Strain.query.all()
+		plate_set2strain_id_ls = {}
+		plate_set2index = {}
+		plate_id2plate_set = {}
+		unprocessed_plate_set2strain_id_ls = {}
+		seqinfoid_name_ls = ['seqinfoid1', 'seqinfoid2', 'seqinfoid3', 'seqinfoid4']
+		for row in rows:
+			plate_id_ls = []
+			four_plate_complete = True
+			for i in range(len(seqinfoid_name_ls)):
+				seqinfoid = getattr(row, seqinfoid_name_ls[i], None)
+				if seqinfoid is not None:
+					plate_id_ls.append(seqinfoid)
+				else:
+					plate_id_ls.append(0)
+					four_plate_complete = False
+			strain_id = row.id
+			plate_set = tuple(plate_id_ls)
+			if four_plate_complete:
+				if plate_set not in plate_set2index:
+					plate_set2index[plate_set] = len(plate_set2index)
+					for plate_id in plate_id_ls:
+						plate_id2plate_set[plate_id] = plate_set
+					plate_set2strain_id_ls[plate_set] = []
+				plate_set2strain_id_ls[plate_set].append(strain_id)
+			else:	#incomplete plate set, defer them to handle later
+				pdata = self.testAllPlateIDinPlateSet(plate_id_ls, plate_id2plate_set)
+				if pdata.all_plate_id_in_plate_set:
+					plate_set2strain_id_ls[pdata.plate_set].append(strain_id)
+				else:	#new plate_set, there might be complet 4-plate set to cover it later, so defer this.
+					if plate_set not in unprocessed_plate_set2strain_id_ls:
+						unprocessed_plate_set2strain_id_ls[plate_set] = []
+					unprocessed_plate_set2strain_id_ls[plate_set].append(strain_id)
+		
+		for unprocessed_plate_set, strain_id_ls in unprocessed_plate_set2strain_id_ls.iteritems():
+			plate_id_ls = unprocessed_plate_set
+			pdata = self.testAllPlateIDinPlateSet(plate_id_ls, plate_id2plate_set)
+			if pdata.all_plate_id_in_plate_set:
+				for strain_id in strain_id_ls:
+					plate_set2strain_id_ls[pdata.plate_set].append(strain_id)
+			else:	#new plate set
+				plate_set2index[unprocessed_plate_set] = len(plate_set2index)
+				for plate_id in plate_id_ls:
+					plate_id2plate_set[plate_id] = unprocessed_plate_set
+				plate_set2strain_id_ls[unprocessed_plate_set] = []
+				for strain_id in strain_id_ls:
+					plate_set2strain_id_ls[unprocessed_plate_set].append(strain_id)
+		
+		strain_id2plate_set = {}
+		for plate_set, strain_id_ls in plate_set2strain_id_ls.iteritems():
+			for strain_id in strain_id_ls:
+				strain_id2plate_set[strain_id] = plate_set
+		
+		plate_info = PassingData()
+		plate_info.plate_set2strain_id_ls = plate_set2strain_id_ls
+		plate_info.plate_set2index = plate_set2index
+		plate_info.plate_id2plate_set = plate_id2plate_set
+		plate_info.strain_id2plate_set = strain_id2plate_set
+		sys.stderr.write("Done.\n")
+		return plate_info
+	
+	def getStrainInfoGivenPlateInfo(self, db, plate_info, strain_id_info_query, strain_id_set=None):
+		"""
+		2008-09-13
+			order/group the strains according to plate_set, country, strain longitude
+			fetch appropriate labels for each strain
+		"""
+		sys.stderr.write("Getting strain_info given plate_info ...")
+
+		
+		#fetch appropriate label, and put strain id in country_longitude order within each plate
+		plate_set2strain_id_ls_in_GPS_order = {}
+		strain_id2label = {}
+		rows = db.metadata.bind.execute(strain_id_info_query)
+		for row in rows:
+			if strain_id_set and row.strainid not in strain_id_set:	#skip
+				continue
+			plate_set = plate_info.strain_id2plate_set[row.strainid]
+			if plate_set not in plate_set2strain_id_ls_in_GPS_order:
+				plate_set2strain_id_ls_in_GPS_order[plate_set] = []
+			plate_set2strain_id_ls_in_GPS_order[plate_set].append(row.strainid)
+			
+			if len(row.sitename)>10:	#cut short on the site name
+				sitename = row.sitename[:10]
+			else:
+				sitename = row.sitename
+			strain_label = '%s_%s_%s_%s_%s'%(row.abbr, sitename, row.nativename, row.strainid, repr(plate_set)[1:-1])
+			strain_id2label[row.strainid] = strain_label
+		
+		#put in plate_set order, assign row index
+		plate_set_ls = plate_set2strain_id_ls_in_GPS_order.keys()
+		plate_set_ls.sort()
+		no_of_plates = len(plate_set_ls)
+		strain_id_ls = []
+		strain_id2index = {}
+		strain_label_ls = []
+		for i in range(no_of_plates):
+			plate_set = plate_set_ls[i]
+			plate_strain_id_ls = plate_set2strain_id_ls_in_GPS_order[plate_set]
+			if i!=0:	#insert separator, but not before the first plate_set
+				strain_id2index[-i] = len(strain_id2index)
+				strain_id_ls.append(-i)
+				strain_label_ls.append('')
+			for strain_id in plate_strain_id_ls:
+				strain_id2index[strain_id] = len(strain_id2index)
+				strain_id_ls.append(strain_id)
+				strain_label_ls.append(strain_id2label[strain_id])
+		
 		strain_id_info = PassingData()
 		strain_id_info.strain_id_ls = strain_id_ls
 		strain_id_info.strain_id2index = strain_id2index
@@ -272,8 +422,7 @@ class Output149CrossMatch(object):
 		db.setup(create_tables=False)
 		session = db.session
 		order_by_sentence = " order by c.longitude, c.latitude, e.longitude, e.latitude, e.nativename "	#how to order strains.
-		if self.input_fname and self.QC_method_id==4:
-			id_set_data = self.getStrainidTargetidFromFile(db, self.QC_method_id, self.input_fname, self.max_mismatch_rate, self.min_no_of_non_NAs)
+		if self.QC_method_id ==4:
 			sql_table_str = "from %s e, %s s, %s a, %s c"%(StockDB.Ecotype.table.name, StockDB.Site.table.name, StockDB.Address.table.name,\
 								StockDB.Country.table.name)
 			common_where_condition = "where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id %s " + order_by_sentence
@@ -281,10 +430,6 @@ class Output149CrossMatch(object):
 			strain_where_condition = common_where_condition%(" and e.id=st.ecotypeid")
 			strain_id_info_query = "select distinct st.id as strainid, e.id as ecotypeid, e.nativename, s.name as sitename, c.abbr %s, %s st %s"%(sql_table_str, StockDB.Strain.table.name, strain_where_condition)
 		else:
-			id_set_data = PassingData()
-			id_set_data.strain_id_set = None
-			id_set_data.target_id_set = None
-			
 			sql_table_str = "from %s q, %s e, %s s, %s a, %s c"%(StockDB.QCCrossMatch.table.name, StockDB.Ecotype.table.name, StockDB.Site.table.name, StockDB.Address.table.name,\
 									StockDB.Country.table.name)
 			common_where_condition = "where e.siteid=s.id and s.addressid=a.id and a.countryid=c.id %s"+ " and q.qc_method_id=%s and q.no_of_non_NA_pairs>=%s and q.mismatch_rate<=%s "%\
@@ -292,7 +437,24 @@ class Output149CrossMatch(object):
 			
 			strain_where_condition = common_where_condition%(" and e.id=st.ecotypeid and st.id=q.strainid")
 			strain_id_info_query = "select distinct q.strainid, e.id as ecotypeid, e.nativename, s.name as sitename, c.abbr %s, %s st %s"%(sql_table_str, StockDB.Strain.table.name, strain_where_condition)
-		strain_id_info = self.getStrainIDInfo(db, strain_id_info_query, id_set_data.strain_id_set)
+		
+		if self.group_strains_by_sequenom_plate:
+			plate_info = self.alignStrainsAccordingToSeqPlate(db)
+			id_set_data = PassingData()
+			id_set_data.strain_id_set = None
+			id_set_data.target_id_set = None
+		elif self.input_fname:
+			id_set_data = self.getStrainidTargetidFromFile(db, self.QC_method_id, self.input_fname, self.max_mismatch_rate, self.min_no_of_non_NAs)
+		else:
+			id_set_data = PassingData()
+			id_set_data.strain_id_set = None
+			id_set_data.target_id_set = None
+		
+		if self.group_strains_by_sequenom_plate:
+			strain_id_info = self.getStrainInfoGivenPlateInfo(db, plate_info, strain_id_info_query, strain_id_set=None)
+		else:
+			strain_id_info = self.getStrainIDInfo(db, strain_id_info_query, id_set_data.strain_id_set)
+		
 		if self.QC_method_id==4:
 			target_id_info = strain_id_info
 		else:
