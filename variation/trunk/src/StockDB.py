@@ -142,7 +142,10 @@ class ContaminantType(Entity):
 class Strain(Entity):
 	ecotype = ManyToOne("Ecotype", colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
 	extraction = ManyToOne("Extraction", colname='extractionid', ondelete='CASCADE', onupdate='CASCADE')
-	seqinfo = ManyToOne("SeqInfo", colname='seqinfoid', ondelete='CASCADE', onupdate='CASCADE')
+	seqinfo1 = ManyToOne("SeqInfo", colname='seqinfoid1', ondelete='CASCADE', onupdate='CASCADE')
+	seqinfo2 = ManyToOne("SeqInfo", colname='seqinfoid2', ondelete='CASCADE', onupdate='CASCADE')
+	seqinfo3 = ManyToOne("SeqInfo", colname='seqinfoid3', ondelete='CASCADE', onupdate='CASCADE')
+	seqinfo4 = ManyToOne("SeqInfo", colname='seqinfoid4', ondelete='CASCADE', onupdate='CASCADE')
 	plateid = Field(String(25))
 	wellid = Field(String(3))
 	replicate = Field(Boolean)
@@ -155,7 +158,7 @@ class Strain(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='strain', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('ecotypeid', 'plateid'))
+	using_table_options(UniqueConstraint('ecotypeid', 'plateid', 'wellid'))
 	
 class Extraction(Entity):
 	namelabel = Field(String(25))
