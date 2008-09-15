@@ -14,15 +14,11 @@ Examples:
 Description:
 	This program would submit simple association results into database.
 
-	The input file format is 3-column, tab-delimited:
-		chromosome	position	score/pvalue
-
-	The program will ask for following things.
-		short_name:	give a short name of what you did. try to incorporate method, genotype data and phenotype data.
-			It has to be <=30 characters and UNIQUE in table results_method. Check the table beforehand.
-			Like 'kruskal_wallis_96_LD'.
-		method_description:	a longer description of your method
-		data_description:	which data you used
+	The input file format could be 3-column, tab-delimited or 4-column with MAF (minor allele frequency)
+		chromosome	position	score/pvalue	MAF
+		
+	If analysis_method_id is 13 (boolean SNP pair), format is totally different. This program just copies it over.
+	
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -288,10 +284,27 @@ class Results2DB_250k(object):
 	
 	come_up_new_results_filename = classmethod(come_up_new_results_filename)
 	
+	def copyResultsFile(cls, db, input_fname, rm, user, output_fname=None):
+		"""
+		2008-09-09
+			similar task to submit_results, but not look into the file, just copy the file
+		"""
+		sys.stderr.write("Copying results from %s ..."%(os.path.basename(input_fname)))
+		rm.original_filename = input_fname
+		pipe_f = os.popen('cp %s %s'%(input_fname, output_fname))
+		pipe_f_out = pipe_f.read()
+		if pipe_f_out:
+			sys.stderr.write("\tmv output: %s\n"%pipe_f_out)
+		sys.stderr.write("Done.\n")
+		
+	copyResultsFile = classmethod(copyResultsFile)
+	
 	def plone_run(cls, db, short_name, phenotype_method_id, call_method_id, data_description, \
 				method_description, comment, input_fname, user, results_method_type_id=None, \
 				analysis_method_id=None, results_method_type_short_name=None, output_dir=None, commit=0):
 		"""
+		2008-09-09
+			directly copy the result file if analysis_method_id==13
 		2008-08-19
 			automatically generate short_name if it's NULL
 		2008-07-16
@@ -363,7 +376,10 @@ class Results2DB_250k(object):
 		session.flush()	#not necessary as no immediate query on the new results after this and commit() would execute this.
 		if commit:
 			rm.filename = cls.come_up_new_results_filename(output_dir, rm.id, rm.results_method_type.id)
-			cls.submit_results(db, input_fname, rm, user, rm.filename)
+			if rm.analysis_method_id==13:
+				cls.copyResultsFile(db, input_fname, rm, user, rm.filename)
+			else:
+				cls.submit_results(db, input_fname, rm, user, rm.filename)
 			session.save_or_update(rm)
 			session.flush()
 			session.commit()
@@ -387,7 +403,7 @@ class Results2DB_250k(object):
 			pdb.set_trace()
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
-		
+		db.setup()
 		#db = Stock_250kDatabase(username=self.user,
 		#		   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		if not os.path.isfile(self.input_fname):
