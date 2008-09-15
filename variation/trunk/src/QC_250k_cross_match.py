@@ -27,7 +27,8 @@ from pymodule import process_function_arguments, turn_option_default_dict2argume
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 from QC_250k import QC_250k
-from variation.src.db import Results, ResultsMethod, Stock_250kDatabase, PhenotypeMethod, QCMethod, CallQC, SNPsQC, CallInfo, README
+from variation.src import Stock_250kDB
+from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, CallInfo, README
 
 class QC_250k_cross_match(QC_250k):
 	__doc__ = __doc__
@@ -63,13 +64,15 @@ class QC_250k_cross_match(QC_250k):
 		self.curs = curs
 		
 		#database connection and etc
-		db = Stock_250kDatabase(username=self.user,
+		db = Stock_250kDB.Stock_250kDB(username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
+		db.setup()
 		session = db.session
-		transaction = session.create_transaction()
+		session.begin()
+		#transaction = session.create_transaction()
 		# if cmp_data_filename not specified, try to find in the data_description column in table QC_method.
 		if not self.cmp_data_filename and self.QC_method_id!=0:
-			qm = session.query(QCMethod).get_by(id=self.QC_method_id)
+			qm = QCMethod.query.get(self.QC_method_id)
 			if qm.data_description:
 				data_description_ls = qm.data_description.split('=')
 				if len(data_description_ls)>1:
