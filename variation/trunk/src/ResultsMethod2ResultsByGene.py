@@ -6,8 +6,11 @@ Examples:
 	#input is all results with call_method_id=17
 	ResultsMethod2ResultsByGene.py -l 17 -u yh -c
 	
-	#run the program on the cluster, change the db input/output directory, given snps_context pickle file
+	#run the program on the cluster, one results_method=2077, change the db input/output directory, given snps_context pickle file
 	ResultsMethod2ResultsByGene.py -e 2077 -o ~/panfs/db/results_by_gene/ -c -u yh -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -t ~/panfs/db/results/type_1/
+	
+	#ditto, but all results_method entries from call_method_id=17 and analysis_method_id=1
+	ResultsMethod2ResultsByGene.py -o ~/panfs/db/results_by_gene/ -c -u yh -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -t ~/panfs/db/results/type_1/ -p yh324 -l 17 -a 1
 	
 Description:
 	program to pull one results_method from db and convert its SNP-based score from a file into gene-based score.
@@ -45,12 +48,12 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency'],\
 							('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
-							('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.'],\
+							('analysis_method_id', 0, int):[0, 'a', 1, 'Restrict results based on this analysis_method. Default is no such restriction.'],\
 							("results_method_id_ls", 0, ): [None, 'e', 1, 'comma-separated results_method_id list'],\
 							('input_db_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
-							('output_db_directory', 0, ):[None, '', 1, 'The file system directory corresponding to table results_by_gene. Supply this to overwrite the default. Database records still use the default_output_db_directory.'],\
-							('default_output_db_directory', 0, ):['/Network/Data/250k/db/results_by_gene/', '', 1, 'The file system directory corresponding to table results_by_gene. It goes into database record. Usually no need to change this one..'],\
-							("snps_context_picklef", 0, ): [None, '', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
+							('output_db_directory', 0, ):[None, 'o', 1, 'The file system directory corresponding to table results_by_gene. Supply this to overwrite the default. Database records still use the default_output_db_directory.'],\
+							('default_output_db_directory', 0, ):['/Network/Data/250k/db/results_by_gene/', 'f', 1, 'The file system directory corresponding to table results_by_gene. It goes into database record. Usually no need to change this one..'],\
+							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -80,6 +83,8 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 	def saveResultsByGene(self, session, rm, param_data):
 		"""
 		2008-09-16
+			add some checkup (if database already has this entry, if the result file exist...) before starting
+		2008-09-16
 			overhaul, table results_by_gene only stores the link to a file, which stores max score for all genes, ordered by their score.
 		2008-08-27
 			derive the rank from the SNP in genome_wide_result
@@ -87,11 +92,22 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		2008-07-19
 		"""
 		sys.stderr.write("Saving ResultsByGene ... \n")
-		gene_id2hit = self.getGeneID2MostSignificantHit(rm, param_data.snps_context_wrapper, param_data.results_directory, param_data.min_MAF)
+		#check if it's in db already or not
+		rbg = Stock_250kDB.ResultsByGene.query.filter_by(results_method_id=rm.id).filter_by(min_distance=param_data.min_distance).\
+			filter_by(get_closest=param_data.get_closest)
+		if rbg.count()>0:
+			rbg = rbg.first()
+			sys.stderr.write("Skip. An entry exists in results_by_gene (id=%s) with same (results_method_id, min_distance, get_closest)=(%s, %s, %s).\n"\
+							%(rbg.id, rbg.results_method_id, rbg.min_distance, rbg.get_closest))
+			return
 		
+		gene_id2hit = self.getGeneID2MostSignificantHit(rm, param_data.snps_context_wrapper, param_data.results_directory, param_data.min_MAF)
+		if gene_id2hit is None:
+			sys.stderr.write("Skip. gene_id2hit is None.\n")
+			return
 		gene_id_heap_ls = self.sortGeneIDBasedOnScore(gene_id2hit)
 		rbg = Stock_250kDB.ResultsByGene(short_name='%s_m%s_g%s_by_gene'%(rm.short_name, param_data.min_distance, param_data.get_closest),\
-										min_distance = param_data.min_distance, get_closest=param_data.get_closest)
+										min_distance = param_data.min_distance, get_closest=param_data.get_closest, min_MAF=param_data.min_MAF)
 		rbg.results_method = rm
 		session.save(rbg)
 		session.flush()
@@ -125,7 +141,7 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		query = Stock_250kDB.ResultsMethod.query.filter_by(results_method_type_id=1)
 		if pdata.call_method_id!=0:
 			query = query.filter_by(call_method_id=pdata.call_method_id)
-		if pdata.analysis_method!=0:
+		if pdata.analysis_method_id!=0:
 			query = query.filter_by(analysis_method_id=pdata.analysis_method_id)
 		
 		rows = query.offset(i).limit(block_size)
