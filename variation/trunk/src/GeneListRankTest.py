@@ -103,7 +103,6 @@ class GeneListRankTest(object):
 							("min_distance", 1, int): [50000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency. deprecated.'],\
-							('max_pvalue_per_gene', 0, int): [0, 'a', 0, 'take the most significant among all SNPs associated with one gene. Deprecated.'],\
 							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
@@ -304,6 +303,8 @@ class GeneListRankTest(object):
 	def prepareDataForRankTestFromResultsByGene(self, rm, param_data):
 		"""
 		2008-09-16
+			add function to only read a number of top lines
+		2008-09-16
 			file associated with a results_by_gene entry is gene-based. in it, one gene only appears once and is ordered by its score.
 			just get the gene_id and test whether it's candidate or not.
 		"""
@@ -319,6 +320,8 @@ class GeneListRankTest(object):
 			result_fname = rm.filename
 		reader = csv.reader(open(result_fname), delimiter='\t')
 		col_name2index = getColName2IndexFromHeader(reader.next())
+		counter = 0
+		no_of_lines_to_read = getattr(param_data, 'no_of_top_lines', None)
 		for row in reader:
 			gene_id = int(row[col_name2index['gene_id']])
 			score = float(row[col_name2index['score']])
@@ -328,6 +331,10 @@ class GeneListRankTest(object):
 			else:
 				non_candidate_gene_ls.append(gene_id)
 				non_candidate_gene_pvalue_list.append(score)
+			counter += 1
+			if no_of_lines_to_read is not None and counter>=no_of_lines_to_read:
+				break
+		del reader
 		passingdata = PassingData(candidate_gene_ls=candidate_gene_ls, candidate_gene_pvalue_list=candidate_gene_pvalue_list,\
 								non_candidate_gene_ls=non_candidate_gene_ls, non_candidate_gene_pvalue_list=non_candidate_gene_pvalue_list)
 		sys.stderr.write("Done.\n")
