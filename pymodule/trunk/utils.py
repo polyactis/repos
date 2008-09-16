@@ -183,6 +183,18 @@ class FigureOutTaxID(object):
 				tax_id_to_return = tax_id
 				break
 		return tax_id_to_return
+
+def getColName2IndexFromHeader(header):
+	"""
+	2008-09-16
+		convenient function to read input files with flexible column order.
+		One variable doesn't have to be in the same column in different files, as far as the name is same.
+	"""
+	col_name2index = {}
+	for i in range(len(header)):
+		column_name = header[i]
+		col_name2index[column_name] = i
+	return col_name2index
 	
 if __name__ == '__main__':
 	FigureOutTaxID_ins = FigureOutTaxID()
