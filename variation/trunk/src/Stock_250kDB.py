@@ -180,8 +180,13 @@ class PhenotypeMethod(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class AnalysisMethod(Entity):
-	short_name = Field(String(60))
+	"""
+	2008-09-16
+		add smaller_score_more_significant
+	"""
+	short_name = Field(String(120))
 	method_description = Field(String(8000))
+	smaller_score_more_significant = Field(Integer)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -211,8 +216,6 @@ class ResultsMethod(Entity):
 	call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	results_method_type = ManyToOne('ResultsMethodType', colname='results_method_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	analysis_method = ManyToOne('AnalysisMethod', colname='analysis_method_id', ondelete='CASCADE', onupdate='CASCADE')
-	rank_test = OneToMany("CandidateGeneRankSumTestResult")
-	top_snp_test = OneToMany("CandidateGeneTopSNPTest")
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -229,9 +232,11 @@ class Results(Entity):
 
 class CandidateGeneRankSumTestResult(Entity):
 	"""
+	2008-09-16
+		table linked to results_by_gene, not results_method
 	2008-07-17
 	"""
-	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	results_by_gene = ManyToOne('ResultsByGene', colname='results_by_gene_id', ondelete='CASCADE', onupdate='CASCADE')
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	statistic = Field(Float)
 	pvalue = Field(Float)
@@ -252,21 +257,24 @@ class CandidateGeneRankSumTestResult(Entity):
 
 class ResultsByGene(Entity):
 	"""
+	2008-09-15
+		modify it to contain gene-based results(files) deriving from snp-based results in table ResultsMethod
 	2008-08-27
 		add readme_id
 		modify unique constraint to include readme_id
 	2008-07-19
 	"""
+	short_name = Field(String(60), unique=True)
+	filename = Field(String(767), unique=True)
+	min_distance = Field(Integer)
+	get_closest = Field(Integer)
+	comment = Field(Text)
 	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
-	snp = ManyToOne('Snps', colname='snps_id', ondelete='CASCADE', onupdate='CASCADE')
-	gene_id = Field(Integer)
-	disp_pos = Field(Integer)
-	score = Field(Float)
-	rank = Field(Float)
-	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	rank_test = OneToMany("CandidateGeneRankSumTestResult")
+	top_snp_test = OneToMany("CandidateGeneTopSNPTest")
 	using_options(tablename='results_by_gene', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('results_method_id', 'snps_id', 'gene_id', 'readme_id'))
+	using_table_options(UniqueConstraint('results_method_id', 'min_distance', 'get_closest'))
 
 class SnpsQC(Entity):
 	"""
@@ -425,9 +433,11 @@ class Probes(Entity):
 
 class CandidateGeneTopSNPTest(Entity):
 	"""
+	2008-09-16
+		table linked to results_by_gene, not results_method
 	2008-08-20
 	"""
-	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	results_by_gene = ManyToOne('ResultsByGene', colname='results_by_gene_id', ondelete='CASCADE', onupdate='CASCADE')
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	pvalue = Field(Float)
 	min_distance = Field(Integer)
