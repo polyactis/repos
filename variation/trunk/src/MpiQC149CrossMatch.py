@@ -149,7 +149,7 @@ class MpiQC149CrossMatch(QC_149_cross_match):
 				qc_cross_match.readme = param_obj.readme
 				param_obj.session.save(qc_cross_match)
 				if param_obj.commit:
-					session.flush()
+					param_obj.session.flush()
 	
 	def run(self):
 		self.communicator = MPI.world.duplicate()
