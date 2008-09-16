@@ -176,6 +176,8 @@ class GeneListRankTest(object):
 	
 	def getResultMethodContent(self, rm, results_directory=None, min_MAF=0.1):
 		"""
+		2008-09-15
+			use field smaller_score_more_significant from ResultsMethod to set do_log10_transformation
 		2008-08-13
 			split from getGeneID2MostSignificantHit()
 		"""
@@ -185,10 +187,10 @@ class GeneListRankTest(object):
 			result_fname = rm.filename
 		
 		#based on the analysis method id, whether do -log() or not. it'll affect the later step of taking maximum pvalue out of SNPs associated with one gene
-		if rm.analysis_method_id==5 or rm.analysis_method_id==6:
-			do_log10_transformation = False
-		else:
+		if rm.analysis_method.smaller_score_more_significant==1:
 			do_log10_transformation = True
+		else:
+			do_log10_transformation = False
 		pdata = PassingData()
 		pdata.min_MAF = min_MAF
 		genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation, pdata=pdata)
@@ -213,14 +215,14 @@ class GeneListRankTest(object):
 		gene_id2hit = {}
 		counter = 0
 		for data_obj in genome_wide_result.data_obj_ls:
-			pvalue = data_obj.value
+			score = data_obj.value
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			for snps_context in snps_context_matrix:
 				snps_id, disp_pos, gene_id = snps_context
-				passingdata = PassingData(chr=data_obj.chromosome, pos=data_obj.position, pvalue=pvalue, disp_pos=disp_pos, snps_id=snps_id)
+				passingdata = PassingData(chr=data_obj.chromosome, pos=data_obj.position, score=score, disp_pos=disp_pos, snps_id=snps_id)
 				if gene_id not in gene_id2hit:
 					gene_id2hit[gene_id] = passingdata
-				elif pvalue>gene_id2hit[gene_id].pvalue:	#pvalue is -log()
+				elif score>gene_id2hit[gene_id].score:	#score is -log()
 					gene_id2hit[gene_id] = passingdata
 			counter += 1
 			#sys.stderr.write("%s%s\t%s"%('\x08'*40, offset_index, counter))		
@@ -238,7 +240,7 @@ class GeneListRankTest(object):
 	
 	def prepareDataForRankTestGivenGeneID2Hit(self, candidate_gene_list, gene_id2hit):
 		sys.stderr.write("Preparing data for rank test ... ")
-		candidate_gene_pvalue_list = []
+		candidate_gene_score_list = []
 		from sets import Set
 		candidate_gene_set = Set(candidate_gene_list)
 		candidate_gene_ls = []
@@ -252,10 +254,10 @@ class GeneListRankTest(object):
 			hit = gene_id2hit[gene_id]
 			if gene_id in candidate_gene_set:
 				#candidate_gene_ls.append(gene_id)
-				candidate_gene_pvalue_list.append(hit.pvalue)
+				candidate_gene_pvalue_list.append(hit.score)
 			else:
 				#non_candidate_gene_ls.append(gene_id)
-				non_candidate_gene_pvalue_list.append(hit.pvalue)
+				non_candidate_gene_pvalue_list.append(hit.score)
 		sys.stderr.write("Done.\n")
 		passingdata = PassingData(candidate_gene_ls=candidate_gene_ls, candidate_gene_pvalue_list=candidate_gene_pvalue_list,\
 								non_candidate_gene_ls=non_candidate_gene_ls, non_candidate_gene_pvalue_list=non_candidate_gene_pvalue_list)
@@ -277,14 +279,14 @@ class GeneListRankTest(object):
 		
 		counter = 0
 		for data_obj in genome_wide_result.data_obj_ls:
-			pvalue = data_obj.value
+			score = data_obj.value
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			for snps_context in snps_context_matrix:
 				snps_id, disp_pos, gene_id = snps_context
 				if gene_id in candidate_gene_set:
-					candidate_gene_pvalue_list.append(pvalue)
+					candidate_gene_pvalue_list.append(score)
 				else:
-					non_candidate_gene_pvalue_list.append(pvalue)
+					non_candidate_gene_pvalue_list.append(score)
 		passingdata = PassingData(candidate_gene_ls=candidate_gene_ls, candidate_gene_pvalue_list=candidate_gene_pvalue_list,\
 								non_candidate_gene_ls=non_candidate_gene_ls, non_candidate_gene_pvalue_list=non_candidate_gene_pvalue_list)
 		sys.stderr.write("Done.\n")
@@ -294,17 +296,17 @@ class GeneListRankTest(object):
 		sys.stderr.write("Outputting gene_id2hit ... ")
 		
 		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-		writer.writerow(['gene-id', 'chromosome', 'position', 'snps-id', 'disp_pos', 'pvalue', 'rank'])
+		writer.writerow(['gene-id', 'chromosome', 'position', 'snps-id', 'disp_pos', 'score', 'rank'])
 		gene_id_ls = gene_id2hit.keys()
 		gene_id_ls.sort()
-		pvalue_ls = [gene_id2hit[gene_id].pvalue for gene_id in gene_id_ls]
+		pvalue_ls = [gene_id2hit[gene_id].score for gene_id in gene_id_ls]
 		import rpy
 		rank_ls = rpy.r.rank(pvalue_ls)
 		for i in range(len(gene_id_ls)):
 			gene_id = gene_id_ls[i]
 			rank = rank_ls[i]
 			hit = gene_id2hit[gene_id]
-			one_row = [gene_id, hit.chr, hit.pos, hit.snps_id, hit.disp_pos, hit.pvalue, rank]
+			one_row = [gene_id, hit.chr, hit.pos, hit.snps_id, hit.disp_pos, hit.score, rank]
 			writer.writerow(one_row)
 		del writer
 		sys.stderr.write("Done.\n")
