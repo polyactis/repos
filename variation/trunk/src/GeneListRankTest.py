@@ -176,6 +176,8 @@ class GeneListRankTest(object):
 	
 	def getResultMethodContent(self, rm, results_directory=None, min_MAF=0.1):
 		"""
+		2008-09-16
+			if result_fname is not a file, return None
 		2008-09-15
 			use field smaller_score_more_significant from ResultsMethod to set do_log10_transformation
 		2008-08-13
@@ -193,11 +195,17 @@ class GeneListRankTest(object):
 			do_log10_transformation = False
 		pdata = PassingData()
 		pdata.min_MAF = min_MAF
-		genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation, pdata=pdata)
+		if os.path.isfile(result_fname):
+			genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation, pdata=pdata)
+		else:
+			sys.stderr.write("Skip. %s doesn't exist.\n"%result_fname)
+			genome_wide_result = None
 		return genome_wide_result
 	
 	def getGeneID2MostSignificantHit(self, rm, snps_context_wrapper, results_directory=None, min_MAF=0.1):
 		"""
+		2008-09-16
+			if genome_wide_result is None, return None
 		2008-08-13
 			add min_MAF
 		2008-07-21
@@ -211,7 +219,8 @@ class GeneListRankTest(object):
 		"""
 		sys.stderr.write("Getting gene_id2hit ... \n")
 		genome_wide_result = self.getResultMethodContent(rm, results_directory, min_MAF)
-		
+		if genome_wide_result is None:
+			return None
 		gene_id2hit = {}
 		counter = 0
 		for data_obj in genome_wide_result.data_obj_ls:
