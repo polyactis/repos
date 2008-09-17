@@ -99,8 +99,10 @@ class QC_250k_cross_match(QC_250k):
 			call_info_id2fname = self.get_array_id2fname(curs, self.input_dir)
 		else:
 			#call_info_id2fname = self.get_call_info_id2fname(curs, self.call_info_table, self.call_QC_table, self.QC_method_id)
-			call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, \
+			call_data = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, \
 				filter_calls_QCed=0, max_call_info_mismatch_rate=1, debug=self.debug)
+			call_info_id2fname = call_data.call_info_id2fname
+			call_info_ls_to_return = call_data.call_info_ls_to_return
 		
 		#2008-07-01 pick the call_info_ids to be handled
 		new_call_info_id2fname = {}
