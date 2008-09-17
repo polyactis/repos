@@ -345,6 +345,8 @@ class GeneListRankTest(object):
 	def prepareDataForRankTestFromResultsByGene(self, rm, param_data):
 		"""
 		2008-09-16
+			if result_fname doesn't exist, return None
+		2008-09-16
 			add function to only read a number of top lines
 		2008-09-16
 			file associated with a results_by_gene entry is gene-based. in it, one gene only appears once and is ordered by its score.
@@ -360,6 +362,9 @@ class GeneListRankTest(object):
 			result_fname = os.path.join(param_data.results_directory, os.path.basename(rm.filename))
 		else:
 			result_fname = rm.filename
+		if not os.path.isfile(result_fname):
+			sys.stderr.write("%s doesn't exist.\n"%result_fname)
+			return None
 		reader = csv.reader(open(result_fname), delimiter='\t')
 		col_name2index = getColName2IndexFromHeader(reader.next())
 		counter = 0
