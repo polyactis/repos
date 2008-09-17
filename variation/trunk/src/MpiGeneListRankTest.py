@@ -3,7 +3,7 @@
 
 Examples:
 	#run it on hpc-cmb cluster
-	mpiexec ~/script/variation/src/MpiGeneListRankTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -o ~/mpigene_list_rank_test.out -s 100 -c
+	mpiexec ~/script/variation/src/MpiGeneListRankTest.py -u yh -p passw**d -t ~/panfs/db/results_by_gene/ -o ~/mpigene_list_rank_test.out -s 100 -c
 
 	#test parallel run on desktop
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiGeneListRankTest.py -u yh -m 20000 -g -p passw**d -s 100 -b -c
@@ -25,24 +25,26 @@ from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
 from pymodule import PassingData
 from GeneListRankTest import GeneListRankTest
-from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, CandidateGeneRankSumTestResult
+from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, CandidateGeneRankSumTestResult, ResultsByGene
 from sets import Set
 
 
-class MpiGeneListRankTest(GeneListRankTest):
+class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = GeneListRankTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))
-	option_default_dict.pop(("results_method_id_ls", 1, ))
+	option_default_dict.pop(("results_id_ls", 1, ))
 	
 	def __init__(self,  **keywords):
 		GeneListRankTest.__init__(self, **keywords)
 	
 	def generate_params(self, param_obj, min_no_of_genes=10):
 		"""
+		2008-09-16
+			modify it to get result ids from ResultsByGene
 		2008-09-10
 			add results_method filtering by analysis_method_id
 		2008-08-19
@@ -57,11 +59,11 @@ class MpiGeneListRankTest(GeneListRankTest):
 		sys.stderr.write("Generating parameters ...")
 		i = 0
 		block_size = 5000
-		query = ResultsMethod.query.filter_by(results_method_type_id=1)
+		query = ResultsByGene.query
 		if param_obj.call_method_id!=0:
-			query = query.filter_by(call_method_id=param_obj.call_method_id)
+			query = query.filter(ResultsByGene.results_method.has(call_method_id=param_obj.call_method_id))
 		if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
-			query = query.filter_by(analysis_method_id=param_obj.analysis_method_id)
+			query = query.filter(ResultsByGene.results_method.has(analysis_method_id=param_obj.analysis_method_id))
 		rows = query.offset(i).limit(block_size)
 		results_method_id_ls = []
 		while rows.count()!=0:
@@ -132,12 +134,12 @@ class MpiGeneListRankTest(GeneListRankTest):
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
 		result_ls = []
-		pd = PassingData(snps_context_wrapper=computing_parameter_obj.snps_context_wrapper,\
-							results_directory=computing_parameter_obj.results_directory, max_pvalue_per_gene=self.max_pvalue_per_gene,\
+		pd = PassingData(snps_context_wrapper=None,\
+							results_directory=computing_parameter_obj.results_directory,\
 							min_MAF=computing_parameter_obj.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance, \
 							min_sample_size=self.min_sample_size)
 		for results_method_id, list_type_id in data:
-			pd.results_method_id = results_method_id
+			pd.results_id = results_method_id
 			pd.list_type_id = list_type_id
 			result = self.run_wilcox_test(pd)
 			if result is not None:
@@ -180,19 +182,18 @@ class MpiGeneListRankTest(GeneListRankTest):
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
 		free_computing_node_set = Set(free_computing_nodes)
 		output_node_rank = self.communicator.size-1
-		if node_rank in free_computing_node_set:	#to reduce the number of connections on papaya
-			self.hostname = 'banyan.usc.edu'
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
-		db.setup()
+		db.setup(create_tables=False)
 		session = db.session
 		
 		if node_rank == 0:
-			snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
+			#snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
 			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id)
 			params_ls = self.generate_params(param_obj)
 			if self.debug:
 				params_ls = params_ls[:100]
+			"""
 			snps_context_wrapper_pickle = cPickle.dumps(snps_context_wrapper, -1)
 			for node in free_computing_nodes:	#send it to the computing_node
 				sys.stderr.write("passing initial data to nodes from %s to %s ... "%(node_rank, node))
@@ -200,23 +201,26 @@ class MpiGeneListRankTest(GeneListRankTest):
 				sys.stderr.write(".\n")
 			del snps_context_wrapper_pickle
 			del snps_context_wrapper
+			"""
 		elif node_rank in free_computing_node_set:
+			pass
+			"""
 			data, source, tag = self.communicator.receiveString(0, 0)
 			snps_context_wrapper =  cPickle.loads(data)
 			del data
 			sys.stderr.write(".\n")
+			"""
 		else:
 			pass
 		
-		mw = MPIwrapper(self.communicator, debug=self.debug, report=self.report)
-		mw.synchronize()
+		self.synchronize()
 		if node_rank == 0:
 			parameter_list = [params_ls]
-			mw.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
+			self.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
 		elif node_rank in free_computing_node_set:
-			computing_parameter_obj = PassingData(snps_context_wrapper=snps_context_wrapper, \
+			computing_parameter_obj = PassingData(snps_context_wrapper=None, \
 												results_directory=self.results_directory, min_MAF=self.min_MAF)
-			mw.computing_node(computing_parameter_obj, self.computing_node_handler)
+			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			if getattr(self, 'output_fname', None):
 				writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
@@ -228,9 +232,9 @@ class MpiGeneListRankTest(GeneListRankTest):
 				writer = None
 			
 			parameter_list = [writer, session, self.commit]
-			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
+			self.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
 			del writer		
-		mw.synchronize()	#to avoid some node early exits
+		self.synchronize()	#to avoid some node early exits
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
