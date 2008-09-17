@@ -23,8 +23,8 @@ Examples:
 	
 	#accession-wise QC between 250k (call_method_id=3) and 149SNP
 	QC_250k.py -m 3 -l 3 -y 0.85 -c
-	#accession-wise QC between 250k (call_method_id=3) and 384-illumina, one by one
-	QC_250k.py -m 8 -l 3 -y 0.85 -c -a
+	#accession-wise QC between 250k (call_method_id=3) and 384-illumina, one by one and fetch call files in a different directory.
+	QC_250k.py -m 8 -l 3 -y 0.85 -c -a -n ~/banyan_fs/Network/Data/250k/db/calls/method_3/
 	
 	#do snp-wise QC between 250k (call_method_id=3, excluding arrays with > 20% mismatch rate, according to the QC with maximum no_of_non_NA_pairs) and Perlegen
 	QC_250k.py -m 2 -l 3 -y 0.85 -e 2 -x 0.20 -c
@@ -57,8 +57,7 @@ import time, csv, getopt
 import warnings, traceback
 from pymodule import ProcessOptions, PassingData, SNPData, TwoSNPData, read_data
 from variation.src.common import number2nt, nt2number
-from variation.src import Stock_250kDB
-from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, Snps, SnpsQC, CallInfo, README
+import Stock_250kDB
 from pymodule.db import formReadmeObj
 import sqlalchemy, numpy
 
@@ -69,8 +68,7 @@ class QC_250k(object):
 							('dbname', 1, ): ['stock_250k', 'd', 1, 'database name', ],\
 							('user', 1, ): [None, 'u', 1, 'database username', ],\
 							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
-							('input_dir', 0, ): [None, 'n', 1, 'If given, call data would be read from this directory/file rather than from call info table.\
-								Does not work for QC_method_id=0. The data is sorted according to array_id. No call_info_id available. No db submission.', ],\
+							('input_dir', 0, ): [None, 'n', 1, 'If given is directory, call_info.filename is assumed to be in this directory. If it is a FILE, call data would be read from it.'],\
 							('cmp_data_filename', 0,): [None, 'i', 1, 'the data file to be compared with. if not given, it gets figured out by QC_method_id.'],\
 							('min_probability', 0, float, ):[-1, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.'],\
 							('output_fname', 0, ): [None, 'o', 1, 'if given, QC results will be outputed into it.'],\
@@ -102,8 +100,11 @@ class QC_250k(object):
 		#if self.cmp_data_filename == None:
 		#	self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
 
-	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0, min_no_of_non_NA_pairs=40):
+	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0, min_no_of_non_NA_pairs=40, **keywords):
 		"""
+		2008-09-16
+			add **keywords in the argument
+			deal with input_dir if it's present. replace the directory in call_info.filename with it.
 		2008-09-05
 			add option min_no_of_non_NA_pairs.
 			change the way to filter out data with too high mismatch rate. previously, if the QC with the most no_of_non_NA_pairs has mismatch_rate>max_call_info_mismatch_rate, ignore.
@@ -126,7 +127,10 @@ class QC_250k(object):
 		#		from %s a, %s c left join %s q on c.id=q.call_info_id where c.array_id=a.id and a.maternal_ecotype_id=a.paternal_ecotype_id and c.method_id=%s"%\
 		#		(array_info_table, call_info_table, call_QC_table, call_method_id))
 		#rows = curs.fetchall()
-		call_info_ls = CallInfo.query.filter_by(method_id=call_method_id).all()
+		#2008-09-16 get input_dir
+		input_dir = keywords.get('input_dir') or None
+		
+		call_info_ls = Stock_250kDB.CallInfo.query.filter_by(method_id=call_method_id).all()
 		
 		call_info_id2fname = {}
 		call_info_ls_to_return = []
@@ -142,7 +146,7 @@ class QC_250k(object):
 						ignore_this = 1
 						break
 			
-			#choose the call_QC with maximum no of non-NA pairs to get mismatch_rate
+			#choose the call_QC with maximum no of non-NA pairs as the final QC. but if any QC of the call_info shows mismatch_rate>max, skip it.
 			if call_info.call_qc_ls and max_call_info_mismatch_rate<1:	#2008-07-01
 				call_QC_with_max_no_of_non_NA_pairs = call_info.call_qc_ls[0]
 				for call_QC in call_info.call_qc_ls:
@@ -157,13 +161,19 @@ class QC_250k(object):
 			
 			if ignore_this:
 				continue
-			call_info_id2fname[call_info.id] = [call_info.array.maternal_ecotype_id, call_info.filename, call_info.array_id]
+			if input_dir:
+				filename = os.path.join(input_dir, os.path.basename(call_info.filename))
+			else:
+				filename = call_info.filename
+			call_info_id2fname[call_info.id] = [call_info.array.maternal_ecotype_id, filename, call_info.array_id]
 			call_info_ls_to_return.append(call_info)
 			#if debug and len(call_info_id2fname)>40:
 			#	break
-		
+		call_data = PassingData()
+		call_data.call_info_id2fname = call_info_id2fname
+		call_data.call_info_ls_to_return = call_info_ls_to_return
 		sys.stderr.write("%s call files. Done.\n"%(len(call_info_id2fname)))
-		return call_info_id2fname, call_info_ls_to_return
+		return call_data
 	
 	get_call_info_id2fname = classmethod(get_call_info_id2fname)
 	
@@ -230,7 +240,7 @@ class QC_250k(object):
 		for i in range(no_of_entries):
 			call_info_id = call_info_id_ls[i]
 			ecotype_id, fname, array_id = call_info_id2fname[call_info_id]
-			sys.stderr.write("%s%d/%d:\t\t%s"%('\x08'*100, i+1, no_of_entries, fname))
+			sys.stderr.write("%s%d/%d:\t\t%s"%('\x08'*400, i+1, no_of_entries, fname))
 			call_info_id_ls.append(call_info_id)
 			ecotype_id_ls.append(ecotype_id)
 			array_id_ls.append(array_id)
@@ -281,7 +291,7 @@ class QC_250k(object):
 			NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs, relative_NA_rate, relative_no_of_NAs, relative_no_of_totals = NA_mismatch_ls
 			#call_QC stores the relative NA rate. call_info already stores the independent NA rate
 			NA_rate, no_of_NAs, no_of_totals = relative_NA_rate, relative_no_of_NAs, relative_no_of_totals
-			callqc = CallQC(call_info_id=call_info_id, min_probability=min_probability, ecotype_id=ecotype_id, tg_ecotype_id=tg_ecotype_id,\
+			callqc = Stock_250kDB.CallQC(call_info_id=call_info_id, min_probability=min_probability, ecotype_id=ecotype_id, tg_ecotype_id=tg_ecotype_id,\
 						qc_method_id=QC_method_id, call_method_id=call_method_id, NA_rate=NA_rate, mismatch_rate=mismatch_rate,\
 						no_of_NAs=no_of_NAs, no_of_totals=no_of_totals, no_of_mismatches=no_of_mismatches, no_of_non_NA_pairs=no_of_non_NA_pairs,\
 						created_by=user)
@@ -311,7 +321,7 @@ class QC_250k(object):
 		#			(call_info_table))
 		#rows = curs.fetchall()
 		#call_info_ls = db.session.query(CallInfo).filter_by(NA_rate=None).all()
-		call_info_ls = CallInfo.query.filter_by(NA_rate=None).all()
+		call_info_ls = Stock_250kDB.CallInfo.query.filter_by(NA_rate=None).all()
 		no_of_rows = len(call_info_ls)
 		sys.stderr.write("\tTotally, %d call_info entries to be processed.\n"%no_of_rows)
 		for i in range(no_of_rows):
@@ -490,7 +500,7 @@ class QC_250k(object):
 			import pdb
 			pdb.set_trace()
 		
-		readme = formReadmeObj(sys.argv, self.ad, README)
+		readme = formReadmeObj(sys.argv, self.ad, Stock_250kDB.README)
 		session.save(readme)
 		
 		QC_method_id2snps_table = self.QC_method_id2snps_table
@@ -504,12 +514,13 @@ class QC_250k(object):
 			strain_acc_list = map(int, strain_acc_list)	#it's ecotypeid, cast it to integer to be compatible to the later ecotype_id_ls from db
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, \
 							data_matrix=data_matrix, snps_table=QC_method_id2snps_table.get(self.QC_method_id))	#category_list is not used.
-			
+			"""
 			if self.input_dir and os.path.isdir(self.input_dir):
 				#04/22/08 Watch: call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
 				#no submission to db
 				call_info_id2fname = self.get_array_id2fname(curs, self.input_dir)
-			elif self.input_dir and os.path.isfile(self.input_dir):	#it's file
+			"""
+			if self.input_dir and os.path.isfile(self.input_dir):	#it's file
 				call_info_id2fname = None
 			else:
 				if self.run_type==2:	#no filtering on call_info entries that have been QCed.
@@ -520,9 +531,11 @@ class QC_250k(object):
 				else:
 					sys.stderr.write("run_type=%s is not supported.\n"%self.run_type)
 					sys.exit(5)
-				call_info_id2fname, call_info_ls_to_return = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, \
-																						filter_calls_QCed, self.max_call_info_mismatch_rate, self.debug,\
-																						min_no_of_non_NA_pairs=self.min_no_of_non_NA_pairs)
+				call_data = self.get_call_info_id2fname(db, self.QC_method_id, self.call_method_id, \
+														filter_calls_QCed, self.max_call_info_mismatch_rate, self.debug,\
+														min_no_of_non_NA_pairs=self.min_no_of_non_NA_pairs, input_dir=self.input_dir)
+				call_info_id2fname = call_data.call_info_id2fname
+				call_info_ls_to_return = call_data.call_info_ls_to_return
 			if self.run_type==2:
 				snps_name2snps_id = self.get_snps_name2snps_id(db)
 			else:
