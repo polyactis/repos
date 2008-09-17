@@ -49,7 +49,7 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency'],\
 							('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
 							('analysis_method_id', 0, int):[0, 'a', 1, 'Restrict results based on this analysis_method. Default is no such restriction.'],\
-							("results_method_id_ls", 0, ): [None, 'e', 1, 'comma-separated results_method_id list'],\
+							("results_id_ls", 0, ): [None, 'e', 1, 'comma-separated results_method id list'],\
 							('input_db_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							('output_db_directory', 0, ):[None, 'o', 1, 'The file system directory corresponding to table results_by_gene. Supply this to overwrite the default. Database records still use the default_output_db_directory.'],\
 							('default_output_db_directory', 0, ):['/Network/Data/250k/db/results_by_gene/', 'f', 1, 'The file system directory corresponding to table results_by_gene. It goes into database record. Usually no need to change this one..'],\
@@ -83,6 +83,8 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 	def saveResultsByGene(self, session, rm, param_data):
 		"""
 		2008-09-16
+			if analysis_method_id==13, get gene_id2hit using a different function
+		2008-09-16
 			add some checkup (if database already has this entry, if the result file exist...) before starting
 		2008-09-16
 			overhaul, table results_by_gene only stores the link to a file, which stores max score for all genes, ordered by their score.
@@ -101,7 +103,10 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 							%(rbg.id, rbg.results_method_id, rbg.min_distance, rbg.get_closest))
 			return
 		
-		gene_id2hit = self.getGeneID2MostSignificantHit(rm, param_data.snps_context_wrapper, param_data.results_directory, param_data.min_MAF)
+		if rm.analysis_method_id==13:
+			gene_id2hit = self.getGeneID2MostSignificantHitFromSNPPairFile(rm, param_data.snps_context_wrapper, param_data.results_directory, param_data.min_MAF)
+		else:
+			gene_id2hit = self.getGeneID2MostSignificantHit(rm, param_data.snps_context_wrapper, param_data.results_directory, param_data.min_MAF)
 		if gene_id2hit is None:
 			sys.stderr.write("Skip. gene_id2hit is None.\n")
 			return
@@ -125,7 +130,7 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		while len(gene_id_heap_ls)>0:
 			gene_id = heappop(gene_id_heap_ls)[1]
 			hit = gene_id2hit[gene_id]
-			row = [gene_id, hit.score, hit.snps_id, hit.disp_pos, None]
+			row = [gene_id, hit.score, hit.snps_id, hit.disp_pos, hit.comment]
 			writer.writerow(row)
 		del writer
 		sys.stderr.write("Done.\n")
@@ -179,11 +184,11 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		param_data.get_closest = self.get_closest
 		param_data.snps_context_wrapper = snps_context_wrapper
 		
-		if not self.results_method_id_ls:
+		if not self.results_id_ls:
 			pdata = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id)
-			self.results_method_id_ls = self.getResultsMethodIDLs(pdata)
+			self.results_id_ls = self.getResultsMethodIDLs(pdata)
 		
-		for results_method_id in self.results_method_id_ls:
+		for results_method_id in self.results_id_ls:
 			rm = Stock_250kDB.ResultsMethod.get(results_method_id)
 			if not rm:
 				sys.stderr.write("No results method available for results_method_id=%s.\n"%results_method_id)
