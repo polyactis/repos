@@ -5,8 +5,8 @@ Examples:
 	#output data with accession mismatch rate<=0.20, snp mismatch rate <=0.15, snp NA rate <= default
 	DB_250k2data.py -z localhost -l 3 -y 0.85 -w 0.15 -x 0.20 -o /tmp/250k_l3_w0.15_x0.20_y0.85.tsv 
 	
-	#output matrix with no SNP filtering -w 1 -v 1
-	DB_250k2data.py -l 3 -y 0.85 -w 1 -x 0.20 -v 1 -o /tmp/250k_l3_v1_w1_x0.20_y0.85.tsv
+	#output matrix with no SNP filtering -w 1 -m 1
+	DB_250k2data.py -l 3 -y 0.85 -w 1 -m 1 -x 0.20 -o /tmp/250k_l3_v1_w1_x0.20_y0.85.tsv
 	
 	DB_250k2data.py -l 17 -o /mnt/nfs/250k/call_method_17.tsv
 
@@ -31,9 +31,9 @@ import warnings, traceback
 from pymodule import write_data_matrix
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
-from variation.src import Stock_250kDB
-from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, SnpsQC, CallInfo, Snps, README
-from variation.src.QC_250k import QC_250k
+import Stock_250kDB
+#from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, SnpsQC, CallInfo, Snps, README
+from QC_250k import QC_250k
 import sqlalchemy
 
 class DB_250k2Data(object):
@@ -43,9 +43,10 @@ class DB_250k2Data(object):
 							('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
 							('user', 1, ): [None, 'u', 1, 'database username', ],\
 							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
-							('output_fname', 1, ): [None, 'o', 1, '', ],\
-							('min_probability', 0, float): [-1, 'y', 1, 'minimum probability for a call to be non-NA if there is a 3rd column for probability.', ],\
 							('call_method_id', 1, int): [None, 'l', 1, 'id in table call_method', ],\
+							('input_dir', 0, ): [None, 'i', 1, 'If given is directory, call_info.filename is assumed to be in this directory.'],\
+							('output_fname', 1, ): [None, 'o', 1, '', ],\
+							('min_probability', 0, float): [-1, 'y', 1, 'minimum probability for a call to be non-NA if there IS a 3rd column for probability.', ],\
 							('max_call_info_mismatch_rate', 0, float): [1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate', 0, float): [1, 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
 							('max_snp_NA_rate', 1, float): [1, 'm', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
@@ -168,16 +169,16 @@ class DB_250k2Data(object):
 		"""
 		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
-		db.setup()
+		db.setup(create_tables=False)
 		session = db.session
 		QC_method_id = 0 	#just for QC_250k.get_call_info_id2fname()
-		call_info_id2fname, call_info_ls_to_return = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, max_call_info_mismatch_rate=self.max_call_info_mismatch_rate)
+		call_data = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, input_dir=self.input_dir)
 		#snps_with_best_QC_ls = self.get_snps_with_best_QC_ls(db, self.call_method_id)
 		if self.max_snp_mismatch_rate<1 or self.max_snp_NA_rate<1:	#2008-05-18 only do this when it's necessary
 			snps_name_set = self.get_snps_name_set_given_criteria(db, self.call_method_id, self.max_snp_mismatch_rate, self.max_snp_NA_rate)
 		else:
 			snps_name_set = None
-		pdata = QC_250k.read_call_matrix(call_info_id2fname, self.min_probability, snps_name_set)	#2008-05-20 read_call_matrix returns PassingData object
+		pdata = QC_250k.read_call_matrix(call_data.call_info_id2fname, self.min_probability, snps_name_set)	#2008-05-20 read_call_matrix returns PassingData object
 		strain_acc_list, category_list = pdata.ecotype_id_ls, pdata.array_id_ls
 		write_data_matrix(pdata.data_matrix, self.output_fname, pdata.header, strain_acc_list, category_list)
 
