@@ -2,7 +2,7 @@
 """
 
 Examples:
-	#run it on hpc-cmb cluster
+	#run it on hpc-cmb cluster, get snps_context from a pickled file. input and output directories are all changed.
 	mpiexec ~/script/variation/src/MpiRM2ResultsByGene.py -o ~/panfs/db/results_by_gene/ -c -u yh -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -t ~/panfs/db/results/type_1/ -p passw**d -l 17 -a 4
 
 	#test parallel run on desktop
@@ -43,10 +43,10 @@ class MpiRM2ResultsByGene(ResultsMethod2ResultsByGene, MPIwrapper):
 		"""
 		node_rank = communicator.rank
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
-		results_method_id_ls = cPickle.loads(data)
+		results_id_ls = cPickle.loads(data)
 		result_ls = []
 		counter = 0
-		for results_method_id in results_method_id_ls:
+		for results_method_id in results_id_ls:
 			rm = Stock_250kDB.ResultsMethod.get(results_method_id)
 			if not rm:
 				sys.stderr.write("No results method available for results_method_id=%s.\n"%results_method_id)
@@ -86,9 +86,9 @@ class MpiRM2ResultsByGene(ResultsMethod2ResultsByGene, MPIwrapper):
 		
 		if node_rank == 0:
 			snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
-			if not self.results_method_id_ls:
+			if not self.results_id_ls:
 				pdata = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id)
-				self.results_method_id_ls = self.getResultsMethodIDLs(pdata)
+				self.results_id_ls = self.getResultsMethodIDLs(pdata)
 			
 			snps_context_wrapper_pickle = cPickle.dumps(snps_context_wrapper, -1)
 			for node in free_computing_nodes:	#send it to the computing_node
@@ -105,7 +105,7 @@ class MpiRM2ResultsByGene(ResultsMethod2ResultsByGene, MPIwrapper):
 		
 		self.synchronize()
 		if node_rank == 0:
-			param_obj = PassingData(params_ls=self.results_method_id_ls, output_node_rank=output_node_rank, report=self.report, counter=0)
+			param_obj = PassingData(params_ls=self.results_id_ls, output_node_rank=output_node_rank, report=self.report, counter=0)
 			self.input_node(param_obj, free_computing_nodes, input_handler=self.input_fetch_handler, message_size=self.message_size)
 		elif node_rank in free_computing_node_set:
 			param_data = PassingData(session=session)
