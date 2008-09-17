@@ -28,7 +28,7 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import PassingData, figureOutDelimiter
-from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, CandidateGeneRankSumTestResult, CandidateGeneTopSNPTest
+from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, CandidateGeneRankSumTestResult, CandidateGeneTopSNPTest, ResultsByGene
 from Results2DB_250k import Results2DB_250k
 from pymodule import getGenomeWideResultFromFile
 from GeneListRankTest import GeneListRankTest, SnpsContextWrapper
@@ -42,7 +42,6 @@ class TopSNPTest(GeneListRankTest):
 	option_default_dict.update({('tax_id', 1, int): [3702, 'x', 1, 'to get the number of total genes from database, which species.']})
 	option_default_dict.update({('gene_table', 1, ): ['genome.gene', 'a', 1, 'to get the number of total genes from database, which table.']})
 	option_default_dict.update({('no_of_top_snps', 1, int): [50, 'f', 1, 'how many number of top snps based on score or -log(pvalue).']})
-	option_default_dict.pop(('max_pvalue_per_gene', 0, int))
 	
 	def __init__(self,  **keywords):
 		"""
@@ -121,40 +120,43 @@ class TopSNPTest(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return passingdata
 	
-	
-	
 	def runHGTest(self, pd):
 		"""
+		2008-09-16
+			now get results from table results_by_gene, instead of results_method.
+			results are directly linked to gene. no_of_top_snps is same as the number of top genes/lines.
 		2008-09-09
 			call prepareDataForHGTest_SNPPair if analysis_method_id==13
 		2008-08-20
 		"""
 		if self.debug:
 			sys.stderr.write("Running hypergeometric test ... ")
-		rm = ResultsMethod.get(pd.results_method_id)
+		rm = ResultsByGene.get(pd.results_method_id)
 		if not rm:
-			sys.stderr.write("No results method available for results_method_id=%s.\n"%pd.results_method_id)
+			sys.stderr.write("No results available for results_id=%s.\n"%pd.results_method_id)
 			return None
-		if rm.results_method_type_id!=1:
-			sys.stderr.write("skip non-association results. results_method_type_id=%s, results_method_id=%s.\n"%(rm.results_method_type_id, pd.results_method_id))
-			return None
-		db_results = CandidateGeneTopSNPTest.query.filter_by(results_method_id=pd.results_method_id).filter_by(list_type_id=pd.list_type_id).filter_by(min_distance=pd.min_distance).filter_by(min_MAF=pd.min_MAF).filter_by(get_closest=pd.get_closest)
+		db_results = CandidateGeneTopSNPTest.query.filter_by(results_by_gene_id=pd.results_method_id).filter_by(list_type_id=pd.list_type_id)
 		if db_results.count()>0:	#done before
 			db_result = db_results.first()
 			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s.\n"%\
-							(db_result.id, db_result.results_method_id, db_result.list_type_id, db_result.pvalue))
+							(db_result.id, db_result.results_by_gene_id, db_result.list_type_id, db_result.pvalue))
 			return None
 		try:
 			candidate_gene_list = self.getGeneList(pd.list_type_id)
+			"""
 			if rm.analysis_method_id==13:
 				passingdata = self.prepareDataForHGTest_SNPPair(rm, pd.snps_context_wrapper, candidate_gene_list, pd.results_directory, pd.min_MAF, pd.no_of_top_snps)
 			else:
 				passingdata = self.prepareDataForHGTest(rm, pd.snps_context_wrapper, candidate_gene_list, pd.results_directory, pd.min_MAF, pd.no_of_top_snps)
+			"""
+			param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, no_of_top_lines=pd.no_of_top_snps)
+			passingdata = self.prepareDataForRankTestFromResultsByGene(rm, param_data)
 			import rpy
-			x = len(passingdata.candidate_gene_in_top_set)
+			
+			x = len(passingdata.candidate_gene_ls)
 			m = len(candidate_gene_list)
 			n = pd.no_of_total_genes - m
-			k = x + len(passingdata.non_candidate_gene_in_top_set)
+			k = x + len(passingdata.non_candidate_gene_ls)
 			p_value = rpy.r.phyper(x-1,m,n,k,lower_tail = rpy.r.FALSE)
 		except:
 			sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(pd.results_method_id, pd.list_type_id))
@@ -162,10 +164,10 @@ class TopSNPTest(GeneListRankTest):
 			sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 			return None
 		result = CandidateGeneTopSNPTest(list_type_id=pd.list_type_id, pvalue=p_value)
-		result.results_method_id = pd.results_method_id
-		result.min_distance = pd.min_distance
-		result.min_MAF = pd.min_MAF
-		result.get_closest = pd.get_closest
+		result.results_by_gene_id = pd.results_method_id
+		result.min_distance = rm.min_distance
+		result.min_MAF = rm.min_MAF
+		result.get_closest = rm.get_closest
 		result.no_of_top_candidate_genes = x
 		result.no_of_top_genes = k
 		result.no_of_top_snps = pd.no_of_top_snps
@@ -188,8 +190,8 @@ class TopSNPTest(GeneListRankTest):
 		#if self.commit:
 		#	session.begin()
 		
-		snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
-		pd = PassingData(snps_context_wrapper=snps_context_wrapper, list_type_id=self.list_type_id, \
+		#snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
+		pd = PassingData(list_type_id=self.list_type_id, \
 							no_of_total_genes=no_of_total_genes, results_directory=self.results_directory, \
 							min_MAF=self.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance,\
 							no_of_top_snps=self.no_of_top_snps)
@@ -202,7 +204,7 @@ class TopSNPTest(GeneListRankTest):
 		else:
 			writer = None
 			
-		for results_method_id in self.results_method_id_ls:
+		for results_method_id in self.results_id_ls:
 			pd.results_method_id = results_method_id
 			result = self.runHGTest(pd)
 			if result is not None:
