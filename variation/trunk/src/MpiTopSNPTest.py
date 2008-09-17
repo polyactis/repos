@@ -3,7 +3,7 @@
 
 Examples:
 	#run it on hpc-cmb cluster
-	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -o ~/top_snp_test.out -s 100 -c -l 17
+	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results_by_gene/ -o ~/top_snp_test.out -s 100 -c -l 17
 
 	#test parallel run on desktop
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -s 100 -b -c
@@ -30,14 +30,14 @@ from sets import Set
 from MpiGeneListRankTest import MpiGeneListRankTest
 from GeneListRankTest import SnpsContextWrapper
 
-class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest):
+class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = TopSNPTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
 	option_default_dict.pop(("list_type_id", 1, int))	#already poped in MpiGeneListRankTest
-	option_default_dict.pop(("results_method_id_ls", 1, ))
+	option_default_dict.pop(("results_id_ls", 1, ))
 	
 	def __init__(self,  **keywords):
 		"""
@@ -97,16 +97,14 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest):
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
 		free_computing_node_set = Set(free_computing_nodes)
 		output_node_rank = self.communicator.size-1
-		if node_rank in free_computing_node_set:	#to reduce the number of connections on papaya
-			self.hostname = 'banyan.usc.edu'
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
-		db.setup()
+		db.setup(create_tables=False)
 		session = db.session
 		
 		if node_rank == 0:
 			pdata_for_computing = PassingData()
-			pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
+			#pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 			pdata_for_computing.no_of_total_genes = self.getNoOfTotalGenes(db, self.gene_table, self.tax_id)
 			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=getattr(self, 'analysis_method_id', None))
 			params_ls = self.generate_params(param_obj)
@@ -122,23 +120,22 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest):
 		elif node_rank in free_computing_node_set:
 			data, source, tag = self.communicator.receiveString(0, 0)
 			data =  cPickle.loads(data)
-			snps_context_wrapper = data.snps_context_wrapper
+			#snps_context_wrapper = data.snps_context_wrapper
 			no_of_total_genes = data.no_of_total_genes
 			del data
 			sys.stderr.write(".\n")
 		else:
 			pass
 		
-		mw = MPIwrapper(self.communicator, debug=self.debug, report=self.report)
-		mw.synchronize()
+		self.synchronize()
 		if node_rank == 0:
 			parameter_list = [params_ls]
-			mw.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
+			self.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
 		elif node_rank in free_computing_node_set:
-			computing_parameter_obj = PassingData(snps_context_wrapper=snps_context_wrapper, \
+			computing_parameter_obj = PassingData(snps_context_wrapper=None, \
 												results_directory=self.results_directory, min_MAF=self.min_MAF,\
 												no_of_total_genes=no_of_total_genes)
-			mw.computing_node(computing_parameter_obj, self.computing_node_handler)
+			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			if getattr(self, 'output_fname', None):
 				writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
@@ -150,9 +147,9 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest):
 				writer = None
 			
 			parameter_list = [writer, session, self.commit]
-			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
+			self.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
 			del writer		
-		mw.synchronize()	#to avoid some node early exits
+		self.synchronize()	#to avoid some node early exits
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
