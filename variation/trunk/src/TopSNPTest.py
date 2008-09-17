@@ -123,6 +123,8 @@ class TopSNPTest(GeneListRankTest):
 	def runHGTest(self, pd):
 		"""
 		2008-09-16
+			robust programming, check if prepareDataForRankTestFromResultsByGene() returns anything before doing stat test
+		2008-09-16
 			now get results from table results_by_gene, instead of results_method.
 			results are directly linked to gene. no_of_top_snps is same as the number of top genes/lines.
 		2008-09-09
@@ -151,6 +153,9 @@ class TopSNPTest(GeneListRankTest):
 			"""
 			param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, no_of_top_lines=pd.no_of_top_snps)
 			passingdata = self.prepareDataForRankTestFromResultsByGene(rm, param_data)
+			if passingdata is None:
+				sys.stderr.write("No data got from this result (id=%s, filename=%s).\n"%(rm.id, rm.filename))
+				return None
 			import rpy
 			
 			x = len(passingdata.candidate_gene_ls)
