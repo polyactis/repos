@@ -227,7 +227,7 @@ class GeneListRankTest(object):
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			for snps_context in snps_context_matrix:
 				snps_id, disp_pos, gene_id = snps_context
-				passingdata = PassingData(chr=data_obj.chromosome, pos=data_obj.position, score=score, disp_pos=disp_pos, snps_id=snps_id)
+				passingdata = PassingData(chr=data_obj.chromosome, pos=data_obj.position, score=score, disp_pos=disp_pos, snps_id=snps_id, comment=None)
 				if gene_id not in gene_id2hit:
 					gene_id2hit[gene_id] = passingdata
 				elif score>gene_id2hit[gene_id].score:	#score is -log()
@@ -237,6 +237,48 @@ class GeneListRankTest(object):
 		sys.stderr.write("Done.\n")
 		return gene_id2hit
 	
+	def getGeneID2MostSignificantHitFromSNPPairFile(self, rm, snps_context_wrapper, results_directory=None, min_MAF=0.1):
+		"""
+		2008-09-16
+			similar to getGeneID2MostSignificantHit()
+			but the results is in a different format. output of MpiIntraGeneSNPPairAsso.py
+		"""
+		sys.stderr.write("Getting gene_id2hit ... \n")
+		if results_directory:	#given a directory where all results are.
+			result_fname = os.path.join(results_directory, os.path.basename(rm.filename))
+		else:
+			result_fname = rm.filename
+		if not os.path.isfile(result_fname):
+			return None
+		
+		reader = csv.reader(open(result_fname), delimiter='\t')
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		gene_id2hit = {}
+		counter = 0
+		for row in reader:
+			gene_id = int(row[col_name2index['gene1_id']])
+			score = -math.log(float(row[col_name2index['pvalue']]))
+			snp1_id = row[col_name2index['snp1_id']]
+			snp2_id = row[col_name2index['snp2_id']]
+			bool_type = row[col_name2index['bool_type']]
+			count1 = int(row[col_name2index['count1']])
+			count2 = int(row[col_name2index['count2']])
+			maf = float(min(count1, count2))/(count1+count2)
+			if maf>=min_MAF:
+				snps_id = snp1_id
+				if snp2_id:
+					snps_id += '|%s'%snp2_id
+				passingdata = PassingData(score=score, snps_id=snps_id, disp_pos=None, comment='bool_type:%s'%bool_type)
+				if gene_id not in gene_id2hit:
+					gene_id2hit[gene_id] = passingdata
+				elif score>gene_id2hit[gene_id].score:	#score is -log()
+					gene_id2hit[gene_id] = passingdata
+			counter += 1
+			if self.report and counter%10000==0:
+				sys.stderr.write("%s%s"%('\x08'*100, counter))
+		sys.stderr.write("Done.\n")
+		return gene_id2hit
+		
 	def getGeneList(self, list_type_id):
 		sys.stderr.write("Getting gene_list ... ")
 		rows = GeneList.query.filter_by(list_type_id=list_type_id)
