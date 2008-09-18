@@ -5,16 +5,7 @@ a treeview to store data.  Double click on an entry to update plot
 data
 
 """
-import sys, os, math
-bit_number = math.log(sys.maxint)/math.log(2)
-if bit_number>40:       #64bit
-	sys.path.insert(0, os.path.expanduser('~/lib64/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script64')))
-else:   #32bit
-	sys.path.insert(0, os.path.expanduser('~/lib/python'))
-	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-
-import pygtk
+import os, sys, pygtk
 pygtk.require('2.0')
 import gtk, gtk.glade, gobject
 from gtk import gdk
@@ -28,7 +19,7 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 
-import pymodule.gnome as yh_gnome
+import yh_gnome
 
 from sets import Set
 
@@ -202,6 +193,8 @@ class QCVisualize(gtk.Window):
 		
 	def create_list_2d_for_treeview(self, id2NA_mismatch_rate, id2info, id2index):
 		"""
+		2008-09-18
+			value id2NA_mismatch_rate is a list of more than 6 entries, here only need 6 of them
 		2008-02-12
 			correct a bug in index_in_data_matrix. it could be 0 and "not index_in_data_matrix" could be come true.
 		2008-02-05
@@ -219,7 +212,7 @@ class QCVisualize(gtk.Window):
 			index_in_data_matrix = id2index.get(id)
 			if index_in_data_matrix==None:	#2008-02-12 bug
 				index_in_data_matrix = -1
-			row = [repr(id), info] + NA_mismatch_rate + [index_in_data_matrix]
+			row = [repr(id), info] + NA_mismatch_rate[:6] + [index_in_data_matrix]
 			list_2d.append(row)
 		return list_2d
 	
