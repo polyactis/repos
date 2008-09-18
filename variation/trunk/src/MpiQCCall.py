@@ -295,6 +295,8 @@ class MpiQCCall(object):
 	def summarize_NA_mismatch_ls(self, NA_mismatch_ls_ls, avg_var_name_pair_ls):
 		"""
 		05/12/2008
+			called by output_node_handler()
+			calculate average NA_rate, mismatch_rate, relative_NA_rate from NA_mismatch_ls_ls
 		"""
 		passingdata = PassingData()
 		for avg_var_name_pair in avg_var_name_pair_ls:
