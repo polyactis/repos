@@ -30,7 +30,7 @@ from matplotlib.figure import Figure
 #2008-02-04 use a custom navigation tool bar
 from pymodule.gnome import NavigationToolbar2GTKAgg_chromosome as NavigationToolbar
 
-import pymodule.gnome as yh_gnome
+from pymodule import yh_gnome
 
 import numpy
 from matplotlib.lines import Line2D
