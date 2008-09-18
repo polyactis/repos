@@ -122,6 +122,8 @@ class TopSNPTest(GeneListRankTest):
 	
 	def runHGTest(self, pd):
 		"""
+		2008-09-18
+			when checking the db whether a top snp test result is there or not, add no_of_top_snps as one more filter
 		2008-09-16
 			robust programming, check if prepareDataForRankTestFromResultsByGene() returns anything before doing stat test
 		2008-09-16
@@ -137,11 +139,11 @@ class TopSNPTest(GeneListRankTest):
 		if not rm:
 			sys.stderr.write("No results available for results_id=%s.\n"%pd.results_method_id)
 			return None
-		db_results = CandidateGeneTopSNPTest.query.filter_by(results_by_gene_id=pd.results_method_id).filter_by(list_type_id=pd.list_type_id)
+		db_results = CandidateGeneTopSNPTest.query.filter_by(results_by_gene_id=pd.results_method_id).filter_by(list_type_id=pd.list_type_id).filter_by(no_of_top_snps=pd.no_of_top_snps)
 		if db_results.count()>0:	#done before
 			db_result = db_results.first()
-			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, pvalue=%s.\n"%\
-							(db_result.id, db_result.results_by_gene_id, db_result.list_type_id, db_result.pvalue))
+			sys.stderr.write("It's done already. id=%s, results_method_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
+							(db_result.id, db_result.results_by_gene_id, db_result.list_type_id, db_result.no_of_top_snps, db_result.pvalue))
 			return None
 		try:
 			candidate_gene_list = self.getGeneList(pd.list_type_id)
