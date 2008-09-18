@@ -561,6 +561,9 @@ class QualityControl(object):
 
 	def get_row_id2info(self, row_id_ls, curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype'):
 		"""
+		2008-09-18
+			calls_250k_duplicate_comment_table is not used anymore.
+			only use ecotypeid to find out info of a row
 		2007-12-16
 		2007-12-20
 			make it more generic
@@ -571,13 +574,13 @@ class QualityControl(object):
 		for row_id in row_id_ls:
 			ecotypeid, duplicate = row_id
 			try:
-				curs.execute("SELECT c.comment, e.nativename, e.stockparent FROM %s c, %s e where e.id=c.ecotypeid and e.id=%s and c.duplicate=%s"%(calls_250k_duplicate_comment_table, ecotype_table, ecotypeid, duplicate))
+				curs.execute("SELECT e.name, e.nativename, e.stockparent FROM %s e where e.id=%s"%(ecotype_table, ecotypeid))
 				rows = curs.fetchall()
 				if rows:
-					comment, nativename, stockparent = rows[0]
-					directory = os.path.split(comment)[0]	#take the 1st
-					directory = os.path.split(directory)[-1]	#take the last
-					row_id2info[row_id] = '%s,%s'%(nativename,directory)
+					name, nativename, stockparent = rows[0]
+					#directory = os.path.split(comment)[0]	#take the 1st
+					#directory = os.path.split(directory)[-1]	#take the last
+					row_id2info[row_id] = '%s,%s,%s'%(nativename,stockparent,name)
 					row_id2info[row_id] = row_id2info[row_id].decode('utf-8', 'ignore')
 					#ecotypeid_duplicate2info[key_pair] = ecotypeid_duplicate2info[key_pair].decode('latin10')
 				else:
