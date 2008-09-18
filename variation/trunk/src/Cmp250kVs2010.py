@@ -1,33 +1,15 @@
 #!/usr/bin/env python
 """
-Usage: Cmp250kVs2010.py [OPTIONS] -p XXX -o OUTPUT_FNAME -j XXX
-
-Option:
-	-z ..., --hostname=...	the hostname, localhost(default)
-	-d ..., --dbname=...	the database name, stock20071008(default)
-	-k ..., --schema=...	which schema in the database, dbsnp(default)
-	-e ...,	ecotype_table, 'stock20071008.ecotype'(default)
-	-p ...,	ecotype 2 accession mapping table 'at.accession2ecotype_complete'/'at.ecotype2accession'
-	-s ...,	sequence table, 'at.sequence'(default)
-	-a ..., alignment table, 'at.alignment'(default)
-	-n ...,	snp_locus_table, 'snp_locus'(default)
-	-l ...,	calls table, 'stock20071008.calls'(default)
-	-o ...,	output_fname
-	-j ...,	sub_justin_output_fname, (output the sub_data_matrix extracted from input_fname)
-	-f ...,	latex_output_fname which stores both the summary and detailed difference tables
-		specify this latex_output_fname if you want output
-	-c,	comparison_only, output_fname and sub_justin_output_fname are already there
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
+	Cmp250kVs2010.py -i ~/script/variation/genotyping/250ksnp/data/data_250k.tsv -j ~/script/variation/data/2010/data_2010_x_250k.tsv
 	
 Description:
-	program to compare the 149snp calls based on the common strains inn 2010 pcr data and Justin's sequenom data.
-
-	input_fname1 = os.path.expanduser('~/script/variation/genotyping/250ksnp/data/data_250k.tsv')
-	input_fname2 = os.path.expanduser('~/script/variation/data/2010/data_2010_x_250k.tsv')
+	This is a generic program (not just 250k vs 2010) to do QC. Row is matched by 1st column from input_fname1 and 1st column from input_fname2.
+	Column is matched by the header.
+	
+	It is like QC.py but only handles Strain X SNP format. It will pop up a GUI window to allow better viewing of QC.
+	For better usage, run QCVisualizeII.py and choose this class and run.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -38,27 +20,40 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-from variation.src.QualityControl import QualityControl
+from pymodule import read_data, QualityControl
+#from variation.src.QualityControl import QualityControl
 
 class Cmp250kVs2010(QualityControl):
+	__doc__ = __doc__
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ):['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('database', 1, ):['stock', 'd', 1, '',],\
+							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
+							('db_user', 0, ):['yh', 'u', 1, 'database username',],\
+							('db_passwd', 0, ):['', 'p', 1, 'database password', ],\
+							('curs', 0, ):[None, '', 1, 'database cursor, for other program to call. no need to provide it in commandline.', ],\
+							('input_fname1',1, ): [None, 'i', 1, 'file of SNPData1'],\
+							('input_fname2',1, ): [None, 'j', 1, 'file of SNPData2'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+							#('input_fname1_format',1,int): [1, 'k', 1, 'Format of input_fname1. 1=strain X snp (Yu). 2=snp X strain (Bjarni) without arrayId. 3=snp X strain with arrayId.'],\
+							#('input_fname2_format',1,int): [1, 'l', 1, 'Format of input_fname2. 1=strain X snp (Yu). 2=snp X strain (Bjarni) without arrayId'],\
 	"""
+	2008-09-18
+		become a generic program to do QC, like QC.py but only handles Strain X SNP format.
 	2007-12-19
 		QC between 250k and 2010
 	"""
-	def __init__(self, curs='', input_fname1='', input_fname2='', ecotype_duplicate2tg_ecotypeid_table='', snp_locus_table1='', snp_locus_table2='', debug=0):
+	def __init__(self, **keywords):
 		"""
+		2008-09-18
+			use pymodule.ProcessOptions
 		2008-01-21
 			ecotype_duplicate2tg_ecotypeid_table, snp_locus_table1 and snp_locus_table2 are useless
 		"""
-		QualityControl.__init__(self, debug=int(debug))
-		self.curs = curs
-		self.input_fname1 = input_fname1
-		self.input_fname2 = input_fname2
-		self.snp_locus_table1 = snp_locus_table1
-		self.snp_locus_table2 = snp_locus_table2
-		self.ecotype_duplicate2tg_ecotypeid_table = ecotype_duplicate2tg_ecotypeid_table
-		
-		self.debug = int(debug)
+		from pymodule import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		QualityControl.__init__(self, debug=self.debug)
 	
 	def get_col_matching_dstruc(self, header1, header2):
 		"""
@@ -92,7 +87,7 @@ class Cmp250kVs2010(QualityControl):
 		strain_acc2row_index1 = {}
 		for i in range(len(strain_acc_list1)):
 			ecotypeid = int(strain_acc_list1[i])
-			duplicate = int(category_list1[i])
+			duplicate = category_list1[i]
 			strain_acc = (ecotypeid, duplicate)
 			strain_acc2row_index1[strain_acc] = i
 		
@@ -120,33 +115,33 @@ class Cmp250kVs2010(QualityControl):
 			import pdb
 			pdb.set_trace()
 		QualityControl.load_dstruc(self)
-		from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
-		self.header1, self.strain_acc_list1, self.category_list1, self.data_matrix1 = FilterStrainSNPMatrix_instance.read_data(self.input_fname1)
-		self.header2, self.strain_acc_list2, self.category_list2, self.data_matrix2 = FilterStrainSNPMatrix_instance.read_data(self.input_fname2)
+		self.header1, self.strain_acc_list1, self.category_list1, self.data_matrix1 = read_data(self.input_fname1)
+		self.header2, self.strain_acc_list2, self.category_list2, self.data_matrix2 = read_data(self.input_fname2)
 	 	
 		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.header1, self.header2)
 		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.strain_acc_list1, self.category_list1, self.strain_acc_list2)
-
-
+	
+	def run(self):
+		"""
+		2008-09-18
+			wrap up to run standalone.
+			copied from old lines below __name__=='__main__'
+		"""
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		if not self.curs:
+			import MySQLdb
+			conn = MySQLdb.connect(db=self.database, host=self.hostname, user=self.db_user, passwd=self.db_passwd)
+			self.curs = conn.cursor()
+		
+		self.load_dstruc()
+		self.plot_row_NA_mismatch_rate('%s vs %s strain-wise'%(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)))
+		
 if __name__ == '__main__':
-	hostname='localhost'
-	dbname='stock20071008'
-	import MySQLdb
-	conn = MySQLdb.connect(db=dbname,host=hostname)
-	curs = conn.cursor()
+	from __init__ import ProcessOptions
+	main_class = Cmp250kVs2010
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	
-	input_fname = './script/variation/genotyping/250ksnp/data/data_250k.tsv'
-	
-	input_fname1 = os.path.expanduser('~/script/variation/genotyping/250ksnp/data/data_250k.tsv')
-	input_fname2 = os.path.expanduser('~/script/variation/data/2010/data_2010_x_250k.tsv')
-	snp_locus_table1 = 'snps_250k'
-	snp_locus_table2 = 'snps'
-	ecotype_duplicate2tg_ecotypeid_table = 'ecotype_duplicate2tg_ecotypeid'
-	Cmp250kVs2010_ins= Cmp250kVs2010(curs, input_fname1, input_fname2, snp_locus_table1, snp_locus_table2, ecotype_duplicate2tg_ecotypeid_table)
-	Cmp250kVs2010_ins.load_dstruc()
-	
-	Cmp250kVs2010_ins.plot_row_NA_mismatch_rate('250k vs 2010 strain-wise')
-	#Cmp250kVs2010_ins.cal_row_id2pairwise_dist()
-	#new_row_id2pairwise_dist = Cmp250kVs2010_ins.trim_row_id2pairwise_dist(Cmp250kVs2010_ins.row_id2pairwise_dist, 10)
-	#Cmp250kVs2010_ins.plot_col_NA_mismatch_rate('250k vs 2010 snp-wise')
+	instance = main_class(**po.long_option2value)
+	instance.run()
