@@ -9,7 +9,10 @@ Examples:
 	DB_250k2data.py -l 3 -y 0.85 -w 1 -m 1 -x 0.20 -o /tmp/250k_l3_v1_w1_x0.20_y0.85.tsv
 	
 	DB_250k2data.py -l 17 -o /mnt/nfs/250k/call_method_17.tsv
-
+	
+	#no filtering for either SNP or array, but take unique ecotype, the input data directory is changed.
+	DB_250k2data.py -y 0.85 -w 1 -m1 -x1 -l 3 -t -o 250k_l3_y.85_uniq_ecotype_20080919.tsv -i ~/banyan_fs/Network/Data/250k/db/calls/method_3/
+	
 Description:
 	Simple program to output/filter 250k data based on QC recorded in database in Strain X SNP format.
 	2008-05-06
@@ -32,7 +35,6 @@ from pymodule import write_data_matrix
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 import Stock_250kDB
-#from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, SnpsQC, CallInfo, Snps, README
 from QC_250k import QC_250k
 import sqlalchemy
 
@@ -50,8 +52,13 @@ class DB_250k2Data(object):
 							('max_call_info_mismatch_rate', 0, float): [1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_snp_mismatch_rate', 0, float): [1, 'w', 1, 'maximum snp error rate, used to exclude bad SNPs', ],\
 							('max_snp_NA_rate', 1, float): [1, 'm', 1, 'maximum snp NA rate, used to exclude SNPs with too many NAs', ],\
+							('take_unique_ecotype', 0, int):[0, 't', 0, 'toggle this to keep only one call_info with lowest mismatch_rate for one ecotype'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	"""
+	2008-09-19
+		add option take_unique_ecotype
+	"""
 	def __init__(self, **keywords):
 		"""
 		2008-05-06
@@ -172,7 +179,9 @@ class DB_250k2Data(object):
 		db.setup(create_tables=False)
 		session = db.session
 		QC_method_id = 0 	#just for QC_250k.get_call_info_id2fname()
-		call_data = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, input_dir=self.input_dir)
+		call_data = QC_250k.get_call_info_id2fname(db, QC_method_id, self.call_method_id, filter_calls_QCed=0, \
+												max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, input_dir=self.input_dir,\
+												take_unique_ecotype=self.take_unique_ecotype)
 		#snps_with_best_QC_ls = self.get_snps_with_best_QC_ls(db, self.call_method_id)
 		if self.max_snp_mismatch_rate<1 or self.max_snp_NA_rate<1:	#2008-05-18 only do this when it's necessary
 			snps_name_set = self.get_snps_name_set_given_criteria(db, self.call_method_id, self.max_snp_mismatch_rate, self.max_snp_NA_rate)
