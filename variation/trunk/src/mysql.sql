@@ -437,7 +437,7 @@ create index results_results_method_id_idx on results(results_method_id);
 create or replace view view_qc as select e.id as ecotype_id, e.nativename, a.id as array_id, q.tg_ecotype_id, q.call_info_id, 
 q.call_method_id, c.NA_rate as call_NA_rate,  q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
 q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, 
-a.original_filename as array_original_filename, a.date_created as array_created
+a.original_filename as array_original_filename, a.date_created as array_created, q.date_created as qc_date
 from call_info c, array_info a, call_qc q , stock.ecotype e, qc_method qm where e.id=q.ecotype_id 
 and q.call_info_id = c.id and a.id=c.array_id and qm.id=q.qc_method_id order by nativename, array_id, call_method_id,
 array_created, qc_method_id;
