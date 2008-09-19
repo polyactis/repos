@@ -102,6 +102,8 @@ class QC_250k(object):
 
 	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0, min_no_of_non_NA_pairs=40, **keywords):
 		"""
+		2008-09-19
+			add option take_unique_ecotype to keep only one call_info with lowest mismatch_rate for one ecotype
 		2008-09-16
 			add **keywords in the argument
 			deal with input_dir if it's present. replace the directory in call_info.filename with it.
@@ -123,17 +125,15 @@ class QC_250k(object):
 			
 		"""
 		sys.stderr.write("Getting call_info_id2fname ... ")
-		#curs.execute("select distinct c.id, c.filename, a.maternal_ecotype_id, a.paternal_ecotype_id, q.id as qc_id, q.QC_method_id \
-		#		from %s a, %s c left join %s q on c.id=q.call_info_id where c.array_id=a.id and a.maternal_ecotype_id=a.paternal_ecotype_id and c.method_id=%s"%\
-		#		(array_info_table, call_info_table, call_QC_table, call_method_id))
-		#rows = curs.fetchall()
 		#2008-09-16 get input_dir
 		input_dir = keywords.get('input_dir') or None
+		take_unique_ecotype = keywords.get('take_unique_ecotype') or False
 		
 		call_info_ls = Stock_250kDB.CallInfo.query.filter_by(method_id=call_method_id).all()
 		
 		call_info_id2fname = {}
 		call_info_ls_to_return = []
+		ecotype_id2call_info_data = {}
 		for call_info in call_info_ls:
 			if call_info.array.maternal_ecotype_id!=call_info.array.paternal_ecotype_id:	#ignore crosses
 				continue
@@ -161,14 +161,37 @@ class QC_250k(object):
 			
 			if ignore_this:
 				continue
-			if input_dir:
-				filename = os.path.join(input_dir, os.path.basename(call_info.filename))
-			else:
-				filename = call_info.filename
-			call_info_id2fname[call_info.id] = [call_info.array.maternal_ecotype_id, filename, call_info.array_id]
-			call_info_ls_to_return.append(call_info)
+			
+			#2008-09-19 group the call_info's by ecotype_id, decide what to do next.
+			ecotype_id = call_info.array.maternal_ecotype_id
+			if ecotype_id not in ecotype_id2call_info_data:
+				ecotype_id2call_info_data[ecotype_id] = PassingData()
+				ecotype_id2call_info_data[ecotype_id].mismatch_rate_call_info_id_ls = []
+				ecotype_id2call_info_data[ecotype_id].call_info_id2call_info = {}
+			mismatch_rate = getattr(call_info.call_QC_with_max_no_of_non_NA_pairs, 'mismatch_rate', 1)	#if no QC available, put 1 there
+			ecotype_id2call_info_data[ecotype_id].mismatch_rate_call_info_id_ls.append([mismatch_rate, call_info.id])
+			ecotype_id2call_info_data[ecotype_id].call_info_id2call_info[call_info.id] = call_info
+			
 			#if debug and len(call_info_id2fname)>40:
 			#	break
+		#2008-09-19
+		for ecotype_id, call_info_data in ecotype_id2call_info_data.iteritems():
+			call_info_data.mismatch_rate_call_info_id_ls.sort()
+			for i in range(len(call_info_data.mismatch_rate_call_info_id_ls)):
+				call_info_id = call_info_data.mismatch_rate_call_info_id_ls[i][1]
+				call_info = call_info_data.call_info_id2call_info[call_info_id]
+				if input_dir:
+					filename = os.path.join(input_dir, os.path.basename(call_info.filename))
+				else:
+					filename = call_info.filename
+				
+				call_info_id2fname[call_info.id] = [call_info.array.maternal_ecotype_id, filename, call_info.array_id]
+				call_info_ls_to_return.append(call_info)
+				
+				if take_unique_ecotype and i==0:	#only take the one with lowest mismatch rate and break
+					break
+		
+		del ecotype_id2call_info_data
 		call_data = PassingData()
 		call_data.call_info_id2fname = call_info_id2fname
 		call_data.call_info_ls_to_return = call_info_ls_to_return
