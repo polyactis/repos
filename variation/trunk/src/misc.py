@@ -3106,6 +3106,265 @@ checkBjarniFile(input_fname, curs)
 """
 
 
+"""
+2008-09-10
+	Alex sent me some files of 149SNP haplotype consensus seq and country info to get pairwise picture. convert it to my format.
+"""
+
+def get_haplotype_group_name2country_ls(file_country):
+	import csv, os, sys
+	sys.stderr.write("Reading in country info of haplotypes ...")
+	reader = csv.reader(open(file_country), delimiter='\t')
+	reader.next()
+	haplotype_group_name2country_ls = {}
+	for row in reader:
+		g_name = row[0][:-1]
+		if g_name in haplotype_group_name2country_ls:
+			sys.stderr.write("Error: %s already existed in haplotype_group_name2country_ls.\n"%g_name)
+		haplotype_group_name2country_ls[g_name] = row[1:]
+	del reader
+	sys.stderr.write("Done.\n")
+	return haplotype_group_name2country_ls
+	
+def processAlexHaplotypeFile(file_country, file2, output_fname):
+	haplotype_group_name2country_ls = get_haplotype_group_name2country_ls(file_country)
+	import csv, os, sys
+	sys.stderr.write("Reading in consensus of haplotypes ...")
+	from pymodule import nt2number
+	reader = csv.reader(open(file2), delimiter='\t')
+	reader.next()
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	i = 0
+	data_row = []
+	for row in reader:
+		g_name = row[0]
+		if g_name in haplotype_group_name2country_ls:	#2008-09-12 has to be in the country file
+			country_str = '_'.join(haplotype_group_name2country_ls[g_name])
+			label = '%s_%s_%s'%(g_name, country_str, row[-1])
+			data_row.append(label)
+			data_row.append(label)
+			for j in range(1, len(row)-2):
+				for k in range(len(row[j])):
+					data_row.append(nt2number[row[j][k]])
+			if i==0:	#need to write a header
+				writer.writerow(['','']+range(1, len(data_row)-1))
+			writer.writerow(data_row)
+			data_row = []
+			i += 1
+	sys.stderr.write("Done.\n")
+	del reader, writer
+
+
+def getMatrixOutofCrossMatchResult(curs, cross_match_outfile, file_country, output_fname, max_mismatch_rate=1):
+	haplotype_group_name2country_ls = get_haplotype_group_name2country_ls(file_country)
+	import csv, os, sys
+	longitude_g_name_ls = []
+	for g_name, country_ls in haplotype_group_name2country_ls.iteritems():
+		if len(country_ls)==1:
+			curs.execute("select latitude, longitude, abbr from stock.country where abbr='%s'"%(country_ls[0]))
+			rows = curs.fetchall()
+			longitude = rows[0][1]
+			longitude_g_name_ls.append((longitude, country_ls[0], g_name))
+		else:
+			longitude_g_name_ls.append((-360, '', g_name))
+	
+	haplotype_group_name2index = {}
+	longitude_g_name_ls.sort()
+	prev_country = None
+	no_of_countries = 0
+	label_ls = []
+	for i in range(len(longitude_g_name_ls)):
+		country = longitude_g_name_ls[i][1]
+		if prev_country==None:
+			prev_country = country
+		elif country!=prev_country:	#insert a separator
+			no_of_countries += 1
+			g_name = '-%s'%no_of_countries
+			haplotype_group_name2index[g_name] = len(haplotype_group_name2index)
+			label_ls.append('')
+			prev_country = country
+		g_name = longitude_g_name_ls[i][-1]
+		haplotype_group_name2index[g_name] = len(haplotype_group_name2index)
+		label_ls.append(g_name)	#change it to a fuller one later
+	
+	sys.stderr.write("Getting data matrix ... \n")
+	import numpy
+	data_matrix = numpy.zeros([len(haplotype_group_name2index), len(haplotype_group_name2index)], numpy.float)
+	data_matrix[:,:] = -1	#mark everything as NA
+	reader = csv.reader(open(cross_match_outfile), delimiter='\t')
+	#figure out which variable is in which column
+	header = reader.next()
+	col_name2index = {}
+	for i in range(len(header)):
+		column_name = header[i]
+		col_name2index[column_name] = i
+	
+	for row in reader:
+		source_id = row[col_name2index['source_id']]
+		source_g_name = source_id.split('_')[0]
+		target_id = row[col_name2index['target_id']]
+		target_g_name = target_id.split('_')[0]
+		mismatch_rate = float(row[col_name2index['mismatch_rate']])
+		no_of_mismatches = int(row[col_name2index['no_of_mismatches']])
+		no_of_non_NA_pairs = int(row[col_name2index['no_of_non_NA_pairs']])
+		row_index = haplotype_group_name2index[source_g_name]
+		col_index = haplotype_group_name2index[target_g_name]
+		label_ls[row_index] = source_id
+		if no_of_non_NA_pairs>=20 and mismatch_rate<=max_mismatch_rate:
+			data_matrix[row_index][col_index] = data_matrix[col_index][row_index] = mismatch_rate
+	
+	for g_name, boundary_index in haplotype_group_name2index.iteritems():
+		if g_name[0]=='-':
+			data_matrix[boundary_index,:] = -3
+			data_matrix[:,boundary_index] = -3
+	sys.stderr.write("Done.\n")
+	from pymodule import write_data_matrix
+	write_data_matrix(data_matrix, output_fname, ['','']+label_ls, label_ls, label_ls)
+		
+
+file_country = os.path.expanduser('~/script/variation/data/149SNP/haps.countries.tsv')
+file2 = os.path.expanduser('~/script/variation/data/149SNP/consensus_seqs.HG(0.005.S).tsv')
+output_fname = os.path.expanduser('~/script/variation/data/149SNP/haps_in_149.tsv')
+processAlexHaplotypeFile(file_country, file2, output_fname)
+
+file_country = os.path.expanduser('~/panfs/149CrossMatch/haps.countries.tsv')
+cross_match_outfile = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_cross_match.tsv')
+output_fname = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_cross_match_matrix.tsv')
+max_mismatch_rate=1
+getMatrixOutofCrossMatchResult(curs, cross_match_outfile, file_country, output_fname, max_mismatch_rate=1)
+
+#2008-09-12
+file_country = os.path.expanduser('~/script/variation/data/149SNP/haps.countries.x11.tsv')
+output_fname = os.path.expanduser('~/script/variation/data/149SNP/haps_in_149_no_4_bad_plates.tsv')
+processAlexHaplotypeFile(file_country, file2, output_fname)
+
+file_country = os.path.expanduser('~/banyan_home/script/variation/data/149SNP/haps.countries.x11.tsv')
+cross_match_outfile = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_no_4_bad_plates_cross_match.tsv')
+output_fname = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_no_4_bad_plates_cross_match_matrix_a0.3.tsv')
+getMatrixOutofCrossMatchResult(curs, cross_match_outfile, file_country, output_fname, max_mismatch_rate=0.3)
+
+
+"""
+2008-09-11
+	found out sequenom group 149SNPs into 4 blocks (38, 37, 37, 37) and then genotype each block on their plate separately
+	the SNPs are not in chromosome,position order. It's in id of table snps order.
+	now partition the data file into 4 blocks accordingly.
+"""
+def partition149SNPDataInto4Blocks(input_fname, db_149, output_fname_prefix):
+	from pymodule import read_data, SNPData, write_data_matrix
+	header, strain_acc_list, category_list, data_matrix = read_data(input_fname)
+	snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list, data_matrix=data_matrix, turn_into_array=1)
+	
+	block1_snp_id_ls = []
+	block2_snp_id_ls = []
+	block3_snp_id_ls = []
+	block4_snp_id_ls = []
+	sys.stderr.write("Grouping SNPs ...")
+	rows = db_149.metadata.bind.execute("select * from snps order by id")
+	for row in rows:
+		snp_id = '%s_%s'%(row.chromosome, row.position)
+		if row.id<=38:
+			block1_snp_id_ls.append(snp_id)
+		elif row.id>38 and row.id<=75:
+			block2_snp_id_ls.append(snp_id)
+		elif row.id>75 and row.id<=112:
+			block3_snp_id_ls.append(snp_id)
+		else:
+			block4_snp_id_ls.append(snp_id)
+	sys.stderr.write("Done.\n")
+	sys.stderr.write("Splitting matrix ... \n")
+	no_of_rows = snpData.data_matrix.shape[0]
+	import numpy
+	block_snp_id_ls_ls = [block1_snp_id_ls, block2_snp_id_ls, block3_snp_id_ls, block4_snp_id_ls]
+	for i in range(len(block_snp_id_ls_ls)):
+		output_fname = '%s_%s.tsv'%(output_fname_prefix, i)
+		no_of_snps_in_this_block = len(block_snp_id_ls_ls[i])
+		d_matrix = numpy.zeros([no_of_rows, no_of_snps_in_this_block], numpy.int8)
+		for j in range(no_of_snps_in_this_block):
+			snp_id = block_snp_id_ls_ls[i][j]
+			col_index = snpData.col_id2col_index[snp_id]
+			d_matrix[:,j] = snpData.data_matrix[:,col_index]
+		header = ['', ''] + block_snp_id_ls_ls[i]
+		write_data_matrix(d_matrix, output_fname, header, strain_acc_list, category_list)
+	sys.stderr.write("Done.\n")
+
+input_fname = os.path.expanduser('~/panfs/149CrossMatch/stock_149SNP_y0000110101.tsv')
+output_fname_prefix = os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock')
+partition149SNPDataInto4Blocks(input_fname, db_149, output_fname_prefix)
+
+def getDistanceMatrixOutofCrossMatchFile(input_fname, max_no_of_strains, strainid2index, strainid_ls, min_no_of_non_NA_pairs=10):
+	import os, sys,csv
+	sys.stderr.write("Getting distance matrix from %s ... "%input_fname)
+	reader = csv.reader(open(input_fname), delimiter='\t')
+	header = reader.next()
+	col_name2index = {}
+	for i in range(len(header)):
+		column_name = header[i]
+		col_name2index[column_name] = i
+	import numpy
+	data_matrix = numpy.zeros([max_no_of_strains, max_no_of_strains], numpy.float)
+	data_matrix[:] = -1	#set default to NA
+	i = 0
+	for row in reader:
+		strainid = int(row[col_name2index['strainid']])
+		target_id = int(row[col_name2index['target_id']])
+		mismatch_rate = float(row[col_name2index['mismatch_rate']])
+		no_of_mismatches = int(row[col_name2index['no_of_mismatches']])
+		no_of_non_NA_pairs = int(row[col_name2index['no_of_non_NA_pairs']])
+		if no_of_non_NA_pairs>=min_no_of_non_NA_pairs:
+			if strainid not in strainid2index:
+				strainid2index[strainid] = len(strainid2index)
+				strainid_ls.append(strainid)
+			if target_id not in strainid2index:
+				strainid2index[target_id] = len(strainid2index)
+				strainid_ls.append(target_id)
+			row_index = strainid2index[strainid]
+			col_index = strainid2index[target_id]
+			if row_index<max_no_of_strains and col_index<max_no_of_strains:
+				data_matrix[row_index][col_index] = mismatch_rate
+				data_matrix[col_index][row_index] = mismatch_rate
+			else:
+				sys.stderr.write("no of strains in this data exceeds max_no_of_strains %s.\n"%(max_no_of_strains))
+	del reader
+	sys.stderr.write("%s strains. Done.\n"%(len(strainid_ls)))
+	return data_matrix
+
+def findStrainShowMsmatchRateVariationIn4Blocks(block_fname_ls, output_fname, max_no_of_strains=7000, min_no_of_non_NA_pairs=10, min_var=0.03):
+	import os, sys,csv
+	from pymodule import PassingData
+	no_of_blocks = len(block_fname_ls)
+	strainid2index = {}
+	strainid_ls = []
+	data_matrix_ls = []
+	for i in range(no_of_blocks):
+		data_matrix = getDistanceMatrixOutofCrossMatchFile(block_fname_ls[i], max_no_of_strains, strainid2index, strainid_ls, min_no_of_non_NA_pairs)
+		data_matrix_ls.append(data_matrix)
+	
+	sys.stderr.write("Looking for pairs having mismatch_rate var >= %s ..."%(min_var))
+	import rpy
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	no_of_strains = len(strainid_ls)
+	for i in range(no_of_strains):
+		for j in range(i+1, no_of_strains):
+			mismatch_ls = []
+			mismatch_non_NA_ls = []
+			for data_matrix in data_matrix_ls:
+				if data_matrix[i][j]!=-1:
+					mismatch_non_NA_ls.append(data_matrix[i][j])
+				mismatch_ls.append(data_matrix[i][j])
+			mismatch_var = rpy.r.var(mismatch_non_NA_ls)
+			if mismatch_var>=min_var:
+				writer.writerow([strainid_ls[i], strainid_ls[j], mismatch_var]+mismatch_ls)
+	del writer
+
+
+block_fname_ls = []
+for i in range(4):
+	block_fname_ls.append(os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock_%s_cross_match.tsv'%(i)))
+
+output_fname = os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock_high_var.tsv')
+findStrainShowMsmatchRateVariationIn4Blocks(block_fname_ls, output_fname, max_no_of_strains=7000, min_no_of_non_NA_pairs=10, min_var=0.03)
+
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -3149,8 +3408,21 @@ curs = conn.cursor()
 drivername='mysql'
 schema = None
 from Stock_250kDB import Stock_250kDB
-db = Stock_250kDB(drivername=drivername, username=db_user,
+db_250k = Stock_250kDB(drivername=drivername, username=db_user,
 				password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+db_250k.setup(create_tables=False)
+
+drivername='mysql'
+hostname='papaya.usc.edu'
+dbname='stock'
+db_user='yh'
+db_passwd = ''
+schema = None
+from StockDB import StockDB
+db_149 = StockDB(drivername=drivername, username=db_user,
+				password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+db_149.setup(create_tables=False)
+
 """
 
 if __name__ == '__main__':
