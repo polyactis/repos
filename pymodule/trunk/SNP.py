@@ -24,6 +24,9 @@ number2ab = {0: 'NA',
 	2: 'B',
 	3: 'H'}
 
+#2008-09-22 A:T, C:G complement group in number
+number2complement = {-1:-1, 0:0, 1:4, 4:1, 2:3, 3:2}
+
 #2008-05-12	a common NA set
 from sets import Set
 NA_set = Set([0, 'NA', 'N', -2, '|'])
@@ -424,13 +427,14 @@ class SNPData(object):
 							('call_method_id', 0, int): -1,\
 							('col_id2id', 0, ):None,\
 							('max_call_info_mismatch_rate', 0, float): 1,\
-							('snps_table', 0, ):None}
+							('snps_table', 0, ):None,\
+							('matrix_data_type', 0, ):int}
 	def __init__(self, **keywords):
 		from __init__ import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
 		#read it from file
 		if self.isDataMatrixEmpty(self.data_matrix) and isinstance(self.input_fname,str) and os.path.isfile(self.input_fname):
-			self.header, self.strain_acc_list, self.category_list, self.data_matrix = read_data(self.input_fname, self.input_alphabet, self.turn_into_integer, self.double_header)
+			self.header, self.strain_acc_list, self.category_list, self.data_matrix = read_data(self.input_fname, self.input_alphabet, self.turn_into_integer, self.double_header, matrix_data_type=self.matrix_data_type)
 			if self.ignore_2nd_column:
 				self.category_list = None
 		self.processRowIDColID()
