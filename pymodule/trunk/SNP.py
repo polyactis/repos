@@ -900,18 +900,38 @@ class GenomeWideResult(TableClass):
 	min_value = None
 	max_value = None
 	base_value = 0
-	
+	chr_pos2index = None
+	construct_chr_pos2index = False
 	def get_data_obj_by_obj_id(self, obj_id):
 		return self.data_obj_ls[self.data_obj_id2index[obj_id]]
 	
 	def get_data_obj_by_obj_index(self, obj_index):
 		return self.data_obj_ls[obj_index]
 	
+	def get_data_obj_by_chr_pos(self, chromosome, position):
+		"""
+		2008-09-24
+		"""
+		if self.chr_pos2index==None:
+			return None
+		else:
+			obj_index = self.chr_pos2index.get((chromosome, position))
+			if obj_index is not None:
+				return self.data_obj_ls[obj_index]
+	
 	def add_one_data_obj(self, data_obj):
+		"""
+		2008-09-24
+			add snippet to deal with construct_chr_pos2index and chr_pos2index
+		"""
 		data_obj_index = len(self.data_obj_ls)
 		self.data_obj_ls.append(data_obj)
 		
 		self.data_obj_id2index[id(data_obj)] = data_obj_index
+		if self.construct_chr_pos2index:	#2008-09-24
+			if self.chr_pos2index ==None:
+				self.chr_pos2index = {}
+			self.chr_pos2index[(data_obj.chromosome, data_obj.position)] = data_obj_index
 		if self.min_value is None or data_obj.value<self.min_value:
 			self.min_value = data_obj.value
 		if self.max_value is None or data_obj.value>self.max_value:
@@ -938,6 +958,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-09-24
+		add construct_chr_pos2index
 	2008-08-15
 		skips non-positive values if need to do_log10_transformation
 	2008-08-14
@@ -952,7 +974,8 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 		handle both 3/4-column input file
 	"""
 	sys.stderr.write("Getting genome wide result from %s ... "%input_fname)
-	gwr = GenomeWideResult(name=os.path.basename(input_fname))
+	construct_chr_pos2index = getattr(pdata, 'construct_chr_pos2index', False)	#2008-09-24
+	gwr = GenomeWideResult(name=os.path.basename(input_fname), construct_chr_pos2index=construct_chr_pos2index)
 	gwr.data_obj_ls = []	#list and dictionary are crazy references.
 	gwr.data_obj_id2index = {}
 	genome_wide_result_id = id(gwr)
