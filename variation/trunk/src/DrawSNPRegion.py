@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 """
 Examples:
-	DrawSNPRegion.py -e 2 -l 28 -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.3.tsv
+	#output SNP plots by ranks according to results_by_gene's id=260 (one particular phenotype).
+	DrawSNPRegion.py -e 260 -l 28 -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.3.tsv  -o /Network/Data/250k/tmp-yh/snp_region/
+	
+	#output SNP plots by ranks according to results_by_gene (analysis_method_id=7-Emma, call_method_id=17) (covering all phenotypes)
+	DrawSNPRegion.py -l 28 -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.3.tsv -o /Network/Data/250k/tmp-yh/snp_region_all/
 	
 Description:
 	2008-09-24 program to draw pvalues, gene-models, LD around one SNP.
+		Top panel is pvalues from all different methods. Margarita and RF's values will be normalized in range of KW.
+		Middle panel is gene model. Displaying CDS, intron, strand.
+		Bottom panel is LD of all pairwise SNPs in that range.
 """
 
 import sys, os, math
@@ -34,16 +41,17 @@ class DrawSNPRegion(GeneListRankTest):
 							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
-							('LD_fname', 1, ): [None, '', 1, 'the file containing LD info, output of MpiLD.py', ],\
-							("results_id_ls", 1, ): [None, 'e', 1, 'comma-separated results_by_gene id list'],\
+							('LD_fname', 1, ): [None, 'L', 1, 'the file containing LD info, output of MpiLD.py', ],\
+							("results_id_ls", 0, ): [None, 'e', 1, 'comma-separated results_by_gene id list'],\
 							("min_distance", 1, int): [20000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
-							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency. deprecated.'],\
-							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
+							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_dir", 1, ): [None, 'o', 1, 'directory to store all images'],\
-							("snps_context_picklef", 0, ): [None, '', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it. Deprecated.'],\
+							('call_method_id', 0, int):[17, 'i', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
+							('analysis_method_id', 0, int):[7, 'a', 1, 'Restrict results based on this analysis_method. Default is no such restriction.'],\
+							('no_of_top_hits', 1, int): [1000, 'f', 1, 'how many number of top hits based on score or -log(pvalue).'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -61,7 +69,7 @@ class DrawSNPRegion(GeneListRankTest):
 		"""
 		2008-09-24
 		"""
-		sys.stderr.write("Reading in LD info from %s ..."%(LD_fname))
+		sys.stderr.write("Reading in LD info from %s ...\n"%(LD_fname))
 		snp_pair2r2 = {}
 		reader = csv.reader(open(LD_fname), delimiter='\t')
 		col_name2index = getColName2IndexFromHeader(reader.next())
@@ -77,8 +85,12 @@ class DrawSNPRegion(GeneListRankTest):
 			else:
 				snp_pair = (snp2[0], snp2[1], snp1[0], snp1[1])
 			snp_pair2r2[snp_pair] = r2
-			if self.debug and counter%10000==0:
-				break
+			counter += 1
+			if counter%100000==0:
+				sys.stderr.write('%s\t%s'%('\x08'*100, counter))
+				if self.debug:
+					#break
+					pass
 		LD_info = PassingData(snp_pair2r2=snp_pair2r2)
 		sys.stderr.write("Done.\n")
 		return LD_info
@@ -104,7 +116,7 @@ class DrawSNPRegion(GeneListRankTest):
 		"""
 		rg_rm = Stock_250kDB.ResultsMethod.get(rg.results_method_id)
 		sys.stderr.write("Getting results with phenotype=%s and call_method=%s ..."%(rg_rm.phenotype_method_id, rg_rm.call_method_id))
-		if debug:
+		if self.debug:
 			analysis_method_id_set = Set([1,7])
 		else:
 			analysis_method_id_set = Set([1,5,6,7])
@@ -117,7 +129,7 @@ class DrawSNPRegion(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return analysis_method_id2gwr
 	
-	def getSNPInfo(self):
+	def getSNPInfo(self, db):
 		"""
 		2008-09-24
 			in order
@@ -128,17 +140,18 @@ class DrawSNPRegion(GeneListRankTest):
 		snps_id2index = {}
 		i = 0
 		block_size = 50000
-		rows = Stock_250kDB.Snps.query.offset(i).limit(block_size)
-		while rows.count()!=0:
-			for row in rows:
-				chr_pos = (row.chromosome, row.position)
-				chr_pos_ls.append(chr_pos)
-				chr_pos2index[chr_pos] = len(chr_pos2index)
-				snps_id2index[row.id] = len(snps_id2index)
-				i += 1
-			if self.debug and i>40000:
-				break
-			rows = Stock_250kDB.Snps.query.offset(i).limit(block_size)
+		rows = db.metadata.bind.execute("select id, chromosome, position from %s where end_position is null"%Stock_250kDB.Snps.table.name)
+		#.query.offset(i).limit(block_size)
+		#while rows.count()!=0:
+		for row in rows:
+			chr_pos = (row.chromosome, row.position)
+			chr_pos_ls.append(chr_pos)
+			chr_pos2index[chr_pos] = len(chr_pos2index)
+			snps_id2index[row.id] = len(snps_id2index)
+			i += 1
+		#	if self.debug and i>40000:
+		#		break
+		#	rows = Stock_250kDB.Snps.query.offset(i).limit(block_size)
 		snp_info = PassingData()
 		snp_info.chr_pos_ls = chr_pos_ls
 		snp_info.chr_pos2index = chr_pos2index
@@ -157,7 +170,7 @@ class DrawSNPRegion(GeneListRankTest):
 			chr_pos2adjacent_window[old_chr_pos] = []
 		if new_chr_pos not in chr_pos2adjacent_window:
 			chr_pos2adjacent_window[new_chr_pos] = []
-		mid_point = (new_chr_pos[1]-old_chr_pos[1])/2.
+		mid_point = (new_chr_pos[1]+old_chr_pos[1])/2.
 		chr_pos2adjacent_window[old_chr_pos].append(mid_point)
 		chr_pos2adjacent_window[new_chr_pos].append(mid_point)
 	
@@ -219,9 +232,9 @@ class DrawSNPRegion(GeneListRankTest):
 		for chr_pos in snps_within_this_region.chr_pos_ls:
 			data_obj = gwr.get_data_obj_by_chr_pos(chr_pos[0], chr_pos[1])
 			if data_obj is not None:
-				x_ls.append(chr_pos[0])
+				x_ls.append(chr_pos[1])
 				if (analysis_method_id==5 or analysis_method_id==6) and ref_gwr:
-					value = data_obj.value/(gwr.max_value-gwr.min_value)*(ref_gwr.max_value-ref_gwr-min_value)
+					value = (data_obj.value-gwr.min_value)/(gwr.max_value-gwr.min_value)*(ref_gwr.max_value-ref_gwr.min_value)
 				else:
 					value = data_obj.value
 				y_ls.append(value)
@@ -229,7 +242,7 @@ class DrawSNPRegion(GeneListRankTest):
 		
 		
 	
-	def drawPvalue(self, snps_within_this_region, analysis_method_id2gwr):
+	def drawPvalue(self, ax1, ax2, snps_within_this_region, analysis_method_id2gwr):
 		"""
 		2008-09-24
 		"""
@@ -241,11 +254,12 @@ class DrawSNPRegion(GeneListRankTest):
 		for analysis_method_id in analysis_method_id_ls:
 			gwr = analysis_method_id2gwr[analysis_method_id]
 			x_ls, y_ls = self.getXY(snps_within_this_region, analysis_method_id2gwr, analysis_method_id)
-			pscatter = pylab.scatter(x_ls, y_ls, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w')
+			pscatter = ax1.scatter(x_ls, y_ls, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w')
 			legend_ls.append(self.analysis_method_id2name[analysis_method_id])
 			pscatter_ls.append(pscatter)
-		pylab.legend(pscatter_ls, legend_ls, shadow=True)
+		ax2.legend(pscatter_ls, legend_ls, shadow=True, loc='lower right')
 		sys.stderr.write("Done.\n")
+		#return legend_ls
 	
 	def plot_one_gene(self, ax, gene_id, gene_id2model, candidate_gene_set=None, y_value=1, gene_width=1.0):
 		"""
@@ -271,54 +285,69 @@ class DrawSNPRegion(GeneListRankTest):
 				else:
 					facec = 'w'
 				if gene_model.strand=="1":
-					g_artist = ExonIntronCollection(c_start_ls, c_end_ls, y=y_value, width=gene_width, alpha=0.3, facecolors='r', picker=True)
+					exon_start_ls = c_start_ls
+					exon_stop_ls = c_end_ls
+					is_arrow = True
 				elif gene_model.strand=="-1":	#to draw opposite strand, 1st is to order c_start_ls and c_end_ls in descending order. 2nd is to swap c_start_ls and c_end_ls.
 					#c_start_ls.reverse()	#2008-02-04 it's already in descending order in db.
 					#c_end_ls.reverse()	#2008-02-04 it's already in descending order in db.
-					g_artist = ExonIntronCollection(c_end_ls, c_start_ls, y=y_value, width=gene_width, alpha=0.3, facecolor='r', picker=True)
+					exon_start_ls = c_end_ls
+					exon_stop_ls = c_start_ls
+					is_arrow = True
 				else:	#no arrow
-					g_artist = ExonIntronCollection(c_start_ls, c_end_ls, y=y_value, is_arrow=False, width=gene_width, alpha=0.3, facecolor='r', picker=True)
+					exon_start_ls = c_start_ls
+					exon_stop_ls = c_end_ls
+					is_arrow = False
+				g_artist = ExonIntronCollection(c_start_ls, c_end_ls, y=y_value, is_arrow=is_arrow, width=gene_width, alpha=0.3, facecolors=facec, picker=True, linewidths=0.3)
 				ax.add_artist(g_artist)
-				mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
-				ax.text(mid_point, y_value, gene_model.symbol, size=8)
+				if gene_model.strand=="-1":
+					text_start_pos = c_start_ls[0]
+				else:
+					text_start_pos = c_end_ls[-1]
+				#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
+				ax.text(text_start_pos, y_value, gene_model.symbol, size=8)
 				
-	def drawGeneModel(self, fig, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0):
+	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0):
 		"""
 		2008-09-24
 		"""
 		sys.stderr.write("\t Drawing gene model  ...")
 		left_chr, left_pos = snps_within_this_region.chr_pos_ls[0]
 		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1]
+		left_chr = str(left_chr)
+		right_chr = str(right_chr)
 		no_of_genes_drawn = 0
-		gca = fig.gca()
 		for gene_id in gene_annotation.chr_id2gene_id_ls[left_chr]:
 			gene_model = gene_annotation.gene_id2model[gene_id]
 			if gene_model.start!=None and gene_model.stop!=None and gene_model.stop>left_pos:
 				if left_chr==right_chr:	#same chromosome
 					if gene_model.start>right_pos:	#totally out of range, skip it
 						continue
-				y_value = no_of_genes_drawn%3	#cycling through the y position to avoid clogging
-				self.plot_one_gene(gca, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
+				y_value = no_of_genes_drawn%4	#cycling through the y position to avoid clogging
+				self.plot_one_gene(ax, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
 				no_of_genes_drawn += 1
 		if left_chr!=right_chr:
 			for gene_id in gene_annotation.chr_id2gene_id_ls[right_chr]:
 				gene_model = gene_annotation.gene_id2model[gene_id]
 				if gene_model.start!=None and gene_model.stop!=None and gene_model.start<right_pos:
-					y_value = no_of_genes_drawn%3	#cycling through the y position to avoid clogging
-					self.plot_one_gene(gca, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
+					y_value = no_of_genes_drawn%4	#cycling through the y position to avoid clogging
+					self.plot_one_gene(ax, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
 					no_of_genes_drawn += 1
 		sys.stderr.write("Done.\n")
 	
-	def drawLD(self, fig, snps_within_this_region, LD_info, y_value=-5):
+	def drawLD(self, ax1, ax2, snps_within_this_region, LD_info, y_value=-5):
+		"""
+		2008-09-24
+			draw LD in the bottom axe
+		"""
 		sys.stderr.write("\t Drawing LD info  ...")
 		no_of_snps = len(snps_within_this_region.chr_pos_ls)
 		left_chr, left_pos = snps_within_this_region.chr_pos_ls[0]
 		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1]
-		gca = fig.gca()
-		gca.hlines(y_value, left_pos, right_pos)
+		ax1.hlines(y_value, left_pos, right_pos)
 		for i in range(no_of_snps):
 			chr_pos1 = snps_within_this_region.chr_pos_ls[i]
-			gca.vlines(chr_pos1[1], y_value, 0, linestyle='dashed', alpha=0.3)
+			ax1.vlines(chr_pos1[1], y_value, 0, linestyle='dashed', alpha=0.3)
 			for j in range(i+1, no_of_snps):
 				chr_pos2 = snps_within_this_region.chr_pos_ls[j]
 				if chr_pos1<chr_pos2:
@@ -340,32 +369,76 @@ class DrawSNPRegion(GeneListRankTest):
 					y4 = (s11-s21)/2.
 					xs = [x1, x2, x3, x4]
 					ys = [y1, y2, y3, y4]
-					ys = [y+y_value for y in ys]
-					poly = Polygon(zip(xs, ys,), facecolor='%s'%r2)
-					gca.add_patch(poly)
+					poly = Polygon(zip(xs, ys), facecolor='%s'%r2, linewidth=0)
+					ax2.add_patch(poly)
 		sys.stderr.write("Done.\n")
 	
-	def drawRegionAroundThisSNP(self, rg, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, LD_info, output_dir, min_distance):
+	def drawRegionAroundThisSNP(self, rg, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, LD_info, output_dir, min_distance, list_type_id):
 		"""
 		2008-09-24
 		"""
 		sys.stderr.write("Drawing region ... \n")
 		rg_rm = Stock_250kDB.ResultsMethod.get(rg.results_method_id)
 		phenotype = Stock_250kDB.PhenotypeMethod.get(rg_rm.phenotype_method_id)
-		chr_pos = snp_info.chr_pos_ls[snp_info.snps_id2index[this_snp.snps_id]]
-		gene_model = gene_annotation.gene_id2model[gene_id]
-		output_fname_prefix = os.path.join(output_dir, 'phenotype_%s_%s_snp_%s_%s_gene_%s_%s'%\
-										(phenotype.id, phenotype.short_name, chr_pos[0], chr_pos[1], gene_id, gene_model.symbol))
+		if this_snp.snps_id in snp_info.snps_id2index:
+			chr_pos = snp_info.chr_pos_ls[snp_info.snps_id2index[this_snp.snps_id]]
+		else:
+			return
+		gene_model = gene_annotation.gene_id2model.get(this_snp.gene_id)
+		gene_id = this_snp.gene_id
+		if gene_model is None:
+			gene_model = PassingData(gene_id=this_snp.gene_id, symbol='')
+		list_type = Stock_250kDB.GeneListType.get(list_type_id)
+		fname_basename = 'phenotype_%s_%s_rank_%s_snp_%s_%s_list_type_%s_%s_gene_%s_%s'%\
+										(phenotype.id, phenotype.short_name, this_snp.rank, chr_pos[0], chr_pos[1], list_type_id, list_type.short_name, gene_id, gene_model.symbol)
+		fname_basename = fname_basename.replace('/', '_')
+		output_fname_prefix = os.path.join(output_dir, fname_basename)
 		snps_within_this_region = self.getSNPsAroundThisSNP(this_snp, snp_info, self.min_distance)
 		pylab.clf()
-		fig = pylab.figure()
+		#fig = pylab.figure()
+		ax1 = pylab.axes([0.1,0.5, 0.8, 0.45])
+		ax2 = pylab.axes([0.1,0.05, 0.8, 0.45], frameon=False)
+		self.drawPvalue(ax1, ax2, snps_within_this_region, analysis_method_id2gwr)
+		self.drawGeneModel(ax1, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0)
 		
-		self.drawPvalue(snps_within_this_region, analysis_method_id2gwr)
-		self.drawGeneModel(fig, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0)
-		self.drawLD(fig, snps_within_this_region, LD_info)
-		pylab.savefig('%s.png'%output_fname_prefix, dpi=200)
-		pylab.savefig('%s.svg'%output_fname_prefix, dpi=200)
+		self.drawLD(ax1, ax2, snps_within_this_region, LD_info)
+		ax1.set_xticklabels([])	#remove xtick labels on ax1 because ax2's xtick labels cover this.
+		ax2.set_xlim(ax1.get_xlim())	#make the two plots within the same X range
+		ax2.set_ylim((-min_distance, 0))	#has to force here, don't know why. otherwise it's (0,1)
+		ax2.set_yticks([])	#remove all Y ticks on LD plot
+		#ax2.colorbar()
+		#ax2.gray()
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=400)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		if self.debug:
+			pylab.show()
+		sys.stderr.write("Done.\n")
+	
+	def generate_params(self, param_obj):
+		"""
+		2008-09-24
+			copied from a version of MpiGeneListRankTest.py
+		"""
+		sys.stderr.write("Generating parameters ...")
+		i = 0
+		block_size = 5000
+		query = Stock_250kDB.ResultsByGene.query
+		if param_obj.call_method_id!=0:
+			query = query.filter(Stock_250kDB.ResultsByGene.results_method.has(call_method_id=param_obj.call_method_id))
+		if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
+			query = query.filter(Stock_250kDB.ResultsByGene.results_method.has(analysis_method_id=param_obj.analysis_method_id))
+		query = query.filter_by(min_distance=param_obj.min_distance).filter_by(get_closest=param_obj.get_closest)
+		rows = query.offset(i).limit(block_size)
+		results_id_ls = []
+		while rows.count()!=0:
+			for row in rows:
+				results_id_ls.append(row.id)
+				i += 1
+			rows = query.offset(i).limit(block_size)
 		
+		sys.stderr.write("%s results. "%(len(results_id_ls)))
+		return results_id_ls
+	
 	def run(self):
 		"""
 		2008-09-24
@@ -380,10 +453,16 @@ class DrawSNPRegion(GeneListRankTest):
 		candidate_gene_list = self.getGeneList(self.list_type_id)
 		candidate_gene_set = Set(candidate_gene_list)
 		gene_annotation = self.getGeneAnnotation()
-		snp_info = self.getSNPInfo()
+		snp_info = self.getSNPInfo(db)
 		LD_info = self.get_LD(self.LD_fname)
+		if not os.path.isdir(self.output_dir):
+			os.makedirs(self.output_dir)
+		if not self.results_id_ls:
+			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id,\
+								min_distance=self.min_distance, get_closest=self.get_closest)
+			self.results_id_ls = self.generate_params(param_obj)
 		for results_id in self.results_id_ls:
-			rg = Stock_250kDB.ResultsByGene.get(results_id)
+			rg = Stock_250kDB.ResultsByGene.get_by(id=results_id)
 			analysis_method_id2gwr = self.getSimilarGWResultsGivenResultsByGene(rg, self.results_directory)
 			if self.results_directory:	#given a directory where all results are.
 				result_fname = os.path.join(self.results_directory, os.path.basename(rg.filename))
@@ -391,21 +470,30 @@ class DrawSNPRegion(GeneListRankTest):
 				result_fname = rg.filename
 			if not os.path.isfile(result_fname):
 				sys.stderr.write("%s doesn't exist.\n"%result_fname)
-				return None
+				continue
 			reader = csv.reader(open(result_fname), delimiter='\t')
 			col_name2index = getColName2IndexFromHeader(reader.next())
 			counter = 0
+			prev_snp = None
 			for row in reader:
 				counter += 1
-				gene_id = int(row[col_name2index['gene_id']])
-				if gene_id not in candidate_gene_set:
+				if counter>self.no_of_top_hits:	#only the top hits
 					continue
+				gene_id = int(row[col_name2index['gene_id']])
+				#if gene_id not in candidate_gene_set:
+				#	continue
 				score = float(row[col_name2index['score']])
 				snps_id = int(row[col_name2index['snps_id']])
 				disp_pos = int(row[col_name2index['disp_pos']])
 				this_snp = PassingData(rank=counter, gene_id=gene_id, score=score, snps_id=snps_id, disp_pos=disp_pos)
+				if prev_snp == None:
+					prev_snp = this_snp
+				elif prev_snp.snps_id == this_snp.snps_id:	#skip if it's the same SNP
+					continue
 				self.drawRegionAroundThisSNP(rg, this_snp, candidate_gene_set, gene_annotation, snp_info, \
-											analysis_method_id2gwr, LD_info, self.output_dir, self.min_distance)
+											analysis_method_id2gwr, LD_info, self.output_dir, self.min_distance, self.list_type_id)
+				prev_snp = this_snp
+			del analysis_method_id2gwr
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
