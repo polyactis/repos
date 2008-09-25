@@ -12,25 +12,27 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import pygtk
-pygtk.require('2.0')
-import gtk, gtk.glade, gobject
-from gtk import gdk
-import gnome
-import gnome.ui
-import gnomecanvas
-
-import matplotlib
-matplotlib.use('GTKAgg')  # or 'GTK'
-from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-
-from matplotlib.figure import Figure
-
-#from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
-#2008-02-04 use a custom navigation tool bar
-from pymodule.gnome import NavigationToolbar2GTKAgg_chromosome as NavigationToolbar
-
-from pymodule import yh_gnome
+if __name__ == '__main__':
+	import pygtk
+	pygtk.require('2.0')
+	import gtk, gtk.glade, gobject
+	from gtk import gdk
+	import gnome
+	import gnome.ui
+	import gnomecanvas
+	
+	import matplotlib
+	matplotlib.use('GTKAgg')  # or 'GTK'
+	from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+	
+	from matplotlib.figure import Figure
+	
+	#from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
+	#2008-02-04 use a custom navigation tool bar
+	from pymodule.yh_gnome import NavigationToolbar2GTKAgg_chromosome as NavigationToolbar
+	
+	from pymodule import yh_gnome
+	from variation.src.common import get_chr_pos_from_x_axis_pos
 
 import numpy
 from matplotlib.lines import Line2D
@@ -39,7 +41,6 @@ from matplotlib.text import Text
 from matplotlib.collections import LineCollection, Collection
 
 from pymodule.yh_matplotlib_artists import Gene
-from variation.src.common import get_chr_pos_from_x_axis_pos
 from pymodule.db import TableClass
 from Results2DB_250k import Results2DB_250k
 from pymodule import GenomeWideResults, GenomeWideResult, DataObject, getGenomeWideResultFromFile, PassingData
@@ -428,10 +429,12 @@ class GenomeBrowser(object):
 		self.postgres_conn, self.postgres_curs = db_connect(hostname, dbname, schema)
 		sys.stderr.write("Done.\n")
 	
-	def get_gene_id2model(self, curs, entrezgene_mapping_table='genome.entrezgene_mapping', \
+	def get_gene_id2model(cls, curs, entrezgene_mapping_table='genome.entrezgene_mapping', \
 						annot_assembly_table = 'genome.annot_assembly', gene_table='genome.gene', \
 						gene2go_table='genome.gene2go', tax_id=3702):
 		"""
+		2008-09-24
+			turn gene_id into integer
 		2008-08-03
 			schema where tables about genes are from is renamed from 'sequence' to 'genome'
 		2008-02-02
@@ -451,15 +454,18 @@ class GenomeBrowser(object):
 			for row in rows:
 				#gene_id is integer. chromosome is varchar.
 				gene_id, chromosome, start, stop, mrna_start, mrna_stop, cds_start, cds_stop, strand, symbol, description, type_of_gene = row
+				gene_id = int(gene_id)	#2008-09-24
 				if cds_start and cds_stop:
-					cds_start = pg_1d_array2python_ls(cds_start, int)
-					cds_stop = pg_1d_array2python_ls(cds_stop, int)
+					if type(cds_start)!=list:
+						cds_start = pg_1d_array2python_ls(cds_start, int)
+						cds_stop = pg_1d_array2python_ls(cds_stop, int)
 				else:
 					cds_start = cds_stop = None
 				
 				if mrna_start and mrna_stop:
-					mrna_start = pg_1d_array2python_ls(mrna_start, int)
-					mrna_stop = pg_1d_array2python_ls(mrna_stop, int)
+					if type(mrna_stop)!=list:
+						mrna_start = pg_1d_array2python_ls(mrna_start, int)
+						mrna_stop = pg_1d_array2python_ls(mrna_stop, int)
 				else:
 					mrna_start = mrna_stop = None
 				
@@ -474,6 +480,8 @@ class GenomeBrowser(object):
 		curs.execute("close gene_crs")
 		sys.stderr.write("Done.\n")
 		return gene_id2model, chr_id2gene_id_ls
+	
+	get_gene_id2model = classmethod(get_gene_id2model)
 	
 	def plot_one_gene(self, ax, gene_id, gene_id2model, chr_id2cumu_size, chr_id2size, chr_gap, y_value=1, gene_width=1.0):
 		"""
