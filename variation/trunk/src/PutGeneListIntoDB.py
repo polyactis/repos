@@ -116,7 +116,7 @@ class PutGeneListIntoDb(object):
 		"""
 		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
-		
+		db.setup(create_tables=False)
 		import MySQLdb
 		mysql_conn = MySQLdb.connect(db=self.dbname, host='banyan.usc.edu', user = self.db_user, passwd = self.db_passwd)
 		mysql_curs = mysql_conn.cursor()
