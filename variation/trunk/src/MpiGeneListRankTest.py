@@ -23,7 +23,7 @@ import getopt, csv, math
 import Numeric, cPickle
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
-from pymodule import PassingData
+from pymodule import PassingData, getListOutOfStr
 from GeneListRankTest import GeneListRankTest
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, CandidateGeneRankSumTestResult, ResultsByGene
 from sets import Set
@@ -33,16 +33,20 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = GeneListRankTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
-	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
+	option_default_dict.update({('call_method_id', 0, int):[0, 'j', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
+	option_default_dict.update({("list_type_id_ls", 0, ): [None, 'l', 1, 'comma/dash-separated list of gene list type ids. ids not present in db will be filtered out. Each id has to encompass>=10 genes.']})
 	option_default_dict.pop(("list_type_id", 1, int))
 	option_default_dict.pop(("results_id_ls", 1, ))
 	
 	def __init__(self,  **keywords):
 		GeneListRankTest.__init__(self, **keywords)
+		self.list_type_id_ls = getListOutOfStr(self.list_type_id_ls, data_type=int)
 	
 	def generate_params(self, param_obj, min_no_of_genes=10):
 		"""
+		2008-09-26
+			deal with the situation that list_type_id_ls is given.
 		2008-09-16
 			modify it to get result ids from ResultsByGene
 		2008-09-10
@@ -74,15 +78,22 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		
 		sys.stderr.write("%s results. "%(len(results_method_id_ls)))
 		
-		i = 0
-		rows = GeneListType.query.offset(i).limit(block_size)
+		
 		list_type_id_ls = []
-		while rows.count()!=0:
-			for row in rows:
-				if len(row.gene_list)>=min_no_of_genes:
-					list_type_id_ls.append(row.id)
-				i += 1
+		if getattr(param_obj, 'list_type_id_ls', None):	#if list_type_id_ls is given, check whether each one exists in db and has minimum number of genes.
+			for list_type_id in param_obj.list_type_id_ls:
+				glt = GeneListType.get(list_type_id)
+				if glt and len(glt.gene_list)>=min_no_of_genes:
+					list_type_id_ls.append(list_type_id)
+		else:
+			i = 0
 			rows = GeneListType.query.offset(i).limit(block_size)
+			while rows.count()!=0:
+				for row in rows:
+					if len(row.gene_list)>=min_no_of_genes:
+						list_type_id_ls.append(row.id)
+					i += 1
+				rows = GeneListType.query.offset(i).limit(block_size)
 		sys.stderr.write("%s candidate gene lists. "%(len(list_type_id_ls)))
 		
 		rm_id_lt_id_set = Set()
@@ -189,7 +200,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		
 		if node_rank == 0:
 			#snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
-			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id)
+			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id, \
+								list_type_id_ls=self.list_type_id_ls)
 			params_ls = self.generate_params(param_obj)
 			if self.debug:
 				params_ls = params_ls[:100]
