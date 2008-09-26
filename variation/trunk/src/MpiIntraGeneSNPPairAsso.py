@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import getopt, csv, math
 import cPickle
-from pymodule import PassingData, importNumericArray, SNPData, read_data
+from pymodule import PassingData, importNumericArray, SNPData, read_data, getListOutOfStr
 from pymodule.SNP import NA_set
 from sets import Set
 from Scientific import MPI
@@ -61,16 +61,7 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 		if self.phenotype_index_ls is not None:
-			phenotype_index_ls = []
-			index_anchor_ls = self.phenotype_index_ls.split(',')
-			for index_anchor in index_anchor_ls:
-				start_stop_tup = index_anchor.split('-')
-				start_stop_tup = map(int, start_stop_tup)
-				if len(start_stop_tup)==1:
-					phenotype_index_ls.append(int(start_stop_tup[0]))
-				elif len(start_stop_tup)>1:
-					phenotype_index_ls += range(start_stop_tup[0], start_stop_tup[1]+1)
-			self.phenotype_index_ls = phenotype_index_ls
+			self.phenotype_index_ls = getListOutOfStr(self.phenotype_index_ls, data_type=int)
 		
 	def get_gene_id2snps_id_ls(self, snps_context_wrapper):
 		"""
