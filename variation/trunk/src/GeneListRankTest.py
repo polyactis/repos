@@ -30,7 +30,7 @@ else:   #32bit
 
 import time, csv, cPickle
 import warnings, traceback
-from pymodule import PassingData, figureOutDelimiter, getColName2IndexFromHeader
+from pymodule import PassingData, figureOutDelimiter, getColName2IndexFromHeader, getListOutOfStr
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, CandidateGeneRankSumTestResult, ResultsByGene
 from Results2DB_250k import Results2DB_250k
 from pymodule import getGenomeWideResultFromFile
@@ -99,7 +99,7 @@ class GeneListRankTest(object):
 							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
-							("results_id_ls", 1, ): [None, 'e', 1, 'comma-separated results_by_gene id list'],\
+							("results_id_ls", 1, ): [None, 'e', 1, 'comma/dash-separated results_by_gene id list, like 1,3-7'],\
 							("min_distance", 1, int): [50000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency. deprecated.'],\
@@ -122,8 +122,7 @@ class GeneListRankTest(object):
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
 		if getattr(self, 'results_id_ls', None):
-			results_id_ls = self.results_id_ls.split(',')
-			self.results_id_ls = map(int, results_id_ls)
+			self.results_id_ls = getListOutOfStr(self.results_id_ls, data_type=int)
 			self.results_id_ls.sort()
 		else:
 			self.results_id_ls = []
