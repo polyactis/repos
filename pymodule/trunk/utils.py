@@ -195,7 +195,32 @@ def getColName2IndexFromHeader(header):
 		column_name = header[i]
 		col_name2index[column_name] = i
 	return col_name2index
-	
+
+def getListOutOfStr(list_in_str, data_type=int, separator1=',', separator2='-'):
+	"""
+	2008-09-25
+		parse a list of a string representation of a list, such as '1,3-7,11'=[1,3,4,5,6,7,11]
+		dash-separated representation has to be in integer.
+		If all are separated by separator1, it could be in non-int data_type.
+		
+	"""
+	list_to_return = []
+	if list_in_str=='' or list_in_str is None:
+		return list_to_return
+	if type(list_in_str)==int:	#just one integer, put it in and return immediately
+		return [list_in_str]
+	index_anchor_ls = list_in_str.split(separator1)
+	for index_anchor in index_anchor_ls:
+		if len(index_anchor)==0:	#nothing there, skip
+			continue
+		start_stop_tup = index_anchor.split(separator2)
+		start_stop_tup = map(int, start_stop_tup)
+		if len(start_stop_tup)==1:
+			list_to_return.append(data_type(start_stop_tup[0]))
+		elif len(start_stop_tup)>1:
+			list_to_return += range(start_stop_tup[0], start_stop_tup[1]+1)
+	return list_to_return
+
 if __name__ == '__main__':
 	FigureOutTaxID_ins = FigureOutTaxID()
 	print FigureOutTaxID_ins.returnTaxIDGivenSentence('>gi|172045488|ref|NW_001867254.1| Physcomitrella patens subsp. patens PHYPAscaffold_10696, whole genome shotgun sequence')
