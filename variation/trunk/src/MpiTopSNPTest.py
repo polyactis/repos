@@ -23,7 +23,7 @@ import getopt, csv, math
 import Numeric, cPickle
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
-from pymodule import PassingData
+from pymodule import PassingData, getListOutOfStr
 from TopSNPTest import TopSNPTest
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, CandidateGeneTopSNPTest
 from sets import Set
@@ -34,8 +34,9 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = TopSNPTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
-	option_default_dict.update({('call_method_id', 0, int):[0, 'l', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
+	option_default_dict.update({('call_method_id', 0, int):[0, 'j', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
+	option_default_dict.update({("list_type_id_ls", 0, ): [None, 'l', 1, 'comma/dash-separated list of gene list type ids. ids not present in db will be filtered out. Each id has to encompass>=10 genes.']})
 	option_default_dict.pop(("list_type_id", 1, int))	#already poped in MpiGeneListRankTest
 	option_default_dict.pop(("results_id_ls", 1, ))
 	
@@ -44,6 +45,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		2008-08-20
 		"""
 		TopSNPTest.__init__(self, **keywords)
+		self.list_type_id_ls = getListOutOfStr(self.list_type_id_ls, data_type=int)
 	
 	def computing_node_handler(self, communicator, data, computing_parameter_obj):
 		"""
@@ -106,7 +108,8 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 			pdata_for_computing = PassingData()
 			#pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 			pdata_for_computing.no_of_total_genes = self.getNoOfTotalGenes(db, self.gene_table, self.tax_id)
-			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=getattr(self, 'analysis_method_id', None))
+			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=getattr(self, 'analysis_method_id', None),\
+								list_type_id_ls=self.list_type_id_ls)
 			params_ls = self.generate_params(param_obj)
 			if self.debug:
 				params_ls = params_ls[:100]
