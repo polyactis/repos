@@ -24,6 +24,7 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import SNPData, PassingData
+from pymodule.SNP import number2complement
 from variation.src.common import number2nt, nt2number
 import Stock_250kDB
 from GeneListRankTest import GeneListRankTest
@@ -101,6 +102,8 @@ class PhenotypeOfAncestralDerivedAllele(object):
 		
 	def get_phenotype_ls(self, rm, no_of_top_snps, chr_pos2ancestral_allele, pheno_data, geno_data, min_MAF, results_directory=None):
 		"""
+		2008-09-26
+			consider the complement of the ancestral allele as ancestral as well.
 		2008-09-19
 			differentiate phenotype between ancestral/derived alleles
 		"""
@@ -126,7 +129,7 @@ class PhenotypeOfAncestralDerivedAllele(object):
 						phenotype = pheno_data.data_matrix[pheno_row_index][pheno_data_col_index]
 						if phenotype!='NA':
 							phenotype = float(phenotype)
-							if allele==chr_pos2ancestral_allele[chr_pos]:
+							if allele==chr_pos2ancestral_allele[chr_pos] or allele==number2complement[chr_pos2ancestral_allele[chr_pos]]:
 								ancestral_allele_phenotype_ls.append(phenotype)
 							else:
 								derived_allele_phenotype_ls.append(phenotype)
