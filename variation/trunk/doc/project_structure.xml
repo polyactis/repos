@@ -3,9 +3,9 @@
 line0="{*Name*}"
 line1="{*Name*}"
 childtype="DEFAULT">
-<Name type="Text" ref="y">natural variation</Name>
+<Name type="Text" ref="y">root</Name>
 <ROOT item="y">
-<Name>149SNP genotype calling</Name>
+<Name>149SNP</Name>
 <DEFAULT item="y"
 line0="{*Name*}"
 line1="{*Name*}">
@@ -83,64 +83,60 @@ Cmp149SNPVs2010.py maps a lot more heterozygous calls in sequenom to NA in 2010 
 <Name>partial swap between samples</Name>
 </DEFAULT>
 </DEFAULT>
-</ROOT>
 <DEFAULT item="y">
-<Name>Fst analysis</Name>
-</DEFAULT>
-<DEFAULT item="y">
-<Name>haplotype sharing</Name>
-<Description>margarita</Description>
-<DEFAULT item="y">
-<Name>IBD</Name>
-<Description>HMM model?</Description>
-</DEFAULT>
-</DEFAULT>
-<DEFAULT item="y">
-<Name>association mapping by haplotype clustering</Name>
-<Description>write a GUI to pinpoint data</Description>
-<DEFAULT item="y">
-<Name>phenotype data =&gt; database</Name>
-<Description>1. link at.phenotype and at.experiment
-2. put data into db
+<Name>establish master-slave / contaminant type</Name>
+<Description>ask Richard/Matt for replicate-slave password
 
-Kas-2 id replaced with Kas-1 id
-Van-0's phenotype is 144 hrs. truncate it to 72.</Description>
+ask for a privileged user/password
+
+tell matt to fill in Wil-1-Dean
+
+expose more foreign keys
+
+change types for some primary keys
+
+establish mechanism to flag contaminants:
+  1. QC against 2010/384 shows great difference
+  2. inconsistent duplicate
+  3. in a haplotype group which spans several different countries</Description>
 </DEFAULT>
-</DEFAULT>
-<DEFAULT item="y">
-<Name>selection</Name>
-<DEFAULT item="y">
-<Name>LD curve fitting to each SNP</Name>
-<Description>try to find out spots with very low LD decay. not successful, either r^2 = 1/(a+bx) or r^2  = ax^b(slightly better) doesn't give very good fitting results cuz the data is too noisy. maybe only pair two SNPs with similar allele frequency.</Description>
-</DEFAULT>
-<DEFAULT item="y">
-<Name>EHH, LRH, iHS, XP-EHH Sabeti2007</Name>
-</DEFAULT>
-</DEFAULT>
-<DEFAULT item="y">
-<Name>pollen/seed migration</Name>
-<DEFAULT item="y">
-<Name>identity vs geographic dist (regions)</Name>
-<Description>need to normalize</Description>
-</DEFAULT>
-<DEFAULT item="y">
-<Name>diffusion model</Name>
-<Description>estimate seed/pollen rates</Description>
-</DEFAULT>
-</DEFAULT>
-<DEFAULT item="y">
-<Name>selfing rate</Name>
-<Description>selfing rates in different regions, north america same as europe?</Description>
-<DEFAULT item="y">
-<Name>pattern in selfing rate</Name>
-<Description>latitudinal or longitudinal?</Description>
-</DEFAULT>
-</DEFAULT>
+</ROOT>
 <DEFAULT item="y">
 <Name>250k</Name>
 <DEFAULT item="y">
 <Name>QC</Name>
 <Description>1st strain selecting, 2nd throw away bad SNP columns, 3rd is merging same strain data</Description>
+<AnsweredQuestion item="y">
+<Name>cross match 2010's Will(acc=384) to 149SNP's Wil-1 (8419) and 250k's Wil-1(8419)</Name>
+<Description>2010 doesn't have Wil-1.
+
+149SNP has Will=8250 but no genotyping data.
+
+a comparison between 2010's Will(acc=384) and 149SNP's Wil-1 (8419) has 1/3 mismatch rate, unreliable!
+
+so has to do the comparison between 250k's Wil-1 (8419) and 2010's Will (acc=384)
+
+250k's Wil-1 (ecotype_id=8419, array_id=34 or 292), simple calling algorithm (call_info_id=91 or 455). For array_id=34, mismatch_rate=1/37. For array_id=292, mismatch_rate=11/43.</Description>
+</AnsweredQuestion>
+<DEFAULT item="y">
+<Name>identify contaminant by criteria</Name>
+<Description>if QC against 2010, 149, 384 shows significant difference, contaminated
+
+
+
+if belonging to a haplotype group far away from its origin, contaminated</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>rerun pipeline (maybe modify)</Name>
+<Description>2008-08-29
+QC has to be re-done
+check if the merged 2010_149_384 is correct or not</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>QC versus Detlef Weigel's resequencing data</Name>
+<Description>2008-09-25
+http://1001genomes.org/</Description>
+</DEFAULT>
 </DEFAULT>
 <DEFAULT item="y">
 <Name>Generate good 96x250k matrix</Name>
@@ -156,7 +152,185 @@ Van-0's phenotype is 144 hrs. truncate it to 72.</Description>
 <DEFAULT item="y">
 <Name>Chiamo to call genotypes</Name>
 </DEFAULT>
+<AnsweredQuestion item="y">
+<Name>tidy up ecotype table, merge duplicates</Name>
+<Description>to ease the linking between ecotypeid and nativename
+2008-05-15. ./src/GroupDuplicateEcotype.py -u yh -c</Description>
+</AnsweredQuestion>
+<DEFAULT item="y">
+<Name>clean up accession 2 ecotype table</Name>
+<Description>fix Will (384) = 8250 =&gt; 384=8419</Description>
 </DEFAULT>
+<AnsweredQuestion item="y">
+<Name>384 loci dat into db</Name>
+<Description>check SNP position changed or not. check whether same accessions match 2010 data.
+
+2008-05-15
+done. data2dbSNP.py</Description>
+</AnsweredQuestion>
+<DEFAULT item="y">
+<Name>genotype calling</Name>
+<DEFAULT item="y">
+<Name>try fastPhase</Name>
+<Description>interesting algorithm, might be useful for the 149SNP trio stuff.</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>try Vincent's algorithm</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>try svm</Name>
+</DEFAULT>
+<AnsweredQuestion item="y">
+<Name>apply oligo on the CHLA arrays independently</Name>
+<Description>start from normalization and etc.  2008-07-13 seems unnecessary.  mismatch rate and NA rate from simple calling algorithm make sense now.</Description>
+</AnsweredQuestion>
+</DEFAULT>
+<AnsweredQuestion item="y">
+<Name>get NPUTE.py to work</Name>
+</AnsweredQuestion>
+<DEFAULT item="y">
+<Name>association</Name>
+<Description>can only publish results from 96 strains, only partial phenotype
+
+check the outline at http://papaya.usc.edu/2010/250k/paper/genome-wide-association-studies-in-arabidopsis</Description>
+<DEFAULT item="y">
+<Name>how much phenotype variation explained by genotype variation</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>check geneontology enrichment for the genes under peak</Name>
+<Description>try the slim version as well</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>check if non-coding hits belong to any regulatory element</Name>
+<Description>upstream or downstream to certain genes?</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>check out Tachmazidou2007's asssociation method</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>estimate kinship matrix through geographic information</Name>
+<Description>how to translate geographic distance into genetic distance?
+
+use 2010 data to estimate the translation</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>candidate gene list test</Name>
+<Description>it's rank sum test
+fix table snps_context
+
+filter by allele frequency
+
+include all SNPs belong to a gene, not take the most significant one
+try permutation to get pvalue</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>Kimmel2007's method</Name>
+<Description>try this one on binary data types</Description>
+</DEFAULT>
+<AnsweredQuestion item="y">
+<Name>add 3 deletions into table snps</Name>
+<Description>generate corresponding entries in snps_context
+
+2008-08-19 done.</Description>
+</AnsweredQuestion>
+<AnsweredQuestion item="y">
+<Name>put more candidate genes into db</Name>
+</AnsweredQuestion>
+<AnsweredQuestion item="y">
+<Name>put genotype calling results by bjarni, 363_uniq_2_FRI_del' into db</Name>
+<Description>2008-08-19 done.</Description>
+</AnsweredQuestion>
+<DEFAULT item="y">
+<Name>check association results on data before imputation</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>association by epistasis within genes</Name>
+<Description>boolean network of SNPs within or nearby this gene</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>Top SNP test</Name>
+<Description>Hypergenomic test or chi-squared test</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>Venn diagram showing overlapping of top SNP-genes</Name>
+<Description>2008-08-25</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>pvalue cutoff depends on MAF</Name>
+<Description>2008-09-01
+
+apparently, methods have different power at different MAF. Zhang2007a, Marchini2005, even our own data can demonstrate that. however, the peak is always around 0.1. It then tapers off till 0.5.
+
+This might mean causal SNPs with frequency 0.1-0.5 might just get lower pvalues or score due to methodoligcal limitation.
+
+According to Wang2005a, MAF&lt;0.1 would require unrealistic sample size and big effect size, so for MAF (0.1, 0.5), take 0.05 window size and take the top SNPs in each MAF window.</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>association of genotype vs longitude/latitude</Name>
+<Description>2008-09-02
+discover genes related to clinal variation/circadian clock genes</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>more details assigning SNPs to genes, like synonymous, non-synonymous, intron, upstream, UTR, downstream, TFBS</Name>
+<Description>2008-09-03
+check which category has the higher rank, rank test</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>directionality of phenotype of new mutations</Name>
+<Description>2008-08-28
+
+use MAF to see which allele is new mutation
+
+derive new/ancestral from alignment with lyrata
+
+check which type of allele has higher ranks in phenotypes. or hypergeometric test among the top ones.</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>how stuff Top SNP test result decays over the top interval</Name>
+<Description>2008-09-07
+get genes associated with SNPs in each interval</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>combine CNV info</Name>
+<Description>2008-09-25</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>contrast different phenotypes</Name>
+<Description>2008-09-25</Description>
+<DEFAULT item="y">
+<Name>regard other traits as covariates for one phenotype mapping</Name>
+<Description>2008-09-02
+genotype-environment interaction might be discovered by just doing that</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>genes picked by similar phenotypes, particular branch in a pathway?</Name>
+<Description>2008-09-25
+are they picking different parts in a pathway or what?</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>rank the phenotype against candidate gene list</Name>
+<Description>2008-09-26
+pull results for all phenotypes but from the same method together and rank them.
+among the top XXX hits, which phenotype includes the most candidate genes and highest rank</Description>
+</DEFAULT>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>recombination</Name>
+<Description>try different algorithms on it</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>draw 2-D LD matrix for all SNPs</Name>
+<Description>wanna see if there's some weird long-range LD</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>simulate SNP matrix with certain heterozygosity and test how bad to ignore them either as NA or homo</Name>
+<Description>2008-09-06
+try association</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>population genetics</Name>
 <DEFAULT item="y">
 <Name>structural variation</Name>
 <Description>inversion, deletion, insertion. cause LD/recombination disruption etc
@@ -164,11 +338,201 @@ Van-0's phenotype is 144 hrs. truncate it to 72.</Description>
 how to detect that in SNP hybridization data</Description>
 </DEFAULT>
 <DEFAULT item="y">
+<Name>apply game theory to the biological interactions</Name>
+</DEFAULT>
+<DEFAULT item="y">
 <Name>integrate expr/protein inter/SNP - phenotype</Name>
 <Description>graph model/bayesian networks</Description>
 </DEFAULT>
 <DEFAULT item="y">
-<Name>apply game theory to the biological interactions</Name>
+<Name>selfing rate</Name>
+<Description>selfing rates in different regions, north america same as europe?</Description>
+<DEFAULT item="y">
+<Name>pattern in selfing rate</Name>
+<Description>latitudinal or longitudinal?</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>pollen/seed migration</Name>
+<DEFAULT item="y">
+<Name>identity vs geographic dist (regions)</Name>
+<Description>need to normalize</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>diffusion model</Name>
+<Description>estimate seed/pollen rates</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>selection</Name>
+<DEFAULT item="y">
+<Name>LD curve fitting to each SNP</Name>
+<Description>try to find out spots with very low LD decay. not successful, either r^2 = 1/(a+bx) or r^2  = ax^b(slightly better) doesn't give very good fitting results cuz the data is too noisy. maybe only pair two SNPs with similar allele frequency.</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>EHH, LRH, iHS, XP-EHH Sabeti2007</Name>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>association mapping by haplotype clustering</Name>
+<Description>write a GUI to pinpoint data</Description>
+<DEFAULT item="y">
+<Name>phenotype data =&gt; database</Name>
+<Description>1. link at.phenotype and at.experiment
+2. put data into db
+
+Kas-2 id replaced with Kas-1 id
+Van-0's phenotype is 144 hrs. truncate it to 72.</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>haplotype sharing</Name>
+<Description>margarita</Description>
+<DEFAULT item="y">
+<Name>IBD</Name>
+<Description>HMM model?</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>Fst analysis</Name>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>thesis proposal 2008-09</Name>
+<Description>2008-09-06</Description>
+<DEFAULT item="y">
+<Name>association mapping. challenges</Name>
+<DEFAULT item="y">
+<Name>statement of the problem</Name>
+<Description>SNP data matrix to phenotype</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>previous approaches</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>what causes false positives/negatives?</Name>
+<DEFAULT item="y">
+<Name>haplotype?</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>population structure?</Name>
+<DEFAULT item="y">
+<Name>how serious is population structure in our data?</Name>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>interaction?</Name>
+<Description>why i believe interaction is a more important factor?</Description>
+</DEFAULT>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>phenotype of focus in this study, flowering time pathway</Name>
+<Description>introduce the two main types and the pathway</Description>
+<DEFAULT item="y">
+<Name>H: flowering time under selection</Name>
+<Description>2008-9-6
+among the Top SNPs, phenotype histogram of the derived and ancestral allele</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>H: SNPs are functional rather than just markers</Name>
+<Description>2008-09-06
+classify SNPs into different categories, check their p-values</Description>
+<DEFAULT item="y">
+<Name>types of SNPs</Name>
+<Description>2008-09-08
+large-effect SNPs: premature stop, initiation MET change, splice donor/acceptor site, stop-codon removal</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>location of SNPs relative to the gene</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>effect of different types of SNPs on phenotype</Name>
+<Description>classify SNPs into different categories, check their p-values</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>H: it is feasible to detect alteration of functions through the 250k SNPs.</Name>
+<DEFAULT item="y">
+<Name>coverage of functional SNPs within a gene</Name>
+<Description>how many potential functional sites (non-synonymous, regulatory)?
+how many known SNPs are functional?
+what percentage of them are typed by 250k?</Description>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>coverage of functional SNPs relative to the 2010+perlegen?</Name>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>H: numerous ways to change a gene's function</Name>
+<Description>2008-09-06
+1. worsen the function
+each way might not be significant on its own.
+
+2. improve the function
+
+3. cis and trans, showcase the network point of view</Description>
+<DEFAULT item="y">
+<Name>if different SNPs are changing a gene's function in the same direction,</Name>
+<Description>then they should be grouped together.</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>current epistasis detection methods</Name>
+<DEFAULT item="y">
+<Name>what's their problem?</Name>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>idea of my approach</Name>
+<DEFAULT item="y">
+<Name>FRI example</Name>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>preliminary results</Name>
+<DEFAULT item="y">
+<Name>example of two SNPs each with minor marginal effects, strong after combining</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>compare with haplotype approach? why it didn't capture</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>SNP pairwise pvalue matrix</Name>
+<Description>2008-09-10
+see how it looks like, cross LD-block or not
+construct a SNP-graph ...</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>next</Name>
+<DEFAULT item="y">
+<Name>2nd stage, gene-gene interaction</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>denser/richer markers, denovo sequencing</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>epigenetic information</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>expression, protein interaction,  regulatory data</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>how do i put the population genetics into the scenario?</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>integrate multiple traits to get the whole picture</Name>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>logic/symbolic regression</Name>
+<Description>2008-09-08 simon suggested looking into it</Description>
+</DEFAULT>
+</DEFAULT>
+<DEFAULT item="y">
+<Name>acknowlegement</Name>
+</DEFAULT>
 </DEFAULT>
 <Question item="n"
 line0="{*Name*}"
