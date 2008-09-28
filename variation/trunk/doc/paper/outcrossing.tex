@@ -240,6 +240,7 @@ Europe, figure~\ref{fggd_3}, shows a positive correlation. While in north americ
 \subsection{correlation between the pairwise genotype distance using 149snp and full 2010 data}
 There're 247 arabidopsis strains in 2010 data. 244 of them have their 149 snps genotyped. The sequencing coverage of the 247 strains varies. 96 of them, used in \cite{Nordborg2005}, have about 1500s loci, from which the 149 snps are picked. The other 96 have about 112 loci.
 
+
 \section{identity strains across globe}
 Here is to see how identity strain pairs are distributed across globe. We first tried a loose criteria to define identity. If one of the two calls is NA, it's deemed as identical too. Hence, the transivity of identity relationship is not guaranteed. For example, given strain 1 and 2 are identical and strain 1 and 3 are also identical, strain 1 and 3 might not be identical.
 
@@ -450,6 +451,7 @@ In order to gain a global look. we grouped strains into population. Each populat
 \includegraphics[width=1\textwidth]{figures/identity_map1_site_network.png}
 \caption{Population Identity Map}\label{f22}
 \end{figure}
+
 
 \section{Remove Identity Strains}
 Due to the highly inbreeding nature of Arabidopsis, there're lots of identity strains in the samples collected from nature. In Figure~\ref{f10}, blocks of identity strains are very obvious. In the detection of identity strains, NA is regarded to be identical to any genotyping call. Because different strains have NAs in different SNP loci, the identity relation is not transitive. For example, A is identical to B and B is identical to C but A might not be identical to C. A graph is constructed with strains as nodes and two nodes are connected if these two strains are deemed as identical. An example graph is shown in Figure ~(?). A greedy algorithm is used to remove nodes with highest degree until no edges left.
@@ -671,7 +673,7 @@ gene id: 826450. symbol: At4g01023. description: zinc finger (C3HC4-type RING fi
 FLC locus (gene id: 830878. symbol: At5g10140. description: MADS-box protein flowering locus F (FLF). type of gene: protein-coding. chromosome: 5. start: 3173498. stop: 3179449. strand: -1) is ~750kb close to a very significant SNP (snp chromosome: 5, position: 2355408, pvalue: 17.1743250098).
 
 %include a figure here
-\subsection{plant terms}
+\section{plant terms}
 vernalization: during rosette. $>=2$ weeks after germination. keep same daylight. set temperature from 18C to 4C. could last a month.
 
 stratification: seed cold treatment, 3 days, 4C. pre-germination. encourage plants to germinate.
@@ -682,6 +684,8 @@ flowering time usually refers to the time from germination to first flower open.
 \includegraphics[width=1\textwidth]{../../genotyping/250ksnp/analysis/data_250k_swap_fix_best_96_SNP_0_error_vs_perlegen_kw_pvalue_log_FLC.png}
 \caption{the -log(kruskal-wallis p-value) at FLC locus/At5g10140}\label{f32}
 \end{figure}
+
+\section{}
 
 \bibliography{outcrossing}
 \bibliographystyle{plain}
