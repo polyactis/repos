@@ -29,9 +29,18 @@ from sets import Set
 from GenomeBrowser import GenomeBrowser	#GenomeBrowser.get_gene_id2model
 from GeneListRankTest import GeneListRankTest	#GeneListRankTest.getGeneList()
 import matplotlib; matplotlib.use("Agg")	#to avoid popup and collapse in X11-disabled environment
+from matplotlib import rcParams
+rcParams['font.size'] = 6
+rcParams['legend.fontsize'] = 6
+#rcParams['text.fontsize'] = 6	#deprecated. use font.size instead
+rcParams['axes.labelsize'] = 6
+rcParams['axes.titlesize'] = 8
+rcParams['xtick.labelsize'] = 6
+rcParams['ytick.labelsize'] = 6
+from matplotlib.patches import Polygon, CirclePolygon
 import pylab
 from pymodule.yh_matplotlib_artists import ExonIntronCollection
-from matplotlib.patches import Polygon, CirclePolygon
+import ImageColor
 
 class DrawSNPRegion(GeneListRankTest):
 	__doc__ = __doc__
@@ -298,16 +307,17 @@ class DrawSNPRegion(GeneListRankTest):
 					exon_start_ls = c_start_ls
 					exon_stop_ls = c_end_ls
 					is_arrow = False
-				g_artist = ExonIntronCollection(c_start_ls, c_end_ls, y=y_value, is_arrow=is_arrow, width=gene_width, alpha=0.3, facecolors=facec, picker=True, linewidths=0.3)
+				g_artist = ExonIntronCollection(c_start_ls, c_end_ls, y=y_value, is_arrow=is_arrow, width=gene_width, alpha=0.3, \
+											facecolors=facec, picker=True, linewidths=0.7, box_line_widths=0.3)
 				ax.add_artist(g_artist)
 				if gene_model.strand=="-1":
-					text_start_pos = c_start_ls[0]
+					text_start_pos = c_end_ls[0]
 				else:
 					text_start_pos = c_end_ls[-1]
 				#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
 				ax.text(text_start_pos, y_value, gene_model.symbol, size=8)
 				
-	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0):
+	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, gene_position_cycle=4):
 		"""
 		2008-09-24
 		"""
@@ -323,20 +333,23 @@ class DrawSNPRegion(GeneListRankTest):
 				if left_chr==right_chr:	#same chromosome
 					if gene_model.start>right_pos:	#totally out of range, skip it
 						continue
-				y_value = no_of_genes_drawn%4	#cycling through the y position to avoid clogging
+				y_value = no_of_genes_drawn%gene_position_cycle	#cycling through the y position to avoid clogging
 				self.plot_one_gene(ax, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
 				no_of_genes_drawn += 1
 		if left_chr!=right_chr:
 			for gene_id in gene_annotation.chr_id2gene_id_ls[right_chr]:
 				gene_model = gene_annotation.gene_id2model[gene_id]
 				if gene_model.start!=None and gene_model.stop!=None and gene_model.start<right_pos:
-					y_value = no_of_genes_drawn%4	#cycling through the y position to avoid clogging
+					y_value = no_of_genes_drawn%gene_position_cycle	#cycling through the y position to avoid clogging
 					self.plot_one_gene(ax, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
 					no_of_genes_drawn += 1
 		sys.stderr.write("Done.\n")
 	
 	def drawLD(self, ax1, ax2, snps_within_this_region, LD_info, y_value=-5):
 		"""
+		2008-09-28
+			represent r2 by HSL color, rather than a grayscale intensity. matplotlib doesn't support hsl notation (i'm not aware).
+			Use ImageColor.getrgb to convert hsl representation to RGB format.
 		2008-09-24
 			draw LD in the bottom axe
 		"""
@@ -344,10 +357,10 @@ class DrawSNPRegion(GeneListRankTest):
 		no_of_snps = len(snps_within_this_region.chr_pos_ls)
 		left_chr, left_pos = snps_within_this_region.chr_pos_ls[0]
 		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1]
-		ax1.hlines(y_value, left_pos, right_pos)
+		#ax1.hlines(y_value, left_pos, right_pos, linewidth=0.3)
 		for i in range(no_of_snps):
 			chr_pos1 = snps_within_this_region.chr_pos_ls[i]
-			ax1.vlines(chr_pos1[1], y_value, 0, linestyle='dashed', alpha=0.3)
+			ax1.vlines(chr_pos1[1], y_value, 0, linestyle='dashed', alpha=0.3, linewidth=0.3)
 			for j in range(i+1, no_of_snps):
 				chr_pos2 = snps_within_this_region.chr_pos_ls[j]
 				if chr_pos1<chr_pos2:
@@ -369,7 +382,12 @@ class DrawSNPRegion(GeneListRankTest):
 					y4 = (s11-s21)/2.
 					xs = [x1, x2, x3, x4]
 					ys = [y1, y2, y3, y4]
-					poly = Polygon(zip(xs, ys), facecolor='%s'%r2, linewidth=0)
+					hue_value = int(round(r2*255))	#r2 is [0,1], 255 is the maximum hue value.
+					fc = ImageColor.getrgb('hsl(%s'%hue_value+',100%,50%)')	#"hsl(hue, saturation%, lightness%)" where hue is the colour given as an
+					# angle between 0 and 360 (red=0, green=120, blue=240),
+					#saturation is a value between 0% and 100% (gray=0%, full color=100%), and lightness is a value between 0% and 100% (black=0%, normal=50%, white=100%).
+					fc = [color_value/255. for color_value in fc]	#matplotlib accepts rgb in [0-1] range
+					poly = Polygon(zip(xs, ys), facecolor=fc, linewidth=0)
 					ax2.add_patch(poly)
 		sys.stderr.write("Done.\n")
 	
@@ -399,9 +417,12 @@ class DrawSNPRegion(GeneListRankTest):
 		ax1 = pylab.axes([0.1,0.5, 0.8, 0.45])
 		ax2 = pylab.axes([0.1,0.05, 0.8, 0.45], frameon=False)
 		self.drawPvalue(ax1, ax2, snps_within_this_region, analysis_method_id2gwr)
-		self.drawGeneModel(ax1, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0)
-		
-		self.drawLD(ax1, ax2, snps_within_this_region, LD_info)
+		gene_position_cycle = 4
+		self.drawGeneModel(ax1, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, gene_position_cycle=gene_position_cycle)
+		LD_boundary_y_value = -gene_position_cycle-1
+		self.drawLD(ax1, ax2, snps_within_this_region, LD_info, y_value=LD_boundary_y_value)
+		ax1_ylim = ax1.get_ylim()
+		ax1.set_ylim((LD_boundary_y_value, ax1_ylim[1]))	#LD panel right under gene models
 		ax1.set_xticklabels([])	#remove xtick labels on ax1 because ax2's xtick labels cover this.
 		ax2.set_xlim(ax1.get_xlim())	#make the two plots within the same X range
 		ax2.set_ylim((-min_distance, 0))	#has to force here, don't know why. otherwise it's (0,1)
