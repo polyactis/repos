@@ -188,7 +188,7 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 	"""
 	2008-09-23	test PolyCollection, draw both exons and introns
 	"""
-	def __init__(self, start_ls, end_ls, y=0, width=0.001, linewidths = None,
+	def __init__(self, start_ls, end_ls, y=0, width=0.001, linewidths = None, box_line_widths = None,
 				 colors	= None,
 				 antialiaseds = None,
 				 linestyle = 'solid',
@@ -197,9 +197,15 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 				 norm = None,
 				 cmap = None,
 				 picker=False, pickradius=5, alpha=None, is_arrow=True, **kwargs):
+		"""
+		2008-09-26
+			linewidths controls the width of lines connecting exons or the arrow line, could be a list of floats of just one float.
+			box_line_widths controls the width of the boundaries of exon boxes
+		"""
 		if linewidths is None   :
 			linewidths   = (mpl.rcParams['lines.linewidth'], )
-
+		if box_line_widths is None   :
+			box_line_widths   = (mpl.rcParams['lines.linewidth'], )
 		if colors is None	   :
 			colors	   = (mpl.rcParams['lines.color'],)
 		if antialiaseds is None :
@@ -236,17 +242,17 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 				segment_ls.append([(end_ls[i-1], y), (block_start,y)])
 		#add an arrow
 		if is_arrow:
-			arrow_length = abs(start_ls[0]-end_ls[-1])
+			arrow_length = abs(start_ls[0]-end_ls[-1])/4
 			if end_ls[i]>start_ls[i]:
-				arrow_offset = -arrow_length/4
+				arrow_offset = -arrow_length
 			else:
-				arrow_offset = arrow_length/4
+				arrow_offset = arrow_length
 			segment_ls.append([(end_ls[i]+arrow_offset, y+width), (end_ls[i],y+width/2.0)])
 		self._segments = segment_ls
 		self.set_segments(segment_ls)
 		self._verts = verts
 		#self.set_alpha(alpha)
-		PolyCollection.__init__(self, verts_ls, **kwargs)
+		PolyCollection.__init__(self, verts_ls, linewidths=box_line_widths, antialiaseds=antialiaseds, **kwargs)
 	
 	def draw(self, renderer):
 		if not self.get_visible(): return
@@ -292,7 +298,7 @@ if __name__ == '__main__':
 	g1 = Gene(start_ls, end_ls, y=1.5,  width=0.1, x_offset=1, is_arrow=False, alpha=0.3, facecolor='r')
 	a.add_artist(g1)
 	
-	g2 = ExonIntronCollection(start_ls, end_ls, y=0.5,  width=0.1, facecolors=['y','w', 'w'], alpha=0.3)
+	g2 = ExonIntronCollection(start_ls, end_ls, y=0.5,  width=0.1, facecolors=['y','w', 'w'], alpha=0.3, box_line_widths=0.3)
 	a.add_artist(g2)
 	#draw a opposite strand gene
 	start_ls.reverse()
@@ -304,7 +310,7 @@ if __name__ == '__main__':
 	#a.set_ylim(0,2)
 	from matplotlib.patches import Circle, Polygon
 	from matplotlib.lines import Line2D
-	p1 = Polygon(zip(start_ls, end_ls), alpha=0.3, linewidth=0)
+	p1 = Polygon(zip(start_ls, end_ls), alpha=0.3, linewidth=0, facecolor=(0,217/255.,1))
 	a.add_artist(p1)
 	#pylab.gray()	#colorbar needs  "You must first set_array for mappable"
 	#c1 = Circle((1,2), radius=1)
