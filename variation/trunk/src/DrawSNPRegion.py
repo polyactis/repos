@@ -41,6 +41,7 @@ from matplotlib.patches import Polygon, CirclePolygon
 import pylab
 from pymodule.yh_matplotlib_artists import ExonIntronCollection
 import ImageColor
+import numpy
 
 class DrawSNPRegion(GeneListRankTest):
 	__doc__ = __doc__
@@ -266,7 +267,7 @@ class DrawSNPRegion(GeneListRankTest):
 			pscatter = ax1.scatter(x_ls, y_ls, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w')
 			legend_ls.append(self.analysis_method_id2name[analysis_method_id])
 			pscatter_ls.append(pscatter)
-		ax2.legend(pscatter_ls, legend_ls, shadow=True, loc='lower right')
+		ax2.legend(pscatter_ls, legend_ls, loc='lower left', handlelen=0.02)	#cut the legend length to 0.02, default 0.05 (5% of x-axis).
 		sys.stderr.write("Done.\n")
 		#return legend_ls
 	
@@ -382,13 +383,40 @@ class DrawSNPRegion(GeneListRankTest):
 					y4 = (s11-s21)/2.
 					xs = [x1, x2, x3, x4]
 					ys = [y1, y2, y3, y4]
-					hue_value = int(round(r2*255))	#r2 is [0,1], 255 is the maximum hue value.
-					fc = ImageColor.getrgb('hsl(%s'%hue_value+',100%,50%)')	#"hsl(hue, saturation%, lightness%)" where hue is the colour given as an
-					# angle between 0 and 360 (red=0, green=120, blue=240),
-					#saturation is a value between 0% and 100% (gray=0%, full color=100%), and lightness is a value between 0% and 100% (black=0%, normal=50%, white=100%).
-					fc = [color_value/255. for color_value in fc]	#matplotlib accepts rgb in [0-1] range
+					fc = self.r2ToRGBColor(r2)
 					poly = Polygon(zip(xs, ys), facecolor=fc, linewidth=0)
 					ax2.add_patch(poly)
+		sys.stderr.write("Done.\n")
+	
+	def r2ToRGBColor(self, r2):
+		"""
+		2008-09-29
+			convert r2 to matplotlib RGB color
+		"""
+		hue_value = int(round((1-r2)*255))	#r2 is [0,1], 255 is the maximum hue value. lower r2, higher hue. r2=0 -> blue, r2=1 -> red
+		fc = ImageColor.getrgb('hsl(%s'%hue_value+',100%,50%)')	#"hsl(hue, saturation%, lightness%)" where hue is the colour given as an
+		# angle between 0 and 360 (red=0, green=120, blue=240),
+		#saturation is a value between 0% and 100% (gray=0%, full color=100%), and lightness is a value between 0% and 100% (black=0%, normal=50%, white=100%).
+		fc = [color_value/255. for color_value in fc]	#matplotlib accepts rgb in [0-1] range
+		return fc
+	
+	def drawLDLegend(self, ax):
+		"""
+		2008-09-29
+			left half is 10 color patchs, right half is r2 from 0 to 1
+		"""
+		sys.stderr.write("\t Drawing LD legend  ...")
+		xs = [0,0,0.5,0.5]	#X-axis value for the 4 points of the rectangle starting from upper left corner. 
+		ys = numpy.array([0.1,0,0,0.1])
+		for i in range(10):
+			r2 = ys[0]	#upper bound of ys correspond to r2
+			fc = self.r2ToRGBColor(r2)
+			poly = Polygon(zip(xs, ys), facecolor=fc, linewidth=0)
+			ax.add_patch(poly)
+			if i%2==0:	#every other band
+				ax.text(0.6, ys[0], '%.1f'%r2, horizontalalignment ='left', verticalalignment='top', size=4)
+			ys += 0.1	#increase y-axis
+		ax.text(0.6, ys[0], r'$r^2=1.0$', horizontalalignment ='left', verticalalignment='top', size=4)
 		sys.stderr.write("Done.\n")
 	
 	def drawRegionAroundThisSNP(self, rg, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, LD_info, output_dir, min_distance, list_type_id):
@@ -414,13 +442,19 @@ class DrawSNPRegion(GeneListRankTest):
 		snps_within_this_region = self.getSNPsAroundThisSNP(this_snp, snp_info, self.min_distance)
 		pylab.clf()
 		#fig = pylab.figure()
-		ax1 = pylab.axes([0.1,0.5, 0.8, 0.45])
-		ax2 = pylab.axes([0.1,0.05, 0.8, 0.45], frameon=False)
+		ax1 = pylab.axes([0.1, 0.5, 0.8, 0.45])	#left gap, bottom gap, width, height, axes for pvalue, gene models
+		ax2 = pylab.axes([0.1, 0.05, 0.8, 0.45], frameon=False)	#axes for LD
+		ax3 = pylab.axes([0.8, 0.08, 0.1, 0.13],frameon=False)	#axes for the legend of LD
+		ax3.set_xticks([])
+		ax3.set_yticks([])
 		self.drawPvalue(ax1, ax2, snps_within_this_region, analysis_method_id2gwr)
 		gene_position_cycle = 4
 		self.drawGeneModel(ax1, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, gene_position_cycle=gene_position_cycle)
 		LD_boundary_y_value = -gene_position_cycle-1
 		self.drawLD(ax1, ax2, snps_within_this_region, LD_info, y_value=LD_boundary_y_value)
+		
+		self.drawLDLegend(ax3)
+		#adjust x, y limits and etc
 		ax1_ylim = ax1.get_ylim()
 		ax1.set_ylim((LD_boundary_y_value, ax1_ylim[1]))	#LD panel right under gene models
 		ax1.set_xticklabels([])	#remove xtick labels on ax1 because ax2's xtick labels cover this.
