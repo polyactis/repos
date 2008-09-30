@@ -1,6 +1,22 @@
 """
 Various useful functions.
 """
+class Queue:
+    "A first-in-first-out queue."
+    def __init__(self, items=None): self.start = 0; self.A = items or []
+    def __len__(self):                return len(self.A) - self.start
+    def append(self, item):           self.A.append(item)
+    def extend(self, items):          self.A.extend(items)
+
+    def pop(self):
+        A = self.A
+        item = A[self.start]
+        self.start += 1
+        if self.start > 100 and self.start > len(A)/2:
+            del A[:self.start]
+            self.start = 0
+        return item
+
 
 def valListToStrList(l):
     newl = []

@@ -10,7 +10,8 @@ Option:
         -c ..., --chr=...           default is all chromosomes
 	--logTransform              Log transforms the phenotype values, before running Emma.
 	--kinshipDatafile=          Datafile which is used to calculate the kinship matrix.  
-	                            (default is /home/cmb-01/bvilhjal/Projects/data/2010_01format_070808.csv)
+	                            (default is /home/cmb-01/bvilhjal/Projects/data/2010_01format_070808.csv) 
+
         --BoundaryStart=...         Only the region within the boundary is considered in the GWA. (Default is no boundaries)
         --minMAF=...                Remove all SNPs which have MAF smaller than the given argument.  (0.05 is set as default).
 	--LRT                       Use ML and LRT instead of REML and a t-test.
@@ -26,11 +27,17 @@ Examples:
 	
 Description:
 
+Warning:
+Remember to specify the emma package dir.  (Modify code appropriately)
+
 """
 
 import sys, getopt, traceback
 import os, env
 import phenotypeData
+
+#This directory should be set to point the R emma package.
+emmaPackageDir = env.homedir+"Projects/emma"
 
 def _run_():
 	if len(sys.argv) == 1:
@@ -61,7 +68,9 @@ def _run_():
 	logTransform = False
 	parallelAll = False
 	lrt = False
-	kinshipDatafile = "/home/cmb-01/bvilhjal/Projects/data/250K_f9_080608.csv"  #This default path should perhaps be something else..
+	
+	#The default data used for the kinship matrix calculation.   
+	kinshipDatafile = env.dataDir+"250K_f9_080608.csv" 
 
 	for opt, arg in opts:
             if opt in ("-h", "--help"):
@@ -109,8 +118,8 @@ def _run_():
 
 	def runParallel(phenotypeIndex):
 		#Cluster specific parameters
-		emmadir = '/home/cmb-01/bvilhjal/Projects/Python-snps/'
-		resultDir = '/home/cmb-01/bvilhjal/results/'
+		emmadir = env.scriptDir
+		resultDir = env.resultDir
 		phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
 		phenName = phed.phenotypeNames[phenotypeIndex]
 		phenName = phenName.replace("/","_div_")
@@ -281,10 +290,9 @@ def _run_():
 	print ""
 
 	#Writing files
-	cluster = "/home/cmb-01/bvilhjal/"==env.homedir #Am I running on the cluster?
 	import tempfile
 	#tempfile.tempdir = "/home/cmb-01/bvilhjal/tmp/" #(Temporary) debug hack...
-	if not cluster:
+	if os.getenv("USER")=="bjarni"
 		tempfile.tempdir='/tmp'
 	(fId, phenotypeTempFile) = tempfile.mkstemp()
 	os.close(fId)
@@ -326,9 +334,8 @@ def _run_():
 	
 	
 def _generateRScript_(genotypeFile, phenotypeFile, rDataFile, pvalFile, kinshipDatafile, name=None, boundaries = [-1,-1],chr=None, cluster=False, lrt=False):
-	
 	if cluster:
-		rstr = 'library(emma,lib.loc="/home/cmb-01/bvilhjal/Projects/emma");\n'
+		rstr = 'library(emma,lib.loc="'+emmaPackageDir+'");\n'
 	else:
 		rstr = "library(emma);\n"
 	rstr += 'data250K <- read.csv("'+str(genotypeFile)+'", header=TRUE);\n'

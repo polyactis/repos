@@ -118,9 +118,8 @@ def _run_():
 			snpsds1[i].mergeData(snpsds2[i],priority=priority)
 		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 	elif 0<union<4 and intersection==0:
-		#for i in range(0,len(snpsds1)):
-		#	snpsds1[i].mergeDataUnion(snpsds2[i], priority=priority, unionType=union)
-		snpsds1[3].mergeDataUnion(snpsds2[0], priority=priority, unionType=union)
+		for i in range(0,len(snpsds1)):
+			snpsds1[i].mergeDataUnion(snpsds2[i], priority=priority, unionType=union)
 		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal)
 	elif 0<intersection<4 and union==0:
 		for i in range(0,len(snpsds1)):

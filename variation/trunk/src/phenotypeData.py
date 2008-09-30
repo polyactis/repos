@@ -2,19 +2,121 @@ class PhenotypeData:
     """
     A class that knows how to read simple tsv or csv phenotypefiles and facilitates their interactions with SnpsData objects.    
     """
-    accessions = []
-    phenotypeNames = []
-    phenotypeValues = [] # list[accession_index][phenotype_index]
-    accessionNames = None
     
     def __init__(self, accessions, phenotypeNames, phenotypeValues, accessionNames=None):
         self.accessions = accessions
         self.phenotypeNames = phenotypeNames
-        self.phenotypeValues=phenotypeValues
+        self.phenotypeValues=phenotypeValues # list[accession_index][phenotype_index]
         self.accessionNames = accessionNames
+        self.phenIds = []
+        for phenName in self.phenotypeNames:
+            id = phenName.split("_")
+            self.phenIds.append(int(id[0]))
+        
 
-    def logTransform(self, phenotypeIndex):
-        if not self.isBinary(phenotypeIndex) and not self._lessOrEqualZero_(phenotypeIndex):
+    def _getIndexMapping_(self):
+        indexMapping = dict()
+        for i in range(0,len(self.phenIds)):
+            indexMapping[self.phenIds[i]]=i
+        return indexMapping
+
+
+    def getPhenIndex(self,phenId):
+        index=None
+        i = 0
+        while self.phenIds[i]!=phenId:
+            i += 1
+        if self.phenIds[i]==phenId:
+            index = i
+        return index
+                
+    
+    def onlyBiologyCategory(self,phenotypeCategory,host=None,user=None,passwd=None):
+        import MySQLdb
+
+	#print "Connecting to db, host="+host
+	if not user:
+            import sys
+            sys.stdout.write("Username: ")
+            user = sys.stdin.readline().rstrip()
+	if not passwd:
+            import getpass
+            passwd = getpass.getpass()
+	try:
+            conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "stock_250k")
+	except MySQLdb.Error, e:
+            print "Error %d: %s" % (e.args[0], e.args[1])
+            sys.exit (1)
+	cursor = conn.cursor ()
+        #Retrieve the filenames
+	#print "Fetching biological info on phenotypes."  
+
+	numRows = int(cursor.execute("select distinct id, short_name, biology_category_id from stock_250k.phenotype_method order by id"))
+    
+	bioinfo = []
+	currTairID=""
+	while(1):
+		row = cursor.fetchone()
+		if not row:
+			break;
+		bioinfo.append([int(row[0]),row[1],int(row[2])])
+
+	cursor.close ()
+	conn.close ()
+	#print "Biol. info fetched"
+
+        phenIds = []
+        for phenName in self.phenotypeNames:
+            id = phenName.split("_")
+            phenIds.append(int(id[0]))
+
+        indicesToKeep = []
+        j = 0
+        for i in range(0, len(phenIds)):
+            while phenIds[i]>bioinfo[j][0]:
+                j += 1
+            if phenIds[i]==bioinfo[j][0]:
+                if bioinfo[j][2]==phenotypeCategory:
+                    indicesToKeep.append(i)
+                j += 1
+
+        self.removePhenotypes(indicesToKeep)
+        
+    def removePhenotypes(self, indicesToKeep):
+        """
+        Removes phenotypes from the data.
+        """
+        numRemoved = len(self.phenotypeNames)-len(indicesToKeep)
+        #print "Removing",numRemoved,"phenotypes in phenotype data, out of",len(self.phenotypeNames), "phenotypes."
+        newPhenotypeNames = []
+        newPhenotVals = []
+        newPhenIds = []
+        for j in range(0,len(self.accessions)):
+            newPhenotVals.append([])
+        for i in indicesToKeep:
+            newPhenotypeNames.append(self.phenotypeNames[i])
+            newPhenIds.append(self.phenIds[i])
+            for j in range(0,len(self.accessions)):
+                newPhenotVals[j].append(self.phenotypeValues[j][i])
+        self.phenIds = newPhenIds
+        self.phenotypeValues = newPhenotVals
+        self.phenotypeNames = newPhenotypeNames
+
+        #print "len(self.phenotypeNames):",len(self.phenotypeNames)
+        #print "len(self.phenotypeValues[0]):",len(self.phenotypeValues[0])
+
+
+
+    def getPhenotypeName(self, phenotypeIndex):
+        indexMap = self._getIndexMapping_()
+        return self.phenotypeNames[indexMap[phenotypeIndex]]
+
+
+    def logTransform(self, pIndex):
+        indexMap = self._getIndexMapping_() #Modified 9/26/08
+        phenotypeIndex = indexMap[pIndex]
+
+        if not self.isBinary(pIndex) and not self._lessOrEqualZero_(phenotypeIndex):
             import math
             for i in range(0,len(self.accessions)):
                 self.phenotypeValues[i][phenotypeIndex] = str(math.log(float(self.phenotypeValues[i][phenotypeIndex])))
@@ -31,6 +133,9 @@ class PhenotypeData:
             
 
     def isBinary(self, phenotypeIndex):
+        indexMap = self._getIndexMapping_() #Modified 9/26/08
+        phenotypeIndex = indexMap[phenotypeIndex]
+
         l = []
         for i in range(0,len(self.accessions)):
             val = self.phenotypeValues[i][phenotypeIndex]

@@ -30,12 +30,12 @@ Examples:
 
 Description:
 
+Warning:
+        Make sure the randomForest package is installed and the path dependencies in order.
+
 """
 #Relative to the home directory (not absolute directories).  These parameters are only used on the cluster.
 
-resultDir="/home/cmb-01/bvilhjal/results/"
-randomForestDir="/home/cmb-01/bvilhjal/Projects/randomForest/"
-programDir="/home/cmb-01/bvilhjal/Projects/Python-snps/"
 
 #resultDir="/home/cmb-01/atarone/Projects/"
 #randomForestDir="/home/cmb-01/atarone/randomForest/"
@@ -44,6 +44,13 @@ programDir="/home/cmb-01/bvilhjal/Projects/Python-snps/"
 import sys, getopt, traceback
 import os, env
 import phenotypeData
+
+#The path to the randomForest R package
+randomForestDir=env.homedir+"Projects/randomForest/"
+
+resultDir=env.resultDir
+programDir=env.scriptDir
+
 
 def _run_():
 	if len(sys.argv) == 1:

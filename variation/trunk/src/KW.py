@@ -19,7 +19,11 @@ Option:
 
 Examples:
 	KW.py -o outputFile  250K.csv phenotypes.tsv phenotype_index 
+
+Cluster examples:
+	KW.py -o --parallel=runIdentifier --parallelAll /global_path_to_data/250K.csv /global_path_to_data/phenotypes.tsv
 	
+
 Description:
   Applies the Kruskal Wallis test to phenotypes, which are not binary.
   Applies a Chi-square test to the phenotypes which are binary!
@@ -29,10 +33,10 @@ Description:
 import sys, getopt, traceback
 import os, env
 import phenotypeData
-import AddResults2DB
 
-resultDir="/home/cmb-01/bvilhjal/results/"
-scriptDir="/home/cmb-01/bvilhjal/Projects/Python-snps/"
+
+resultDir=env.resultDir
+scriptDir=env.scriptDir
 
 
 def _run_():
