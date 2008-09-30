@@ -1,0 +1,148 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[pdftex]{color,graphicx}
+\usepackage[pdftex, bookmarks, colorlinks]{hyperref}
+\usepackage{longtable}
+\addtolength{\textheight}{2cm}
+\addtolength{\textwidth}{2cm}
+\addtolength{\hoffset}{-1cm}
+\addtolength{\voffset}{-3cm}
+
+%opening
+\title{GWA Sections}
+\author{Yu Huang}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\tableofcontents
+
+\section{SNP Genotyping (Base-calling) by Rong Jiang}
+SNP genotyping was performed with a custom version of the Affymetrix 250K SNP-tiling array (AtSNPtile1).  In brief, each custom SNP-tiling array contains probe sets for 248,584 pre-selected SNPs, where each probe set consists of four probes, i.e., combinations of two alleles and two strands (sense and anti-sense).  Samples were processed at the University of Chicago (?).
+
+CEL files provide the intensities of the various probes on each array and genotypes were called with a modified R package, Oligo \cite{Carvalho2007}.  The Oligo package was designed to call genotypes with the affymetrix Human Mapping array sets.  The calling algorithm summaries each strand across samples and SNPs with an aim to estimate the cluster centers/spread for each SNP using a training data set.  Our modifications are as follows: (1) we modified the readcel.R file in the package such that it could read in the intensities for the custom probe sets (i.e., four perfect match probes for each SNP); (2) we only consider calling homozygotes since our Arabidopsis samples are almost homozygous everywhere in the genome; (3) we used the Perlegen data, \cite{Clark2007a}, as the training set, i.e., 20 accessions in 31 arrays (with duplicates). With “leave-one-out” approach, we estimated the cluster parameters and applied logistic regression on predicted calls to output a confidence measure (again, only between the two homozygous clusters).
+
+(add the rest of genotype pipeline here, e.g., how the arrays/SNPs are filtered)
+
+\section{QC of SNP Calls}
+\begin{enumerate}
+ \item oligo genotype calling (parameter learning using 31 arrays with correspondent perlegen calls)
+ \item filter strains according to mismatch rate from a comparison with the 1st reference dataset
+ \item filter strains according NA rate
+ \item filter snps according to mismatch from a comparison with the 2nd reference dataset
+ \item filter snps according to NA rate
+ \item merge the data with 2nd reference dataset. as far as the 2nd reference dataset has non-NA value,  substitute call at the corresponding strain/snp with this non-NA value.
+ \item remove monomorphic snps
+ \item (QC before imputation)
+ \item imputation by NPUTE
+ \item (QC after imputation)
+\end{enumerate}
+\begin{table}
+\caption{Parameters Tested. Exhaustive Combinations of all parameters below}
+\begin{tabular}{|r|r|r|r|r|r|r|r|r|}
+\hline
+max array mismatch rate & 0.02 & 0.04 & 0.06 & 0.08 & 0.10 & 0.12 \\
+no constraint for array NA rate & & & & & \\
+
+max SNP NA rate & 0.05 & 0.1 & 0.15 & 0.2 & 0.25 & 0.3 \\
+
+max SNP mismatch rate & 0.05 & 0.10 & 0.15 & 0.20 & 0.25 & 0.35 & 0.45 & 0.55 \\
+
+NPUTE window size & 30 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{How to get the best parameter setting}
+\begin{itemize}
+ \item Draw Figure and prepare qhull input.
+ \item 3D Convex Hull algorithm to get the boundary points of the parameter surface.
+ \item pick the parameter setting with best coverage and accuracy
+\end{itemize}
+
+\subsection{Best setting}
+\begin{verbatim}
+min_oligo_call_probability=0.85,
+max_array_mismatch_rate=0.12,
+max_array_NA_rate=1.0,
+max_snp_mismatch_rate=0.3,
+max_snp_NA_rate=0.55,
+npute_window_size=30.0,
+after_imputation.
+\end{verbatim}
+
+
+\section{Over-representation of Priori Candidate Gene List}
+For several phenotypes, we were able to collect a priori candidate gene list from literature/TAIR website. These candidate gene lists allow us to check whether the results by different methods make biological sense apart from statistical inspection. We also use some GeneOntology categories that meet certain criteria, (like each category has to cover 100 genes, etc), as another kind of candidate gene lists.
+
+One tricky point is how to associate genes to individual SNPs. First question how far away the gene should be to be counted as associated with the SNP. Second question is whether to take all genes within a certain distance or just the closest gene. The over-representation tests will calculated under different parameters.
+
+\subsection{Rank sum test}
+
+First test is a rank sum test, Mann-Whitney test, that compares the p-values of candidate genes versus those of non-candidate genes. Figure ~\ref{f1} shows one result. Correpondance between phenotype and candidate gene list is not very specific. There are several possible reasons. First, taking maximum pvalue out of several SNPs that are associated with a gene is gonna cause a bias for genes with lots of markers. Second, the priori candidate gene list contains different types of genes, not all of them are directly related to the specific phenotype, Figure~\ref{f2}. Results from different phenotypes are matching those different types. This will become clear in Figure~\ref{f6}, showing the number of overlapping top ranked genes among results from different phenotypes.
+
+\begin{figure}
+  \includegraphics[width=0.9\textwidth]{figures/rank_sum_test_call_method_17_m20000_inkscape.png}
+  \caption{Significance level of rank sum test results. All genes within 20,000 bp from the SNP are assigned with that SNP's pvalue. In case of one gene having multiple pvalues from different SNPs, the maximum will be taken as that gene's pvalue. Rows are different types of candidate gene list with different methods. Columns are different phenotypes. Black bar separates similar groups of phenotypes.}\label{f1}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.9\textwidth]{figures/1_LD_28_FT_list3_rank.png}
+  \caption{Histogram of ranks of candidate genes versus non-candidate genes in all 4 methods. The phentoype is long-day flowering time without vernalization. Clearly, there are candidate genes ranked pretty low.}\label{f2}
+\end{figure}
+
+\subsection{Hypergeometric test}
+
+Second test we apply is the hypergeometric test to check the enrichment of candidate genes among the top-ranked genes. Figure ~\ref{f3} shows a result with maximum gene-association distance=20kb. The correpondance between phenotype and candidate gene list is more specific than the rank sum test results.  Figure~\ref{f4} is same as Figure~\ref{f3} except only genes closest to a SNP are assigned with  that SNP's pvalue. Signal is noiser. 20kb appears to be the optimum distance to associate genes to a SNP because it shows the cleanest picture (data not shown). The number of top-ranked genes is more flexible. Number up to 1000 could still give good results, Figure~\ref{f5}.
+
+\begin{figure}
+  \includegraphics[width=1\textwidth]{figures/top_snp_test_call_method_17_f200_m20000_inkscape.png}
+  \caption{Enrichment of candidate genes among top 200 genes. All genes within 20,000 bp from the SNP are assigned with that SNP's pvalue. In case of one gene having multiple pvalues from different SNPs, the maximum will be taken as that gene's pvalue. Rows are different types of candidate gene list with different methods. Columns are different phenotypes. Black bar separates similar groups of phenotypes.}\label{f3}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=1\textwidth]{figures/top_snp_test_call_method_17_f200_m20000_g_inkscape.png}
+  \caption{Enrichment of candidate genes among top 200 genes. \textbf{Only closest genes} within 20,000 bp from the SNP are assigned with that SNP's pvalue. In case of one gene having multiple pvalues from different SNPs, the maximum will be taken as that gene's pvalue. Rows are different types of candidate gene list with different methods. Columns are different phenotypes. Black bar separates similar groups of phenotypes. Signal is noisier than Figure~\ref{f3}. Phenotype called 'Yellow Lesion' shows strong enrichment of flowering time genes.}\label{f4}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=1\textwidth]{figures/top_snp_test_call_method_17_f1000_m20000_inkscape.png}
+  \caption{Enrichment of candidate genes among top 1000 genes. All genes within 20,000 bp from the SNP are assigned with that SNP's pvalue. In case of one gene having multiple pvalues from different SNPs, the maximum will be taken as that gene's pvalue. Rows are different types of candidate gene list with different methods. Columns are different phenotypes. Black bar separates similar groups of phenotypes.}\label{f5}
+\end{figure}
+
+\subsection{Overlapping top-ranked genes of results from different phenotypes}
+Apart from whether one result shows enrichment for a particular candidate gene list, we also checked whether results from similar phenotypes have similar genes on top, or two results from distinct phenotypes, both showing enrichment for a particular candidate gene list, are picking same group of genes on the top, Figure~\ref{f6}. This is a much more specific figure compared to the candidate gene enrichment one, Figure~\ref{f3}. This confirms each priori candidate gene list is quite diversified, which causes the same candidate gene list significant in several phenotypes. Signal in flowering time phenotype is very strong even when top 1000 ranked genes are pulled in, Figure~\ref{f7}.
+
+\begin{figure}
+  \includegraphics[width=1\textwidth]{figures/overlapping_results_a100_inkscape.png}
+  \caption{Overlapping of top 100 genes. All genes within 20,000 bp from the SNP are assigned with that SNP's pvalue. In case of one gene having multiple pvalues from different SNPs, the maximum will be taken as that gene's pvalue. Rows and columns are same, results from different phenotypes. Thick black bars separate similar groups of phenotypes. Slender black bars separate different phentoypes.}\label{f6}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=1\textwidth]{figures/overlapping_results_a1000_inkscape.png}
+  \caption{Overlapping of top \textbf{1000} genes. All genes within 20,000 bp from the SNP are assigned with that SNP's pvalue. In case of one gene having multiple pvalues from different SNPs, the maximum will be taken as that gene's pvalue. Rows and columns are same, results from different phenotypes. Thick black bars separate similar groups of phenotypes. Slender black bars separate different phentoypes.}\label{f7}
+\end{figure}
+
+\section{Detailed example}
+
+Gene FLC is well captured in Figure~\ref{f8}. The region contains the \textbf{second-highest} peak in results from Emma. LD is very messy in this region, echoing strange haplotype structured observed in previous papers.
+
+\begin{figure}
+  \includegraphics[width=1\textwidth]{figures/phenotype_1_LD_rank_12_snp_5_3188328_list_type_28_FT_list3_gene_830876_AT5G10120.png}
+  \caption{X-axis is chromosomal position (chromsome 5). Y-axis is minus log(pvalue). Phenotype is long-day flowering time. Scores of Margarita and RandomForest(RF) are normalized against Kruskal-Wallis pvalues. Lower panel displays LD in this 80kb region. Exons of FLC are colored in yellow.}\label{f8}
+\end{figure}
+
+
+
+\section{Acknowledgement}
+We thank B. Carvalho for his advice on how to modify the Oligo package.
+
+
+\bibliography{gwa}
+\bibliographystyle{apalike}
+
+\end{document}
