@@ -133,6 +133,8 @@ def drawLegend(matrix_value2label, matrix_value2color, font=None):
 
 def drawContinousLegend(min_value, max_value, no_of_ticks, value2color, font=None, no_of_bands_per_char_height=5):
 	"""
+	2008-09-30
+		fix a bug when min_value, max_value are all integers and band_value_step=0 if no_of_bands>(max_value-min_value).
 	2008-08-21
 		deal with the case that tick_index goes out of bound
 	2008-08-21
@@ -150,8 +152,8 @@ def drawContinousLegend(min_value, max_value, no_of_ticks, value2color, font=Non
 	char_width, char_height = char_dimension
 	band_height = int(char_height/no_of_bands_per_char_height)
 	no_of_bands = 2*(no_of_ticks-1)*no_of_bands_per_char_height	#this is the number of bands to draw
-	min_value = min_value
-	max_value = max_value
+	min_value = float(min_value)	#2008-09-30	convert to float in case all integer cause band_value_step=0 if no_of_bands>(max_value-min_value). python gives integer output if numerator/denominator are all integer.
+	max_value = float(max_value)
 	band_value_step = (max_value-min_value)/no_of_bands
 	band_value_ls = []
 	band_value = max_value
@@ -473,7 +475,7 @@ class Value2Color(object):
 			return cls.special_value2color[-1]
 		else:
 			Y = (value-min_value)/(max_value-min_value)*(cls.max_gray_value-0)
-			R_value = cls.max_gray_value-int(Y)	#the smaller the value is, the higher hue_value is.
+			R_value = cls.max_gray_value-int(round(Y))	#the smaller the value is, the higher hue_value is.
 			#in (R,G,B) mode, the bigger R/G/B is, the darker the color is
 			#R_value = int(Y/math.pow(2,8))
 			#G_value = int(Y- R_value*math.pow(2,8))
@@ -495,7 +497,7 @@ class Value2Color(object):
 			return cls.special_value2color[-1]
 		else:
 			Y = (value-min_value)/(max_value-min_value)*(cls.max_hue_value-0)
-			hue_value = cls.max_hue_value-int(Y)	#the smaller the value is, the higher hue_value is.
+			hue_value = cls.max_hue_value-int(round(Y))	#the smaller the value is, the higher hue_value is.
 			#in (R,G,B) mode, the bigger R/G/B is, the darker the color is
 			#R_value = int(Y/math.pow(2,8))
 			#G_value = int(Y- R_value*math.pow(2,8))
