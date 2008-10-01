@@ -24,7 +24,7 @@ import getopt, csv, math
 import Numeric, cPickle
 from pymodule import PassingData, importNumericArray, write_data_matrix, SNPData
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
-	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod
+	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod, ResultsByGene
 from sets import Set
 from pymodule.DrawMatrix import drawMatrix, drawLegend, drawContinousLegend, get_font, combineTwoImages, Value2Color
 
@@ -52,7 +52,7 @@ class OutputTestResultInMatrix(object):
 							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'Filename to store data matrix'],\
 							("fig_fname", 1, ): [None, 'x', 1, 'File name for the figure'],\
-							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
+							("no_of_ticks", 1, int): [15, 't', 1, 'Number of ticks on the legend'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -232,8 +232,8 @@ class OutputTestResultInMatrix(object):
 			sys.stderr.write(" result_type %s not supported.\n"%(self.result_type))
 			sys.exit(2)
 		
-		where_condition = "%s r, %s c, %s g where g.id=c.list_type_id and r.analysis_method_id is not null and r.id=c.results_method_id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
-				%(ResultsMethod.table.name, result_class.table.name, GeneListType.table.name, self.get_closest, self.min_distance, self.min_MAF)	#the condition for min_MAF is tricky because of the floating precision.
+		where_condition = "%s r, %s rg, %s c, %s g where g.id=c.list_type_id and r.analysis_method_id is not null and r.id=rg.results_method_id and c.results_by_gene_id=rg.id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
+				%(ResultsMethod.table.name, ResultsByGene.table.name, result_class.table.name, GeneListType.table.name, self.get_closest, self.min_distance, self.min_MAF)	#the condition for min_MAF is tricky because of the floating precision.
 		
 		if self.call_method_id_ls:
 			where_condition += " and r.call_method_id in (%s)"%self.call_method_id_ls
@@ -245,7 +245,7 @@ class OutputTestResultInMatrix(object):
 		
 		if self.result_type==1:
 			result_class = CandidateGeneRankSumTestResult
-			where_condition += " and c.max_pvalue_per_gene=%s"%(self.max_pvalue_per_gene)
+			#where_condition += " and c.max_pvalue_per_gene=%s"%(self.max_pvalue_per_gene)
 		elif self.result_type==2:
 			result_class = CandidateGeneTopSNPTest
 			where_condition += " and c.no_of_top_snps=%s"%(self.no_of_top_snps)
