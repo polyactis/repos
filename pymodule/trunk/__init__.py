@@ -10,3 +10,5 @@ from SNP import write_data_matrix, read_data, SNPData, GenomeWideResults, Genome
 from TwoSNPData import TwoSNPData, QualityControl
 from utils import PassingData, dict_map, importNumericArray, figureOutDelimiter, get_gene_symbol2gene_id_set, \
 	FigureOutTaxID, getColName2IndexFromHeader, getListOutOfStr
+
+from Genome import GeneModel
