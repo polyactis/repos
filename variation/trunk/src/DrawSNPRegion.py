@@ -2,16 +2,24 @@
 """
 Examples:
 	#output SNP plots by ranks according to results_by_gene's id=260 (one particular phenotype).
-	DrawSNPRegion.py -e 260 -l 28 -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.3.tsv  -o /Network/Data/250k/tmp-yh/snp_region/
+	DrawSNPRegion.py -e 260 -l 28 -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.2.tsv  -o /Network/Data/250k/tmp-yh/snp_region/ -i phenotype_1_c10_f200
 	
 	#output SNP plots by ranks according to results_by_gene (analysis_method_id=7-Emma, call_method_id=17) (covering all phenotypes)
-	DrawSNPRegion.py -l 28 -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.3.tsv -o /Network/Data/250k/tmp-yh/snp_region_all/
+	DrawSNPRegion.py -l 28 -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.2.tsv -o /Network/Data/250k/tmp-yh/snp_region_all/ -i phenotype_1_c10_f200
+	
+	#take LD_info and gene_annotation from a file contains the pickled data structure
+	DrawSNPRegion.py -i ./banyan_fs/tmp/GWA_res_FT.csv -l 28 -D /Network/Data/250k/tmp-yh/call_method_17_LD_m0.1_n0.1_m40000 -o /Network/Data/250k/tmp-yh/snp_region/  -j /tmp/at_gene_model_pickelf
 	
 Description:
 	2008-09-24 program to draw pvalues, gene-models, LD around one SNP.
 		Top panel is pvalues from all different methods. Margarita and RF's values will be normalized in range of KW.
 		Middle panel is gene model. Displaying CDS, intron, strand.
 		Bottom panel is LD of all pairwise SNPs in that range.
+	
+	The input file contains at least 3 columns, chromosome/chr, position/pos, phenotype_id/phenot_id. tab or comma-delimited.
+		The 1st row is a header telling which column is which. No particular order is required. The name could either be full (chromosome) or short(chr).
+		Output of FindTopSharedGenes.py conforms to this standard.
+		
 """
 
 import sys, os, math
@@ -22,11 +30,9 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import time, csv, cPickle
 import warnings, traceback
-from pymodule import PassingData, figureOutDelimiter, getColName2IndexFromHeader
+from pymodule import PassingData, figureOutDelimiter, getColName2IndexFromHeader, getListOutOfStr, GeneModel
 import Stock_250kDB
-from pymodule import getGenomeWideResultFromFile
 from sets import Set
-from GenomeBrowser import GenomeBrowser	#GenomeBrowser.get_gene_id2model
 from GeneListRankTest import GeneListRankTest	#GeneListRankTest.getGeneList()
 import matplotlib; matplotlib.use("Agg")	#to avoid popup and collapse in X11-disabled environment
 from matplotlib import rcParams
@@ -43,6 +49,34 @@ from pymodule.yh_matplotlib_artists import ExonIntronCollection
 import ImageColor
 import numpy
 
+class LD_statistic(object):
+	"""
+	2008-09-30
+		a class to get label/name conveniently given which LD_statistic is chosen
+	"""
+	which_LD_statistic2name = {1:'r2', 2:'D_prime', 3:'D'}
+	which_LD_statistic2label = {1:'r^2', 2:"D^'", 3:'D'}
+	
+	def get_name(cls, which_LD_statistic):
+		return cls.which_LD_statistic2name.get(which_LD_statistic)
+	get_name = classmethod(get_name)
+	
+	def get_label(cls, which_LD_statistic):
+		return cls.which_LD_statistic2label.get(which_LD_statistic)
+	get_label = classmethod(get_label)
+
+
+class SNPPassingData(PassingData):
+	chromosome = None
+	position = None
+	def __cmp__(self, other):
+		"""
+		2008-09-30
+			define how to compare to itself
+		"""
+		return cmp((self.chromosome, self.position), (other.chromosome, other.position))
+
+
 class DrawSNPRegion(GeneListRankTest):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
@@ -51,17 +85,20 @@ class DrawSNPRegion(GeneListRankTest):
 							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
-							('LD_fname', 1, ): [None, 'L', 1, 'the file containing LD info, output of MpiLD.py', ],\
-							("results_id_ls", 0, ): [None, 'e', 1, 'comma-separated results_by_gene id list'],\
+							('LD_fname', 0, ): [None, 'L', 1, 'the file containing LD info, output of MpiLD.py', ],\
 							("min_distance", 1, int): [20000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
+							("input_fname", 1, ): [None, 'i', 1, 'Filename which contains at least 3 columns: chromosome, position, phenotype_id. '],\
 							("output_dir", 1, ): [None, 'o', 1, 'directory to store all images'],\
-							('call_method_id', 0, int):[17, 'i', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
+							('call_method_id', 0, int):[17, '', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
 							('analysis_method_id', 0, int):[7, 'a', 1, 'Restrict results based on this analysis_method. Default is no such restriction.'],\
 							('no_of_top_hits', 1, int): [1000, 'f', 1, 'how many number of top hits based on score or -log(pvalue).'],\
+							("which_LD_statistic", 1, int): [2, 'w', 1, 'which LD_statistic to plot, 1=r2, 2=|D_prime|, 3=|D|'],\
+							("LD_info_picklef", 0, ): [None, 'D', 1, 'given the option, If the file does not exist yet, store a pickled LD_info into it (min_MAF and min_distance will be attached to the filename). If the file exists, load LD_info out of it.'],\
+							("gene_annotation_picklef", 0, ): [None, 'j', 1, 'given the option, If the file does not exist yet, store a pickled gene_annotation into it. If the file exists, load gene_annotation out of it.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -75,8 +112,12 @@ class DrawSNPRegion(GeneListRankTest):
 		#self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	
-	def get_LD(self, LD_fname):
+	def get_LD(self, LD_fname, min_MAF, min_gap=40000):
 		"""
+		2008-09-29
+			add min_MAF, min_gap, which_LD_statistic
+			min_gap is the distance allowed between two SNPs
+			which_LD_statistic returns appropriate LD statistic
 		2008-09-24
 		"""
 		sys.stderr.write("Reading in LD info from %s ...\n"%(LD_fname))
@@ -89,48 +130,99 @@ class DrawSNPRegion(GeneListRankTest):
 			snp1 = map(int, snp1)
 			snp2 = row[col_name2index['snp2']].split('_')
 			snp2 = map(int, snp2)
-			r2 = float(row[col_name2index['r2']])
-			if snp1<snp2:
-				snp_pair = (snp1[0], snp1[1], snp2[0], snp2[1])
-			else:
-				snp_pair = (snp2[0], snp2[1], snp1[0], snp1[1])
-			snp_pair2r2[snp_pair] = r2
+			if snp1[0]==snp2[0] and abs(snp1[1]-snp2[1])<=min_gap:	#on the same chromosome, and less than a certain distance
+				allele1_freq = float(row[col_name2index['allele1_freq']])
+				allele2_freq = float(row[col_name2index['allele2_freq']])
+				if allele1_freq>=min_MAF and allele2_freq>=min_MAF:	#meet the minimum minor-allele-frequency
+					r2 = float(row[col_name2index['r2']])
+					D_prime = float(row[col_name2index['D_prime']])
+					D = float(row[col_name2index['D']])
+					if snp1<snp2:
+						snp_pair = (snp1[0], snp1[1], snp2[0], snp2[1])
+					else:
+						snp_pair = (snp2[0], snp2[1], snp1[0], snp1[1])
+					snp_pair2r2[snp_pair] = PassingData(r2=r2, D_prime=D_prime, D=D)
 			counter += 1
 			if counter%100000==0:
 				sys.stderr.write('%s\t%s'%('\x08'*100, counter))
 				if self.debug:
-					#break
+					break
 					pass
 		LD_info = PassingData(snp_pair2r2=snp_pair2r2)
+		sys.stderr.write("%s entries. Done.\n"%len(snp_pair2r2))
+		return LD_info
+	
+	def dealLD_info(self, LD_info_picklef, LD_fname, min_MAF, min_distance):
+		"""
+		2008-09-30
+			if the LD_info_picklef does not exist yet, store a pickled LD_info into it. If the file exists, load LD_info out of it.
+		"""
+		sys.stderr.write("Dealing with LD_info ...")
+		if LD_info_picklef:
+			if os.path.isfile(LD_info_picklef):	#if this file is already there, suggest to un-pickle it.
+				picklef = open(LD_info_picklef)
+				LD_info = cPickle.load(picklef)
+				del picklef
+			else:	#if the file doesn't exist, but the filename is given, pickle into it
+				LD_info = self.get_LD(LD_fname, min_MAF, min_distance*2+100)	#min_gap is 2 X min_distance + a few more bases
+				picklef = open('%s_n%s_m%s'%(LD_info_picklef, min_MAF, min_distance), 'w')
+				cPickle.dump(LD_info, picklef, -1)
+				picklef.close()
+		else:
+			LD_info = self.get_LD(LD_fname, min_MAF, min_distance*2+100)
 		sys.stderr.write("Done.\n")
 		return LD_info
 	
 	def getGeneAnnotation(self):
 		"""
+		2008-10-01
+			substitute GenomeBrowser.get_gene_id2model() with GenomeDB.GenomeDatabase.get_gene_id2model()
+			
 		2008-09-24
 		"""
-		from annot.bin.codense.common import db_connect
-		hostname = 'banyan'
-		dbname = 'graphdb'
-		schema = 'genome'
-		postgres_conn, postgres_curs = db_connect(hostname, dbname, schema)
-		gene_id2model, chr_id2gene_id_ls = GenomeBrowser.get_gene_id2model(postgres_curs)
+		from transfac.src import GenomeDB
+		db = GenomeDB.GenomeDatabase(drivername=self.drivername, username=self.db_user,
+				   password=self.db_passwd, hostname=self.hostname, database='genome', schema=self.schema)
+		db.setup(create_tables=False)
+		gene_id2model, chr_id2gene_id_ls = db.get_gene_id2model(tax_id=3702)
 		gene_annotation = PassingData()
 		gene_annotation.gene_id2model = gene_id2model
 		gene_annotation.chr_id2gene_id_ls = chr_id2gene_id_ls
 		return gene_annotation
 	
-	def getSimilarGWResultsGivenResultsByGene(self, rg, results_directory):
+	def dealWithGeneAnnotation(self, gene_annotation_picklef):
 		"""
+		2008-10-01
+			similar to dealLD_info()
+		"""
+		sys.stderr.write("Dealing with gene_annotation ...")
+		if gene_annotation_picklef:
+			if os.path.isfile(gene_annotation_picklef):	#if this file is already there, suggest to un-pickle it.
+				picklef = open(gene_annotation_picklef)
+				gene_annotation = cPickle.load(picklef)
+				del picklef
+			else:	#if the file doesn't exist, but the filename is given, pickle into it
+				gene_annotation = self.getGeneAnnotation()	#min_gap is 2 X min_distance + a few more bases
+				picklef = open(gene_annotation_picklef, 'w')
+				cPickle.dump(gene_annotation, picklef, -1)
+				picklef.close()
+		else:
+			gene_annotation = self.getGeneAnnotation()
+		sys.stderr.write("Done.\n")
+		return gene_annotation
+	
+	def getSimilarGWResultsGivenResultsByGene(self, phenotype_method_id, call_method_id, results_directory):
+		"""
+		2008-09-30
+			use phenotype_method_id and call_method_id to find out all genome-wide results
 		2008-09-24
 		"""
-		rg_rm = Stock_250kDB.ResultsMethod.get(rg.results_method_id)
-		sys.stderr.write("Getting results with phenotype=%s and call_method=%s ..."%(rg_rm.phenotype_method_id, rg_rm.call_method_id))
+		sys.stderr.write("Getting results with phenotype=%s and call_method=%s ..."%(phenotype_method_id, call_method_id))
 		if self.debug:
 			analysis_method_id_set = Set([1,7])
 		else:
 			analysis_method_id_set = Set([1,5,6,7])
-		rows = Stock_250kDB.ResultsMethod.query.filter_by(phenotype_method_id=rg_rm.phenotype_method_id, call_method_id=rg_rm.call_method_id)
+		rows = Stock_250kDB.ResultsMethod.query.filter_by(phenotype_method_id=phenotype_method_id, call_method_id=call_method_id)
 		analysis_method_id2gwr = {}
 		for rm in rows:
 			if rm.analysis_method_id in analysis_method_id_set:
@@ -189,8 +281,8 @@ class DrawSNPRegion(GeneListRankTest):
 		2008-09-24
 		"""
 		sys.stderr.write("\t Get SNPs around this snp ...")
-		chr_pos = snp_info.chr_pos_ls[snp_info.snps_id2index[this_snp.snps_id]]
-		chromosome, position = chr_pos
+		#chr_pos = snp_info.chr_pos_ls[snp_info.snps_id2index[this_snp.snps_id]]
+		chromosome, position = this_snp.chromosome, this_snp.position
 		chr_pos_ls = []
 		chr_pos2adjacent_window = {}
 		j = 0
@@ -264,7 +356,7 @@ class DrawSNPRegion(GeneListRankTest):
 		for analysis_method_id in analysis_method_id_ls:
 			gwr = analysis_method_id2gwr[analysis_method_id]
 			x_ls, y_ls = self.getXY(snps_within_this_region, analysis_method_id2gwr, analysis_method_id)
-			pscatter = ax1.scatter(x_ls, y_ls, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w')
+			pscatter = ax1.scatter(x_ls, y_ls, s=10, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w')
 			legend_ls.append(self.analysis_method_id2name[analysis_method_id])
 			pscatter_ls.append(pscatter)
 		ax2.legend(pscatter_ls, legend_ls, loc='lower left', handlelen=0.02)	#cut the legend length to 0.02, default 0.05 (5% of x-axis).
@@ -273,50 +365,28 @@ class DrawSNPRegion(GeneListRankTest):
 	
 	def plot_one_gene(self, ax, gene_id, gene_id2model, candidate_gene_set=None, y_value=1, gene_width=1.0):
 		"""
+		2008-10-01
+			gene_model is changed. now it's from GenomeDB.py
 		2008-09-24
-			draw a single gene on the canvas, adaped from GenomeBrowser.plot_one_gene()
+			draw a single gene on the canvas, adapted from GenomeBrowser.plot_one_gene()
 		"""
 		gene_model = gene_id2model.get(gene_id)
-		if gene_model:
-			c_start_ls = None
-			c_end_ls = None
-			if gene_model.cds_start!=None and gene_model.cds_stop!=None:
-				c_start_ls = gene_model.cds_start
-				c_end_ls = gene_model.cds_stop
-			elif gene_model.mrna_start!=None and gene_model.mrna_stop!=None:
-				c_start_ls = gene_model.mrna_start
-				c_end_ls = gene_model.mrna_stop
-			elif gene_model.start!=None and gene_model.stop!=None:
-				c_start_ls = [gene_model.start]
-				c_end_ls = [gene_model.stop]
-			if c_start_ls and c_end_ls:
-				if gene_id in candidate_gene_set:
-					facec = 'y'
-				else:
-					facec = 'w'
-				if gene_model.strand=="1":
-					exon_start_ls = c_start_ls
-					exon_stop_ls = c_end_ls
-					is_arrow = True
-				elif gene_model.strand=="-1":	#to draw opposite strand, 1st is to order c_start_ls and c_end_ls in descending order. 2nd is to swap c_start_ls and c_end_ls.
-					#c_start_ls.reverse()	#2008-02-04 it's already in descending order in db.
-					#c_end_ls.reverse()	#2008-02-04 it's already in descending order in db.
-					exon_start_ls = c_end_ls
-					exon_stop_ls = c_start_ls
-					is_arrow = True
-				else:	#no arrow
-					exon_start_ls = c_start_ls
-					exon_stop_ls = c_end_ls
-					is_arrow = False
-				g_artist = ExonIntronCollection(c_start_ls, c_end_ls, y=y_value, is_arrow=is_arrow, width=gene_width, alpha=0.3, \
-											facecolors=facec, picker=True, linewidths=0.7, box_line_widths=0.3)
-				ax.add_artist(g_artist)
-				if gene_model.strand=="-1":
-					text_start_pos = c_end_ls[0]
-				else:
-					text_start_pos = c_end_ls[-1]
-				#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
-				ax.text(text_start_pos, y_value, gene_model.symbol, size=8)
+		if gene_model and len(gene_model.gene_commentaries)>0:
+			gene_commentary = gene_model.gene_commentaries[0]
+			if gene_commentary.box_ls:
+				box_ls = gene_commentary.box_ls
+			else:	#no box_ls, just use start, stop
+				box_ls = [(gene_model.start, gene_model.stop, 'exon')]
+			if gene_id in candidate_gene_set:
+				gene_symbol_color = 'b'
+			else:
+				gene_symbol_color = 'k'
+			g_artist = ExonIntronCollection(box_ls, y=y_value, strand=gene_model.strand, width=gene_width, alpha=0.3, \
+										picker=True, linewidths=0.7, box_line_widths=0.3)
+			ax.add_artist(g_artist)
+			text_start_pos = box_ls[-1][1]
+			#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
+			ax.text(text_start_pos, y_value, gene_model.gene_symbol, size=5, color=gene_symbol_color, alpha=0.8)
 				
 	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, gene_position_cycle=4):
 		"""
@@ -346,7 +416,7 @@ class DrawSNPRegion(GeneListRankTest):
 					no_of_genes_drawn += 1
 		sys.stderr.write("Done.\n")
 	
-	def drawLD(self, ax1, ax2, snps_within_this_region, LD_info, y_value=-5):
+	def drawLD(self, ax1, ax2, snps_within_this_region, LD_info, y_value=-5, which_LD_statistic=1):
 		"""
 		2008-09-28
 			represent r2 by HSL color, rather than a grayscale intensity. matplotlib doesn't support hsl notation (i'm not aware).
@@ -369,7 +439,8 @@ class DrawSNPRegion(GeneListRankTest):
 				else:
 					snp_pair = (chr_pos2[0], chr_pos2[1], chr_pos1[0], chr_pos1[1])
 				if snp_pair in LD_info.snp_pair2r2:
-					r2 = LD_info.snp_pair2r2[snp_pair]
+					r2 = getattr(LD_info.snp_pair2r2[snp_pair], LD_statistic.get_name(which_LD_statistic), None)
+					r2 = abs(r2)	#D_prime, D need abs()
 					s11, s12 = snps_within_this_region.chr_pos2adjacent_window[chr_pos1]
 					s21, s22 = snps_within_this_region.chr_pos2adjacent_window[chr_pos2]
 					#draw a plot to understand this. a parallegram below SNPs, it's the intersection of two adjacent windows 
@@ -400,7 +471,7 @@ class DrawSNPRegion(GeneListRankTest):
 		fc = [color_value/255. for color_value in fc]	#matplotlib accepts rgb in [0-1] range
 		return fc
 	
-	def drawLDLegend(self, ax):
+	def drawLDLegend(self, ax, which_LD_statistic):
 		"""
 		2008-09-29
 			left half is 10 color patchs, right half is r2 from 0 to 1
@@ -416,27 +487,18 @@ class DrawSNPRegion(GeneListRankTest):
 			if i%2==0:	#every other band
 				ax.text(0.6, ys[0], '%.1f'%r2, horizontalalignment ='left', verticalalignment='top', size=4)
 			ys += 0.1	#increase y-axis
-		ax.text(0.6, ys[0], r'$r^2=1.0$', horizontalalignment ='left', verticalalignment='top', size=4)
+		ax.text(0.6, 1.1, r"$|%s|=1.0$"%LD_statistic.get_label(which_LD_statistic), horizontalalignment ='left', verticalalignment='top', size=4)
 		sys.stderr.write("Done.\n")
 	
-	def drawRegionAroundThisSNP(self, rg, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, LD_info, output_dir, min_distance, list_type_id):
+	def drawRegionAroundThisSNP(self, phenotype_method_id, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, \
+							LD_info, output_dir, which_LD_statistic, min_distance, list_type_id):
 		"""
 		2008-09-24
 		"""
 		sys.stderr.write("Drawing region ... \n")
-		rg_rm = Stock_250kDB.ResultsMethod.get(rg.results_method_id)
-		phenotype = Stock_250kDB.PhenotypeMethod.get(rg_rm.phenotype_method_id)
-		if this_snp.snps_id in snp_info.snps_id2index:
-			chr_pos = snp_info.chr_pos_ls[snp_info.snps_id2index[this_snp.snps_id]]
-		else:
-			return
-		gene_model = gene_annotation.gene_id2model.get(this_snp.gene_id)
-		gene_id = this_snp.gene_id
-		if gene_model is None:
-			gene_model = PassingData(gene_id=this_snp.gene_id, symbol='')
-		list_type = Stock_250kDB.GeneListType.get(list_type_id)
-		fname_basename = 'phenotype_%s_%s_rank_%s_snp_%s_%s_list_type_%s_%s_gene_%s_%s'%\
-										(phenotype.id, phenotype.short_name, this_snp.rank, chr_pos[0], chr_pos[1], list_type_id, list_type.short_name, gene_id, gene_model.symbol)
+		#list_type = Stock_250kDB.GeneListType.get(list_type_id)
+		fname_basename = 'snp_%s_%s_id_%s_phenotype_%s_%s'%\
+										(this_snp.chromosome, this_snp.position, this_snp.snps_id, phenotype.id, phenotype.short_name)
 		fname_basename = fname_basename.replace('/', '_')
 		output_fname_prefix = os.path.join(output_dir, fname_basename)
 		snps_within_this_region = self.getSNPsAroundThisSNP(this_snp, snp_info, self.min_distance)
@@ -449,11 +511,10 @@ class DrawSNPRegion(GeneListRankTest):
 		ax3.set_yticks([])
 		self.drawPvalue(ax1, ax2, snps_within_this_region, analysis_method_id2gwr)
 		gene_position_cycle = 4
-		self.drawGeneModel(ax1, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, gene_position_cycle=gene_position_cycle)
+		self.drawGeneModel(ax1, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=0.8, gene_position_cycle=gene_position_cycle)
 		LD_boundary_y_value = -gene_position_cycle-1
-		self.drawLD(ax1, ax2, snps_within_this_region, LD_info, y_value=LD_boundary_y_value)
-		
-		self.drawLDLegend(ax3)
+		self.drawLD(ax1, ax2, snps_within_this_region, LD_info, y_value=LD_boundary_y_value, which_LD_statistic=which_LD_statistic)
+		self.drawLDLegend(ax3, which_LD_statistic)
 		#adjust x, y limits and etc
 		ax1_ylim = ax1.get_ylim()
 		ax1.set_ylim((LD_boundary_y_value, ax1_ylim[1]))	#LD panel right under gene models
@@ -494,6 +555,58 @@ class DrawSNPRegion(GeneListRankTest):
 		sys.stderr.write("%s results. "%(len(results_id_ls)))
 		return results_id_ls
 	
+	def get_phenotype_id2snp_ls(self, input_fname, snp_info):
+		"""
+		2008-09-30
+			read input from a file. check module doc for format.
+		"""
+		sys.stderr.write("Getting phenotype_id2snp_ls from %s ..."%input_fname)
+		phenotype_id2snp_ls = {}
+		delimiter = figureOutDelimiter(input_fname)
+		reader = csv.reader(open(input_fname), delimiter=delimiter)
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		counter = 0
+		for row in reader:
+			phenotype_id_index = col_name2index.get('phenotype_id')
+			if phenotype_id_index == None:
+				phenotype_id_index = col_name2index.get('phenot_id')
+			if phenotype_id_index is not None:
+				phenotype_id = int(row[phenotype_id_index])
+			else:
+				continue
+			
+			chromosome_index = col_name2index.get('chromosome')
+			if chromosome_index ==None:
+				chromosome_index = col_name2index.get('chr')
+			
+			position_index = col_name2index.get('position')
+			if position_index==None:
+				position_index = col_name2index.get('pos')
+			
+			if chromosome_index is not None and position_index is not None:
+				chromosome = int(row[chromosome_index])
+				position = int(row[position_index])
+				snps_id = '%s_%s'%(chromosome, position)
+			else:
+				try:
+					snps_id = int(row[col_name2index['snps_id']])
+					chr_pos = snp_info.chr_pos_ls[snp_info.snps_id2index[snps_id]]
+					chromosome, position = chr_pos
+				except:	#forget it, skip
+					continue
+			counter += 1
+			#snps_id = int(row[col_name2index['snps_id']])
+			#disp_pos = int(row[col_name2index['disp_pos']])
+			this_snp = SNPPassingData(chromosome=chromosome, position=position, snps_id=snps_id, phenotype_id=phenotype_id)
+			if phenotype_id not in phenotype_id2snp_ls:
+				phenotype_id2snp_ls[phenotype_id] = []
+			phenotype_id2snp_ls[phenotype_id].append(this_snp)
+		
+		sys.stderr.write("%s phenotypes. %s total snps. Done.\n"%(len(phenotype_id2snp_ls), counter))
+		return phenotype_id2snp_ls
+	
+			
+	
 	def run(self):
 		"""
 		2008-09-24
@@ -507,48 +620,49 @@ class DrawSNPRegion(GeneListRankTest):
 		session = db.session
 		candidate_gene_list = self.getGeneList(self.list_type_id)
 		candidate_gene_set = Set(candidate_gene_list)
-		gene_annotation = self.getGeneAnnotation()
+		gene_annotation = self.dealWithGeneAnnotation(self.gene_annotation_picklef)
 		snp_info = self.getSNPInfo(db)
-		LD_info = self.get_LD(self.LD_fname)
+		LD_info = self.dealLD_info(self.LD_info_picklef, self.LD_fname, self.min_MAF, self.min_distance)
 		if not os.path.isdir(self.output_dir):
 			os.makedirs(self.output_dir)
+		"""
 		if not self.results_id_ls:
 			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id,\
 								min_distance=self.min_distance, get_closest=self.get_closest)
 			self.results_id_ls = self.generate_params(param_obj)
-		for results_id in self.results_id_ls:
-			rg = Stock_250kDB.ResultsByGene.get_by(id=results_id)
-			analysis_method_id2gwr = self.getSimilarGWResultsGivenResultsByGene(rg, self.results_directory)
-			if self.results_directory:	#given a directory where all results are.
-				result_fname = os.path.join(self.results_directory, os.path.basename(rg.filename))
-			else:
-				result_fname = rg.filename
-			if not os.path.isfile(result_fname):
-				sys.stderr.write("%s doesn't exist.\n"%result_fname)
-				continue
-			reader = csv.reader(open(result_fname), delimiter='\t')
-			col_name2index = getColName2IndexFromHeader(reader.next())
-			counter = 0
-			prev_snp = None
-			for row in reader:
-				counter += 1
-				if counter>self.no_of_top_hits:	#only the top hits
-					continue
-				gene_id = int(row[col_name2index['gene_id']])
-				#if gene_id not in candidate_gene_set:
-				#	continue
-				score = float(row[col_name2index['score']])
-				snps_id = int(row[col_name2index['snps_id']])
-				disp_pos = int(row[col_name2index['disp_pos']])
-				this_snp = PassingData(rank=counter, gene_id=gene_id, score=score, snps_id=snps_id, disp_pos=disp_pos)
-				if prev_snp == None:
-					prev_snp = this_snp
-				elif prev_snp.snps_id == this_snp.snps_id:	#skip if it's the same SNP
-					continue
-				self.drawRegionAroundThisSNP(rg, this_snp, candidate_gene_set, gene_annotation, snp_info, \
-											analysis_method_id2gwr, LD_info, self.output_dir, self.min_distance, self.list_type_id)
-				prev_snp = this_snp
-			del analysis_method_id2gwr
+		"""
+		which_LD_statistic = self.which_LD_statistic
+		input_fname = self.input_fname
+		while 1:
+			try:
+				phenotype_id2snp_ls = self.get_phenotype_id2snp_ls(input_fname, snp_info)
+				for phenotype_id, snp_ls in phenotype_id2snp_ls.iteritems():
+					analysis_method_id2gwr = self.getSimilarGWResultsGivenResultsByGene(phenotype_id, self.call_method_id, self.results_directory)
+					snp_ls.sort()	#sort the SNPs based on chromosome, position
+					for i in range(len(snp_ls)):
+						this_snp = snp_ls[i]
+						if i>0 and this_snp.snps_id==snp_ls[i-1].snps_id:	#same snp
+							continue
+						self.drawRegionAroundThisSNP(phenotype_id, this_snp, candidate_gene_set, gene_annotation, snp_info, \
+													analysis_method_id2gwr, LD_info, self.output_dir, which_LD_statistic, self.min_distance, self.list_type_id)
+						
+						prev_snp = this_snp
+					del analysis_method_id2gwr
+			except:
+				sys.stderr.write('Except: %s\n'%repr(sys.exc_info()))
+				traceback.print_exc()
+				raise
+			
+			to_continue = raw_input("Continue running?([y]/n): ")
+			if to_continue.upper()=='N':
+				break
+			input_fname = raw_input("File containing phenotype_id, chromosome, position: ")
+			which_LD_statistic = raw_input("which LD statistic (1=r2, 2=|D_prime|), default is %s: "%(self.which_LD_statistic))
+			if not which_LD_statistic:
+				which_LD_statistic = self.which_LD_statistic
+			
+		
+		
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
