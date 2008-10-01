@@ -140,6 +140,9 @@ class Results2DB_250k(object):
 	
 	def submit_results(cls, db, input_fname, rm, user, output_fname=None):
 		"""
+		2008-09-30
+			deal with 5-column file. The 5-th column is minor allele count.
+			also return True in the end. return False if error in the middle.
 		2008-08-19
 			add original_filename to ResultsMethod
 		2008-07-16
@@ -206,21 +209,21 @@ class Results2DB_250k(object):
 				continue
 			chr = int(row[0])
 			start_pos = int(row[1])
-			if len(row)==3:
-				stop_pos = None
-				score = row[2]
-				marker_name = '%s_%s'%(chr, start_pos)
-				column_4th = None
-			elif len(row)==4:
-				score = row[2]
+			score = row[2]
+			stop_pos = None
+			column_4th = None
+			column_5th = None
+			marker_name = '%s_%s'%(chr, start_pos)
+			if len(row)==4:
 				column_4th=row[3]
-				stop_pos = None
 				#stop_pos = int(row[2])
 				#score = row[3]
-				marker_name = '%s_%s'%(chr, start_pos)
+			elif len(row)==5:
+				column_4th=row[3]
+				column_5th=int(row[4])
 			else:
 				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
-				return
+				return False
 			
 			if output_fname:	#go to file system
 				if not header_outputted:	#3-column or 4-column header
@@ -231,6 +234,8 @@ class Results2DB_250k(object):
 					header = ['chromosome'] + position_header + ['score']
 					if column_4th is not None:
 						header.append('MAF')
+					if column_5th is not None:
+						header.append('MAC')	#Minor Allele Count
 					writer.writerow(header)
 					header_outputted = 1
 				data_row = [chr, start_pos]
@@ -239,6 +244,8 @@ class Results2DB_250k(object):
 				data_row.append(score)
 				if column_4th is not None:
 					data_row.append(column_4th)
+				if column_5th is not None:
+					data_row.append(column_5th)
 				writer.writerow(data_row)
 			else:
 				key = (chr, start_pos, stop_pos)
@@ -268,6 +275,7 @@ class Results2DB_250k(object):
 		if output_fname:
 			del writer
 		sys.stderr.write("Done.\n")
+		return True
 	
 	submit_results = classmethod(submit_results)
 	
@@ -286,6 +294,8 @@ class Results2DB_250k(object):
 	
 	def copyResultsFile(cls, db, input_fname, rm, user, output_fname=None):
 		"""
+		2008-09-30
+			return True
 		2008-09-09
 			similar task to submit_results, but not look into the file, just copy the file
 		"""
@@ -294,8 +304,9 @@ class Results2DB_250k(object):
 		pipe_f = os.popen('cp %s %s'%(input_fname, output_fname))
 		pipe_f_out = pipe_f.read()
 		if pipe_f_out:
-			sys.stderr.write("\tmv output: %s\n"%pipe_f_out)
+			sys.stderr.write("\tcp output: %s\n"%pipe_f_out)
 		sys.stderr.write("Done.\n")
+		return True
 		
 	copyResultsFile = classmethod(copyResultsFile)
 	
@@ -303,6 +314,8 @@ class Results2DB_250k(object):
 				method_description, comment, input_fname, user, results_method_type_id=None, \
 				analysis_method_id=None, results_method_type_short_name=None, output_dir=None, commit=0):
 		"""
+		2008-09-30
+			don't save results_method into database if bad thing happend when getting data out of the file.
 		2008-09-09
 			directly copy the result file if analysis_method_id==13
 		2008-08-19
@@ -377,10 +390,13 @@ class Results2DB_250k(object):
 		if commit:
 			rm.filename = cls.come_up_new_results_filename(output_dir, rm.id, rm.results_method_type.id)
 			if rm.analysis_method_id==13:
-				cls.copyResultsFile(db, input_fname, rm, user, rm.filename)
+				return_value = cls.copyResultsFile(db, input_fname, rm, user, rm.filename)
 			else:
-				cls.submit_results(db, input_fname, rm, user, rm.filename)
-			session.save_or_update(rm)
+				return_value = cls.submit_results(db, input_fname, rm, user, rm.filename)
+			if return_value:
+				session.save_or_update(rm)
+			else:	#bad thing happend when getting data out of the file. don't save this results_method.
+				session.delete(rm)
 			session.flush()
 			session.commit()
 			session.clear()
