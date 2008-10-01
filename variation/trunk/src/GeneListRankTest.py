@@ -347,6 +347,42 @@ class GeneListRankTest(object):
 		sys.stderr.write("Done.\n")
 		return passingdata
 	
+	def getTopResultsByGene(self, rbg, param_data):
+		"""
+		2008-09-30
+			function to read a certain number of genes out of a ResultsByGene file.
+			param_data has property results_directory, no_of_top_lines
+		"""
+		if self.report:
+			sys.stderr.write("Getting results_by_gene ... ")
+		if param_data.results_directory:	#given a directory where all results are.
+			result_fname = os.path.join(param_data.results_directory, os.path.basename(rbg.filename))
+		else:
+			result_fname = rbg.filename
+		if not os.path.isfile(result_fname):
+			sys.stderr.write("%s doesn't exist.\n"%result_fname)
+			return None
+		reader = csv.reader(open(result_fname), delimiter='\t')
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		counter = 0
+		no_of_lines_to_read = getattr(param_data, 'no_of_top_lines', None)
+		return_data_ls = []
+		for row in reader:
+			gene_id = int(row[col_name2index['gene_id']])
+			score = float(row[col_name2index['score']])
+			snps_id = int(row[col_name2index['snps_id']])
+			disp_pos = int(row[col_name2index['disp_pos']])
+			comment = row[col_name2index['comment']]
+			entry = PassingData(gene_id=gene_id, score=score, snps_id=snps_id, disp_pos=disp_pos, comment=comment)
+			return_data_ls.append(entry)
+			counter += 1
+			if no_of_lines_to_read is not None and counter>=no_of_lines_to_read:
+				break
+		del reader
+		if self.report:
+			sys.stderr.write("Done.\n")
+		return return_data_ls
+	
 	def prepareDataForRankTestFromResultsByGene(self, rm, param_data):
 		"""
 		2008-09-16
