@@ -190,7 +190,7 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		it now can handle picker_event and alpha on both boxes and lines
 	2008-09-23	test PolyCollection, draw both exons and introns
 	"""
-	def __init__(self, start_ls, end_ls, y=0, width=0.001, linewidths = None, box_line_widths = None,
+	def __init__(self, annotated_box_ls, y=0, width=0.001, linewidths = None, box_line_widths = None,
 				 colors	= None,
 				 antialiaseds = None,
 				 linestyle = 'solid',
@@ -198,8 +198,11 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 				 transOffset = None,#transforms.identity_transform(),
 				 norm = None,
 				 cmap = None,
-				 picker=False, pickradius=5, alpha=None, is_arrow=True, facecolors=None, **kwargs):
+				 picker=False, pickradius=5, alpha=None, strand=None, facecolors=None, **kwargs):
 		"""
+		2008-10-01
+			the annotated_box_ls is a list of (start, stop, box_type, is_translated, ...)
+			box_type = 'exon' or 'intron' and is_translated= 0 or 1. They are optional. Default is box_type ='intron', is_translated=0.
 		2008-09-26
 			linewidths controls the width of lines connecting exons or the arrow line, could be a list of floats of just one float.
 			box_line_widths controls the width of the boundaries of exon boxes
@@ -235,22 +238,46 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		#handle parameters for PolyCollection
 		verts_ls = []
 		segment_ls = []
-		no_of_blocks = len(start_ls)
+		no_of_blocks = len(annotated_box_ls)
+		verts_colors = []
 		for i in range(no_of_blocks):
-			block_start = start_ls[i]
-			block_end = end_ls[i]
-			verts = [[block_start, width/2.0+y], [block_start, -width/2.0+y], [block_end, -width/2.0+y], [block_end, width/2.0+y]]			
-			verts_ls.append(verts)
-			if i>0:
-				segment_ls.append([(end_ls[i-1], y), (block_start,y)])
-		#add an arrow
-		if is_arrow:
-			arrow_length = abs(start_ls[0]-end_ls[-1])/4
-			if end_ls[i]>start_ls[i]:
-				arrow_offset = -arrow_length
+			this_block = annotated_box_ls[i]
+			block_start, block_end = this_block[:2]
+			block_type = 'intron'
+			is_translated = 0
+			if len(this_block)>=3:
+				block_type = this_block[2]
+			if len(this_block)>=4:
+				is_translated = int(this_block[3])
+			if block_type=='exon':
+				verts = [[block_start, width/2.0+y], [block_start, -width/2.0+y], [block_end, -width/2.0+y], [block_end, width/2.0+y]]			
+				verts_ls.append(verts)
+				if is_translated==1:
+					verts_colors.append('r')
+				else:
+					verts_colors.append('w')
 			else:
+				segment_ls.append([(block_start, y), (block_end,y)])
+		facecolors = verts_colors
+		#add an arrow
+		box_start = annotated_box_ls[0][0]
+		box_end = annotated_box_ls[-1][1]
+		if strand is not None:
+			arrow_length = abs(box_start-box_end)/4
+			try:
+				strand = int(strand)
+			except:
+				pass
+			if strand==1 or strand=='plus':
+				arrow_offset = -arrow_length
+				arrow_end = box_end
+			elif strand==-1 or strand=='minus':
 				arrow_offset = arrow_length
-			segment_ls.append([(end_ls[i]+arrow_offset, y+width), (end_ls[i],y+width/2.0)])
+				arrow_end = box_start
+			else:	#can't tell which strand
+				arrow_offset = 0
+				arrow_end = box_end
+			segment_ls.append([(arrow_end+arrow_offset, y+width), (arrow_end,y+width/2.0)])
 		self._segments = segment_ls
 		self.set_segments(segment_ls)
 		self._verts = verts
@@ -311,14 +338,14 @@ if __name__ == '__main__':
 	#draw a rectangle
 	g1 = Gene(start_ls, end_ls, y=1.5,  width=0.1, x_offset=1, is_arrow=False, alpha=0.3, facecolor='r', picker=True)
 	a.add_artist(g1)
-	
-	g2 = ExonIntronCollection(start_ls, end_ls, y=0.5,  width=0.1, facecolors=['y','w', 'w'], alpha=0.3, box_line_widths=0.3, picker=True)
+	annotated_box_ls = [(1, 1.5, 'exon', 0),(1.5, 2, 'exon', 1), (2,3,'intron'), (3, 3.5, 'exon', 1), (3.5, 5, 'intron'), (5,6,'exon', 1)]
+	g2 = ExonIntronCollection(annotated_box_ls, y=0.5, strand=1, width=0.1, facecolors=['y','w', 'w'], alpha=0.3, box_line_widths=0.3, picker=True)
 	a.add_artist(g2)
 	#draw a opposite strand gene
 	start_ls.reverse()
 	end_ls.reverse()
 	#g2 = ExonCollection(end_ls, start_ls, y=0.5,  width=0.1, x_offset=0.5, head_length=1, facecolors=['r','w', 'w'], overhang=0.3)
-	g3 = ExonIntronCollection(end_ls, start_ls, y=0,  width=0.1, facecolors=['g','w', 'w'], alpha=0.3, picker=True)
+	g3 = ExonIntronCollection(annotated_box_ls, strand=-1, y=0,  width=0.1, facecolors=['g','w', 'w'], alpha=0.3, picker=True)
 	a.add_artist(g3)
 	a.set_xlim(min(start_ls), max(end_ls))
 	#a.set_ylim(0,2)
