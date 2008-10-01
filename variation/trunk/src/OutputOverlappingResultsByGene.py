@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import getopt, csv, math
 import Numeric, cPickle
-from pymodule import PassingData, importNumericArray, write_data_matrix, SNPData
+from pymodule import PassingData, importNumericArray, write_data_matrix, SNPData, getColName2IndexFromHeader, getListOutOfStr
 from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
 	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod, ResultsByGene
 from sets import Set
@@ -34,36 +34,46 @@ class OutputOverlappingResultsByGene(object):
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							('call_method_id_ls', 1, ):[None, 'l', 1, 'Restrict results based on these call_methods, coma-separated list of ids.'],\
-							('analysis_method_id_ls', 0, ):[None, 'j', 1, 'Restrict results based on these analysis, coma-separated. Default is no such restriction.'],\
 							("result_type", 1, int): [1, 'y', 1, 'Which test result to output. 1: CandidateGeneRankSumTestResult, 2: CandidateGeneTopSNPTest'],\
+							("min_distance", 1, int): [20000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
+							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
+							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency. deprecated.'],\
 							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
 							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'Filename to store data matrix'],\
 							("fig_fname", 1, ): [None, 'x', 1, 'File name for the figure'],\
-							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
-							("max_rank", 1, int): [1000, 'm', 1, 'only take genes above this rank'],\
+							('results_directory', 0, ):[None, '', 1, 'The results directory. Default is None. use the one given by db.'],\
+							("no_of_ticks", 1, int): [20, 't', 1, 'Number of ticks on the legend'],\
+							("max_rank", 1, int): [1000, '', 1, 'only take genes above this rank'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
 	def __init__(self,  **keywords):
 		"""
-		2008-07-24
-			split results_method_id_ls if it exists, to accomodate MpiGeneListRankTest which removed this option
-		2008-07-10
+		2008-09-05
 		"""
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-	
-	def getResultsMethodIDInfo(self, db):
+		self.call_method_id_ls = getListOutOfStr(self.call_method_id_ls, data_type=int)
+		
+		
+	def getResultsMethodIDInfo(self, db, call_method_id_ls, min_distance, get_closest, min_MAF):
+		"""
+		2008-09-05
+			use results_by_gene.id as main result id
+		"""
 		sys.stderr.write("Gettiing ResultsMethodIDInfo ...")
 		results_method_id_info = PassingData()
 		results_method_id_ls = []
 		results_method_id2index = {}
 		results_method_id_label_ls = []
-		rows = db.metadata.bind.execute("select distinct rg.results_method_id, r.analysis_method_id, r.phenotype_method_id, p.biology_category_id from %s rg, %s r, %s p \
-			where rg.results_method_id=r.id and p.id=r.phenotype_method_id \
-			order by p.biology_category_id, r.phenotype_method_id, r.analysis_method_id"%(ResultsByGene.table.name, ResultsMethod.table.name, PhenotypeMethod.table.name))
+		rows = db.metadata.bind.execute("select distinct rg.id, rg.results_method_id, r.analysis_method_id, r.phenotype_method_id, \
+			p.biology_category_id from %s rg, %s r, %s p \
+			where rg.results_method_id=r.id and p.id=r.phenotype_method_id and r.call_method_id in (%s) \
+			and rg.min_distance=%s and rg.get_closest=%s and rg.min_MAF>=%s-0.0001 and rg.min_MAF<=%s+0.0001 \
+			order by p.biology_category_id, r.phenotype_method_id, r.analysis_method_id"%(ResultsByGene.table.name, \
+					ResultsMethod.table.name, PhenotypeMethod.table.name, repr(call_method_id_ls)[1:-1], min_distance, get_closest, min_MAF, min_MAF))
 		prev_phenotype_method_id = None
 		prev_biology_category_id = None
 		no_of_separators = 0
@@ -86,36 +96,50 @@ class OutputOverlappingResultsByGene(object):
 				results_method_id2index[-no_of_separators] = len(results_method_id_ls)
 				results_method_id_ls.append(-no_of_separators)
 				results_method_id_label_ls.append('')
-			results_method_id2index[row.results_method_id] = len(results_method_id_ls)
-			results_method_id_ls.append(row.results_method_id)
+			results_method_id2index[row.id] = len(results_method_id_ls)
+			results_method_id_ls.append(row.id)
 			am = AnalysisMethod.get(row.analysis_method_id)
 			pm = PhenotypeMethod.get(row.phenotype_method_id)
 			results_method_id_label_ls.append('%s_%s_%s'%(am.short_name, pm.short_name, pm.id))
 		results_method_id_info.results_method_id_ls = results_method_id_ls
 		results_method_id_info.results_method_id2index = results_method_id2index
 		results_method_id_info.results_method_id_label_ls = results_method_id_label_ls
-		sys.stderr.write("Done.\n")
+		sys.stderr.write("%s results. Done.\n"%(len(results_method_id_ls)))
 		return results_method_id_info
 	
-	def getResultsMethodID2GeneSet(self, db, max_rank=1000):
+	def getTopGeneSet(self, rbg, results_directory, no_of_top_genes=1000):
+		"""
+		2008-09-29
+			get a set of top genes
+		"""
+		if results_directory:	#given a directory where all results are.
+			result_fname = os.path.join(results_directory, os.path.basename(rbg.filename))
+		else:
+			result_fname = rbg.filename
+		if not os.path.isfile(result_fname):
+			sys.stderr.write("%s doesn't exist.\n"%result_fname)
+			return None
+		reader = csv.reader(open(result_fname), delimiter='\t')
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		counter = 0
+		gene_set = Set()
+		for row in reader:
+			gene_id = int(row[col_name2index['gene_id']])
+			gene_set.add(gene_id)
+			counter += 1
+			if no_of_top_genes is not None and counter>=no_of_top_genes:
+				break
+		del reader
+		return gene_set
+			
+	def getResultsMethodID2GeneSet(self, db, results_method_id_info, results_directory, max_rank=1000):
 		sys.stderr.write("Gettiing results_method_id2gene_set ... \n")
 		results_method_id2gene_set = {}
-		i = 0
-		block_size = 10000
-		rows = ResultsByGene.query.offset(i).limit(block_size)
-		while rows.count()!=0:
-			for row in rows:
-				if row.rank<=max_rank:
-					if row.results_method_id not in results_method_id2gene_set:
-						results_method_id2gene_set[row.results_method_id] = Set()
-					results_method_id2gene_set[row.results_method_id].add(row.gene_id)
-				i += 1
-			
-			if self.debug and i>50000:
-				break
-			if self.report:
-				sys.stderr.write("%s%s"%('\x08'*40, i))
-			rows = ResultsByGene.query.offset(i).limit(block_size)
+		
+		for results_id in results_method_id_info.results_method_id_ls:
+			if results_id>0:	#negative number is used as separator
+				rbg = ResultsByGene.get(results_id)
+				results_method_id2gene_set[results_id] = self.getTopGeneSet(rbg, results_directory, max_rank)
 		sys.stderr.write("Done.\n")
 		return results_method_id2gene_set
 	
@@ -166,8 +190,8 @@ class OutputOverlappingResultsByGene(object):
 		db.setup()
 		session = db.session
 		
-		results_method_id_info = self.getResultsMethodIDInfo(db)
-		results_method_id2gene_set = self.getResultsMethodID2GeneSet(db, self.max_rank)
+		results_method_id_info = self.getResultsMethodIDInfo(db, self.call_method_id_ls, self.min_distance, self.get_closest, self.min_MAF)
+		results_method_id2gene_set = self.getResultsMethodID2GeneSet(db, results_method_id_info, self.results_directory, self.max_rank)
 		rdata = self.getDataMatrix(results_method_id2gene_set, results_method_id_info)
 		
 		header = ['', ''] + results_method_id_info.results_method_id_label_ls
