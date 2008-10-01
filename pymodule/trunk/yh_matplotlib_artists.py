@@ -186,6 +186,8 @@ import matplotlib.transforms as transforms
 import matplotlib.cbook as cbook
 class ExonIntronCollection(PolyCollection, LineCollection):
 	"""
+	2008-10-01
+		it now can handle picker_event and alpha on both boxes and lines
 	2008-09-23	test PolyCollection, draw both exons and introns
 	"""
 	def __init__(self, start_ls, end_ls, y=0, width=0.001, linewidths = None, box_line_widths = None,
@@ -196,12 +198,13 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 				 transOffset = None,#transforms.identity_transform(),
 				 norm = None,
 				 cmap = None,
-				 picker=False, pickradius=5, alpha=None, is_arrow=True, **kwargs):
+				 picker=False, pickradius=5, alpha=None, is_arrow=True, facecolors=None, **kwargs):
 		"""
 		2008-09-26
 			linewidths controls the width of lines connecting exons or the arrow line, could be a list of floats of just one float.
 			box_line_widths controls the width of the boundaries of exon boxes
 		"""
+		#handle parameters for LineCollection
 		if linewidths is None   :
 			linewidths   = (mpl.rcParams['lines.linewidth'], )
 		if box_line_widths is None   :
@@ -211,7 +214,7 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		if antialiaseds is None :
 			antialiaseds = (mpl.rcParams['lines.antialiased'], )
 
-		self._colors = _colors.colorConverter.to_rgba_list(colors)
+		self._colors = _colors.colorConverter.to_rgba_list(colors, alpha)
 		self._aa = self._get_value(antialiaseds)
 		self._lw = self._get_value(linewidths)
 		self.set_linestyle(linestyle)
@@ -228,8 +231,8 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		self._offsets = offsets
 		self._transOffset = transOffset
 		self.pickradius = pickradius
-		#self.update(kwargs)
 		
+		#handle parameters for PolyCollection
 		verts_ls = []
 		segment_ls = []
 		no_of_blocks = len(start_ls)
@@ -253,6 +256,10 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		self._verts = verts
 		#self.set_alpha(alpha)
 		PolyCollection.__init__(self, verts_ls, linewidths=box_line_widths, antialiaseds=antialiaseds, **kwargs)
+		self._facecolors  = _colors.colorConverter.to_rgba_list(facecolors, alpha=alpha)	#in PolyCollection.__init__(), it doesn't handle alpha
+		self._picker = picker	#to enable picker_event. PolyCollection's ancestor PatchCollection (collection.py) defines a method 'contains()'.
+			#Artist.pick() (in artist.py) calls pickable(), which checks self._picker, first to see whether this artist is pickable. then it calls picker() or contains().
+		self.update(kwargs)
 	
 	def draw(self, renderer):
 		if not self.get_visible(): return
@@ -284,10 +291,17 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		transoffset.thaw()
 		renderer.close_group('polycollection')
 
-	
+def on_canvas_pick(event):
+	print dir(event)
+	import pdb
+	pdb.set_trace()
+
+
 if __name__ == '__main__':
 	import pylab
 	a = pylab.gca()
+	fig = pylab.gcf()
+	fig.canvas.mpl_connect('pick_event', on_canvas_pick)
 	start_ls = [1,3,5]
 	end_ls = [2,3.5,6]
 	pylab.scatter(start_ls, end_ls)
@@ -295,22 +309,22 @@ if __name__ == '__main__':
 	a.add_artist(g)
 	
 	#draw a rectangle
-	g1 = Gene(start_ls, end_ls, y=1.5,  width=0.1, x_offset=1, is_arrow=False, alpha=0.3, facecolor='r')
+	g1 = Gene(start_ls, end_ls, y=1.5,  width=0.1, x_offset=1, is_arrow=False, alpha=0.3, facecolor='r', picker=True)
 	a.add_artist(g1)
 	
-	g2 = ExonIntronCollection(start_ls, end_ls, y=0.5,  width=0.1, facecolors=['y','w', 'w'], alpha=0.3, box_line_widths=0.3)
+	g2 = ExonIntronCollection(start_ls, end_ls, y=0.5,  width=0.1, facecolors=['y','w', 'w'], alpha=0.3, box_line_widths=0.3, picker=True)
 	a.add_artist(g2)
 	#draw a opposite strand gene
 	start_ls.reverse()
 	end_ls.reverse()
 	#g2 = ExonCollection(end_ls, start_ls, y=0.5,  width=0.1, x_offset=0.5, head_length=1, facecolors=['r','w', 'w'], overhang=0.3)
-	g3 = ExonIntronCollection(end_ls, start_ls, y=0,  width=0.1, facecolors=['y','w', 'w'], alpha=0.3)
+	g3 = ExonIntronCollection(end_ls, start_ls, y=0,  width=0.1, facecolors=['g','w', 'w'], alpha=0.3, picker=True)
 	a.add_artist(g3)
 	a.set_xlim(min(start_ls), max(end_ls))
 	#a.set_ylim(0,2)
 	from matplotlib.patches import Circle, Polygon
 	from matplotlib.lines import Line2D
-	p1 = Polygon(zip(start_ls, end_ls), alpha=0.3, linewidth=0, facecolor=(0,217/255.,1))
+	p1 = Polygon(zip(start_ls, end_ls), alpha=0.3, linewidth=0, facecolor=(0,217/255.,1), picker=True)
 	a.add_artist(p1)
 	#pylab.gray()	#colorbar needs  "You must first set_array for mappable"
 	#c1 = Circle((1,2), radius=1)
