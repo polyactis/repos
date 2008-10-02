@@ -349,6 +349,8 @@ class GeneListRankTest(object):
 	
 	def getTopResultsByGene(self, rbg, param_data):
 		"""
+		2008-10-02
+			add analysis_method id to each ResultsByGene entry
 		2008-09-30
 			function to read a certain number of genes out of a ResultsByGene file.
 			param_data has property results_directory, no_of_top_lines
@@ -373,7 +375,8 @@ class GeneListRankTest(object):
 			snps_id = int(row[col_name2index['snps_id']])
 			disp_pos = int(row[col_name2index['disp_pos']])
 			comment = row[col_name2index['comment']]
-			entry = PassingData(gene_id=gene_id, score=score, snps_id=snps_id, disp_pos=disp_pos, comment=comment)
+			entry = PassingData(gene_id=gene_id, score=score, snps_id=snps_id, disp_pos=disp_pos, comment=comment, \
+							analysis_method=rbg.results_method.analysis_method_id)
 			return_data_ls.append(entry)
 			counter += 1
 			if no_of_lines_to_read is not None and counter>=no_of_lines_to_read:
