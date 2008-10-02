@@ -198,8 +198,12 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 				 transOffset = None,#transforms.identity_transform(),
 				 norm = None,
 				 cmap = None,
-				 picker=False, pickradius=5, alpha=None, strand=None, facecolors=None, **kwargs):
+				 picker=False, pickradius=5, alpha=None, strand=None, facecolors=None, edgecolors=None, **kwargs):
 		"""
+		2008-10-01
+			block_type='exon' has both facecolor and edgecolor red.
+			block_type='intron' has no facecolor and black edgecolor.
+			arguments edgecolors and facecolors in __init__() could overwrite the ones that generated based on the box_type.
 		2008-10-01
 			the annotated_box_ls is a list of (start, stop, box_type, is_translated, ...)
 			box_type = 'exon' or 'intron' and is_translated= 0 or 1. They are optional. Default is box_type ='intron', is_translated=0.
@@ -240,6 +244,7 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		segment_ls = []
 		no_of_blocks = len(annotated_box_ls)
 		verts_colors = []
+		_edgecolors = []
 		for i in range(no_of_blocks):
 			this_block = annotated_box_ls[i]
 			block_start, block_end = this_block[:2]
@@ -254,11 +259,16 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 				verts_ls.append(verts)
 				if is_translated==1:
 					verts_colors.append('r')
+					_edgecolors.append('r')	#same edge color
 				else:
-					verts_colors.append('w')
+					verts_colors.append('w')	#no face color
+					_edgecolors.append('k')
 			else:
 				segment_ls.append([(block_start, y), (block_end,y)])
-		facecolors = verts_colors
+		if not facecolors:
+			facecolors = verts_colors
+		if not edgecolors:
+			edgecolors = _edgecolors
 		#add an arrow
 		box_start = annotated_box_ls[0][0]
 		box_end = annotated_box_ls[-1][1]
@@ -282,7 +292,7 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		self.set_segments(segment_ls)
 		self._verts = verts
 		#self.set_alpha(alpha)
-		PolyCollection.__init__(self, verts_ls, linewidths=box_line_widths, antialiaseds=antialiaseds, **kwargs)
+		PolyCollection.__init__(self, verts_ls, linewidths=box_line_widths, antialiaseds=antialiaseds, edgecolors=edgecolors, **kwargs)
 		self._facecolors  = _colors.colorConverter.to_rgba_list(facecolors, alpha=alpha)	#in PolyCollection.__init__(), it doesn't handle alpha
 		self._picker = picker	#to enable picker_event. PolyCollection's ancestor PatchCollection (collection.py) defines a method 'contains()'.
 			#Artist.pick() (in artist.py) calls pickable(), which checks self._picker, first to see whether this artist is pickable. then it calls picker() or contains().
