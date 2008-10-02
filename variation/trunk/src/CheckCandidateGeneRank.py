@@ -134,6 +134,8 @@ class CheckCandidateGeneRank(GeneListRankTest):
 	
 	def plotSubHistogram(self, candidate_data_ls, non_candidate_data_ls, which_figure, sub_title, xlabel):
 		"""
+		2008-10-01
+			reduce the handle length in the legend
 		2008-09-28
 		"""
 		pylab.subplot(2,2,which_figure)
@@ -149,7 +151,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		h2 = pylab.hist(candidate_data_ls, no_of_bins, alpha=0.2, normed=1, facecolor='r')
 		hist_patch_ls.append(h2[2][0])
 		legend_ls.append('candidate gene')
-		pylab.legend(hist_patch_ls, legend_ls, )
+		pylab.legend(hist_patch_ls, legend_ls, handlelen=0.02)
 	
 	def plotHistForOnePhenotype(self, phenotype_method, list_type, score_rank_data_ls, output_dir, data_type='score'):
 		"""
