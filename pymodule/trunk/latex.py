@@ -1,28 +1,38 @@
 #!/usr/bin/env python
 """
+2008-10-02
+	Instructions:
+	1. don't include '_' or '|' in table_label, fig_label
 2007-10-15
 	modules to deal with latex output
 """
 
-esc_character_dict = {'_':'\\_', '|':'$|$'}
+esc_character_dict = {'_':'\\_', '|':'$|$'}	#a mild escape dictionary for almost everything, data points in matrix, captions, etc.
+heavy_esc_character_dict = {'_':' ', '|':'$|$', '&':' '}	#2008-10-02 escape of single data points in matrix fed to outputMatrixInLatexTable()
 
-def escape_characters(latex_line):
+def escape_characters(latex_line, esc_dict=esc_character_dict):
 	"""
+	2008-10-02
+		add argumetn esc_dict
 	2007-10-15
 		to escape some characters
 	"""
 	new_latex_line = ''
 	for character in latex_line:
-		if character in esc_character_dict:
-			new_latex_line += esc_character_dict[character]
+		if character in esc_dict:
+			new_latex_line += esc_dict[character]
 		else:
 			new_latex_line += character
 	return new_latex_line
 
 toString = lambda x: '%s'%x
 
+heavy_escape = lambda x: escape_characters(str(x), esc_dict=heavy_esc_character_dict)
+
 def outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls=None, footer=None):
 	"""
+	2008-10-02
+		apply heavy_escape to elements in header_ls and data points in data_matrix
 	2007-10-18
 		user longtable, rather than tabular
 		data_matrix is a two dimensional list
@@ -48,13 +58,14 @@ def outputMatrixInLatexTable(data_matrix, caption, table_label, header_ls=None, 
 				table_header_in_latex.append('\\multicolumn{%s}{|c|}{%s}'%(header[0], header[1]))
 			else:
 				table_header_in_latex.append(header)
+	table_header_in_latex = map(heavy_escape, table_header_in_latex)
+	
 	header_line = '%s\\\\\n'%('&'.join(table_header_in_latex))
-	header_line = escape_characters(header_line)
+	#header_line = escape_characters(header_line)
 	latex_to_be_returned += header_line
 	latex_to_be_returned += '\\hline\n'
 	for data_row in data_matrix:	#table entry starts here. one by one
-		data_row = map(toString, data_row)
-		
+		data_row = map(heavy_escape, data_row)
 		one_table_entry = '&'.join(data_row)
 		one_table_entry += '\\\\\n'
 		one_table_entry = escape_characters(one_table_entry)
