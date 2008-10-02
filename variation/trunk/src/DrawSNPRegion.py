@@ -368,7 +368,7 @@ class DrawSNPRegion(GeneListRankTest):
 	def drawPvalue(self, ax1, axe_LD, axe_LD_center_SNP, snps_within_this_region, analysis_method_id2gwr, LD_info=None, which_LD_statistic=2):
 		"""
 		2008-10-1
-			refine the LD line on axe_LD_center_SNP, with markersize=3 and etc.
+			refine the LD line on axe_LD_center_SNP, with markersize=2 and etc.
 		2008-10-1
 			draw LD of other SNPs w.r.t the center SNP in a different axe
 		2008-09-24
@@ -386,7 +386,7 @@ class DrawSNPRegion(GeneListRankTest):
 			pscatter_ls.append(pscatter)
 		if LD_info:	#draw LD with regard to the center SNP
 			x_ls, y_ls = self.getXY(snps_within_this_region, LD_info=LD_info, which_LD_statistic=which_LD_statistic)
-			apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'c-.o', linewidth=0.7, markersize=3, alpha=0.8)
+			apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'c-.o', linewidth=0.5, markersize=2, alpha=0.5, markeredgewidth=0)
 			legend_ls.append(r'$%s$ with center SNP'%LD_statistic.get_label(which_LD_statistic))
 			pscatter_ls.append(apl[0])
 		ax1.set_ylabel(r'-log(pvalue)/normalized score')
