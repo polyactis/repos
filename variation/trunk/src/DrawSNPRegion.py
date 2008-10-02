@@ -350,6 +350,8 @@ class DrawSNPRegion(GeneListRankTest):
 				if snp_pair in LD_info.snp_pair2r2:
 					LD_stat = getattr(LD_info.snp_pair2r2[snp_pair], LD_statistic.get_name(which_LD_statistic), None)
 					LD_stat = abs(LD_stat)	#D_prime, D need abs()
+				elif chr_pos1==chr_pos2:	#fake a perfect LD point
+					LD_stat = 1.
 				else:	#skip this point
 					continue
 				data_obj = PassingData(value=LD_stat)
@@ -365,6 +367,8 @@ class DrawSNPRegion(GeneListRankTest):
 	
 	def drawPvalue(self, ax1, axe_LD, axe_LD_center_SNP, snps_within_this_region, analysis_method_id2gwr, LD_info=None, which_LD_statistic=2):
 		"""
+		2008-10-1
+			refine the LD line on axe_LD_center_SNP, with markersize=3 and etc.
 		2008-10-1
 			draw LD of other SNPs w.r.t the center SNP in a different axe
 		2008-09-24
@@ -382,11 +386,11 @@ class DrawSNPRegion(GeneListRankTest):
 			pscatter_ls.append(pscatter)
 		if LD_info:	#draw LD with regard to the center SNP
 			x_ls, y_ls = self.getXY(snps_within_this_region, LD_info=LD_info, which_LD_statistic=which_LD_statistic)
-			apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'co', linewidth=0.6, alpha=0.6)
+			apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'c-.o', linewidth=0.7, markersize=3, alpha=0.8)
 			legend_ls.append(r'$%s$ with center SNP'%LD_statistic.get_label(which_LD_statistic))
 			pscatter_ls.append(apl[0])
 		ax1.set_ylabel(r'-log(pvalue)/normalized score')
-		axe_LD_center_SNP.set_ylabel(r'$%s$'%LD_statistic.get_label(which_LD_statistic))
+		axe_LD_center_SNP.set_ylabel(r'$%s$ with center SNP'%LD_statistic.get_label(which_LD_statistic))
 		axe_LD.legend(pscatter_ls, legend_ls, loc='lower left', handlelen=0.02)	#cut the legend length to 0.02, default 0.05 (5% of x-axis).
 		sys.stderr.write("Done.\n")
 		#return legend_ls
@@ -522,6 +526,9 @@ class DrawSNPRegion(GeneListRankTest):
 							LD_info, output_dir, which_LD_statistic, snp_region=None, min_distance=40000, list_type_id=None):
 		"""
 		2008-10-01
+			remove the frame of ax1 and add a grid to ax1
+			leave axe_gene_model's xticks there as otherwise ax1's xticks will go with it as they share xticks.
+		2008-10-01
 			draw gene models on a separate axe,
 			add a twinx axe to draw LD w.r.t the center SNP
 			if output_dir is not a directory, it's treated as a filename.
@@ -543,12 +550,13 @@ class DrawSNPRegion(GeneListRankTest):
 			snps_within_this_region = self.getSNPsAroundThisSNP(this_snp, snp_info, min_distance)
 		pylab.clf()
 		#fig = pylab.figure()
-		ax1 = pylab.axes([0.1, 0.6, 0.8, 0.35])	#left gap, bottom gap, width, height, axes for pvalue, gene models
+		ax1 = pylab.axes([0.1, 0.6, 0.8, 0.35], frameon=False)	#left gap, bottom gap, width, height, axes for pvalue, gene models
+		ax1.grid(True, alpha=0.3)
 		ax1.set_xticklabels([])	#remove xtick labels on ax1 because axe_LD's xtick labels cover this.
 		axe_LD_center_SNP = pylab.twinx()	#axes for LD with center SNP, copy ax1's
 		axe_LD_center_SNP.set_xticklabels([])
 		axe_gene_model = pylab.axes([0.1, 0.5, 0.8, 0.1], frameon=False, sharex=ax1)
-		axe_gene_model.set_xticks([])
+		#axe_gene_model.set_xticks([])	#this will set ax1's xticks off as well because the x-axis is shared.
 		axe_gene_model.set_yticks([])
 		axe_LD = pylab.axes([0.1, 0.05, 0.8, 0.45], frameon=False, sharex=ax1)	#axes for LD
 		axe_LD.set_ylim((-min_distance, 0))	#has to force here, don't know why. otherwise it's (0,1)
