@@ -386,7 +386,7 @@ class DrawSNPRegion(GeneListRankTest):
 			pscatter_ls.append(pscatter)
 		if LD_info:	#draw LD with regard to the center SNP
 			x_ls, y_ls = self.getXY(snps_within_this_region, LD_info=LD_info, which_LD_statistic=which_LD_statistic)
-			apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'c-.o', linewidth=0.5, markersize=2, alpha=0.5, markeredgewidth=0)
+			apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'c-o', linewidth=0.5, markersize=2, alpha=0.6, markerfacecolor='w')
 			legend_ls.append(r'$%s$ with center SNP'%LD_statistic.get_label(which_LD_statistic))
 			pscatter_ls.append(apl[0])
 		ax1.set_ylabel(r'-log(pvalue)/normalized score')
@@ -395,33 +395,69 @@ class DrawSNPRegion(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		#return legend_ls
 	
-	def plot_one_gene(self, ax, gene_id, gene_id2model, candidate_gene_set=None, y_value=1, gene_width=1.0):
+	gene_desc_names = ['gene_id', 'gene_symbol', 'gene_commentary_type', 'chromosome', 'start', 'stop', 'protein_label', 'protein_comment']
+	def plot_one_gene(self, ax, gene_id, param_data, base_y_value=1):
 		"""
+		2008-10-02
+			plot all different forms of a gene out.
 		2008-10-01
 			gene_model is changed. now it's from GenomeDB.py
 		2008-09-24
 			draw a single gene on the canvas, adapted from GenomeBrowser.plot_one_gene()
 		"""
-		gene_model = gene_id2model.get(gene_id)
-		if gene_model and len(gene_model.gene_commentaries)>0:
-			gene_commentary = gene_model.gene_commentaries[0]
-			if gene_commentary.box_ls:
-				box_ls = gene_commentary.box_ls
-			else:	#no box_ls, just use start, stop
-				box_ls = [(gene_model.start, gene_model.stop, 'exon')]
-			if gene_id in candidate_gene_set:
-				gene_symbol_color = 'b'
+		gene_model = param_data.gene_id2model.get(gene_id)
+		if gene_model:
+			if len(gene_model.gene_commentaries)==0:
+				gene_commentaries = [gene_model]	#fake one here
 			else:
-				gene_symbol_color = 'k'
-			g_artist = ExonIntronCollection(box_ls, y=y_value, strand=gene_model.strand, width=gene_width, alpha=0.3, \
-										picker=True, linewidths=0.7, box_line_widths=0.3)
-			ax.add_artist(g_artist)
-			text_start_pos = box_ls[-1][1]
-			#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
-			ax.text(text_start_pos, y_value, gene_model.gene_symbol, size=5, color=gene_symbol_color, alpha=0.8)
+				gene_commentaries = gene_model.gene_commentaries
+			for gene_commentary in gene_model.gene_commentaries:	#multiple commentary
+				#2008-10-01	get the gene descriptions
+				gene_desc_ls = []
+				for gene_desc_name in self.gene_desc_names:
+					if gene_desc_name=='protein_label':	#if not available, get the rna label
+						element = getattr(gene_commentary, gene_desc_name, None)
+						if not element:
+							element = getattr(gene_commentary, 'label', '')
+					elif gene_desc_name=='protein_comment':
+						element = getattr(gene_commentary, gene_desc_name, None)
+						if not element:
+							element = getattr(gene_commentary, 'comment', '')
+					elif gene_desc_name=='gene_symbol' or gene_desc_name=='chromosome':	#have to get it from the gene_model
+						element = getattr(gene_model, gene_desc_name, '')
+					else:
+						element = getattr(gene_commentary, gene_desc_name, '')
+					gene_desc_ls.append(element)
+				param_data.matrix_of_gene_descriptions.append(gene_desc_ls)
 				
-	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, gene_position_cycle=4):
+				if getattr(gene_commentary, 'box_ls', None):
+					box_ls = gene_commentary.box_ls
+				elif gene_commentary.start and gene_commentary.stop:	#no box_ls, just use start, stop
+					box_ls = [(gene_commentary.start, gene_commentary.stop, 'exon')]
+				elif gene_model.start and gene_model.stop:	#use gene_model's coordinate
+					box_ls = [(gene_model.start, gene_model.stop, 'exon')]
+				else:	#no coordinate. skip
+					sys.stderr.write("Warning: gene %s has either no start or no stop.\n"%(gene_commentary.gene_id))
+					continue
+				if gene_id in param_data.candidate_gene_set:
+					gene_symbol_color = 'b'
+				else:
+					gene_symbol_color = 'k'
+				y_value = base_y_value+param_data.no_of_genes_drawn%param_data.gene_position_cycle	#cycling through the y position to avoid clogging
+				g_artist = ExonIntronCollection(box_ls, y=y_value, strand=gene_model.strand, width=param_data.gene_width, alpha=0.3, \
+											picker=True, linewidths=0.7, box_line_widths=0.3)
+				ax.add_artist(g_artist)
+				text_start_pos = box_ls[-1][1]
+				#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
+				ax.text(text_start_pos+param_data.gene_box_text_gap, y_value, gene_model.gene_symbol, size=4, \
+					color=gene_symbol_color, alpha=0.8, verticalalignment='center')
+				param_data.no_of_genes_drawn += 1
+				
+					
+	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, \
+					gene_position_cycle=4, base_y_value=1, gene_box_text_gap=100):
 		"""
+		2008-10-01
 		2008-09-24
 		"""
 		sys.stderr.write("\t Drawing gene model  ...")
@@ -429,26 +465,26 @@ class DrawSNPRegion(GeneListRankTest):
 		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1]
 		left_chr = str(left_chr)
 		right_chr = str(right_chr)
-		no_of_genes_drawn = 0
+		param_data = PassingData(gene_id2model=gene_annotation.gene_id2model, candidate_gene_set=candidate_gene_set, \
+								gene_width=gene_width, gene_position_cycle=gene_position_cycle, no_of_genes_drawn=0, \
+								gene_box_text_gap=gene_box_text_gap, matrix_of_gene_descriptions = [])
 		for gene_id in gene_annotation.chr_id2gene_id_ls[left_chr]:
 			gene_model = gene_annotation.gene_id2model[gene_id]
 			if gene_model.start!=None and gene_model.stop!=None and gene_model.stop>left_pos:
 				if left_chr==right_chr:	#same chromosome
 					if gene_model.start>right_pos:	#totally out of range, skip it
 						continue
-				y_value = no_of_genes_drawn%gene_position_cycle	#cycling through the y position to avoid clogging
-				self.plot_one_gene(ax, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
-				no_of_genes_drawn += 1
+				self.plot_one_gene(ax, gene_id, param_data, base_y_value=base_y_value)
 		if left_chr!=right_chr:
 			for gene_id in gene_annotation.chr_id2gene_id_ls[right_chr]:
 				gene_model = gene_annotation.gene_id2model[gene_id]
 				if gene_model.start!=None and gene_model.stop!=None and gene_model.start<right_pos:
-					y_value = no_of_genes_drawn%gene_position_cycle	#cycling through the y position to avoid clogging
-					self.plot_one_gene(ax, gene_id, gene_annotation.gene_id2model, candidate_gene_set, y_value=-1-y_value, gene_width=gene_width)
-					no_of_genes_drawn += 1
+					self.plot_one_gene(ax, gene_id, param_data, base_y_value=base_y_value)
 		sys.stderr.write("Done.\n")
+		return param_data.matrix_of_gene_descriptions
 	
-	def drawLD(self, ax1, ax2, snps_within_this_region, LD_info, y_value=-5, which_LD_statistic=1):
+	def drawLD(self, axe_gene_model, ax2, snps_within_this_region, LD_info, gene_model_min_y,\
+				gene_model_max_y, which_LD_statistic=1):
 		"""
 		2008-09-28
 			represent r2 by HSL color, rather than a grayscale intensity. matplotlib doesn't support hsl notation (i'm not aware).
@@ -463,7 +499,7 @@ class DrawSNPRegion(GeneListRankTest):
 		#ax1.hlines(y_value, left_pos, right_pos, linewidth=0.3)
 		for i in range(no_of_snps):
 			chr_pos1 = snps_within_this_region.chr_pos_ls[i]
-			ax1.vlines(chr_pos1[1], y_value, 0, linestyle='dashed', alpha=0.3, linewidth=0.3)
+			axe_gene_model.vlines(chr_pos1[1], gene_model_min_y, gene_model_max_y, linestyle='dashed', alpha=0.3, linewidth=0.3)
 			for j in range(i+1, no_of_snps):
 				chr_pos2 = snps_within_this_region.chr_pos_ls[j]
 				if chr_pos1<chr_pos2:
@@ -566,16 +602,21 @@ class DrawSNPRegion(GeneListRankTest):
 		ax3.set_yticks([])
 		ax1.title.set_text('SNP chr %s. pos %s.'%(this_snp.chromosome, this_snp.position))	#main title using this snp.
 		self.drawPvalue(ax1, axe_LD, axe_LD_center_SNP, snps_within_this_region, analysis_method_id2gwr, LD_info, which_LD_statistic)
-		gene_position_cycle = 4
-		self.drawGeneModel(axe_gene_model, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=0.8, gene_position_cycle=gene_position_cycle)
-		LD_boundary_y_value = -gene_position_cycle-1
-		self.drawLD(axe_gene_model, axe_LD, snps_within_this_region, LD_info, y_value=LD_boundary_y_value, which_LD_statistic=which_LD_statistic)
+		gene_position_cycle = 5
+		base_y_value = 1
+		gene_width=0.8
+		gene_box_text_gap = min_distance*2*0.005
+		self.drawGeneModel(axe_gene_model, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=gene_width, \
+						gene_position_cycle=gene_position_cycle, base_y_value=base_y_value, gene_box_text_gap=gene_box_text_gap)
+		gene_model_min_y = base_y_value-gene_width
+		gene_model_max_y = gene_position_cycle + base_y_value -1 + gene_width	#"-1" because genes never sit on y=gene_position_cycle + base_y_value
+		self.drawLD(axe_gene_model, axe_LD, snps_within_this_region, LD_info, gene_model_min_y=gene_model_min_y,\
+				gene_model_max_y=gene_model_max_y, which_LD_statistic=which_LD_statistic)
 		self.drawLDLegend(ax3, which_LD_statistic)
 		#adjust x, y limits and etc
 		ax1_ylim = ax1.get_ylim()
-		ax1.set_ylim((0, ax1_ylim[1]))	#make sure ax1 and axe_LD_center_SNP share the same base y-value.
-		axe_gene_model_ylim = axe_gene_model.get_ylim()
-		axe_gene_model.set_ylim((LD_boundary_y_value, axe_gene_model_ylim[1]))	#LD panel right under gene models
+		ax1.set_ylim((0, ax1_ylim[1]))	#set ax1 to 0 to sit right above axe_gene_model
+		axe_gene_model.set_ylim((gene_model_min_y, gene_model_max_y))	#LD panel right under gene models
 		
 		#axe_LD.set_xlim(ax1.get_xlim())	#make the two plots within the same X range
 		
@@ -711,8 +752,8 @@ class DrawSNPRegion(GeneListRankTest):
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		db.setup(create_tables=False)
 		self.db = db
-		gene_annotation = self.dealWithGeneAnnotation(gene_annotation_picklef)
 		snp_info = self.getSNPInfo(db)
+		gene_annotation = self.dealWithGeneAnnotation(gene_annotation_picklef)
 		LD_info = self.dealLD_info(LD_info_picklef, LD_fname, min_MAF, min_distance)
 		return_data = PassingData(gene_annotation=gene_annotation, snp_info=snp_info, LD_info=LD_info)
 		return return_data
