@@ -31,7 +31,7 @@ class ValidateSNPRegion(object):
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							('LD_fname', 0, ): [None, 'L', 1, 'the file containing LD info, output of MpiLD.py', ],\
-							("min_distance", 1, int): [20000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
+							("min_distance", 1, int): [5000, 'm', 1, 'minimum distance for a given input region. expand the input region if it falls short.'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
 							("list_type_id", 0, int): [0, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
@@ -115,11 +115,10 @@ class ValidateSNPRegion(object):
 		del analysis_method_id2gwr
 		return is_significant
 	
-	def get_snp_region_ls(self, ft_region_fname, snp_info):
+	def get_snp_region_ls(self, ft_region_fname, snp_info, min_distance=5000):
 		sys.stderr.write("Get all snp regions ...")
 		delimiter = figureOutDelimiter(ft_region_fname)
 		ft_region_reader = csv.reader(open(ft_region_fname, 'r'), delimiter=delimiter)		
-		min_distance = 5000
 		snp_region_ls = []
 		for row in ft_region_reader:
 			row = map(int, row)
@@ -140,7 +139,8 @@ class ValidateSNPRegion(object):
 	
 	def checkRegions(self, DrawSNPRegion_instance, snp_info, snp_region_ls, output_fname, value_criteria):
 		sys.stderr.write("Checking regions ...")
-		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		outf = open(output_fname, 'w')
+		writer = csv.writer(outf, delimiter='\t')
 		header = ['phenotype_id', 'chromosome', 'start', 'stop']
 		writer.writerow(header)
 		
@@ -151,13 +151,15 @@ class ValidateSNPRegion(object):
 			analysis_method_id2gwr = DrawSNPRegion_instance.getSimilarGWResultsGivenResultsByGene(phenotype_id, call_method_id=self.call_method_id, \
 																							results_directory=self.results_directory, \
 																							analysis_method_id_ls=value_criteria.keys())
+			if not analysis_method_id2gwr:	#no gwr results, skip
+				continue
 			for snp_region in snp_region_ls:
 				if self.checkIfRegionSignificant(DrawSNPRegion_instance, snp_region, snp_info, analysis_method_id2gwr, value_criteria):
 					data_row = [phenotype_id, snp_region.center_snp.chromosome, snp_region.chr_pos_ls[0][1]-1, snp_region.chr_pos_ls[-1][1]+1]
 					writer.writerow(data_row)
-		
-		sys.stderr.write("Done.\n")
+			outf.flush()
 		del writer
+		sys.stderr.write("Done.\n")
 
 	def run(self):
 		if self.debug==1:
@@ -168,8 +170,8 @@ class ValidateSNPRegion(object):
 		DrawSNPRegion_instance = DrawSNPRegion(db_user=self.db_user, db_passwd=self.db_passwd, hostname=self.hostname, \
 											database=self.dbname, input_fname='/tmp/dumb', output_dir='/tmp', debug=0)
 		
-		grand_dataStructure = DrawSNPRegion_instance.loadDataStructure(self.gene_annotation_picklef, self.LD_info_picklef, self.LD_fname, min_MAF=0.1, min_distance=20000, list_type_id=None)		
-		snp_region_ls = self.get_snp_region_ls(self.input_fname, grand_dataStructure.snp_info)
+		grand_dataStructure = DrawSNPRegion_instance.loadDataStructure(self.gene_annotation_picklef, self.LD_info_picklef, self.LD_fname, min_MAF=self.min_MAF, min_distance=20000, list_type_id=None)		
+		snp_region_ls = self.get_snp_region_ls(self.input_fname, grand_dataStructure.snp_info, self.min_distance)
 		value_criteria={1:8., 7:6.}	#minimum threshold for different analysis methods
 		self.checkRegions(DrawSNPRegion_instance, grand_dataStructure.snp_info, snp_region_ls, self.output_fname, value_criteria)
 		
