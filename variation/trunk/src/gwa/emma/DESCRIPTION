@@ -1,0 +1,10 @@
+Package: emma
+Title: Efficient control of population structure in model organism association mapping (Efficient Mixed Model Association)
+Version: 1.0.7
+Author: Hyun Min Kang (h3kang@cs.ucsd.edu), Noah A. Zaitlen, Claire M. Wade, Andrew Kirby, David Heckerman, and Eleazar Eskin (eeskin@cs.ucla.edu)
+Description: Given a set of phenotypes and genotypes, this package performs an association mapping between them to correct for population structure and genetic relatedness represented by a kinship matrix using linear mixed model.
+Maintainer: Hyun Min Kang <h3kang@cs.ucsd.edu>
+Depends: R (>= 2.4.0)
+License: LGPL
+URL: http://mouse.cs.ucla.edu/emma
+Packaged: Sat Aug 30 08:53:43 2008; hyunminkang

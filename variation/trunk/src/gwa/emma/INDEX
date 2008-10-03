@@ -1,0 +1,6 @@
+emmadat		A sample input datasets for EMMA
+emma.REML.t	Performs an efficient association mapping via F-test after estimating variance component using REML (Restricted Maximum Likleihood).
+emma.ML.LRT	Performs an efficient association mapping via Likelihood Ratio Test after estimating variance component using ML (Maximum Likelihood).
+emma.MLE	Estimate the maximum likelihood and its parameters in linear mixed models.
+emma.REMLE	Estimate the restricted maximum likelihood and its parameters in linex mixed model.
+emma.kinship	Generates a kinship matrix from a large number of SNPs
