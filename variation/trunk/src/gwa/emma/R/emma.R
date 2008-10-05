@@ -55,12 +55,13 @@ emma.eigen.L <- function(Z,K,complete=TRUE) {
   }
 }
 
-emma.eigen.L.wo.Z <- function(K) {
+emma.eigen.L.wo.Z <- function(K) {	#eigen of K
   eig <- eigen(K,symmetric=TRUE)
+  #cat("eig$values:", eig$values, "\n")
   return(list(values=eig$values,vectors=eig$vectors))
 }
 
-emma.eigen.L.w.Z <- function(Z,K,complete=TRUE) {
+emma.eigen.L.w.Z <- function(Z,K,complete=TRUE) {	#eigen of K(ZZ')
   if ( complete == FALSE ) {
     vids <- colSums(Z)>0
     Z <- Z[,vids]
@@ -79,13 +80,17 @@ emma.eigen.R <- function(Z,K,X,complete=TRUE) {
   }
 }
 
-emma.eigen.R.wo.Z <- function(K, X) {
+emma.eigen.R.wo.Z <- function(K, X) {	#eigen of S(K+I)S
   n <- nrow(X)
   q <- ncol(X)
-  S <- diag(n)-X%*%solve(crossprod(X,X))%*%t(X)
-  eig <- eigen(S%*%(K+diag(1,n))%*%S,symmetric=TRUE)
+  S <- diag(n)-X%*%solve(crossprod(X,X))%*%t(X)	#S=I-X(X'X)^{-1}X'
+  eig <- eigen(S%*%K%*%S,symmetric=TRUE)	#eigen of SKS, 2008-10-04 by yh
+  #eig <- eigen(S%*%(K+diag(1,n))%*%S,symmetric=TRUE)	#eigen of S(K+I)S
   stopifnot(!is.complex(eig$values))
-  return(list(values=eig$values[1:(n-q)]-1,vectors=eig$vectors[,1:(n-q)]))
+  #cat("eig$values:", eig$values, "\n")
+  #cat("eig$vectors[,1:(n-q)]: ", eig$vectors[,1:(n-q)], "\n")
+  #return(list(values=eig$values[1:(n-q)]-1,vectors=eig$vectors[,1:(n-q)]))	#why -1?? because of S(K+I)S?
+  return(list(values=eig$values[1:(n-q)],vectors=eig$vectors[,1:(n-q)]))
 }
 
 emma.eigen.R.w.Z <- function(Z, K, X, complete = TRUE) {
@@ -110,10 +115,16 @@ emma.eigen.R.w.Z <- function(Z, K, X, complete = TRUE) {
                 complete=TRUE)[,c(1:(t-q),(t+1):n)]))   
 }
 
-emma.delta.ML.LL.wo.Z <- function(logdelta, lambda, etas, xi) {
+emma.delta.ML.LL.wo.Z <- function(logdelta, lambda, etas, xi) {	#full model likelihood. eq (6)
   n <- length(xi)
   delta <- exp(logdelta)
-  return( 0.5*(n*(log(n/(2*pi))-1-log(sum((etas*etas)/(lambda+delta))))-sum(log(xi+delta))) )  
+  #cat("lambda:", lambda, "\n")
+  #cat("delta:", delta, "\n") 
+  #cat("sum( (etas*etas)/(lambda+delta)): ", sum( (etas*etas)/(lambda+delta)) , "\n")
+  #ll = 0.5*(-n*(log(2*pi) -1 + log(n) -log(sum( (etas*etas)/(lambda+delta) ) ) ) -sum(log(xi+delta)))
+  #cat("ll:", ll, "\n")
+  #return( ll )	#2008-10-04 by yh
+  return( 0.5*(n*(log(n/(2*pi))-1-log(sum((etas*etas)/(lambda+delta))))-sum(log(xi+delta))) )
 }
 
 emma.delta.ML.LL.w.Z <- function(logdelta, lambda, etas.1, xi.1, n, etas.2.sq ) {
@@ -123,12 +134,13 @@ emma.delta.ML.LL.w.Z <- function(logdelta, lambda, etas.1, xi.1, n, etas.2.sq ) 
   return( 0.5*(n*(log(n/(2*pi))-1-log(sum(etas.1*etas.1/(lambda+delta))+etas.2.sq/delta))-(sum(log(xi.1+delta))+(n-t)*logdelta)) )
 }
 
-emma.delta.ML.dLL.wo.Z <- function(logdelta, lambda, etas, xi) {
+emma.delta.ML.dLL.wo.Z <- function(logdelta, lambda, etas, xi) {	#derivative of full model likelihood. eq (8)
   n <- length(xi)
   delta <- exp(logdelta)
   etasq <- etas*etas
   ldelta <- lambda+delta
-  return( 0.5*(n*sum(etasq/(ldelta*ldelta))/sum(etasq/ldelta)-sum(1/(xi+delta))) )
+  dll = 0.5*(n*sum(etasq/(ldelta*ldelta))/sum(etasq/ldelta)-sum(1/(xi+delta)))
+  return( dll)
 }
 
 emma.delta.ML.dLL.w.Z <- function(logdelta, lambda, etas.1, xi.1, n, etas.2.sq ) {
@@ -177,7 +189,6 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   n <- length(y)
   t <- nrow(K)
   q <- ncol(X)
-  
 #  stopifnot(nrow(K) == t)
   stopifnot(ncol(K) == t)
   stopifnot(nrow(X) == n)
@@ -194,21 +205,22 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
     if ( is.null(eig.R) ) {
       eig.R <- emma.eigen.R.wo.Z(K,X)
     }
-    etas <- crossprod(eig.R$vectors,y)
+    etas <- crossprod(eig.R$vectors,y)	#U'_{R}y
     
   
-    logdelta <- (0:ngrids)/ngrids*(ulim-llim)+llim
+    logdelta <- (0:ngrids)/ngrids*(ulim-llim)+llim	#a list of of all log(delta) that are going to be searched
     m <- length(logdelta)
     delta <- exp(logdelta)
-    Lambdas <- matrix(eig.R$values,n-q,m) + matrix(delta,n-q,m,byrow=TRUE)
-    Xis <- matrix(eig.L$values,n,m) + matrix(delta,n,m,byrow=TRUE)
-    Etasq <- matrix(etas*etas,n-q,m)
-    LL <- 0.5*(n*(log(n/(2*pi))-1-log(colSums(Etasq/Lambdas)))-colSums(log(Xis)))
-    dLL <- 0.5*delta*(n*colSums(Etasq/(Lambdas*Lambdas))/colSums(Etasq/Lambdas)-colSums(1/Xis))
-    
     optlogdelta <- vector(length=0)
     optLL <- vector(length=0)
-    if ( dLL[1] < esp ) {
+    
+    #2008-10-05 the part below until the for-loop for each marker is beyond my understanding. without the part, i get same results.
+    Lambdas <- matrix(eig.R$values,n-q,m) + matrix(delta,n-q,m,byrow=TRUE)	#looks like SHS's diagonal, but it's not? eq (5)
+    Xis <- matrix(eig.L$values,n,m) + matrix(delta,n,m,byrow=TRUE)	#looks like H's diagonal but it's not? eq (4)
+    Etasq <- matrix(etas*etas,n-q,m)
+    LL <- 0.5*(n*(log(n/(2*pi))-1-log(colSums(Etasq/Lambdas)))-colSums(log(Xis)))	#not likelihood of full model eq (6). what is this? never used in this function.
+    dLL <- 0.5*delta*(n*colSums(Etasq/(Lambdas*Lambdas))/colSums(Etasq/Lambdas)-colSums(1/Xis))	#not derivative of likelihood eq (7). what is this?
+    if ( dLL[1] < esp ) {	#derivative small enough to be included?
       optlogdelta <- append(optlogdelta, llim)
       optLL <- append(optLL, emma.delta.ML.LL.wo.Z(llim,eig.R$values,etas,eig.L$values))
     }
@@ -216,17 +228,25 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
       optlogdelta <- append(optlogdelta, ulim)
       optLL <- append(optLL, emma.delta.ML.LL.wo.Z(ulim,eig.R$values,etas,eig.L$values))
     }
-
+    
+    #2008-10-05 grid searching
     for( i in 1:(m-1) )
       {
-        if ( ( dLL[i]*dLL[i+1] < 0 ) && ( dLL[i] > 0 ) && ( dLL[i+1] < 0 ) ) 
+        lower_ll = emma.delta.ML.dLL.wo.Z(logdelta[i], eig.R$values, etas, eig.L$values)
+        upper_ll = emma.delta.ML.dLL.wo.Z(logdelta[i+1], eig.R$values, etas, eig.L$values)
+        if ( (lower_ll*upper_ll<0) )	#2008-10-05 this condition sort of has same function as the original one below.
+        #if ( ( dLL[i]*dLL[i+1] < 0 ) && ( dLL[i] > 0 ) && ( dLL[i+1] < 0 ) ) 
         {
-          r <- uniroot(emma.delta.ML.dLL.wo.Z, lower=logdelta[i], upper=logdelta[i+1], lambda=eig.R$values, etas=etas, xi=eig.L$values)
+          r <- uniroot(emma.delta.ML.dLL.wo.Z, lower=logdelta[i], upper=logdelta[i+1], lambda=eig.R$values, etas=etas, xi=eig.L$values)	#search from lower to upper for a root(=zero) of the derivative likelihood
+          cat("str(r):", str(r), "\n")
+          #optlogdelta <- append(optlogdelta, logdelta[i])	#2008-10-05 if no uniroot(), just take the logdelta[i]
           optlogdelta <- append(optlogdelta, r$root)
-          optLL <- append(optLL, emma.delta.ML.LL.wo.Z(r$root,eig.R$values, etas, eig.L$values))
+          #cat("eig.R$values:", eig.R$values, "\n")
+          #optLL <- append(optLL, emma.delta.ML.LL.wo.Z(logdelta[i], eig.R$values, etas, eig.L$values))	#2008-10-05 if no uniroot(), just take the logdelta[i]
+          optLL <- append(optLL, emma.delta.ML.LL.wo.Z(r$root, eig.R$values, etas, eig.L$values))
         }
       }
-#    optdelta <- exp(optlogdelta)
+  #optdelta <- exp(optlogdelta)
   }
   else {
     if ( is.null(eig.L) ) {
@@ -272,7 +292,7 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
       }
 #    optdelta <- exp(optlogdelta)
   }
-
+  
   maxdelta <- exp(optlogdelta[which.max(optLL)])
   maxLL <- max(optLL)
   if ( is.null(Z) ) {
@@ -282,8 +302,12 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
     maxva <- (sum(etas.1*etas.1/(eig.R$values+maxdelta))+etas.2.sq/maxdelta)/n
   }
   maxve <- maxva*maxdelta
-
-  return (list(ML=maxLL,delta=maxdelta,ve=maxve,vg=maxva))
+  cat(dim(eig.L$vectors),"\n")
+  cat(str(eig.L$values),"\n")
+  H_inverse <- t(eig.L$vectors) %*% solve(diag(eig.L$values+maxdelta)) %*% eig.L$vectors
+  beta <- solve(t(X) %*% H_inverse %*% X) %*% t(X) %*% H_inverse %*% y
+  
+  return (list(ML=maxLL,delta=maxdelta,ve=maxve,vg=maxva, beta=beta))
 }
 
 emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
@@ -307,10 +331,10 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
     }
     etas <- crossprod(eig.R$vectors,y)
   
-    logdelta <- (0:ngrids)/ngrids*(ulim-llim)+llim
+    logdelta <- (0:ngrids)/ngrids*(ulim-llim)+llim	#a list of deltas to search
     m <- length(logdelta)
     delta <- exp(logdelta)
-    Lambdas <- matrix(eig.R$values,n-q,m) + matrix(delta,n-q,m,byrow=TRUE)
+    Lambdas <- matrix(eig.R$values,n-q,m) + matrix(delta,n-q,m,byrow=TRUE)	#
     Etasq <- matrix(etas*etas,n-q,m)
     LL <- 0.5*((n-q)*(log((n-q)/(2*pi))-1-log(colSums(Etasq/Lambdas)))-colSums(log(Lambdas)))
     dLL <- 0.5*delta*((n-q)*colSums(Etasq/(Lambdas*Lambdas))/colSums(Etasq/Lambdas)-colSums(1/Lambdas))
@@ -379,39 +403,54 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   maxdelta <- exp(optlogdelta[which.max(optLL)])
   maxLL <- max(optLL)
   if ( is.null(Z) ) {
-    maxva <- sum(etas*etas/(eig.R$values+maxdelta))/(n-q)    
+    maxva <- sum(etas*etas/(eig.R$values+maxdelta))/(n-q) 	#vg   
   }
   else {
     maxva <- (sum(etas.1*etas.1/(eig.R$values+maxdelta))+etas.2.sq/maxdelta)/(n-q)
   }
-  maxve <- maxva*maxdelta
-
-  return (list(REML=maxLL,delta=maxdelta,ve=maxve,vg=maxva))
+  maxve <- maxva*maxdelta	#ve
+  
+  #2008-10-05 calculate beta use the same snippet from emma.REML.t() below
+  #cat("t<- nrow(K):", t, "\n")
+  #U <- eig.L$vectors * matrix(sqrt(1/(eig.L$values+maxdelta)),t,t,byrow=TRUE)
+  #yt <- crossprod(U,y)
+  #Xt <- crossprod(U,X)
+  #iXX <- solve(crossprod(Xt,Xt))
+  #beta <- iXX%*%crossprod(Xt,yt)
+  
+  #2008-10-05 yh: my way of calculating beta, same procedure as in emma.MLE()
+  #H_inverse <- (eig.L$vectors) %*% matrix(1/(eig.L$values+maxdelta),t,t,byrow=TRUE) %*% t(eig.L$vectors)
+  H_inverse <- (eig.L$vectors) %*% diag(1/(eig.L$values+maxdelta)) %*% t(eig.L$vectors)
+  beta <- solve(t(X) %*% H_inverse %*% X) %*% t(X) %*% H_inverse %*% y
+  return (list(REML=maxLL,delta=maxdelta,ve=maxve,vg=maxva, beta=beta))
 }
 
 emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim=10, esp=1e-10, ponly = FALSE) {
-  if ( is.null(dim(ys)) || ncol(ys) == 1 ) {
+  if ( is.null(dim(ys)) || ncol(ys) == 1 ) {	#row is different phenotypes, column is different individuals
     ys <- matrix(ys,1,length(ys))
   }
-  if ( is.null(dim(xs)) || ncol(xs) == 1 ) {
+  if ( is.null(dim(xs)) || ncol(xs) == 1 ) {	#make a matrix out of xs. row is marker. column is individual
     xs <- matrix(xs,1,length(xs))
   }
   if ( is.null(X0) ) {
-    X0 <- matrix(1,ncol(ys),1)
+    X0 <- matrix(1,ncol(ys),1)	#design matrix for the mean (beta_0)
   }  
   
-  g <- nrow(ys)
-  n <- ncol(ys)
-  m <- nrow(xs)
-  t <- ncol(xs)
-  q0 <- ncol(X0)
-  q1 <- q0 + 1
+  g <- nrow(ys)	#no of phenotypes
+  n <- ncol(ys)	#no of individuals
+  m <- nrow(xs)	#no of markers
+  t <- ncol(xs)	#no of individuals
+  q0 <- ncol(X0)	#how many beta's in null model
+  q1 <- q0 + 1	#plus one fixed effec by a SNP marker
 
   if ( !ponly ) {
     ML1s <- matrix(nrow=m,ncol=g)
     ML0s <- matrix(nrow=m,ncol=g)
     vgs <- matrix(nrow=m,ncol=g)
     ves <- matrix(nrow=m,ncol=g)
+    ve_vs_vg_ratio <- matrix(nrow=m,ncol=g)
+    beta0_est <- matrix(nrow=m,ncol=g)
+    beta1_est <- matrix(nrow=m,ncol=g)
   }
   stats <- matrix(nrow=m,ncol=g)
   ps <- matrix(nrow=m,ncol=g)
@@ -420,24 +459,22 @@ emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
   stopifnot(nrow(K) == t)
   stopifnot(ncol(K) == t)
   stopifnot(nrow(X0) == n)
-
-  if ( sum(is.na(ys)) == 0 ) {
-    eig.L <- emma.eigen.L(Z,K)
-    eig.R0 <- emma.eigen.R(Z,K,X0)
-      
-    for(i in 1:g) {
+  if ( sum(is.na(ys)) == 0 ) {	#No mising data
+    eig.L <- emma.eigen.L(Z,K)	#left eigen vectors
+    eig.R0 <- emma.eigen.R(Z,K,X0)	#right eigen vector for null model
+    for(i in 1:g) {	#calculate the MLE for NULL model
       ML0[i] <- emma.MLE(ys[i,],X0,K,Z,ngrids,llim,ulim,esp,eig.L,eig.R0)$ML
     }
-
-    x.prev <- vector(length=0)
     
-    for(i in 1:m) {
+    x.prev <- vector(length=0)	#to avoid test on SNPs with LD=1 (genotype same among all individuals)
+    
+    for(i in 1:m) {	#for each marker
       vids <- !is.na(xs[i,])
       nv <- sum(vids)
-      xv <- xs[i,vids]
+      xv <- xs[i,vids]	#take all the valid x values
 
-      if ( ( mean(xv) <= 0 ) || ( mean(xv) >= 1 ) ) {
-        if (!ponly) {
+      if ( ( mean(xv) <= 0 ) || ( mean(xv) >= 1 ) ) {	#??? mean(xv) has to be within 0 and 1
+        if (!ponly) {	#only need pvalue
           stats[i,] <- rep(NA,g)
           vgs[i,] <- rep(NA,g)
           ves[i,] <- rep(NA,g)
@@ -456,32 +493,37 @@ emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
         }
         ps[i,] <- ps[i-1,]
       }
-      else {
+      else {	#calculate right eigen vector/values for alternative model
         if ( is.null(Z) ) {
           X <- cbind(X0[vids,,drop=FALSE],xs[i,vids])
           eig.R1 = emma.eigen.R.wo.Z(K[vids,vids],X)
+          #cat("eig.R1$values:", eig.R1$values, "\n")
         }
         else {
           vrows <- as.logical(rowSums(Z[,vids]))
           nr <- sum(vrows)
           X <- cbind(X0[vrows,,drop=FALSE],Z[vrows,vids]%*%t(xs[i,vids,drop=FALSE]))
-          eig.R1 = emma.eigen.R.w.Z(Z[vrows,vids],K[vids,vids],X)          
+          eig.R1 = emma.eigen.R.w.Z(Z[vrows,vids],K[vids,vids],X)
+          #cat("eig.R1$values:", eig.R1$values, "\n")
         }
-
-        for(j in 1:g) {
-          if ( nv == t ) {
+        for(j in 1:g) {	#for each phenotype
+          if ( nv == t ) {	#2008-09-23 number of valid points = number of strains
+          	cat("individual: ", j, "\n")
+          	#cat("eig.R1$values:", eig.R1$values, "\n")
             MLE <- emma.MLE(ys[j,],X,K,Z,ngrids,llim,ulim,esp,eig.L,eig.R1)
-#            MLE <- emma.MLE(ys[j,],X,K,Z,ngrids,llim,ulim,esp,eig.L,eig.R1)            
-            if (!ponly) { 
+            if (!ponly) {
               ML1s[i,j] <- MLE$ML
               vgs[i,j] <- MLE$vg
               ves[i,j] <- MLE$ve
+              ve_vs_vg_ratio[i,j] <- MLE$delta	#2008-10-04 get the delta
+              beta0_est[i,j] <- MLE$beta[1]	#2008-10-04
+              beta1_est[i,j] <- MLE$beta[2] #2008-10-04
             }
             stats[i,j] <- 2*(MLE$ML-ML0[j])
             
           }
           else {
-            if ( is.null(Z) ) {
+            if ( is.null(Z) ) {	#no Z. assume it's diagonal identity matrix
               eig.L0 <- emma.eigen.L.wo.Z(K[vids,vids])
               MLE0 <- emma.MLE(ys[j,vids],X0[vids,,drop=FALSE],K[vids,vids],NULL,ngrids,llim,ulim,esp,eig.L0)
               MLE1 <- emma.MLE(ys[j,vids],X,K[vids,vids],NULL,ngrids,llim,ulim,esp,eig.L0)
@@ -501,11 +543,12 @@ emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
               ML0s[i,j] <- MLE0$ML
               vgs[i,j] <- MLE1$vg
               ves[i,j] <- MLE1$ve
+              #ve_vs_vg_ratio[i,j] <- MLE1$delta	#2008-10-04 get the delta
             }
             stats[i,j] <- 2*(MLE1$ML-MLE0$ML)
           }
         }
-        if ( ( nv == t ) && ( !ponly ) ) {
+        if ( ( nv == t ) && ( !ponly ) ) {	#Null model for each marker is same if there's no missing data
           ML0s[i,] <- ML0
         }
         ps[i,] <- pchisq(stats[i,],1,lower.tail=FALSE)
@@ -633,7 +676,7 @@ emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
     return (ps)
   }
   else {
-    return (list(ps=ps,ML1s=ML1s,ML0s=ML0s,stats=stats,vgs=vgs,ves=ves))
+    return (list(ps=ps,ML1s=ML1s,ML0s=ML0s,stats=stats,vgs=vgs,ves=ves, ve_vs_vg_ratio=ve_vs_vg_ratio, beta0_est=beta0_est, beta1_est=beta1_est, beta0_est1=beta0_est, beta1_est1=beta1_est))
   }  
 }
 
@@ -667,7 +710,12 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
   dfs <- matrix(nrow=m,ncol=g)
   stats <- matrix(nrow=m,ncol=g)
   ps <- matrix(nrow=m,ncol=g)
-
+  ve_vs_vg_ratio <- matrix(nrow=m,ncol=g)
+  beta0_est <- matrix(nrow=m,ncol=g)
+  beta1_est <- matrix(nrow=m,ncol=g)
+  beta0_est1 <- matrix(nrow=m,ncol=g)
+  beta1_est1 <- matrix(nrow=m,ncol=g)
+  
   if ( sum(is.na(ys)) == 0 ) {
     eig.L <- emma.eigen.L(Z,K)
 
@@ -712,7 +760,10 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
         
         for(j in 1:g) {
           if ( nv == t ) {
-            REMLE <- emma.REMLE(ys[j,],X,K,Z,ngrids,llim,ulim,esp,eig.R1)
+            cat("t:", t, "\n")
+            REMLE <- emma.REMLE(ys[j,],X,K,Z,ngrids,llim,ulim,esp, eig.L, eig.R1)	#2008-10-05 eig.L wasn't added here before. 
+            #in that scenario, since emma.REMLE() does not use eig.L and eig.R is regarded as null (as it occupied eig.L's position), it computed eig.R on the fly.
+            
             if ( is.null(Z) ) {
               U <- eig.L$vectors * matrix(sqrt(1/(eig.L$values+REMLE$delta)),t,t,byrow=TRUE)
               dfs[i,j] <- nv - q1
@@ -732,6 +783,11 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
               REMLs[i,j] <- REMLE$REML
             }
             stats[i,j] <- beta[q1]/sqrt(iXX[q1,q1]*REMLE$vg)
+            ve_vs_vg_ratio[i,j] <- REMLE$delta	#2008-10-04 get the delta
+            beta0_est[i,j] <- REMLE$beta[1]	#2008-10-04
+            beta1_est[i,j] <- REMLE$beta[2] #2008-10-04
+            beta0_est1[i,j] <- beta[1]	#2008-10-04 to compare whether my beta estimate is same as theirs. answer is yes!
+            beta1_est1[i,j] <- beta[2] #2008-10-04
           }
           else {
             if ( is.null(Z) ) {
@@ -896,6 +952,6 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
     return (ps)
   }
   else {
-    return (list(ps=ps,REMLs=REMLs,stats=stats,dfs=dfs,vgs=vgs,ves=ves))
+    return (list(ps=ps,REMLs=REMLs,stats=stats,dfs=dfs,vgs=vgs,ves=ves, ve_vs_vg_ratio=ve_vs_vg_ratio, beta0_est=beta0_est, beta1_est=beta1_est, beta0_est1=beta0_est1, beta1_est1=beta1_est1))
   }
 }
