@@ -26,8 +26,8 @@ from elixir import Entity, Field, using_options, using_table_options
 from elixir import OneToMany, ManyToOne, ManyToMany
 from elixir import setup_all, session, metadata, entities
 from elixir.options import using_table_options_handler	#using_table_options() can only work inside Entity-inherited class.
-from sqlalchemy import UniqueConstraint
-from sqlalchemy.schema import ThreadLocalMetaData
+from sqlalchemy import UniqueConstraint, create_engine
+from sqlalchemy.schema import ThreadLocalMetaData, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import datetime
@@ -35,8 +35,9 @@ from datetime import datetime
 from pymodule.db import ElixirDB
 
 __session__ = scoped_session(sessionmaker(autoflush=False, transactional=False))
-__metadata__ = ThreadLocalMetaData()
+#__metadata__ = ThreadLocalMetaData()
 
+__metadata__ = MetaData()
 
 class README(Entity):
 	#2008-08-07
@@ -468,11 +469,15 @@ class Stock_250kDB(ElixirDB):
 							('username', 1, ):[None, 'u', 1, 'database username',],\
 							('password', 1, ):[None, 'p', 1, 'database password', ],\
 							('port', 0, ):[None, 'o', 1, 'database port number'],\
+							('pool_recycle', 0, int):[3600, '', 1, 'the length of time to keep connections open before recycling them.'],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
 		"""
+		2008-10-06
+			add option 'pool_recycle' to recycle connection. MySQL typically close connections after 8 hours.
+			__metadata__.bind = create_engine(self._url, pool_recycle=self.pool_recycle)
 		2008-07-09
 		"""
 		from pymodule import ProcessOptions
@@ -483,8 +488,9 @@ class Stock_250kDB(ElixirDB):
 				if entity.__module__==self.__module__:	#entity in the same module
 					using_table_options_handler(entity, schema=self.schema)
 		
-		#metadata = ThreadLocalMetaData()
-		__metadata__.bind = self._url
+		#2008-10-05 MySQL typically close connections after 8 hours resulting in a "MySQL server has gone away" error.
+		__metadata__.bind = create_engine(self._url, pool_recycle=self.pool_recycle)
+		
 		self.metadata = __metadata__
 		self.session = __session__
 	
