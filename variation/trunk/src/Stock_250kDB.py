@@ -21,7 +21,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 from sqlalchemy.engine.url import URL
-from elixir import Unicode, DateTime, String, Integer, UnicodeText, Text, Boolean, Float
+from elixir import Unicode, DateTime, String, Integer, UnicodeText, Text, Boolean, Float, Binary
 from elixir import Entity, Field, using_options, using_table_options
 from elixir import OneToMany, ManyToOne, ManyToMany
 from elixir import setup_all, session, metadata, entities
@@ -460,6 +460,51 @@ class CandidateGeneTopSNPTest(Entity):
 	using_options(tablename='candidate_gene_top_snp_test', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
+class SNPRegionPlotType(Entity):
+	"""
+	2008-10-06
+	"""
+	short_name = Field(String(256), unique=True)
+	description = Field(String(8192))
+	snp_region_plot_ls = OneToMany('SNPRegionPlot')
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='snp_region_plot_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
+class SNPRegionPlot(Entity):
+	"""
+	2008-10-06
+	"""
+	chromosome = Field(Integer)
+	start = Field(Integer)
+	stop = Field(Integer)
+	img_data = Field(Text, deferred=True)
+	center_snp_position = Field(Integer)
+	original_filename = Field(String(134217728))	#no bigger than 128M
+	phenotype_method = ManyToOne('PhenotypeMethod', colname='phenotype_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	plot_type = ManyToOne('SNPRegionPlotType', colname='plot_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	plot2gene_ls = OneToMany("SNPRegionPlotToGene")
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='snp_region_plot', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	#using_table_options(UniqueConstraint('chromosome', 'start', 'stop', 'phenotype_method_id'))
+
+class SNPRegionPlotToGene(Entity):
+	"""
+	2008-10-06
+	"""
+	snp_region_plot = ManyToOne('SNPRegionPlot', colname='plot_id', ondelete='CASCADE', onupdate='CASCADE')
+	gene_id = Field(Integer)
+	using_options(tablename='snp_region_plot2gene', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	
+	
 class Stock_250kDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
