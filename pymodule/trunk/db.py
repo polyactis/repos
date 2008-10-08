@@ -166,11 +166,13 @@ class Database(object):
 
 class ElixirDB(object):
 	"""
+	2008-10-07 add option pool_recycle
 	2008-08-07
 		expose metadata from elixir
 	2008-07-11
 		elixir db base class
 	"""
+	
 	option_default_dict = {('drivername', 1,):['postgres', 'v', 1, 'which type of database? mysql or postgres', ],\
 							('hostname', 1, ):['localhost', 'z', 1, 'hostname of the db server', ],\
 							('database', 1, ):[None, 'd', 1, '',],\
@@ -178,6 +180,7 @@ class ElixirDB(object):
 							('username', 1, ):[None, 'u', 1, 'database username',],\
 							('password', 1, ):[None, 'p', 1, 'database password', ],\
 							('port', 0, ):[None, 'o', 1, 'database port number'],\
+							('pool_recycle', 0, int):[3600, '', 1, 'the length of time to keep connections open before recycling them.'],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
