@@ -30,7 +30,7 @@ from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as Navig
 from variation.src.QualityControl import QualityControl
 from variation.src import Cmp250kVs2010, Cmp250kVs149SNP, Cmp149SNPVs2010, CmpTina2010VsMy2010In250kSNPs
 
-import pymodule.gnome as yh_gnome
+from pymodule import yh_gnome
 #from pymodule.gnome import fill_treeview, create_columns, foreach_cb
 
 class QCVisualizeII:
@@ -91,7 +91,9 @@ class QCVisualizeII:
 		self.entry_dbname = xml.get_widget('entry_dbname')
 		self.entry_schema = xml.get_widget('entry_schema')
 		self.entry_1st_input_fname = xml.get_widget('entry_1st_input_fname')
+		self.filechooserbutton1 = xml.get_widget('filechooserbutton1')
 		self.entry_2nd_input_fname = xml.get_widget('entry_2nd_input_fname')
+		self.filechooserbutton2 = xml.get_widget('filechooserbutton2')
 		self.entry_ecotype_table = xml.get_widget('entry_ecotype_table')
 		self.entry_ecotype2accession_table = xml.get_widget('entry_ecotype2accession_table')
 		self.entry_diff_details_table = xml.get_widget('entry_diff_details_table')
@@ -189,6 +191,20 @@ class QCVisualizeII:
 	def on_button_cleanup_output_clicked(self, widget, data=None):
 		self.textbuffer_class_doc.set_text('')
 	
+	def on_filechooserbutton1_file_set(self, widget, data=None):
+		"""
+		2008-09-18
+			set the entry_1st_input_fname
+		"""
+		self.entry_1st_input_fname.set_text(self.filechooserbutton1.get_filename())
+	
+	def on_filechooserbutton2_file_set(self, widget, data=None):
+		"""
+		2008-09-18
+			set the entry_1st_input_fname
+		"""
+		self.entry_2nd_input_fname.set_text(self.filechooserbutton2.get_filename())
+	
 	def on_button_input_run_clicked(self, widget, event=None, data=None):
 		"""
 		2008-02-06
@@ -213,6 +229,8 @@ class QCVisualizeII:
 				self.qc_class_ins = None
 			if self.class_chosen == 2:
 				self.qc_class_ins = self.qc_class_dict[self.class_chosen](self.curs, self.input_fname1, self.input_fname2, self.latex_output_fname, self.ecotype2accession_table, self.diff_details_table, self.qc_cross_match_table)
+			elif self.class_chosen==0:
+				self.qc_class_ins = self.qc_class_dict[self.class_chosen](curs=self.curs, input_fname1=self.input_fname1, input_fname2=self.input_fname2)
 			else:
 				self.qc_class_ins = self.qc_class_dict[self.class_chosen](self.curs, self.input_fname1, self.input_fname2)
 			self.qc_class_ins.load_dstruc()
@@ -318,7 +336,7 @@ class QCVisualizeII:
 		2008-02-06
 		"""
 		if self.qc_class_ins:
-			self.qc_class_ins.plot_row_NA_mismatch_rate('%s strain-wise'%self.combobox_qc_class_choice.get_active_text())
+			self.qc_class_ins.plot_row_NA_mismatch_rate('%s vs %s strain-wise'%(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)))
 		else:
 			self.app_input_appbar.push("Error: Instantiate Class First!")
 	
@@ -327,7 +345,7 @@ class QCVisualizeII:
 		2008-02-06
 		"""
 		if self.qc_class_ins:
-			self.qc_class_ins.plot_col_NA_mismatch_rate('%s snp-wise'%self.combobox_qc_class_choice.get_active_text())
+			self.qc_class_ins.plot_col_NA_mismatch_rate('%s vs %s snp-wise'%(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)))
 		else:
 			self.app_input_appbar.push("Error: Instantiate Class First!")
 		
