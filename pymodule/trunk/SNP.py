@@ -902,6 +902,7 @@ class GenomeWideResult(TableClass):
 	base_value = 0
 	chr_pos2index = None
 	construct_chr_pos2index = False
+	argsort_data_obj_ls = None
 	def get_data_obj_by_obj_id(self, obj_id):
 		return self.data_obj_ls[self.data_obj_id2index[obj_id]]
 	
@@ -936,6 +937,15 @@ class GenomeWideResult(TableClass):
 			self.min_value = data_obj.value
 		if self.max_value is None or data_obj.value>self.max_value:
 			self.max_value = data_obj.value
+	
+	def get_data_obj_at_given_rank(self, rank):
+		"""
+		2008-10-02
+			rank starts from 1.
+		"""
+		if self.argsort_data_obj_ls is None:
+			self.argsort_data_obj_ls = num.argsort(self.data_obj_ls)	#sort in ascending order
+		return self.data_obj_ls[self.argsort_data_obj_ls[-rank]]	#value bigger, rank smaller
 
 class DataObject(TableClass):
 	chromosome = None
