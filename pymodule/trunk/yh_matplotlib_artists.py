@@ -364,8 +364,8 @@ if __name__ == '__main__':
 	p1 = Polygon(zip(start_ls, end_ls), alpha=0.3, linewidth=0, facecolor=(0,217/255.,1), picker=True)
 	a.add_artist(p1)
 	#pylab.gray()	#colorbar needs  "You must first set_array for mappable"
-	#c1 = Circle((1,2), radius=1)
-	#a.add_artist(c1)
+	c1 = Circle((1,2), radius=1, facecolor='w', edgecolor='r')
+	a.add_artist(c1)
 	#pylab.savefig('abc.png', dpi=300)
 	#pylab.savefig('abc.svg', dpi=300)
 	pylab.show()
