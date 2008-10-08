@@ -12,3 +12,5 @@ from utils import PassingData, dict_map, importNumericArray, figureOutDelimiter,
 	FigureOutTaxID, getColName2IndexFromHeader, getListOutOfStr
 
 from Genome import GeneModel
+
+from yh_matplotlib import assignMatPlotlibHueColorToLs, drawName2FCLegend
