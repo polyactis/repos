@@ -25,10 +25,10 @@ from matplotlib import rcParams
 rcParams['font.size'] = 6
 rcParams['legend.fontsize'] = 6
 #rcParams['text.fontsize'] = 6	#deprecated. use font.size instead
-rcParams['axes.labelsize'] = 6
+rcParams['axes.labelsize'] = 4
 rcParams['axes.titlesize'] = 8
-rcParams['xtick.labelsize'] = 6
-rcParams['ytick.labelsize'] = 6
+rcParams['xtick.labelsize'] = 4
+rcParams['ytick.labelsize'] = 4
 from matplotlib.patches import Polygon, CirclePolygon, Ellipse, Wedge
 import pylab
 import ImageColor
@@ -69,11 +69,14 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def drawSNPMtrix(self, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
-					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9):
+					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1):
 		"""
 		2008-10-07
 			1. allele=1 no color (white), 2(red)
-			2. snpData.snp_id2index_type. index_type=1(polarized), shape=square. index_type=2(MAF), circle. index_type=3(weirdo), triangle
+			2. snpData.snp_id2index_type.
+				index_type=1(polarized), shape=rectangle.
+				index_type=2(MAF), circle.
+				index_type=3(weirdo), triangle
 			3. alpha of each cell determined by the score in top_snp_data.score_ls
 			4. label strain, snp plainlys
 		"""
@@ -89,7 +92,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			#draw snp label
 			snp_img_x_pos = SNPID2PCAPosInfo.snp_id2img_x_pos[snp_id]
 			axe_snp_matrix.text(snp_img_x_pos, snp_id_label_y_offset, snp_id, rotation='vertical', \
-							horizontalalignment ='left', verticalalignment='bottom', size=2)
+							horizontalalignment ='left', verticalalignment='bottom', size=strain_snp_label_font_size)
 			col_index = subSNPData.col_id2col_index[snp_id]
 			index_type = subSNPData.snp_id2index_type[snp_id]
 			score = top_snp_data.score_ls[i]
@@ -109,7 +112,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 					nativename = ecotype_info.ecotypeid2nativename[ecotype_id]
 					strain_label = '%s_%s'%(strain_id, nativename)
 					axe_snp_matrix.text(strain_id_label_x_offset, strain_img_y_pos, strain_label, \
-							horizontalalignment ='left', verticalalignment='bottom', size=2)
+							horizontalalignment ='left', verticalalignment='bottom', size=strain_snp_label_font_size)
 				center = (snp_img_x_pos+cell_x_len/2., strain_img_y_pos+cell_y_len/2.)
 				if index_type==1:
 					xs = [snp_img_x_pos, snp_img_x_pos+cell_x_len, snp_img_x_pos+cell_x_len, snp_img_x_pos]
@@ -118,12 +121,15 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				elif index_type==2:
 					patch = Ellipse(center, cell_x_len, cell_y_len, facecolor=facecolor, linewidth=0, alpha=alpha)
 				else:
-					patch = Wedge(center, radius, -90, 90, facecolor=facecolor, linewidth=0, alpha=alpha)
+					xs = [snp_img_x_pos, snp_img_x_pos+cell_x_len, snp_img_x_pos+cell_x_len/2.]
+					ys = [strain_img_y_pos, strain_img_y_pos, strain_img_y_pos+cell_y_len]
+					patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=0, alpha=alpha)
 				axe_snp_matrix.add_patch(patch)
 		
 		sys.stderr.write("Done.\n")
 			
-	def drawStrainPCA(self, axe_strain_pca, axe_strain_pca_legend, StrainID2PCAPosInfo, ecotype_info, rightmost_x_value=1.05):
+	def drawStrainPCA(self, axe_strain_pca, axe_strain_pca_legend, StrainID2PCAPosInfo, ecotype_info, rightmost_x_value=1.05,\
+					alpha=0.8):
 		"""
 		2008-10-07
 			1. find all distinct countries
@@ -143,7 +149,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		country_ls = list(country_abbr_set)
 		country_ls.sort()
 		country2fc = assignMatPlotlibHueColorToLs(country_ls)
-		drawName2FCLegend(axe_strain_pca_legend, country_ls, country2fc, no_face_color=False, font_size=2)
+		drawName2FCLegend(axe_strain_pca_legend, country_ls, country2fc, no_edge_color=True, font_size=2, alpha=alpha)
 		for strain_id in StrainID2PCAPosInfo.strain_id_ls:
 			ecotype_id = int(strain_id)
 			if ecotype_id in ecotype_info.ecotypeid2country:
@@ -154,14 +160,17 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			y_value = StrainID2PCAPosInfo.strain_id2pca_y[strain_id]
 			country_fc = country2fc[country]
 			
-			axe_strain_pca.scatter([x_value],[y_value], s=10, linewidth=0.6, edgecolor=country_fc, facecolor='w', alpha=0.6)
+			axe_strain_pca.scatter([x_value],[y_value], s=10, linewidth=0, facecolor=country_fc, alpha=alpha)
 			
 			img_y_pos = StrainID2PCAPosInfo.strain_id2img_y_pos[strain_id]
 			axe_strain_pca.plot([rightmost_x_value, x_value], [img_y_pos, y_value], '--', alpha=0.2, linewidth=0.3)
 		axe_strain_pca.title.set_text('Strain by PC2(x-axis) vs PC1(y-axis)')
+		axe_strain_pca.set_xlabel('PC2 %.2f%s'%(StrainID2PCAPosInfo.x_var*100, '%'))
+		axe_strain_pca.set_ylabel('PC1 %.2f%s'%(StrainID2PCAPosInfo.y_var*100, '%'))
+		
 		sys.stderr.write("Done.\n")
 	
-	def drawSNPPCA(self, axe_snp_pca, axe_snp_pca_legend, SNPID2PCAPosInfo, lowest_y_value=-0.05):
+	def drawSNPPCA(self, axe_snp_pca, axe_snp_pca_legend, SNPID2PCAPosInfo, lowest_y_value=-0.05, alpha=0.8):
 		"""
 		2008-10-07
 		"""
@@ -173,20 +182,21 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		chr_ls = list(chr_set)
 		chr_ls.sort()
 		chr2fc = assignMatPlotlibHueColorToLs(chr_ls)
-		drawName2FCLegend(axe_snp_pca_legend, chr_ls, chr2fc, no_face_color=True, font_size=4)
+		drawName2FCLegend(axe_snp_pca_legend, chr_ls, chr2fc, no_edge_color=True, font_size=4, alpha=alpha)
 		for snp_id in SNPID2PCAPosInfo.snp_id_ls:
 			chr, pos = snp_id.split('_')
 			chr_fc = chr2fc[chr]
 			x_value = SNPID2PCAPosInfo.snp_id2pca_x[snp_id]
 			y_value = SNPID2PCAPosInfo.snp_id2pca_y[snp_id]
-			axe_snp_pca.scatter([x_value],[y_value], s=10, linewidth=0.6, edgecolor=chr_fc, facecolor='w', alpha=0.6)
+			axe_snp_pca.scatter([x_value],[y_value], s=10, linewidth=0, facecolor=chr_fc, alpha=alpha)
 			
 			img_x_pos = SNPID2PCAPosInfo.snp_id2img_x_pos[snp_id]
 			axe_snp_pca.plot([img_x_pos, x_value], [lowest_y_value, y_value], linestyle='--', alpha=0.2, linewidth=0.3)
-		axe_snp_pca.title.set_text('SNP by PC1(x-axis) vs PC2(y-axis)')
+		axe_snp_pca.set_xlabel('PC1 %.2f%s'%(SNPID2PCAPosInfo.x_var*100, '%'))
+		axe_snp_pca.set_ylabel('PC2 %.2f%s'%(SNPID2PCAPosInfo.y_var*100, '%'))
 		sys.stderr.write("Done.\n")
 	
-	def drawMap(self, axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, ecotype_info):
+	def drawMap(self, axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, ecotype_info):
 		"""
 		2008-10-07
 			1. draw each phenotype with a bar (temporary solution)
@@ -199,7 +209,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			
 			phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
 			axe_map.hlines(img_y_pos, 0, phenotype, linewidth=0.3, alpha=0.6)
-		axe_map.title.set_text('Phenotype')
+		phenotype_method = Stock_250kDB.PhenotypeMethod.get(phenotype_method_id)
+		axe_map.title.set_text('Phenotype %s %s'%(phenotype_method.id, phenotype_method.short_name))
 		sys.stderr.write("Done.\n")
 	
 	def scale_chr_size(self, chr_id2size, total_cumu_size, scale_range=[0,1]):
@@ -445,38 +456,51 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		return obj_id2img_pos, step
 			
 	
-	def getStrainID2PCAPosInfo(self, subSNPData, pca_range=[0,1]):
+	def getStrainID2PCAPosInfo(self, subSNPData, pca_range=[0,1], snp_id_label_y_offset=0.95):
 		"""
+		2008-10-08
+			fix a bug that using PC2 and PC3 to get coordinates.
 		2008-10-07
+			figure out strain positions in axe_strain_pca and axe_snp_matrix
 		"""
 		sys.stderr.write("Getting  StrainID2PCAPosInfo ... ")
 		StrainID2PCAPosInfo = PassingData()
 		import pca_module
-		T, P, explained_var = pca_module.PCA_svd(subSNPData.data_matrix, standardize=True)
+		T, P, explained_var = pca_module.PCA_svd(subSNPData.data_matrix, standardize=False)
 		#T[:,1] and T[:,2] are new positions for strain
-		strain_id_ls, strain_id2pca_y = self.sortObjByPCA_value_ls(subSNPData.row_id2row_index, T[:,1], pca_range)
-		strain_id2pca_x = self.getObj2posFromPCA_value_ls(subSNPData.row_id2row_index, T[:,2], pca_range)
+		strain_id_ls, strain_id2pca_y = self.sortObjByPCA_value_ls(subSNPData.row_id2row_index, T[:,0], pca_range)
+		strain_id2pca_x = self.getObj2posFromPCA_value_ls(subSNPData.row_id2row_index, T[:,1], pca_range)
 		StrainID2PCAPosInfo.strain_id_ls = strain_id_ls
 		StrainID2PCAPosInfo.strain_id2pca_y = strain_id2pca_y
 		StrainID2PCAPosInfo.strain_id2pca_x = strain_id2pca_x
-		obj_id2img_pos, step = self.getObj2ImgPos(strain_id_ls, img_pos_range=[0., 0.9])
+		StrainID2PCAPosInfo.x_var = explained_var[1]
+		StrainID2PCAPosInfo.y_var = explained_var[0]
+		obj_id2img_pos, step = self.getObj2ImgPos(strain_id_ls, img_pos_range=[0., snp_id_label_y_offset])
 		StrainID2PCAPosInfo.strain_id2img_y_pos = obj_id2img_pos
 		StrainID2PCAPosInfo.step = step
 		sys.stderr.write("Done.\n")
 		return StrainID2PCAPosInfo
 	
-	def getSNPID2PCAPosInfo(self, subSNPData, pca_range=[0,1]):
+	def getSNPID2PCAPosInfo(self, subSNPData, pca_range=[0,1], strain_id_label_x_offset=0.95):
+		"""
+		2008-10-08
+			fix a bug that using PC2 and PC3 to get coordinates.
+		2008-10-07
+			figure out SNP positions in axe_snp_pca and axe_snp_matrix
+		"""
 		sys.stderr.write("Getting  SNPID2PCAPosInfo ... ")
 		SNPID2PCAPosInfo = PassingData()
 		import pca_module
-		T, P, explained_var = pca_module.PCA_svd(numpy.transpose(subSNPData.data_matrix), standardize=True)
+		T, P, explained_var = pca_module.PCA_svd(numpy.transpose(subSNPData.data_matrix), standardize=False)
 		#T[:,1] and T[:,2] are new positions for strain
-		snp_id_ls, snp_id2pca_x = self.sortObjByPCA_value_ls(subSNPData.col_id2col_index, T[:,1], pca_range)
-		snp_id2pca_y = self.getObj2posFromPCA_value_ls(subSNPData.col_id2col_index, T[:,2], pca_range)
+		snp_id_ls, snp_id2pca_x = self.sortObjByPCA_value_ls(subSNPData.col_id2col_index, T[:,0], pca_range)
+		snp_id2pca_y = self.getObj2posFromPCA_value_ls(subSNPData.col_id2col_index, T[:,1], pca_range)
 		SNPID2PCAPosInfo.snp_id_ls = snp_id_ls
 		SNPID2PCAPosInfo.snp_id2pca_x = snp_id2pca_x
 		SNPID2PCAPosInfo.snp_id2pca_y = snp_id2pca_y
-		obj_id2img_pos, step = self.getObj2ImgPos(snp_id_ls, img_pos_range=[0., 0.9])
+		SNPID2PCAPosInfo.x_var = explained_var[0]
+		SNPID2PCAPosInfo.y_var = explained_var[1]
+		obj_id2img_pos, step = self.getObj2ImgPos(snp_id_ls, img_pos_range=[0., strain_id_label_x_offset])
 		SNPID2PCAPosInfo.snp_id2img_x_pos = obj_id2img_pos
 		SNPID2PCAPosInfo.step = step
 		sys.stderr.write("Done.\n")
@@ -539,22 +563,34 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		top_snp_data = self.getTopSNPData(genome_wide_result, self.no_of_top_hits)
 		subSNPData = self.getSubStrainSNPMatrix(snpData, phenData, self.phenotype_method_id, phenotype_col_index, top_snp_data.snp_id_ls, chr_pos2ancestral_allele)
 		
-		"""
-		ecotypeid2pos = 
-		ecotypeid2nativename =
-		ecotypeid2country = 
-		"""
 		ecotype_info = self.getEcotypeInfo(db)
 		chr_id2size = get_chr_id2size(db.metadata.bind)
-		strain_id_label_x_offset=0.9	#not used yet
-		snp_id_label_y_offset=0.9
+		#the two offsets below decides where the label of strains/snps should start in axe_snp_matrix
+		strain_id_label_x_offset=0.95
+		snp_id_label_y_offset=0.95
 		
-		StrainID2PCAPosInfo = self.getStrainID2PCAPosInfo(subSNPData, pca_range=[0,1])
-		SNPID2PCAPosInfo = self.getSNPID2PCAPosInfo(subSNPData, pca_range=[0,1])
+		StrainID2PCAPosInfo = self.getStrainID2PCAPosInfo(subSNPData, pca_range=[0,1], snp_id_label_y_offset=snp_id_label_y_offset)
+		SNPID2PCAPosInfo = self.getSNPID2PCAPosInfo(subSNPData, pca_range=[0,1], strain_id_label_x_offset=strain_id_label_x_offset)
 		
 		no_of_axes_drawn = 0
 		
-		axe_chromosome = pylab.axes([0.3, 0.05, 0.4, 0.2], frameon=False)
+		axe_y_offset1 = 0.01
+		axe_height1 = 0.08	#height of axe_chromosome
+		axe_y_offset2 = axe_y_offset1+axe_height1
+		axe_height2 = 0.58	#height of axe_strain_pca, axe_snp_matrix, axe_map
+		axe_y_offset3 = axe_y_offset2+axe_height2
+		axe_height3 = 0.3	#height of axe_snp_pca
+		axe_y_offset4 = axe_y_offset3+axe_height3
+		
+		axe_x_offset1 = 0.02
+		axe_width1 = 0.28	#width of axe_strain_pca
+		axe_x_offset2 = axe_x_offset1 + axe_width1
+		axe_width2 = 0.49	#width of axe_chromosome, axe_snp_matrix, axe_snp_pca
+		axe_x_offset3 = axe_x_offset2 + axe_width2
+		axe_width3 = 0.2	#width of axe_map
+		axe_x_offset4 = axe_x_offset3 + axe_width3
+		
+		axe_chromosome = pylab.axes([axe_x_offset2, axe_y_offset1, axe_width2, axe_height1], frameon=False)
 		axe_chromosome.set_xticks([])
 		axe_chromosome.set_yticks([])
 		self.drawChromosome(axe_chromosome, SNPID2PCAPosInfo, chr_id2size, chr_y_value = 0, scale_range=[0,1])
@@ -563,11 +599,11 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		no_of_axes_drawn += 1
 		#pylab.savefig('%s_%s.png'%(self.output_fname_prefix, no_of_axes_drawn), dpi=400)
 		
-		axe_strain_pca = pylab.axes([0.0, 0.25, 0.3, 0.4], frameon=False)
+		axe_strain_pca = pylab.axes([axe_x_offset1, axe_y_offset2, axe_width1, axe_height2], frameon=False)
 		axe_strain_pca.grid(True, alpha=0.3)
 		axe_strain_pca.set_xticks([])
 		axe_strain_pca.set_yticks([])
-		axe_strain_pca_legend = pylab.axes([0.1, 0.7, 0.1, 0.3], frameon=False)
+		axe_strain_pca_legend = pylab.axes([axe_x_offset1, axe_y_offset3+0.03, 0.1, axe_height3-0.03], frameon=False)
 		axe_strain_pca_legend.set_xticks([])
 		axe_strain_pca_legend.set_yticks([])
 		axe_strain_pca_xlim = [-0.05,1.05]
@@ -577,7 +613,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		no_of_axes_drawn += 1
 		#pylab.savefig('%s_%s.png'%(self.output_fname_prefix, no_of_axes_drawn), dpi=400)
 		
-		axe_snp_matrix = pylab.axes([0.3, 0.25, 0.4, 0.4], frameon=False, sharex=axe_chromosome, sharey=axe_strain_pca)
+		axe_snp_matrix = pylab.axes([axe_x_offset2, axe_y_offset2, axe_width2, axe_height2], frameon=False, sharex=axe_chromosome, sharey=axe_strain_pca)
 		axe_snp_matrix.set_xticks([])
 		axe_snp_matrix.set_yticks([])
 		self.drawSNPMtrix(axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
@@ -587,24 +623,26 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		no_of_axes_drawn += 1
 		#pylab.savefig('%s_%s.png'%(self.output_fname_prefix, no_of_axes_drawn), dpi=400)
 		
-		axe_map = pylab.axes([0.7, 0.25, 0.28, 0.4], frameon=False, sharey=axe_snp_matrix)
+		axe_map = pylab.axes([axe_x_offset3, axe_y_offset2, axe_width3, axe_height2], frameon=False, sharey=axe_snp_matrix)
 		axe_map.set_yticks([])
-		self.drawMap(axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, ecotype_info)
+		self.drawMap(axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, self.phenotype_method_id, ecotype_info)
 		no_of_axes_drawn += 1
 		axe_map.set_ylim([0,1])	#without this, ylim of all 3 axes are set to [0,0.9] because axe_map automatically adjust to 0-0.9
 		#pylab.savefig('%s_%s.png'%(self.output_fname_prefix, no_of_axes_drawn), dpi=400)
 		
-		axe_snp_pca = pylab.axes([0.3, 0.65, 0.4, 0.3], frameon=False, sharex=axe_snp_matrix)
+		axe_snp_pca = pylab.axes([axe_x_offset2, axe_y_offset3, axe_width2, axe_height3], frameon=False, sharex=axe_snp_matrix)
 		axe_snp_pca.grid(True, alpha=0.3)
 		axe_snp_pca.set_xticks([])
 		axe_snp_pca.set_yticks([])
-		axe_snp_pca_legend = pylab.axes([0.8, 0.8, 0.1, 0.15], frameon=False)
+		axe_snp_pca_legend = pylab.axes([axe_x_offset3, axe_y_offset3+0.05, 0.1, 0.15], frameon=False)
 		axe_snp_pca_legend.set_xticks([])
 		axe_snp_pca_legend.set_yticks([])
 		axe_snp_pca_ylim = [-0.05,1.05]
 		self.drawSNPPCA(axe_snp_pca, axe_snp_pca_legend, SNPID2PCAPosInfo, lowest_y_value=axe_snp_pca_ylim[0])
 		axe_snp_pca.set_ylim(axe_snp_pca_ylim)
 		
+		analysis_method = Stock_250kDB.AnalysisMethod.get(self.analysis_method_id)
+		axe_snp_pca.title.set_text('Top %s SNPs by %s. Layout by PC1(x-axis) vs PC2(y-axis)'%(self.no_of_top_hits, analysis_method.short_name))
 		png_output_fname = '%s.png'%self.output_fname_prefix
 		pylab.savefig(png_output_fname, dpi=600)
 		#pylab.savefig('%s.svg'%self.output_fname_prefix)
