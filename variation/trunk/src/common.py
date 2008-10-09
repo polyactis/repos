@@ -286,3 +286,42 @@ def get_ecotypeid2nativename(curs, ecotype_table='ecotype'):
 		ecotypeid2nativename[ecotypeid] = nativename
 	sys.stderr.write("Done.\n")
 	return ecotypeid2nativename
+
+def getEcotypeInfo(db, country_order_type=1):
+	"""
+	2008-10-08
+		add option order_by_type
+		get country2order
+		moved from PlotGroupOfSNPs.py
+		the db handle is not restricted to the stock database. could be any database on the same server.
+	2008-10-07
+	"""
+	sys.stderr.write("Getting  Ecotype info ... ")
+	import StockDB
+	from pymodule import PassingData
+	ecotype_info = PassingData()
+	if country_order_type==1:
+		order_seq_sentence = 'c.latitude, c.longitude'
+	else:
+		order_seq_sentence = 'c.longitude, c.latitude'
+	rows = db.metadata.bind.execute("select e.id, e.nativename, e.latitude, e.longitude, c.abbr, c.latitude as country_latitude,\
+		c.longitude as country_longitude \
+		from stock.%s e, stock.%s s, stock.%s a, stock.%s c where e.siteid=s.id and s.addressid=a.id and \
+		a.countryid=c.id order by %s "%(StockDB.Ecotype.table.name, \
+		StockDB.Site.table.name, StockDB.Address.table.name, StockDB.Country.table.name, order_seq_sentence))
+	ecotypeid2pos = {}
+	ecotypeid2nativename = {}
+	ecotypeid2country = {}
+	country2order = {}
+	for row in rows:
+		ecotypeid2pos[row.id] = (row.latitude, row.longitude)
+		ecotypeid2nativename[row.id] = row.nativename
+		ecotypeid2country[row.id] = row.abbr
+		if row.abbr not in country2order:
+			country2order[row.abbr] = len(country2order)
+	ecotype_info.ecotypeid2pos = ecotypeid2pos
+	ecotype_info.ecotypeid2nativename = ecotypeid2nativename
+	ecotype_info.ecotypeid2country = ecotypeid2country
+	ecotype_info.country2order = country2order
+	sys.stderr.write("Done.\n")
+	return ecotype_info
