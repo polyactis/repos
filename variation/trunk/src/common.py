@@ -23,14 +23,22 @@ from pymodule.SNP import ab2number, number2ab, NA_set, nt2number, \
 
 def get_chr_id2size(curs, chromosome_table='at.chromosome'):
 	"""
+	2008-10-07 curs could be elixirdb.metadata.bind
 	2007-10-12
 	"""
 	sys.stderr.write("Getting chr_id2size ...")
-	curs.execute("select id, size from %s"%chromosome_table)
+	rows = curs.execute("select id, size from %s"%chromosome_table)
 	chr_id2size = {}
-	rows = curs.fetchall()
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2008-10-07 curs could be elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
 	for row in rows:
-		chr_id, size = row
+		if is_elixirdb:
+			chr_id = row.id
+			size = row.size
+		else:
+			chr_id, size = row
 		chr_id2size[chr_id] = size
 	sys.stderr.write("Done.\n")
 	return chr_id2size
@@ -103,6 +111,7 @@ def get_pic_area(pos_ls, min_span=30):
 
 def get_ecotypeid2pos(curs, ecotype_table, with_data_affiliated=0):
 	"""
+	2008-10-07 curs could be elixirdb.metadata.bind
 	2007-09-18
 	2007-10-09
 		add with_data_affiliated
@@ -111,12 +120,20 @@ def get_ecotypeid2pos(curs, ecotype_table, with_data_affiliated=0):
 	sys.stderr.write("Getting ecotypeid2pos from %s ..."%ecotype_table)
 	ecotypeid2pos = {}
 	if with_data_affiliated:
-		curs.execute("select distinct e.id, e.latitude, e.longitude from %s e, calls c where e.latitude is not null and e.longitude is not null and e.id=c.ecotypeid"%ecotype_table)
+		rows = curs.execute("select distinct e.id, e.latitude, e.longitude from %s e, calls c where e.latitude is not null and e.longitude is not null and e.id=c.ecotypeid"%ecotype_table)
 	else:
-		curs.execute("select id, latitude, longitude from %s where latitude is not null and longitude is not null"%ecotype_table)
-	rows = curs.fetchall()
+		rows = curs.execute("select id, latitude, longitude from %s where latitude is not null and longitude is not null"%ecotype_table)
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2008-10-07 curs could be elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
 	for row in rows:
-		ecotypeid, latitude, longitude = row
+		if is_elixirdb:
+			ecotypeid = row.id
+			latitude = row.latitude
+			longitude = row.longitude
+		else:
+			ecotypeid, latitude, longitude = row
 		ecotypeid2pos[ecotypeid] = (latitude, longitude)
 	sys.stderr.write("Done.\n")
 	return ecotypeid2pos
@@ -249,15 +266,23 @@ def map_accession_id2ecotype_id(curs, accession2ecotype_table='at.ecotype2access
 
 def get_ecotypeid2nativename(curs, ecotype_table='ecotype'):
 	"""
+	2008-10-07 curs could be elixirdb.metadata.bind
 	2008-04-04
 	
 	"""
 	sys.stderr.write("Getting ecotypeid2nativename ...")
 	ecotypeid2nativename = {}
-	curs.execute("select id, nativename from %s"%(ecotype_table))
-	rows = curs.fetchall()
+	rows = curs.execute("select id, nativename from %s"%(ecotype_table))
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2008-10-07 curs could be elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
 	for row in rows:
-		ecotypeid, nativename = row
+		if is_elixirdb:
+			ecotypeid = row.id
+			nativename = row.nativename
+		else:
+			ecotypeid, nativename = row
 		ecotypeid2nativename[ecotypeid] = nativename
 	sys.stderr.write("Done.\n")
 	return ecotypeid2nativename
