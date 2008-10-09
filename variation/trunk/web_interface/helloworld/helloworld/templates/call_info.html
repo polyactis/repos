@@ -1,0 +1,37 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">Call Info</%def>
+
+<p> ${len(c.call_info_ls)} Genotype Calls In Total.</p>
+
+<table border=1>
+
+<tr>
+<th>No.</th>
+<th>Call Info ID</th>
+<th>Ecotype ID</th>
+<th>Nativename</th>
+<th>Stockparent</th>
+<th>Call Method ID</th>
+<th>Filename</th>
+<th>Array ID</th>
+<th>Original Array Filename</th>
+
+</tr>
+% for call_info in c.call_info_ls:
+<tr>
+<td>${call_info.no}</td>
+<td>${call_info.call_info_id}</td>
+<td>${call_info.ecotype_id}</td>
+<td>${call_info.nativename.decode('utf-8', 'ignore')}</td>
+<td>${call_info.stockparent}</td>
+<td>${call_info.call_method_id}</td>
+<td>${call_info.filename}</td>
+<td>${call_info.array_id}</td>
+<td>${call_info.original_filename}</td>
+
+</tr>
+% endfor
+
+
+</table>

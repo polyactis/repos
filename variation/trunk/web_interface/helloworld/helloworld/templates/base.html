@@ -1,0 +1,15 @@
+<%!
+	import datetime
+%>
+
+<html>
+    <head>
+        <title>${self.title()}</title>
+    </head>
+    <body>
+        ${self.body()}
+        <div class="footer">
+            <p>Data presented from Database Stock_250kDB in <a href=http://papaya.usc.edu/>Nordborg Lab</a>. Page generated at ${str(datetime.datetime.now())}.</p>
+        </div>
+    </body>
+</html>

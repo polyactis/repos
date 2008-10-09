@@ -1,0 +1,34 @@
+<%inherit file="/base.html"/>
+<%def name="title()">Plot for SNPs at chr ${c.snp_region_plot.chromosome}. ${c.snp_region_plot.start}-${c.snp_region_plot.stop}. Phenotype ${c.snp_region_plot.phenotype_method.short_name} (id=${c.snp_region_plot.phenotype_method_id})</%def>
+
+<a href=${h.url_for(controller='SNPRegionPlot', action='getImage', id=c.snp_region_plot.id)}><img width="1280" src='/SNPRegionPlot/getImage/${c.snp_region_plot.id}'></a>
+
+
+<table border=1>
+
+<tr>
+<th>Gene ID</th>
+<th>Symbol</th>
+<th>Type of Gene</th>
+<th>Chr</th>
+<th>Start</th>
+<th>Stop</th>
+<th>Protein Label</th>
+<th>Protein Comment</th>
+<th>Protein Text</th>
+</tr>
+% for gene_desc_ls in c.matrix_of_gene_descriptions:
+<tr>
+<td><a href=http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=search&db=gene&term=${gene_desc_ls[0]}[uid]>${gene_desc_ls[0]}</a></td>
+<td>${gene_desc_ls[1]}</td>
+<td>${gene_desc_ls[2]}</td>
+<td>${gene_desc_ls[3]}</td>
+<td>${gene_desc_ls[4]}</td>
+<td>${gene_desc_ls[5]}</td>
+<td>${gene_desc_ls[6]}</td>
+<td>${gene_desc_ls[7]}</td>
+</tr>
+% endfor
+
+
+</table>

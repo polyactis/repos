@@ -1,0 +1,31 @@
+<%
+    items = [
+        ('James', 'http://jimmyg.org'),
+        ('Ben', 'http://groovie.org'),
+        ('Philip', ''),
+    ]
+%>
+
+${navigation_links('James', items)}
+
+<%def name="navigation_links(selected, links)">
+    <%def name="link(label, url)">
+        % if url:
+            <a href="${url}">${label}</a>
+        % else:
+            ${label}
+        % endif
+    </%def>
+
+    <ul>
+    % for item in links:
+        <li>\
+    % if item[0] == selected:
+        <b>${link(item[0], item[1])}</b>\
+    % else:
+        ${link(item[0], item[1])}\
+    % endif
+        </li>
+    % endfor
+    </ul>
+</%def>
