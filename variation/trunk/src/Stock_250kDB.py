@@ -233,11 +233,15 @@ class Results(Entity):
 
 class CandidateGeneRankSumTestResult(Entity):
 	"""
+	2008-10-09
+		add test_type = Field(Integer) to conform to CandidateGeneRankSumTestResultMethod
+		rename results_by_gene to result
+		rename results_by_gene_id to results_id
 	2008-09-16
 		table linked to results_by_gene, not results_method
 	2008-07-17
 	"""
-	results_by_gene = ManyToOne('ResultsByGene', colname='results_by_gene_id', ondelete='CASCADE', onupdate='CASCADE')
+	result = ManyToOne('ResultsByGene', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	statistic = Field(Float)
 	pvalue = Field(Float)
@@ -247,6 +251,7 @@ class CandidateGeneRankSumTestResult(Entity):
 	max_pvalue_per_gene = Field(Integer)
 	candidate_sample_size = Field(Integer)
 	non_candidate_sample_size = Field(Integer)
+	test_type = Field(Integer)
 	comment = Field(Text)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
@@ -255,6 +260,33 @@ class CandidateGeneRankSumTestResult(Entity):
 	using_options(tablename='candidate_gene_rank_sum_test_result', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	#using_table_options(UniqueConstraint('results_method_id', 'list_type_id'))
+
+class CandidateGeneRankSumTestResultMethod(Entity):
+	"""
+	2008-10-09
+		similar CandidateGeneRankSumTestResult linked to results_method
+
+	"""
+	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	statistic = Field(Float)
+	pvalue = Field(Float)
+	min_distance = Field(Integer)
+	get_closest = Field(Integer)
+	min_MAF = Field(Float)
+	max_pvalue_per_gene = Field(Integer)
+	candidate_sample_size = Field(Integer)
+	non_candidate_sample_size = Field(Integer)
+	test_type = Field(Integer)
+	comment = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_gene_rank_sum_test_rm', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	#using_table_options(UniqueConstraint('results_id', 'list_type_id'))
+
 
 class ResultsByGene(Entity):
 	"""
