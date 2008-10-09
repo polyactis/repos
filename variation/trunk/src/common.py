@@ -154,7 +154,7 @@ def draw_graph_on_map(g, node2weight, node2pos, pic_title,  pic_area=[-130,10,14
 	fig = pylab.figure()
 	fig.add_axes([0.05,0.05,0.9,0.9])	#[left, bottom, width, height]
 	m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
-	resolution='l',projection='mill')
+	resolution='l',projection='mill', ax=pylab.gca())
 	
 	sys.stderr.write("\tDrawing nodes ...")
 	euc_coord1_ls = []
@@ -290,10 +290,16 @@ def get_ecotypeid2nativename(curs, ecotype_table='ecotype'):
 def getEcotypeInfo(db, country_order_type=1):
 	"""
 	2008-10-08
+		use ecotype_id2ecotype_obj to summarize
+			ecotypeid2pos
+			ecotypeid2nativename
+			ecotypeid2country
+	2008-10-08
 		add option order_by_type
 		get country2order
 		moved from PlotGroupOfSNPs.py
 		the db handle is not restricted to the stock database. could be any database on the same server.
+		BUT StockDB has to be imported in the program where db connection is established just so that StockDB.Ecotype.table is setup while StockDB.Ecotype.table.metadata is None.
 	2008-10-07
 	"""
 	sys.stderr.write("Getting  Ecotype info ... ")
@@ -304,24 +310,21 @@ def getEcotypeInfo(db, country_order_type=1):
 		order_seq_sentence = 'c.latitude, c.longitude'
 	else:
 		order_seq_sentence = 'c.longitude, c.latitude'
-	rows = db.metadata.bind.execute("select e.id, e.nativename, e.latitude, e.longitude, c.abbr, c.latitude as country_latitude,\
+	rows = db.metadata.bind.execute("select e.id as ecotype_id, e.nativename, e.latitude, e.longitude, c.abbr as country, c.latitude as country_latitude,\
 		c.longitude as country_longitude \
 		from stock.%s e, stock.%s s, stock.%s a, stock.%s c where e.siteid=s.id and s.addressid=a.id and \
 		a.countryid=c.id order by %s "%(StockDB.Ecotype.table.name, \
 		StockDB.Site.table.name, StockDB.Address.table.name, StockDB.Country.table.name, order_seq_sentence))
-	ecotypeid2pos = {}
-	ecotypeid2nativename = {}
-	ecotypeid2country = {}
+	ecotype_id2ecotype_obj = {}
 	country2order = {}
 	for row in rows:
-		ecotypeid2pos[row.id] = (row.latitude, row.longitude)
-		ecotypeid2nativename[row.id] = row.nativename
-		ecotypeid2country[row.id] = row.abbr
-		if row.abbr not in country2order:
-			country2order[row.abbr] = len(country2order)
-	ecotype_info.ecotypeid2pos = ecotypeid2pos
-	ecotype_info.ecotypeid2nativename = ecotypeid2nativename
-	ecotype_info.ecotypeid2country = ecotypeid2country
+		ecotype_obj = PassingData()
+		for key,value in row.items():	#not iteritems() for RowProxy object
+			setattr(ecotype_obj, key, value)
+		ecotype_id2ecotype_obj[row.ecotype_id] = ecotype_obj
+		if row.country not in country2order:
+			country2order[row.country] = len(country2order)
+	ecotype_info.ecotype_id2ecotype_obj = ecotype_id2ecotype_obj
 	ecotype_info.country2order = country2order
 	sys.stderr.write("Done.\n")
 	return ecotype_info
