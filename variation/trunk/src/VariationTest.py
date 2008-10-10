@@ -9,8 +9,10 @@ Option:
 Examples:
 	VariationTest.py -y 2
 
-2007-03-08 1:TestTrioInference
-2007-04-17 2:Test_find_smallest_vertex_set_to_remove_all_edges
+2007-03-08 1: TestTrioInference
+2007-04-17 2: Test_find_smallest_vertex_set_to_remove_all_edges
+2008-10-08 3: TestFetchSNPRegionPlot
+2008-10-08 4: TestGetEcotypeInfo
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -69,6 +71,58 @@ class Test_find_smallest_vertex_set_to_remove_all_edges(unittest.TestCase):
 		print 'vertex_list_to_be_deleted'
 		print vertex_list_to_be_deleted
 
+class TestFetchSNPRegionPlot(unittest.TestCase):
+	"""
+	2008-10-08
+		to test whether able to restore binary data encoded in text database type back into binary file.
+	"""
+	def setUp(self):
+		print
+	
+	def test_fetchOneImageOut(self):
+		import Stock_250kDB
+		hostname='papaya.usc.edu'
+		dbname='stock_250k'
+		db_user='yh'
+		db_passwd = ''
+		drivername='mysql'
+		schema = None
+		db = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user,
+						password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+		db.setup(create_tables=False)
+		snp_region_plot = Stock_250kDB.SNPRegionPlot.get(1)
+		import base64
+		outf = open('/tmp/snp_region_plot_1.png', 'wb')
+		outf.write(base64.b64decode(snp_region_plot.img_data))
+		outf.close()
+
+class TestGetEcotypeInfo(unittest.TestCase):
+	"""
+	2008-10-08
+		to test what are the properties of (rows = db.metadata.bind.execute())
+	"""
+	def setUp(self):
+		print
+	
+	def test_getEcotypeInfo(self):
+		from common import getEcotypeInfo
+		import StockDB, Stock_250kDB	#StockDB has to be setup otherwise, StockDB.Ecotype.table is None in getEcotypeInfo()
+		hostname='papaya.usc.edu'
+		dbname='stock_250k'
+		db_user='yh'
+		db_passwd = ''
+		drivername='mysql'
+		schema = None
+		db = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user,
+						password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+		#doesn't matter which database to connect as far as StockDB is imported
+		#db = StockDB.StockDB(drivername=drivername, username=db_user,
+		#				password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+		db.setup(create_tables=False)
+		import pdb
+		pdb.set_trace()
+		getEcotypeInfo(db)
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -82,7 +136,9 @@ if __name__ == '__main__':
 		sys.exit(2)
 	
 	TestCaseDict = {1:TestTrioInference,
-		2:Test_find_smallest_vertex_set_to_remove_all_edges}
+		2:Test_find_smallest_vertex_set_to_remove_all_edges,
+		3:TestFetchSNPRegionPlot,
+		4:TestGetEcotypeInfo}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -95,7 +151,14 @@ if __name__ == '__main__':
 		suite = unittest.TestSuite()
 		suite.addTest(unittest.makeSuite(TestCaseDict[type]))
 		unittest.TextTestRunner(verbosity=2).run(suite)
-
+		
+		"""
+		#try to find a fancy to pass options to test class, not yet
+		from pymodule import ProcessOptions
+		main_class = TestCaseDict[type]
+		po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+		instance = main_class(**po.long_option2value)
+		"""
 	else:
 		print __doc__
 		sys.exit(2)		
