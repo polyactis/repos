@@ -29,13 +29,16 @@ def assignMatPlotlibHueColorToLs(name_ls, debug=0):
 		sys.stderr.write("Done.\n")
 	return name2fc
 
-def drawName2FCLegend(ax, name_ls, name2fc=None, shape_type=1, no_face_color=False, no_edge_color=False, font_size=4, alpha=1):
+def drawName2FCLegend(ax, name_ls, name2fc=None, shape_type=1, no_face_color=False, no_edge_color=False, title=None, font_size=4, alpha=1):
 	"""
+	2008-10-08
+		add option title and linewidth
 	2008-10-07
 		draw a legend according to name_ls and colors according to name2fc.
 		the shape of the legend is symmetric. It's either circle or square.
 	"""
 	sys.stderr.write("Drawing name2fc legend  ...")
+	import matplotlib
 	from matplotlib.patches import Polygon, Circle, Ellipse, Wedge
 	import numpy
 	
@@ -54,21 +57,27 @@ def drawName2FCLegend(ax, name_ls, name2fc=None, shape_type=1, no_face_color=Fal
 		fc = name2fc[name]
 		facecolor = fc
 		edgecolor = fc
+		
 		if no_face_color:
 			facecolor='w'
 		if no_edge_color:
 			edgecolor='w'
+			linewidth = 0
+		else:
+			linewidth = matplotlib.rcParams['patch.linewidth']
 		if shape_type==1:
-			patch = Circle((center_x_pos, center_y_pos), radius=radius, facecolor=facecolor, edgecolor=edgecolor, alpha=alpha)
+			patch = Circle((center_x_pos, center_y_pos), radius=radius, linewidth=linewidth, facecolor=facecolor, edgecolor=edgecolor, alpha=alpha)
 			center_y_pos += value_step
 		elif shape_type==2:
-			patch = Polygon(zip(xs, ys), facecolor=facecolor, edgecolor=edgecolor, alpha=alpha)
+			patch = Polygon(zip(xs, ys), linewidth=linewidth, facecolor=facecolor, edgecolor=edgecolor, alpha=alpha)
 			ys += value_step	#increase y-axis
 		else:
-			patch = Circle((center_x_pos, center_y_pos), radius=radius, facecolor=facecolor, edgecolor=edgecolor, alpha=alpha)
+			patch = Circle((center_x_pos, center_y_pos), radius=radius, linewidth=linewidth, facecolor=facecolor, edgecolor=edgecolor, alpha=alpha)
 			center_y_pos += value_step
 		ax.add_patch(patch)
 		ax.text(0.75, center_y_pos-value_step, name, horizontalalignment ='left', verticalalignment='center', size=font_size)
+	if title:
+		ax.set_title(title, fontsize=font_size)
 	sys.stderr.write("Done.\n")
 
 if __name__ == '__main__':
