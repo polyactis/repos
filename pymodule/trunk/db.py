@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import sqlalchemy, threading
 from sqlalchemy.engine.url import URL
-from sqlalchemy import Table
+from sqlalchemy import Table, create_engine
 from sqlalchemy.orm import mapper, relation
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -193,13 +193,31 @@ class ElixirDB(object):
 		from pymodule import ProcessOptions
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
-		from elixir import setup_all, metadata, entities
+		self.setup_engine()
+		
+	def setup_engine(self, metadata=None, session=None, entities=[]):
+		"""
+		2008-10-09
+			a common theme for all other databases
+		"""
+		from elixir.options import using_table_options_handler
 		if getattr(self, 'schema', None):	#for postgres
 			for entity in entities:
-				using_table_options_handler(entity, schema=self.schema)
-		
-		metadata.bind = self._url
-		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
+				if entity.__module__==self.__module__:	#entity in the same module
+					using_table_options_handler(entity, schema=self.schema)
+		#2008-10-05 MySQL typically close connections after 8 hours resulting in a "MySQL server has gone away" error.
+		metadata.bind = create_engine(self._url, pool_recycle=self.pool_recycle)
+		self.metadata = metadata
+		self.session = session
+	
+	def setup(self, create_tables=True):
+		"""
+		2008-10-09
+			add option create_tables
+		2008-08-26
+		"""
+		from elixir import setup_all
+		setup_all(create_tables=create_tables)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 	
 	def _url(self):
 		return URL(drivername=self.drivername, username=self.username,
