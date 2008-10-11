@@ -24,15 +24,16 @@ import Numeric, cPickle
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
 from pymodule import PassingData, getListOutOfStr
-from GeneListRankTest import GeneListRankTest
-from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, CandidateGeneRankSumTestResult, ResultsByGene
+from GeneListRankTest import GeneListRankTest, SnpsContextWrapper
+from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
+	CandidateGeneRankSumTestResult, ResultsByGene, CandidateGeneRankSumTestResultMethod
 from sets import Set
 
 
 class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = GeneListRankTest.option_default_dict.copy()
-	option_default_dict.update({('message_size', 1, int):[200, 's', 1, 'How many results one computing node should handle.']})
+	option_default_dict.update({('message_size', 1, int):[200, 'q', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'j', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
 	option_default_dict.update({("list_type_id_ls", 0, ): [None, 'l', 1, 'comma/dash-separated list of gene list type ids. ids not present in db will be filtered out. Each id has to encompass>=10 genes.']})
@@ -45,6 +46,9 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	
 	def generate_params(self, param_obj, min_no_of_genes=10):
 		"""
+		2008-10-10
+			depends on results_type, decide which ( ResultsMethod or ResultsByGene) to get data
+			also which (CandidateGeneRankSumTestResult or CandidateGeneRankSumTestResultMethod) to store results
 		2008-09-26
 			deal with the situation that list_type_id_ls is given.
 		2008-09-16
@@ -63,11 +67,18 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		sys.stderr.write("Generating parameters ...")
 		i = 0
 		block_size = 5000
-		query = ResultsByGene.query
-		if param_obj.call_method_id!=0:
-			query = query.filter(ResultsByGene.results_method.has(call_method_id=param_obj.call_method_id))
-		if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
-			query = query.filter(ResultsByGene.results_method.has(analysis_method_id=param_obj.analysis_method_id))
+		if param_obj.results_type==1:
+			query = ResultsMethod.query
+			if param_obj.call_method_id!=0:
+				query = query.filter_by(call_method_id=param_obj.call_method_id)
+			if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
+				query = query.filter_by(analysis_method_id=param_obj.analysis_method_id)
+		elif param_obj.results_type==2:
+			query = ResultsByGene.query
+			if param_obj.call_method_id!=0:
+				query = query.filter(ResultsByGene.results_method.has(call_method_id=param_obj.call_method_id))
+			if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
+				query = query.filter(ResultsByGene.results_method.has(analysis_method_id=param_obj.analysis_method_id))
 		rows = query.offset(i).limit(block_size)
 		results_method_id_ls = []
 		while rows.count()!=0:
@@ -134,7 +145,7 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 			sys.stderr.write("Fetching done.\n")
 		return data_to_return
 	
-	def computing_node_handler(self, communicator, data, computing_parameter_obj):
+	def computing_node_handler(self, communicator, data, param_obj):
 		"""
 		2008-08-20
 			wrap all parameters into pd and pass it to run_wilcox_test
@@ -145,10 +156,12 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
 		result_ls = []
-		pd = PassingData(snps_context_wrapper=None,\
-							results_directory=computing_parameter_obj.results_directory,\
-							min_MAF=computing_parameter_obj.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance, \
-							min_sample_size=self.min_sample_size)
+		pd = PassingData(snps_context_wrapper=param_obj.snps_context_wrapper,\
+							results_directory=param_obj.results_directory,\
+							min_MAF=param_obj.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance, \
+							min_sample_size=self.min_sample_size, test_type=self.test_type, \
+							results_type=self.results_type, no_of_permutations=self.no_of_permutations,\
+							no_of_min_breaks=self.no_of_min_breaks)
 		for results_method_id, list_type_id in data:
 			pd.results_id = results_method_id
 			pd.list_type_id = list_type_id
@@ -167,12 +180,12 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		05/12/2008
 			common_var_name_ls
 		"""
-		writer, session, commit = parameter_list
+		writer, session, commit, RankTestResultClass= parameter_list
 		table_obj_ls = cPickle.loads(data)
 		for table_obj in table_obj_ls:
 			row = []
 			
-			candidate_gene_rank_sum_test_result = CandidateGeneRankSumTestResult()
+			candidate_gene_rank_sum_test_result = RankTestResultClass()
 			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
 			#can't save table_obj because it's associated with a different db thread
 			for column in table_obj.c.keys():
@@ -198,14 +211,24 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		db.setup(create_tables=False)
 		session = db.session
 		
+		if self.results_type==1:
+			ResultsClass = ResultsMethod
+			RankTestResultClass = CandidateGeneRankSumTestResultMethod
+		elif self.results_type==2:
+			ResultsClass = ResultsByGene
+			RankTestResultClass = CandidateGeneRankSumTestResult
+		else:
+			sys.stderr.write("Error: Invalid results type : %s.\n"%pd.results_type)
+			
 		if node_rank == 0:
 			#snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
+			snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id, \
-								list_type_id_ls=self.list_type_id_ls)
+								list_type_id_ls=self.list_type_id_ls, results_type=self.results_type)
 			params_ls = self.generate_params(param_obj)
 			if self.debug:
 				params_ls = params_ls[:100]
-			"""
+			
 			snps_context_wrapper_pickle = cPickle.dumps(snps_context_wrapper, -1)
 			for node in free_computing_nodes:	#send it to the computing_node
 				sys.stderr.write("passing initial data to nodes from %s to %s ... "%(node_rank, node))
@@ -213,15 +236,13 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 				sys.stderr.write(".\n")
 			del snps_context_wrapper_pickle
 			del snps_context_wrapper
-			"""
-		elif node_rank in free_computing_node_set:
-			pass
-			"""
+			
+		elif node_rank in free_computing_node_set:			
 			data, source, tag = self.communicator.receiveString(0, 0)
 			snps_context_wrapper =  cPickle.loads(data)
 			del data
 			sys.stderr.write(".\n")
-			"""
+			
 		else:
 			pass
 		
@@ -230,20 +251,20 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 			parameter_list = [params_ls]
 			self.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
 		elif node_rank in free_computing_node_set:
-			computing_parameter_obj = PassingData(snps_context_wrapper=None, \
+			computing_parameter_obj = PassingData(snps_context_wrapper=snps_context_wrapper, \
 												results_directory=self.results_directory, min_MAF=self.min_MAF)
 			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			if getattr(self, 'output_fname', None):
 				writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
 				header_row = []
-				for column in CandidateGeneRankSumTestResult.c.keys():
+				for column in RankTestResultClass.c.keys():
 					header_row.append(column)
 				writer.writerow(header_row)
 			else:
 				writer = None
 			
-			parameter_list = [writer, session, self.commit]
+			parameter_list = [writer, session, self.commit, RankTestResultClass]
 			self.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
 			del writer		
 		self.synchronize()	#to avoid some node early exits
