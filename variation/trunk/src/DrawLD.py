@@ -50,6 +50,7 @@ class DrawLD(DrawSNPRegion):
 							('chr2', 0, int): [1, 'a', 1, 'chromsome 2 (column)', ],\
 							('start2', 0, int): [1, 's', 1, 'start position of chromsome 2 (column)', ],\
 							('stop2', 0, int): [100000, 't', 1, 'stop position of chromsome 2 (column)', ],\
+							('min_gap', 0, int): [100000, '', 1, 'two loci have to be this apart to be drawn LD', ],\
 							("output_fname_prefix", 1, ): [None, 'o', 1, 'image filename prefix'],\
 							("which_LD_statistic", 1, int): [2, 'w', 1, 'which LD_statistic to plot, 1=r2, 2=|D_prime|, 3=|D|'],\
 							('debug', 0, int):[0, 'b', 1, 'debug mode. 1=level 1 (pdb mode). 2=level 2 (same as 1 except no pdb mode)'],\
@@ -57,6 +58,8 @@ class DrawLD(DrawSNPRegion):
 	
 	def __init__(self,  **keywords):
 		"""
+		2008-10-10
+			add option min_gap to draw LD between loci at least this apart
 		2008-09-24
 		"""
 		from pymodule import ProcessOptions
@@ -89,7 +92,7 @@ class DrawLD(DrawSNPRegion):
 		poly = Polygon(zip(xs, ys), facecolor=facecolor, linewidth=0)
 		axe_LD.add_patch(poly)
 	
-	def drawLD(self, axe_LD, LD_fname, row_snp_region, col_snp_region, min_MAF, which_LD_statistic):
+	def drawLD(self, axe_LD, LD_fname, row_snp_region, col_snp_region, min_MAF, which_LD_statistic, min_gap=100000):
 		"""
 		2008-10-03
 		"""
@@ -109,14 +112,16 @@ class DrawLD(DrawSNPRegion):
 			if allele1_freq>=min_MAF and allele2_freq>=min_MAF:	#meet the minimum minor-allele-frequency
 				LD_stat = float(row[col_name2index[LD_statistic.get_name(which_LD_statistic)]])
 				LD_stat = abs(LD_stat)
-				#D_prime = float(row[col_name2index['D_prime']])
-				#D = float(row[col_name2index['D']])
 				fc = self.r2ToRGBColor(LD_stat)
 				if snp1 in row_snp_region.chr_pos2adjacent_window and snp2 in col_snp_region.chr_pos2adjacent_window:
+					if snp1[0]==snp2[0] and abs(snp1[1]-snp2[1])<=min_gap:	#too close, ignore
+						continue
 					self.addOnePolygon(axe_LD, row_snp_region.chr_pos2adjacent_window[snp1], col_snp_region.chr_pos2adjacent_window[snp2], \
 									fc, xylim_data)
 					real_counter += 1
 				if snp2 in row_snp_region.chr_pos2adjacent_window and snp1 in col_snp_region.chr_pos2adjacent_window:
+					if snp1[0]==snp2[0] and abs(snp1[1]-snp2[1])<=min_gap:	#too close, ignore
+						continue
 					self.addOnePolygon(axe_LD, row_snp_region.chr_pos2adjacent_window[snp2], col_snp_region.chr_pos2adjacent_window[snp1], \
 									fc, xylim_data)
 					real_counter += 1
@@ -141,7 +146,7 @@ class DrawLD(DrawSNPRegion):
 		axe_LD.title.set_text('LD chr%s(%s-%s) vs chr%s(%s-%s)'%(self.chr1, self.start1, self.stop1, self.chr2, self.start2, self.stop2))
 		axe_LD.set_ylabel('chromosome %s'%self.chr1)
 		axe_LD.set_xlabel('chromosome %s'%self.chr2)
-		xylim_data = self.drawLD(axe_LD, self.LD_fname, row_snp_region, col_snp_region, self.min_MAF, self.which_LD_statistic)
+		xylim_data = self.drawLD(axe_LD, self.LD_fname, row_snp_region, col_snp_region, self.min_MAF, self.which_LD_statistic, self.min_gap)
 		axe_LD.set_xlim(xylim_data.xlim)
 		axe_LD.set_ylim(xylim_data.ylim)
 		
