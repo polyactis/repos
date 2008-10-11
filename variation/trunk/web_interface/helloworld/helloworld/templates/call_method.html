@@ -1,0 +1,39 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">Call Methods</%def>
+
+<p> ${len(c.call_methods)} different types of calls (by different methods or at different stages in QC) in total.</p>
+
+<table border=1>
+
+<tr>
+<th>ID</th>
+<th>Short Name</th>
+<th>No of arrays</th>
+<th>Method Description</th>
+<th>Data Description</th>
+<th>Comment</th>
+<th>Created By</th>
+<th>Updated By</th>
+<th>Date Created</th>
+<th>Date Updated</th>
+
+</tr>
+% for call_method in c.call_methods:
+<tr>
+<td><a href=${h.url_for(controller='CallInfo', action='call_method', id=call_method.id)}>${call_method.id}</a></td>
+<td>${call_method.short_name}</td>
+<td>${len(call_method.call_info_ls)}</td>
+<td>${call_method.method_description}</td>
+<td>${call_method.data_description}</td>
+<td>${call_method.comment}</td>
+<td>${call_method.created_by}</td>
+<td>${call_method.updated_by}</td>
+<td>${call_method.date_created}</td>
+<td>${call_method.date_updated}</td>
+
+</tr>
+% endfor
+
+
+</table>
