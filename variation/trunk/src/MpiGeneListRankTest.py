@@ -180,20 +180,20 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		05/12/2008
 			common_var_name_ls
 		"""
-		writer, session, commit, RankTestResultClass= parameter_list
+		writer, session, commit, TestResultClass= parameter_list
 		table_obj_ls = cPickle.loads(data)
 		for table_obj in table_obj_ls:
 			row = []
 			
-			candidate_gene_rank_sum_test_result = RankTestResultClass()
+			result = TestResultClass()
 			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
 			#can't save table_obj because it's associated with a different db thread
 			for column in table_obj.c.keys():
 				row.append(getattr(table_obj, column))
-				setattr(candidate_gene_rank_sum_test_result, column, getattr(table_obj, column))
+				setattr(result, column, getattr(table_obj, column))
 			if writer:
 				writer.writerow(row)
-			session.save(candidate_gene_rank_sum_test_result)
+			session.save(result)
 			if commit:
 				session.flush()
 	
@@ -213,10 +213,10 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		
 		if self.results_type==1:
 			ResultsClass = ResultsMethod
-			RankTestResultClass = CandidateGeneRankSumTestResultMethod
+			TestResultClass = CandidateGeneRankSumTestResultMethod
 		elif self.results_type==2:
 			ResultsClass = ResultsByGene
-			RankTestResultClass = CandidateGeneRankSumTestResult
+			TestResultClass = CandidateGeneRankSumTestResult
 		else:
 			sys.stderr.write("Error: Invalid results type : %s.\n"%pd.results_type)
 			
@@ -258,13 +258,13 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 			if getattr(self, 'output_fname', None):
 				writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
 				header_row = []
-				for column in RankTestResultClass.c.keys():
+				for column in TestResultClass.c.keys():
 					header_row.append(column)
 				writer.writerow(header_row)
 			else:
 				writer = None
 			
-			parameter_list = [writer, session, self.commit, RankTestResultClass]
+			parameter_list = [writer, session, self.commit, TestResultClass]
 			self.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
 			del writer		
 		self.synchronize()	#to avoid some node early exits
