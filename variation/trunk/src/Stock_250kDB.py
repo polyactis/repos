@@ -157,6 +157,7 @@ class CallMethod(Entity):
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
 	comment = Field(String(8000))
+	call_info_ls = OneToMany("CallInfo")
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -257,7 +258,7 @@ class CandidateGeneRankSumTestResult(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='candidate_gene_rank_sum_test_result', metadata=__metadata__, session=__session__)
+	using_options(tablename='candidate_gene_rank_sum_test_rbg', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	#using_table_options(UniqueConstraint('results_method_id', 'list_type_id'))
 
@@ -285,7 +286,7 @@ class CandidateGeneRankSumTestResultMethod(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_rank_sum_test_rm', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	#using_table_options(UniqueConstraint('results_id', 'list_type_id'))
+	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'min_distance', 'get_closest', 'min_MAF', 'test_type'))
 
 
 class ResultsByGene(Entity):
@@ -471,19 +472,25 @@ class Probes(Entity):
 
 class CandidateGeneTopSNPTest(Entity):
 	"""
+	2008-10-15
+		add candidate_sample_size, non_candidate_sample_size, starting_rank, test_type to be compatible with CandidateGeneTopSNPTestRM
 	2008-09-16
 		table linked to results_by_gene, not results_method
 	2008-08-20
 	"""
-	results_by_gene = ManyToOne('ResultsByGene', colname='results_by_gene_id', ondelete='CASCADE', onupdate='CASCADE')
+	result = ManyToOne('ResultsByGene', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	pvalue = Field(Float)
 	min_distance = Field(Integer)
 	get_closest = Field(Integer)
 	min_MAF = Field(Float)
+	candidate_sample_size = Field(Integer)
+	non_candidate_sample_size = Field(Integer)
 	no_of_top_candidate_genes = Field(Integer)
 	no_of_top_genes = Field(Integer)
 	no_of_top_snps = Field(Integer)
+	starting_rank = Field(Integer)
+	test_type = Field(Integer)
 	comment = Field(Text)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
@@ -492,6 +499,33 @@ class CandidateGeneTopSNPTest(Entity):
 	using_options(tablename='candidate_gene_top_snp_test', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
+
+class CandidateGeneTopSNPTestRM(Entity):
+	"""
+	2008-10-15
+		similar to CandidateGeneTopSNPTest but stores test results from ResultsMethod
+	"""
+	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	pvalue = Field(Float)
+	min_distance = Field(Integer)
+	get_closest = Field(Integer)
+	min_MAF = Field(Float)
+	candidate_sample_size = Field(Integer)
+	non_candidate_sample_size = Field(Integer)
+	no_of_top_candidate_genes = Field(Integer)
+	no_of_top_genes = Field(Integer)
+	no_of_top_snps = Field(Integer)
+	starting_rank = Field(Integer)
+	test_type = Field(Integer)
+	comment = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_gene_top_snp_test_rm', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	
 class SNPRegionPlotType(Entity):
 	"""
 	2008-10-06
