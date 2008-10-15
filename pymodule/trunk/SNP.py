@@ -953,7 +953,16 @@ class GenomeWideResult(TableClass):
 		if self.argsort_data_obj_ls is None:
 			self.argsort_data_obj_ls = num.argsort(self.data_obj_ls)	#sort in ascending order
 		return self.data_obj_ls[self.argsort_data_obj_ls[-rank]]	#value bigger, rank smaller
-
+	
+	def get_data_obj_index_given_rank(self, rank):
+		"""
+		2008-10-15
+			similar to get_data_obj_at_given_rank() but instead of returning data_obj, it returns the index of data_obj in self.data_obj_ls
+		"""
+		if self.argsort_data_obj_ls is None:
+			self.argsort_data_obj_ls = num.argsort(self.data_obj_ls)	#sort in ascending order
+		return self.argsort_data_obj_ls[-rank]	#value bigger, rank smaller
+	
 class DataObject(TableClass):
 	chromosome = None
 	position = None
