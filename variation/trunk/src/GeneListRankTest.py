@@ -12,6 +12,14 @@ Examples:
 	#
 	GeneListRankTest.py -e 389 -l1 -u yh -j1 -y2 -s ./mnt2/panfs/250k/snps_context_g0_m20000  -p yh324 -b
 Description:
+	2008-10-11
+		test_type=4,5,6 is same as test_type=1,2,3 but allow one SNP to be assigned to both candidate and non-candidate gene group
+	
+	2008-10-09 the permutation rank sum test (test_type=2,3) preserves the order of SNPs within each chromosome
+		1. shuffle chromosome order(not for test_type=3) and put all SNPs into a list in order
+		2. shift all SNPs in that list by a random number
+		3. get rank sums of scores from fixed candidate gene SNP indices that
+	
 	2008-07-14 program to do pvalue rank test based on a given candidate gene list.
 	
 	It verifies against the db several things:
@@ -19,10 +27,6 @@ Description:
 	2. whether results_method_type_id is 1 (association)
 	3. whether the same (results_id, list_type_id) pair has been in the candidate_gene_rank_sum_test_result table.
 	
-	2008-10-09 the permutation rank sum test (test_type=2,3) preserves the order of SNPs within each chromosome
-		1. shuffle chromosome order(not for test_type=3) and put all SNPs into a list in order
-		2. shift all SNPs in that list by a random number
-		3. get rank sums of scores from fixed candidate gene SNP indices that 
 """
 
 import sys, os, math
@@ -119,13 +123,13 @@ class GeneListRankTest(object):
 							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
 							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it. Deprecated.'],\
 							("results_type", 1, int): [1, 'w', 1, 'which type of results. 1; ResultsMethod, 2: ResultsByGene'],\
-							("test_type", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept'],\
-							("no_of_permutations", 1, int): [10000, '', 1, 'no of permutations to carry out'],\
-							("no_of_min_breaks", 1, int): [25, 'f', 1, 'no of minimum times that rank_sum_stat_perm>=rank_sum_stat to break away.'],\
+							("test_type", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping.'],\
+							("no_of_permutations", 1, int): [20000, '', 1, 'no of permutations to carry out'],\
+							("no_of_min_breaks", 1, int): [30, 'f', 1, 'no of minimum times that rank_sum_stat_perm>=rank_sum_stat to break away. if 0, no breaking'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
-	
+	#("allow_two_sample_overlapping", 1, int): [0, 'x', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
 	def __init__(self,  **keywords):
 		"""
 		2008-10-09
@@ -450,6 +454,16 @@ class GeneListRankTest(object):
 		sys.stderr.write("Done.\n")
 		return passingdata
 	
+	def convertChrIndex2GenomeIndex(self, chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps):
+		"""
+		2008-10-11
+			convert (chr, index) into genome_index
+		"""
+		index_ls = []
+		for chr, chr_index in chr_index_ls:
+			index_ls.append(chr2cumu_no_of_snps[chr]-chr2no_of_snps[chr]+chr_index)	#take SNPs on all previous chromosomes into account
+		return index_ls
+	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
 		2008-10-09
@@ -465,6 +479,9 @@ class GeneListRankTest(object):
 		
 		chr2rank_ls = {}
 		candidate_gene_snp_chr_index_ls = []
+		non_candidate_gene_snp_chr_index_ls = []
+		candidate_gene_snp_rank_ls = []
+		non_candidate_gene_snp_rank_ls = []
 		chr2no_of_snps = {}
 		chr2cumu_no_of_snps = {}
 		
@@ -486,29 +503,50 @@ class GeneListRankTest(object):
 			chr2no_of_snps[chr] += 1
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			assign_snp_candidate_gene = 0
+			assign_snp_non_candidate_gene = 0
 			for snps_context in snps_context_matrix:
 				snps_id, disp_pos, gene_id = snps_context
 				if gene_id in candidate_gene_set:
 					assign_snp_candidate_gene = 1
+					if not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
+						break
+				else:
+					assign_snp_non_candidate_gene = 1
+				if assign_snp_candidate_gene==1 and assign_snp_non_candidate_gene==1:	#both are set to 1, no need to check first genes around
 					break
 			if assign_snp_candidate_gene:
 				candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
-				rank_sum_stat += rank	
-		
+				rank_sum_stat += rank
+				candidate_gene_snp_rank_ls.append(rank)
+			
+			if not param_data.allow_two_sample_overlapping:	#if two samples are NOT allowed to be overlapping, only check if assign_snp_candidate_gene is set or not
+				if not assign_snp_candidate_gene:
+					non_candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
+					non_candidate_gene_snp_rank_ls.append(rank)
+			elif assign_snp_non_candidate_gene:	#two samples allowed overlapping, then have to check the other tag
+				non_candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
+				non_candidate_gene_snp_rank_ls.append(rank)
 		from common import get_chr_id2cumu_size
 		chr2cumu_no_of_snps, chr_gap, chr_id_ls = get_chr_id2cumu_size(chr2no_of_snps, chr_gap=0)
-		candidate_gene_snp_index_ls = []
-		for chr, chr_index in candidate_gene_snp_chr_index_ls:
-			candidate_gene_snp_index_ls.append(chr2cumu_no_of_snps[chr]-chr2no_of_snps[chr]+chr_index)	#take SNPs on all previous chromosomes into account
+		
+		candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
+		non_candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(non_candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
+		
 		candidate_gene_snp_index_ls = num.array(candidate_gene_snp_index_ls, num.int)
-		passingdata = PassingData(candidate_gene_snp_index_ls=candidate_gene_snp_index_ls,\
+		non_candidate_gene_snp_index_ls = num.array(non_candidate_gene_snp_index_ls, num.int)
+		passingdata = PassingData(candidate_gene_snp_index_ls=candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls=non_candidate_gene_snp_index_ls,\
 								chr2rank_ls=chr2rank_ls, rank_sum_stat=rank_sum_stat, no_of_snps=no_of_snps,\
-								chr2cumu_no_of_snps=chr2cumu_no_of_snps, chr2no_of_snps=chr2no_of_snps)
+								chr2cumu_no_of_snps=chr2cumu_no_of_snps, chr2no_of_snps=chr2no_of_snps,\
+								candidate_gene_snp_rank_ls=candidate_gene_snp_rank_ls, non_candidate_gene_snp_rank_ls=non_candidate_gene_snp_rank_ls)
+		del genome_wide_result
 		sys.stderr.write("Done.\n")
 		return passingdata
 	
-	def getPermutationRankSumStat(self, chr2rank_ls, candidate_gene_snp_index_ls, no_of_snps, chr2no_of_snps, permutation_type=1):
+	def getPermutationRankSumStat(self, chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls, no_of_snps, chr2no_of_snps, permutation_type=1):
 		"""
+		2008-10-11
+			add option non_candidate_gene_snp_index_ls
+			if overlapping is found between candidate_gene_snp_index_ls & non_candidate_gene_snp_index_ls, need to re-rank
 		2008-10-09
 			permutation_type
 				0: no permutation
@@ -539,36 +577,53 @@ class GeneListRankTest(object):
 		if permutation_type!=0:
 			shift = random.randint(1, no_of_snps)
 			candidate_gene_snp_index_ls_perm = (candidate_gene_snp_index_ls+shift)%no_of_snps	#modulo to recycle
+			non_candidate_gene_snp_index_ls_perm = (non_candidate_gene_snp_index_ls+shift)%no_of_snps
 		else:
 			candidate_gene_snp_index_ls_perm = candidate_gene_snp_index_ls
-		rank_sum_stat = sum(whole_rank_ar[candidate_gene_snp_index_ls_perm])
+			non_candidate_gene_snp_index_ls_perm = non_candidate_gene_snp_index_ls
+		no_of_snps_in_candidate_genes = len(candidate_gene_snp_index_ls)
+		no_of_snps_in_non_candidate_genes = len(non_candidate_gene_snp_index_ls)
+		if no_of_snps_in_candidate_genes+no_of_snps_in_non_candidate_genes>no_of_snps:
+			#two samples are allowed to have overlapping SNPs
+			#have to rerank the whole thing to get new ranks
+			import rpy
+			rank_ls = num.hstack((whole_rank_ar[candidate_gene_snp_index_ls_perm], whole_rank_ar[non_candidate_gene_snp_index_ls_perm]))
+			rank_ls = rpy.r.rank(rank_ls)	#rpy.rank also exists!!
+			rank_sum_stat = sum(rank_ls[:no_of_snps_in_candidate_genes])
+		else:
+			rank_sum_stat = sum(whole_rank_ar[candidate_gene_snp_index_ls_perm])
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return rank_sum_stat
 	
-	def getPermutationRankSumPvalue(self, chr2rank_ls, candidate_gene_snp_index_ls, rank_sum_stat, no_of_snps, \
+	def getPermutationRankSumPvalue(self, chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls, rank_sum_stat, no_of_snps, \
 								chr2no_of_snps, permutation_type=1, no_of_permutations=10000, no_of_min_breaks=25):
 		"""
+		2008-10-11
+			re-calculate rank_sum_stat (of the sample before permutation) due to possibility of overlapping in candidate_gene_snp_index_ls and non_candidate_gene_snp_index_ls
+				,which causes re-ranking is needed in getPermutationRankSumStat()
+			add option non_candidate_gene_snp_index_ls
 		2008-10-09
 			do permutatioins in a smarter way. break away early if no_of_hits>= no_of_min_breaks
 		2008-10-09
 		
 		"""
 		sys.stderr.write("Getting permutation rank sum pvalue ...")
-		#rank_sum_stat = self.getPermutationRankSumPvalue(chr2rank_ls, candidate_gene_snp_index_ls, permutation_type=0)
+		rank_sum_stat = self.getPermutationRankSumStat(chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls,
+								no_of_snps, chr2no_of_snps, permutation_type=0)
 		i = 0
 		no_of_hits = 0
 		while i<no_of_permutations:
-			rank_sum_stat_perm = self.getPermutationRankSumStat(chr2rank_ls, candidate_gene_snp_index_ls, no_of_snps, \
-								chr2no_of_snps, permutation_type=permutation_type)
+			rank_sum_stat_perm = self.getPermutationRankSumStat(chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls,
+								no_of_snps, chr2no_of_snps, permutation_type=permutation_type)
 			if rank_sum_stat_perm>=rank_sum_stat:
 				no_of_hits += 1
 			i+=1
-			if no_of_hits>=no_of_min_breaks:
+			if no_of_min_breaks>0 and no_of_hits>=no_of_min_breaks:	#if no_of_min_breaks<=0, no smart breaking
 				break
 		pvalue = no_of_hits/float(i)
 		sys.stderr.write("%s/%s tests in total. Done.\n"%(no_of_hits, i))
-		return pvalue
+		return rank_sum_stat, pvalue
 	
 	def output_gene_id2hit(self, gene_id2hit, output_fname):
 		sys.stderr.write("Outputting gene_id2hit ... ")
@@ -635,37 +690,58 @@ class GeneListRankTest(object):
 							(db_result.id, db_result.results_by_gene_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
 			return None
 		try:
+			import rpy
 			candidate_gene_list = self.getGeneList(pd.list_type_id)
-			param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, min_MAF=pd.min_MAF)
-			if pd.test_type==1:
+			if pd.test_type>3:
+				allow_two_sample_overlapping = 1
+			else:
+				allow_two_sample_overlapping = 0
+			param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, \
+									min_MAF=pd.min_MAF, allow_two_sample_overlapping=allow_two_sample_overlapping)
+			if pd.results_type==2:
 				passingdata = self.prepareDataForRankTestFromResultsByGene(rm, param_data)
-				import rpy
 				candidate_sample_size = len(passingdata.candidate_gene_pvalue_list)
 				non_candidate_sample_size = len(passingdata.non_candidate_gene_pvalue_list)
 				if candidate_sample_size>=pd.min_sample_size and non_candidate_sample_size>=pd.min_sample_size:	#2008-08-14
-					w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, conf_int=rpy.r.TRUE)
+					w_result = rpy.r.wilcox_test(passingdata.candidate_gene_pvalue_list, passingdata.non_candidate_gene_pvalue_list, alternative='greater', conf_int=rpy.r.TRUE)
 				else:
 					sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 					return None
 				statistic=w_result['statistic']['W']
 				pvalue=w_result['p.value']
-			elif pd.test_type==2 or pd.test_type==3:
-				if pd.test_type==2:
-					pd.permutation_type = 1
-				elif pd.test_type==3:
-					pd.permutation_type = 2
+			elif pd.results_type==1:	#for ResultsMethod
 				permData = self.prepareDataForPermutationRankTest(rm, pd.snps_context_wrapper, param_data)
-				candidate_sample_size = len(permData.candidate_gene_snp_index_ls)
-				non_candidate_sample_size = permData.no_of_snps - candidate_sample_size
-				statistic = permData.rank_sum_stat-(candidate_sample_size*(candidate_sample_size-1))/2.
-				if candidate_sample_size>=pd.min_sample_size and non_candidate_sample_size>=pd.min_sample_size:
-					pvalue = self.getPermutationRankSumPvalue(permData.chr2rank_ls, permData.candidate_gene_snp_index_ls, permData.rank_sum_stat, \
-												permData.no_of_snps, permData.chr2no_of_snps, permutation_type=pd.permutation_type, \
-												no_of_permutations=pd.no_of_permutations, no_of_min_breaks=pd.no_of_min_breaks)
+				candidate_sample_size = len(permData.candidate_gene_snp_rank_ls)
+				non_candidate_sample_size = len(permData.non_candidate_gene_snp_rank_ls)
+				not_enough_sample = 0
+				if pd.test_type%3==1:
+					if candidate_sample_size>=pd.min_sample_size and non_candidate_sample_size>=pd.min_sample_size:
+						w_result = rpy.r.wilcox_test(permData.candidate_gene_snp_rank_ls, permData.non_candidate_gene_snp_rank_ls, alternative='greater')
+						statistic=w_result['statistic']['W']
+						pvalue=w_result['p.value']
+					else:
+						not_enough_sample = 1
+				elif pd.test_type%3==2 or pd.test_type%3==0:
+					if pd.test_type%3==2:
+						pd.permutation_type = 1
+					elif pd.test_type%3==0:
+						pd.permutation_type = 2
+					if candidate_sample_size>=pd.min_sample_size and non_candidate_sample_size>=pd.min_sample_size:
+						rank_sum_stat, pvalue = self.getPermutationRankSumPvalue(permData.chr2rank_ls, permData.candidate_gene_snp_index_ls, permData.non_candidate_gene_snp_index_ls,\
+																permData.rank_sum_stat, \
+													permData.no_of_snps, permData.chr2no_of_snps, permutation_type=pd.permutation_type, \
+													no_of_permutations=pd.no_of_permutations, no_of_min_breaks=pd.no_of_min_breaks)
+						statistic = rank_sum_stat-(candidate_sample_size*(candidate_sample_size-1))/2.
+					else:
+						not_enough_sample = 1
 				else:
+					sys.stderr.write("Test_type %s not supported.\n"%(pd.test_type))
+					return None
+				if not_enough_sample:
 					sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 					return None
 			else:
+				sys.stderr.write("Results_type %s not supported.\n"%(pd.results_type))
 				return None
 		except:
 			sys.stderr.write("Exception happened for results_id=%s, list_type_id=%s.\n"%(pd.results_id, pd.list_type_id))
@@ -681,6 +757,7 @@ class GeneListRankTest(object):
 		candidate_gene_rank_sum_test_result.candidate_sample_size = candidate_sample_size
 		candidate_gene_rank_sum_test_result.non_candidate_sample_size = non_candidate_sample_size
 		candidate_gene_rank_sum_test_result.test_type = pd.test_type
+		candidate_gene_rank_sum_test_result.max_pvalue_per_gene = 0	#always set to 0 in order to be compatible with previous approaches
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
