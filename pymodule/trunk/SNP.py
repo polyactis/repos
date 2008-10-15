@@ -874,16 +874,23 @@ class GenomeWideResults(TableClass):
 	genome_wide_result_ls = None
 	genome_wide_result_obj_id2index = None
 	max_value = 0	#the current top value for all genome wide results
-	gap = 1.0	#gap between two genome wide results
+	#gap = 1.0	#gap between two genome wide results
 	def get_genome_wide_result_by_obj_id(self, obj_id):
 		return self.genome_wide_result_ls[self.genome_wide_result_obj_id2index[obj_id]]
 	
-	def add_genome_wide_result(self, genome_wide_result):
+	def add_genome_wide_result(self, genome_wide_result, gap=None):
+		"""
+		2008-10-12
+			specify gap between two genome wide results through option gap or self-guessing, 1/3 of previous (gwr.max_value-gwr.min_value)
+		"""
 		genome_wide_result_index = len(self.genome_wide_result_ls)
 		if genome_wide_result_index==0:	#the first result, no gap necessary
 			genome_wide_result.base_value = self.max_value
 		else:
-			genome_wide_result.base_value = self.max_value + self.gap
+			if gap is None:
+				prev_gwr = self.genome_wide_result_ls[genome_wide_result_index-1]
+				gap = (prev_gwr.max_value - prev_gwr.min_value)/3.	#self-guessed gap
+			genome_wide_result.base_value = self.max_value + gap
 		new_max_value = genome_wide_result.base_value + genome_wide_result.max_value - genome_wide_result.min_value
 		if self.max_value is None or new_max_value > self.max_value:
 			self.max_value = new_max_value
@@ -968,6 +975,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-10-14
+		get "is_4th_col_stop_pos" from pdata if it exists to decide how to deal with 4th col
 	2008-09-24
 		add construct_chr_pos2index
 	2008-08-15
@@ -990,24 +999,27 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	gwr.data_obj_id2index = {}
 	genome_wide_result_id = id(gwr)
 	import csv
-	reader = csv.reader(open(input_fname), delimiter='\t')
+	delimiter = figureOutDelimiter(input_fname)
+	reader = csv.reader(open(input_fname), delimiter=delimiter)
 	no_of_lines = 0
+	is_4th_col_stop_pos = getattr(pdata, 'is_4th_col_stop_pos', False)
 	for row in reader:
 		#check if 1st line is header or not
 		if no_of_lines ==0 and pa_has_characters.search(row[1]):
 			continue
 		chr = int(row[0])
 		start_pos = int(row[1])
-		if len(row)==3:
-			stop_pos = None
+		column_4th = None
+		stop_pos = None
+		if len(row)>=3:
 			score = float(row[2])
-			column_4th = None
-		elif len(row)>=4:
-			score = float(row[2])
-			column_4th=row[3]
-			stop_pos = None
-			#stop_pos = int(row[2])
-			#score = float(row[3])
+		
+		if len(row)>=4:
+			if is_4th_col_stop_pos:
+				stop_pos = int(row[3])
+			else:
+				column_4th=row[3]
+			
 		"""
 		else:
 			sys.stderr.write("only 3 or 4 columns are allowed in input file.\n")
