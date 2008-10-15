@@ -125,7 +125,7 @@ class GeneListRankTest(object):
 							("results_type", 1, int): [1, 'w', 1, 'which type of results. 1; ResultsMethod, 2: ResultsByGene'],\
 							("test_type", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping.'],\
 							("no_of_permutations", 1, int): [20000, '', 1, 'no of permutations to carry out'],\
-							("no_of_min_breaks", 1, int): [30, 'f', 1, 'no of minimum times that rank_sum_stat_perm>=rank_sum_stat to break away. if 0, no breaking'],\
+							("no_of_min_breaks", 1, int): [30, '', 1, 'no of minimum times that rank_sum_stat_perm>=rank_sum_stat to break away. if 0, no breaking'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -466,6 +466,8 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-10-15
+			try to take no_of_snps from param_data, the snps are taken in order from starting_rank (get from param_data or just 1)
 		2008-10-09
 			prepare data for a permutation-based rank sum test
 			the permutation preserves the order of SNPs within each chromosome
@@ -490,11 +492,16 @@ class GeneListRankTest(object):
 		score_ls = [data_obj.value for data_obj in genome_wide_result.data_obj_ls]
 		import rpy
 		rank_ls = rpy.r.rank(score_ls)	#rpy.rank also exists!!
-		no_of_snps = len(score_ls)
+		no_of_total_snps = len(score_ls)
+		starting_rank = getattr(param_data, 'starting_rank', 1)
+		no_of_snps = getattr(param_data, 'no_of_top_snps', no_of_total_snps)
+		
 		rank_sum_stat = 0
-		for i in range(no_of_snps):
-			data_obj = genome_wide_result.data_obj_ls[i]
-			rank = rank_ls[i]
+		for i in range(starting_rank, starting_rank+no_of_snps):	#2008-10-15 rank starts from 1
+			data_obj = genome_wide_result.get_data_obj_at_given_rank(i)	#2008-10-15 rank starts from 1
+			#data_obj = genome_wide_result.data_obj_ls[i]
+			data_obj_index = genome_wide_result.get_data_obj_index_given_rank(i)
+			rank = rank_ls[data_obj_index]	#watch this, the index is not i
 			chr = data_obj.chromosome
 			if chr not in chr2rank_ls:
 				chr2rank_ls[chr] = []
@@ -537,12 +544,14 @@ class GeneListRankTest(object):
 		passingdata = PassingData(candidate_gene_snp_index_ls=candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls=non_candidate_gene_snp_index_ls,\
 								chr2rank_ls=chr2rank_ls, rank_sum_stat=rank_sum_stat, no_of_snps=no_of_snps,\
 								chr2cumu_no_of_snps=chr2cumu_no_of_snps, chr2no_of_snps=chr2no_of_snps,\
-								candidate_gene_snp_rank_ls=candidate_gene_snp_rank_ls, non_candidate_gene_snp_rank_ls=non_candidate_gene_snp_rank_ls)
+								candidate_gene_snp_rank_ls=candidate_gene_snp_rank_ls, non_candidate_gene_snp_rank_ls=non_candidate_gene_snp_rank_ls,\
+								no_of_total_snps=no_of_total_snps)
 		del genome_wide_result
 		sys.stderr.write("Done.\n")
 		return passingdata
 	
-	def getPermutationRankSumStat(self, chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls, no_of_snps, chr2no_of_snps, permutation_type=1):
+	def getPermutationRankSumStat(self, chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls, no_of_snps, \
+								chr2no_of_snps, permutation_type=1):
 		"""
 		2008-10-11
 			add option non_candidate_gene_snp_index_ls
@@ -644,8 +653,23 @@ class GeneListRankTest(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
+	def dealWithCandidateGeneList(self, list_type_id):
+		"""
+		2008-10-15
+			to make caching candidate gene list possible
+		"""
+		if list_type_id not in self.list_type_id2candidate_gene_list_info:	#internal cache
+			candidate_gene_list = self.getGeneList(list_type_id)
+			self.list_type_id2candidate_gene_list_info[list_type_id] = PassingData(candidate_gene_list=candidate_gene_list)
+		return self.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_list
+		
+	
+	list_type_id2candidate_gene_list_info = {}
+	
 	def run_wilcox_test(self, pd):
 		"""
+		2008-10-15
+			more test_types
 		2008-08-20
 			use pd to summarize all parameters
 		2008-08-15
@@ -662,14 +686,14 @@ class GeneListRankTest(object):
 			sys.stderr.write("Running wilcox test ... ")
 		if pd.results_type==1:
 			ResultsClass = ResultsMethod
-			RankTestResultClass = CandidateGeneRankSumTestResultMethod
+			TestResultClass = CandidateGeneRankSumTestResultMethod
 			rm = ResultsClass.get(pd.results_id)
 			min_distance = pd.min_distance
 			min_MAF = pd.min_MAF
 			get_closest = pd.get_closest
 		elif pd.results_type==2:
 			ResultsClass = ResultsByGene
-			RankTestResultClass = CandidateGeneRankSumTestResult
+			TestResultClass = CandidateGeneRankSumTestResult
 			rm = ResultsClass.get(pd.results_id)
 			min_distance = rm.min_distance
 			min_MAF = rm.min_MAF
@@ -681,17 +705,17 @@ class GeneListRankTest(object):
 		if not rm:
 			sys.stderr.write("No results method available for results_id=%s.\n"%pd.results_id)
 			return None
-		db_results = RankTestResultClass.query.filter_by(results_id=pd.results_id).\
+		db_results = TestResultClass.query.filter_by(results_id=pd.results_id).\
 			filter_by(list_type_id=pd.list_type_id).filter_by(min_distance=pd.min_distance).\
 			filter_by(min_MAF=pd.min_MAF).filter_by(get_closest=pd.get_closest).filter_by(test_type=pd.test_type)
 		if db_results.count()>0:	#done before
 			db_result = db_results.first()
 			sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
-							(db_result.id, db_result.results_by_gene_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
+							(db_result.id, db_result.results_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
 			return None
 		try:
 			import rpy
-			candidate_gene_list = self.getGeneList(pd.list_type_id)
+			candidate_gene_list = self.dealWithCandidateGeneList(pd.list_type_id)	#internal cache
 			if pd.test_type>3:
 				allow_two_sample_overlapping = 1
 			else:
@@ -714,31 +738,25 @@ class GeneListRankTest(object):
 				candidate_sample_size = len(permData.candidate_gene_snp_rank_ls)
 				non_candidate_sample_size = len(permData.non_candidate_gene_snp_rank_ls)
 				not_enough_sample = 0
+				if candidate_sample_size<pd.min_sample_size or non_candidate_sample_size<pd.min_sample_size:
+					sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
+					return None
 				if pd.test_type%3==1:
-					if candidate_sample_size>=pd.min_sample_size and non_candidate_sample_size>=pd.min_sample_size:
-						w_result = rpy.r.wilcox_test(permData.candidate_gene_snp_rank_ls, permData.non_candidate_gene_snp_rank_ls, alternative='greater')
-						statistic=w_result['statistic']['W']
-						pvalue=w_result['p.value']
-					else:
-						not_enough_sample = 1
+					w_result = rpy.r.wilcox_test(permData.candidate_gene_snp_rank_ls, permData.non_candidate_gene_snp_rank_ls, alternative='greater')
+					statistic=w_result['statistic']['W']
+					pvalue=w_result['p.value']
 				elif pd.test_type%3==2 or pd.test_type%3==0:
 					if pd.test_type%3==2:
 						pd.permutation_type = 1
 					elif pd.test_type%3==0:
 						pd.permutation_type = 2
-					if candidate_sample_size>=pd.min_sample_size and non_candidate_sample_size>=pd.min_sample_size:
-						rank_sum_stat, pvalue = self.getPermutationRankSumPvalue(permData.chr2rank_ls, permData.candidate_gene_snp_index_ls, permData.non_candidate_gene_snp_index_ls,\
-																permData.rank_sum_stat, \
-													permData.no_of_snps, permData.chr2no_of_snps, permutation_type=pd.permutation_type, \
-													no_of_permutations=pd.no_of_permutations, no_of_min_breaks=pd.no_of_min_breaks)
-						statistic = rank_sum_stat-(candidate_sample_size*(candidate_sample_size-1))/2.
-					else:
-						not_enough_sample = 1
+					rank_sum_stat, pvalue = self.getPermutationRankSumPvalue(permData.chr2rank_ls, permData.candidate_gene_snp_index_ls, permData.non_candidate_gene_snp_index_ls,\
+												permData.rank_sum_stat, \
+												permData.no_of_snps, permData.chr2no_of_snps, permutation_type=pd.permutation_type, \
+												no_of_permutations=pd.no_of_permutations, no_of_min_breaks=pd.no_of_min_breaks)
+					statistic = rank_sum_stat-(candidate_sample_size*(candidate_sample_size-1))/2.
 				else:
 					sys.stderr.write("Test_type %s not supported.\n"%(pd.test_type))
-					return None
-				if not_enough_sample:
-					sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 					return None
 			else:
 				sys.stderr.write("Results_type %s not supported.\n"%(pd.results_type))
@@ -748,7 +766,7 @@ class GeneListRankTest(object):
 			traceback.print_exc()
 			sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 			return None
-		candidate_gene_rank_sum_test_result = RankTestResultClass(list_type_id=pd.list_type_id, statistic=statistic,\
+		candidate_gene_rank_sum_test_result = TestResultClass(list_type_id=pd.list_type_id, statistic=statistic,\
 																			pvalue=pvalue)
 		candidate_gene_rank_sum_test_result.results_id = pd.results_id
 		candidate_gene_rank_sum_test_result.min_distance = min_distance
