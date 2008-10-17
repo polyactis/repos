@@ -12,7 +12,7 @@ from pylons.templating import render
 
 import helloworld.lib.helpers as h
 import helloworld.model as model
-
+import os, sys	#2008-10-16
 class BaseController(WSGIController):
 
 	def __call__(self, environ, start_response):
