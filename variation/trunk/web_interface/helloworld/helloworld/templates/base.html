@@ -2,6 +2,8 @@
 	import datetime
 %>
 
+<%def name="title()">Web portal for Nordborg Lab database</%def>
+
 <html>
     <head>
         <title>${self.title()}</title>
@@ -9,7 +11,7 @@
     <body>
         ${self.body()}
         <div class="footer">
-            <p>Data presented from Database Stock_250kDB in <a href=http://papaya.usc.edu/>Nordborg Lab</a>. Page generated at ${str(datetime.datetime.now())}. Questions/Suggestions to <a href=http://papaya.usc.edu/people>Yu Huang</a>.</p>
+            <p>Data presented from database stock_250k in <a href=http://papaya.usc.edu/>Nordborg Lab</a>. Page generated at ${str(datetime.datetime.now())}. Questions/Suggestions to <a href=http://papaya.usc.edu/people>Yu Huang</a>.</p>
         </div>
     </body>
 </html>
