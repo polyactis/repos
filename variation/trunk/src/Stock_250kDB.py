@@ -542,14 +542,17 @@ class SNPRegionPlotType(Entity):
 
 class SNPRegionPlot(Entity):
 	"""
+	2008-10-16
+		fix an error in the definitions of img_data and original_filename. they were swapped
 	2008-10-06
+		table to store binary SNP region plots
 	"""
 	chromosome = Field(Integer)
 	start = Field(Integer)
 	stop = Field(Integer)
-	img_data = Field(Text, deferred=True)
+	img_data = Field(String(134217728), deferred=True)
 	center_snp_position = Field(Integer)
-	original_filename = Field(String(134217728))	#no bigger than 128M
+	original_filename = Field(Text)	#no bigger than 128M
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='phenotype_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	plot_type = ManyToOne('SNPRegionPlotType', colname='plot_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	plot2gene_ls = OneToMany("SNPRegionPlotToGene")
@@ -569,7 +572,67 @@ class SNPRegionPlotToGene(Entity):
 	gene_id = Field(Integer)
 	using_options(tablename='snp_region_plot2gene', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	
+
+
+class LD(Entity):
+	"""
+	2008-10-15
+		table to store Linkage Disequilibrium data (output of MpiLD.py)
+	"""
+	chr1 = Field(Integer)
+	pos1 = Field(Integer)
+	chr2 = Field(Integer)
+	pos2 = Field(Integer)
+	d = Field(Float)
+	d_prime = Field(Float)
+	r2 = Field(Float)
+	snp1_maf = Field(Float)
+	snp2_maf = Field(Float)
+	no_of_pairs = Field(Integer)
+	call_method_id = Field(Integer)
+	#call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	using_options(tablename='ld', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
+class ScoreRankHistogramType(Entity):
+	"""
+	2008-10-15
+		type of score/rank histograms in ScoreRankHistogram
+	"""
+	call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	min_distance = Field(Integer)
+	get_closest = Field(Integer)
+	min_MAF = Field(Float)
+	allow_two_sample_overlapping = Field(Integer)
+	score_rank_hist_ls = OneToMany('ScoreRankHistogram')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='score_rank_histgram_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('call_method_id', 'min_distance', 'get_closest', 'min_MAF', 'allow_two_sample_overlapping'))
+
+class ScoreRankHistogram(Entity):
+	"""
+	2008-10-15
+		table to store score/rank histogram divided by candidate gene list. output of CheckCandidateGeneRank.py
+	"""
+	phenotype_method = ManyToOne('PhenotypeMethod', colname='phenotype_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	hist_type = ManyToOne('ScoreRankHistogramType', colname='hist_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	score_hist = Field(Binary(length=134217728), deferred=True)
+	score_hist_svg = Field(Binary(length=134217728), deferred=True)
+	rank_hist = Field(Binary(length=134217728), deferred=True)
+	rank_hist_svg = Field(Binary(length=134217728), deferred=True)
+	original_filename = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='score_rank_histgram', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('phenotype_method_id', 'list_type_id', 'hist_type_id'))
 	
 class Stock_250kDB(ElixirDB):
 	__doc__ = __doc__
