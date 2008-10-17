@@ -121,7 +121,7 @@ class GeneListRankTest(object):
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
-							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it. Deprecated.'],\
+							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
 							("results_type", 1, int): [1, 'w', 1, 'which type of results. 1; ResultsMethod, 2: ResultsByGene'],\
 							("test_type", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping.'],\
 							("no_of_permutations", 1, int): [20000, '', 1, 'no of permutations to carry out'],\
@@ -194,6 +194,8 @@ class GeneListRankTest(object):
 	
 	def getResultMethodContent(cls, rm, results_directory=None, min_MAF=0.1, construct_chr_pos2index=False):
 		"""
+		2008-10-15
+			cache the genome_wide_result under cls.genome_wide_result, if cls.genome_wide_result.results_id==rm.id, directly return that.
 		2008-09-24
 			add option construct_chr_pos2index
 		2008-09-16
@@ -203,6 +205,14 @@ class GeneListRankTest(object):
 		2008-08-13
 			split from getGeneID2MostSignificantHit()
 		"""
+		genome_wide_result = getattr(cls, 'genome_wide_result', None)
+		if genome_wide_result is not None and genome_wide_result.results_id==rm.id:
+			return genome_wide_result
+		
+		if rm.analysis_method_id==13:
+			sys.stderr.write("Analysis method id=%s is not supported.\n"%rm.analysis_method_id)
+			return None
+		
 		if results_directory:	#given a directory where all results are.
 			result_fname = os.path.join(results_directory, os.path.basename(rm.filename))
 		else:
@@ -221,9 +231,11 @@ class GeneListRankTest(object):
 		pdata.construct_chr_pos2index = construct_chr_pos2index
 		if os.path.isfile(result_fname):
 			genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation, pdata=pdata)
+			genome_wide_result.results_id = rm.id
 		else:
 			sys.stderr.write("Skip. %s doesn't exist.\n"%result_fname)
 			genome_wide_result = None
+		cls.genome_wide_result = genome_wide_result
 		return genome_wide_result
 	
 	getResultMethodContent = classmethod(getResultMethodContent)
@@ -466,6 +478,8 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-10-17
+			handle option need_the_value from param_data
 		2008-10-15
 			try to take no_of_snps from param_data, the snps are taken in order from starting_rank (get from param_data or just 1)
 		2008-10-09
@@ -484,17 +498,22 @@ class GeneListRankTest(object):
 		non_candidate_gene_snp_chr_index_ls = []
 		candidate_gene_snp_rank_ls = []
 		non_candidate_gene_snp_rank_ls = []
+		candidate_gene_snp_value_ls = []
+		non_candidate_gene_snp_value_ls = []
 		chr2no_of_snps = {}
 		chr2cumu_no_of_snps = {}
 		
 		#input file is in chromosome,position order
 		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF)
+		if genome_wide_result is None:
+			return None
 		score_ls = [data_obj.value for data_obj in genome_wide_result.data_obj_ls]
 		import rpy
 		rank_ls = rpy.r.rank(score_ls)	#rpy.rank also exists!!
 		no_of_total_snps = len(score_ls)
 		starting_rank = getattr(param_data, 'starting_rank', 1)
 		no_of_snps = getattr(param_data, 'no_of_top_snps', no_of_total_snps)
+		need_the_value = getattr(param_data, 'need_the_value', 0)	#get the pvalues/scores as well
 		
 		rank_sum_stat = 0
 		for i in range(starting_rank, starting_rank+no_of_snps):	#2008-10-15 rank starts from 1
@@ -525,14 +544,23 @@ class GeneListRankTest(object):
 				candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
 				rank_sum_stat += rank
 				candidate_gene_snp_rank_ls.append(rank)
+				if need_the_value:
+					candidate_gene_snp_value_ls.append(data_obj.value)
 			
+			#condition to assign this snp to non candidate gene
+			assign_snp_non_candidate_gene = (not param_data.allow_two_sample_overlapping and not assign_snp_candidate_gene) or assign_snp_non_candidate_gene
+			
+			"""
 			if not param_data.allow_two_sample_overlapping:	#if two samples are NOT allowed to be overlapping, only check if assign_snp_candidate_gene is set or not
 				if not assign_snp_candidate_gene:
 					non_candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
 					non_candidate_gene_snp_rank_ls.append(rank)
-			elif assign_snp_non_candidate_gene:	#two samples allowed overlapping, then have to check the other tag
+			"""
+			if assign_snp_non_candidate_gene:	#two samples allowed overlapping, then have to check the other tag
 				non_candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
 				non_candidate_gene_snp_rank_ls.append(rank)
+				if need_the_value:
+					non_candidate_gene_snp_value_ls.append(data_obj.value)
 		from common import get_chr_id2cumu_size
 		chr2cumu_no_of_snps, chr_gap, chr_id_ls = get_chr_id2cumu_size(chr2no_of_snps, chr_gap=0)
 		
@@ -545,7 +573,8 @@ class GeneListRankTest(object):
 								chr2rank_ls=chr2rank_ls, rank_sum_stat=rank_sum_stat, no_of_snps=no_of_snps,\
 								chr2cumu_no_of_snps=chr2cumu_no_of_snps, chr2no_of_snps=chr2no_of_snps,\
 								candidate_gene_snp_rank_ls=candidate_gene_snp_rank_ls, non_candidate_gene_snp_rank_ls=non_candidate_gene_snp_rank_ls,\
-								no_of_total_snps=no_of_total_snps)
+								no_of_total_snps=no_of_total_snps, candidate_gene_snp_value_ls=candidate_gene_snp_value_ls,\
+								non_candidate_gene_snp_value_ls=non_candidate_gene_snp_value_ls)
 		del genome_wide_result
 		sys.stderr.write("Done.\n")
 		return passingdata
