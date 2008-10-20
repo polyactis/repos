@@ -14,6 +14,8 @@ Examples:
 2008-10-08 3: TestFetchSNPRegionPlot
 2008-10-08 4: TestGetEcotypeInfo
 2008-10-11 5: TestDrawMap
+2008-10-17 6: TestScoreRankHistogram
+
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -91,10 +93,25 @@ class TestFetchSNPRegionPlot(unittest.TestCase):
 		db = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user,
 						password=db_passwd, hostname=hostname, database=dbname, schema=schema)
 		db.setup(create_tables=False)
-		snp_region_plot = Stock_250kDB.SNPRegionPlot.get(1)
+		
+		"""
+		#2008-10-19	convert 64bit-encoded img data to direct binary data and store in a binary field(snp_region_plot.png_data
+		#find out Binary db type can be handled correctly (give a length argument to Binary to avoid data truncation).
 		import base64
+		counter = 0
+		print
+		for snp_region_plot in Stock_250kDB.SNPRegionPlot.query.all():
+			snp_region_plot.png_data = base64.b64decode(snp_region_plot.old_img_data)
+			db.session.save_or_update(snp_region_plot)
+			db.session.flush()
+			counter += 1
+			sys.stderr.write("%s\t%s"%('\x08'*80, counter))
+		"""
+		
+		snp_region_plot = Stock_250kDB.SNPRegionPlot.get(1)
 		outf = open('/tmp/snp_region_plot_1.png', 'wb')
-		outf.write(base64.b64decode(snp_region_plot.img_data))
+		snp_region_plot
+		outf.write(snp_region_plot.png_data)
 		outf.close()
 
 class TestGetEcotypeInfo(unittest.TestCase):
@@ -270,6 +287,72 @@ class TestDrawMap(unittest.TestCase):
 			pylab.savefig('%s.svg'%output_fname_prefix)
 		sys.stderr.write("%s ecotypes drawn. Done.\n"%(no_of_ecotypes_drawn))
 
+
+class TestScoreRankHistogram(unittest.TestCase):
+	"""
+	2008-10-17
+		test to check-in/restore binary data in ScoreRankHistogram
+	"""
+	def setUp(self):
+		print
+	
+	def storeImage(self, db, input_fname_prefix, hist_type):
+		import Stock_250kDB
+		input_fname1 = '%s.png'%input_fname_prefix
+		inf1 = open(input_fname1, 'rb')
+		input_fname2 = '%s.svg'%input_fname_prefix
+		inf2 = open(input_fname2, 'rb')
+		
+		score_rank_hist = Stock_250kDB.ScoreRankHistogram(phenotype_method_id=1, list_type_id=1)
+		score_rank_hist.original_filename = input_fname_prefix
+		score_rank_hist.hist_type = hist_type
+		score_rank_hist.score_hist = inf1.read()
+		score_rank_hist.score_hist_svg = inf2.read()
+		del inf1, inf2
+		db.session.save(score_rank_hist)
+		db.session.flush()
+	
+	def test_SaveAndFetchOneImage(self):
+		import Stock_250kDB
+		hostname='papaya.usc.edu'
+		dbname='stock_250k'
+		db_user='yh'
+		db_passwd = ''
+		drivername='mysql'
+		schema = None
+		db = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user,
+						password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+		db.setup(create_tables=False)
+		call_method_id= 17
+		min_distance = 20000
+		get_closest = 0
+		min_MAF = 0.1
+		rows = Stock_250kDB.ScoreRankHistogramType.query.filter_by(call_method_id=call_method_id).filter_by(min_distance=min_distance).\
+										filter_by(get_closest =get_closest).\
+										filter(Stock_250kDB.ScoreRankHistogramType.min_MAF>=min_MAF-0.0001).filter(Stock_250kDB.ScoreRankHistogramType.min_MAF<=min_MAF+0.0001).\
+										filter_by(allow_two_sample_overlapping = 0)
+		if rows.count()>0:
+			hist_type = rows.first()
+		else:
+			hist_type = Stock_250kDB.ScoreRankHistogramType(call_method_id=call_method_id, min_distance=min_distance,\
+										get_closest =get_closest,
+										min_MAF = min_MAF,
+										allow_two_sample_overlapping = 0)
+		input_fname_prefix = '/mnt/tmp/tmp/hist_of_results_by_gene_candidate_score_rank/Phenotype 1 LD vs 1 FT_short_score'
+		self.storeImage(db, input_fname_prefix, hist_type)
+		fetch_score_rank_hist = Stock_250kDB.ScoreRankHistogram.query.first()
+		
+		#import base64
+		outf = open('/tmp/plot_1.png', 'wb')
+		outf.write(fetch_score_rank_hist.score_hist)
+		#outf.write(base64.b64decode(snp_region_plot.img_data))
+		outf.close()
+		
+		outf = open('/tmp/plot_1.svg', 'wb')
+		outf.write(fetch_score_rank_hist.score_hist_svg)
+		#outf.write(base64.b64decode(snp_region_plot.img_data))
+		outf.close()
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -286,7 +369,8 @@ if __name__ == '__main__':
 		2:Test_find_smallest_vertex_set_to_remove_all_edges,
 		3:TestFetchSNPRegionPlot,
 		4:TestGetEcotypeInfo,
-		5:TestDrawMap}
+		5:TestDrawMap,
+		6:TestScoreRankHistogram}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
