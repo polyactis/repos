@@ -3,3 +3,19 @@
 <h1>Greetings</h1>
 
 <p>${c.greeting} ${c.name}!</p>
+
+<p>
+<a href=${h.url_for(controller='CallInfo', id=None)}>Check all call methods.</a>
+</p>
+
+<p>
+<a href=${h.url_for(controller='SNPRegionPlot', id=None)}>View SNP region plots</a>
+</p>
+
+<p>
+<a href=${h.url_for(controller='ScoreRankHistogram', id=None)}>View Histograms of Score/Rank</a>
+</p>
+
+<p>
+<a href=${h.url_for(controller='MAFVsScorePlot', id=None)}>View MAF vs Score Plots</a>
+</p>

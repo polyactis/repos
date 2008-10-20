@@ -1,0 +1,51 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">SNP Region Plots</%def>
+
+
+<p> ${c.counter} SNP Region Plots In Total.</p>
+
+
+<table border=1>
+
+<tr>
+<th>GeneID</th>
+<th>#Phenotypes</th>
+<th>Symbol</th>
+<th>Type of Gene</th>
+<th>Chr</th>
+<th>Start</th>
+<th>Stop</th>
+<th>Protein Label</th>
+<th>Protein Comment</th>
+% for phenotype_label in c.phenotype_info.phenotype_method_label_ls:
+	
+	<th>${phenotype_label}</th>
+% endfor
+
+</tr>
+
+
+% for i in range(c.data_matrix.shape[0]):
+	<tr>
+	<td><a href=http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=search&db=gene&term=${c.gene_info.gene_ls[i].gene_id}[uid]>${c.gene_info.gene_ls[i].gene_id}</a></td>
+	<td><a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id='', snp_region_plot_ids=','.join(c.gene_info.gene_ls[i].snp_region_plot_id_ls))}>${c.gene_info.gene_ls[i].count}</a></td>
+	<td>${getattr(c.gene_info.gene_ls[i], 'gene_symbol', '')}</td>
+	<td>${getattr(c.gene_info.gene_ls[i], 'type_of_gene', '')}</td>
+	<td>${getattr(c.gene_info.gene_ls[i], 'chr', '')}</td>
+	<td>${getattr(c.gene_info.gene_ls[i], 'start', '')}</td>
+	<td>${getattr(c.gene_info.gene_ls[i], 'stop', '')}</td>
+	<td>${getattr(c.gene_info.gene_ls[i], 'protein_label', '')}</td>
+	<td>${getattr(c.gene_info.gene_ls[i], 'protein_comment', '')}</td>
+	% for j in range(c.data_matrix.shape[1]):
+		<td>
+		% if c.data_matrix[i][j]>0:
+			<a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id=c.data_matrix[i][j])}>${c.data_matrix[i][j]}</a>
+		% endif
+		</td>
+	% endfor
+	</tr>
+% endfor
+
+
+</table>

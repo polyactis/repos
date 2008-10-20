@@ -6,7 +6,7 @@ from variation.src import Stock_250kDB
 #from variation.src.Stock_250kDB import GeneListType
 #from variation.src.Stock_250kDB import *
 drivername = 'mysql'
-hostname = 'localhost'
+hostname = 'banyan.usc.edu'
 dbname = 'stock_250k'
 schema = ""
 db_user = 'yh'

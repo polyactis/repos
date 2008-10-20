@@ -1,0 +1,62 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">Histograms of Score/Rank </%def>
+
+
+<p> ${c.counter} Plots In Total.</p>
+<ul>
+<li>
+% if c.hist_type.get_closest:
+	One SNP is classified into candidate gene category if the closest gene within ${c.hist_type.min_distance} is a candidate gene.
+% else:
+	One SNP is classified into candidate gene category if there is one candidate gene within ${c.hist_type.min_distance}.
+% endif
+
+</li>
+
+<li>
+% if c.hist_type.allow_two_sample_overlapping:
+	One SNP is classified into non-candidate gene category if there are both candidate and non-candidate genes within ${c.hist_type.min_distance} on either side.
+% else:
+	One SNP is NOT classified into non-candidate gene category if there are both candidate and non-candidate genes within ${c.hist_type.min_distance} on either side.
+% endif
+</li>
+
+<li>
+% if c.hist_type.results_type==1:
+	The candidate gene category is represented by all SNPs deemed associated with candidate genes.
+% else:
+	The candidate gene category is represented by the most significant one among all SNPs deemed associated with candidate genes. The ranks are in reverse order!!
+% endif
+</li>
+
+</ul>
+
+<table border=1>
+
+<tr>
+<th>Candidate Gene List</th>
+
+% for phenotype_label in c.phenotype_info.phenotype_method_label_ls:
+	
+	<th>${phenotype_label}</th>
+% endfor
+
+</tr>
+
+
+% for i in range(c.data_matrix.shape[0]):
+	<tr>
+	<td>${c.list_info.list_type_label_ls[i]}</td>
+	% for j in range(c.data_matrix.shape[1]):
+		<td>
+		% if c.data_matrix[i][j]>0:
+			<a href=${h.url_for(controller='ScoreRankHistogram', action='showHistogram', id=c.data_matrix[i][j])}>${c.data_matrix[i][j]}</a>
+		% endif
+		</td>
+	% endfor
+	</tr>
+% endfor
+
+
+</table>

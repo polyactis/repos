@@ -13,6 +13,11 @@ from pylons.templating import render
 import helloworld.lib.helpers as h
 import helloworld.model as model
 import os, sys	#2008-10-16
+sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+from pymodule import PassingData
+from sets import Set
+import numpy
+
 class BaseController(WSGIController):
 
 	def __call__(self, environ, start_response):

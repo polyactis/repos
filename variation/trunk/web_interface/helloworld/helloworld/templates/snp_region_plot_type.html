@@ -1,0 +1,38 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">SNP Region Plots</%def>
+
+
+<p> ${len(c.snp_region_plots)} SNP Region Plots In Total.</p>
+
+<table border=1>
+
+<tr>
+<th>ID</th>
+<th>Chromosome</th>
+<th>Start</th>
+<th>Stop</th>
+<th>Center SNP</th>
+<th>Phenotype</th>
+<th>No of Genes</th>
+<th>Plot Type</th>
+<th>created by</th>
+<th>date created</th>
+</tr>
+% for snp_region_plot in c.snp_region_plots:
+<tr>
+<td><a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id=snp_region_plot.id)}>${snp_region_plot.id}</a></td>
+<td>${snp_region_plot.chromosome}</td>
+<td>${snp_region_plot.start}</td>
+<td>${snp_region_plot.stop}</td>
+<td>${snp_region_plot.center_snp_position}</td>
+<td>${snp_region_plot.phenotype_method.short_name} (id=${snp_region_plot.phenotype_method_id})</td>
+<td>${len(snp_region_plot.plot2gene_ls)}</td>
+<td><a href=${h.url_for(controller='SNPRegionPlot', action='type', id=snp_region_plot.plot_type_id)}>${snp_region_plot.plot_type.short_name}</a></td>
+<td>${snp_region_plot.created_by}</td>
+<td>${snp_region_plot.date_created}</td>
+</tr>
+% endfor
+
+
+</table>

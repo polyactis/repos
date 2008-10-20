@@ -1,0 +1,19 @@
+<%inherit file="/base.html"/>
+<%def name="title()">Score Rank Histogram for ${c.score_rank_histgram.id}</%def>
+
+<%
+score_hist_url = h.url_for(controller='ScoreRankHistogram', action='getImage', id=c.score_rank_histgram.id, img_type='score_hist')
+score_hist_svg_url = h.url_for(controller='ScoreRankHistogram', action='getImage', id=c.score_rank_histgram.id, img_type='score_hist_svg')
+rank_hist_url = h.url_for(controller='ScoreRankHistogram', action='getImage', id=c.score_rank_histgram.id, img_type='rank_hist')
+rank_hist_svg_url = h.url_for(controller='ScoreRankHistogram', action='getImage', id=c.score_rank_histgram.id, img_type='rank_hist_svg')
+%>
+
+<a href=${score_hist_url}>
+<img width="1200" src=${score_hist_url}></a>
+
+<p>Get <a href=${score_hist_svg_url}>SVG format</a> (easy edit by vector graph software).</p>
+
+<a href=${rank_hist_url}>
+<img width="1200" src=${rank_hist_url}></a>
+
+<p>Get <a href=${rank_hist_svg_url}>SVG format</a> (easy edit by vector graph software).</p>

@@ -1,8 +1,19 @@
 <%inherit file="/base.html"/>
 <%def name="title()">Plot for SNPs at chr ${c.snp_region_plot.chromosome}. ${c.snp_region_plot.start}-${c.snp_region_plot.stop}. Phenotype ${c.snp_region_plot.phenotype_method.short_name} (id=${c.snp_region_plot.phenotype_method_id})</%def>
 
-<a href=${h.url_for(controller='SNPRegionPlot', action='getImage', id=c.snp_region_plot.id)}><img width="1280" src='/SNPRegionPlot/getImage/${c.snp_region_plot.id}'></a>
-
+% if len(c.snp_region_plot_ls)>0:
+	% for snp_region_plot in c.snp_region_plot_ls:
+		<%
+		snp_region_plot_url = h.url_for(controller='SNPRegionPlot', action='getImage', id=snp_region_plot.id)
+		%>
+		<a href=${snp_region_plot_url}><img width="1280" src=${snp_region_plot_url}></a>
+	% endfor
+% else:
+	<%
+	snp_region_plot_url = h.url_for(controller='SNPRegionPlot', action='getImage', id=c.snp_region_plot.id)
+	%>
+	<a href=${snp_region_plot_url}><img width="1280" src=${snp_region_plot_url}></a>
+% endif
 
 <table border=1>
 

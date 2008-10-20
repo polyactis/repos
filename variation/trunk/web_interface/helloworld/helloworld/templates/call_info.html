@@ -1,34 +1,70 @@
 <%inherit file="/base.html"/>
 
-<%def name="title()">Call Info</%def>
+<%def name="title()">Call Info of call method ${c.call_info_ls[0].call_method_id}</%def>
 
-<p> ${len(c.call_info_ls)} Genotype Calls In Total.</p>
+<p>
+${len(c.call_info_ls)} Genotype Calls In Total. Sorted by Nativename.
+If you see one call out of order with strange nativename, that is due to truncation of swedish letters.
+Check the Original Array Filename to figure out what it is.
+</p>
+
+<p>
+% if c.qc_simplified=='1' or c.qc_simplified==1:
+	<a href=${h.url_for(controller='CallInfo', action='call_method', id=c.call_info_ls[0].call_method_id, qc_simplified=0)}>View with detailed QC.</a>
+% else:
+	<a href=${h.url_for(controller='CallInfo', action='call_method', id=c.call_info_ls[0].call_method_id, qc_simplified=1)}>View with simplified QC.</a> Easy to sort QC in excel.
+% endif
+</p>
+
+<p>
+Column QC is mismatch rate versus designated dataset. In non-simplified/detailed vesion, it has (no_of_mismatchs/no_of_non_NA_pairs) attached.
+</p>
+
+<a href=${h.url_for(controller='CallInfo', id=None)}>Check all call methods.</a>
 
 <table border=1>
 
 <tr>
 <th>No.</th>
-<th>Call Info ID</th>
 <th>Ecotype ID</th>
 <th>Nativename</th>
 <th>Stockparent</th>
+<th>Site</th>
+<th>Region</th>
+<th>Country</th>
+<th>Call Info ID</th>
 <th>Call Method ID</th>
+<th>Call NA rate</th>
+<th>QC vs 2010</th>
+<th>QC vs 149SNP</th>
+<th>QC vs 384 Illumina</th>
+<th>QC vs 2010_149_384</th>
 <th>Filename</th>
 <th>Array ID</th>
 <th>Original Array Filename</th>
+<th>Array Created</th>
 
 </tr>
 % for call_info in c.call_info_ls:
 <tr>
 <td>${call_info.no}</td>
-<td>${call_info.call_info_id}</td>
 <td>${call_info.ecotype_id}</td>
 <td>${call_info.nativename.decode('utf-8', 'ignore')}</td>
 <td>${call_info.stockparent}</td>
+<td>${call_info.site.decode('utf-8', 'ignore')}</td>
+<td>${call_info.region}</td>
+<td>${call_info.country}</td>
+<td>${call_info.call_info_id}</td>
 <td>${call_info.call_method_id}</td>
+<td>${getattr(call_info, 'call_NA_rate', '')}</td>
+<td>${getattr(call_info, '250k_vs_2010', '')}</td>
+<td>${getattr(call_info, '250k_vs_149SNP', '')}</td>
+<td>${getattr(call_info, '250k_vs_384_Illumina', '')}</td>
+<td>${getattr(call_info, '250k_vs_2010_149_384', '')}</td>
 <td>${call_info.filename}</td>
 <td>${call_info.array_id}</td>
 <td>${call_info.original_filename}</td>
+<td>${getattr(call_info, 'array_created', '')}</td>
 
 </tr>
 % endfor

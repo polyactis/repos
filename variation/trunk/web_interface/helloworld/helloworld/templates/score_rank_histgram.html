@@ -1,0 +1,39 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">Types of Histograms of Score/Rank </%def>
+Histograms of scores/ranks from associations results partitioned based on whether a SNP is associated with a candidate gene or not.
+
+<p>
+There are different ways of associating a SNP to a certain gene. The histograms are classified according to that.
+</p>
+
+% if len(c.score_rank_hist_type_ls)>0:
+	<table border=1>
+	
+	<tr>	
+	% for table_field in c.score_rank_hist_type_ls[0].c.keys():
+		
+		<th>${table_field}</th>
+	% endfor
+	
+	</tr>
+	
+	% for score_rank_hist_type in c.score_rank_hist_type_ls:
+		<tr>
+		% for table_field in score_rank_hist_type.c.keys():
+			<td>
+			% if table_field=='id':
+				<a href=${h.url_for(controller='ScoreRankHistogram', action='type', id=score_rank_hist_type.id)}>${getattr(score_rank_hist_type, table_field, '')} (${len(score_rank_hist_type.score_rank_hist_ls)} plots)</a>
+			% else:
+				${getattr(score_rank_hist_type, table_field, '')}
+			% endif
+			</td>
+		% endfor
+		</tr>
+	% endfor
+	
+	
+	</table>
+% else:
+	<p>Nothing in table ScoreRankHistogramType.</p>
+% endif

@@ -1,38 +1,36 @@
 <%inherit file="/base.html"/>
 
-<%def name="title()">SNP Region Plots</%def>
+<%def name="title()">Types of SNP Region Plots</%def>
 
-
-<p> ${len(c.snp_region_plots)} SNP Region Plots In Total.</p>
-
-<table border=1>
-
-<tr>
-<th>ID</th>
-<th>Chromosome</th>
-<th>Start</th>
-<th>Stop</th>
-<th>Center SNP</th>
-<th>Phenotype</th>
-<th>No of Genes</th>
-<th>Plot Type</th>
-<th>created by</th>
-<th>date created</th>
-</tr>
-% for snp_region_plot in c.snp_region_plots:
-<tr>
-<td><a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id=snp_region_plot.id)}>${snp_region_plot.id}</a></td>
-<td>${snp_region_plot.chromosome}</td>
-<td>${snp_region_plot.start}</td>
-<td>${snp_region_plot.stop}</td>
-<td>${snp_region_plot.center_snp_position}</td>
-<td>${snp_region_plot.phenotype_method.short_name} (id=${snp_region_plot.phenotype_method_id})</td>
-<td>${len(snp_region_plot.plot2gene_ls)}</td>
-<td><a href=${h.url_for(controller='SNPRegionPlot', action='type', id=snp_region_plot.plot_type_id)}>${snp_region_plot.plot_type.short_name}</a></td>
-<td>${snp_region_plot.created_by}</td>
-<td>${snp_region_plot.date_created}</td>
-</tr>
-% endfor
-
-
-</table>
+% if len(c.snp_region_plot_type_ls)>0:
+	<table border=1>
+	
+	<tr>	
+	% for table_field in c.snp_region_plot_type_ls[0].c.keys():
+		
+		<th>${table_field}</th>
+	% endfor
+	
+	</tr>
+	
+	% for snp_region_plot_type in c.snp_region_plot_type_ls:
+		<tr>
+		% for table_field in snp_region_plot_type.c.keys():
+			<td>
+			% if table_field=='id':
+				<a href=${h.url_for(controller='SNPRegionPlot', action='type', id=snp_region_plot_type.id)}>${getattr(snp_region_plot_type, table_field, '')} (${len(snp_region_plot_type.snp_region_plot_ls)} plots)</a>
+				<a href=${h.url_for(controller='SNPRegionPlot', action='type_by_snp', id=snp_region_plot_type.id)}>SNP_by_Phenotype</a>
+				<a href=${h.url_for(controller='SNPRegionPlot', action='type_by_gene', id=snp_region_plot_type.id)}>Gene_by_Phenotype</a>
+			% else:
+				${getattr(snp_region_plot_type, table_field, '')}
+			% endif
+			</td>
+		% endfor
+		</tr>
+	% endfor
+	
+	
+	</table>
+% else:
+	<p>Nothing in table SNPRegionPlotType.</p>
+% endif

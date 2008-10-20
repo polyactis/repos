@@ -1,0 +1,36 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">MAF vs Score Plots</%def>
+
+
+<p> ${c.counter} MAF vs Score Plots In Total.</p>
+
+
+<table border=1>
+
+<tr>
+<th>Phenotype Method</th>
+% for analysis_method_label in c.analysis_info.label_ls:
+	
+	<th>${analysis_method_label}</th>
+% endfor
+
+
+</tr>
+
+
+% for i in range(c.data_matrix.shape[0]):
+	<tr>
+	<td>${c.phenotype_info.phenotype_method_label_ls[i]}</td>
+	% for j in range(c.data_matrix.shape[1]):
+		<td>
+		% if c.data_matrix[i][j]>0:
+			<a href=${h.url_for(controller='MAFVsScorePlot', action='getImage', id=c.data_matrix[i][j])}>${c.data_matrix[i][j]}</a>
+		% endif
+		</td>
+	% endfor
+	</tr>
+% endfor
+
+
+</table>

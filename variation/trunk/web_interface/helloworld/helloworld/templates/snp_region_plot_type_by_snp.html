@@ -1,0 +1,47 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">SNP Region Plots</%def>
+
+
+<p> ${c.counter} SNP Region Plots In Total.</p>
+
+
+<table border=1>
+
+<tr>
+<th>Chr</th>
+<th>Start</th>
+<th>Stop</th>
+<th>Center SNP</th>
+<th>Length</th>
+<th>#Phenotypes</th>
+<th>#Genes within</th>
+% for phenotype_label in c.phenotype_info.phenotype_method_label_ls:
+	
+	<th>${phenotype_label}</th>
+% endfor
+
+</tr>
+
+
+% for i in range(c.data_matrix.shape[0]):
+	<tr>
+	<td>${c.snp_info.snp_ls[i].chromosome}</td>
+	<td>${c.snp_info.snp_ls[i].start}</td>
+	<td>${c.snp_info.snp_ls[i].stop}</td>
+	<td>${getattr(c.snp_info.snp_ls[i], 'center_snp_position', '')}</td>
+	<td>${c.snp_info.snp_ls[i].stop-c.snp_info.snp_ls[i].start}</td>
+	<td><a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id=c.snp_info.snp_ls[i].id, get_other_phenotypes=True)}>${c.snp_info.snp_ls[i].no_of_phenotypes}</a></td>
+	<td></td>
+	% for j in range(c.data_matrix.shape[1]):
+		<td>
+		% if c.data_matrix[i][j]>0:
+			<a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id=c.data_matrix[i][j])}>${c.data_matrix[i][j]}</a>
+		% endif
+		</td>
+	% endfor
+	</tr>
+% endfor
+
+
+</table>

@@ -14,7 +14,8 @@ class GreetingController(BaseController):
 		# or, Return a response
 		c.greeting = request.params.get('greeting', '<b>Welcome</b>')
 		#2008-10-05 test db connection
-		row = model.Stock_250kDB.GeneListType.query.first()
-		c.name = request.params.get('name', row.short_name)
+		#row = model.Stock_250kDB.GeneListType.query.first()
+		
+		c.name = request.params.get('name', 'Visitor')
 		return render('/greeting.html')
 
