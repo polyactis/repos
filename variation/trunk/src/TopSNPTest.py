@@ -52,9 +52,14 @@ class TopSNPTest(GeneListRankTest):
 		GeneListRankTest.__init__(self, **keywords)
 	
 	def getNoOfTotalGenes(self, db, gene_table='genome.gene', tax_id=3702):
+		"""
+		2008-10-21
+			add following condition to sql
+				no mitochondrial chromosome, chromosome has to be known,
+		"""
 		if self.debug:
 			sys.stderr.write("Getting no of total genes ... ")
-		rows = db.metadata.bind.execute("select count(gene_id) as count from %s where tax_id=%s"%(gene_table, tax_id))
+		rows = db.metadata.bind.execute("select count(gene_id) as count from %s where tax_id=%s and chromosome is not null and chromosome!='MT'"%(gene_table, tax_id))
 		row = rows.fetchone()
 		if self.debug:
 			sys.stderr.write("Done.\n")
