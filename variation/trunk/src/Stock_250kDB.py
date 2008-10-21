@@ -542,6 +542,8 @@ class SNPRegionPlotType(Entity):
 
 class SNPRegionPlot(Entity):
 	"""
+	2008-10-21
+		rename img_data to png_data and add svg_data
 	2008-10-16
 		fix an error in the definitions of img_data and original_filename. they were swapped
 	2008-10-06
@@ -550,7 +552,8 @@ class SNPRegionPlot(Entity):
 	chromosome = Field(Integer)
 	start = Field(Integer)
 	stop = Field(Integer)
-	img_data = Field(String(134217728), deferred=True)
+	png_data = Field(Binary(134217728), deferred=True)
+	svg_data = Field(Binary(length=134217728), deferred=True)
 	center_snp_position = Field(Integer)
 	original_filename = Field(Text)	#no bigger than 128M
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='phenotype_method_id', ondelete='CASCADE', onupdate='CASCADE')
@@ -562,7 +565,7 @@ class SNPRegionPlot(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='snp_region_plot', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	#using_table_options(UniqueConstraint('chromosome', 'start', 'stop', 'phenotype_method_id'))
+	using_table_options(UniqueConstraint('chromosome', 'start', 'stop', 'phenotype_method_id', 'plot_type_id'))
 
 class SNPRegionPlotToGene(Entity):
 	"""
@@ -594,8 +597,24 @@ class LD(Entity):
 	using_options(tablename='ld', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
+class NullDistributionType(Entity):
+	"""
+	2008-10-21
+		a table to store definition for different types null distributions
+	"""
+	short_name = Field(String(256), unique=True)
+	description = Field(String(8192))
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='null_distribution_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
 class ScoreRankHistogramType(Entity):
 	"""
+	2008-10-21
+		add null_distribution_type_id
 	2008-10-15
 		type of score/rank histograms in ScoreRankHistogram
 	"""
@@ -604,14 +623,17 @@ class ScoreRankHistogramType(Entity):
 	get_closest = Field(Integer)
 	min_MAF = Field(Float)
 	allow_two_sample_overlapping = Field(Integer)
+	results_type = Field(Integer)
+	null_distribution_type = ManyToOne('NullDistributionType', colname='null_distribution_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	score_rank_hist_ls = OneToMany('ScoreRankHistogram')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='score_rank_histgram_type', metadata=__metadata__, session=__session__)
+	using_options(tablename='score_rank_histogram_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('call_method_id', 'min_distance', 'get_closest', 'min_MAF', 'allow_two_sample_overlapping'))
+	using_table_options(UniqueConstraint('call_method_id', 'min_distance', 'get_closest', 'min_MAF', \
+										'allow_two_sample_overlapping', 'results_type', 'null_distribution_type_id'))
 
 class ScoreRankHistogram(Entity):
 	"""
@@ -630,10 +652,64 @@ class ScoreRankHistogram(Entity):
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='score_rank_histgram', metadata=__metadata__, session=__session__)
+	using_options(tablename='score_rank_histogram', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('phenotype_method_id', 'list_type_id', 'hist_type_id'))
+
+class MAFVsScorePlot(Entity):
+	"""
+	2008-10-17
+		table to store pvalue vs MAF plots
+	"""
+	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	png_data = Field(Binary(134217728), deferred=True)
+	svg_data = Field(Binary(length=134217728), deferred=True)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='maf_vs_score_plot', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('results_method_id'))
+
+"""
+class TopSNPTestRMPlotType(Entity):
+	#2008-10-20
+	#	type for TopSNPTestRMPlot
+	no_of_snps = Field(Integer)
+	test_type = Field(Integer)
+	results_type = Field(Integer)
+	min_distance = Field(Integer)
+	get_closest = Field(Integer)
+	min_MAF = Field(Float)
 	
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='top_snp_test_rm_plot_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('no_of_snps', 'test_type', 'results_type', \
+										'min_distance', 'get_closest', 'min_MAF'))
+
+class TopSNPTestRMPlot(Entity):
+	#2008-10-20
+	#	store plots based on data from CandidateGeneTopSNPTestRM
+	
+	png_data = Field(Binary(134217728), deferred=True)
+	svg_data = Field(Binary(length=134217728), deferred=True)
+	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	plot_type = ManyToOne('TopSNPTestRMPlotType', colname='plot_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='top_snp_test_rm_plot', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('results_method_id', 'list_type_id', 'plot_type_id'))
+"""
+
 class Stock_250kDB(ElixirDB):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
