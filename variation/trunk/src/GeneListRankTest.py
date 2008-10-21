@@ -192,8 +192,10 @@ class GeneListRankTest(object):
 		sys.stderr.write("Done.\n")
 		return chrpos2pvalue
 	
-	def getResultMethodContent(cls, rm, results_directory=None, min_MAF=0.1, construct_chr_pos2index=False):
+	def getResultMethodContent(cls, rm, results_directory=None, min_MAF=0.1, construct_chr_pos2index=False, pdata=None):
 		"""
+		2008-10-21
+			add pdata to conceal the passing of chr_pos2index to getGenomeWideResultFromFile()
 		2008-10-15
 			cache the genome_wide_result under cls.genome_wide_result, if cls.genome_wide_result.results_id==rm.id, directly return that.
 		2008-09-24
@@ -226,7 +228,8 @@ class GeneListRankTest(object):
 				do_log10_transformation = False
 		else:
 			return None
-		pdata = PassingData()
+		if pdata is None:
+			pdata = PassingData()
 		pdata.min_MAF = min_MAF
 		pdata.construct_chr_pos2index = construct_chr_pos2index
 		if os.path.isfile(result_fname):
