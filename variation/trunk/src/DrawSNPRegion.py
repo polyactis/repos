@@ -248,6 +248,8 @@ class DrawSNPRegion(GeneListRankTest):
 							("LD_info_picklef", 0, ): [None, 'D', 1, 'given the option, If the file does not exist yet, store a pickled LD_info into it (min_MAF and min_distance will be attached to the filename). If the file exists, load LD_info out of it.'],\
 							("gene_annotation_picklef", 0, ): [None, 'j', 1, 'given the option, If the file does not exist yet, store a pickled gene_annotation into it. If the file exists, load gene_annotation out of it.'],\
 							("latex_output_fname", 0, ): [None, 'x', 1, 'a file to store the latex of gene description tables and figures'],\
+							("label_gene", 0, int): [0, '', 0, 'toggle this to label every gene by gene symbol. otherwise only candidate genes are labeled'],\
+							("draw_LD_relative_to_center_SNP", 0, int): [0, '', 0, 'toggle this to draw LD between other SNPs and the center SNP'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 1, 'debug mode. 1=level 1 (pdb mode). 2=level 2 (same as 1 except no pdb mode)'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -381,7 +383,7 @@ class DrawSNPRegion(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return analysis_method_id2gwr
 	
-	def getSNPInfo(self, db):
+	def getSNPInfo(cls, db):
 		"""
 		2008-09-24
 			in order
@@ -410,6 +412,7 @@ class DrawSNPRegion(GeneListRankTest):
 		snp_info.snps_id2index = snps_id2index
 		sys.stderr.write("Done.\n")
 		return snp_info
+	getSNPInfo = classmethod(getSNPInfo)
 	
 	def add_mid_point(self, chr_pos_ls, chr_pos2adjacent_window):
 		"""
@@ -457,10 +460,10 @@ class DrawSNPRegion(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return snp_region
 	
-	analysis_method_id2color = {1:'b',
-							5:'r',
-							6:'g',
-							7:'k'}
+	analysis_method_id2color = {1:'r',
+							5:'g',
+							6:'c',
+							7:'b'}
 	
 	analysis_method_id2name = {1:'KW',
 							5:'Margarita',
@@ -515,7 +518,8 @@ class DrawSNPRegion(GeneListRankTest):
 				y_ls.append(value)
 		return x_ls, y_ls
 	
-	def drawPvalue(self, ax1, axe_LD, axe_LD_center_SNP, snps_within_this_region, analysis_method_id2gwr, LD_info=None, which_LD_statistic=2):
+	def drawPvalue(self, ax1, axe_LD, axe_LD_center_SNP, snps_within_this_region, analysis_method_id2gwr, LD_info=None, \
+				which_LD_statistic=2, draw_LD_relative_to_center_SNP=0):
 		"""
 		2008-10-1
 			refine the LD line on axe_LD_center_SNP, with markersize=2 and etc.
@@ -535,10 +539,10 @@ class DrawSNPRegion(GeneListRankTest):
 				pscatter = ax1.scatter(x_ls, y_ls, s=10, linewidth=0.6, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w')
 				legend_ls.append(self.analysis_method_id2name[analysis_method_id])
 				pscatter_ls.append(pscatter)
-		if LD_info:	#draw LD with regard to the center SNP
+		if LD_info and draw_LD_relative_to_center_SNP:	#draw LD with regard to the center SNP
 			x_ls, y_ls = self.getXY(snps_within_this_region, LD_info=LD_info, which_LD_statistic=which_LD_statistic)
 			if x_ls and y_ls:
-				apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'c-o', linewidth=0.5, markersize=2, alpha=0.6, markerfacecolor='w')
+				apl = axe_LD_center_SNP.plot(x_ls, y_ls, 'k-o', linewidth=0.5, markersize=2, alpha=0.3, markerfacecolor='w')
 				legend_ls.append(r'$%s$ with center SNP'%LD_statistic.get_label(which_LD_statistic))
 				pscatter_ls.append(apl[0])
 		ax1.set_ylabel(r'-log(pvalue)/normalized score')
@@ -626,13 +630,14 @@ class DrawSNPRegion(GeneListRankTest):
 				ax.add_artist(g_artist)
 				text_start_pos = box_ls[-1][1]
 				#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
-				ax.text(text_start_pos+param_data.gene_box_text_gap, y_value, gene_model.gene_symbol, size=4, \
-					color=gene_symbol_color, alpha=0.8, verticalalignment='center')
+				if param_data.label_gene or gene_symbol_color=='b':	#specified to label or it's candidate gene
+					ax.text(text_start_pos+param_data.gene_box_text_gap, y_value, gene_model.gene_symbol, size=4, \
+						color=gene_symbol_color, alpha=0.8, verticalalignment='center')
 				param_data.no_of_genes_drawn += 1
 				
 					
 	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, \
-					gene_position_cycle=4, base_y_value=1, gene_box_text_gap=100):
+					gene_position_cycle=4, base_y_value=1, gene_box_text_gap=100, label_gene=0):
 		"""
 		2008-10-01
 		2008-09-24
@@ -644,7 +649,7 @@ class DrawSNPRegion(GeneListRankTest):
 		right_chr = str(right_chr)
 		param_data = PassingData(gene_id2model=gene_annotation.gene_id2model, candidate_gene_set=candidate_gene_set, \
 								gene_width=gene_width, gene_position_cycle=gene_position_cycle, no_of_genes_drawn=0, \
-								gene_box_text_gap=gene_box_text_gap, matrix_of_gene_descriptions = [])
+								gene_box_text_gap=gene_box_text_gap, matrix_of_gene_descriptions = [], label_gene=label_gene)
 		for gene_id in gene_annotation.chr_id2gene_id_ls[left_chr]:
 			gene_model = gene_annotation.gene_id2model[gene_id]
 			if gene_model.start!=None and gene_model.stop!=None and gene_model.stop>left_pos:
@@ -736,7 +741,8 @@ class DrawSNPRegion(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 	
 	def drawRegionAroundThisSNP(self, phenotype_method_id, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, \
-							LD_info, output_dir, which_LD_statistic, snp_region=None, min_distance=40000, list_type_id=None):
+							LD_info, output_dir, which_LD_statistic, snp_region=None, min_distance=40000, list_type_id=None, label_gene=0,
+							draw_LD_relative_to_center_SNP=0):
 		"""
 		2008-10-01
 			remove the frame of ax1 and add a grid to ax1
@@ -782,13 +788,15 @@ class DrawSNPRegion(GeneListRankTest):
 				fig_title += ' - %s. '%this_snp.stop
 		fig_title += "Phenotype %s (id=%s)."%(phenotype.short_name, phenotype.id)		
 		ax1.title.set_text(fig_title)	#main title using this snp.
-		self.drawPvalue(ax1, axe_LD, axe_LD_center_SNP, snps_within_this_region, analysis_method_id2gwr, LD_info, which_LD_statistic)
+		self.drawPvalue(ax1, axe_LD, axe_LD_center_SNP, snps_within_this_region, analysis_method_id2gwr, LD_info, \
+					which_LD_statistic, draw_LD_relative_to_center_SNP=draw_LD_relative_to_center_SNP)
 		gene_position_cycle = 5
 		base_y_value = 1
 		gene_width=0.8
 		gene_box_text_gap = min_distance*2*0.005
 		matrix_of_gene_descriptions = self.drawGeneModel(axe_gene_model, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=gene_width, \
-						gene_position_cycle=gene_position_cycle, base_y_value=base_y_value, gene_box_text_gap=gene_box_text_gap)
+						gene_position_cycle=gene_position_cycle, base_y_value=base_y_value, gene_box_text_gap=gene_box_text_gap,\
+						label_gene=label_gene)
 		gene_model_min_y = base_y_value-gene_width
 		gene_model_max_y = gene_position_cycle + base_y_value -1 + gene_width	#"-1" because genes never sit on y=gene_position_cycle + base_y_value
 		self.drawLD(axe_gene_model, axe_LD, snps_within_this_region, LD_info, gene_model_min_y=gene_model_min_y,\
@@ -1011,7 +1019,8 @@ class DrawSNPRegion(GeneListRankTest):
 		after_plot_data = self.drawRegionAroundThisSNP(phenotype_id, this_snp, param_data.candidate_gene_set, param_data.gene_annotation, \
 													param_data.snp_info, \
 								analysis_method_id2gwr, param_data.LD_info, param_data.output_dir, param_data.which_LD_statistic, \
-								min_distance=param_data.min_distance, list_type_id=param_data.list_type_id)
+								min_distance=param_data.min_distance, list_type_id=param_data.list_type_id,
+								label_gene=param_data.label_gene, draw_LD_relative_to_center_SNP=param_data.draw_LD_relative_to_center_SNP)
 		param_data.no_of_snps_drawn += 1
 		if delete_gwr:
 			del analysis_method_id2gwr
@@ -1075,12 +1084,14 @@ class DrawSNPRegion(GeneListRankTest):
 		param_data.min_distance = self.min_distance
 		param_data.list_type_id = self.list_type_id
 		param_data.no_of_snps_drawn = 0
+		param_data.label_gene = self.label_gene
+		param_data.draw_LD_relative_to_center_SNP = self.draw_LD_relative_to_center_SNP
 		no_of_genes_handled = 0
 		while 1:
 			try:
 				input_data = self.getSNPsFromInputFile(input_fname, snp_info)
 				param_data.which_LD_statistic = which_LD_statistic
-				
+				"""
 				for gene_id in input_data.gene_id_ls:
 					sys.stderr.write("Handling Gene %s ...\n"%gene_id)
 					snp2phenotype_id_ls = input_data.return_snp_data_given_gene_id(gene_id)
@@ -1123,9 +1134,9 @@ class DrawSNPRegion(GeneListRankTest):
 														input_data, param_data, latex_f)
 					if latex_f:
 						del latex_f
-				
+				"""
 				snps_id2latex_f = {}
-				if input_data.no_of_genes==0:	#no gene in input_fname, iterate over snps
+				if input_data.no_of_genes>=0:	#no gene in input_fname, iterate over snps
 					phenotype_id2snp_ls = input_data.return_phenotype_id2snp_ls()
 					for phenotype_id, snp_ls in phenotype_id2snp_ls.iteritems():
 						snp_ls.sort()
