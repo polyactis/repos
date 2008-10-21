@@ -899,6 +899,10 @@ class GenomeWideResults(TableClass):
 		self.genome_wide_result_obj_id2index[id(genome_wide_result)] = genome_wide_result_index
 
 class GenomeWideResult(TableClass):
+	"""
+	2008-10-21
+		add option construct_data_obj_id2index
+	"""
 	data_obj_ls = None
 	data_obj_id2index = None
 	name = None
@@ -908,6 +912,7 @@ class GenomeWideResult(TableClass):
 	max_value = None
 	base_value = 0
 	chr_pos2index = None
+	construct_data_obj_id2index = True
 	construct_chr_pos2index = False
 	argsort_data_obj_ls = None
 	def get_data_obj_by_obj_id(self, obj_id):
@@ -927,15 +932,26 @@ class GenomeWideResult(TableClass):
 			if obj_index is not None:
 				return self.data_obj_ls[obj_index]
 	
-	def add_one_data_obj(self, data_obj):
+	def add_one_data_obj(self, data_obj, chr_pos2index=None):
 		"""
+		2008-10-21
+			add option chr_pos2index to put data_obj into data_obj_ls with pre-defined order
 		2008-09-24
 			add snippet to deal with construct_chr_pos2index and chr_pos2index
 		"""
-		data_obj_index = len(self.data_obj_ls)
-		self.data_obj_ls.append(data_obj)
+		if isinstance(chr_pos2index, dict):
+			data_obj_index = chr_pos2index[(data_obj.chromosome, data_obj.position)]
+			if not hasattr(self.data_obj_ls, '__len__') or len(self.data_obj_ls)==0:
+				self.data_obj_ls = [None]*len(chr_pos2index)
+			self.data_obj_ls[data_obj_index] = data_obj
+		else:
+			data_obj_index = len(self.data_obj_ls)
+			self.data_obj_ls.append(data_obj)
 		
-		self.data_obj_id2index[id(data_obj)] = data_obj_index
+		if self.construct_data_obj_id2index:	#2008-10-21
+			if self.data_obj_id2index == None:
+				self.data_obj_id2index = {}
+			self.data_obj_id2index[id(data_obj)] = data_obj_index
 		if self.construct_chr_pos2index:	#2008-09-24
 			if self.chr_pos2index ==None:
 				self.chr_pos2index = {}
@@ -970,7 +986,7 @@ class DataObject(TableClass):
 	name = None
 	value = None
 	genome_wide_result_id = None
-	
+	maf = None
 	def __cmp__(self, other):
 		"""
 		2008-08-20
@@ -984,6 +1000,9 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-10-21
+		add score_for_0_pvalue, if pdata doesn't have it, assume 50.
+		get chr_pos2index from pdata, which will pre-decide the order of snps in gwr.data_obj_ls
 	2008-10-14
 		get "is_4th_col_stop_pos" from pdata if it exists to decide how to deal with 4th col
 	2008-09-24
@@ -1003,6 +1022,9 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	"""
 	sys.stderr.write("Getting genome wide result from %s ... "%input_fname)
 	construct_chr_pos2index = getattr(pdata, 'construct_chr_pos2index', False)	#2008-09-24
+	is_4th_col_stop_pos = getattr(pdata, 'is_4th_col_stop_pos', False)	#2008-10-14
+	chr_pos2index = getattr(pdata, 'chr_pos2index', None)	#2008-10-21
+	score_for_0_pvalue = getattr(pdata, 'score_for_0_pvalue', 50)
 	gwr = GenomeWideResult(name=os.path.basename(input_fname), construct_chr_pos2index=construct_chr_pos2index)
 	gwr.data_obj_ls = []	#list and dictionary are crazy references.
 	gwr.data_obj_id2index = {}
@@ -1011,7 +1033,6 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	delimiter = figureOutDelimiter(input_fname)
 	reader = csv.reader(open(input_fname), delimiter=delimiter)
 	no_of_lines = 0
-	is_4th_col_stop_pos = getattr(pdata, 'is_4th_col_stop_pos', False)
 	for row in reader:
 		#check if 1st line is header or not
 		if no_of_lines ==0 and pa_has_characters.search(row[1]):
@@ -1027,7 +1048,7 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			if is_4th_col_stop_pos:
 				stop_pos = int(row[3])
 			else:
-				column_4th=row[3]
+				column_4th=float(row[3])
 			
 		"""
 		else:
@@ -1045,12 +1066,13 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 				continue
 			if pdata.stop!=None and start_pos>pdata.stop:
 				continue
-			if pdata.min_MAF!=None and column_4th!=None and float(column_4th)<pdata.min_MAF:	#MAF too small
+			if pdata.min_MAF!=None and column_4th!=None and column_4th<pdata.min_MAF:	#MAF too small
 				continue
 		if do_log10_transformation:
 			if score<=0:
-				sys.stderr.write("score <=0. can't do log10. skip %s.\n"%(repr(row)))
-				continue
+				sys.stderr.write("score <=0. can't do log10. row is %s. assign %s to it.\n"%(repr(row), score_for_0_pvalue))
+				#continue
+				score = score_for_0_pvalue
 			else:
 				score = -math.log10(score)
 		if min_value_cutoff is None or score>=min_value_cutoff:
@@ -1058,8 +1080,11 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 				data_obj = DataObject(chromosome=chr, position=start_pos, stop_position=stop_pos, value =score)
 			else:
 				data_obj = DataObject(chromosome=chr, position=start_pos, value =score)
+			if column_4th is not None:
+				data_obj.maf = column_4th
+			
 			data_obj.genome_wide_result_id = genome_wide_result_id
-			gwr.add_one_data_obj(data_obj)
+			gwr.add_one_data_obj(data_obj, chr_pos2index)
 		
 		no_of_lines += 1
 		
