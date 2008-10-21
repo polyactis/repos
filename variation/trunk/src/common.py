@@ -328,3 +328,28 @@ def getEcotypeInfo(db, country_order_type=1):
 	ecotype_info.country2order = country2order
 	sys.stderr.write("Done.\n")
 	return ecotype_info
+
+def get_total_gene_ls(curs, gene_table='genome.gene', tax_id=3702, debug=False):
+	"""
+	2008-10-21
+		get a list of gene given tax_id
+			no mitochondrial, chromosome has to be known,
+	"""
+	if debug:
+		sys.stderr.write("Getting gene_id_ls ... ")
+	rows = curs.execute("select distinct gene_id from %s where tax_id=%s and chromosome is not null and chromosome!='MT'"%\
+								(gene_table, tax_id))
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2008-10-07 this curs is not elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
+	gene_id_ls = []
+	for row in rows:
+		if is_elixirdb:
+			gene_id = row.gene_id
+		else:
+			gene_id = row[0]
+		gene_id_ls.append(row.gene_id)
+	if debug:
+		sys.stderr.write("Done.\n")
+	return gene_id_ls
