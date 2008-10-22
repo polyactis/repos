@@ -512,7 +512,7 @@ class GeneListRankTest(object):
 		chr2cumu_no_of_snps = {}
 		
 		#input file is in chromosome,position order
-		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF, param_data)
+		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF, pdata=param_data)
 		if genome_wide_result is None:
 			return None
 		score_ls = [data_obj.value for data_obj in genome_wide_result.data_obj_ls]
