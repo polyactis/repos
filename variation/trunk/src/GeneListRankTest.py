@@ -194,6 +194,8 @@ class GeneListRankTest(object):
 	
 	def getResultMethodContent(cls, rm, results_directory=None, min_MAF=0.1, construct_chr_pos2index=False, pdata=None):
 		"""
+		2008-10-22
+			before deciding do_log10_transformation based on analysis_method, try to get it from pdata
 		2008-10-21
 			add pdata to conceal the passing of chr_pos2index to getGenomeWideResultFromFile()
 		2008-10-15
@@ -208,6 +210,7 @@ class GeneListRankTest(object):
 			split from getGeneID2MostSignificantHit()
 		"""
 		genome_wide_result = getattr(cls, 'genome_wide_result', None)
+		do_log10_transformation = getattr(pdata, 'do_log10_transformation', None)
 		if genome_wide_result is not None and genome_wide_result.results_id==rm.id:
 			return genome_wide_result
 		
@@ -220,14 +223,15 @@ class GeneListRankTest(object):
 		else:
 			result_fname = rm.filename
 		
-		#based on the analysis method id, whether do -log() or not. it'll affect the later step of taking maximum pvalue out of SNPs associated with one gene
-		if hasattr(rm, 'analysis_method'):
-			if rm.analysis_method.smaller_score_more_significant==1:
-				do_log10_transformation = True
+		if do_log10_transformation is None:
+			#based on the analysis method id, whether do -log() or not. it'll affect the later step of taking maximum pvalue out of SNPs associated with one gene
+			if hasattr(rm, 'analysis_method'):
+					if rm.analysis_method.smaller_score_more_significant==1:
+						do_log10_transformation = True
+					else:
+						do_log10_transformation = False
 			else:
-				do_log10_transformation = False
-		else:
-			return None
+				return None
 		if pdata is None:
 			pdata = PassingData()
 		pdata.min_MAF = min_MAF
@@ -481,6 +485,7 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-10-22 pass param_data directly to getResultMethodContent()
 		2008-10-17
 			handle option need_the_value from param_data
 		2008-10-15
@@ -507,7 +512,7 @@ class GeneListRankTest(object):
 		chr2cumu_no_of_snps = {}
 		
 		#input file is in chromosome,position order
-		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF)
+		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF, param_data)
 		if genome_wide_result is None:
 			return None
 		score_ls = [data_obj.value for data_obj in genome_wide_result.data_obj_ls]
