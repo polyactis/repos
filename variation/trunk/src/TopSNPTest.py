@@ -6,6 +6,9 @@ Examples:
 	
 	TopSNPTest.py -e 389 -l 1 -u yh  -o /tmp/top_snp_test.out
 	
+	#
+	TopSNPTest.py -e 389 -l 28 -u yh -f 300 -s ./mnt2/panfs/250k/snps_context_g0_m20000 -m 20000 -y 15
+	
 Description:
 	2008-08-20 program to do hypergeometric test on a number of genes from top SNPs based on a given candidate gene list.
 	
@@ -35,15 +38,16 @@ from pymodule import getGenomeWideResultFromFile
 from GeneListRankTest import GeneListRankTest, SnpsContextWrapper
 from sets import Set
 from heapq import heappush, heappop, heapreplace
-
+from common import get_total_gene_ls
+import rpy, random, numpy
 
 class TopSNPTest(GeneListRankTest):
 	__doc__ = __doc__
 	option_default_dict = GeneListRankTest.option_default_dict.copy()
 	option_default_dict.update({('tax_id', 1, int): [3702, 'x', 1, 'to get the number of total genes from database, which species.']})
 	option_default_dict.update({('gene_table', 1, ): ['genome.gene', 'a', 1, 'to get the number of total genes from database, which table.']})
-	option_default_dict.update({('no_of_top_snps', 1, int): [50, 'f', 1, 'how many number of top snps based on score or -log(pvalue).']})
-	option_default_dict.update({("test_type", 1, int): [1, 'y', 1, 'which type of tests. 1: r.wilcox.test() 2: loop-permutation. 3: hypergeometric. 4,5,6 are their counterparts which allow_two_sample_overlapping.']})
+	option_default_dict.update({('no_of_top_snps', 1, int): [200, 'f', 1, 'how many number of top snps based on score or -log(pvalue).']})
+	option_default_dict.update({("test_type_id", 1, int): [1, 'y', 1, 'which type of tests. check db table analysis_method. likely be 14,15 etc.']})
 	
 	def __init__(self,  **keywords):
 		"""
@@ -135,12 +139,14 @@ class TopSNPTest(GeneListRankTest):
 		"""
 		candidate_gene_list = self.dealWithCandidateGeneList(list_type_id)	#internal cache
 		if getattr(self.list_type_id2candidate_gene_list_info[list_type_id], 'no_of_snps_associated', None) is None:
+			"""
 			if pd.test_type>3:
 				allow_two_sample_overlapping = 1
 			else:
 				allow_two_sample_overlapping = 0
+			"""
 			param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, \
-										min_MAF=pd.min_MAF, allow_two_sample_overlapping=allow_two_sample_overlapping)	#starting_rank=1, go through all SNPs
+										min_MAF=pd.min_MAF, allow_two_sample_overlapping=pd.allow_two_sample_overlapping)	#starting_rank=1, go through all SNPs
 			permData = self.prepareDataForPermutationRankTest(rm, pd.snps_context_wrapper, param_data)
 			candidate_sample_size = len(permData.candidate_gene_snp_rank_ls)
 			non_candidate_sample_size = len(permData.non_candidate_gene_snp_rank_ls)
@@ -148,8 +154,76 @@ class TopSNPTest(GeneListRankTest):
 			self.list_type_id2candidate_gene_list_info[list_type_id].no_of_snps_unassociated=non_candidate_sample_size			
 		return self.list_type_id2candidate_gene_list_info[list_type_id].no_of_snps_associated
 	
+	def get_looped_chr_pos_ls(self, candidate_gene_snp_index_ls, no_of_snps, total_chr_pos_ar):
+		"""
+		2008-10-22
+			total_chr_pos_ar is of numpy array type
+		"""
+		shift = random.randint(1, no_of_snps)
+		candidate_gene_snp_index_ls_perm = (candidate_gene_snp_index_ls+shift)%no_of_snps	#modulo to recycle
+		looped_chr_pos_ar = total_chr_pos_ar[candidate_gene_snp_index_ls_perm]
+		return looped_chr_pos_ar
+		
+	def get_enrichment_pvalue_by_gw_looping(self, candidate_sample_size, top_snp_index_ls, candidate_gene_set, \
+										snps_context_wrapper, \
+										no_of_total_snps, total_chr_pos_ar=None, no_of_permutations=20000, no_of_min_breaks=30):
+		"""
+		2008-10-22
+		"""
+		sys.stderr.write("Getting enrichment pvalue by gw-looping ... ")
+		i = 0
+		no_of_hits = 0
+		while i<no_of_permutations:
+			looped_chr_pos_ls = self.get_looped_chr_pos_ls(top_snp_index_ls, no_of_total_snps, total_chr_pos_ar)
+			looped_candidate_gene_snp_index_ls = self.get_candidate_gene_snp_index_ls(candidate_gene_set, \
+																					looped_chr_pos_ls, snps_context_wrapper)
+			new_candidate_sample_size = len(looped_candidate_gene_snp_index_ls)
+			
+			if new_candidate_sample_size>=candidate_sample_size:	#pvalue = Prob(X>=candidate_sample_size)
+				no_of_hits += 1
+			i+=1
+			if no_of_min_breaks>0 and no_of_hits>=no_of_min_breaks:	#if no_of_min_breaks<=0, no smart breaking
+				break
+		pvalue = no_of_hits/float(i)
+		sys.stderr.write("%s/%s tests in total. Done.\n"%(no_of_hits, i))
+		return pvalue
+	
+	def get_enrichment_pvalue_by_random_gene_list(self, sample_pvalue, total_gene_id_ls, candidate_gene_set, \
+												total_chr_pos_ls, snps_context_wrapper, top_snp_chr_pos_ls, n,k,\
+												no_of_permutations=20000, no_of_min_breaks=30):
+		"""
+		2008-10-22
+		"""
+		sys.stderr.write("Getting enrichment pvalue by random gene list ... ")
+		i = 0
+		no_of_hits = 0
+		no_of_candidate_genes = len(candidate_gene_set)
+		no_of_total_snps = len(total_chr_pos_ls)
+		no_of_top_snps = len(top_snp_chr_pos_ls)
+		while i<no_of_permutations:
+			new_candidate_gene_set = Set(random.sample(total_gene_id_ls, no_of_candidate_genes))
+			new_candidate_gene_snp_gw_index_ls = self.get_candidate_gene_snp_index_ls(new_candidate_gene_set, total_chr_pos_ls, snps_context_wrapper)
+			new_candidate_gene_snp_sample_index_ls = self.get_candidate_gene_snp_index_ls(new_candidate_gene_set, top_snp_chr_pos_ls, snps_context_wrapper)
+			x = len(new_candidate_gene_snp_sample_index_ls)
+			m = len(new_candidate_gene_snp_gw_index_ls)
+			n = no_of_total_snps - m
+			k = no_of_top_snps
+			new_sample_pvalue = rpy.r.phyper(x-1,m,n,k, lower_tail = rpy.r.FALSE)
+			if new_sample_pvalue<=sample_pvalue:	#watch: pvalue = Prob(X<=sample_pvalue). chance of getting more significant (smaller) pvalues
+				no_of_hits += 1
+			i+=1
+			if no_of_min_breaks>0 and no_of_hits>=no_of_min_breaks:	#if no_of_min_breaks<=0, no smart breaking
+				break
+		pvalue = no_of_hits/float(i)
+		sys.stderr.write("%s/%s tests in total. Done.\n"%(no_of_hits, i))
+		return pvalue
+	
 	def runHGTest(self, pd):
 		"""
+		2008-10-23
+			'test_type' = 'test_type_id'
+			test_type_id is now formally put into db table analysis_method. 15 is functional now.
+			add code to handle null_distribution_type_id=1,2,3
 		2008-10-15
 			add test_type 1,2,3 and more
 		2008-09-18
@@ -187,16 +261,17 @@ class TopSNPTest(GeneListRankTest):
 			sys.stderr.write("No results available for results_id=%s.\n"%pd.results_method_id)
 			return None
 		starting_rank = getattr(pd, 'starting_rank', 1)	#from which rank to look down for top snps
-		db_results = TestResultClass.query.filter_by(results_id=pd.results_id).filter_by(list_type_id=pd.list_type_id).\
-			filter_by(no_of_top_snps=pd.no_of_top_snps).filter_by(min_distance=pd.min_distance).\
-			filter_by(min_MAF=pd.min_MAF).filter_by(get_closest=pd.get_closest).filter_by(test_type=pd.test_type).\
-			filter_by(starting_rank=starting_rank)
-		if db_results.count()>0:	#done before
-			db_result = db_results.first()
-			sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
-							(db_result.id, db_result.results_id, db_result.list_type_id, db_result.no_of_top_snps, db_result.pvalue))
-			return None
+		if pd.type_id:	#the type is already in database. now check if the same top snp test has been done or not
+			db_results = TestResultClass.query.filter_by(results_id=pd.results_id).filter_by(list_type_id=pd.list_type_id).\
+				filter_by(starting_rank=starting_rank).filter_by(no_of_top_snps=pd.no_of_top_snps).filter_by(type_id=pd.type_id)
+			if db_results.count()>0:	#done before
+				db_result = db_results.first()
+				sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
+								(db_result.id, db_result.results_id, db_result.list_type_id, db_result.no_of_top_snps, db_result.pvalue))
+				return None
 		
+		score_range = None	#to be added as comment in dbs		
+		m = None	
 		try:
 			import rpy
 			candidate_gene_list = self.dealWithCandidateGeneList(pd.list_type_id)	#internal cache
@@ -206,15 +281,10 @@ class TopSNPTest(GeneListRankTest):
 			else:
 				passingdata = self.prepareDataForHGTest(rm, pd.snps_context_wrapper, candidate_gene_list, pd.results_directory, pd.min_MAF, pd.no_of_top_snps)
 			"""
-			if pd.test_type>3:
-				allow_two_sample_overlapping = 1
-			else:
-				allow_two_sample_overlapping = 0
 			param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, \
-									min_MAF=pd.min_MAF, allow_two_sample_overlapping=allow_two_sample_overlapping,\
+									min_MAF=pd.min_MAF, allow_two_sample_overlapping=pd.allow_two_sample_overlapping,\
 									no_of_top_lines=pd.no_of_top_snps, no_of_top_snps=pd.no_of_top_snps, \
-									starting_rank=starting_rank)
-			
+									starting_rank=starting_rank, need_chr_pos_ls=1)	#need_chr_pos_ls is for null_distribution_type_id=2/3
 			#param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, no_of_top_lines=pd.no_of_top_snps)
 			if pd.results_type==2:
 				passingdata = self.prepareDataForRankTestFromResultsByGene(rm, param_data)
@@ -231,29 +301,49 @@ class TopSNPTest(GeneListRankTest):
 				non_candidate_sample_size = len(passingdata.non_candidate_gene_ls)
 			elif pd.results_type==1:	#for ResultsMethod
 				permData = self.prepareDataForPermutationRankTest(rm, pd.snps_context_wrapper, param_data)
+				score_range = permData.score_range
 				candidate_sample_size = len(permData.candidate_gene_snp_rank_ls)
 				non_candidate_sample_size = len(permData.non_candidate_gene_snp_rank_ls)
 				not_enough_sample = 0
 				if candidate_sample_size<pd.min_sample_size:	#don't look at how many non-candidates are (different from whole genome rank test)
 					sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 					return None
-				if pd.test_type%3==1:
+				if pd.test_type_id==14 and pd.null_distribution_type_id==1:	#defunct
 					w_result = rpy.r.wilcox_test(permData.candidate_gene_snp_rank_ls, permData.non_candidate_gene_snp_rank_ls, alternative='greater')
 					statistic=w_result['statistic']['W']
 					pvalue=w_result['p.value']
-				elif pd.test_type%3==2:
+				elif pd.test_type_id==14 and pd.null_distribution_type_id==2:	#defunct
 					pd.permutation_type = 1
 					rank_sum_stat, pvalue = self.getPermutationRankSumPvalue(permData.chr2rank_ls, permData.candidate_gene_snp_index_ls, permData.non_candidate_gene_snp_index_ls,\
 														permData.rank_sum_stat, \
 													permData.no_of_snps, permData.chr2no_of_snps, permutation_type=pd.permutation_type, \
 													no_of_permutations=pd.no_of_permutations, no_of_min_breaks=pd.no_of_min_breaks)
 					statistic = rank_sum_stat-(candidate_sample_size*(candidate_sample_size-1))/2.
-				elif pd.test_type%3==0:
-					x = candidate_sample_size
-					m = self.dealWithNoOfSNPsAssociatedWithCandidateGeneList(pd.list_type_id, rm, pd)	#cache is internally going on
-					n = permData.no_of_total_snps - m
-					k = pd.no_of_top_snps
-					pvalue = rpy.r.phyper(x-1,m,n,k,lower_tail = rpy.r.FALSE)
+				elif pd.test_type_id==15:
+					if pd.null_distribution_type_id==1:
+						x = candidate_sample_size
+						m = self.dealWithNoOfSNPsAssociatedWithCandidateGeneList(pd.list_type_id, rm, pd)	#cache is internally going on
+						n = permData.no_of_total_snps - m
+						k = pd.no_of_top_snps
+						pvalue = rpy.r.phyper(x-1,m,n,k,lower_tail = rpy.r.FALSE)
+					elif pd.null_distribution_type_id==2:
+						m = self.dealWithNoOfSNPsAssociatedWithCandidateGeneList(pd.list_type_id, rm, pd)	#cache is internally going on
+						candidate_gene_set = self.dealWithCandidateGeneList(pd.list_type_id, return_set=True)	#internal cache
+						top_snp_index_ls = numpy.hstack((permData.candidate_gene_snp_index_ls, permData.non_candidate_gene_snp_index_ls))
+						pvalue = self.get_enrichment_pvalue_by_gw_looping(candidate_sample_size, top_snp_index_ls, candidate_gene_set, \
+										pd.snps_context_wrapper, permData.no_of_total_snps, total_chr_pos_ar=permData.total_chr_pos_ar, \
+										no_of_permutations=pd.no_of_permutations, no_of_min_breaks=pd.no_of_min_breaks)
+					elif pd.null_distribution_type_id==3:
+						x = candidate_sample_size
+						m = self.dealWithNoOfSNPsAssociatedWithCandidateGeneList(pd.list_type_id, rm, pd)	#cache is internally going on
+						n = permData.no_of_total_snps - m
+						k = pd.no_of_top_snps
+						sample_pvalue = rpy.r.phyper(x-1,m,n,k,lower_tail = rpy.r.FALSE)
+						candidate_gene_set = self.dealWithCandidateGeneList(pd.list_type_id, return_set=True)	#internal cache
+						top_snp_chr_pos_ls = permData.candidate_gene_snp_chr_pos_ls + permData.non_candidate_gene_snp_chr_pos_ls
+						pvalue = self.get_enrichment_pvalue_by_random_gene_list(sample_pvalue, pd.total_gene_id_ls, candidate_gene_set, \
+												permData.total_chr_pos_ar, pd.snps_context_wrapper, top_snp_chr_pos_ls, n,k,\
+												no_of_permutations=pd.no_of_permutations, no_of_min_breaks=pd.no_of_min_breaks)
 				else:
 					sys.stderr.write("Test_type %s not supported.\n"%(pd.test_type))
 					return None
@@ -264,19 +354,47 @@ class TopSNPTest(GeneListRankTest):
 			return None
 		result = TestResultClass(list_type_id=pd.list_type_id, pvalue=pvalue)
 		result.results_id = pd.results_id
-		result.min_distance = min_distance
-		result.min_MAF = min_MAF
-		result.get_closest = get_closest
 		result.candidate_sample_size = candidate_sample_size
 		result.non_candidate_sample_size = non_candidate_sample_size
 		#result.no_of_top_candidate_genes = x
 		#result.no_of_top_genes = k
+		result.candidate_gw_size = m
 		result.no_of_top_snps = pd.no_of_top_snps
-		result.test_type = pd.test_type
 		result.starting_rank = starting_rank
+		result.type_id = pd.type_id
+		if score_range:
+			result.max_score = score_range[0]
+			result.min_score = score_range[1]
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return result
+	
+	def getTopSNPTestType(self, min_distance, get_closest, min_MAF, allow_two_sample_overlapping, results_type,\
+				test_type_id, null_distribution_type_id):
+		"""
+		2008-10-16
+			check whcih TopSNPTest type this is, create one if it doesn't exist in db
+		"""
+		sys.stderr.write("Getting  CandidateGeneTopSNPTestRMType ...")
+		rows = Stock_250kDB.CandidateGeneTopSNPTestRMType.query.\
+				filter_by(min_distance=min_distance).filter_by(get_closest =get_closest).\
+				filter(Stock_250kDB.CandidateGeneTopSNPTestRMType.min_MAF>=min_MAF-0.0001).filter(Stock_250kDB.CandidateGeneTopSNPTestRMType.min_MAF<=min_MAF+0.0001).\
+				filter_by(allow_two_sample_overlapping = allow_two_sample_overlapping).filter_by(results_type=results_type).\
+				filter_by(test_type_id=test_type_id).\
+				filter_by(null_distribution_type_id=null_distribution_type_id)
+		if rows.count()>0:
+			_type = rows.first()
+		else:
+			_type = Stock_250kDB.CandidateGeneTopSNPTestRMType(min_distance=min_distance,\
+										get_closest =get_closest,\
+										min_MAF = min_MAF,\
+										allow_two_sample_overlapping = allow_two_sample_overlapping, \
+										results_type=results_type,\
+										test_type_id=test_type_id,\
+										null_distribution_type_id=null_distribution_type_id)
+		sys.stderr.write("Done.\n")
+		return _type
+	
 	
 	def run(self):
 		"""
@@ -289,17 +407,31 @@ class TopSNPTest(GeneListRankTest):
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		db.setup()
 		session = db.session
-		no_of_total_genes = self.getNoOfTotalGenes(db, self.gene_table, self.tax_id)
+		
+		total_gene_id_ls = get_total_gene_ls(db.metadata.bind)
+		no_of_total_genes = len(total_gene_id_ls)
+		#no_of_total_genes = self.getNoOfTotalGenes(db, self.gene_table, self.tax_id)
+		
 		#if self.commit:
 		#	session.begin()
+		_type = self.getTopSNPTestType(self.min_distance, self.get_closest, self.min_MAF, \
+									self.allow_two_sample_overlapping, self.results_type,\
+									self.test_type_id, self.null_distribution_type_id)
 		
 		snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 		pd = PassingData(list_type_id=self.list_type_id, snps_context_wrapper=snps_context_wrapper, \
 							no_of_total_genes=no_of_total_genes, results_directory=self.results_directory, \
 							min_MAF=self.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance,\
-							no_of_top_snps=self.no_of_top_snps, min_sample_size=self.min_sample_size, test_type=self.test_type, \
-							results_type=self.results_type, no_of_permutations=self.no_of_permutations,\
-							no_of_min_breaks=self.no_of_min_breaks)
+							no_of_top_snps=self.no_of_top_snps,
+							min_sample_size=self.min_sample_size,
+							test_type_id=self.test_type_id, \
+							results_type=self.results_type,
+							no_of_permutations=self.no_of_permutations,\
+							no_of_min_breaks=self.no_of_min_breaks,
+							type_id=_type.id,\
+							null_distribution_type_id=self.null_distribution_type_id,\
+							allow_two_sample_overlapping=self.allow_two_sample_overlapping,
+							total_gene_id_ls=total_gene_id_ls)
 		if getattr(self, 'output_fname', None):
 			writer = csv.writer(open(self.output_fname, 'w'), delimiter='\t')
 			header_row = []
@@ -313,6 +445,7 @@ class TopSNPTest(GeneListRankTest):
 			pd.results_id = results_id
 			result = self.runHGTest(pd)
 			if result is not None:
+				result.type = _type	#assign the type here
 				row = []
 				for column in result.c.keys():
 					row.append(getattr(result, column))
