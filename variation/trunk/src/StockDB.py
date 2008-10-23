@@ -27,7 +27,7 @@ from elixir import Entity, Field, using_options, using_table_options
 from elixir import OneToMany, ManyToOne, ManyToMany, OneToOne
 from elixir import setup_all, entities, create_all
 from elixir.options import using_table_options_handler	#using_table_options() can only work inside Entity-inherited class.
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import UniqueConstraint, create_engine
 from sqlalchemy.schema import ThreadLocalMetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
@@ -304,40 +304,18 @@ class QCCrossMatch(Entity):
 
 class StockDB(ElixirDB):
 	__doc__ = __doc__
-	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
-							('hostname', 1, ):['localhost', 'z', 1, 'hostname of the db server', ],\
-							('database', 1, ):['stock', 'd', 1, '',],\
-							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
-							('username', 1, ):[None, 'u', 1, 'database username',],\
-							('password', 1, ):[None, 'p', 1, 'database password', ],\
-							('port', 0, ):[None, 'o', 1, 'database port number'],\
-							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
-							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
-							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	option_default_dict = ElixirDB.option_default_dict.copy()
+	option_default_dict[('drivername', 1,)][0] = 'mysql'
+	option_default_dict[('database', 1,)][0] = 'stock'
 	def __init__(self, **keywords):
 		"""
+		2008-10-23
+			simplified, relegate stuff to ElixirDB
 		2008-07-09
 		"""
 		from pymodule import ProcessOptions
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-		
-		if getattr(self, 'schema', None):	#for postgres
-			for entity in entities:
-				if entity.__module__==self.__module__:	#entity in the same module
-					using_table_options_handler(entity, schema=self.schema)
-		
-		__metadata__.bind = self._url
-		self.metadata = __metadata__
-		self.session = __session__
-	
-	def setup(self, create_tables=True):
-		"""
-		2008-08-27
-			add option create_tables to disable create_tables in the case that 
-				another database metadata gets added into a program because it's imported but no binding at all.
-		2008-08-26
-		"""
-		setup_all(create_tables=create_tables)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
+		self.setup_engine(metadata=__metadata__, session=__session__, entities=entities)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
