@@ -50,6 +50,7 @@ from pymodule.db import TableClass
 import random
 
 num = importNumericArray()
+numpy = num
 
 class SnpsContextWrapper(object):
 	def __init__(self, get_closest=False):
@@ -116,16 +117,18 @@ class GeneListRankTest(object):
 							("results_id_ls", 1, ): [None, 'e', 1, 'comma/dash-separated results_by_gene id list, like 1,3-7'],\
 							("min_distance", 1, int): [50000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
-							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency. deprecated.'],\
+							('min_MAF', 0, float): [0, 'n', 1, 'minimum Minor Allele Frequency. deprecated.'],\
 							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
 							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
 							("results_type", 1, int): [1, 'w', 1, 'which type of results. 1; ResultsMethod, 2: ResultsByGene'],\
-							("test_type", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping.'],\
+							("test_type_id", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping.'],\
 							("no_of_permutations", 1, int): [20000, '', 1, 'no of permutations to carry out'],\
 							("no_of_min_breaks", 1, int): [30, '', 1, 'no of minimum times that rank_sum_stat_perm>=rank_sum_stat to break away. if 0, no breaking'],\
+							('null_distribution_type_id', 0, int):[1, 'C', 1, 'Type of null distribution. 1=original, 2=permutation, 3=random gene list. in db table null_distribution_type'],\
+							("allow_two_sample_overlapping", 1, int): [0, '', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -194,6 +197,8 @@ class GeneListRankTest(object):
 	
 	def getResultMethodContent(cls, rm, results_directory=None, min_MAF=0.1, construct_chr_pos2index=False, pdata=None):
 		"""
+		2008-10-23
+			if pdata doesn't have construct_chr_pos2index defined. otherwise, pdata overrides the option.
 		2008-10-22
 			before deciding do_log10_transformation based on analysis_method, try to get it from pdata
 		2008-10-21
@@ -235,7 +240,8 @@ class GeneListRankTest(object):
 		if pdata is None:
 			pdata = PassingData()
 		pdata.min_MAF = min_MAF
-		pdata.construct_chr_pos2index = construct_chr_pos2index
+		if not hasattr(pdata, 'construct_chr_pos2index'):	#if pdata doesn't have construct_chr_pos2index defined. otherwise, pdata overrides the option.
+			pdata.construct_chr_pos2index = construct_chr_pos2index
 		if os.path.isfile(result_fname):
 			genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation, pdata=pdata)
 			genome_wide_result.results_id = rm.id
@@ -483,8 +489,39 @@ class GeneListRankTest(object):
 			index_ls.append(chr2cumu_no_of_snps[chr]-chr2no_of_snps[chr]+chr_index)	#take SNPs on all previous chromosomes into account
 		return index_ls
 	
+	def get_candidate_gene_snp_index_ls(self, candidate_gene_set, chr_pos_ls, snps_context_wrapper):
+		"""
+		2008-10-22
+			moved from CheckCandidateGeneRank.py
+		2008-10-21
+			get index of all associated snps, which are supposedly stored in a giant list
+		"""
+		if self.debug:
+			sys.stderr.write("Getting candidate_gene_snp_index_ls ...")
+		candidate_gene_snp_index_ls = []
+		non_candidate_gene_snp_index_ls = []
+		for index in range(len(chr_pos_ls)):
+			chr, pos = chr_pos_ls[index]
+			snps_context_matrix = snps_context_wrapper.returnGeneLs(chr, pos)
+			assign_snp_candidate_gene = 0
+			assign_snp_non_candidate_gene = 0
+			for snps_context in snps_context_matrix:
+				snps_id, disp_pos, gene_id = snps_context
+				if gene_id in candidate_gene_set:
+					assign_snp_candidate_gene = 1
+					break
+			if assign_snp_candidate_gene:
+				candidate_gene_snp_index_ls.append(index)
+		candidate_gene_snp_index_ls = numpy.array(candidate_gene_snp_index_ls, numpy.int)
+		if self.debug:
+			sys.stderr.write("Done.\n")
+		return candidate_gene_snp_index_ls
+	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-10-23
+			if no_of_top_lines is not defined in param_data, fetch the data_obj from gwr.data_obj_ls (preserving chromosome,position order)
+			add more structures to return
 		2008-10-22 pass param_data directly to getResultMethodContent()
 		2008-10-17
 			handle option need_the_value from param_data
@@ -499,19 +536,23 @@ class GeneListRankTest(object):
 			
 		"""
 		sys.stderr.write("Preparing data for permutation rank test ... ")
-		candidate_gene_set = Set(param_data.candidate_gene_list)
+		candidate_gene_set = getattr(param_data, 'candidate_gene_set', Set(param_data.candidate_gene_list))
 		
 		chr2rank_ls = {}
-		candidate_gene_snp_chr_index_ls = []
-		non_candidate_gene_snp_chr_index_ls = []
+		candidate_gene_snp_chr_pos_ls = []
+		non_candidate_gene_snp_chr_pos_ls = []
+		candidate_gene_snp_index_ls = []
+		non_candidate_gene_snp_index_ls = []
 		candidate_gene_snp_rank_ls = []
 		non_candidate_gene_snp_rank_ls = []
 		candidate_gene_snp_value_ls = []
 		non_candidate_gene_snp_value_ls = []
-		chr2no_of_snps = {}
-		chr2cumu_no_of_snps = {}
+		#chr2no_of_snps = {}
+		#chr2cumu_no_of_snps = {}
+		chr_pos_ls = []	#to store a list of (chr,position)
 		
 		#input file is in chromosome,position order
+		param_data.construct_chr_pos2index = True	#always need chr_pos2index from now on
 		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF, pdata=param_data)
 		if genome_wide_result is None:
 			return None
@@ -519,22 +560,37 @@ class GeneListRankTest(object):
 		import rpy
 		rank_ls = rpy.r.rank(score_ls)	#rpy.rank also exists!!
 		no_of_total_snps = len(score_ls)
-		starting_rank = getattr(param_data, 'starting_rank', 1)
+		starting_rank = getattr(param_data, 'starting_rank', 1)	#2008-10-15 rank starts from 1
 		no_of_snps = getattr(param_data, 'no_of_top_snps', no_of_total_snps)
 		need_the_value = getattr(param_data, 'need_the_value', 0)	#get the pvalues/scores as well
+		need_chr_pos_ls = getattr(param_data, 'need_chr_pos_ls', 0)	#get the pvalues/scores as well
 		
 		rank_sum_stat = 0
-		for i in range(starting_rank, starting_rank+no_of_snps):	#2008-10-15 rank starts from 1
-			data_obj = genome_wide_result.get_data_obj_at_given_rank(i)	#2008-10-15 rank starts from 1
-			#data_obj = genome_wide_result.data_obj_ls[i]
-			data_obj_index = genome_wide_result.get_data_obj_index_given_rank(i)
-			rank = rank_ls[data_obj_index]	#watch this, the index is not i
+		ranks_to_be_checked = range(starting_rank, starting_rank+no_of_snps)	#2008-10-15 rank starts from 1
+		score_range = []
+		for i in range(no_of_snps):
+			if no_of_snps==no_of_total_snps:	#get whole genome, not top rank thingy. loop in (chromosome, position) order
+				data_obj = genome_wide_result.data_obj_ls[i]
+				rank = rank_ls[i]
+			else:	#get top ranked snps
+				rank_to_be_checked = ranks_to_be_checked[i]
+				data_obj = genome_wide_result.get_data_obj_at_given_rank(rank_to_be_checked)
+				data_obj_index = genome_wide_result.get_data_obj_index_given_rank(rank_to_be_checked)
+				rank = rank_ls[data_obj_index]	#watch this, the index is not i
+			chr_pos = (data_obj.chromosome, data_obj.position)
+			if i==0:	#maximum score
+				score_range.append(data_obj.value)
+			elif i==no_of_snps-1:	#minimum score
+				score_range.append(data_obj.value)
+			
 			chr = data_obj.chromosome
 			if chr not in chr2rank_ls:
 				chr2rank_ls[chr] = []
-				chr2no_of_snps[chr] = 0
 			chr2rank_ls[chr].append(rank)
-			chr2no_of_snps[chr] += 1
+			
+			if need_chr_pos_ls:
+				chr_pos_ls.append(chr_pos)
+			
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			assign_snp_candidate_gene = 0
 			assign_snp_non_candidate_gene = 0
@@ -549,14 +605,16 @@ class GeneListRankTest(object):
 				if assign_snp_candidate_gene==1 and assign_snp_non_candidate_gene==1:	#both are set to 1, no need to check first genes around
 					break
 			if assign_snp_candidate_gene:
-				candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
+				candidate_gene_snp_index_ls.append(genome_wide_result.chr_pos2index[chr_pos])
+				candidate_gene_snp_chr_pos_ls.append(chr_pos)
 				rank_sum_stat += rank
 				candidate_gene_snp_rank_ls.append(rank)
 				if need_the_value:
 					candidate_gene_snp_value_ls.append(data_obj.value)
 			
 			#condition to assign this snp to non candidate gene
-			assign_snp_non_candidate_gene = (not param_data.allow_two_sample_overlapping and not assign_snp_candidate_gene) or assign_snp_non_candidate_gene
+			assign_snp_non_candidate_gene = (not param_data.allow_two_sample_overlapping and not assign_snp_candidate_gene) or \
+				(param_data.allow_two_sample_overlapping and assign_snp_non_candidate_gene)
 			
 			"""
 			if not param_data.allow_two_sample_overlapping:	#if two samples are NOT allowed to be overlapping, only check if assign_snp_candidate_gene is set or not
@@ -565,24 +623,43 @@ class GeneListRankTest(object):
 					non_candidate_gene_snp_rank_ls.append(rank)
 			"""
 			if assign_snp_non_candidate_gene:	#two samples allowed overlapping, then have to check the other tag
-				non_candidate_gene_snp_chr_index_ls.append((chr, chr2no_of_snps[chr]-1))
+				non_candidate_gene_snp_index_ls.append(genome_wide_result.chr_pos2index[chr_pos])
+				non_candidate_gene_snp_chr_pos_ls.append(chr_pos)
 				non_candidate_gene_snp_rank_ls.append(rank)
 				if need_the_value:
 					non_candidate_gene_snp_value_ls.append(data_obj.value)
 		from common import get_chr_id2cumu_size
-		chr2cumu_no_of_snps, chr_gap, chr_id_ls = get_chr_id2cumu_size(chr2no_of_snps, chr_gap=0)
+		#chr2cumu_no_of_snps, chr_gap, chr_id_ls = get_chr_id2cumu_size(genome_wide_result.chr2no_of_snps, chr_gap=0)
 		
-		candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
-		non_candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(non_candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
+		#candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
+		#non_candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(non_candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
 		
+		#turn them into numpy arrays
 		candidate_gene_snp_index_ls = num.array(candidate_gene_snp_index_ls, num.int)
 		non_candidate_gene_snp_index_ls = num.array(non_candidate_gene_snp_index_ls, num.int)
-		passingdata = PassingData(candidate_gene_snp_index_ls=candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls=non_candidate_gene_snp_index_ls,\
-								chr2rank_ls=chr2rank_ls, rank_sum_stat=rank_sum_stat, no_of_snps=no_of_snps,\
-								chr2cumu_no_of_snps=chr2cumu_no_of_snps, chr2no_of_snps=chr2no_of_snps,\
-								candidate_gene_snp_rank_ls=candidate_gene_snp_rank_ls, non_candidate_gene_snp_rank_ls=non_candidate_gene_snp_rank_ls,\
-								no_of_total_snps=no_of_total_snps, candidate_gene_snp_value_ls=candidate_gene_snp_value_ls,\
-								non_candidate_gene_snp_value_ls=non_candidate_gene_snp_value_ls)
+		
+		total_chr_pos_ar = None
+		if need_chr_pos_ls:
+			chr_pos_ls = num.array(chr_pos_ls)
+			total_chr_pos_ls = genome_wide_result.chr_pos2index.keys()
+			total_chr_pos_ls.sort()
+			total_chr_pos_ar = num.array(total_chr_pos_ls)
+		passingdata = PassingData(candidate_gene_snp_index_ls=candidate_gene_snp_index_ls,\
+								non_candidate_gene_snp_index_ls=non_candidate_gene_snp_index_ls,\
+								candidate_gene_snp_chr_pos_ls=candidate_gene_snp_chr_pos_ls,
+								non_candidate_gene_snp_chr_pos_ls=non_candidate_gene_snp_chr_pos_ls,
+								rank_sum_stat=rank_sum_stat,
+								chr2rank_ls=chr2rank_ls, 
+								chr2no_of_snps=genome_wide_result.chr2no_of_snps,\
+								no_of_total_snps=no_of_total_snps,\
+								no_of_snps=no_of_snps,\
+								candidate_gene_snp_rank_ls=candidate_gene_snp_rank_ls,\
+								non_candidate_gene_snp_rank_ls=non_candidate_gene_snp_rank_ls,\
+								candidate_gene_snp_value_ls=candidate_gene_snp_value_ls,\
+								non_candidate_gene_snp_value_ls=non_candidate_gene_snp_value_ls,\
+								score_range=score_range,\
+								chr_pos_ls=chr_pos_ls,\
+								total_chr_pos_ar=total_chr_pos_ar)
 		del genome_wide_result
 		sys.stderr.write("Done.\n")
 		return passingdata
@@ -690,15 +767,20 @@ class GeneListRankTest(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def dealWithCandidateGeneList(self, list_type_id):
+	def dealWithCandidateGeneList(self, list_type_id, return_set=False):
 		"""
+		2008-10-23
+			add option return_set
 		2008-10-15
 			to make caching candidate gene list possible
 		"""
 		if list_type_id not in self.list_type_id2candidate_gene_list_info:	#internal cache
 			candidate_gene_list = self.getGeneList(list_type_id)
-			self.list_type_id2candidate_gene_list_info[list_type_id] = PassingData(candidate_gene_list=candidate_gene_list)
-		return self.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_list
+			self.list_type_id2candidate_gene_list_info[list_type_id] = PassingData(candidate_gene_list=candidate_gene_list, candidate_gene_set=Set(candidate_gene_list))
+		if return_set:
+			return self.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_set
+		else:
+			return self.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_list
 		
 	
 	list_type_id2candidate_gene_list_info = {}
