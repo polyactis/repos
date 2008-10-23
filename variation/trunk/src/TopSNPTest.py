@@ -47,7 +47,7 @@ class TopSNPTest(GeneListRankTest):
 	option_default_dict.update({('tax_id', 1, int): [3702, 'x', 1, 'to get the number of total genes from database, which species.']})
 	option_default_dict.update({('gene_table', 1, ): ['genome.gene', 'a', 1, 'to get the number of total genes from database, which table.']})
 	option_default_dict.update({('no_of_top_snps', 1, int): [200, 'f', 1, 'how many number of top snps based on score or -log(pvalue).']})
-	option_default_dict.update({("test_type_id", 1, int): [1, 'y', 1, 'which type of tests. check db table analysis_method. likely be 14,15 etc.']})
+	option_default_dict.update({("test_type_id", 1, int): [15, 'y', 1, 'which type of tests. check db table analysis_method. likely be 14,15 etc.']})
 	
 	def __init__(self,  **keywords):
 		"""
