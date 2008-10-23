@@ -92,13 +92,14 @@ class PutLDIntoDB(object):
 		
 		self.save_LD(session, self.input_fname, self.call_method_id, self.commit)
 		
-		
+		"""
 		if self.commit:
 			session.flush()
 			session.commit()
 			session.clear()
 		else:	#default is also rollback(). to demonstrate good programming
 			session.rollback()
+		"""
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
