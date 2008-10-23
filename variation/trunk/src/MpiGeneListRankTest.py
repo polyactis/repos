@@ -171,8 +171,11 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
 		return result_ls
 	
-	def output_node_handler(self, communicator, parameter_list, data):
+	def output_node_handler(self, communicator, output_param_obj, data):
 		"""
+		2008-10-23
+			replace parameter_list with output_param_obj 
+			handle result.type
 		2008-05-19
 			row is strain. col is snp. reversed due to utilization of SNPData
 		05/14/2008
@@ -180,22 +183,26 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		05/12/2008
 			common_var_name_ls
 		"""
-		writer, session, commit, TestResultClass= parameter_list
+		commit = output_param_obj.commit
 		table_obj_ls = cPickle.loads(data)
 		for table_obj in table_obj_ls:
 			row = []
 			
-			result = TestResultClass()
+			result = output_param_obj.TestResultClass()
 			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
 			#can't save table_obj because it's associated with a different db thread
 			for column in table_obj.c.keys():
 				row.append(getattr(table_obj, column))
 				setattr(result, column, getattr(table_obj, column))
-			if writer:
-				writer.writerow(row)
-			session.save(result)
+			
+			if result.type_id is None and getattr(output_param_obj, '_type', None):	#2008-10-23 assign _type
+				result.type = output_param_obj._type
+			
+			if output_param_obj.writer:
+				output_param_obj.writer.writerow(row)
+			output_param_obj.session.save(result)
 			if commit:
-				session.flush()
+				output_param_obj.session.flush()
 	
 	def run(self):
 		"""
@@ -264,8 +271,9 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 			else:
 				writer = None
 			
-			parameter_list = [writer, session, self.commit, TestResultClass]
-			self.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
+			output_param_obj = PassingData(writer=writer, session=session, commit=self.commit, TestResultClass=TestResultClass,
+										_type=None)
+			self.output_node(free_computing_nodes, output_param_obj, self.output_node_handler)
 			del writer		
 		self.synchronize()	#to avoid some node early exits
 
