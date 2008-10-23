@@ -915,6 +915,7 @@ class GenomeWideResult(TableClass):
 	construct_data_obj_id2index = True
 	construct_chr_pos2index = False
 	argsort_data_obj_ls = None
+	chr2no_of_snps = None
 	def get_data_obj_by_obj_id(self, obj_id):
 		return self.data_obj_ls[self.data_obj_id2index[obj_id]]
 	
@@ -934,6 +935,8 @@ class GenomeWideResult(TableClass):
 	
 	def add_one_data_obj(self, data_obj, chr_pos2index=None):
 		"""
+		2008-10-23
+			hanlde chr2no_of_snps
 		2008-10-21
 			add option chr_pos2index to put data_obj into data_obj_ls with pre-defined order
 		2008-09-24
@@ -955,11 +958,19 @@ class GenomeWideResult(TableClass):
 		if self.construct_chr_pos2index:	#2008-09-24
 			if self.chr_pos2index ==None:
 				self.chr_pos2index = {}
-			self.chr_pos2index[(data_obj.chromosome, data_obj.position)] = data_obj_index
+			chr_pos = (data_obj.chromosome, data_obj.position)
+			if chr_pos not in self.chr_pos2index:
+				self.chr_pos2index[chr_pos] = data_obj_index
 		if self.min_value is None or data_obj.value<self.min_value:
 			self.min_value = data_obj.value
 		if self.max_value is None or data_obj.value>self.max_value:
 			self.max_value = data_obj.value
+		
+		if self.chr2no_of_snps is None:
+			self.chr2no_of_snps = {}
+		if data_obj.chromosome not in self.chr2no_of_snps:
+			self.chr2no_of_snps[data_obj.chromosome] = 0
+		self.chr2no_of_snps[data_obj.chromosome] += 1
 	
 	def get_data_obj_at_given_rank(self, rank):
 		"""
