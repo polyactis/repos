@@ -936,7 +936,7 @@ class GenomeWideResult(TableClass):
 	def add_one_data_obj(self, data_obj, chr_pos2index=None):
 		"""
 		2008-10-23
-			hanlde chr2no_of_snps
+			handle chr2no_of_snps
 		2008-10-21
 			add option chr_pos2index to put data_obj into data_obj_ls with pre-defined order
 		2008-09-24
