@@ -499,32 +499,54 @@ class CandidateGeneTopSNPTest(Entity):
 	using_options(tablename='candidate_gene_top_snp_test', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
-
+class CandidateGeneTopSNPTestRMType(Entity):
+	"""
+	2008-10-22
+		hierarchical for CandidateGeneTopSNPTestRM
+	"""
+	min_distance = Field(Integer)
+	get_closest = Field(Integer)
+	min_MAF = Field(Float)
+	allow_two_sample_overlapping = Field(Integer)
+	results_type = Field(Integer)
+	test_type = ManyToOne('AnalysisMethod', colname='test_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	null_distribution_type = ManyToOne('NullDistributionType', colname='null_distribution_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	comment = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_gene_top_snp_test_rm_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('min_distance', 'get_closest', 'min_MAF', \
+										'allow_two_sample_overlapping', 'results_type', 'test_type_id',\
+										'null_distribution_type_id'))
+	
 class CandidateGeneTopSNPTestRM(Entity):
 	"""
+	2008-10-23
+		restructure it for the new varieties of tests and link to CandidateGeneTopSNPTestRMType
 	2008-10-15
 		similar to CandidateGeneTopSNPTest but stores test results from ResultsMethod
 	"""
 	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	pvalue = Field(Float)
-	min_distance = Field(Integer)
-	get_closest = Field(Integer)
-	min_MAF = Field(Float)
 	candidate_sample_size = Field(Integer)
 	non_candidate_sample_size = Field(Integer)
+	candidate_gw_size = Field(Integer)
 	no_of_top_candidate_genes = Field(Integer)
 	no_of_top_genes = Field(Integer)
 	no_of_top_snps = Field(Integer)
 	starting_rank = Field(Integer)
-	test_type = Field(Integer)
+	max_score = Field(Float)	#2008-10-22 keep record of max/min score in among these snps
+	min_score = Field(Float)
+	type = ManyToOne('CandidateGeneTopSNPTestRMType', colname='type_id', ondelete='CASCADE', onupdate='CASCADE')
 	comment = Field(Text)
-	created_by = Field(String(200))
-	updated_by = Field(String(200))
-	date_created = Field(DateTime, default=datetime.now)
-	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_top_snp_test_rm', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'no_of_top_snps', \
+										'starting_rank', 'type_id'))
 	
 class SNPRegionPlotType(Entity):
 	"""
