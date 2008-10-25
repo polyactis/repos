@@ -397,6 +397,8 @@ class GeneListRankTest(object):
 	
 	def getTopResultsByGene(self, rbg, param_data):
 		"""
+		2008-10-24
+			handle param_data.candidate_gene_set. if it's present, no_of_top_lines is relative to that gene set
 		2008-10-02
 			add analysis_method id to each ResultsByGene entry
 		2008-09-30
@@ -416,9 +418,12 @@ class GeneListRankTest(object):
 		col_name2index = getColName2IndexFromHeader(reader.next())
 		counter = 0
 		no_of_lines_to_read = getattr(param_data, 'no_of_top_lines', None)
+		candidate_gene_set = getattr(param_data, 'candidate_gene_set', None)	#2008-10-24
 		return_data_ls = []
 		for row in reader:
 			gene_id = int(row[col_name2index['gene_id']])
+			if candidate_gene_set and gene_id not in candidate_gene_set:	#2008-10-24
+				continue
 			score = float(row[col_name2index['score']])
 			snps_id = int(row[col_name2index['snps_id']])
 			disp_pos = int(row[col_name2index['disp_pos']])
@@ -602,6 +607,8 @@ class GeneListRankTest(object):
 						break
 				else:
 					assign_snp_non_candidate_gene = 1
+					if not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
+						break
 				if assign_snp_candidate_gene==1 and assign_snp_non_candidate_gene==1:	#both are set to 1, no need to check first genes around
 					break
 			if assign_snp_candidate_gene:
