@@ -392,6 +392,8 @@ class ProcessOptions(object):
 
 	def process_function_arguments(cls, keywords, argument_default_dict, error_doc='', class_to_have_attr=None, howto_deal_with_required_none=1):
 		"""
+		2008-10-25 
+			if default_value is None, and no value is given by a user, no casting into type specified.
 		2008-07-09
 			not just ='passwd', if the option name (variable 'argument' here) contains 'passwd', use getpass().
 		2008-05-06
@@ -434,7 +436,7 @@ class ProcessOptions(object):
 						sys.stderr.write(error_doc)
 					sys.stderr.write('Error: %s is required but %s given.\n'%(argument, default_value))
 					sys.exit(2)
-			if argument_type!=None:	#cast to the desired type
+			if argument_type!=None and default_value is not None:	#cast to the desired type 2008-10-25 default_value is not None
 				default_value = argument_type(default_value)
 			if class_to_have_attr:
 				setattr(class_to_have_attr, argument, default_value)
