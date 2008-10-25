@@ -355,6 +355,9 @@ class GenomeBrowser(object):
 	
 	def on_button_filechooser_ok_clicked(self, widget, data=None):
 		"""
+		2008-10-12
+			add checkbutton_draw_line_as_point
+			add checkbutton_4th_col_stop_pos
 		2008-08-03
 			restrict the data by (chromosome, start, stop)
 		2008-05-31
@@ -392,11 +395,23 @@ class GenomeBrowser(object):
 		if entry_stop.get_text():
 			pdata.stop = int(entry_stop.get_text())
 		
+		checkbutton_4th_col_stop_pos = self.xml.get_widget("checkbutton_4th_col_stop_pos")
+		if checkbutton_4th_col_stop_pos.get_active():
+			pdata.is_4th_col_stop_pos = True
+		else:
+			pdata.is_4th_col_stop_pos = False
+		
+		checkbutton_draw_line_as_point = self.xml.get_widget("checkbutton_draw_line_as_point")
+		if checkbutton_draw_line_as_point.get_active():
+			draw_line_as_point= True
+		else:
+			draw_line_as_point = False
+		
 		genome_wide_result = getGenomeWideResultFromFile(input_fname, min_value_cutoff, do_log10_transformation, pdata)
 		if len(genome_wide_result.data_obj_ls)>0:
 			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
 			#self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
-			self.plot(self.ax, self.canvas_matplotlib, self.genome_wide_results.genome_wide_result_ls[-1])
+			self.plot(self.ax, self.canvas_matplotlib, self.genome_wide_results.genome_wide_result_ls[-1], draw_line_as_point=draw_line_as_point)
 		else:
 			sys.stderr.write("No data in %s under min_value_cutoff=%s. Maybe min_value_cutoff is too high.\n"%(input_fname, min_value_cutoff))
 	
