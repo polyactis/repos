@@ -10,6 +10,9 @@ Examples:
 	#take LD_info and gene_annotation from a file contains the pickled data structure
 	DrawSNPRegion.py -i ./banyan_fs/tmp/GWA_res_FT.csv -l 28 -D /Network/Data/250k/tmp-yh/call_method_17_LD_m0.1_n0.1_m40000 -o /Network/Data/250k/tmp-yh/snp_region/  -j /tmp/at_gene_model_pickelf
 	
+	#get SNPs from ResultsByGene, which are associated with a top percentage of candidate genes
+	DrawSNPRegion.py -q 1 -a 7 -y Top30PercCandidateGene  -l 28 -j /tmp/at_gene_model_pickelf  -D /Network/Data/250k/tmp-yh/call_method_17_LD_pickle_dummy_n0.1_m20000 -o /tmp/snp_region -u yh 
+	
 Description:
 	2008-09-24 program to draw pvalues, gene-models, LD around one SNP.
 		Top panel is pvalues from all different methods. Margarita and RF's values will be normalized in range of KW.
@@ -47,7 +50,7 @@ from matplotlib.patches import Polygon, CirclePolygon
 import pylab
 from pymodule.yh_matplotlib_artists import ExonIntronCollection
 import ImageColor
-import numpy
+import numpy, StringIO
 from pymodule.latex import outputMatrixInLatexTable
 from pymodule.latex import outputFigureInLatex
 
@@ -236,20 +239,23 @@ class DrawSNPRegion(GeneListRankTest):
 							('LD_fname', 0, ): [None, 'L', 1, 'the file containing LD info, output of MpiLD.py', ],\
 							("min_distance", 1, int): [20000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
-							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
+							('min_MAF', 0, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
 							("list_type_id", 0, int): [0, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
-							("input_fname", 1, ): [None, 'i', 1, 'Filename which contains at least 3 columns: chromosome, position, phenotype_id. '],\
+							('rbg_results_directory', 0, ):[os.path.expanduser('~/panfs/db/results_by_gene/'), '', 1, 'The rbg results directory. Default is None. use the one given by db.'],\
+							("input_fname", 0, ): [None, 'i', 1, 'Filename which contains at least 3 columns: chromosome, position, phenotype_id. if not given, get from db'],\
 							("output_dir", 1, ): [None, 'o', 1, 'directory to store all images'],\
 							('call_method_id', 0, int):[17, '', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
-							('analysis_method_id', 0, int):[7, 'a', 1, 'Restrict results based on this analysis_method. Default is no such restriction.'],\
+							('analysis_method_id_ls', 0, ):['7', 'a', 1, 'Restrict results based on this list of analysis_method. Default is no such restriction.'],\
+							('phenotype_method_id_ls', 0, ):[None, 'q', 1, 'Restrict results based on this list of phenotype_method. Default is no such restriction.'],\
 							('no_of_top_hits', 1, int): [1000, 'f', 1, 'how many number of top hits based on score or -log(pvalue).'],\
 							("which_LD_statistic", 1, int): [2, 'w', 1, 'which LD_statistic to plot, 1=r2, 2=|D_prime|, 3=|D|'],\
 							("LD_info_picklef", 0, ): [None, 'D', 1, 'given the option, If the file does not exist yet, store a pickled LD_info into it (min_MAF and min_distance will be attached to the filename). If the file exists, load LD_info out of it.'],\
 							("gene_annotation_picklef", 0, ): [None, 'j', 1, 'given the option, If the file does not exist yet, store a pickled gene_annotation into it. If the file exists, load gene_annotation out of it.'],\
 							("latex_output_fname", 0, ): [None, 'x', 1, 'a file to store the latex of gene description tables and figures'],\
-							("label_gene", 0, int): [0, '', 0, 'toggle this to label every gene by gene symbol. otherwise only candidate genes are labeled'],\
-							("draw_LD_relative_to_center_SNP", 0, int): [0, '', 0, 'toggle this to draw LD between other SNPs and the center SNP'],\
+							("label_gene", 0, int): [1, '', 0, 'toggle this to label every gene by gene symbol. otherwise only candidate genes are labeled'],\
+							("draw_LD_relative_to_center_SNP", 0, int): [1, '', 0, 'toggle this to draw LD between other SNPs and the center SNP'],\
+							("plot_type_short_name", 0, ): [None, 'y', 1, 'A short name (<256 chars) to characterize the type of all the plots. it could have existed in table SNPRegionPlotType'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 1, 'debug mode. 1=level 1 (pdb mode). 2=level 2 (same as 1 except no pdb mode)'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -261,8 +267,10 @@ class DrawSNPRegion(GeneListRankTest):
 		GeneListRankTest.__init__(self, **keywords)
 		#from pymodule import ProcessOptions
 		#self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-	
-	
+		self.analysis_method_id_ls = getListOutOfStr(self.analysis_method_id_ls, data_type=int)
+		if self.phenotype_method_id_ls:
+			self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
+		
 	def get_LD(self, LD_fname, min_MAF, min_gap=40000):
 		"""
 		2008-09-29
@@ -742,8 +750,10 @@ class DrawSNPRegion(GeneListRankTest):
 	
 	def drawRegionAroundThisSNP(self, phenotype_method_id, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, \
 							LD_info, output_dir, which_LD_statistic, snp_region=None, min_distance=40000, list_type_id=None, label_gene=0,
-							draw_LD_relative_to_center_SNP=0):
+							draw_LD_relative_to_center_SNP=0, commit=0):
 		"""
+		2008-10-24
+			handle option commit to return png_data & svg_data
 		2008-10-01
 			remove the frame of ax1 and add a grid to ax1
 			leave axe_gene_model's xticks there as otherwise ax1's xticks will go with it as they share xticks.
@@ -812,14 +822,26 @@ class DrawSNPRegion(GeneListRankTest):
 		axe_LD.set_ylim((-axe_LD_x_span/2., 0))	#has to force here, don't know why. otherwise it's (0,1)
 		axe_LD.set_yticks([])	#remove all Y ticks on LD plot
 		
-		png_output_fname = '%s.png'%output_fname_prefix
-		pylab.savefig(png_output_fname, dpi=400)
-		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		png_data = None
+		svg_data = None
+		png_output_fname = None
+		if self.commit:	#2008-10-24
+			png_data = StringIO.StringIO()
+			svg_data = StringIO.StringIO()
+			pylab.savefig(png_data, format='png', dpi=300)
+			pylab.savefig(svg_data, format='svg', dpi=300)
+		else:
+			png_output_fname = '%s.png'%output_fname_prefix
+			pylab.savefig(png_output_fname, dpi=400)
+			pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
 		if self.debug:
 			pylab.show()
 		del ax1, axe_LD_center_SNP, axe_gene_model, axe_LD, axe_LD_legend
 		sys.stderr.write("Done.\n")
-		after_plot_data = PassingData(png_output_fname=png_output_fname, matrix_of_gene_descriptions=matrix_of_gene_descriptions)
+		after_plot_data = PassingData(png_output_fname=png_output_fname, matrix_of_gene_descriptions=matrix_of_gene_descriptions, \
+									png_data=png_data,\
+									svg_data=svg_data,\
+									snps_within_this_region=snps_within_this_region)
 		return after_plot_data
 	
 	def generate_params(self, param_obj):
@@ -915,6 +937,47 @@ class DrawSNPRegion(GeneListRankTest):
 		sys.stderr.write("%s genes. %s total snps. Done.\n"%(input_data.no_of_genes, input_data.no_of_snps))
 		return input_data
 	
+	def getSNPsFromRBGCandidateGenes(self, phenotype_method_id_ls, call_method_id, min_distance, \
+									get_closest, min_MAF, candidate_gene_set, snp_info, results_directory=None, analysis_method_id_ls=None,\
+									perc_of_top_candidate_genes=0.3):
+		"""
+		2008-10-23
+			equivalent to getSNPsFromInputFile()
+			
+			iterate through a rbg file from top to bottom, if a gene belongs to candidate_gene_set, include its associated SNP
+		"""
+		sys.stderr.write("Get SNPs From RBG Candidate Genes ...")
+		query = Stock_250kDB.ResultsByGene.query
+		if call_method_id!=0:
+			query = query.filter(Stock_250kDB.ResultsByGene.results_method.has(call_method_id=call_method_id))
+		if analysis_method_id_ls:
+			query = query.filter(Stock_250kDB.ResultsByGene.results_method.has(Stock_250kDB.ResultsMethod.analysis_method_id.in_(analysis_method_id_ls)))
+		if phenotype_method_id_ls:
+			query = query.filter(Stock_250kDB.ResultsByGene.results_method.has(Stock_250kDB.ResultsMethod.phenotype_method_id.in_(phenotype_method_id_ls)))
+		
+		query = query.filter_by(min_distance=min_distance).filter_by(get_closest=get_closest).\
+			filter(Stock_250kDB.ResultsByGene.min_MAF>=min_MAF-0.0001).filter(Stock_250kDB.ResultsByGene.min_MAF<=min_MAF+0.0001)
+		
+		no_of_top_hits = len(candidate_gene_set)*perc_of_top_candidate_genes
+		param_data = PassingData(results_directory=results_directory, no_of_top_lines=no_of_top_hits, \
+								candidate_gene_set=candidate_gene_set)
+		
+		input_data = GeneSNPPhenotypeAssoData()
+		counter = 0
+		i = 0
+		for rbg in query:
+			i += 1
+			pdata_ls = self.getTopResultsByGene(rbg, param_data)
+			for pdata in pdata_ls:
+				chr_pos = snp_info.chr_pos_ls[snp_info.snps_id2index[pdata.snps_id]]
+				chromosome, position = chr_pos
+				this_snp = SNPPassingData(chromosome=chromosome, position=position, snps_id=pdata.snps_id, stop=None)
+				input_data.addGeneSNPPhenotype(pdata.gene_id, this_snp, rbg.results_method.phenotype_method_id)
+				counter += 1
+		
+		sys.stderr.write(" %s entries from %s rbgs. Done.\n"%(counter, i))
+		return input_data
+	
 	def findSNPsInRegion(self, snp_info, chromosome, start, stop, center_snp_position=None):
 		"""
 		2008-10-1
@@ -1003,8 +1066,10 @@ class DrawSNPRegion(GeneListRankTest):
 									analysis_method_id2gwr, LD_info, output_fname, which_LD_statistic, snp_region)
 	
 	def handleOneGeneOnePhenotype(self, phenotype_id2analysis_method_id2gwr, phenotype_id, this_snp, input_data, \
-								param_data, latex_f=None, delete_gwr=False):
+								param_data, latex_f=None, delete_gwr=False, plot_type=None, commit=0):
 		"""
+		2008-10-24
+			pass commit to drawRegionAroundThisSNP
 		2008-10-02
 			wrap up towards latex output
 		"""
@@ -1020,8 +1085,44 @@ class DrawSNPRegion(GeneListRankTest):
 													param_data.snp_info, \
 								analysis_method_id2gwr, param_data.LD_info, param_data.output_dir, param_data.which_LD_statistic, \
 								min_distance=param_data.min_distance, list_type_id=param_data.list_type_id,
-								label_gene=param_data.label_gene, draw_LD_relative_to_center_SNP=param_data.draw_LD_relative_to_center_SNP)
+								label_gene=param_data.label_gene, \
+								draw_LD_relative_to_center_SNP=param_data.draw_LD_relative_to_center_SNP,\
+								commit=commit)
 		param_data.no_of_snps_drawn += 1
+		if commit and after_plot_data:
+			#2008-10-24 first check if it's in db or not
+			rows = Stock_250kDB.SNPRegionPlot.query.filter_by(chromosome=this_snp.chromosome).\
+													filter_by(start=after_plot_data.snps_within_this_region.chr_pos_ls[0][1]).\
+													filter_by(stop=after_plot_data.snps_within_this_region.chr_pos_ls[1][1]).\
+													filter_by(phenotype_method_id=phenotype_id).\
+													filter_by(plot_type_id=plot_type.id)
+			if rows.count()>0:
+				row = rows.first()
+				sys.stderr.write("region plot (chr=%s, start=%s, stop=%s, phenotype_method_id=%s, plot_type_id=%s) already in db(id=%s). skip.\n"%\
+								(row.chromosome, row.start, row.stop, row.phenotype_method_id, row.plot_type_id, row.id))
+				return
+			snp_region_plot = Stock_250kDB.SNPRegionPlot(chromosome=this_snp.chromosome, \
+														start=after_plot_data.snps_within_this_region.chr_pos_ls[0][1],\
+														stop=after_plot_data.snps_within_this_region.chr_pos_ls[1][1],\
+													center_snp_position=after_plot_data.snps_within_this_region.center_snp.position,\
+													phenotype_method_id=phenotype_id)
+			snp_region_plot.plot_type = plot_type
+			snp_region_plot.png_data = after_plot_data.png_data.getvalue()
+			snp_region_plot.svg_data = after_plot_data.svg_data.getvalue()
+			self.db.session.save(snp_region_plot)
+			
+			#save related genes into db as well			
+			gene_id2count = {}
+			for gene_desc_ls in after_plot_data.matrix_of_gene_descriptions:
+				gene_id = gene_desc_ls[0]
+				if gene_id not in gene_id2count:
+					gene_id2count[gene_id] = 0
+					plot2gene = Stock_250kDB.SNPRegionPlotToGene(gene_id=gene_id)
+					plot2gene.snp_region_plot = snp_region_plot
+					self.db.session.save(plot2gene)
+				gene_id2count[gene_id] += 1
+			self.db.session.flush()
+		
 		if delete_gwr:
 			del analysis_method_id2gwr
 		
@@ -1087,9 +1188,27 @@ class DrawSNPRegion(GeneListRankTest):
 		param_data.label_gene = self.label_gene
 		param_data.draw_LD_relative_to_center_SNP = self.draw_LD_relative_to_center_SNP
 		no_of_genes_handled = 0
+		
+		#2008-10-23 handle plot_type
+		if self.commit:
+			plot_type = Stock_250kDB.SNPRegionPlotType.query.filter_by(short_name=self.plot_type_short_name).first()
+			if not plot_type:
+				plot_type = Stock_250kDB.SNPRegionPlotType(short_name=self.plot_type_short_name)
+				self.db.session.save(plot_type)
+				self.db.session.flush()
+		else:
+			plot_type = None
+		
 		while 1:
 			try:
-				input_data = self.getSNPsFromInputFile(input_fname, snp_info)
+				if input_fname:
+					input_data = self.getSNPsFromInputFile(input_fname, snp_info)
+				else:
+					input_data = self.getSNPsFromRBGCandidateGenes(self.phenotype_method_id_ls, self.call_method_id, self.min_distance, \
+									self.get_closest, self.min_MAF, grand_dataStructure.candidate_gene_set, snp_info, \
+									self.rbg_results_directory, \
+									self.analysis_method_id_ls, perc_of_top_candidate_genes=0.3)
+				
 				param_data.which_LD_statistic = which_LD_statistic
 				"""
 				for gene_id in input_data.gene_id_ls:
@@ -1148,7 +1267,7 @@ class DrawSNPRegion(GeneListRankTest):
 								latex_f = open('%s_%s'%(latex_fname, this_snp.snps_id), 'w')
 								snps_id2latex_f[this_snp.snps_id] = latex_f
 							self.handleOneGeneOnePhenotype(phenotype_id2analysis_method_id2gwr, phenotype_id, this_snp, \
-														input_data, param_data, latex_f)
+														input_data, param_data, latex_f, plot_type=plot_type, commit=self.commit)
 					del phenotype_id2analysis_method_id2gwr	#clean up the memory
 					phenotype_id2analysis_method_id2gwr = {}
 					"""
@@ -1168,6 +1287,7 @@ class DrawSNPRegion(GeneListRankTest):
 				sys.stderr.write('Except: %s\n'%repr(sys.exc_info()))
 				traceback.print_exc()
 				#raise
+			sys.exit(0)	#2008-10-24 don't wanna the while loop
 			
 			to_continue = raw_input("Continue running?([y]/n): ")
 			if to_continue.upper()=='N':
