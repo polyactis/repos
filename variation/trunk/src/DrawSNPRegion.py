@@ -1068,6 +1068,9 @@ class DrawSNPRegion(GeneListRankTest):
 	def handleOneGeneOnePhenotype(self, phenotype_id2analysis_method_id2gwr, phenotype_id, this_snp, input_data, \
 								param_data, latex_f=None, delete_gwr=False, plot_type=None, commit=0):
 		"""
+		2008-10-26
+			fix a bug in the stop position when submitting data into db.
+			previously "stop = after_plot_data.snps_within_this_region.chr_pos_ls[1][1]", the 1st "1" should be "-1".
 		2008-10-24
 			pass commit to drawRegionAroundThisSNP
 		2008-10-02
@@ -1091,9 +1094,11 @@ class DrawSNPRegion(GeneListRankTest):
 		param_data.no_of_snps_drawn += 1
 		if commit and after_plot_data:
 			#2008-10-24 first check if it's in db or not
+			start = after_plot_data.snps_within_this_region.chr_pos_ls[0][1]
+			stop = after_plot_data.snps_within_this_region.chr_pos_ls[-1][1]
 			rows = Stock_250kDB.SNPRegionPlot.query.filter_by(chromosome=this_snp.chromosome).\
-													filter_by(start=after_plot_data.snps_within_this_region.chr_pos_ls[0][1]).\
-													filter_by(stop=after_plot_data.snps_within_this_region.chr_pos_ls[1][1]).\
+													filter_by(start=start).\
+													filter_by(stop=stop).\
 													filter_by(phenotype_method_id=phenotype_id).\
 													filter_by(plot_type_id=plot_type.id)
 			if rows.count()>0:
@@ -1102,8 +1107,8 @@ class DrawSNPRegion(GeneListRankTest):
 								(row.chromosome, row.start, row.stop, row.phenotype_method_id, row.plot_type_id, row.id))
 				return
 			snp_region_plot = Stock_250kDB.SNPRegionPlot(chromosome=this_snp.chromosome, \
-														start=after_plot_data.snps_within_this_region.chr_pos_ls[0][1],\
-														stop=after_plot_data.snps_within_this_region.chr_pos_ls[1][1],\
+														start=start,\
+														stop=stop,\
 													center_snp_position=after_plot_data.snps_within_this_region.center_snp.position,\
 													phenotype_method_id=phenotype_id)
 			snp_region_plot.plot_type = plot_type
