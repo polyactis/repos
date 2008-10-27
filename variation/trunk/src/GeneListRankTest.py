@@ -125,7 +125,7 @@ class GeneListRankTest(object):
 							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
 							("results_type", 1, int): [1, 'w', 1, 'which type of results. 1; ResultsMethod, 2: ResultsByGene'],\
 							("test_type_id", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping.'],\
-							("no_of_permutations", 1, int): [20000, '', 1, 'no of permutations to carry out'],\
+							("no_of_permutations", 1, int): [40000, '', 1, 'no of permutations to carry out'],\
 							("no_of_min_breaks", 1, int): [30, '', 1, 'no of minimum times that rank_sum_stat_perm>=rank_sum_stat to break away. if 0, no breaking'],\
 							('null_distribution_type_id', 0, int):[1, 'C', 1, 'Type of null distribution. 1=original, 2=permutation, 3=random gene list. in db table null_distribution_type'],\
 							("allow_two_sample_overlapping", 1, int): [0, '', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
@@ -505,6 +505,7 @@ class GeneListRankTest(object):
 			sys.stderr.write("Getting candidate_gene_snp_index_ls ...")
 		candidate_gene_snp_index_ls = []
 		non_candidate_gene_snp_index_ls = []
+		
 		for index in range(len(chr_pos_ls)):
 			chr, pos = chr_pos_ls[index]
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(chr, pos)
@@ -524,6 +525,8 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-10-26
+			add another way to take top snps, based on the min_score cutoff.
 		2008-10-23
 			if no_of_top_lines is not defined in param_data, fetch the data_obj from gwr.data_obj_ls (preserving chromosome,position order)
 			add more structures to return
@@ -540,7 +543,8 @@ class GeneListRankTest(object):
 			3. get rank sums of scores from fixed candidate gene SNP indices that 
 			
 		"""
-		sys.stderr.write("Preparing data for permutation rank test ... ")
+		if self.debug:
+			sys.stderr.write("Preparing data for permutation rank test ... ")
 		candidate_gene_set = getattr(param_data, 'candidate_gene_set', Set(param_data.candidate_gene_list))
 		
 		chr2rank_ls = {}
@@ -569,24 +573,38 @@ class GeneListRankTest(object):
 		no_of_snps = getattr(param_data, 'no_of_top_snps', no_of_total_snps)
 		need_the_value = getattr(param_data, 'need_the_value', 0)	#get the pvalues/scores as well
 		need_chr_pos_ls = getattr(param_data, 'need_chr_pos_ls', 0)	#get the pvalues/scores as well
+		min_score = getattr(param_data, 'min_score', None)	#2008-10-25
 		
+		if min_score is not None:
+			no_of_snps = no_of_total_snps
+		else:
+			ranks_to_be_checked = range(starting_rank, starting_rank+int(no_of_snps))	#2008-10-15 rank starts from 1
 		rank_sum_stat = 0
-		ranks_to_be_checked = range(starting_rank, starting_rank+no_of_snps)	#2008-10-15 rank starts from 1
-		score_range = []
-		for i in range(no_of_snps):
-			if no_of_snps==no_of_total_snps:	#get whole genome, not top rank thingy. loop in (chromosome, position) order
-				data_obj = genome_wide_result.data_obj_ls[i]
-				rank = rank_ls[i]
-			else:	#get top ranked snps
+		
+		score_range = [None, None]
+		for i in range(int(no_of_snps)):	#due to the duality(both score and rank gap) of MpiTopSNPTest.py's rank_gap, no_of_snps becomes float.
+			if min_score is not None:	#2008-10-25
+				data_obj = genome_wide_result.get_data_obj_at_given_rank(i+1)	#i starts from 0, rank starts from 1.
+				data_obj_index = genome_wide_result.get_data_obj_index_given_rank(i+1)
+				rank = rank_ls[data_obj_index]	#watch this, the index is not i
+				if data_obj.value<min_score:	#score is below threshold, forget about it
+					break
+			elif no_of_snps!=no_of_total_snps:	#get top ranked snps
 				rank_to_be_checked = ranks_to_be_checked[i]
 				data_obj = genome_wide_result.get_data_obj_at_given_rank(rank_to_be_checked)
 				data_obj_index = genome_wide_result.get_data_obj_index_given_rank(rank_to_be_checked)
 				rank = rank_ls[data_obj_index]	#watch this, the index is not i
+				
+			else:	#get whole genome, not top rank thingy. loop in (chromosome, position) order
+				data_obj = genome_wide_result.data_obj_ls[i]
+				rank = rank_ls[i]
+			
 			chr_pos = (data_obj.chromosome, data_obj.position)
-			if i==0:	#maximum score
-				score_range.append(data_obj.value)
-			elif i==no_of_snps-1:	#minimum score
-				score_range.append(data_obj.value)
+			if score_range[0] is None or data_obj.value>score_range[0]:	#maximum score
+				score_range[0] = data_obj.value
+				
+			if score_range[1] is None or data_obj.value<score_range[1]:
+				score_range[1] = data_obj.value
 			
 			chr = data_obj.chromosome
 			if chr not in chr2rank_ls:
@@ -607,8 +625,11 @@ class GeneListRankTest(object):
 						break
 				else:
 					assign_snp_non_candidate_gene = 1
+					"""
+					#2008-10-26, this condition is buggy, enabling this would cause SNPs with candidate genes nearby prematurely assigned to non-candidate category
 					if not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
 						break
+					"""
 				if assign_snp_candidate_gene==1 and assign_snp_non_candidate_gene==1:	#both are set to 1, no need to check first genes around
 					break
 			if assign_snp_candidate_gene:
@@ -668,7 +689,8 @@ class GeneListRankTest(object):
 								chr_pos_ls=chr_pos_ls,\
 								total_chr_pos_ar=total_chr_pos_ar)
 		del genome_wide_result
-		sys.stderr.write("Done.\n")
+		if self.debug:
+			sys.stderr.write("Done.\n")
 		return passingdata
 	
 	def getPermutationRankSumStat(self, chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls, no_of_snps, \
@@ -738,7 +760,8 @@ class GeneListRankTest(object):
 		2008-10-09
 		
 		"""
-		sys.stderr.write("Getting permutation rank sum pvalue ...")
+		if self.debug:
+			sys.stderr.write("Getting permutation rank sum pvalue ...")
 		rank_sum_stat = self.getPermutationRankSumStat(chr2rank_ls, candidate_gene_snp_index_ls, non_candidate_gene_snp_index_ls,
 								no_of_snps, chr2no_of_snps, permutation_type=0)
 		i = 0
@@ -752,7 +775,8 @@ class GeneListRankTest(object):
 			if no_of_min_breaks>0 and no_of_hits>=no_of_min_breaks:	#if no_of_min_breaks<=0, no smart breaking
 				break
 		pvalue = no_of_hits/float(i)
-		sys.stderr.write("%s/%s tests in total. Done.\n"%(no_of_hits, i))
+		if self.debug:
+			sys.stderr.write("%s/%s tests in total. Done.\n"%(no_of_hits, i))
 		return rank_sum_stat, pvalue
 	
 	def output_gene_id2hit(self, gene_id2hit, output_fname):
