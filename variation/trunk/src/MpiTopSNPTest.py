@@ -11,10 +11,20 @@ Examples:
 	#use null_distribution_type 2 to do enrichment test among top 500 snps
 	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -j 17 -f 500 -q10 -s ~/panfs/250k/snps_context_g0_m1000 -m 1000 -y 15 -C 2 -c
 	
+	#use min_score cutoff rather than no_of_top_snps, set a negative rank_gap, a new stop_rank. only results whose analysis_method_id=1 or 7.
+	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/  -j 17 -f 200 -q80 -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -y 15 -C 3 -c -M 8 -E -0.2 -F 2 -e 1,7
+	
+	#ditto but with score cutoff from low to high
+	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/  -j 17 -f 200 -q80 -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -y 15 -C 3 -c -M 2 -E 0.2 -F 8 -e 1,7
+	
 Description:
 	MPI version TopSNPTest.py. No need to specify list_type_id and results_method_id_ls. Automatically calculates
 	for all combinations of results_method_id and list_type_id, skipping the ones that have been done.
 	
+	2008-10-26
+	Two major ways to specify how to do top SNP test.
+		1. (no_of_top_snps, rank_gap, stop_rank) 
+		2. (min_score, rank_gap, stop_rank). in this scenario, rank_gap, stop_rank become score_gap and stop_score.
 """
 import sys, os, math
 #bit_number = math.log(sys.maxint)/math.log(2)
@@ -40,21 +50,28 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 	option_default_dict = TopSNPTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[100, 'q', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'j', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
-	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
-	option_default_dict.update({("list_type_id_ls", 0, ): [None, 'l', 1, 'comma/dash-separated list of gene list type ids. ids not present in db will be filtered out. Each id has to encompass>=10 genes.']})
+	option_default_dict.update({('analysis_method_id_ls', 0, ):[None, 'e', 1, 'Restrict results based on this set of analysis_method. Default is no such restriction. i.e., 1,7']})
+	option_default_dict.update({("list_type_id_ls", 0, ): ['1-3,6,8,28,51,64,65,68,71,76,129', 'l', 1, 'comma/dash-separated list of gene list type ids. Each id has to encompass>=10 genes.']})
+	option_default_dict.update({("phenotype_method_id_ls", 0, ): ['1-7,39-61,80-82', 'A', 1, 'Restrict results based on this set of phenotype_method ids.']})
 	option_default_dict.pop(("list_type_id", 1, int))	#already poped in MpiGeneListRankTest
 	option_default_dict.pop(("results_id_ls", 1, ))
-	option_default_dict.update({('starting_rank_gap', 1, int): [50, '', 1, 'the gap between the rank of the leading snp in this window and that of the next window. deprecated for now.']})
-	option_default_dict.update({('stop_rank', 1, int): [5000, '', 1, 'program iterates over i different types of i*no_of_top_snps until i*no_of_top_snps > this number.']})
+	option_default_dict.update({('rank_gap', 1, float): [200, 'E', 1, 'the number of SNPs added onto previous no_of_top_snps to look for enrichment. negative gap could also be used. in that case, stop_rank means minimum score allowed.']})
+	option_default_dict.update({('stop_rank', 1, int): [10000, 'F', 1, 'program iterates over i different types of i*no_of_top_snps until i*no_of_top_snps > this number. maximum rank allowed.']})
+	option_default_dict.update({('alter_hostname', 1, ):['banyan.usc.edu', '', 1, 'host for non-output nodes to connect, since they only query and not save objects. this host can be a slave.']})
 	def __init__(self,  **keywords):
 		"""
 		2008-08-20
 		"""
 		TopSNPTest.__init__(self, **keywords)
 		self.list_type_id_ls = getListOutOfStr(self.list_type_id_ls, data_type=int)
+		self.analysis_method_id_ls = getListOutOfStr(self.analysis_method_id_ls, data_type=int)
+		self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
 	
 	def computing_node_handler(self, communicator, data, comp_param_obj):
 		"""
+		2008-10-26
+			handle (min_score, rank_gap, stop_rank)
+			handle scenario that rank_gap is negative and so the parameters tried are descending.
 		2008-08-20
 		"""
 		node_rank = communicator.rank
@@ -67,8 +84,8 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 							min_MAF=comp_param_obj.min_MAF, \
 							get_closest=self.get_closest, 
 							min_distance=self.min_distance, \
-							no_of_top_snps=self.no_of_top_snps, 
-							min_sample_size=self.min_sample_size, 
+							no_of_top_snps=self.no_of_top_snps, #2008-10-25 no_of_top_snps is useless. overwritten later
+							min_sample_size=self.min_sample_size,
 							test_type_id=self.test_type_id, \
 							results_type=self.results_type, 
 							no_of_permutations=self.no_of_permutations,\
@@ -76,14 +93,46 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 							type_id=comp_param_obj.type_id,\
 							null_distribution_type_id=self.null_distribution_type_id,\
 							allow_two_sample_overlapping=self.allow_two_sample_overlapping,
-							total_gene_id_ls=comp_param_obj.total_gene_id_ls)
+							total_gene_id_ls=comp_param_obj.total_gene_id_ls,\
+							min_score=self.min_score)	#2008-10-25 min_score is useless. overwritten later
+		#2008-10-25
+		#if rank_gap is negative, stop_marker means the minimum cutoff
+		#if rank_gap is positive, stop_marker means the maximum cutoff
+		#both signs have to be swapped in the case of negative rank_gap
+		if self.rank_gap<0:
+			stop_marker = -self.stop_rank
+		else:
+			stop_marker = self.stop_rank
+		
 		for results_id, list_type_id in data:
+			if self.debug:
+				sys.stderr.write("working on results_id=%s, list_type_id=%s, type_id=%s .\n"%(results_id, list_type_id, pd.type_id))
 			i = 0
-			while pd.no_of_top_snps<self.stop_rank:	#add one more layer to look at certain top genes
-				i += 1
-				pd.no_of_top_snps = self.no_of_top_snps*i
+			#reset it to zero!!
+			if self.rank_gap<0:	#has to be less than -self.stop_rank in order to pass first round. because stop_marker=-stop_rank when rank_gap<0.
+				current_marker = stop_marker - 1
+			else:
+				current_marker = stop_marker -1
+			
+			while current_marker<stop_marker:	#add one more layer to look at certain top genes
+				if self.min_score is not None:
+					current_marker = self.min_score +i*self.rank_gap
+					pd.min_score = current_marker
+				else:
+					current_marker = self.no_of_top_snps + i*self.rank_gap
+					pd.no_of_top_snps = current_marker
+				
+				if self.rank_gap<0:
+					current_marker = -current_marker
+				else:
+					current_marker = current_marker
+				
 				pd.results_id = results_id
 				pd.list_type_id = list_type_id
+				if self.debug:
+					sys.stderr.write("working on results_id=%s, list_type_id=%s, current_marker=%s.\n"%\
+									(pd.results_id, pd.list_type_id, current_marker))
+				i += 1
 				result = self.runHGTest(pd)
 				if result is not None:
 					result_ls.append(result)
@@ -125,6 +174,10 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
 		free_computing_node_set = Set(free_computing_nodes)
 		output_node_rank = self.communicator.size-1
+		
+		if node_rank!=output_node_rank:		#to reduce the number of connections/queries to the master
+			self.hostname = self.alter_hostname
+		
 		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.db_user,
 						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		db.setup(create_tables=False)
@@ -138,12 +191,16 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		
 		if node_rank == 0:
 			pdata_for_computing = PassingData()
-			pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 			pdata_for_computing.total_gene_id_ls = get_total_gene_ls(db.metadata.bind)
 			pdata_for_computing.no_of_total_genes = len(pdata_for_computing.total_gene_id_ls)
-			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=getattr(self, 'analysis_method_id', None),\
-								list_type_id_ls=self.list_type_id_ls, results_type=self.results_type)
+			param_obj = PassingData(call_method_id=self.call_method_id, \
+								analysis_method_id=getattr(self, 'analysis_method_id', None),\
+								analysis_method_id_ls=getattr(self, 'analysis_method_id_ls', None),\
+								phenotype_method_id_ls=getattr(self, 'phenotype_method_id_ls', None),\
+								list_type_id_ls=self.list_type_id_ls, \
+								results_type=self.results_type)
 			params_ls = self.generate_params(param_obj)
+			pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 			if self.debug:
 				params_ls = params_ls[:100]
 			pdata_for_computing_pickle = cPickle.dumps(pdata_for_computing, -1)
@@ -160,14 +217,14 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		else:
 			pass
 		
+		_type = self.getTopSNPTestType(self.get_closest, self.min_MAF, \
+										self.allow_two_sample_overlapping, self.results_type,\
+										self.test_type_id, self.null_distribution_type_id)
 		self.synchronize()
 		if node_rank == 0:
 			parameter_list = [params_ls]
 			self.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
 		elif node_rank in free_computing_node_set:
-			_type = self.getTopSNPTestType(self.min_distance, self.get_closest, self.min_MAF, \
-										self.allow_two_sample_overlapping, self.results_type,\
-										self.test_type_id, self.null_distribution_type_id)
 			comp_param_obj = PassingData(snps_context_wrapper=data.snps_context_wrapper, \
 												results_directory=self.results_directory, min_MAF=self.min_MAF,\
 												no_of_total_genes=data.no_of_total_genes, \
@@ -184,9 +241,6 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 			else:
 				writer = None
 			
-			_type = self.getTopSNPTestType(self.min_distance, self.get_closest, self.min_MAF, \
-										self.allow_two_sample_overlapping, self.results_type,\
-										self.test_type_id, self.null_distribution_type_id)
 			output_param_obj = PassingData(writer=writer, session=session, commit=self.commit, TestResultClass=TestResultClass,
 										_type=_type)
 			self.output_node(free_computing_nodes, output_param_obj, self.output_node_handler)
