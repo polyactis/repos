@@ -501,10 +501,11 @@ class CandidateGeneTopSNPTest(Entity):
 
 class CandidateGeneTopSNPTestRMType(Entity):
 	"""
+	2008-10-26
+		move min_distance to CandidateGeneTopSNPTestRM
 	2008-10-22
 		hierarchical for CandidateGeneTopSNPTestRM
 	"""
-	min_distance = Field(Integer)
 	get_closest = Field(Integer)
 	min_MAF = Field(Float)
 	allow_two_sample_overlapping = Field(Integer)
@@ -518,12 +519,14 @@ class CandidateGeneTopSNPTestRMType(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_top_snp_test_rm_type', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('min_distance', 'get_closest', 'min_MAF', \
+	using_table_options(UniqueConstraint('get_closest', 'min_MAF', \
 										'allow_two_sample_overlapping', 'results_type', 'test_type_id',\
 										'null_distribution_type_id'))
 	
 class CandidateGeneTopSNPTestRM(Entity):
 	"""
+	2008-10-26
+		add min_distance, no_of_tests_passed, no_of_tests
 	2008-10-23
 		restructure it for the new varieties of tests and link to CandidateGeneTopSNPTestRMType
 	2008-10-15
@@ -535,10 +538,14 @@ class CandidateGeneTopSNPTestRM(Entity):
 	candidate_sample_size = Field(Integer)
 	non_candidate_sample_size = Field(Integer)
 	candidate_gw_size = Field(Integer)
+	non_candidate_gw_size = Field(Integer)
 	no_of_top_candidate_genes = Field(Integer)
 	no_of_top_genes = Field(Integer)
 	no_of_top_snps = Field(Integer)
+	min_distance = Field(Integer)
 	starting_rank = Field(Integer)
+	no_of_tests_passed = Field(Integer)
+	no_of_tests = Field(Integer)
 	max_score = Field(Float)	#2008-10-22 keep record of max/min score in among these snps
 	min_score = Field(Float)
 	type = ManyToOne('CandidateGeneTopSNPTestRMType', colname='type_id', ondelete='CASCADE', onupdate='CASCADE')
@@ -546,7 +553,7 @@ class CandidateGeneTopSNPTestRM(Entity):
 	using_options(tablename='candidate_gene_top_snp_test_rm', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'no_of_top_snps', \
-										'starting_rank', 'type_id'))
+										'min_distance', 'starting_rank', 'type_id'))
 	
 class SNPRegionPlotType(Entity):
 	"""
@@ -555,6 +562,7 @@ class SNPRegionPlotType(Entity):
 	short_name = Field(String(256), unique=True)
 	description = Field(String(8192))
 	snp_region_plot_ls = OneToMany('SNPRegionPlot')
+	#ManyToMany('SNPRegionPlot', tablename='snp_region_plot2type')
 	created_by = Field(String(128))
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
@@ -580,6 +588,10 @@ class SNPRegionPlot(Entity):
 	original_filename = Field(Text)	#no bigger than 128M
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='phenotype_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	plot_type = ManyToOne('SNPRegionPlotType', colname='plot_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	"""
+	plot_types = ManyToMany('SNPRegionPlotType', colname='plot_type_id', ondelete='CASCADE', onupdate='CASCADE', \
+						tablename='snp_region_plot2type')	#local_side, remote_side
+	"""
 	plot2gene_ls = OneToMany("SNPRegionPlotToGene")
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
@@ -597,7 +609,7 @@ class SNPRegionPlotToGene(Entity):
 	gene_id = Field(Integer)
 	using_options(tablename='snp_region_plot2gene', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-
+	using_table_options(UniqueConstraint('plot_id', 'gene_id'))
 
 class LD(Entity):
 	"""
