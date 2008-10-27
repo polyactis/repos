@@ -35,17 +35,21 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	option_default_dict = GeneListRankTest.option_default_dict.copy()
 	option_default_dict.update({('message_size', 1, int):[200, 'q', 1, 'How many results one computing node should handle.']})
 	option_default_dict.update({('call_method_id', 0, int):[0, 'j', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
-	option_default_dict.update({('analysis_method_id', 0, int):[0, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
+	option_default_dict.update({('analysis_method_id_ls', 0, ):[None, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
 	option_default_dict.update({("list_type_id_ls", 0, ): [None, 'l', 1, 'comma/dash-separated list of gene list type ids. ids not present in db will be filtered out. Each id has to encompass>=10 genes.']})
+	option_default_dict.update({('alter_hostname', 1, ):['banyan.usc.edu', '', 1, 'host for non-output nodes to connect, since they only query and not save objects. this host can be a slave.']})
 	option_default_dict.pop(("list_type_id", 1, int))
 	option_default_dict.pop(("results_id_ls", 1, ))
 	
 	def __init__(self,  **keywords):
 		GeneListRankTest.__init__(self, **keywords)
 		self.list_type_id_ls = getListOutOfStr(self.list_type_id_ls, data_type=int)
-	
+		self.analysis_method_id_ls = getListOutOfStr(self.analysis_method_id_ls, data_type=int)
+		
 	def generate_params(self, param_obj, min_no_of_genes=10):
 		"""
+		2008-10-26
+			restrict results via param_obj.analysis_method_id_ls  and param_obj.phenotype_method_id_ls
 		2008-10-10
 			depends on results_type, decide which ( ResultsMethod or ResultsByGene) to get data
 			also which (CandidateGeneRankSumTestResult or CandidateGeneRankSumTestResultMethod) to store results
@@ -71,14 +75,20 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 			query = ResultsMethod.query
 			if param_obj.call_method_id!=0:
 				query = query.filter_by(call_method_id=param_obj.call_method_id)
-			if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
-				query = query.filter_by(analysis_method_id=param_obj.analysis_method_id)
+			if hasattr(param_obj, 'analysis_method_id_ls') and param_obj.analysis_method_id_ls:
+				query = query.filter(ResultsMethod.analysis_method_id.in_(param_obj.analysis_method_id_ls))
+			if hasattr(param_obj, 'phenotype_method_id_ls') and param_obj.phenotype_method_id_ls:
+				query = query.filter(ResultsMethod.phenotype_method_id.in_(param_obj.phenotype_method_id_ls))
 		elif param_obj.results_type==2:
 			query = ResultsByGene.query
 			if param_obj.call_method_id!=0:
 				query = query.filter(ResultsByGene.results_method.has(call_method_id=param_obj.call_method_id))
-			if param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
+			if hasattr(param_obj, 'analysis_method_id') and param_obj.analysis_method_id!=0 and param_obj.analysis_method_id is not None:
 				query = query.filter(ResultsByGene.results_method.has(analysis_method_id=param_obj.analysis_method_id))
+			if param_obj.analysis_method_id_ls:
+				query = query.filter(ResultsByGene.results_method.has(ResultsMethod.analysis_method_id.in_(param_obj.analysis_method_id_ls)))
+			if hasattr(param_obj, 'phenotype_method_id_ls') and param_obj.phenotype_method_id_ls:
+				query = query.filter(ResultsByGene.results_method.has(ResultsMethod.phenotype_method_id.in_(param_obj.phenotype_method_id_ls)))
 		rows = query.offset(i).limit(block_size)
 		results_method_id_ls = []
 		while rows.count()!=0:
@@ -89,6 +99,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		
 		sys.stderr.write("%s results. "%(len(results_method_id_ls)))
 		
+		#if self.debug:	#2008-10-25 temporary testing
+		#	results_method_id_ls = [2095, 2079]
 		
 		list_type_id_ls = []
 		if getattr(param_obj, 'list_type_id_ls', None):	#if list_type_id_ls is given, check whether each one exists in db and has minimum number of genes.
@@ -125,7 +137,7 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 				rm_id_lt_id = (results_method_id, list_type_id)
 				if rm_id_lt_id not in rm_id_lt_id_set:
 					params_ls.append(rm_id_lt_id)
-		sys.stderr.write("generating params done.\n")
+		sys.stderr.write(" %s params generated.\n"%(len(params_ls)))
 		return params_ls
 	
 	def input_handler(self, parameter_list, message_size, report=0):
@@ -196,6 +208,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 				setattr(result, column, getattr(table_obj, column))
 			
 			if result.type_id is None and getattr(output_param_obj, '_type', None):	#2008-10-23 assign _type
+				if self.debug:
+					sys.stderr.write("type_id not avaiable on the result got from computing node. assign type here.\n")
 				result.type = output_param_obj._type
 			
 			if output_param_obj.writer:
@@ -230,8 +244,12 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		if node_rank == 0:
 			#snps_context_wrapper = self.constructDataStruc(self.min_distance, self.get_closest)
 			snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
-			param_obj = PassingData(call_method_id=self.call_method_id, analysis_method_id=self.analysis_method_id, \
-								list_type_id_ls=self.list_type_id_ls, results_type=self.results_type)
+			param_obj = PassingData(call_method_id=self.call_method_id,
+								analysis_method_id=getattr(self, 'analysis_method_id', None),\
+								analysis_method_id_ls=getattr(self, 'analysis_method_id_ls', None),\
+								list_type_id_ls=self.list_type_id_ls,
+								results_type=self.results_type,\
+								phenotype_method_id_ls=getattr(self, 'phenotype_method_id_ls', None))
 			params_ls = self.generate_params(param_obj)
 			if self.debug:
 				params_ls = params_ls[:100]
