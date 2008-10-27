@@ -506,6 +506,36 @@ class Value2Color(object):
 	value2HSLcolor = classmethod(value2HSLcolor)
 
 
+def drawMatrixLegend(data_matrix, left_label_ls=[], top_label_ls=[], min_value=None, max_value=None,\
+					min_possible_value=0, max_possible_value=None,\
+					font_path='/usr/share/fonts/truetype/freefont/FreeSerif.ttf', font_size=20, \
+					no_of_ticks=15, with_grid=1):
+	"""
+	2008-10-26
+		a wrapper to draw both legend and data matrix by calling drawContinousLegend() and drawMatrix()
+		if min_value is not given, try to figure it out by numpy.min(). If min_possible_value is not None, that's the lower bound.
+		ditto for max_value.
+	"""
+	import numpy
+	font = get_font(font_path, font_size=font_size)	#2008-08-01
+	if min_value==None:
+		min_value = numpy.min(data_matrix)
+		if min_possible_value is not None:
+			min_value = max(min_possible_value, min_value)
+	
+	if max_value ==None:
+		max_value = numpy.max(data_matrix)
+		if max_possible_value is not None:
+			max_value = min(max_possible_value, max_value)
+	
+	value2color_func = lambda x: Value2Color.value2HSLcolor(x, min_value, max_value)
+	im_legend = drawContinousLegend(min_value, max_value, no_of_ticks, value2color_func, font)
+	#im.save('%s_legend.png'%self.fig_fname_prefix)
+	im = drawMatrix(data_matrix, value2color_func, left_label_ls,\
+				top_label_ls, with_grid=with_grid, font=font)
+	im = combineTwoImages(im, im_legend, font=font)
+	return im
+
 class DrawMatrix(object):
 	__doc__ = __doc__
 	option_default_dict = {('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
