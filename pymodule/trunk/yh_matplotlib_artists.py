@@ -220,8 +220,8 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 			colors	   = (mpl.rcParams['lines.color'],)
 		if antialiaseds is None :
 			antialiaseds = (mpl.rcParams['lines.antialiased'], )
-
-		self._colors = _colors.colorConverter.to_rgba_list(colors, alpha)
+		
+		self._colors = [_colors.colorConverter.to_rgba(color, alpha) for color in colors]	#2008-10-26 use to_rgba() instead of to_rgba_list() because the latter is not present in matplotlib 0.98.3
 		self._aa = self._get_value(antialiaseds)
 		self._lw = self._get_value(linewidths)
 		self.set_linestyle(linestyle)
@@ -234,7 +234,10 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 			if offsets is not None:
 				self._uniform_offsets = offsets
 				offsets = None
-			transOffset = transforms.identity_transform()
+			if hasattr(transforms, 'identity_transform'):
+				transOffset = transforms.identity_transform()	#matplotlib 0.91.2
+			elif hasattr(transforms, 'IdentityTransform'):
+				transOffset = transforms.IdentityTransform()	#matplotlib 0.98.3
 		self._offsets = offsets
 		self._transOffset = transOffset
 		self.pickradius = pickradius
@@ -293,7 +296,7 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		self._verts = verts
 		#self.set_alpha(alpha)
 		PolyCollection.__init__(self, verts_ls, linewidths=box_line_widths, antialiaseds=antialiaseds, edgecolors=edgecolors, **kwargs)
-		self._facecolors  = _colors.colorConverter.to_rgba_list(facecolors, alpha=alpha)	#in PolyCollection.__init__(), it doesn't handle alpha
+		self._facecolors  = [_colors.colorConverter.to_rgba(facecolor, alpha=alpha) for facecolor in facecolors]	#in PolyCollection.__init__(), it doesn't handle alpha
 		self._picker = picker	#to enable picker_event. PolyCollection's ancestor PatchCollection (collection.py) defines a method 'contains()'.
 			#Artist.pick() (in artist.py) calls pickable(), which checks self._picker, first to see whether this artist is pickable. then it calls picker() or contains().
 		self.update(kwargs)
@@ -302,7 +305,10 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 		if not self.get_visible(): return
 		renderer.open_group('polycollection')
 		transform = self.get_transform()
-		transoffset = self.get_transoffset()
+		if hasattr(self, 'get_transoffset'):
+			transoffset = self.get_transoffset()	#matplotlib 0.91.2
+		else:
+			transoffset = getattr(self, '_transOffset', None)	#matplotlib 0.98.3
 
 		transform.freeze()
 		transoffset.freeze()
