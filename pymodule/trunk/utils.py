@@ -198,6 +198,8 @@ def getColName2IndexFromHeader(header):
 
 def getListOutOfStr(list_in_str, data_type=int, separator1=',', separator2='-'):
 	"""
+	2008-10-27
+		fix a bug when data_type!=int. it's never right before.
 	2008-09-25
 		parse a list of a string representation of a list, such as '1,3-7,11'=[1,3,4,5,6,7,11]
 		dash-separated representation has to be in integer.
@@ -219,6 +221,7 @@ def getListOutOfStr(list_in_str, data_type=int, separator1=',', separator2='-'):
 			list_to_return.append(data_type(start_stop_tup[0]))
 		elif len(start_stop_tup)>1:
 			list_to_return += range(start_stop_tup[0], start_stop_tup[1]+1)
+	list_to_return = map(data_type, list_to_return)	#2008-10-27
 	return list_to_return
 
 if __name__ == '__main__':
