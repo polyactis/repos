@@ -19,7 +19,7 @@ import sys, os, math
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import getopt, csv, math
+import getopt, csv, math, traceback
 import Numeric, cPickle
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
@@ -185,6 +185,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	
 	def output_node_handler(self, communicator, output_param_obj, data):
 		"""
+		2008-10-30
+			upon session.flush() failure, get into 'except ...' and remove the result from memory and report traceback without interrupting program
 		2008-10-23
 			replace parameter_list with output_param_obj 
 			handle result.type
@@ -204,7 +206,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
 			#can't save table_obj because it's associated with a different db thread
 			for column in table_obj.c.keys():
-				row.append(getattr(table_obj, column))
+				if output_param_obj.writer:	#2008-10-30 append only when writer is not None
+					row.append(getattr(table_obj, column))
 				setattr(result, column, getattr(table_obj, column))
 			
 			if result.type_id is None and getattr(output_param_obj, '_type', None):	#2008-10-23 assign _type
@@ -216,7 +219,17 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 				output_param_obj.writer.writerow(row)
 			output_param_obj.session.save(result)
 			if commit:
-				output_param_obj.session.flush()
+				try:
+					output_param_obj.session.flush()
+				except:
+					#2008-10-30 remove it from memory. otherwise, next flush() will try on this old object again.
+					output_param_obj.session.expunge(result)
+					#output_param_obj.session.delete(result)
+					sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(result.results_id, result.list_type_id))
+					for column in table_obj.c.keys():
+						sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
+					traceback.print_exc()
+					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 	
 	def run(self):
 		"""
