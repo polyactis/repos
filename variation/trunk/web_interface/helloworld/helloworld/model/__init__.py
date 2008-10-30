@@ -15,6 +15,11 @@ pool_recycle = 3600
 
 db = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user, password=db_passwd, \
 				hostname=hostname, database=dbname, schema=schema, pool_recycle=pool_recycle)
+
+from transfac.src import GenomeDB
+
+genome_db = GenomeDB.GenomeDatabase(drivername=drivername, username=db_user, password=db_passwd, \
+				hostname=hostname, database='genome', schema=schema, pool_recycle=pool_recycle)
 """
 for entity in entities:
 	if entity.__module__==db.__module__:	#entity in the same module
@@ -22,6 +27,7 @@ for entity in entities:
 		#using_table_options_handler(entity, schema=self.schema)
 """
 db.setup(create_tables=False)
+genome_db.setup(create_tables=False)
 
 import os,sys
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
