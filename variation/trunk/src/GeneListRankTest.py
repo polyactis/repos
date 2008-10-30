@@ -525,6 +525,9 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-10-30
+			parse options need_snp_index and need_candidate_association from param_data
+			add candidate_association_ls in the final returning data
 		2008-10-26
 			add another way to take top snps, based on the min_score cutoff.
 		2008-10-23
@@ -545,7 +548,22 @@ class GeneListRankTest(object):
 		"""
 		if self.debug:
 			sys.stderr.write("Preparing data for permutation rank test ... ")
-		candidate_gene_set = getattr(param_data, 'candidate_gene_set', Set(param_data.candidate_gene_list))
+		candidate_gene_set = getattr(param_data, 'candidate_gene_set', Set(getattr(param_data, 'candidate_gene_list', [])))
+		
+		#input file is in chromosome,position order
+		param_data.construct_chr_pos2index = getattr(param_data, 'construct_chr_pos2index', True)	#get_data_obj_by_chr_pos() needs chr_pos2index in gwr
+		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF, pdata=param_data)
+		if genome_wide_result is None:
+			return None
+		no_of_total_snps = len(genome_wide_result.data_obj_ls)
+		
+		starting_rank = getattr(param_data, 'starting_rank', 1)	#2008-10-15 rank starts from 1
+		no_of_snps = getattr(param_data, 'no_of_top_snps', no_of_total_snps)
+		need_the_value = getattr(param_data, 'need_the_value', 0)	#get the pvalues/scores as well
+		need_chr_pos_ls = getattr(param_data, 'need_chr_pos_ls', 0)	#whether need the chr,pos tuple of chosen SNP
+		min_score = getattr(param_data, 'min_score', None)	#2008-10-25
+		need_snp_index = getattr(param_data, 'need_snp_index', False)	#2008-10-28 whether need the whole-genome index of the chosen SNP 
+		need_candidate_association = getattr(param_data, 'need_candidate_association', False)	#2008-10-28 for PickCandidateGenesIntoResultsGene.py
 		
 		chr2rank_ls = {}
 		candidate_gene_snp_chr_pos_ls = []
@@ -559,21 +577,12 @@ class GeneListRankTest(object):
 		#chr2no_of_snps = {}
 		#chr2cumu_no_of_snps = {}
 		chr_pos_ls = []	#to store a list of (chr,position)
+		candidate_association_ls = []	#2008-10-28 for PickCandidateGenesIntoResultsGene.py
 		
-		#input file is in chromosome,position order
-		param_data.construct_chr_pos2index = True	#always need chr_pos2index from now on
-		genome_wide_result = self.getResultMethodContent(rm, param_data.results_directory, param_data.min_MAF, pdata=param_data)
-		if genome_wide_result is None:
-			return None
 		score_ls = [data_obj.value for data_obj in genome_wide_result.data_obj_ls]
 		import rpy
 		rank_ls = rpy.r.rank(score_ls)	#rpy.rank also exists!!
-		no_of_total_snps = len(score_ls)
-		starting_rank = getattr(param_data, 'starting_rank', 1)	#2008-10-15 rank starts from 1
-		no_of_snps = getattr(param_data, 'no_of_top_snps', no_of_total_snps)
-		need_the_value = getattr(param_data, 'need_the_value', 0)	#get the pvalues/scores as well
-		need_chr_pos_ls = getattr(param_data, 'need_chr_pos_ls', 0)	#get the pvalues/scores as well
-		min_score = getattr(param_data, 'min_score', None)	#2008-10-25
+		max_rank = max(rank_ls)	#2008-10-28 used to subtract any rank to get the reverse rank. In rank_ls, higher score=higher rank. we want reverse.
 		
 		if min_score is not None:
 			no_of_snps = no_of_total_snps
@@ -621,7 +630,11 @@ class GeneListRankTest(object):
 				snps_id, disp_pos, gene_id = snps_context
 				if gene_id in candidate_gene_set:
 					assign_snp_candidate_gene = 1
-					if not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
+					if need_candidate_association:	#2008-10-28
+						candidate_association_ls.append((snps_id, disp_pos, gene_id, data_obj.value, max_rank-rank+1))	#2008-10-28 max_rank subtraction is just for PickCandidateGenesIntoResultsGene.py
+					
+					if not need_candidate_association and not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
+						#2008-10-28 if need_candidate_association, have to go through all, no early break
 						break
 				else:
 					assign_snp_non_candidate_gene = 1
@@ -630,16 +643,18 @@ class GeneListRankTest(object):
 					if not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
 						break
 					"""
-				if assign_snp_candidate_gene==1 and assign_snp_non_candidate_gene==1:	#both are set to 1, no need to check first genes around
+				if not need_candidate_association and assign_snp_candidate_gene==1 and assign_snp_non_candidate_gene==1:	#both are set to 1, no need to check first genes around
+					#2008-10-28 if need_candidate_association, have to go through all, no early break
 					break
 			if assign_snp_candidate_gene:
-				candidate_gene_snp_index_ls.append(genome_wide_result.chr_pos2index[chr_pos])
-				candidate_gene_snp_chr_pos_ls.append(chr_pos)
+				if need_snp_index:
+					candidate_gene_snp_index_ls.append(genome_wide_result.chr_pos2index[chr_pos])
+				if need_chr_pos_ls:
+					candidate_gene_snp_chr_pos_ls.append(chr_pos)
 				rank_sum_stat += rank
 				candidate_gene_snp_rank_ls.append(rank)
 				if need_the_value:
 					candidate_gene_snp_value_ls.append(data_obj.value)
-			
 			#condition to assign this snp to non candidate gene
 			assign_snp_non_candidate_gene = (not param_data.allow_two_sample_overlapping and not assign_snp_candidate_gene) or \
 				(param_data.allow_two_sample_overlapping and assign_snp_non_candidate_gene)
@@ -651,8 +666,10 @@ class GeneListRankTest(object):
 					non_candidate_gene_snp_rank_ls.append(rank)
 			"""
 			if assign_snp_non_candidate_gene:	#two samples allowed overlapping, then have to check the other tag
-				non_candidate_gene_snp_index_ls.append(genome_wide_result.chr_pos2index[chr_pos])
-				non_candidate_gene_snp_chr_pos_ls.append(chr_pos)
+				if need_snp_index:
+					non_candidate_gene_snp_index_ls.append(genome_wide_result.chr_pos2index[chr_pos])
+				if need_chr_pos_ls:
+					non_candidate_gene_snp_chr_pos_ls.append(chr_pos)
 				non_candidate_gene_snp_rank_ls.append(rank)
 				if need_the_value:
 					non_candidate_gene_snp_value_ls.append(data_obj.value)
@@ -662,9 +679,10 @@ class GeneListRankTest(object):
 		#candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
 		#non_candidate_gene_snp_index_ls = self.convertChrIndex2GenomeIndex(non_candidate_gene_snp_chr_index_ls, chr2cumu_no_of_snps, chr2no_of_snps)
 		
-		#turn them into numpy arrays
-		candidate_gene_snp_index_ls = num.array(candidate_gene_snp_index_ls, num.int)
-		non_candidate_gene_snp_index_ls = num.array(non_candidate_gene_snp_index_ls, num.int)
+		if need_snp_index:
+			#turn them into numpy arrays
+			candidate_gene_snp_index_ls = num.array(candidate_gene_snp_index_ls, num.int)
+			non_candidate_gene_snp_index_ls = num.array(non_candidate_gene_snp_index_ls, num.int)
 		
 		total_chr_pos_ar = None
 		if need_chr_pos_ls:
@@ -687,7 +705,8 @@ class GeneListRankTest(object):
 								non_candidate_gene_snp_value_ls=non_candidate_gene_snp_value_ls,\
 								score_range=score_range,\
 								chr_pos_ls=chr_pos_ls,\
-								total_chr_pos_ar=total_chr_pos_ar)
+								total_chr_pos_ar=total_chr_pos_ar,\
+								candidate_association_ls=candidate_association_ls)
 		del genome_wide_result
 		if self.debug:
 			sys.stderr.write("Done.\n")
