@@ -225,8 +225,30 @@ class TopSNPTest(GeneListRankTest):
 			sys.stderr.write("%s/%s tests in total. Done.\n"%(no_of_hits, i))
 		return return_data
 	
+	def TestResultClassInDB(self, TestResultClass, results_id, list_type_id,starting_rank, type_id, min_distance, \
+						no_of_top_snps, min_score=None):
+		"""
+		2008-10-30
+			split out from runHGTest()
+			check if a result is in db or not
+		"""
+		query = TestResultClass.query.filter_by(results_id=results_id).\
+				filter_by(list_type_id=list_type_id).\
+				filter_by(starting_rank=starting_rank).\
+				filter_by(type_id=type_id).\
+				filter_by(min_distance=min_distance)
+		#2008-10-27 better to use integer no_of_top_snps to match db entry. float min_score is inaccurate.
+		if min_score is not None:	#if min_score is present, check db differently. pd.no_of_top_snps doesn't correspond to SNPs whose score is above min_score.
+			db_results = query.filter(TestResultClass.min_score>=min_score-0.0001).filter(TestResultClass.min_score<=min_score+0.0001)
+		else:
+			db_results = query.filter_by(no_of_top_snps=int(no_of_top_snps))
+		return db_results
+	
 	def runHGTest(self, pd):
 		"""
+		2008-10-30
+			use TestResultClassInDB() to check if result has been stored in the db or not.
+			if pd.min_score is not None, run TestResultClassInDB() again.
 		2008-10-26
 			handle the situation that uses min_score to get top snps to do enrichment test
 		2008-10-23
@@ -273,15 +295,9 @@ class TopSNPTest(GeneListRankTest):
 			return None
 		starting_rank = getattr(pd, 'starting_rank', 1)	#from which rank to look down for top snps
 		if pd.type_id:	#the type is already in database. now check if the same top snp test has been done or not
-			query = TestResultClass.query.filter_by(results_id=pd.results_id).\
-				filter_by(list_type_id=pd.list_type_id).\
-				filter_by(starting_rank=starting_rank).\
-				filter_by(type_id=pd.type_id).\
-				filter_by(min_distance=pd.min_distance)
-			if pd.min_score is not None:	#if min_score is present, check db differently
-				db_results = query.filter(TestResultClass.min_score>=pd.min_score-0.000001).filter(TestResultClass.min_score<=pd.min_score+0.000001)
-			else:
-				db_results = query.filter_by(no_of_top_snps=pd.no_of_top_snps)
+			db_results = self.TestResultClassInDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
+												pd.type_id, pd.min_distance, pd.no_of_top_snps, pd.min_score)
+			
 			if db_results.count()>0:	#done before
 				db_result = db_results.first()
 				sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
@@ -328,12 +344,27 @@ class TopSNPTest(GeneListRankTest):
 					if self.debug:
 						sys.stderr.write("No permData from prepareDataForPermutationRankTest().\n")
 					return None
+				
 				score_range = permData.score_range
 				candidate_sample_size = len(permData.candidate_gene_snp_rank_ls)
 				non_candidate_sample_size = len(permData.non_candidate_gene_snp_rank_ls)
+				
+				if pd.min_score is not None:
+					#2008-10-28 check db again because no_of_top_snps=candidate_sample_size+non_candidate_sample_size.
+					#sometimes, different min_score cutoff gives same no_of_top_snps.
+					db_results = self.TestResultClassInDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
+													pd.type_id, pd.min_distance, candidate_sample_size+non_candidate_sample_size)
+					if db_results.count()>0:	#done before
+						db_result = db_results.first()
+						if self.debug:
+							sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
+										(db_result.id, db_result.results_id, db_result.list_type_id, db_result.no_of_top_snps, db_result.pvalue))
+						return None
+				
 				not_enough_sample = 0
 				if candidate_sample_size<pd.min_sample_size:	#don't look at how many non-candidates are (different from whole genome rank test)
-					sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
+					if self.debug:
+						sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 					return None
 				if pd.test_type_id==14 and pd.null_distribution_type_id==1:	#defunct
 					w_result = rpy.r.wilcox_test(permData.candidate_gene_snp_rank_ls, permData.non_candidate_gene_snp_rank_ls, alternative='greater')
@@ -378,6 +409,9 @@ class TopSNPTest(GeneListRankTest):
 						pvalue = return_data.pvalue
 						no_of_tests = return_data.no_of_tests
 						no_of_tests_passed = return_data.no_of_tests_passed
+					else:
+						sys.stderr.write("null_distribution_type %s not supported.\n"%(pd.null_distribution_type_id))
+						return None
 				else:
 					sys.stderr.write("Test_type %s not supported.\n"%(pd.test_type))
 					return None
@@ -501,7 +535,7 @@ class TopSNPTest(GeneListRankTest):
 					print '%s: %s'%(column, row[-1])
 				if writer:
 					writer.writerow(row)
-				#session.save(result)
+				session.save(result)
 				if self.commit:
 					session.flush()
 			
