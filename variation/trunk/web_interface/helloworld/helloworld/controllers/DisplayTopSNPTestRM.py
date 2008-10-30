@@ -4,6 +4,7 @@ from helloworld.lib.base import *
 
 log = logging.getLogger(__name__)
 import StringIO
+from pymodule import PassingData, getListOutOfStr
 
 class DisplaytopsnptestrmController(BaseController):
 	"""
@@ -38,21 +39,29 @@ class DisplaytopsnptestrmController(BaseController):
 		return render('/display_top_snp_test_rm.html')
 	
 	
-	def type(self, id=None):
-		CandidateGeneTopSNPTestRMType = model.Stock_250kDB.CandidateGeneTopSNPTestRMType
-		CandidateGeneTopSNPTestRM = model.Stock_250kDB.CandidateGeneTopSNPTestRM
+	def type(cls, id=None, TypeClass=model.Stock_250kDB.CandidateGeneTopSNPTestRMType, \
+			template='/display_top_snp_test_rm_type.html', phenotype_id_ls_str = '1-7,39-61,80-82', \
+			list_type_id_ls_str = '1-3,6,8,28,51,64,65,68,71,76,129'):
+		"""
+		2008-10-30
+			generalized so that DisplayResultsGene could call it
+		"""
 		ResultsMethod = model.Stock_250kDB.ResultsMethod
 		
 		if id is None:
 			id = request.params.get('id', '1')
 		
-		extra_tables = ' %s c '%(CandidateGeneTopSNPTestRM.table.name)
-		extra_condition = 'c.type_id =%s and s.id=c.results_id'%id
+		phenotype_id_ls = getListOutOfStr(phenotype_id_ls_str, data_type=str)
+		list_type_id_ls = getListOutOfStr(list_type_id_ls_str, data_type=str)
 		
-		c.phenotype_info  = h.getPhenotypeInfo(ResultsMethod.table.name, extra_condition, extra_tables)
-		extra_condition = 's.type_id =%s'%id
+		#extra_tables = ' %s c '%(CandidateGeneTopSNPTestRM.table.name)
+		extra_condition = 'p.id in (%s)'%(','.join(phenotype_id_ls))
 		
-		c.list_info = h.getListTypeInfo(CandidateGeneTopSNPTestRM.table.name, extra_condition)
+		c.phenotype_info  = h.getPhenotypeInfo(extra_condition=extra_condition, extra_tables=None)
+		#extra_condition = 's.type_id =%s'%id
+		extra_condition = 'p.id in (%s)'%(','.join(list_type_id_ls))
+		
+		c.list_info = h.getListTypeInfo(extra_condition=extra_condition)
 		
 		data_matrix = []
 		no_of_rows = len(c.list_info.list_type_id_ls)
@@ -60,11 +69,27 @@ class DisplaytopsnptestrmController(BaseController):
 		for i in range(no_of_rows):
 			data_matrix.append([None]*no_of_cols)
 		
-		c.type = CandidateGeneTopSNPTestRMType.get(id)
+		c.type = TypeClass.get(id)
 		
+		#2008-10-29 a faster way to come up the data_matrix but data is not guaranteed inside
+		rows = ResultsMethod.query.filter(ResultsMethod.phenotype_method_id.in_(map(int, phenotype_id_ls))).\
+			filter(ResultsMethod.analysis_method_id.in_([1,7])).\
+			filter_by(call_method_id=17).\
+			order_by(ResultsMethod.analysis_method_id)
+		counter = 0
+		for row in rows:
+			col_index = c.phenotype_info.phenotype_method_id2index.get(row.phenotype_method_id)
+			if col_index is None:
+				continue
+			for list_type_id, row_index in c.list_info.list_type_id2index.iteritems():
+				if list_type_id>0:
+					if data_matrix[row_index][col_index] is None:
+						data_matrix[row_index][col_index] = []
+					data_matrix[row_index][col_index].append((row.id, row.analysis_method.short_name))
+					counter +=1
+		"""
 		rows = CandidateGeneTopSNPTestRM.query.filter_by(type_id=id)
 		
-		counter = 0
 		for row in rows:
 			row_index = c.list_info.list_type_id2index[row.list_type_id]
 			col_index = c.phenotype_info.phenotype_method_id2index[row.result.phenotype_method_id]
@@ -72,9 +97,12 @@ class DisplaytopsnptestrmController(BaseController):
 				data_matrix[row_index][col_index] = Set()
 			data_matrix[row_index][col_index].add(row.results_id)
 			counter +=1
+		"""
 		c.counter = counter
 		c.data_matrix = data_matrix
-		return render('/display_top_snp_test_rm_type.html')
+		return render(template, cache_expire=5)
+	
+	type=classmethod(type)
 	
 	def getImage(self, id=None):
 		"""
@@ -95,6 +123,8 @@ class DisplaytopsnptestrmController(BaseController):
 		
 	def showOne(self, id=None, type_id=None, list_type_id=None):
 		"""
+		2008-10-30
+			add code to DrawTopSNPTest2DMapForOneRM.plotCurve()
 		2008-10-24
 			show all data identified by (results_id=id, type_id=type_id, list_type_id=list_type_id)
 		"""
@@ -123,16 +153,22 @@ class DisplaytopsnptestrmController(BaseController):
 		#c.rdata.data_matrix_non_candidate_gw_size = 250000-c.rdata.data_matrix_candidate_gw_size
 		from pymodule.DrawMatrix import drawMatrixLegend
 		
+		
+		
 		#draw the pvalue plot
-		im = drawMatrixLegend(c.rdata.data_matrix, left_label_ls=no_of_top_snps_info.label_ls, \
-							top_label_ls=min_distance_info.label_ls, min_value=c.rdata.min_value, max_value=c.rdata.max_value)
-		png_data = StringIO.StringIO()
+		curve_fname = 'top_snp_test_%s_%s_%s_curve.png'%(results_id, list_type_id, type_id)
 		plot_fname = 'top_snp_test_%s_%s_%s_pvalue.png'%(results_id, list_type_id, type_id)
 		plot_file_path = os.path.join(config['app_conf']['plots_store'], plot_fname)
-		im.save(plot_file_path, format='png')
+		curve_file_path = str(os.path.join(config['app_conf']['plots_store'], curve_fname))	#str() to avoid "TypeError: cannot return std::string from Unicode object"
 		c.pvalue_png_fname = plot_fname
+		if len(c.rdata.data_matrix)>1 and len(c.rdata.data_matrix[0])>1:
+			im = drawMatrixLegend(c.rdata.data_matrix, left_label_ls=no_of_top_snps_info.label_ls, \
+							top_label_ls=min_distance_info.label_ls, min_value=c.rdata.min_value, max_value=c.rdata.max_value)
+			png_data = StringIO.StringIO()
+			im.save(plot_file_path, format='png')
+			DrawTopSNPTest2DMapForOneRM.plotCurve(rdata, no_of_top_snps_info, min_distance_info, curve_file_path)
+		c.curve_fname = curve_fname
 		
-
 		#	self.savePlot(c.snp_region_plot, plot_file_path)
 		"""
 		im = drawMatrixLegend(c.rdata.data_matrix_candidate_sample_size/c.rdata.data_matrix_candidate_gw_size, \
