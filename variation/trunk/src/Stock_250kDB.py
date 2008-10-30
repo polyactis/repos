@@ -711,6 +711,8 @@ class MAFVsScorePlot(Entity):
 
 class ResultsGene(Entity):
 	"""
+	2008-10-30
+		remove order_by='rank' in types = ManyToMany('ScoreRankHistogramType', ...)
 	2008-10-28
 		store genes associated with SNPs in results_method under certain association rule
 	"""
@@ -721,8 +723,7 @@ class ResultsGene(Entity):
 	rank = Field(Float)
 	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
 	types = ManyToMany('ScoreRankHistogramType', \
-						tablename='results_gene2type',\
-						order_by='rank')	#local_side, remote_side
+						tablename='results_gene2type')	#local_side, remote_side
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
