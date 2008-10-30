@@ -898,8 +898,10 @@ class GenomeWideResults(TableClass):
 		self.genome_wide_result_ls.append(genome_wide_result)
 		self.genome_wide_result_obj_id2index[id(genome_wide_result)] = genome_wide_result_index
 
-class GenomeWideResult(TableClass):
+class GenomeWideResult(object):
 	"""
+	2008-10-30
+		no longer inherit from TableClass
 	2008-10-21
 		add option construct_data_obj_id2index
 	"""
@@ -910,12 +912,23 @@ class GenomeWideResult(TableClass):
 	results_method = None
 	min_value = None
 	max_value = None
-	base_value = 0
 	chr_pos2index = None
-	construct_data_obj_id2index = True
-	construct_chr_pos2index = False
+	construct_data_obj_id2index = None	#True if get_data_obj_by_obj_id() is desired.
+	construct_chr_pos2index = None	#True if get_data_obj_by_chr_pos() is desired.
 	argsort_data_obj_ls = None
 	chr2no_of_snps = None
+	
+	def __init__(self, construct_data_obj_id2index=True, construct_chr_pos2index=False, name=None, base_value = 0):
+		"""
+		2008-10-30
+			no longer inherit from TableClass
+			add this __init__()
+		"""
+		self.construct_data_obj_id2index = construct_data_obj_id2index	#True if get_data_obj_by_obj_id() is desired.
+		self.construct_chr_pos2index = construct_chr_pos2index	#True if get_data_obj_by_chr_pos() is desired.
+		self.name = name
+		self.base_value = base_value
+	
 	def get_data_obj_by_obj_id(self, obj_id):
 		return self.data_obj_ls[self.data_obj_id2index[obj_id]]
 	
@@ -1011,6 +1024,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-10-28
+		handle construct_data_obj_id2index
 	2008-10-21
 		add score_for_0_pvalue, if pdata doesn't have it, assume 50.
 		get chr_pos2index from pdata, which will pre-decide the order of snps in gwr.data_obj_ls
@@ -1033,10 +1048,12 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	"""
 	sys.stderr.write("Getting genome wide result from %s ... "%input_fname)
 	construct_chr_pos2index = getattr(pdata, 'construct_chr_pos2index', False)	#2008-09-24
+	construct_data_obj_id2index = getattr(pdata, 'construct_data_obj_id2index', True)	#2008-10-28 for get_data_obj_by_obj_index()
 	is_4th_col_stop_pos = getattr(pdata, 'is_4th_col_stop_pos', False)	#2008-10-14
 	chr_pos2index = getattr(pdata, 'chr_pos2index', None)	#2008-10-21
 	score_for_0_pvalue = getattr(pdata, 'score_for_0_pvalue', 50)
-	gwr = GenomeWideResult(name=os.path.basename(input_fname), construct_chr_pos2index=construct_chr_pos2index)
+	gwr = GenomeWideResult(name=os.path.basename(input_fname), construct_chr_pos2index=construct_chr_pos2index, \
+						construct_data_obj_id2index=construct_data_obj_id2index)
 	gwr.data_obj_ls = []	#list and dictionary are crazy references.
 	gwr.data_obj_id2index = {}
 	genome_wide_result_id = id(gwr)
