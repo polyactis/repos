@@ -1,10 +1,9 @@
 <%inherit file="/base.html"/>
 
-<%def name="title()">Types of Histograms of Score/Rank </%def>
-Histograms of scores/ranks from associations results partitioned based on whether a SNP is associated with a candidate gene or not.
-
+<%def name="title()">Types of Association between SNP and Genes</%def>
+View top candidate genes that are associated with top snps (under certain association rule) from associations results.
 <p>
-There are different ways of associating a SNP to a certain gene. The histograms are classified according to that.
+There are different ways of associating a SNP to a certain gene. The results are classified according to that.
 </p>
 
 % if len(c.score_rank_hist_type_ls)>0:
@@ -28,7 +27,7 @@ There are different ways of associating a SNP to a certain gene. The histograms 
 		% for table_field in score_rank_hist_type.c.keys():
 			<td>
 			% if table_field=='id':
-				<a href=${h.url_for(controller='ScoreRankHistogram', action='type', id=score_rank_hist_type.id)}>${getattr(score_rank_hist_type, table_field, '')}</a>
+				<a href=${h.url_for(controller='DisplayResultsGene', action='gene_list_by_phenotype', id=score_rank_hist_type.id)}>${getattr(score_rank_hist_type, table_field, '')}</a>
 				## (${len(score_rank_hist_type.score_rank_hist_ls)} plots)
 			% elif table_field=='null_distribution_type_id':
 				${score_rank_hist_type.null_distribution_type.short_name}

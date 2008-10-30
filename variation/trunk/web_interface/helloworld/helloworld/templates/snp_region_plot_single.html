@@ -6,13 +6,13 @@
 		<%
 		snp_region_plot_url = h.url_for(controller='SNPRegionPlot', action='getImage', id=snp_region_plot.id)
 		%>
-		<a href=${snp_region_plot_url}><img width="1280" src=${snp_region_plot_url}></a>
+		<a href=${snp_region_plot_url}><img width="1024" src=${snp_region_plot_url}></a>
 	% endfor
 % else:
 	<%
 	snp_region_plot_url = h.url_for(controller='SNPRegionPlot', action='getImage', id=c.snp_region_plot.id)
 	%>
-	<a href=${snp_region_plot_url}><img width="1280" src=${snp_region_plot_url}></a>
+	<a href=${snp_region_plot_url}><img width="1024" src=${snp_region_plot_url}></a>
 % endif
 
 <table border=1>

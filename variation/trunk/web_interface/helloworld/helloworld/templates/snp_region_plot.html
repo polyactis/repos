@@ -18,7 +18,8 @@
 		% for table_field in snp_region_plot_type.c.keys():
 			<td>
 			% if table_field=='id':
-				<a href=${h.url_for(controller='SNPRegionPlot', action='type', id=snp_region_plot_type.id)}>${getattr(snp_region_plot_type, table_field, '')} (${len(snp_region_plot_type.snp_region_plot_ls)} plots)</a>
+				<a href=${h.url_for(controller='SNPRegionPlot', action='type', id=snp_region_plot_type.id)}>${getattr(snp_region_plot_type, table_field, '')}</a>
+				##(${len(snp_region_plot_type.snp_region_plot_ls)} plots)
 				<a href=${h.url_for(controller='SNPRegionPlot', action='type_by_snp', id=snp_region_plot_type.id)}>SNP_by_Phenotype</a>
 				<a href=${h.url_for(controller='SNPRegionPlot', action='type_by_gene', id=snp_region_plot_type.id)}>Gene_by_Phenotype</a>
 			% else:

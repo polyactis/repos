@@ -1,0 +1,71 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">View Top Candidate Gene </%def>
+
+<ul>
+<li>
+${c.result.analysis_method.short_name} works on ${c.result.phenotype_method.short_name}.
+
+</li>
+
+<li>
+Candidate gene list is ${c.list_type.short_name} with ${len(c.list_type.gene_list)} genes.
+</li>
+
+<li>
+Column <b>disp_pos</b> denotes the relative distance from the gene starting position (probably TSS) to the SNP.
+Negative for upstream. Positive for downstream. If a SNP is further downstream out of a gene itself, the <b>disp_pos</b> is calculated from the gene's stop position.
+</li>
+</ul>
+
+<p> ${c.counter} genes in total.</p>
+
+<%
+field_ls = ['gene_id', 'rank', 'score'] + c.gene_desc_names + ['snps_id', 'snp-chr', 'snp-pos', \
+	'disp_pos', 'left_or_right', 'disp_pos_comment', 'results_id', 'plots']
+%>
+
+% if len(c.row_ls)>0:
+	<table border=1>
+	
+	<tr>	
+	% for table_field in field_ls:
+		<th>
+			${table_field}
+		</th>
+	% endfor
+	
+	</tr>
+	
+	% for row in c.row_ls:
+		<tr>
+		% for table_field in field_ls:
+			<td>
+			% if table_field=='gene_id':
+				<a href=http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=search&db=gene&term=${row.gene_id}[uid]>${row.gene_id}</a>
+			% elif table_field=='snp-chr':
+				${row.snp.chromosome}
+			% elif table_field=='snp-pos':
+				${row.snp.position}
+			% elif table_field=='plots':
+				<%
+				no_of_plots=len(row.snp_region_plot_id_ls)
+				%>
+				% if no_of_plots>0:
+					<a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id='', snp_region_plot_ids=','.join(row.snp_region_plot_id_ls))}>${no_of_plots}</a>
+				% else:
+					${no_of_plots}
+				% endif
+			% else:
+				${getattr(row, table_field, '')}
+			% endif
+			</td>
+		% endfor
+		</tr>
+	% endfor
+	
+	
+	</table>
+% else:
+	<p>Nothing.</p>
+% endif

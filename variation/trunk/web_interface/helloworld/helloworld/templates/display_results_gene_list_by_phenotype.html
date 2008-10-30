@@ -1,0 +1,18 @@
+<%inherit file="/display_top_snp_test_rm_type.html"/>
+
+<%def name="title()">Top candidate genes by gene list and phenotype </%def>
+
+
+<p> ${c.counter} entries In Total.</p>
+<ul>
+
+<li>
+<b>min_distance=${c.type.min_distance}.</b> This is the maximum distance between a SNP and a gene.
+</li>
+
+${parent.displayCommonSetting()}
+
+</ul>
+
+
+${parent.displayMatrix('DisplayResultsGene', 'showTopCandidateGenesFromOneResultOneGeneList')}

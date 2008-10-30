@@ -1,0 +1,81 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()"> One </%def>
+
+<%def name="display_matrix(data_matrix, ref_data_matrix, ref_number)">
+
+<table border=1>
+
+<tr>
+<th>Number of SNPs / Minimum Score cutoff</th>
+
+% for label in c.min_distance_info.label_ls:
+	
+	<th>${label}</th>
+% endfor
+
+</tr>
+
+
+% for i in range(data_matrix.shape[0]):
+	<tr>
+	<td>${c.no_of_top_snps_info.label_ls[i]}</td>
+	% for j in range(data_matrix.shape[1]):
+		<td>
+		% if data_matrix[i][j]>=0:
+			% if ref_data_matrix is not None:
+				${'%s/%s=%.5f'%(data_matrix[i][j], ref_data_matrix[i][j], float(data_matrix[i][j])/ref_data_matrix[i][j])}
+			% elif ref_number is not None:
+				${'%s/%s=%.5f'%(data_matrix[i][j], ref_number, float(data_matrix[i][j])/ref_number)}
+			% else:
+				${data_matrix[i][j]}
+			% endif
+		% endif
+		</td>
+	% endfor
+	</tr>
+% endfor
+
+</table>
+
+</%def>
+
+<ul>
+<li>
+${c.result.analysis_method.short_name} works on ${c.result.phenotype_method.short_name}.
+
+</li>
+
+<li>
+Candidate gene list is ${c.list_type.short_name} with ${len(c.list_type.gene_list)} genes.
+</li>
+
+
+</ul>
+
+
+
+<%
+pvalue_png_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.pvalue_png_fname)
+candidate_sample_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.candidate_sample_png_fname)
+non_candidate_sample_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.non_candidate_sample_png_fname)
+curve_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.curve_fname)
+%>
+
+<a href=${curve_url}><img width="1200" src=${curve_url}></a>
+
+<h2>Candidate Ratio</h2>
+
+${display_matrix(c.rdata.data_matrix_candidate_sample_size, c.rdata.data_matrix_candidate_gw_size, None)}
+<a href=${candidate_sample_url}><img src=${candidate_sample_url}></a>
+
+<h2>Non-Candidate Ratio</h2>
+
+${display_matrix(c.rdata.data_matrix_non_candidate_sample_size, c.rdata.data_matrix_non_candidate_gw_size, None)}
+<a href=${non_candidate_sample_url}><img src=${non_candidate_sample_url}></a>
+
+
+<h2>Candidate Significance Pvalues</h2>
+
+${display_matrix(c.rdata.data_matrix, None, None)}
+<a href=${pvalue_png_url}><img src=${pvalue_png_url}></a>
