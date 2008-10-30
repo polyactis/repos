@@ -11,11 +11,18 @@ import helloworld.model as model
 class ScorerankhistogramController(BaseController):
 
 	def index(self):
+		"""
+		2008-10-30
+			fetch ScoreRankHistogramType in particular order
+		"""
 		# Return a rendered template
 		#   return render('/some/template.mako')
 		# or, Return a response
 		ScoreRankHistogramType = model.Stock_250kDB.ScoreRankHistogramType
-		rows = ScoreRankHistogramType.query.order_by(ScoreRankHistogramType.id).all()
+		rows = ScoreRankHistogramType.query.order_by(ScoreRankHistogramType.results_type).\
+			order_by(ScoreRankHistogramType.null_distribution_type_id).\
+			order_by(ScoreRankHistogramType.min_distance).order_by(ScoreRankHistogramType.get_closest).\
+			order_by(ScoreRankHistogramType.min_MAF).order_by(ScoreRankHistogramType.allow_two_sample_overlapping).all()
 		c.score_rank_hist_type_ls = rows
 		return render('/score_rank_histgram.html')
 	
