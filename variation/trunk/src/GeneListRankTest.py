@@ -817,22 +817,24 @@ class GeneListRankTest(object):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def dealWithCandidateGeneList(self, list_type_id, return_set=False):
+	def dealWithCandidateGeneList(cls, list_type_id, return_set=False):
 		"""
+		2008-10-30
+			turn this into a classmethod
 		2008-10-23
 			add option return_set
 		2008-10-15
 			to make caching candidate gene list possible
 		"""
-		if list_type_id not in self.list_type_id2candidate_gene_list_info:	#internal cache
-			candidate_gene_list = self.getGeneList(list_type_id)
-			self.list_type_id2candidate_gene_list_info[list_type_id] = PassingData(candidate_gene_list=candidate_gene_list, candidate_gene_set=Set(candidate_gene_list))
+		if list_type_id not in cls.list_type_id2candidate_gene_list_info:	#internal cache
+			candidate_gene_list = cls.getGeneList(list_type_id)
+			cls.list_type_id2candidate_gene_list_info[list_type_id] = PassingData(candidate_gene_list=candidate_gene_list, candidate_gene_set=Set(candidate_gene_list))
 		if return_set:
-			return self.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_set
+			return cls.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_set
 		else:
-			return self.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_list
+			return cls.list_type_id2candidate_gene_list_info[list_type_id].candidate_gene_list
 		
-	
+	dealWithCandidateGeneList = classmethod(dealWithCandidateGeneList)
 	list_type_id2candidate_gene_list_info = {}
 	
 	def run_wilcox_test(self, pd):
