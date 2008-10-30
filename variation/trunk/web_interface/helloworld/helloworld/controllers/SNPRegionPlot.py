@@ -180,8 +180,10 @@ class SnpregionplotController(BaseController):
 		outf.write(base64.b64decode(snp_region_plot.img_data))
 		outf.close()
 	
-	def show_plot(self, id=None):
+	def show_plot(self, id=None, snp_region_plot_ids=None):
 		"""
+		2008-10-30
+			add option snp_region_plot_ids for display_results_gene_one.html to call but not necessary. request.params is good enough.
 		2008-10-17
 			get request params: get_other_phenotypes, snp_region_plot_ids
 		2008-10-06
@@ -193,7 +195,7 @@ class SnpregionplotController(BaseController):
 			c.snp_region_plot = None
 		
 		get_other_phenotypes = request.params.get('get_other_phenotypes', False)
-		snp_region_plot_ids = request.params.get('snp_region_plot_ids', None)
+		snp_region_plot_ids = request.params.get('snp_region_plot_ids', snp_region_plot_ids)
 		if get_other_phenotypes:
 			c.snp_region_plot_ls = SNPRegionPlot.query.filter_by(chromosome=c.snp_region_plot.chromosome).\
 				filter_by(start=c.snp_region_plot.start).\
