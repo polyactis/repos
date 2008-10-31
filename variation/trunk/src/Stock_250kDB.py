@@ -511,7 +511,7 @@ class CandidateGeneTopSNPTestRMType(Entity):
 	allow_two_sample_overlapping = Field(Integer)
 	results_type = Field(Integer)
 	test_type = ManyToOne('AnalysisMethod', colname='test_type_id', ondelete='CASCADE', onupdate='CASCADE')
-	null_distribution_type = ManyToOne('NullDistributionType', colname='null_distribution_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	null_distribution_type = ManyToOne('NullDistributionType', colname='null_distribution_type_id', ondelete='CASCADE', onupdate='CASCADE')	#2008-10-30 useless
 	comment = Field(Text)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
@@ -525,6 +525,10 @@ class CandidateGeneTopSNPTestRMType(Entity):
 	
 class CandidateGeneTopSNPTestRM(Entity):
 	"""
+	2008-10-31
+		add pvalue_gw_looping, pvalue_random_gene_list.
+		null_distribution_type_id in CandidateGeneTopSNPTestRMType doesn't mean much.
+		NULL data under different simulations stored in TopSNPTestRMNullData.
 	2008-10-26
 		add min_distance, no_of_tests_passed, no_of_tests
 	2008-10-23
@@ -535,6 +539,8 @@ class CandidateGeneTopSNPTestRM(Entity):
 	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	pvalue = Field(Float)
+	pvalue_gw_looping = Field(Float)	#2008-10-30	now CandidateGeneTopSNPTestRMNullData stores NULL data under different NULL distribution. all pvalues are merged into one entry.
+	pvalue_random_gene_list = Field(Float)	#2008-10-30
 	candidate_sample_size = Field(Integer)
 	non_candidate_sample_size = Field(Integer)
 	candidate_gw_size = Field(Integer)
@@ -549,12 +555,28 @@ class CandidateGeneTopSNPTestRM(Entity):
 	max_score = Field(Float)	#2008-10-22 keep record of max/min score in among these snps
 	min_score = Field(Float)
 	type = ManyToOne('CandidateGeneTopSNPTestRMType', colname='type_id', ondelete='CASCADE', onupdate='CASCADE')
+	null_data_ls = OneToMany('TopSNPTestRMNullData')
 	comment = Field(Text)
 	using_options(tablename='candidate_gene_top_snp_test_rm', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'no_of_top_snps', \
 										'min_distance', 'starting_rank', 'type_id'))
+
+class TopSNPTestRMNullData(Entity):
+	"""
+	2008-10-31
+		table to store NULL data of CandidateGeneTopSNPTestRM from different simulations under different NULL distributions
+	"""
+	observed = ManyToOne('CandidateGeneTopSNPTestRM', colname='observed_id', ondelete='CASCADE', onupdate='CASCADE')
+	candidate_sample_size = Field(Integer)
+	candidate_gw_size = Field(Integer)
+	run_no = Field(Integer)
+	null_distribution_type = ManyToOne('NullDistributionType', colname='null_distribution_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	using_options(tablename='top_snp_test_rm_null_data', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('observed_id', 'run_no', 'null_distribution_type_id'))
 	
+
 class SNPRegionPlotType(Entity):
 	"""
 	2008-10-06
