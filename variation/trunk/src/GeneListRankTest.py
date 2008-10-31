@@ -118,7 +118,7 @@ class GeneListRankTest(object):
 							("min_distance", 1, int): [50000, 'm', 1, 'minimum distance allowed from the SNP to gene'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 0, float): [0, 'n', 1, 'minimum Minor Allele Frequency. deprecated.'],\
-							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
+							('min_sample_size', 0, int): [1, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
 							("list_type_id", 1, int): [None, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
