@@ -525,6 +525,8 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-10-31
+			default of need_snp_index is True. functions in TopSNPTest.py assumes this.
 		2008-10-30
 			parse options need_snp_index and need_candidate_association from param_data
 			add candidate_association_ls in the final returning data
@@ -562,7 +564,7 @@ class GeneListRankTest(object):
 		need_the_value = getattr(param_data, 'need_the_value', 0)	#get the pvalues/scores as well
 		need_chr_pos_ls = getattr(param_data, 'need_chr_pos_ls', 0)	#whether need the chr,pos tuple of chosen SNP
 		min_score = getattr(param_data, 'min_score', None)	#2008-10-25
-		need_snp_index = getattr(param_data, 'need_snp_index', False)	#2008-10-28 whether need the whole-genome index of the chosen SNP 
+		need_snp_index = getattr(param_data, 'need_snp_index', True)	#2008-10-28 whether need the whole-genome index of the chosen SNP. set to False in PickCandidateGenesIntoResultsGene.py
 		need_candidate_association = getattr(param_data, 'need_candidate_association', False)	#2008-10-28 for PickCandidateGenesIntoResultsGene.py
 		
 		chr2rank_ls = {}
