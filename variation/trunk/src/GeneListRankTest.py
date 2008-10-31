@@ -332,7 +332,7 @@ class GeneListRankTest(object):
 		return gene_id2hit
 		
 	def getGeneList(cls, list_type_id):
-		sys.stderr.write("Getting gene_list ... ")
+		sys.stderr.write("Getting gene_list %s ... "%list_type_id)
 		rows = GeneList.query.filter_by(list_type_id=list_type_id)
 		candidate_gene_list = []
 		for row in rows:
