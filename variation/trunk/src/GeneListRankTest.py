@@ -525,6 +525,8 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-11-04 upper limit of ranks_to_be_checked has to be <=no_of_total_snps
+			no_of_snps = len(ranks_to_be_checked)	#2008-11-04 ranks_to_be_checked could be capped. so calculate a new no_of_snps.
 		2008-10-31
 			default of need_snp_index is True. functions in TopSNPTest.py assumes this.
 		2008-10-30
@@ -589,7 +591,9 @@ class GeneListRankTest(object):
 		if min_score is not None:
 			no_of_snps = no_of_total_snps
 		else:
-			ranks_to_be_checked = range(starting_rank, starting_rank+int(no_of_snps))	#2008-10-15 rank starts from 1
+			ranks_to_be_checked = range(starting_rank, min(starting_rank+int(no_of_snps), no_of_total_snps))	#2008-10-15 rank starts from 1
+			#2008-11-04 upper limit of ranks_to_be_checked has to be <=no_of_total_snps
+			no_of_snps = len(ranks_to_be_checked)	#2008-11-04 ranks_to_be_checked could be capped. so calculate a new no_of_snps.
 		rank_sum_stat = 0
 		
 		score_range = [None, None]
