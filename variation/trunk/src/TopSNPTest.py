@@ -251,9 +251,22 @@ class TopSNPTest(GeneListRankTest):
 	def returnResultFromDB(self, TestResultClass, results_id, list_type_id,starting_rank, type_id, min_distance, \
 						no_of_top_snps, min_score=None):
 		"""
+		2008-11-05
+			internal caching of results fetched from db to reduce the burden on db
 		2008-10-30
 		"""
 		result = None
+		if min_score is not None:
+			result_key = (results_id, list_type_id,starting_rank, type_id, min_distance, min_score)
+		else:
+			result_key = (results_id, list_type_id,starting_rank, type_id, min_distance, no_of_top_snps)
+		
+		if not hasattr(self, 'result_key2result'):
+			self.result_key2result = {}
+		
+		if result_key in self.result_key2result:	#just return this immediately
+			return self.result_key2result[result_key]
+		
 		db_results = self.TestResultClassInDB(TestResultClass, results_id, list_type_id,starting_rank, type_id, min_distance, \
 											no_of_top_snps, min_score)
 		
@@ -265,6 +278,9 @@ class TopSNPTest(GeneListRankTest):
 							type_id=%s, min_distance=%s, no_of_top_snps=%s, min_score=%s. First (id=%s) taken.\n"%\
 							(results_id, list_type_id, starting_rank,
 							type_id, min_distance, no_of_top_snps, min_score, result.id))
+		
+		if result:	#only cache the ones that are already in db
+			self.result_key2result[result_key] = result
 		return result
 	
 	def getTestResult(self, session, rm, TestResultClass, pd):
@@ -308,7 +324,7 @@ class TopSNPTest(GeneListRankTest):
 					sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
 				return_data.permData = permData
 				return return_data
-			if pd.type_id and pd.min_score is not None:
+			if pd.type_id:	# and pd.min_score is not None:	#2008-11-04 comment the 2nd condition because no_of_top_snps could be set over the total no. use this to check.
 				#2008-10-28 check db again because no_of_top_snps=candidate_sample_size+non_candidate_sample_size.
 				#sometimes, different min_score cutoff gives same no_of_top_snps.
 				result = self.returnResultFromDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
@@ -340,7 +356,7 @@ class TopSNPTest(GeneListRankTest):
 						result.min_score = pd.min_score
 					else:
 						result.min_score = score_range[1]
-				session.save(result)
+				session.save(result)	#2008-11-04 put in the session cache
 				if commit:
 					try:
 						session.flush()
@@ -361,13 +377,16 @@ class TopSNPTest(GeneListRankTest):
 	
 	def runEnrichmentTestToGetNullData(self, session, pd):
 		"""
+		2008-11-05
+			return result and null_data to be sent over to output node to save them in batch in MpiTopSNPTest.py (output node connects to the master db.)
 		2008-10-30
 			run enrichment test, also to get NULL data based on either null distribution
 		"""
 		if self.debug:
-			sys.stderr.write("Running GW-looping test on results_id=%s, list_type_id=%s, no_of_top_snps=%s, type_id=%s, min_score=%s, ... "%\
+			sys.stderr.write("Running GW-looping test on results_id=%s, list_type_id=%s, no_of_top_snps=%s, no_of_top_snps_ls=%s, \
+							type_id=%s, min_score=%s, ... "%\
 							(getattr(pd, 'results_id',-1), getattr(pd, 'list_type_id', -1), getattr(pd, 'no_of_top_snps', -1),\
-							getattr(pd, 'type_id', -1), getattr(pd, 'min_score', -1)))
+							repr(getattr(pd, 'no_of_top_snps_ls', -1)), getattr(pd, 'type_id', -1), getattr(pd, 'min_score', -1)))
 		
 		ResultsClass = ResultsMethod
 		TestResultClass = Stock_250kDB.CandidateGeneTopSNPTestRM
@@ -396,6 +415,7 @@ class TopSNPTest(GeneListRankTest):
 		no_of_candidate_genes = len(candidate_gene_set)
 		no_of_total_snps = None	#same for all tests from the same rm
 		null_data_ls = []
+		result_ls = []
 		if pd.null_distribution_type_id==2 or pd.null_distribution_type_id==3:
 			pd.need_permData = 1	#need to permData in getTestResult() even when the result is directly found in the database
 			for i in range(pd.no_of_permutations):
@@ -432,8 +452,9 @@ class TopSNPTest(GeneListRankTest):
 					return_data = self.getTestResult(session, rm, TestResultClass, pd)
 					result = return_data.result
 					permData = return_data.permData
-					if return_data.result:
-						"""
+					if result:
+						if result.id is None:	#need to return this to save later
+							result_ls.append(result)
 						#2008-11-04	doesn't care repeating run_no. the chance is small, however, this incurs a huge load on db server.
 						rows = Stock_250kDB.TopSNPTestRMNullData.query.\
 									filter_by(observed_id=result.id).\
@@ -444,7 +465,6 @@ class TopSNPTest(GeneListRankTest):
 								sys.stderr.write("null data for observed_id=%s, run_no=%s, null_distribution_type_id=%s already in db.\n"%\
 												(result.id, run_no, pd.null_distribution_type_id))
 							continue
-						"""
 						if len(result.null_data_ls)>pd.no_of_permutations:	#skip if it's too many already
 							continue
 						
@@ -473,7 +493,8 @@ class TopSNPTest(GeneListRankTest):
 																	candidate_gw_size=new_candidate_gw_size,\
 																	run_no=run_no,\
 																	null_distribution_type_id=pd.null_distribution_type_id)
-						session.save(null_data)
+						null_data_ls.append(null_data)
+						session.save(null_data)	#put in the session cache
 						if commit:
 							session.flush()
 		elif pd.null_distribution_type_id==1:
@@ -483,14 +504,17 @@ class TopSNPTest(GeneListRankTest):
 				elif cutoff_type==2:
 					pd.min_score = cutoff
 				return_data = self.getTestResult(session, rm, TestResultClass, pd)
+				if return_data.result and return_data.result.id is None:
+						result_ls.append(return_data.result)
 		
 		else:
 			sys.stderr.write("null_distribution_type %s not supported.\n"%(pd.null_distribution_type_id))
 			return None
 		if self.debug:
 			sys.stderr.write("Done.\n")
-		return None
-		
+		return_data = PassingData(result_ls=result_ls, null_data_ls=null_data_ls)
+		return return_data
+	
 	def runHGTest(self, pd):
 		"""
 		2008-10-30
