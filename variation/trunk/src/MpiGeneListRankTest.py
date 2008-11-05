@@ -185,6 +185,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	
 	def output_node_handler(self, communicator, output_param_obj, data):
 		"""
+		2008-11-04
+			refactor a portion to become sub_output()
 		2008-10-30
 			upon session.flush() failure, get into 'except ...' and remove the result from memory and report traceback without interrupting program
 		2008-10-23
@@ -197,12 +199,31 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		05/12/2008
 			common_var_name_ls
 		"""
-		commit = output_param_obj.commit
 		table_obj_ls = cPickle.loads(data)
+		self.sub_output(output_param_obj, table_obj_ls, output_param_obj.TestResultClass)
+	
+	def sub_output(self, output_param_obj, table_obj_ls, TableClass):
+		"""
+		2008-11-04
+		
+			split out of output_node_handler() so that MpiTopSNPTest's output_node_handler can call this.
+		"""
+		commit = output_param_obj.commit
 		for table_obj in table_obj_ls:
+			result = self.returnResultFromDB(TableClass, table_obj.results_id, table_obj.list_type_id, table_obj.starting_rank,
+											table_obj.type_id, table_obj.min_distance, table_obj.no_of_top_snps, table_obj.min_score)
+			if result:
+				if self.debug:
+					sys.stderr.write("TestResultClass with results_id=%s, list_type_id=%s, starting_rank=%s,\
+							type_id=%s, min_distance=%s, no_of_top_snps=%s, min_score=%s) already in db with id=%s. skip.\n"%\
+							(table_obj.results_id, table_obj.list_type_id, table_obj.starting_rank,
+							table_obj.type_id, table_obj.min_distance, table_obj.no_of_top_snps, \
+							table_obj.min_score, result.id))
+				continue
+			
 			row = []
 			
-			result = output_param_obj.TestResultClass()
+			result = TableClass()
 			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
 			#can't save table_obj because it's associated with a different db thread
 			for column in table_obj.c.keys():
@@ -210,13 +231,14 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 					row.append(getattr(table_obj, column))
 				setattr(result, column, getattr(table_obj, column))
 			
-			if result.type_id is None and getattr(output_param_obj, '_type', None):	#2008-10-23 assign _type
+			if hasattr(result, 'type_id') and result.type_id is None and getattr(output_param_obj, '_type', None):	#2008-10-23 assign _type
 				if self.debug:
 					sys.stderr.write("type_id not avaiable on the result got from computing node. assign type here.\n")
 				result.type = output_param_obj._type
 			
 			if output_param_obj.writer:
 				output_param_obj.writer.writerow(row)
+			
 			output_param_obj.session.save(result)
 			if commit:
 				try:
@@ -225,7 +247,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 					#2008-10-30 remove it from memory. otherwise, next flush() will try on this old object again.
 					output_param_obj.session.expunge(result)
 					#output_param_obj.session.delete(result)
-					sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(result.results_id, result.list_type_id))
+					sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(getattr(result, 'results_id', None),\
+																									getattr(result, 'list_type_id', None)))
 					for column in table_obj.c.keys():
 						sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
 					traceback.print_exc()
