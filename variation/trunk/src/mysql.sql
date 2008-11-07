@@ -434,20 +434,24 @@ create index results_snps_id_results_method_id_idx on results(snps_id, results_m
 create index results_results_method_id_idx on results(results_method_id);
 
 --2008-04-30 create a view to view qc results for arrays
-create or replace view view_qc as select e.id as ecotype_id, e.nativename, a.id as array_id, q.tg_ecotype_id, q.call_info_id, 
-q.call_method_id, c.NA_rate as call_NA_rate,  q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
-q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, 
-a.original_filename as array_original_filename, a.date_created as array_created, q.date_created as qc_date
-from call_info c, array_info a, call_qc q , stock.ecotype e, qc_method qm where e.id=q.ecotype_id 
-and q.call_info_id = c.id and a.id=c.array_id and qm.id=q.qc_method_id order by nativename, array_id, call_method_id,
-array_created, qc_method_id;
+create or replace view view_qc as select e.id as ecotype_id, e.nativename, \
+	a.id as array_id, q.tg_ecotype_id, q.call_info_id, 
+	q.call_method_id, c.NA_rate as call_NA_rate,  q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
+	q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, 
+	a.original_filename as array_original_filename, a.date_created as array_created, q.date_created as qc_date
+	from call_info c, array_info a, call_qc q , stock.ecotype e, qc_method qm where \
+	e.id=q.ecotype_id 
+	and q.call_info_id = c.id and a.id=c.array_id and qm.id=q.qc_method_id order by nativename, array_id, call_method_id,
+	array_created, qc_method_id;
 
 --2008-05-20 view the calls, arrays, ecotypes all together
 
 create or replace view view_call as select c.id as call_info_id, c.filename, 
 	c.method_id as call_method_id, a.id as array_id, a.original_filename,
-	a.maternal_ecotype_id as ecotype_id, e.nativename, e.stockparent from call_info c,
-	array_info a, stock.ecotype e where a.id=c.array_id and e.id=a.maternal_ecotype_id order by nativename;
+	a.maternal_ecotype_id as ecotype_id, e.latitude, e.longitude, e.nativename, e.stockparent, s.name as site, ad.region, co.abbr as country \
+	from call_info c, array_info a, stock.ecotype e, stock.site s, stock.address ad, stock.country co where \
+	a.id=c.array_id and e.id=a.maternal_ecotype_id and e.siteid=s.id and s.addressid=ad.id and ad.countryid=co.id \
+	order by nativename;
 
 --2008-05-27 view the arrays
 
@@ -470,9 +474,9 @@ create or replace view view_rank_sum_test as select cgr.results_method_id,
 	order by pheno_short_name, analysis_short_name;
 
 -- 2008-08-21 view the different parameter setting of top SNP HG test
-create view view_top_snp_test_param as select distinct c.min_distance, c.get_closest, c.min_MAF, 
-c.no_of_top_snps, r.call_method_id from results_method r, candidate_gene_top_snp_test c where r.id=c.results_method_id;
+create or replace view view_top_snp_test_param as select distinct c.min_distance, c.get_closest, c.min_MAF, 
+c.no_of_top_snps, r.call_method_id from results_method r, results_by_gene rbg, candidate_gene_top_snp_test c where r.id=rbg.results_method_id and rbg.id=c.results_by_gene_id;
  
 -- 2008-08-21 view the different parameter setting of rank sum test
-create view view_rank_test_param as select distinct c.min_distance, c.get_closest, c.min_MAF, 
-c.max_pvalue_per_gene, r.call_method_id from results_method r, candidate_gene_rank_sum_test_result c where r.id=c.results_method_id;
+create or replace view view_rank_test_param as select distinct c.min_distance, c.get_closest, c.min_MAF, 
+c.max_pvalue_per_gene, r.call_method_id from results_method r, results_by_gene rbg, candidate_gene_rank_sum_test_result c where r.id=rbg.results_method_id and rbg.id=c.results_by_gene_id;
