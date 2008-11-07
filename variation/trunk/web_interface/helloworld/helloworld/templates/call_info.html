@@ -43,6 +43,8 @@ Column QC is mismatch rate versus designated dataset. In non-simplified/detailed
 <th>Array ID</th>
 <th>Original Array Filename</th>
 <th>Array Created</th>
+<th>latitude</th>
+<th>longitude</th>
 
 </tr>
 % for call_info in c.call_info_ls:
@@ -65,7 +67,8 @@ Column QC is mismatch rate versus designated dataset. In non-simplified/detailed
 <td>${call_info.array_id}</td>
 <td>${call_info.original_filename}</td>
 <td>${getattr(call_info, 'array_created', '')}</td>
-
+<td>${call_info.latitude}</td>
+<td>${call_info.longitude}</td>
 </tr>
 % endfor
 
