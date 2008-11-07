@@ -166,6 +166,8 @@ class Database(object):
 
 class ElixirDB(object):
 	"""
+	2008-11-07
+		add option sql_echo
 	2008-10-07 add option pool_recycle
 	2008-08-07
 		expose metadata from elixir
@@ -181,6 +183,7 @@ class ElixirDB(object):
 							('password', 1, ):[None, 'p', 1, 'database password', ],\
 							('port', 0, ):[None, 'o', 1, 'database port number'],\
 							('pool_recycle', 0, int):[3600, '', 1, 'the length of time to keep connections open before recycling them.'],\
+							('sql_echo', 0, ):[False, '', 1, 'wanna echo the underlying sql of every sql query'],\
 							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -206,7 +209,7 @@ class ElixirDB(object):
 				if entity.__module__==self.__module__:	#entity in the same module
 					using_table_options_handler(entity, schema=self.schema)
 		#2008-10-05 MySQL typically close connections after 8 hours resulting in a "MySQL server has gone away" error.
-		metadata.bind = create_engine(self._url, pool_recycle=self.pool_recycle)
+		metadata.bind = create_engine(self._url, pool_recycle=self.pool_recycle, echo=self.sql_echo)
 		self.metadata = metadata
 		self.session = session
 	
