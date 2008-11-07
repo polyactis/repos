@@ -6,6 +6,7 @@ import os, sys
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 from variation.src.common import get_chr_pos_from_x_axis_pos
+import traceback
 
 def foreach_cb(model, path, iter, pathlist):
 	"""
@@ -59,6 +60,9 @@ def create_columns(treeview, label_list, editable_flag_ls=None, liststore=None):
 
 def fill_treeview(treeview, liststore, list_2d, reorderable=True, multi_selection=True):
 	"""
+	2008-11-07
+		put "liststore.append(data)" into try... except ... to handle wrong types in liststore
+		fix a bug when list_2d is totally empty
 	2008-02-05 add flag multi_selection
 	2008-01-21 copied from annot.bin.codense.common
 	04-17-05
@@ -67,19 +71,27 @@ def fill_treeview(treeview, liststore, list_2d, reorderable=True, multi_selectio
 	"""
 	import gtk
 	length_of_treeview = len(treeview.get_columns())
-	for ls in list_2d:
+	no_of_rows = len(list_2d)
+	for i in range(no_of_rows):
+		ls = list_2d[i]
 		data = ls[:]	#copy the list to avoid change the content in ls, 'data=ls' changes the content of ls
 		for i in range(length_of_treeview-len(data)):
 			data.append('')
-		liststore.append(data)
+		try:
+			liststore.append(data)
+		except:
+			sys.stderr.write("Exception happened for data=%s.\n vs previous data=%s.\n"%(repr(data), repr(list_2d[max(0,i-1)])))
+			traceback.print_exc()
+			sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 	# set the TreeView mode to be liststore
 	treeview.set_model(liststore)
 
 	if reorderable:
-		for i in range(len(list_2d[0])):
-			# make it searchable
-			treeview.set_search_column(i)
-		
+		if len(list_2d)>0:	#2008-11-07 soemtimes, it's all empty
+			for i in range(len(list_2d[0])):
+				# make it searchable
+				treeview.set_search_column(i)
+			
 		# Allow drag and drop reordering of rows
 		treeview.set_reorderable(True)
 	if multi_selection:
