@@ -871,6 +871,9 @@ class DrawSNPRegion(GeneListRankTest):
 	
 	def getSNPsFromInputFile(self, input_fname, snp_info):
 		"""
+		2008-10-27
+			add code to deal with suzi's input file
+			suzi's input '/Network/Data/250k/tmp-Suzi/sig_marker_ft_files/sig_marker_1_LD.csv' use 'phen' and the phenotype identifier, '1_LD', needs split to get id.
 		2008-10-04
 			input could contain one more column, 'stop', indicating it is a region, not a single SNP. 'start' becomes alternative name for 'position'.
 		2008-10-02
@@ -885,11 +888,19 @@ class DrawSNPRegion(GeneListRankTest):
 		col_name2index = getColName2IndexFromHeader(reader.next())
 		counter = 0
 		for row in reader:
+			phenotype_need_split = 0
 			phenotype_id_index = col_name2index.get('phenotype_id')
 			if phenotype_id_index == None:
 				phenotype_id_index = col_name2index.get('phenot_id')
+			if phenotype_id_index==None:	#2008-10-27 suzi's input '/Network/Data/250k/tmp-Suzi/sig_marker_ft_files/sig_marker_1_LD.csv' use 'phen' and the phenotype identifier, '1_LD', needs split to get id.
+				phenotype_id_index = col_name2index.get('phen')
+				phenotype_need_split = 1
 			if phenotype_id_index is not None:
-				phenotype_id = int(row[phenotype_id_index])
+				if phenotype_id_index:	#2008-10-27 suzi's input '/Network/Data/250k/tmp-Suzi/sig_marker_ft_files/sig_marker_1_LD.csv' use 'phen' and the phenotype identifier, '1_LD', needs split to get id.
+					phenotype_id = row[phenotype_id_index].split('_')[0]
+				else:
+					phenotype_id = row[phenotype_id_index]
+				phenotype_id = int(phenotype_id)
 			else:
 				continue
 			
