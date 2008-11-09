@@ -46,8 +46,10 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		self.list_type_id_ls = getListOutOfStr(self.list_type_id_ls, data_type=int)
 		self.analysis_method_id_ls = getListOutOfStr(self.analysis_method_id_ls, data_type=int)
 		
-	def generate_params(self, param_obj, min_no_of_genes=10):
+	def generate_params(cls, param_obj, min_no_of_genes=10):
 		"""
+		2008-11-08
+			become a classmethod
 		2008-10-26
 			restrict results via param_obj.analysis_method_id_ls  and param_obj.phenotype_method_id_ls
 		2008-10-10
@@ -139,6 +141,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 					params_ls.append(rm_id_lt_id)
 		sys.stderr.write(" %s params generated.\n"%(len(params_ls)))
 		return params_ls
+	
+	generate_params=classmethod(generate_params)
 	
 	def input_handler(self, parameter_list, message_size, report=0):
 		"""
