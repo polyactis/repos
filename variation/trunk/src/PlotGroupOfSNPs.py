@@ -135,10 +135,15 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		
 		sys.stderr.write("Done.\n")
 			
-	def drawStrainPCA(self, axe_strain_pca, axe_strain_pca_legend, StrainID2PCAPosInfo, ecotype_info, phenData, \
+	def drawStrainPCA(self, axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover, axe_strain_pca_legend, \
+					StrainID2PCAPosInfo, ecotype_info, phenData, \
 					phenotype_col_index, phenotype_cmap, phenotype_norm, rightmost_x_value=1.05,\
 					country_order_name='', alpha=0.8, strain_color_type=2):
 		"""
+		2008-11-08
+			add axe_strain_map right above axe_strain_pca to show where the strains are located geographically.
+			
+			axe_strain_map_pca_cover has lines drawn to link the same strain between axe_strain_pca and axe_strain_map
 		2008-10-14
 			add phenData, phenotype_col_index, phenotype_cmap, phenotype_norm
 			add strain_color_type: 1=country(order by either latitude or longitude); 2=phenotype
@@ -152,6 +157,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			4. draw line linking each strain from axe_snp_matrix to the point in axe_strain_pca
 		"""
 		sys.stderr.write("Drawing strain PCA ...")
+		map_data = self.justDrawMap(axe_strain_map)
 		
 		if strain_color_type==1:
 			country_abbr_set = Set()
@@ -173,30 +179,66 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			country2fc = assignMatPlotlibHueColorToLs(country_ls)
 			drawName2FCLegend(axe_strain_pca_legend, country_ls, country2fc, no_edge_color=True, title=country_order_name, font_size=2, alpha=alpha)
 		
+		#freeze transformations of all 3 axes
+		for ax in [axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover]:
+			ax.transData.freeze()  # eval the lazy objects
+			ax.transAxes.freeze()
+		
 		for strain_id in StrainID2PCAPosInfo.strain_id_ls:
-			if strain_color_type==1:
-				ecotype_id = int(strain_id)
-				ecotype_obj = ecotype_info.ecotype_id2ecotype_obj.get(ecotype_id)
+			x_value = StrainID2PCAPosInfo.strain_id2pca_x[strain_id]
+			y_value = StrainID2PCAPosInfo.strain_id2pca_y[strain_id]
+			
+			img_y_pos = StrainID2PCAPosInfo.strain_id2img_y_pos[strain_id]
+			#connect from axe_snp_matrix to axe_strain_pca
+			axe_strain_pca.plot([rightmost_x_value, x_value], [img_y_pos, y_value], c='b', linestyle='--', alpha=0.2, \
+							linewidth=0.2)
+			
+			ecotype_id = int(strain_id)
+			ecotype_obj = ecotype_info.ecotype_id2ecotype_obj.get(ecotype_id)
+			if ecotype_obj:
+				lat, lon = ecotype_obj.latitude, ecotype_obj.longitude
+			else:
+				sys.stderr.write("Warning: Ecotype %s not in ecotype_info (fetched from stock db).\n"%ecotype_id)
+				continue
+			#strain color according to phenotype
+			phenotype_row_index = phenData.row_id2row_index[strain_id]
+			phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
+			strain_fc = phenotype_cmap(phenotype_norm(phenotype))
+			if lat and lon:
+				x, y = map_data.m(lon, lat)
+				
+				#mark the strain on the map
+				axe_strain_map.scatter([x],[y], s=1, linewidth=0, facecolor=strain_fc, zorder=10)
+				canvas_x, canvas_y = axe_strain_map.transData.xy_tup((x,y))
+				strain_map_cover_x,  strain_map_cover_y = axe_strain_map_pca_cover.transData.inverse_xy_tup((canvas_x,canvas_y))
+				
+				canvas_x, canvas_y = axe_strain_pca.transData.xy_tup((x_value, y_value))
+				strain_pca_cover_x,  strain_pca_cover_y = axe_strain_map_pca_cover.transData.inverse_xy_tup((canvas_x,canvas_y))
+				#connect the strain on axe_strain_pca to axe_strain_map
+				axe_strain_map_pca_cover.plot([strain_pca_cover_x, strain_map_cover_x], [strain_pca_cover_y, strain_map_cover_y], c='g', \
+											linestyle='--', alpha=0.2, linewidth=0.2)
+			
+			if strain_color_type==1:	#change strain color
 				if ecotype_obj:
 					country = ecotype_obj.country
 				else:
 					country = 'UNK'
 				strain_fc = country2fc[country]
-			else:
-				phenotype_row_index = phenData.row_id2row_index[strain_id]
-				phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
-				strain_fc = phenotype_cmap(phenotype_norm(phenotype))
-			x_value = StrainID2PCAPosInfo.strain_id2pca_x[strain_id]
-			y_value = StrainID2PCAPosInfo.strain_id2pca_y[strain_id]
 			
-			img_y_pos = StrainID2PCAPosInfo.strain_id2img_y_pos[strain_id]
-			axe_strain_pca.plot([rightmost_x_value, x_value], [img_y_pos, y_value], '--', alpha=0.2, linewidth=0.3)
 			#plot strain dot at last to avoid being shadowed by lines above
-			axe_strain_pca.scatter([x_value],[y_value], s=10, linewidth=0, facecolor=strain_fc, alpha=alpha)
+			axe_strain_pca.scatter([x_value],[y_value], s=10, linewidth=0, facecolor=strain_fc, alpha=alpha, zorder=10)
+		
+		#free transformations of all 3 axes
+		for ax in [axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover]:
+			ax.transData.thaw()  # eval the lazy objects
+			ax.transAxes.thaw()
+		
+		axe_strain_map.set_xlim(map_data.map_xlim)
+		axe_strain_map.set_ylim(map_data.map_ylim)
 		
 		#axe_strain_pca.set_title('Strain by PC2(x-axis) vs PC1(y-axis)')
-		axe_strain_pca.set_xlabel('PC2 %.2f%s'%(StrainID2PCAPosInfo.x_var*100, '%'))
-		axe_strain_pca.set_ylabel('PC1 %.2f%s'%(StrainID2PCAPosInfo.y_var*100, '%'))
+		axe_strain_pca.set_xlabel('Strain PC2 %.2f%s'%(StrainID2PCAPosInfo.x_var*100, '%'))
+		axe_strain_pca.set_ylabel('Strain PC1 %.2f%s'%(StrainID2PCAPosInfo.y_var*100, '%'))
 		
 		sys.stderr.write("Done.\n")
 	
@@ -256,10 +298,25 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			
 			phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
 			axe.hlines(img_y_pos, 0, phenotype, linewidth=0.2)
-		phenotype_method = Stock_250kDB.PhenotypeMethod.get(phenotype_method_id)
-		axe.set_title('Phenotype %s %s'%(phenotype_method.id, phenotype_method.short_name))
 		sys.stderr.write("Done.\n")
 	
+	def justDrawMap(self, axe):
+		from matplotlib.toolkits.basemap import Basemap
+		pic_area=[-28,10,35,66]	#[-125,-38,180,70] covers everything, [-125,10,90,70] covers US and europe.
+		m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
+				resolution='c',projection='mill', ax=axe)	#resolution: c=crude, l=low, i=intermediate, h=high
+		
+		#m.drawcoastlines()
+		m.drawparallels(pylab.arange(-90,90,30), labels=[1,1,0,1], size=2, linewidth=0.05)
+		m.drawmeridians(pylab.arange(-180,180,30), labels=[1,1,0,1], size=2, linewidth=0.05)
+		m.fillcontinents()
+		m.drawcountries(linewidth=0.05)
+		#m.drawstates()
+		map_xlim = axe.get_xlim()
+		map_ylim = axe.get_ylim()
+		return_data = PassingData(m=m, map_xlim=map_xlim, map_ylim=map_ylim)
+		return return_data
+		
 	def drawMap(self, axe_map_frame, axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, \
 			ecotype_info, phenotype_cmap, phenotype_norm):
 		"""
@@ -270,19 +327,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				have to connect strain y-pos to each strain on the map in another axe, axe_map_frame through coordinates transformation
 		"""
 		sys.stderr.write("Drawing map ...")
-		from matplotlib.toolkits.basemap import Basemap
-		pic_area=[-28,10,35,66]	#[-125,-38,180,70] covers everything, [-125,10,90,70] covers US and europe.
-		m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
-				resolution='c',projection='mill', ax=axe_map)	#resolution: c=crude, l=low, i=intermediate, h=high
-		
-		#m.drawcoastlines()
-		m.drawparallels(pylab.arange(-90,90,30), labels=[1,1,0,1], size=2, linewidth=0.05)
-		m.drawmeridians(pylab.arange(-180,180,30), labels=[1,1,0,1], size=2, linewidth=0.05)
-		m.fillcontinents()
-		m.drawcountries(linewidth=0.05)
-		#m.drawstates()
-		map_xlim = axe_map.get_xlim()
-		map_ylim = axe_map.get_ylim()
+		map_data = self.justDrawMap(axe_map)		
 		
 		#fix the two transformations before doing cross-axe drawings
 		axe_map.transData.freeze()  # eval the lazy objects
@@ -301,7 +346,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				sys.stderr.write("Warning: Ecotype %s not in ecotype_info (fetched from stock db).\n"%ecotype_id)
 				continue
 			if lat and lon:
-				x, y = m(lon, lat)
+				x, y = map_data.m(lon, lat)
 				color = phenotype_cmap(phenotype_norm(phenotype))
 				#axe_map.plot([0, x], [img_y_pos, y], linestyle='--', alpha=0.2, linewidth=0.2)
 				axe_map.scatter([x],[y], s=1, linewidth=0, facecolor=color, zorder=10)
@@ -314,10 +359,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		axe_map_frame.transData.thaw()  # eval the lazy objects
 		axe_map_frame.transAxes.thaw()	
 		#set back to the original x/y lim
-		axe_map.set_xlim(map_xlim)
-		axe_map.set_ylim(map_ylim)
+		axe_map.set_xlim(map_data.map_xlim)
+		axe_map.set_ylim(map_data.map_ylim)
 		axe_map_frame.set_xlim([0,1])
 		axe_map_frame.set_ylim([0,1])
+		phenotype_method = Stock_250kDB.PhenotypeMethod.get(phenotype_method_id)
+		axe_map_frame.set_title('Phenotype %s %s'%(phenotype_method.id, phenotype_method.short_name))
 		sys.stderr.write("Done.\n")
 	
 	def scale_chr_size(cls, chr_id2size, total_cumu_size, scale_range=[0,1]):
@@ -724,16 +771,18 @@ class PlotGroupOfSNPs(GeneListRankTest):
 									orientation='horizontal')
 		cb.set_label('Phenotype Legend On the Map')
 		
-		#axe_strain_map = pylab.axes([axe_x_offset1, axe_y_offset2, axe_width1, axe_height3], frameon=False)
+		axe_strain_map = pylab.axes([axe_x_offset1, axe_y_offset3, axe_width1, axe_height3], frameon=False)
 		axe_strain_pca = pylab.axes([axe_x_offset1, axe_y_offset2, axe_width1, axe_height2], frameon=False)
-		#axe_strain_map_pca_cover = pylab.axes([axe_x_offset1, axe_y_offset2, axe_width1, axe_height2+axe_height3], frameon=False, \
-		#									sharex=axe_strain_pca)
+		axe_strain_map_pca_cover = pylab.axes([axe_x_offset1, axe_y_offset2, axe_width1, axe_height2+axe_height3], frameon=False, \
+											sharex=axe_strain_pca)	#cover both axe_strain_map and axe_strain_pca
+		axe_strain_map_pca_cover.set_yticks([])
 		axe_strain_pca_xlim = [-0.05,1.05]
 		axe_strain_pca_ylim = [0, 1]
 		axe_strain_pca.set_xlim(axe_strain_pca_xlim)
 		axe_strain_pca.set_ylim(axe_strain_pca_ylim)
-		#axe_strain_map_pca_cover_ylim = [0, (axe_height2+axe_height3)/axe_height2]	#set it accordingly
-		#axe_strain_map_pca_cover.set_ylim(axe_strain_map_pca_cover_ylim)
+		axe_strain_map_pca_cover_ylim = [0, (axe_height2+axe_height3)/axe_height2]	#set it accordingly
+		axe_strain_map_pca_cover.set_ylim(axe_strain_map_pca_cover_ylim)
+				
 		axe_strain_pca.grid(True, alpha=0.3)
 		axe_strain_pca.set_xticks([])
 		axe_strain_pca.set_yticks([])
@@ -741,11 +790,15 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		axe_strain_pca_legend.set_xticks([])
 		axe_strain_pca_legend.set_yticks([])
 		country_order_name = self.country_order_type2name[self.country_order_type]
-		self.drawStrainPCA(axe_strain_pca, axe_strain_pca_legend, StrainID2PCAPosInfo, ecotype_info, phenData, \
+		
+		self.drawStrainPCA(axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover, axe_strain_pca_legend, StrainID2PCAPosInfo, \
+						ecotype_info, phenData, \
 					phenotype_col_index, phenotype_cmap, phenotype_norm, rightmost_x_value=axe_strain_pca_xlim[1],\
 					country_order_name=country_order_name, strain_color_type=2)
+		
 		axe_strain_pca.set_xlim(axe_strain_pca_xlim)
 		axe_strain_pca.set_ylim(axe_strain_pca_ylim)
+		axe_strain_map_pca_cover.set_ylim(axe_strain_map_pca_cover_ylim)
 		no_of_axes_drawn += 1
 		#pylab.savefig('%s_%s.png'%(self.output_fname_prefix, no_of_axes_drawn), dpi=400)
 		
@@ -760,7 +813,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 						ecotype_info, phenotype_cmap, phenotype_norm)
 			#axe_map.set_ylim([0,1])
 			no_of_axes_drawn += 1
-			pylab.savefig('%s_%s.png'%(self.output_fname_prefix, no_of_axes_drawn), dpi=400)
+			#pylab.savefig('%s_%s.png'%(self.output_fname_prefix, no_of_axes_drawn), dpi=400)
 		
 		axe_snp_matrix = pylab.axes([axe_x_offset2, axe_y_offset2, axe_width2, axe_height2], frameon=False, sharex=axe_chromosome, sharey=axe_strain_pca)
 		axe_snp_matrix.set_xticks([])
