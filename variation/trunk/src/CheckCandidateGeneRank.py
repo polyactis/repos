@@ -257,9 +257,11 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return png_data, svg_data
 	
-	def getHistType(self, call_method_id, min_distance, get_closest, min_MAF, allow_two_sample_overlapping, results_type,\
+	def getHistType(cls, call_method_id, min_distance, get_closest, min_MAF, allow_two_sample_overlapping, results_type,\
 				null_distribution_type_id):
 		"""
+		2008-11-08
+			become a classmethod
 		2008-10-16
 		"""
 		sys.stderr.write("Getting ScoreRankHistogramType ...")
@@ -278,6 +280,8 @@ class CheckCandidateGeneRank(GeneListRankTest):
 										null_distribution_type_id=null_distribution_type_id)
 		sys.stderr.write("Done.\n")
 		return hist_type
+	
+	getHistType = classmethod(getHistType)
 	
 	def get_non_candidate_gene_snp_index_ls_by_permutation(self, candidate_gene_snp_index_ls, no_of_snps, no_of_permutations):
 		"""
