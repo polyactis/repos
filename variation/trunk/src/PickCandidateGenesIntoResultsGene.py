@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 Examples:
-	#
-	PickCandidateGenesIntoResultsGene.py -e 2316 -l 28 -u yh -p *** -s ./mnt2/panfs/250k/snps_context_g0_m10000 -m 10000
-	
+	#phenotype_method_id_ls=1-7,39, analysis_method_id_ls=1,5,6,7, list_type_id_ls=28,64
+	PickCandidateGenesIntoResultsGene.py -A 1-7,39 -e 1,5,6,7 -f 5000 -j 17 -l 28,64 -s ./mnt2/panfs/250k/snps_context_g0_m0 -m 0 -c 
+
 Description:
 	2008-10-28	Pick top snps from results that are associated with candidate genes (under certain association rule)
 		and put them into table ResultsGene.
@@ -28,20 +28,24 @@ from pymodule import getGenomeWideResultFromFile
 from GeneListRankTest import SnpsContextWrapper
 from CheckCandidateGeneRank import CheckCandidateGeneRank
 from TopSNPTest import TopSNPTest
+from MpiTopSNPTest import MpiTopSNPTest
 from sets import Set
 from heapq import heappush, heappop, heapreplace
 from common import get_total_gene_ls
 import rpy, random, numpy
 
-class PickCandidateGenesIntoResultsGene(TopSNPTest):
+class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 	__doc__ = __doc__
-	option_default_dict = TopSNPTest.option_default_dict.copy()
-	option_default_dict.update({('call_method_id', 1, int): [17, '', 1, 'which call method']})
+	option_default_dict = MpiTopSNPTest.option_default_dict.copy()
+	#option_default_dict.update({('call_method_id', 1, int): [17, '', 1, 'which call method']})
 	def __init__(self,  **keywords):
 		"""
+		2008-11-11
+			inherit from MpiTopSNPTest
+			use (analysis_method_id_ls, phenotype_method_id_ls, call_method_id) to pick results_method
 		2008-10-28
 		"""
-		TopSNPTest.__init__(self, **keywords)
+		MpiTopSNPTest.__init__(self, **keywords)
 	
 	def pick_candidate_genes(self, pd):
 		"""
@@ -57,6 +61,7 @@ class PickCandidateGenesIntoResultsGene(TopSNPTest):
 		pd.construct_data_obj_id2index = False	#default in getResultMethodContent is True
 		pd.construct_chr_pos2index = False	#no need for this as well
 		pd.need_candidate_association = True
+		pd.need_snp_index = False
 		pd.candidate_gene_set = candidate_gene_set
 		return_data = self.prepareDataForPermutationRankTest(rm, pd.snps_context_wrapper, pd)
 		
@@ -75,7 +80,7 @@ class PickCandidateGenesIntoResultsGene(TopSNPTest):
 				row = Stock_250kDB.ResultsGene(snps_id=snps_id, gene_id=gene_id, disp_pos=disp_pos,\
 											results_id=pd.results_id, score=score, rank=rank)
 				row.types.append(pd.type)
-				session.save(row)
+				session.save_or_update(row)
 			if pd.commit:
 				session.flush()
 		
@@ -97,8 +102,16 @@ class PickCandidateGenesIntoResultsGene(TopSNPTest):
 									self.allow_two_sample_overlapping, self.results_type, self.null_distribution_type_id)
 		
 		snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
-		pd = PassingData(list_type_id=self.list_type_id,
-						snps_context_wrapper=snps_context_wrapper, \
+		
+		param_obj = PassingData(call_method_id=self.call_method_id, \
+								analysis_method_id=getattr(self, 'analysis_method_id', None),\
+								analysis_method_id_ls=getattr(self, 'analysis_method_id_ls', None),\
+								phenotype_method_id_ls=getattr(self, 'phenotype_method_id_ls', None),\
+								list_type_id_ls=self.list_type_id_ls, \
+								results_type=self.results_type)
+		params_ls = self.generate_params(param_obj)
+		
+		pd = PassingData(snps_context_wrapper=snps_context_wrapper, \
 						results_directory=self.results_directory, \
 						min_MAF=self.min_MAF,
 						get_closest=self.get_closest,
@@ -116,7 +129,8 @@ class PickCandidateGenesIntoResultsGene(TopSNPTest):
 						session=session,\
 						commit=self.commit)
 		
-		for results_id in self.results_id_ls:
+		for results_id, list_type_id in params_ls:
+			pd.list_type_id = list_type_id
 			pd.results_id = results_id
 			self.pick_candidate_genes(pd)
 
