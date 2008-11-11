@@ -1,26 +1,14 @@
 #!/usr/bin/env python
 """
-Usage: OutputPhenotype.py [OPTIONS] -o OUTPUT_FILE
-
-Option:
-	-z ..., --hostname=...	the hostname, papaya.usc.edu(default)
-	-d ..., --dbname=...	the database name, stock_250k(default)
-	-u ..., --user=...	the db username, (otherwise it will ask for it).
-	-p ..., --passwd=...	the db password, (otherwise it will ask for it).
-	-k ..., --schema=...	which schema in the database
-	-o ...,	output file
-	-e ...,	ecotype table 'stock.ecotype'(default)
-	-q ...,	phenotype_avg_table, 'stock_250k.phenotype_avg'(default)
-	-m ...,	phenotype_method_table, 'stock_250k.phenotype_method'(default)
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
 
 Examples:
 	OutputPhenotype.py -o /tmp/phenotype.tsv
 	
 	OutputPhenotype.py -o /tmp/phenotype.tsv -e stock.ecotype_usc
 	
+	#get raw (un-transformed) phenotype
+	OutputPhenotype.py -o /tmp/phenotype_g.tsv -g
+
 Description:
 	program to output phenotype_avg table.
 	The output format is roughly a ecotype_id X phenotype(shortname) matrix.
@@ -36,34 +24,38 @@ else:   #32bit
 
 import time, csv, getopt
 import traceback
-from pymodule import process_function_arguments, write_data_matrix
+from pymodule import process_function_arguments, write_data_matrix, PassingData
 
-class OutputPhenotype:
-	"""
-	2008-04-02
-	"""
+class OutputPhenotype(object):
+	__doc__ = __doc__
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock_250k', 'd', 1, 'database name', ],\
+							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
+							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
+							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('output_fname', 1, ): ['', 'o', 1, 'store the pvalue', ],\
+							('phenotype_avg_table',1, ):['stock_250k.phenotype_avg', 'q', 1,  ],\
+							('phenotype_method_table',1, ):['stock_250k.phenotype_method', 'm', 1, ],\
+							('ecotype_table', 1, ): ['stock.ecotype', 'e', 1, 'ecotype table to get name related to each ecotype', ],\
+							('get_raw_data', 0, int):[0, 'g', 0, 'whether to output raw phenotype data from db or transform according to column transformation_description in phenotype_method table'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self,  **keywords):
 		"""
+		2008-11-10
+			upgrade option handling to ProcessOptions
 		2008-4-2
-		"""
-		argument_default_dict = {('hostname',1, ):'papaya.usc.edu',\
-								('dbname',1, ):'stock_250k',\
-								('user',1, ):None,\
-								('passwd',1, ):None,\
-								('output_fname',1, ):None,\
-								('ecotype_table',1, ):'stock.ecotype',\
-								('phenotype_avg_table',1, ):'stock_250k.phenotype_avg',\
-								('phenotype_method_table',1, ):'stock_250k.phenotype_method',\
-								('debug',0, int):0,\
-								('report',0, int):0}
-		"""
 		2008-02-28
 			argument_default_dict is a dictionary of default arguments, the key is a tuple, ('argument_name', is_argument_required, argument_type)
 			argument_type is optional
 		"""
 		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=__doc__, class_to_have_attr=self)
-	
+		#self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=__doc__, class_to_have_attr=self)
+		from pymodule import ProcessOptions
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		
+		
 	def get_phenotype_method_id_info(self, curs, phenotype_avg_table, phenotype_method_table ):
 		"""
 		2008-4-2
@@ -73,14 +65,22 @@ class OutputPhenotype:
 		method_id_name_ls = []	#as header for each phenotype
 		curs.execute("select distinct method_id from %s order by method_id"%phenotype_avg_table)
 		rows = curs.fetchall()
+		phenotype_method_id2transformation_description = {}
 		for row in rows:
 			method_id = row[0]
-			curs.execute("select short_name from %s where id=%s"%(phenotype_method_table, method_id))
-			method_short_name = curs.fetchall()[0][0]
+			curs.execute("select short_name, transformation_description from %s where id=%s"%(phenotype_method_table, method_id))
+			pm_rows = curs.fetchall()
+			method_short_name = pm_rows[0][0]
 			method_id_name_ls.append('%s_%s'%(method_id, method_short_name))
 			phenotype_method_id2index[method_id] = len(phenotype_method_id2index)
+			transformation_description = pm_rows[0][1]
+			if transformation_description=='None':
+				transformation_description = None
+			phenotype_method_id2transformation_description[method_id] = transformation_description
+		return_data = PassingData(phenotype_method_id2index=phenotype_method_id2index, method_id_name_ls=method_id_name_ls,\
+								phenotype_method_id2transformation_description=phenotype_method_id2transformation_description)
 		sys.stderr.write("Done\n")
-		return phenotype_method_id2index, method_id_name_ls
+		return return_data
 	
 	def get_ecotype_id2info(self, curs, phenotype_avg_table, ecotype_table):
 		"""
@@ -102,8 +102,11 @@ class OutputPhenotype:
 		sys.stderr.write("Done\n")
 		return ecotype_id2index, ecotype_id_ls, ecotype_name_ls
 	
-	def get_matrix(self, curs, phenotype_avg_table, ecotype_id2index, phenotype_method_id2index):
+	def get_matrix(self, curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data=0):
 		"""
+		2008-11-10
+			add code to transform phenotype according to phenotype_info.phenotype_method_id2transformation_description
+			add option get_raw_data, if True/1, no transformation.
 		2008-04-23
 			#some db entries (phenotype_avg.value) have nothing there. convert None to 'NA'
 		2008-04-09
@@ -114,7 +117,7 @@ class OutputPhenotype:
 		#data_matrix = numpy.zeros([len(ecotype_id2index), len(phenotype_method_id2index)], numpy.float)
 		data_matrix = [[]]*len(ecotype_id2index)
 		for i in range(len(ecotype_id2index)):
-			data_matrix[i] = ['NA']*len(phenotype_method_id2index)
+			data_matrix[i] = ['NA']*len(phenotype_info.phenotype_method_id2index)
 		#data_matrix[:] = numpy.nan
 		curs.execute("select ecotype_id, method_id, value from %s"%phenotype_avg_table)
 		rows = curs.fetchall()
@@ -122,24 +125,44 @@ class OutputPhenotype:
 			ecotype_id, phenotype_method_id, value = row
 			if value==None:	#some db entries have nothing there. convert None to 'NA'
 				value = 'NA'
-			data_matrix[ecotype_id2index[ecotype_id]][phenotype_method_id2index[phenotype_method_id]] = value
+			elif not get_raw_data:	#2008-11-10
+				transformation_description = phenotype_info.phenotype_method_id2transformation_description.get(phenotype_method_id)
+				if not transformation_description:
+					pass
+				elif transformation_description.find('Log(x)')!=-1:
+					value = math.log10(value)
+				elif transformation_description=='Log(5+x)':
+					value = math.log10(5+value)
+				elif transformation_description=='Log(0.5+x)':
+					value = math.log10(0.5+value)
+				elif transformation_description=='(x-3)':
+					value = value-3
+			col_index = phenotype_info.phenotype_method_id2index[phenotype_method_id]
+			data_matrix[ecotype_id2index[ecotype_id]][col_index] = value
 		sys.stderr.write("Done\n")
 		return data_matrix
 	
 	def run(self):
 		import MySQLdb
-		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
+		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
 		
 		
-		phenotype_method_id2index, method_id_name_ls = self.get_phenotype_method_id_info(curs, self.phenotype_avg_table, self.phenotype_method_table)
+		phenotype_info = self.get_phenotype_method_id_info(curs, self.phenotype_avg_table, self.phenotype_method_table)
 		ecotype_id2index, ecotype_id_ls, ecotype_name_ls = self.get_ecotype_id2info(curs, self.phenotype_avg_table, self.ecotype_table)
-		data_matrix = self.get_matrix(curs, self.phenotype_avg_table, ecotype_id2index, phenotype_method_id2index)
+		data_matrix = self.get_matrix(curs, self.phenotype_avg_table, ecotype_id2index, phenotype_info, self.get_raw_data)
 		
-		header = ['ecotype id', 'nativename'] + method_id_name_ls
+		header = ['ecotype id', 'nativename'] + phenotype_info.method_id_name_ls
 		write_data_matrix(data_matrix, self.output_fname, header, ecotype_id_ls, ecotype_name_ls)
 
 if __name__ == '__main__':
+	from pymodule import ProcessOptions
+	main_class = OutputPhenotype
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	
+	instance = main_class(**po.long_option2value)
+	instance.run()
+	"""
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
@@ -196,3 +219,4 @@ if __name__ == '__main__':
 					ecotype_table=ecotype_table, phenotype_avg_table=phenotype_avg_table, \
 					phenotype_method_table = phenotype_method_table, debug=debug, report=report)
 	instance.run()
+	"""
