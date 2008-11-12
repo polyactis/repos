@@ -32,7 +32,7 @@ import sys, os, math
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import getopt, csv, math
+import getopt, csv, math, traceback
 import Numeric, cPickle
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
@@ -56,7 +56,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 	option_default_dict.pop(("list_type_id", 1, int))	#already poped in MpiGeneListRankTest
 	option_default_dict.pop(("results_id_ls", 1, ))
 	option_default_dict.update({('rank_gap', 1, float): [200, 'E', 1, 'the number of SNPs added onto previous no_of_top_snps to look for enrichment. negative gap could also be used. in that case, stop_rank means minimum score allowed.']})
-	option_default_dict.update({('stop_rank', 1, int): [10000, 'F', 1, 'program iterates over i different types of i*no_of_top_snps until i*no_of_top_snps > this number. maximum rank allowed.']})
+	option_default_dict.update({('stop_rank', 1, float): [10000, 'F', 1, 'program iterates over i different types of i*no_of_top_snps until i*no_of_top_snps > this number. maximum rank allowed.']})
 	option_default_dict.update({('alter_hostname', 1, ):['banyan.usc.edu', '', 1, 'host for non-output nodes to connect, since they only query and not save objects. this host can be a slave.']})
 	def __init__(self,  **keywords):
 		"""
@@ -67,8 +67,69 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		self.analysis_method_id_ls = getListOutOfStr(self.analysis_method_id_ls, data_type=int)
 		self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
 	
+	def addCutoffToParamsLs(self, cutoff_ls, params_ls):
+		"""
+		2008-11-04
+			followon for generate_params() of MpiGeneListRankTest.py to add cutoff's into params_ls
+		"""
+		sys.stderr.write("Adding cutoff to params_ls ...")
+		new_params_ls = []
+		for params_tup in params_ls:
+			for cutoff in cutoff_ls:
+				new_params_ls.append(list(params_tup)+[cutoff])
+		
+		sys.stderr.write("%s parameters. Done.\n"%(len(new_params_ls)))
+		return new_params_ls
+	
+	def generate_cutoff_ls(self, no_of_top_snps, min_score, rank_gap, stop_rank):
+		"""
+		2008-11-04
+			split out of computing_node_handler. common for every computing run
+		
+			#construct min_score_ls & no_of_top_snps_ls
+		"""
+		sys.stderr.write("Generating cutoff_ls ...")
+		if rank_gap<0:
+			stop_marker = -stop_rank
+		else:
+			stop_marker = stop_rank
+		current_marker = stop_marker - 1
+		if min_score is None:	#this is to generate cutoffs for no_of_top_snps_ls
+			if rank_gap<0:
+				current_marker = min(current_marker, -no_of_top_snps)	#both in min() are negative
+			else:
+				current_marker = min(current_marker, no_of_top_snps)	#both in min() are positive
+		cutoff_ls = []
+		i = 0
+		while current_marker<stop_marker:	#add one more layer to look at certain top genes
+			if min_score is not None:
+				current_marker = min_score +i*rank_gap
+			else:
+				t = min(max(0, int(abs(current_marker)/4000)), 6)	#enlarge the rank_gap as the rank goes further, every 4000 is a window.
+				#t must be bigger than 0 and less than 6
+				
+				coeffcient = math.pow(2,t)/(rank_gap/50.)	#it kind of makes rank_gap useless. always assume rank_gap=50
+				#sys.stderr.write("i=%s, t=%s, coeffcient=%s, rank_gap=%s, current_marker=%s, no_of_top_snps=%s.\n"%(i, t, coeffcient, rank_gap, current_marker, no_of_top_snps))
+				current_marker = int(current_marker + coeffcient*rank_gap)
+			cutoff_ls.append(current_marker)
+			
+			if rank_gap<0:
+				current_marker = -current_marker
+			else:
+				current_marker = current_marker
+			i += 1
+		if self.debug:
+			sys.stderr.write('%s\n'%repr(cutoff_ls))
+		sys.stderr.write("%s cutoffs. Done.\n"%(len(cutoff_ls)))
+		return cutoff_ls
+		
 	def computing_node_handler(self, communicator, data, comp_param_obj):
 		"""
+		2008-11-12
+			turn runHGTest() back into life
+			turn off runEnrichmentTestToGetNullData()
+		2008-10-31
+			runEnrichmentTestToGetNullData() is gonna get data at all different no_of_top_snps's or min_score's
 		2008-10-26
 			handle (min_score, rank_gap, stop_rank)
 			handle scenario that rank_gap is negative and so the parameters tried are descending.
@@ -78,6 +139,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
 		result_ls = []
+		null_data_ls = []
 		pd = PassingData(snps_context_wrapper=comp_param_obj.snps_context_wrapper,\
 							no_of_total_genes=comp_param_obj.no_of_total_genes, \
 							results_directory=comp_param_obj.results_directory, \
@@ -94,11 +156,13 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 							null_distribution_type_id=self.null_distribution_type_id,\
 							allow_two_sample_overlapping=self.allow_two_sample_overlapping,
 							total_gene_id_ls=comp_param_obj.total_gene_id_ls,\
-							min_score=self.min_score)	#2008-10-25 min_score is useless. overwritten later
+							min_score=self.min_score,
+							commit=self.commit)	#2008-10-25 min_score is useless. overwritten later
 		#2008-10-25
 		#if rank_gap is negative, stop_marker means the minimum cutoff
 		#if rank_gap is positive, stop_marker means the maximum cutoff
 		#both signs have to be swapped in the case of negative rank_gap
+		"""	
 		if self.rank_gap<0:
 			stop_marker = -self.stop_rank
 		else:
@@ -136,8 +200,31 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 				result = self.runHGTest(pd)
 				if result is not None:
 					result_ls.append(result)
+		"""
+		
+		pd.commit = 0	#commit once afterwards. commit runtime would render 'Lock wait timeout exceeded; try restarting transaction'
+		for results_id, list_type_id, cutoff in data:
+			if self.debug:
+				sys.stderr.write("working on results_id=%s, list_type_id=%s, type_id=%s, cutoff %s.\n"%(results_id, list_type_id, pd.type_id, cutoff))
+			pd.results_id = results_id
+			pd.list_type_id = list_type_id
+			if self.min_score:
+				pd.min_score_ls = [cutoff]
+				pd.min_score = cutoff
+			else:
+				pd.no_of_top_snps_ls = [cutoff]
+				pd.no_of_top_snps = cutoff
+			return_data = self.runHGTest(pd)
+			#return_data = self.runEnrichmentTestToGetNullData(comp_param_obj.session, pd)
+			if return_data:
+				result_ls += return_data.result_ls
+				null_data_ls += return_data.null_data_ls
+		
+		#if self.commit:
+		#	comp_param_obj.session.flush()
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
-		return result_ls
+		return_data = PassingData(result_ls=result_ls, null_data_ls=null_data_ls)
+		return return_data
 	
 	"""
 	2008-10-15
@@ -165,6 +252,71 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 				session.flush()
 	"""
 	
+	def output_node_handler(self, communicator, output_param_obj, data):
+		"""
+		2008-11-04
+			save both results and null_data(only for runEnrichmentTestToGetNullData()
+		"""
+		return_data = cPickle.loads(data)
+		#must save result_ls first, to allow new results have ids assigned
+		self.sub_output(output_param_obj, return_data.result_ls, output_param_obj.TestResultClass)
+		
+		self.saveNullData(output_param_obj, return_data.null_data_ls, output_param_obj.TestResultClass)
+	
+	def saveNullData(self, output_param_obj, table_obj_ls, TestResultClass):
+		"""
+		2008-11-04
+		
+			similar to sub_output() but has to handle unsaved table_obj.observed
+		"""
+		commit = output_param_obj.commit
+		for table_obj in table_obj_ls:
+			row = []
+			
+			result = Stock_250kDB.TopSNPTestRMNullData()
+			#pass values from table_obj to this new candidate_gene_rank_sum_test_result.
+			#can't save table_obj because it's associated with a different db thread
+			for column in table_obj.c.keys():
+				if output_param_obj.writer:	#2008-10-30 append only when writer is not None
+					row.append(getattr(table_obj, column))
+				setattr(result, column, getattr(table_obj, column))
+			
+			if output_param_obj.writer:
+				output_param_obj.writer.writerow(row)
+			
+			if table_obj.observed.id is not None:	#handle the previously unsaved TestResultClass'es
+				result.observed_id = table_obj.observed.id
+			else:
+				new_observed = self.returnResultFromDB(TestResultClass, table_obj.observed.results_id, table_obj.observed.list_type_id,
+													table_obj.observed.starting_rank,\
+											table_obj.observed.type_id, table_obj.observed.min_distance, table_obj.observed.no_of_top_snps,\
+											table_obj.observed.min_score)
+				if new_observed:
+					result.observed_id = new_observed.id
+				else:
+					sys.stderr.write("TestResultClass with results_id=%s, list_type_id=%s, starting_rank=%s,\
+							type_id=%s, min_distance=%s, no_of_top_snps=%s, min_score=%s) is not found for this null data.\n"%\
+							(table_obj.observed.results_id, table_obj.observed.list_type_id, table_obj.observed.starting_rank,
+							table_obj.observed.type_id, table_obj.observed.min_distance, table_obj.observed.no_of_top_snps, \
+							table_obj.observed.min_score))
+					continue	#skip if TestResultClass is not found
+			
+			output_param_obj.session.save(result)
+			if commit:
+				try:
+					output_param_obj.session.flush()
+				except:
+					#2008-10-30 remove it from memory. otherwise, next flush() will try on this old object again.
+					output_param_obj.session.expunge(result)
+					#output_param_obj.session.delete(result)
+					sys.stderr.write("Exception happened when saving null data with observed_id=%s, run_no=%s, null_distribution_type_id=%s.\n"%\
+									(getattr(result, 'observed_id', None),\
+									getattr(result, 'run_no', None),\
+									getattr(result, 'null_distribution_type_id', None)))
+					for column in table_obj.c.keys():
+						sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
+					traceback.print_exc()
+					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 	def run(self):
 		"""
 		2008-08-20
@@ -175,6 +327,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		free_computing_node_set = Set(free_computing_nodes)
 		output_node_rank = self.communicator.size-1
 		
+		#2008-10-30 comment out because computing node is gonna save the stuff itself.
 		if node_rank!=output_node_rank:		#to reduce the number of connections/queries to the master
 			self.hostname = self.alter_hostname
 		
@@ -200,6 +353,9 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 								list_type_id_ls=self.list_type_id_ls, \
 								results_type=self.results_type)
 			params_ls = self.generate_params(param_obj)
+			cutoff_ls = self.generate_cutoff_ls(self.no_of_top_snps, self.min_score, self.rank_gap, self.stop_rank)
+			params_ls = self.addCutoffToParamsLs(cutoff_ls, params_ls)
+			
 			pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
 			if self.debug:
 				params_ls = params_ls[:100]
@@ -229,7 +385,8 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 												results_directory=self.results_directory, min_MAF=self.min_MAF,\
 												no_of_total_genes=data.no_of_total_genes, \
 												total_gene_id_ls=data.total_gene_id_ls,\
-												type_id=_type.id)	#_type is placeholder. output_node decides on this.
+												type_id=_type.id,	#_type is placeholder. output_node decides on this.
+												session=session)
 			self.computing_node(comp_param_obj, self.computing_node_handler)
 		else:
 			if getattr(self, 'output_fname', None):
