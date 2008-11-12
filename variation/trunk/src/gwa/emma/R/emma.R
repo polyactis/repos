@@ -238,7 +238,7 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
         #if ( ( dLL[i]*dLL[i+1] < 0 ) && ( dLL[i] > 0 ) && ( dLL[i+1] < 0 ) ) 
         {
           r <- uniroot(emma.delta.ML.dLL.wo.Z, lower=logdelta[i], upper=logdelta[i+1], lambda=eig.R$values, etas=etas, xi=eig.L$values)	#search from lower to upper for a root(=zero) of the derivative likelihood
-          cat("str(r):", str(r), "\n")
+          #cat("str(r):", str(r), "\n")
           #optlogdelta <- append(optlogdelta, logdelta[i])	#2008-10-05 if no uniroot(), just take the logdelta[i]
           optlogdelta <- append(optlogdelta, r$root)
           #cat("eig.R$values:", eig.R$values, "\n")
@@ -302,8 +302,8 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
     maxva <- (sum(etas.1*etas.1/(eig.R$values+maxdelta))+etas.2.sq/maxdelta)/n
   }
   maxve <- maxva*maxdelta
-  cat(dim(eig.L$vectors),"\n")
-  cat(str(eig.L$values),"\n")
+  #cat(dim(eig.L$vectors),"\n")
+  #cat(str(eig.L$values),"\n")
   H_inverse <- t(eig.L$vectors) %*% solve(diag(eig.L$values+maxdelta)) %*% eig.L$vectors
   beta <- solve(t(X) %*% H_inverse %*% X) %*% t(X) %*% H_inverse %*% y
   
@@ -422,7 +422,12 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   #H_inverse <- (eig.L$vectors) %*% matrix(1/(eig.L$values+maxdelta),t,t,byrow=TRUE) %*% t(eig.L$vectors)
   H_inverse <- (eig.L$vectors) %*% diag(1/(eig.L$values+maxdelta)) %*% t(eig.L$vectors)
   beta <- solve(t(X) %*% H_inverse %*% X) %*% t(X) %*% H_inverse %*% y
-  return (list(REML=maxLL,delta=maxdelta,ve=maxve,vg=maxva, beta=beta))
+  #2008-11-12 to get the genotype variance percentage
+  x_beta = X %*% beta
+  x_beta_var = var(x_beta)
+  phenotype_var = var(y)	#2008-11-11 calculating this every time wastes cpu time. maybe move it to emma.REML.t? a bit complicated to do in emma.REML.t
+  var_perc = x_beta_var/phenotype_var
+  return (list(REML=maxLL,delta=maxdelta,ve=maxve,vg=maxva, beta=beta, var_perc=var_perc))
 }
 
 emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim=10, esp=1e-10, ponly = FALSE) {
@@ -441,7 +446,7 @@ emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
   m <- nrow(xs)	#no of markers
   t <- ncol(xs)	#no of individuals
   q0 <- ncol(X0)	#how many beta's in null model
-  q1 <- q0 + 1	#plus one fixed effec by a SNP marker
+  q1 <- q0 + 1	#plus one fixed effect by a SNP marker
 
   if ( !ponly ) {
     ML1s <- matrix(nrow=m,ncol=g)
@@ -508,7 +513,7 @@ emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
         }
         for(j in 1:g) {	#for each phenotype
           if ( nv == t ) {	#2008-09-23 number of valid points = number of strains
-          	cat("individual: ", j, "\n")
+          	#cat("individual: ", j, "\n")
           	#cat("eig.R1$values:", eig.R1$values, "\n")
             MLE <- emma.MLE(ys[j,],X,K,Z,ngrids,llim,ulim,esp,eig.L,eig.R1)
             if (!ponly) {
@@ -680,7 +685,7 @@ emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
   }  
 }
 
-emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim=10, esp=1e-10, ponly = FALSE) {
+emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim=10, esp=1e-10, ponly = FALSE, debug=FALSE) {
   if ( is.null(dim(ys)) || ncol(ys) == 1 ) {
     ys <- matrix(ys,1,length(ys))
   }
@@ -690,13 +695,20 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
   if ( is.null(X0) ) {
     X0 <- matrix(1,ncol(ys),1)
   }
+
+  if (debug==TRUE)
+  {
+	  cat("dim(ys):", dim(ys), "\n")
+	  cat("dim(xs):", dim(xs), "\n")
+	  cat("dim(K):", dim(K), "\n")
+  }
   
-  g <- nrow(ys)
-  n <- ncol(ys)
-  m <- nrow(xs)
-  t <- ncol(xs)
-  q0 <- ncol(X0)
-  q1 <- q0 + 1
+  g <- nrow(ys) #no of phenotypes
+  n <- ncol(ys)	#no of individuals
+  m <- nrow(xs)	#no of markers
+  t <- ncol(xs)	#no of individuals
+  q0 <- ncol(X0)	#how many beta's in null model
+  q1 <- q0 + 1  #plus one fixed effect by a SNP marker
   
   stopifnot(nrow(K) == t)
   stopifnot(ncol(K) == t)
@@ -715,6 +727,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
   beta1_est <- matrix(nrow=m,ncol=g)
   beta0_est1 <- matrix(nrow=m,ncol=g)
   beta1_est1 <- matrix(nrow=m,ncol=g)
+  genotype_var_perc <- matrix(nrow=m,ncol=g)	#2008-11-12 return genotype variance percentage
   
   if ( sum(is.na(ys)) == 0 ) {
     eig.L <- emma.eigen.L(Z,K)
@@ -760,7 +773,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
         
         for(j in 1:g) {
           if ( nv == t ) {
-            cat("t:", t, "\n")
+            #cat("t:", t, "\n")
             REMLE <- emma.REMLE(ys[j,],X,K,Z,ngrids,llim,ulim,esp, eig.L, eig.R1)	#2008-10-05 eig.L wasn't added here before. 
             #in that scenario, since emma.REMLE() does not use eig.L and eig.R is regarded as null (as it occupied eig.L's position), it computed eig.R on the fly.
             
@@ -788,6 +801,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
             beta1_est[i,j] <- REMLE$beta[2] #2008-10-04
             beta0_est1[i,j] <- beta[1]	#2008-10-04 to compare whether my beta estimate is same as theirs. answer is yes!
             beta1_est1[i,j] <- beta[2] #2008-10-04
+            genotype_var_perc[i,j] <- REMLE$var_perc #2008-11-11
           }
           else {
             if ( is.null(Z) ) {
@@ -952,6 +966,6 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
     return (ps)
   }
   else {
-    return (list(ps=ps,REMLs=REMLs,stats=stats,dfs=dfs,vgs=vgs,ves=ves, ve_vs_vg_ratio=ve_vs_vg_ratio, beta0_est=beta0_est, beta1_est=beta1_est, beta0_est1=beta0_est1, beta1_est1=beta1_est1))
+    return (list(ps=ps,REMLs=REMLs,stats=stats,dfs=dfs,vgs=vgs,ves=ves, ve_vs_vg_ratio=ve_vs_vg_ratio, genotype_var_perc=genotype_var_perc, beta0_est=beta0_est, beta1_est=beta1_est, beta0_est1=beta0_est1, beta1_est1=beta1_est1))
   }
 }
