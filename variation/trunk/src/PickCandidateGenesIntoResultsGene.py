@@ -4,6 +4,9 @@ Examples:
 	#phenotype_method_id_ls=1-7,39, analysis_method_id_ls=1,5,6,7, list_type_id_ls=28,64
 	PickCandidateGenesIntoResultsGene.py -A 1-7,39 -e 1,5,6,7 -f 5000 -j 17 -l 28,64 -s ./mnt2/panfs/250k/snps_context_g0_m0 -m 0 -c 
 
+	#change the results_directory when running on cluster
+	PickCandidateGenesIntoResultsGene.py -t ~/panfs/db/results/type_1/ -A 9-13,32-38,65-74 -e 1,5,6,7 -f 5000 -j 17 -l 24,29,30 -s ~/panfs/250k/snps_context_g1_m50000 -g -m 50000 -c 
+
 Description:
 	2008-10-28	Pick top snps from results that are associated with candidate genes (under certain association rule)
 		and put them into table ResultsGene.
