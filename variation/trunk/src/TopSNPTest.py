@@ -383,7 +383,7 @@ class TopSNPTest(GeneListRankTest):
 			run enrichment test, also to get NULL data based on either null distribution
 		"""
 		if self.debug:
-			sys.stderr.write("Running GW-looping test on results_id=%s, list_type_id=%s, no_of_top_snps=%s, no_of_top_snps_ls=%s, \
+			sys.stderr.write("Running Enrichment test on results_id=%s, list_type_id=%s, no_of_top_snps=%s, no_of_top_snps_ls=%s, \
 							type_id=%s, min_score=%s, ... "%\
 							(getattr(pd, 'results_id',-1), getattr(pd, 'list_type_id', -1), getattr(pd, 'no_of_top_snps', -1),\
 							repr(getattr(pd, 'no_of_top_snps_ls', -1)), getattr(pd, 'type_id', -1), getattr(pd, 'min_score', -1)))
@@ -517,6 +517,9 @@ class TopSNPTest(GeneListRankTest):
 	
 	def runHGTest(self, pd):
 		"""
+		2008-11-12
+			call returnResultFromDB() to find out whether the result has been done before or not.
+			return data is "PassingData(result_ls=[result], null_data_ls=[])" similar to runEnrichmentTestToGetNullData()
 		2008-10-30
 			use TestResultClassInDB() to check if result has been stored in the db or not.
 			if pd.min_score is not None, run TestResultClassInDB() again.
@@ -540,9 +543,11 @@ class TopSNPTest(GeneListRankTest):
 		2008-08-20
 		"""
 		if self.debug:
-			sys.stderr.write("Running hypergeometric test on results_id=%s, list_type_id=%s, no_of_top_snps=%s, type_id=%s, min_score=%s, ... "%\
+			sys.stderr.write("Running enrichment test on results_id=%s, list_type_id=%s, no_of_top_snps=%s, no_of_top_snps_ls=%s, \
+							type_id=%s, min_score=%s, ... "%\
 							(getattr(pd, 'results_id',-1), getattr(pd, 'list_type_id', -1), getattr(pd, 'no_of_top_snps', -1),\
-							getattr(pd, 'type_id', -1), getattr(pd, 'min_score', -1)))
+							repr(getattr(pd, 'no_of_top_snps_ls', -1)), getattr(pd, 'type_id', -1), getattr(pd, 'min_score', -1)))
+		
 		if pd.results_type==1:
 			ResultsClass = ResultsMethod
 			TestResultClass = Stock_250kDB.CandidateGeneTopSNPTestRM
@@ -566,14 +571,12 @@ class TopSNPTest(GeneListRankTest):
 			return None
 		starting_rank = getattr(pd, 'starting_rank', 1)	#from which rank to look down for top snps
 		if pd.type_id:	#the type is already in database. now check if the same top snp test has been done or not
-			db_results = self.TestResultClassInDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
-												pd.type_id, pd.min_distance, pd.no_of_top_snps, pd.min_score)
-			
-			if db_results.count()>0:	#done before
-				db_result = db_results.first()
+			result = self.returnResultFromDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
+											pd.type_id, pd.min_distance, pd.no_of_top_snps, pd.min_score)
+			if result:
 				if self.debug:
 					sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
-								(db_result.id, db_result.results_id, db_result.list_type_id, db_result.no_of_top_snps, db_result.pvalue))
+								(result.id, result.results_id, result.list_type_id, result.no_of_top_snps, result.pvalue))
 				return None
 		
 		score_range = None	#to be added as comment in dbs		
@@ -621,16 +624,16 @@ class TopSNPTest(GeneListRankTest):
 				candidate_sample_size = len(permData.candidate_gene_snp_rank_ls)
 				non_candidate_sample_size = len(permData.non_candidate_gene_snp_rank_ls)
 				
-				if pd.min_score is not None:
+				if pd.type_id:	# and pd.min_score is not None:	#2008-11-04 comment the 2nd condition because no_of_top_snps could be set over the total no. use this to check.
 					#2008-10-28 check db again because no_of_top_snps=candidate_sample_size+non_candidate_sample_size.
 					#sometimes, different min_score cutoff gives same no_of_top_snps.
-					db_results = self.TestResultClassInDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
-													pd.type_id, pd.min_distance, candidate_sample_size+non_candidate_sample_size)
-					if db_results.count()>0:	#done before
-						db_result = db_results.first()
+					
+					result = self.returnResultFromDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
+											pd.type_id, pd.min_distance, candidate_sample_size+non_candidate_sample_size)
+					if result:
 						if self.debug:
 							sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
-										(db_result.id, db_result.results_id, db_result.list_type_id, db_result.no_of_top_snps, db_result.pvalue))
+										(result.id, result.results_id, result.list_type_id, result.no_of_top_snps, result.pvalue))
 						return None
 				
 				not_enough_sample = 0
@@ -714,7 +717,8 @@ class TopSNPTest(GeneListRankTest):
 				result.min_score = score_range[1]
 		if self.debug:
 			sys.stderr.write("Done.\n")
-		return result
+		return_data = PassingData(result_ls=[result], null_data_ls=[])
+		return return_data
 	
 	def getTopSNPTestType(self, get_closest, min_MAF, allow_two_sample_overlapping, results_type,\
 				test_type_id, null_distribution_type_id):
@@ -734,7 +738,7 @@ class TopSNPTest(GeneListRankTest):
 				filter(Stock_250kDB.CandidateGeneTopSNPTestRMType.min_MAF>=min_MAF-0.0001).filter(Stock_250kDB.CandidateGeneTopSNPTestRMType.min_MAF<=min_MAF+0.0001).\
 				filter_by(allow_two_sample_overlapping = allow_two_sample_overlapping).filter_by(results_type=results_type).\
 				filter_by(test_type_id=test_type_id).\
-				filter_by(null_distribution_type_id=1)
+				filter_by(null_distribution_type_id=null_distribution_type_id)
 		if rows.count()>0:
 			_type = rows.first()
 		else:
@@ -743,7 +747,7 @@ class TopSNPTest(GeneListRankTest):
 										allow_two_sample_overlapping = allow_two_sample_overlapping, \
 										results_type=results_type,\
 										test_type_id=test_type_id,\
-										null_distribution_type_id=1)
+										null_distribution_type_id=null_distribution_type_id)
 		if self.debug:
 			sys.stderr.write("Done.\n")
 		return _type
@@ -807,9 +811,10 @@ class TopSNPTest(GeneListRankTest):
 			pd.no_of_top_snps_ls = [self.no_of_top_snps]
 		for results_id in self.results_id_ls:
 			pd.results_id = results_id
-			self.runEnrichmentTestToGetNullData(session, pd)
-			"""
-			result = self.runHGTest(pd)
+			#self.runEnrichmentTestToGetNullData(session, pd)
+			
+			return_data = self.runHGTest(pd)
+			result = return_data.result_ls[0]
 			if result is not None:
 				result.type = _type	#assign the type here
 				row = []
@@ -821,7 +826,7 @@ class TopSNPTest(GeneListRankTest):
 				session.save(result)
 				if self.commit:
 					session.flush()
-			"""
+			
 			
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
