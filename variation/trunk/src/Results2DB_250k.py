@@ -140,6 +140,8 @@ class Results2DB_250k(object):
 	
 	def submit_results(cls, db, input_fname, rm, user, output_fname=None):
 		"""
+		2008-11-12
+			parse lines with column_6(genotype_var_perc) and more (comment)
 		2008-09-30
 			deal with 5-column file. The 5-th column is minor allele count.
 			also return True in the end. return False if error in the middle.
@@ -213,17 +215,25 @@ class Results2DB_250k(object):
 			stop_pos = None
 			column_4th = None
 			column_5th = None
+			column_6 = None
+			rest_of_row = []
+			rest_of_header = []
+			
 			marker_name = '%s_%s'%(chr, start_pos)
-			if len(row)==4:
+			if len(row)>=4:
 				column_4th=row[3]
 				#stop_pos = int(row[2])
 				#score = row[3]
-			elif len(row)==5:
-				column_4th=row[3]
+			if len(row)>=5:
+				#column_4th=row[3]
 				column_5th=int(row[4])
-			else:
-				sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
-				return False
+			if len(row)>=6:
+				column_6 = row[5]
+			if len(row)>=7:
+				rest_of_row = row[6:]
+				rest_of_header = ['beta%s'%i for i in range(len(rest_of_row))]
+				#sys.stderr.write("ERROR: Found %s columns.\n"%(len(row)))
+				#return False
 			
 			if output_fname:	#go to file system
 				if not header_outputted:	#3-column or 4-column header
@@ -236,6 +246,10 @@ class Results2DB_250k(object):
 						header.append('MAF')
 					if column_5th is not None:
 						header.append('MAC')	#Minor Allele Count
+					if column_6 is not None:
+						header.append('genotype_var_perc')	#genotype variance percentage
+					if rest_of_row:
+						header += rest_of_header
 					writer.writerow(header)
 					header_outputted = 1
 				data_row = [chr, start_pos]
@@ -246,6 +260,10 @@ class Results2DB_250k(object):
 					data_row.append(column_4th)
 				if column_5th is not None:
 					data_row.append(column_5th)
+				if column_6 is not None:
+					data_row.append(column_6)
+				if rest_of_row:
+					data_row += rest_of_row
 				writer.writerow(data_row)
 			else:
 				key = (chr, start_pos, stop_pos)
