@@ -1004,6 +1004,10 @@ class GenomeWideResult(object):
 		return self.argsort_data_obj_ls[-rank]	#value bigger, rank smaller
 	
 class DataObject(TableClass):
+	"""
+	2008-11-12
+		add genotype_var_perc, comment
+	"""
 	chromosome = None
 	position = None
 	stop_position = None
@@ -1011,6 +1015,8 @@ class DataObject(TableClass):
 	value = None
 	genome_wide_result_id = None
 	maf = None
+	genotype_var_perc = None
+	comment = None
 	def __cmp__(self, other):
 		"""
 		2008-08-20
@@ -1024,6 +1030,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-11-12
+		parse lines with column_5th, column_6 and more
 	2008-10-28
 		handle construct_data_obj_id2index
 	2008-10-21
@@ -1068,6 +1076,10 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 		chr = int(row[0])
 		start_pos = int(row[1])
 		column_4th = None
+		column_5th = None
+		column_6 = None
+		rest_of_row = []
+		
 		stop_pos = None
 		if len(row)>=3:
 			score = float(row[2])
@@ -1077,7 +1089,10 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 				stop_pos = int(row[3])
 			else:
 				column_4th=float(row[3])
-			
+		if len(row)>=5:
+			column_6 = float(row[5])
+		if len(row)>=7:
+			rest_of_row = row[6:]
 		"""
 		else:
 			sys.stderr.write("only 3 or 4 columns are allowed in input file.\n")
@@ -1110,7 +1125,10 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 				data_obj = DataObject(chromosome=chr, position=start_pos, value =score)
 			if column_4th is not None:
 				data_obj.maf = column_4th
-			
+			if column_6 is not None:
+				data_obj.genotype_var_perc = column_6
+			if rest_of_row:
+				data_obj.comment = ','.join(rest_of_row)
 			data_obj.genome_wide_result_id = genome_wide_result_id
 			gwr.add_one_data_obj(data_obj, chr_pos2index)
 		
