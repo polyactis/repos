@@ -562,6 +562,58 @@ class CandidateGeneTopSNPTestRM(Entity):
 	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'no_of_top_snps', \
 										'min_distance', 'starting_rank', 'type_id'))
 
+class CandidateGeneTopSNPTestRG(Entity):
+	"""
+	2008-11-11
+		a table similar to CandidateGeneTopSNPTestRM. but candidate_sample_size, non_candidate_sample_size and etc refer to distinct genes instead of not SNPs.
+		
+	"""
+	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	pvalue = Field(Float)
+	pvalue_gw_looping = Field(Float)
+	pvalue_random_gene_list = Field(Float)
+	candidate_sample_size = Field(Integer)
+	non_candidate_sample_size = Field(Integer)
+	candidate_gw_size = Field(Integer)
+	non_candidate_gw_size = Field(Integer)
+	no_of_top_candidate_genes = Field(Integer)
+	no_of_top_genes = Field(Integer)
+	no_of_top_snps = Field(Integer)
+	min_distance = Field(Integer)
+	starting_rank = Field(Integer)
+	no_of_tests_passed = Field(Integer)
+	no_of_tests = Field(Integer)
+	max_score = Field(Float)
+	min_score = Field(Float)
+	type = ManyToOne('CandidateGeneTopSNPTestRMType', colname='type_id', ondelete='CASCADE', onupdate='CASCADE')
+	comment = Field(Text)
+	using_options(tablename='candidate_gene_top_snp_test_rg', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'no_of_top_snps', \
+										'min_distance', 'starting_rank', 'type_id'))
+
+
+
+class CandidateVsNonRatioPlot(Entity):
+	"""
+	2008-11-04
+		table to store candidate-ratio/non-candidate-ratio curve plots in database
+	"""
+	type = ManyToOne('CandidateGeneTopSNPTestRMType', colname='type_id', ondelete='CASCADE', onupdate='CASCADE')
+	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
+	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	png_thumbnail = Field(Binary(64217728), deferred=True)
+	png_data = Field(Binary(134217728), deferred=True)
+	svg_data = Field(Binary(length=134217728), deferred=True)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_vs_non_ratio_plot', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('type_id', 'results_id', 'list_type_id'))
+
 class TopSNPTestRMNullData(Entity):
 	"""
 	2008-10-31
@@ -854,7 +906,8 @@ if __name__ == '__main__':
 	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
 	instance = main_class(**po.long_option2value)
 	instance.setup()
-	
+	import pdb
+	pdb.set_trace()
 	rows = GeneListType.query.all()
 	for row in rows:
 		print row.gene_list[0].list_type_id
