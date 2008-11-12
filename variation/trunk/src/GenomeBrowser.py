@@ -287,6 +287,8 @@ class GenomeBrowser(object):
 	
 	def on_canvas_pick(self, event):
 		"""
+		2008-11-12
+			display more information (maf, genotype_var_perc, comment) of data_obj (SNP) if they exist
 		2008-05-28
 			pick from collection
 		2008-01-31 copied from examples/pick_event_demo.py from matplotlib source code
@@ -320,7 +322,14 @@ class GenomeBrowser(object):
 					output_str = "genome result: %s, chromosome: %s, position: %s, "%(genome_wide_result.name, data_obj.chromosome, data_obj.position)
 					if data_obj.stop_position is not None:
 						output_str += "stop position: %s, "%(data_obj.stop_position)
-					output_str += "value: %s"%(data_obj.value)
+					output_str += '\n'
+					output_str += "\tscore: %s\n"%(data_obj.value)
+					if data_obj.maf:
+						output_str += "\tmaf: %s\n"%(data_obj.maf)
+					if data_obj.genotype_var_perc:
+						output_str += "\tgenotype_var_perc: %s\n"%(data_obj.genotype_var_perc)
+					if data_obj.comment:
+						output_str += "\tcomment: %s\n"%(data_obj.comment)
 					print output_str
 			else:
 				sys.stderr.write("%s not in artist_obj_id2data_obj_key.\n"%(artist_obj_id))
