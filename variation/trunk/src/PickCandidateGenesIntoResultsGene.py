@@ -52,6 +52,9 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 	
 	def pick_candidate_genes(self, pd):
 		"""
+		2008-11-12
+			if entry already exists in ResultsGene, make sure it doesn't have the current type associated with
+			upon failure of 'session.flush()', expunge the current entry and report error. avoid failure of the whole program.
 		2008-10-28
 		"""
 		sys.stderr.write("Picking candidates genes from results (id=%s) for list_type (id=%s) ..."%(pd.results_id, pd.list_type_id))
@@ -74,19 +77,33 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 				filter_by(results_id=pd.results_id)
 			if rows.count()==1:
 				row = rows.first()
-				row.types.append(pd.type)
-				session.save_or_update(row)
+				already_in_db = 0
+				if pd.type.id:	#2008-11-12
+					for hist_type in row.types:
+						if hist_type.id==pd.type.id:
+							already_in_db = 1
+							break
+				if not already_in_db:	#2008-11-12
+					row.types.append(pd.type)
+					session.save_or_update(row)					
 			elif rows.count()>1:
-				sys.stderr.write("Error: more than 1 db entrs with snps_id=%s, gene_id=%s, results_id=%s.\n"%\
+				sys.stderr.write("Error: more than 1 db entries with snps_id=%s, gene_id=%s, results_id=%s.\n"%\
 								(snps_id, gene_id, results_id))
+				continue
 			else:
 				row = Stock_250kDB.ResultsGene(snps_id=snps_id, gene_id=gene_id, disp_pos=disp_pos,\
 											results_id=pd.results_id, score=score, rank=rank)
 				row.types.append(pd.type)
 				session.save_or_update(row)
 			if pd.commit:
-				session.flush()
-		
+				try:	#2008-11-12 don't wanna db failure to bog down the whole program
+					session.flush()
+				except:
+					session.expunge(row)
+					for column in row.c.keys():
+						sys.stderr.write("\t%s=%s.\n"%(column, getattr(row, column)))
+					traceback.print_exc()
+					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
