@@ -808,7 +808,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
               eig.L0 <- emma.eigen.L.wo.Z(K[vids,vids])
               nr <- sum(vids)
               yv <- ys[j,vids]
-              REMLE <- emma.REMLE(yv,X,K[vids,vids,drop=FALSE],NULL,ngrids,llim,ulim,esp,eig.R1)
+              REMLE <- emma.REMLE(yv,X,K[vids,vids,drop=FALSE],NULL,ngrids,llim,ulim,esp, eig.L0, eig.R1)
               U <- eig.L0$vectors * matrix(sqrt(1/(eig.L0$values+REMLE$delta)),nr,nr,byrow=TRUE)
               dfs[i,j] <- nr - q1
             }
@@ -817,7 +817,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
               yv <- ys[j,vrows]
               nr <- sum(vrows)
               tv <- sum(vids)
-              REMLE <- emma.REMLE(yv,X,K[vids,vids,drop=FALSE],Z[vrows,vids,drop=FALSE],ngrids,llim,ulim,esp,eig.R1)
+              REMLE <- emma.REMLE(yv,X,K[vids,vids,drop=FALSE],Z[vrows,vids,drop=FALSE],ngrids,llim,ulim,esp,eig.L0, eig.R1)
               U <- eig.L0$vectors * matrix(c(sqrt(1/(eig.L0$values+REMLE$delta)),rep(sqrt(1/REMLE$delta),nr-tv)),nr,nr,byrow=TRUE)
               dfs[i,j] <- nr - q1
             }
@@ -889,7 +889,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
             nr <- sum(vrows)
             if ( is.null(Z) ) {
               if ( nr == n ) {
-                REMLE <- emma.REMLE(yv,X,K,NULL,ngrids,llim,ulim,esp,eig.R1)
+                REMLE <- emma.REMLE(yv,X,K,NULL,ngrids,llim,ulim,esp,eig.L, eig.R1)
                 U <- eig.L$vectors * matrix(sqrt(1/(eig.L$values+REMLE$delta)),n,n,byrow=TRUE)                
               }
               else {
@@ -901,7 +901,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
             }
             else {
               if ( nr == n ) {
-                REMLE <- emma.REMLE(yv,X,K,Z,ngrids,llim,ulim,esp,eig.R1)
+                REMLE <- emma.REMLE(yv,X,K,Z,ngrids,llim,ulim,esp, eig.L, eig.R1)
                 U <- eig.L$vectors * matrix(c(sqrt(1/(eig.L$values+REMLE$delta)),rep(sqrt(1/REMLE$delta),n-t)),n,n,byrow=TRUE)                
               }
               else {
