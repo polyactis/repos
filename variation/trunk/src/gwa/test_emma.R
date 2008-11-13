@@ -22,7 +22,10 @@ cat("rs$ML0s: ", rs$ML0s, "\n")
 
 output_variance = function(marker_index)
 {
-cat("pvalue=", rs$ps[marker_index], " stats=", rs$stats[marker_index],  " vgs=", rs$vgs[marker_index], " ves=", rs$ves[marker_index], " beta0_est=", rs$beta0_est[marker_index], " beta1_est=", rs$beta1_est[marker_index], " beta0_est1=", rs$beta0_est1[marker_index], " beta1_est1=", rs$beta1_est1[marker_index], "\n")
+cat("pvalue=", rs$ps[marker_index], " stats=", rs$stats[marker_index],  " vgs=", rs$vgs[marker_index], 
+	" ves=", rs$ves[marker_index], " beta0_est=", rs$beta0_est[marker_index], 
+	" beta1_est=", rs$beta1_est[marker_index], " beta0_est1=", rs$beta0_est1[marker_index], 
+	" beta1_est1=", rs$beta1_est1[marker_index], "\n")
 no_of_individuals = length(emmadat$ys[1,])
 
 phenotype_var = var(emmadat$ys[1,])
@@ -71,3 +74,15 @@ i = which.min(rs$ps)
 cat("min pvalue at position:", i, "\n")
 output_variance(i)
 
+#2008-11-13 call emma.REMLE with one marker
+X0 <- matrix(1, ncol(emmadat$ys), 1)	#it's a column vector of 1. 1st column of design matrix for beta0 (intercept).
+X <- cbind(X0, emmadat$xs[i,])
+one_marker_rs <- emma.REMLE(emmadat$ys[1,], X, emmadat$K, cal.pvalue=TRUE)
+
+cat("pvalue=", one_marker_rs$pvalue, " stat=", one_marker_rs$stat,  " vgs=", one_marker_rs$vg, 
+"ves=", one_marker_rs$ve, "\n")
+
+cat("x_beta_est: ", one_marker_rs$beta, "\n")
+cat("x_beta_var: ", one_marker_rs$x_beta_var, "\n")
+cat("genotype_var_perc: ", one_marker_rs$genotype_var_perc, "\n")
+cat("pvalue: ", one_marker_rs$pvalue, "\n")
