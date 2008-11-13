@@ -311,10 +311,10 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
 }
 
 emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
-  esp=1e-10, eig.L = NULL, eig.R = NULL) {
-  n <- length(y)
-  t <- nrow(K)
-  q <- ncol(X)
+  esp=1e-10, eig.L = NULL, eig.R = NULL, cal.pvalue=FALSE) {
+  n <- length(y)	#2008-11-13	no of individuals
+  t <- nrow(K)	#2008-11-13 no of individuals
+  q <- ncol(X)	#2008-11-13 no of markers. X is individual X marker. tranposed compared to X in emma.REML.t
 
 #  stopifnot(nrow(K) == t)
   stopifnot(ncol(K) == t)
@@ -324,7 +324,12 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
     warning("X is singular")
     return (list(REML=0,delta=0,ve=0,vg=0))
   }
-
+  
+  #2008-11-13 yh: calculate eig.L if it's not given. not used to get delta, likelihood ratio but used in the end to get beta estimate, pvalue, etc.
+  if ( is.null(eig.L) ) {
+  	eig.L <- emma.eigen.L(Z,K)
+  }
+  
   if ( is.null(Z) ) {
     if ( is.null(eig.R) ) {
       eig.R <- emma.eigen.R.wo.Z(K,X)
@@ -422,12 +427,33 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   #H_inverse <- (eig.L$vectors) %*% matrix(1/(eig.L$values+maxdelta),t,t,byrow=TRUE) %*% t(eig.L$vectors)
   H_inverse <- (eig.L$vectors) %*% diag(1/(eig.L$values+maxdelta)) %*% t(eig.L$vectors)
   beta <- solve(t(X) %*% H_inverse %*% X) %*% t(X) %*% H_inverse %*% y
+  
   #2008-11-12 to get the genotype variance percentage
   x_beta = X %*% beta
   x_beta_var = var(x_beta)
   phenotype_var = var(y)	#2008-11-11 calculating this every time wastes cpu time. maybe move it to emma.REML.t? a bit complicated to do in emma.REML.t
-  var_perc = x_beta_var/phenotype_var
-  return (list(REML=maxLL,delta=maxdelta,ve=maxve,vg=maxva, beta=beta, var_perc=var_perc))
+  genotype_var_perc = x_beta_var/phenotype_var
+  
+  #2008-11-13 get the pvalue
+  if (cal.pvalue)
+  {
+  	U <- eig.L$vectors * matrix(sqrt(1/(eig.L$values+maxdelta)), t, t, byrow=TRUE)
+  	df = n-q	#degree of freedom
+  	#yt <- crossprod(U,y)
+  	Xt <- crossprod(U,X)
+  	iXX <- solve(crossprod(Xt,Xt))
+  	q1 = 2	#pvalue for the second beta
+  	stat <- beta[q1]/sqrt(iXX[q1,q1]*maxva)		#vg=maxva
+  	pvalue <- 2*pt(abs(stat), df, lower.tail=FALSE)
+  }
+  else
+  {
+  	stat = -1
+  	pvalue = -1
+  }
+  
+  return (list(REML=maxLL,delta=maxdelta,ve=maxve,vg=maxva, beta=beta, x_beta_var=x_beta_var, 
+  	genotype_var_perc=genotype_var_perc, pvalue=pvalue, stat=stat))
 }
 
 emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim=10, esp=1e-10, ponly = FALSE) {
@@ -734,7 +760,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
 
     x.prev <- vector(length=0)
 
-    for(i in 1:m) {
+    for(i in 1:m) {	#iterate over markers
       vids <- !is.na(xs[i,])
       nv <- sum(vids)
       xv <- xs[i,vids]
@@ -771,7 +797,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
           eig.R1 = emma.eigen.R.w.Z(Z[vrows,vids],K[vids,vids],X)
         }
         
-        for(j in 1:g) {
+        for(j in 1:g) {	#iterate over phenotypes
           if ( nv == t ) {
             #cat("t:", t, "\n")
             REMLE <- emma.REMLE(ys[j,],X,K,Z,ngrids,llim,ulim,esp, eig.L, eig.R1)	#2008-10-05 eig.L wasn't added here before. 
@@ -801,7 +827,7 @@ emma.REML.t <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim
             beta1_est[i,j] <- REMLE$beta[2] #2008-10-04
             beta0_est1[i,j] <- beta[1]	#2008-10-04 to compare whether my beta estimate is same as theirs. answer is yes!
             beta1_est1[i,j] <- beta[2] #2008-10-04
-            genotype_var_perc[i,j] <- REMLE$var_perc #2008-11-11
+            genotype_var_perc[i,j] <- REMLE$genotype_var_perc #2008-11-11
           }
           else {
             if ( is.null(Z) ) {
