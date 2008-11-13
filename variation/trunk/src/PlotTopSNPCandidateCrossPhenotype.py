@@ -11,6 +11,8 @@ Description:
 		draw 3D bar chart showing candidate_sample_size, candidate-ratio or other variables along the cutoff and phenotype axises.
 	
 	if output_fname is specified, matrix of all data will be dumped.
+	
+	if analysis_method_id=6(RF), score_cutoff_take_log is set to True.
 """
 import sys, os, math
 #bit_number = math.log(sys.maxint)/math.log(2)
@@ -44,7 +46,6 @@ class PlotTopSNPCandidateCrossPhenotype(DrawTopSNPTest2DMapForOneRM):
 	__doc__ = __doc__
 	option_default_dict = DrawTopSNPTest2DMapForOneRM.option_default_dict.copy()
 	option_default_dict.update({('data_type', 1, int): [1, 'B', 1, 'which tupe of data to draw. 1:ratio, 2:pvalue, 3:candidate_sample_size, 4:non_candidate_sample_size']})
-	option_default_dict.update({('score_cutoff_take_log', 0, int): [0, 'S', 0, 'whether to take log on the score_cutoff']})
 	def __init__(self,  **keywords):
 		DrawTopSNPTest2DMapForOneRM.__init__(self, **keywords)
 	
@@ -59,7 +60,11 @@ class PlotTopSNPCandidateCrossPhenotype(DrawTopSNPTest2DMapForOneRM):
 	color_ls = ['b', 'g','r', 'c', 'm', 'y']
 	def plot_one_bar(self, ax, rdata, no_of_top_snps_info, min_distance_info, min_distance, result_index=0, data_type=1, output_fname=None, \
 							need_svg=False, title='', commit=0, preset_xlim =None, max_no_of_jump_pts=5, score_cutoff_take_log=False):
-		
+		"""
+		2008-11-13
+			set alpha=0.8 (was 0.5)
+			set linewidth=0.5 (was 0)
+		"""
 		if min_distance not in min_distance_info.id2index:
 			return False
 		which_min_distance = min_distance_info.id2index[min_distance]
@@ -140,7 +145,7 @@ class PlotTopSNPCandidateCrossPhenotype(DrawTopSNPTest2DMapForOneRM):
 				bar_width = (max(score_cutoff_ls)-min(score_cutoff_ls))/float(len(score_cutoff_ls))
 			else:
 				bar_width = 0.1
-			ax.bar(score_cutoff_ls, data_ls, z=result_index, dir='y',color=self.color_ls[color_index], width=bar_width, alpha=0.5, linewidth=0)
+			ax.bar(score_cutoff_ls, data_ls, z=result_index, dir='y',color=self.color_ls[color_index], width=bar_width, alpha=0.8, linewidth=0.5)
 			
 			#ax.set_yticks([30,20,10,0], ['30z', '20z', '10z', '0z'])	#2008-11-11 it reduces 3d into 1 line
 			ax.text3D(0,result_index, 0, title, size=4)	#add title for this line of bars
@@ -246,9 +251,13 @@ class PlotTopSNPCandidateCrossPhenotype(DrawTopSNPTest2DMapForOneRM):
 			min_distance_info = self.get_min_distance_info(db, from_where_clause)
 			rdata = self.get_data_matrix(db, no_of_top_snps_info, min_distance_info, from_where_clause, need_other_values=True, \
 										null_distribution_type_id=self.null_distribution_type_id)
+			if rm.analysis_method_id=='6':	#For random forest, take log and determine bar length according to score_cutoff_ls
+				score_cutoff_take_log = True
+			else:
+				score_cutoff_take_log = False
 			return_code = self.plot_one_bar(ax, rdata, no_of_top_snps_info, min_distance_info, self.min_distance, result_index=result_index, data_type=self.data_type, \
 							output_fname=None, \
-							need_svg=False, title=title, commit=0, preset_xlim =None, score_cutoff_take_log=self.score_cutoff_take_log)
+							need_svg=False, title=title, commit=0, preset_xlim =None, score_cutoff_take_log=score_cutoff_take_log)
 			if return_code:
 				data_to_output_label_ls.append(output_label)
 				data_to_output_ls.append(return_code)
