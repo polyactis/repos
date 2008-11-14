@@ -48,6 +48,10 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		
 	def generate_params(cls, param_obj, min_no_of_genes=10):
 		"""
+		2008-11-13
+			add "results_type==3" same as "results_type==1"
+			
+			if results_type is not supported, report and return []
 		2008-11-08
 			become a classmethod
 		2008-10-26
@@ -73,7 +77,7 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		sys.stderr.write("Generating parameters ...")
 		i = 0
 		block_size = 5000
-		if param_obj.results_type==1:
+		if param_obj.results_type==1 or  param_obj.results_type==3:	#1 and 3 are same ResultsMethod class
 			query = ResultsMethod.query
 			if param_obj.call_method_id!=0:
 				query = query.filter_by(call_method_id=param_obj.call_method_id)
@@ -91,6 +95,10 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 				query = query.filter(ResultsByGene.results_method.has(ResultsMethod.analysis_method_id.in_(param_obj.analysis_method_id_ls)))
 			if hasattr(param_obj, 'phenotype_method_id_ls') and param_obj.phenotype_method_id_ls:
 				query = query.filter(ResultsByGene.results_method.has(ResultsMethod.phenotype_method_id.in_(param_obj.phenotype_method_id_ls)))
+		else:
+			sys.stderr.write("results_type %s not supported.\n"%results_type)
+			return []
+		
 		rows = query.offset(i).limit(block_size)
 		results_method_id_ls = []
 		while rows.count()!=0:
