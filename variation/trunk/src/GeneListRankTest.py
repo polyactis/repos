@@ -525,6 +525,12 @@ class GeneListRankTest(object):
 	
 	def prepareDataForPermutationRankTest(self, rm, snps_context_wrapper, param_data):
 		"""
+		2008-11-13
+			return these data structures too if need_candidate_association is True
+				non_candidate_association_ls = []	#2008-11-11 need this too
+				candidate_gene_sample_set = Set()
+				non_candidate_gene_sample_set = Set()
+		
 		2008-11-04 upper limit of ranks_to_be_checked has to be <=no_of_total_snps
 			no_of_snps = len(ranks_to_be_checked)	#2008-11-04 ranks_to_be_checked could be capped. so calculate a new no_of_snps.
 		2008-10-31
@@ -582,6 +588,9 @@ class GeneListRankTest(object):
 		#chr2cumu_no_of_snps = {}
 		chr_pos_ls = []	#to store a list of (chr,position)
 		candidate_association_ls = []	#2008-10-28 for PickCandidateGenesIntoResultsGene.py
+		non_candidate_association_ls = []	#2008-11-11 need this too
+		candidate_gene_sample_set = Set()
+		non_candidate_gene_sample_set = Set()
 		
 		score_ls = [data_obj.value for data_obj in genome_wide_result.data_obj_ls]
 		import rpy
@@ -638,12 +647,15 @@ class GeneListRankTest(object):
 					assign_snp_candidate_gene = 1
 					if need_candidate_association:	#2008-10-28
 						candidate_association_ls.append((snps_id, disp_pos, gene_id, data_obj.value, max_rank-rank+1))	#2008-10-28 max_rank subtraction is just for PickCandidateGenesIntoResultsGene.py
-					
+						candidate_gene_sample_set.add(gene_id)
 					if not need_candidate_association and not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
 						#2008-10-28 if need_candidate_association, have to go through all, no early break
 						break
 				else:
 					assign_snp_non_candidate_gene = 1
+					if need_candidate_association:
+						non_candidate_association_ls.append((snps_id, disp_pos, gene_id, data_obj.value, max_rank-rank+1))
+						non_candidate_gene_sample_set.add(gene_id)
 					"""
 					#2008-10-26, this condition is buggy, enabling this would cause SNPs with candidate genes nearby prematurely assigned to non-candidate category
 					if not param_data.allow_two_sample_overlapping:	#early break only if two samples are NOT allowed to be overlapping
@@ -696,6 +708,9 @@ class GeneListRankTest(object):
 			total_chr_pos_ls = genome_wide_result.chr_pos2index.keys()
 			total_chr_pos_ls.sort()
 			total_chr_pos_ar = num.array(total_chr_pos_ls)
+		
+		if not param_data.allow_two_sample_overlapping:	#2008-11-12 minus the candidate set if two sets are not allowed to be overlapping
+			non_candidate_gene_sample_set -= candidate_gene_sample_set
 		passingdata = PassingData(candidate_gene_snp_index_ls=candidate_gene_snp_index_ls,\
 								non_candidate_gene_snp_index_ls=non_candidate_gene_snp_index_ls,\
 								candidate_gene_snp_chr_pos_ls=candidate_gene_snp_chr_pos_ls,
@@ -712,7 +727,10 @@ class GeneListRankTest(object):
 								score_range=score_range,\
 								chr_pos_ls=chr_pos_ls,\
 								total_chr_pos_ar=total_chr_pos_ar,\
-								candidate_association_ls=candidate_association_ls)
+								candidate_association_ls=candidate_association_ls,\
+								non_candidate_association_ls=non_candidate_association_ls,\
+								candidate_gene_sample_set=candidate_gene_sample_set,\
+								non_candidate_gene_sample_set=non_candidate_gene_sample_set)
 		del genome_wide_result
 		if self.debug:
 			sys.stderr.write("Done.\n")
