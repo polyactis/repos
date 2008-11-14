@@ -7,7 +7,10 @@ Examples:
 	TopSNPTest.py -e 389 -l 1 -u yh  -o /tmp/top_snp_test.out
 	
 	#
-	TopSNPTest.py -e 389 -l 28 -u yh -f 300 -s ./mnt2/panfs/250k/snps_context_g0_m20000 -m 20000 -y 15
+	TopSNPTest.py -e 389 -l 28 -f 300 -s ./mnt2/panfs/250k/snps_context_g0_m20000 -m 20000 -y 15 -u yh
+	
+	#run enrichment test (null_distribution_type_id=1) on results_type=3 (CandidateGeneTopSNPTestRG)
+	TopSNPTest.py -e 2318 -l 28 -f 500 -s ./mnt2/panfs/250k/snps_context_g0_m1000 -m 1000 -y 15 -u yh -p *** -w3
 	
 Description:
 	2008-08-20 program to do hypergeometric test on a number of genes from top SNPs based on a given candidate gene list.
@@ -17,6 +20,7 @@ Description:
 	2. whether results_method_type_id is 1 (association)
 	3. whether the same (results_method_id, list_type_id) pair has been in the top_snp_test table.
 	
+	results_type 3 is also ResultsMethod, but CandidateGeneTopSNPTest becomes CandidateGeneTopSNPTestRG. only test_type_id==15, null_distribution_type_id==1 is supported.
 """
 
 import sys, os, math
@@ -517,6 +521,8 @@ class TopSNPTest(GeneListRankTest):
 	
 	def runHGTest(self, pd):
 		"""
+		2008-11-13
+			add code to deal with results_type==3, test_type_id==15, null_distribution_type_id==1.
 		2008-11-12
 			call returnResultFromDB() to find out whether the result has been done before or not.
 			return data is "PassingData(result_ls=[result], null_data_ls=[])" similar to runEnrichmentTestToGetNullData()
@@ -547,25 +553,30 @@ class TopSNPTest(GeneListRankTest):
 							type_id=%s, min_score=%s, ... "%\
 							(getattr(pd, 'results_id',-1), getattr(pd, 'list_type_id', -1), getattr(pd, 'no_of_top_snps', -1),\
 							repr(getattr(pd, 'no_of_top_snps_ls', -1)), getattr(pd, 'type_id', -1), getattr(pd, 'min_score', -1)))
-		
+		need_candidate_association = 0	#2008-11-12, default is 0. pass to prepareDataForPermutationRankTest()
 		if pd.results_type==1:
 			ResultsClass = ResultsMethod
 			TestResultClass = Stock_250kDB.CandidateGeneTopSNPTestRM
-			rm = ResultsClass.get(pd.results_id)
 			min_distance = pd.min_distance
 			min_MAF = pd.min_MAF
 			get_closest = pd.get_closest
 		elif pd.results_type==2:
 			ResultsClass = ResultsByGene
 			TestResultClass = CandidateGeneTopSNPTest
-			rm = ResultsClass.get(pd.results_id)
 			min_distance = rm.min_distance
 			min_MAF = rm.min_MAF
 			get_closest = rm.get_closest
+		elif pd.results_type==3:
+			ResultsClass = ResultsMethod
+			TestResultClass = Stock_250kDB.CandidateGeneTopSNPTestRG
+			min_distance = pd.min_distance
+			min_MAF = pd.min_MAF
+			get_closest = pd.get_closest
+			need_candidate_association = 1	#2008-11-12
 		else:
 			sys.stderr.write("Invalid results type : %s.\n"%pd.results_type)
 			return None
-		
+		rm = ResultsClass.get(pd.results_id)
 		if not rm:
 			sys.stderr.write("No results available for results_id=%s.\n"%pd.results_id)
 			return None
@@ -584,6 +595,8 @@ class TopSNPTest(GeneListRankTest):
 		n = None
 		no_of_tests_passed = None
 		no_of_tests = None
+		no_of_top_snps = None
+		no_of_top_genes = None
 		try:
 			import rpy
 			candidate_gene_list = self.dealWithCandidateGeneList(pd.list_type_id)	#internal cache
@@ -598,7 +611,8 @@ class TopSNPTest(GeneListRankTest):
 									no_of_top_lines=pd.no_of_top_snps, no_of_top_snps=pd.no_of_top_snps, \
 									starting_rank=starting_rank, \
 									min_score=pd.min_score,\
-									need_chr_pos_ls=1, )	#need_chr_pos_ls is for null_distribution_type_id=2/3
+									need_chr_pos_ls=1,\
+									need_candidate_association=need_candidate_association)#need_chr_pos_ls is for null_distribution_type_id=2/3
 			#param_data = PassingData(results_directory=pd.results_directory, candidate_gene_list=candidate_gene_list, no_of_top_lines=pd.no_of_top_snps)
 			if pd.results_type==2:
 				passingdata = self.prepareDataForRankTestFromResultsByGene(rm, param_data)
@@ -613,7 +627,8 @@ class TopSNPTest(GeneListRankTest):
 				pvalue = rpy.r.phyper(x-1,m,n,k,lower_tail = rpy.r.FALSE)
 				candidate_sample_size = x
 				non_candidate_sample_size = len(passingdata.non_candidate_gene_ls)
-			elif pd.results_type==1:	#for ResultsMethod
+				no_of_top_snps = candidate_sample_size + non_candidate_sample_size
+			elif pd.results_type==1:	#for ResultsMethod + CandidateGeneTopSNPTestRM
 				permData = self.prepareDataForPermutationRankTest(rm, pd.snps_context_wrapper, param_data)
 				if permData is None:
 					if self.debug:
@@ -623,13 +638,14 @@ class TopSNPTest(GeneListRankTest):
 				score_range = permData.score_range
 				candidate_sample_size = len(permData.candidate_gene_snp_rank_ls)
 				non_candidate_sample_size = len(permData.non_candidate_gene_snp_rank_ls)
+				no_of_top_snps = candidate_sample_size + non_candidate_sample_size
 				
 				if pd.type_id:	# and pd.min_score is not None:	#2008-11-04 comment the 2nd condition because no_of_top_snps could be set over the total no. use this to check.
 					#2008-10-28 check db again because no_of_top_snps=candidate_sample_size+non_candidate_sample_size.
 					#sometimes, different min_score cutoff gives same no_of_top_snps.
 					
 					result = self.returnResultFromDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
-											pd.type_id, pd.min_distance, candidate_sample_size+non_candidate_sample_size)
+											pd.type_id, pd.min_distance, no_of_top_snps)
 					if result:
 						if self.debug:
 							sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
@@ -690,6 +706,41 @@ class TopSNPTest(GeneListRankTest):
 				else:
 					sys.stderr.write("Test_type %s not supported.\n"%(pd.test_type))
 					return None
+			elif pd.results_type==3:	#for ResultsMethod + CandidateGeneTopSNPTestRG
+				permData = self.prepareDataForPermutationRankTest(rm, pd.snps_context_wrapper, param_data)
+				if permData is None:
+					if self.debug:
+						sys.stderr.write("No permData from prepareDataForPermutationRankTest().\n")
+					return None
+				score_range = permData.score_range
+				candidate_sample_size = len(permData.candidate_gene_sample_set)
+				non_candidate_sample_size = len(permData.non_candidate_gene_sample_set)
+				no_of_top_genes = candidate_sample_size + non_candidate_sample_size
+				no_of_top_snps = len(permData.candidate_gene_snp_rank_ls) + len(permData.non_candidate_gene_snp_rank_ls)
+				
+				if pd.type_id:
+					result = self.returnResultFromDB(TestResultClass, pd.results_id, pd.list_type_id, starting_rank,
+											pd.type_id, pd.min_distance, no_of_top_snps)
+					if result:
+						if self.debug:
+							sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, no_of_top_snps=%s, pvalue=%s.\n"%\
+										(result.id, result.results_id, result.list_type_id, result.no_of_top_snps, result.pvalue))
+						return None
+				if candidate_sample_size<pd.min_sample_size:	#don't look at how many non-candidates are (different from whole genome rank test)
+					if self.debug:
+						sys.stderr.write("Ignore. sample size less than %s. %s vs %s.\n"%(pd.min_sample_size, candidate_sample_size, non_candidate_sample_size))
+					return None
+				if pd.test_type_id==15:
+					if pd.null_distribution_type_id==1:
+						x = candidate_sample_size
+						#m = self.dealWithNoOfSNPsAssociatedWithCandidateGeneList(pd.list_type_id, rm, pd)	#cache is internally going on
+						m = len(candidate_gene_list)
+						n = pd.no_of_total_genes - m
+						k = candidate_sample_size + non_candidate_sample_size
+						pvalue = rpy.r.phyper(x-1,m,n,k,lower_tail = rpy.r.FALSE)
+				else:
+					sys.stderr.write("Test_type %s not supported.\n"%(pd.test_type))
+					return None
 		except:
 			sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(pd.results_id, pd.list_type_id))
 			traceback.print_exc()
@@ -700,13 +751,13 @@ class TopSNPTest(GeneListRankTest):
 		result.candidate_sample_size = candidate_sample_size
 		result.non_candidate_sample_size = non_candidate_sample_size
 		#result.no_of_top_candidate_genes = x
-		#result.no_of_top_genes = k
+		result.no_of_top_genes = no_of_top_genes
 		result.min_distance = pd.min_distance
 		result.no_of_tests_passed = no_of_tests_passed
 		result.no_of_tests = no_of_tests
 		result.candidate_gw_size = m
 		result.non_candidate_gw_size = n
-		result.no_of_top_snps = candidate_sample_size + non_candidate_sample_size
+		result.no_of_top_snps = no_of_top_snps
 		result.starting_rank = starting_rank
 		result.type_id = pd.type_id
 		if score_range:
