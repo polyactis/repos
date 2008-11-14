@@ -341,6 +341,12 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		elif self.results_type==2:
 			ResultsClass = Stock_250kDB.ResultsByGene
 			TestResultClass = Stock_250kDB.CandidateGeneTopSNPTest
+		elif self.results_type==3:
+			ResultsClass = Stock_250kDB.ResultsMethod
+			TestResultClass = Stock_250kDB.CandidateGeneTopSNPTestRG
+		else:
+			sys.stderr.write("Invalid results type : %s.\n"%pd.results_type)
+			sys.exit(3)
 		
 		if node_rank == 0:
 			pdata_for_computing = PassingData()
