@@ -136,6 +136,27 @@ def get_gene_symbol2gene_id_set(curs, tax_id, table='genome.gene_symbol2id', upp
 	sys.stderr.write(" %s entries. Done.\n"%len(gene_symbol2gene_id_set))
 	return gene_symbol2gene_id_set
 
+def get_gene_id2gene_symbol(curs, tax_id, table='genome.gene', upper_case_gene_symbol=0):
+	"""
+	2008-11-14
+		reverse of get_gene_symbol2gene_id_set
+	"""
+	sys.stderr.write("Getting gene_id2gene_symbol ...")
+	gene_id2gene_symbol = {}
+	from sets import Set
+	curs.execute("select gene_id, gene_symbol from %s where tax_id=%s"%(table, tax_id))
+	rows = curs.fetchall()
+	for row in rows:
+		gene_id, gene_symbol = row
+		if upper_case_gene_symbol:
+			gene_symbol = gene_symbol.upper()
+		if gene_id not in gene_id2gene_symbol:
+			gene_id2gene_symbol[gene_id] = gene_symbol
+		else:
+			sys.stderr.write("Warning: gene_id %s(%s) already in gene_id2gene_symbol with symbol=%s.\n"%(gene_id, gene_symbol, gene_id2gene_symbol[gene_id]))
+	sys.stderr.write(" %s entries. Done.\n"%len(gene_id2gene_symbol))
+	return gene_id2gene_symbol
+
 class FigureOutTaxID(object):
 	__doc__ = "2008-07-29 class to figure out tax_id using postgres database taxonomy schema"
 	option_default_dict = {('hostname', 1, ): ['localhost', 'z', 1, 'hostname of the db server', ],\
