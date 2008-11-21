@@ -841,6 +841,8 @@ class SNPData(object):
 	
 	def convertSNPAllele2Index(self, report=0):
 		"""
+		2008-11-20
+			newSnpData also copies self.strain_acc_list and self.category_list over.
 		2008-09-07
 			Convert SNP matrix into index (0,1,2...) is assigned as first-encounter, first-assign. if only two alleles, it's binary.
 			heterozygote is regarded as a different allele.
@@ -848,6 +850,8 @@ class SNPData(object):
 		sys.stderr.write("Converting SNP allele to index ...")
 		no_of_hets = 0
 		newSnpData = SNPData(row_id_ls=self.row_id_ls, col_id_ls=self.col_id_ls)
+		newSnpData.strain_acc_list = self.strain_acc_list
+		newSnpData.category_list = self.category_list
 		no_of_rows = len(self.data_matrix)
 		no_of_cols = len(self.data_matrix[0])
 		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
@@ -1005,6 +1009,8 @@ class GenomeWideResult(object):
 	
 class DataObject(TableClass):
 	"""
+	2008-11-20
+		add mac
 	2008-11-12
 		add genotype_var_perc, comment
 	"""
@@ -1015,6 +1021,7 @@ class DataObject(TableClass):
 	value = None
 	genome_wide_result_id = None
 	maf = None
+	mac = None
 	genotype_var_perc = None
 	comment = None
 	def __cmp__(self, other):
@@ -1030,6 +1037,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-11-20
+		fix a bug that column_5th was skipped and column_6 was tried when there are only 5 columns
 	2008-11-12
 		parse lines with column_5th, column_6 and more
 	2008-10-28
@@ -1075,9 +1084,9 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			continue
 		chr = int(row[0])
 		start_pos = int(row[1])
-		column_4th = None
-		column_5th = None
-		column_6 = None
+		column_4th = None	#it's MAF probably
+		column_5th = None	#it's MAC probably
+		column_6 = None	#it's genotype_var_perc probably
 		rest_of_row = []
 		
 		stop_pos = None
@@ -1090,6 +1099,8 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			else:
 				column_4th=float(row[3])
 		if len(row)>=5:
+			column_5th = float(row[4])
+		if len(row)>=6:
 			column_6 = float(row[5])
 		if len(row)>=7:
 			rest_of_row = row[6:]
@@ -1125,6 +1136,8 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 				data_obj = DataObject(chromosome=chr, position=start_pos, value =score)
 			if column_4th is not None:
 				data_obj.maf = column_4th
+			if column_5th is not None:
+				data_obj.mac = column_5th
 			if column_6 is not None:
 				data_obj.genotype_var_perc = column_6
 			if rest_of_row:
