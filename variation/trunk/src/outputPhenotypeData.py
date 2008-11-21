@@ -4,22 +4,23 @@ Usage: outputPhenotypeData.py [OPTIONS] -o OUTPUT_FILE
 
 Option:
 
-        -o ...,	output file
-	-d ..., --delim=...         default is \", \"      
-        -m ..., --missingval=...    default is \"NA\"
-	-p ...                      Password
-	-h ...                      Host (papaya.usc.edu is default)
-	-u ...                      Username
-	--rawPhenotypes             Outputs the raw phenotype values (otherwise it outputs the transformed ones).
-	--onlyBinary                Outputs only binary phenotypes
-	--onlyCategorical           Outputs only categorical phenotypes
-	--onlyQuantitative          Outputs only quantitative phenotypes
-	--onlyReplicates            Outputs phenotypes which have replicates, with the replicates
-	--includeSD                 Include standard deviations (if available) as phenotypes.
-	--orderByGenotypeFile=...   Order the accessions so that they match the accessions in the given genotype file. 
-	                            Phenotypes which are not in the genotype file are not included in the phenotype file.
-	--onlyPublishable           Outputs only the publishable phentotypic values.
-	-h, --help	            show this help
+	-o ...,	output file
+	-d ..., --delim=...		  default is \", \"	  
+	-m ..., --missingval=...  default is \"NA\"
+	-p ...					  Password
+	-h ...					  Host (papaya.usc.edu is default)
+	-u ...					  Username
+	--rawPhenotypes			  Outputs the raw phenotype values (otherwise it outputs the transformed ones).
+	--phenotypeIDs=n1,n2,...  Outputs only the phenotypes with the given IDs.
+	--onlyBinary			  Outputs only binary phenotypes
+	--onlyCategorical		  Outputs only categorical phenotypes
+	--onlyQuantitative		  Outputs only quantitative phenotypes
+	--onlyReplicates		  Outputs phenotypes which have replicates, with the replicates
+	--includeSD				  Include standard deviations (if available) as phenotypes.
+	--orderByGenotypeFile=... Order the accessions so that they match the accessions in the given genotype file. 
+							  Phenotypes which are not in the genotype file are not included in the phenotype file.
+	--onlyPublishable		  Outputs only the publishable phentotypic values.
+	-h, --help				  show this help
 
 Examples:
 	
@@ -30,12 +31,14 @@ Description:
 import sys, getopt, traceback
 import phenotypeData, dataParsers
 
+from phenotypeData import *
+
 def _run_():
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["rawPhenotypes","onlyBinary", "onlyCategorical", "onlyQuantitative", "onlyReplicates", "delim=", "missingval=", "help","includeSD","orderByGenotypeFile=", "onlyPublishable"]
+	long_options_list = ["phenotypeIDs=","rawPhenotypes","onlyBinary", "onlyCategorical", "onlyQuantitative", "onlyReplicates", "delim=", "missingval=", "help","includeSD","orderByGenotypeFile=", "onlyPublishable"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "p:u:h:o:d:m:h", long_options_list)
 
@@ -44,9 +47,9 @@ def _run_():
 		print sys.exc_info()
 		print __doc__
 		sys.exit(2)
-	
-	
+
 	output_fname = None
+	phenotypeIDs = None
 	delim = ","
 	missingVal = "NA"
 	rawPhenotypes = False
@@ -92,6 +95,10 @@ def _run_():
 			includeSD = True
 		elif opt in ("--onlyPublishable"):
 			onlyPublishable = True
+		elif opt in ("--phenotypeIDs"):
+			phenotypeIDs = []
+			for num in arg.split(","):
+				phenotypeIDs.append(int(num))
 		elif opt in ("--orderByGenotypeFile"):
 			genotypeFile = arg
 		else:
@@ -115,10 +122,14 @@ def _run_():
 		import getpass
 		passwd = getpass.getpass()
 
-        #Retrieve phenotype data.
+		#Retrieve phenotype data.
 	phenData = getPhenotypes(host=host,user=user,passwd=passwd,onlyBinary=onlyBinary, onlyQuantitative=onlyQuantitative, onlyCategorical=onlyCategorical, onlyReplicates=onlyReplicates, includeSD=includeSD, rawPhenotypes=rawPhenotypes, onlyPublishable=onlyPublishable)
 
-        #Sort in correct order.
+	if phenotypeIDs:
+		print "Remoing phenotypes."
+		phenData.removePhenotypeIDs(phenotypeIDs)
+	
+	#Sort in correct order.
 	if genotypeFile:
 		snpsds = dataParsers.parseCSVData(genotypeFile, format=1, deliminator=delim, missingVal=missingVal)
 		print "Removing accessions which are not in the genotype file."
@@ -138,118 +149,42 @@ def _run_():
 	
 		phenData.orderAccessions(associationMapping)
 			
-        #Output phenotypes to file.
+		#Output phenotypes to file.
 	phenData.writeToFile(output_fname, delimiter='\t')
 
-def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=False, onlyQuantitative=False, onlyCategorical=False, onlyReplicates=False, includeSD=False, rawPhenotypes=False, onlyPublishable=False):
-	print "onlyPublishable:",onlyPublishable
-	import dataParsers
-	e2a = dataParsers.getEcotypeToAccessionDictionary(host,user=user,passwd=passwd,defaultValue='100')
-
-	import MySQLdb
-	print "Connecting to db, host="+host
-	try:
-		conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "at")
-	except MySQLdb.Error, e:
-		print "Error %d: %s" % (e.args[0], e.args[1])
-		sys.exit (1)
-	cursor = conn.cursor ()
-
-        #"at.accession2tg_ecotypeid eva "
-        
-        #Retrieve the ecotypes
-	print "Fetching ecotypes"
-	if onlyPublishable:
-		numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id and pa.ready_for_publication=1 order by ei.tg_ecotypeid"))
-	else:
-		numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id order by ei.tg_ecotypeid"))
-	
-    
-	ecotypes = []
-	accessions = []
-	while(1):
-		row = cursor.fetchone()
-		if not row:
-			break;
-		ecotypes.append(str(int(row[0])))
-		accessions.append(row[1])
-	print len(ecotypes), "ecotypes (accessions) were found."
-
-	#Get the phenotypic values
-	phenotypeValues = []
-	phenotypeNames = []
-	valueColumn = "pa.transformed_value"
-	if rawPhenotypes:
-		print "Fetching raw phenotypic values"
-		valueColumn = "pa.value"
-	else:
-		print "Fetching phenotypic values"
-		
-	if onlyPublishable:
-		numRows = int(cursor.execute("select distinct pa.method_id, ei.tg_ecotypeid, "+valueColumn+", pm.short_name from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id and pa.ready_for_publication=1 order by pa.method_id, ei.tg_ecotypeid"))
-	else:
-		numRows = int(cursor.execute("select distinct pa.method_id, ei.tg_ecotypeid, "+valueColumn+", pm.short_name from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id order by pa.method_id, ei.tg_ecotypeid"))
-		
-	pvalues = ['NA' for j in range(0,len(ecotypes))]
-	row = cursor.fetchone()
-	currentMethod = int(row[0])
-	phenotypeNames.append(str(int(row[0]))+"_"+row[3])
-	i=ecotypes.index(str(int(row[1])))
-	pvalues[i]=float(row[2])
-	while(1):
-		row = cursor.fetchone()
-		if not row:
-			break;
-		nextMethod = int(row[0])
-		if currentMethod != nextMethod:
-			phenotypeNames.append(str(int(row[0]))+"_"+row[3])
-			phenotypeValues.append(pvalues)
-			pvalues = ['NA' for j in range(0,len(ecotypes))]
-			currentMethod = nextMethod
-		
-		i=ecotypes.index(str(int(row[1])))
-		if row[2]!=None:
-			pvalues[i]=float(row[2])
-
-	phenotypeValues.append(pvalues)
-	print len(phenotypeValues), "phenotypes were found."
-    
-	cursor.close ()
-	conn.close ()
-	import util
-	
-	phenotypeValues = util.transposeDoubleLists(phenotypeValues)
-	phenDat = phenotypeData.PhenotypeData(ecotypes, phenotypeNames, phenotypeValues, accessionNames=accessions)
-	return phenDat
-	
 
 
-def _transformPhenotypes_():
+def _transformPhenotypes_(phenotypeTransformations = {210:(1,1),211:(0,1),212:(2,1),213:(5,1),214:(5,1),215:(5,1)}):
 	"""
-	Transforms some of the phenotypes.
-	
-	This function should ideally only be executed once.
+	Transforms phenotypes.  {phenotype_id: (type_transform,data_type)}
 	"""
-	
-	transformationDict = {0:"None", 1:"Log(x)", 2:"Log(0.5+x)", 3:"Log(5+x)", 4:"(x-3)"}
-	#                                                                             32               58                        66                            74                                  90                   110 
-	transformationList = 4*[1]+[0]+2*[1]+[3]+6*[0]+6*[1]+2*[0]+[1]+5*[0]+3*[1]+7*[0]+13*[1]+[0]+4*[1]+[0]+5*[1]+[2]+[0]+[2]+[0]+[2]+2*[0]+[1]+[2]+[1]+[2]+[0]+2*[1]+3*[0]+3*[1]+2*[0]+4*[1]+2*[0]+7*[1]+9*[0]+2*[1]+[0]
-	#                              116       123         126           130                             146                   161     163
-	transformationList +=4*[1]+[0]+[2]+6*[1]+[0]+[1]+[0]+[1]+2*[0]+[1]+[0]+2*[1]+2*[2]+2*[1]+[0]+8*[1]+[0]+5*[1]+2*[0]+7*[1]+[0]+[4]+[0]+2*[1]+17*[0]+2*[1]+2*[0]
-
-	for i in range(0,len(transformationList)):
-		print (i+1), transformationList[i]
-	
 	datatypeDict = {1:"quantitative",2:"ordered_categorical",3:"binary"}
-	datatypeList = 8*[1]+5*[3]+18*[1]+7*[3]+38*[1]+3*[3]+52*[1]+[2]+24*[1]+2*[2]+[1]+[2]+[3]+[2]+3*[1]+6*[3]+3*[2]+3*[3]+3*[2]+5*[1]
+	transformationTypes = {0:"None", 1:"Log(x)", 2:"Log(0.5+x)", 3:"Log(5+x)", 4:"(x-3)", 5:"Log(x) w. outlier cutoff = IQR*10"}
+	
+	#																			 32			   58						66							74								  90				   110 
+	
+	#transformationList = 4*[1]+[0]+2*[1]+[3]+6*[0]+6*[1]+2*[0]+[1]+5*[0]+3*[1]+7*[0]+13*[1]+[0]+4*[1]+[0]+5*[1]+[2]+[0]+[2]+[0]+[2]+2*[0]+[1]+[2]+[1]+[2]+[0]+2*[1]+3*[0]+3*[1]+2*[0]+4*[1]+2*[0]+7*[1]+9*[0]+2*[1]+[0]
+
+	#							  116	   123		 126		   130							 146				   161	 163					  
+	#transformationList +=4*[1]+[0]+[2]+6*[1]+[0]+[1]+[0]+[1]+2*[0]+[1]+[0]+2*[1]+2*[2]+2*[1]+[0]+8*[1]+[0]+5*[1]+2*[0]+7*[1]+[0]+[4]+[0]+2*[1]+17*[0]+2*[1]+2*[0]
+
+	#					 187
+	#transformationList +=4*[1]+4*[0]
+
+
+	for p_i in phenotypeTransformations:
+		print p_i, transformationTypes[phenotypeTransformations[p_i][0]]
+	
+	#datatypeList = 8*[1]+5*[3]+18*[1]+7*[3]+38*[1]+3*[3]+52*[1]+[2]+24*[1]+2*[2]+[1]+[2]+[3]+[2]+3*[1]+6*[3]+3*[2]+3*[3]+3*[2]+5*[1]+8*[1]
 
 	
 	phenData = getPhenotypes(user="bvilhjal", passwd="bamboo123", rawPhenotypes=True)
 	print phenData.phenotypeNames
-        hostname="papaya.usc.edu"
+	
+	hostname="papaya.usc.edu"
 	user="bvilhjal"
 	passwd="bamboo123"
-        #Connect to DB
+		#Connect to DB
 	import MySQLdb
 	print "Connecting to db, host="+hostname
 	if not user:
@@ -266,22 +201,27 @@ def _transformPhenotypes_():
 		sys.exit (1)
 	cursor = conn.cursor()
 	print "Inserting results into DB."
-	for i in range(0,len(phenData.phenotypeNames)):
+	for p_i in phenotypeTransformations: #range(0,len(phenData.phenotypeNames)):
+		i = phenData.getPhenIndex(p_i)
+		
+		#Remove outliers...
+		if phenotypeTransformations[p_i][0]==5:
+			phenData.naOutliers(p_i)
+			
 		for j in range(0,len(phenData.accessions)):
-			transFormedValue = _transformValue_(phenData.phenotypeValues[j][i],transformationList[i])
-			methodID = phenData.phenotypeNames[i].split("_")[0]
+			transFormedValue = _transformValue_(phenData.phenotypeValues[j][i],phenotypeTransformations[p_i][0])
 			acc=phenData.accessions[j]
 			#Insert info
-			print phenData.phenotypeValues[j][i], transFormedValue, methodID, acc
-			sqlStatm = "UPDATE stock_250k.phenotype_avg SET transformed_value="+str(transFormedValue)+" WHERE ecotype_id="+acc+" and method_id="+methodID+""
+			print phenData.phenotypeValues[j][i], transFormedValue, p_i, acc
+			sqlStatm = "UPDATE stock_250k.phenotype_avg SET transformed_value="+str(transFormedValue)+" WHERE ecotype_id="+acc+" and method_id="+str(p_i)+""
 			numRows = int(cursor.execute(sqlStatm))	
 			conn.commit()
-	for i in range(0,len(phenData.phenotypeNames)):
-		methodID = phenData.phenotypeNames[i].split("_")[0]
-		sqlStatm = "UPDATE stock_250k.phenotype_method SET data_type='"+datatypeDict[datatypeList[i]]+"' WHERE id="+methodID+""
+			
+	for p_i in phenotypeTransformations:		
+		sqlStatm = "UPDATE stock_250k.phenotype_method SET data_type='"+datatypeDict[phenotypeTransformations[p_i][1]]+"' WHERE id="+str(p_i)+""
 		print sqlStatm
 		numRows = int(cursor.execute(sqlStatm))	
-		sqlStatm = "UPDATE stock_250k.phenotype_method SET transformation_description='"+transformationDict[transformationList[i]]+"' WHERE id="+methodID+""
+		sqlStatm = "UPDATE stock_250k.phenotype_method SET transformation_description='"+transformationTypes[phenotypeTransformations[p_i][0]]+"' WHERE id="+str(p_i)+""
 		print sqlStatm
 		numRows = int(cursor.execute(sqlStatm))	
 		conn.commit()
@@ -293,10 +233,12 @@ def _transformPhenotypes_():
 	conn.close()
 
 
+	#UPDATE stock_250k.phenotype_avg p SET p.value=250 WHERE p.method_id=7 and p.value=
+
 def _transformValue_(value,transformType):
 	if value!="NA":
 		import math
-		if transformType == 1:
+		if transformType == 1 or transformType == 5:
 			return math.log(value)
 		elif transformType == 2:
 			return math.log(0.5+value)
@@ -308,6 +250,7 @@ def _transformValue_(value,transformType):
 		value='NULL'
 	return value
 
+
 def _test1_():
 	pass
 
@@ -316,5 +259,4 @@ if __name__ == '__main__':
 	#_test1_()
 	#_transformPhenotypes_()
 	_run_()
-
 

@@ -18,8 +18,8 @@ Option:
 	--nTrees=...                The number of trees. (default is 10000)
 	--nodeSize=...              Default value is the R package default.
 	--mem=..                    Memory requirements for the cluster.
-	--skipSecondRound           Skip second round RF.
-        --minMAF=...                Remove all SNPs which have MAF smaller than the given argument.  (0.05 is set as default).
+	--secondRound               Do a second round RF.
+        --minMAF=...                Remove all SNPs which have MAF smaller than the given argument.  (0.0 is set as default).
 	
 
 Examples:
@@ -30,12 +30,12 @@ Examples:
 
 Description:
 
-Warning:
-        Make sure the randomForest package is installed and the path dependencies in order.
-
 """
 #Relative to the home directory (not absolute directories).  These parameters are only used on the cluster.
 
+resultDir="/home/cmb-01/bvilhjal/results/"
+randomForestDir="/home/cmb-01/bvilhjal/Projects/randomForest/"
+programDir="/home/cmb-01/bvilhjal/Projects/Python-snps/"
 
 #resultDir="/home/cmb-01/atarone/Projects/"
 #randomForestDir="/home/cmb-01/atarone/randomForest/"
@@ -45,19 +45,12 @@ import sys, getopt, traceback
 import os, env
 import phenotypeData
 
-#The path to the randomForest R package
-randomForestDir=env.homedir+"Projects/randomForest/"
-
-resultDir=env.resultDir
-programDir=env.scriptDir
-
-
 def _run_():
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["chunkSize=", "nTrees=", "impFile=", "delim=", "missingval=", "withArrayId=", "logTransform", "phenotypeFileType=", "help", "parallel=", "parallelAll", "nodeSize=", "mem=", "round2Size=", "skipSecondRound", "minMAF="]
+	long_options_list = ["chunkSize=", "nTrees=", "impFile=", "delim=", "missingval=", "withArrayId=", "logTransform", "phenotypeFileType=", "help", "parallel=", "parallelAll", "nodeSize=", "mem=", "round2Size=", "secondRound", "minMAF="]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:h", long_options_list)
 
@@ -82,8 +75,8 @@ def _run_():
 	nTrees = 15000
 	nodeSize = None
 	mem = "8g"
-	skipSecondRound = False
-	minMAF = 0.05
+	skipSecondRound = True
+	minMAF = 0.0
 
 	for opt, arg in opts:
             if opt in ("-h", "--help"):
@@ -101,8 +94,8 @@ def _run_():
                 parallelAll = True
             elif opt in ("--logTransform"):
                 logTransform = True
-            elif opt in ("--skipSecondRound"):
-                skipSecondRound = True
+            elif opt in ("--secondRound"):
+                skipSecondRound = False
             elif opt in ("-d","--delim"):
                 delim = arg
             elif opt in ("--chunkSize"):
@@ -131,17 +124,17 @@ def _run_():
                 print __doc__
             sys.exit(2)
 
-
+	
 	def runParallel(phenotypeIndex):
 		#Cluster specific parameters
 		phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
-		phenName = phed.phenotypeNames[phenotypeIndex]
+		phenName = phed.getPhenotypeName(phenotypeIndex)
 		phenName = phenName.replace("/","_div_")
 		phenName = phenName.replace("*","_star_")
 		impFileName = resultDir+"RF_"+parallel+"_"+phenName
 		outFileName = impFileName
 		shstr = """#!/bin/csh
-#PBS -l walltime=60:00:00
+#PBS -l walltime=120:00:00
 """
 		shstr += "#PBS -l mem="+mem+"\n"
 		shstr +="""
@@ -149,15 +142,13 @@ def _run_():
 """
 		
 		shstr += "#PBS -N RF"+phenName+"_"+parallel+"\n"
-		shstr += "set phenotypeName="+parallel+"\n"
-		shstr += "set phenotype="+str(phenotypeIndex)+"\n"
 		shstr += "(python "+programDir+"RandomForest.py -o "+impFileName+" --chunkSize "+str(chunkSize)+" --nTrees "+str(nTrees)+" --mem "+str(mem)+" --round2Size "+str(round2Size)+""
 		if nodeSize:
 			shstr += " --nodeSize "+str(nodeSize)+" "
 		if logTransform:
 			shstr += " --logTransform "
-		if skipSecondRound:
-			shstr += " --skipSecondRound "
+		if not skipSecondRound:
+			shstr += " --secondRound "
 		shstr += " -a "+str(withArrayIds)+" "			
 		shstr += snpsDataFile+" "+phenotypeDataFile+" "+str(phenotypeIndex)+" "
 		shstr += "> "+outFileName+"_job"+".out) >& "+outFileName+"_job"+".err\n"
@@ -169,20 +160,21 @@ def _run_():
 		#Execute qsub script
 		os.system("qsub "+parallel+".sh ")
 
+	#Nested function ends
+
 	snpsDataFile = args[0]
 	phenotypeDataFile = args[1]
 	if parallel:  #Running on the cluster..
 		if parallelAll:
 			phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
-			for phenotypeIndex in range(0,len(phed.phenotypeNames)):
+			for phenotypeIndex in phed.phenIds:
 				runParallel(phenotypeIndex)
 		else:
 			phenotypeIndex = int(args[2])
 			runParallel(phenotypeIndex)
 		return
 	else:
-		phenotype = int(args[2])
-
+		phenotypeIndex = int(args[2])
 
 	print "chunkSize:",chunkSize
 	print "nTrees:",nTrees
@@ -197,6 +189,7 @@ def _run_():
 	snpsds = dataParsers.parseCSVData(snpsDataFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=withArrayIds)
 	
 	phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
+	phenotype = phed.getPhenIndex(phenotypeIndex)
 	accIndicesToKeep = []			
 	phenAccIndicesToKeep = []
 	numAcc = len(snpsds[0].accessions)
@@ -288,8 +281,8 @@ def _run_():
 		chrList = [i+1]*len(snpsd.positions)
 		chromasomes += chrList
 
-	
-	binary = phed.isBinary(phenotype)
+	#Is the phenotype binary?
+	binary = phed.isBinary(phenotypeIndex)
 	import util
 	impFile = impFile+".imp"
 	rDataFile = impFile+".rData"
@@ -393,11 +386,16 @@ mat250K <- mat250K[,3:length(mat250K[1,])]
 
 #Calculate MAF
 maf <- c();
+marf <- c();
 for(i in (1:length(mat250K[,1]))){
   f = factor(mat250K[i,]);
-  v <- summary(f)[[1]]/length(f);
-  maf[i] <- min(v,1-v);
+  freq <- summary(f)[[1]]
+  alleleCount <- length(f)
+  v <- freq/alleleCount;
+  maf[i] <- min(freq,alleleCount-freq);
+  marf[i] <- min(v,1-v);
 }
+res[["marf"]] <- marf;
 res[["maf"]] <- maf;
 
 mat250K <- t(mat250K);
@@ -426,6 +424,7 @@ l <- list();
 l[["Chromasome"]]<-res[["chr"]];
 l[["Positions"]]<-res[["pos"]];
 l[["Importance"]]<-res[["m"]]$importance;
+l[["MARF"]]<-marf;
 l[["MAF"]]<-maf;
 dl <- as.data.frame(l)
 """

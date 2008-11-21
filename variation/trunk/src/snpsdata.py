@@ -41,6 +41,27 @@ class _SnpsData_(object):
 		self.positions.append(position)
 
 
+	def filterMonoMorphicSnps(self):
+		"""
+		05/12/08 yh. add no_of_monomorphic_snps_removed
+		Removes SNPs from the data which are monomorphic.
+		"""
+		newPositions = []
+		newSnps = []
+		for i in range(0,len(self.positions)):
+			count = 0
+			for nt in self.alphabet:
+				if nt in self.snps[i]:
+					count += 1
+			if count>1:
+				newSnps.append(self.snps[i])
+				newPositions.append(self.positions[i])
+		numRemoved = len(self.positions)-len(newPositions)
+		self.no_of_monomorphic_snps_removed = numRemoved
+		self.snps = newSnps
+		self.positions = newPositions
+		return numRemoved
+
 	def orderAccessions(self,accessionMapping):
 		newAccessions = [""]*len(self.accessions)
 		for (i,j) in accessionMapping:
@@ -64,7 +85,23 @@ class _SnpsData_(object):
 
 			self.arrayIds = arrayIds
 
-			
+	
+	def filterRegion(self,startPos,endPos):
+		"""
+		Filter all SNPs but those in region.
+		"""
+		i = 0
+		while i < len(self.snps) and self.positions[i]<startPos:
+			i += 1
+		
+		newSnps = []
+		newPositions = []
+		while i < len(self.snps) and self.positions[i]<endPos:
+			newSnps.append(self.snps[i])
+			newPositions.append(self.positions[i])
+			i +=1
+		self.snps = newSnps
+		self.positions = newPositions
 
 class RawDecoder(dict):
 	def __missing__(self, key):
@@ -855,26 +892,6 @@ class RawSnpsData(_SnpsData_):
 		self.positions = newPositions
 		return numRemoved
 
-	def filterMonoMorphicSnps(self):
-		"""
-		05/12/08 yh. add no_of_monomorphic_snps_removed
-		Removes SNPs from the data which are monomorphic.
-		"""
-		newPositions = []
-		newSnps = []
-		for i in range(0,len(self.positions)):
-			count = 0
-			for nt in self.alphabet:
-				if nt in self.snps[i]:
-					count += 1
-			if count>1:
-				newSnps.append(self.snps[i])
-				newPositions.append(self.positions[i])
-		numRemoved = len(self.positions)-len(newPositions)
-		self.no_of_monomorphic_snps_removed = numRemoved
-		self.snps = newSnps
-		self.positions = newPositions
-		return numRemoved
 	
 	def removeAccessions(self,accessions,arrayIds=None):
 		"""
@@ -976,10 +993,11 @@ class SnpsData(_SnpsData_):
 
 	Contains various functions that aid the analysis of the data.
 	"""
-	freqs = [] #list[position_index1][position_index2-position_index1+1] Linkage frequencies. 
-	baseScale = 1 #Scaling for positions
+	#freqs = [] #list[position_index1][position_index2-position_index1+1] Linkage frequencies. 
+	#baseScale = 1 #Scaling for positions
+	alphabet = [0,1,2,3]
 	def __init__(self,snps,positions,baseScale=None,accessions=None):
-		self.snps = snps
+		self.snps = snps 
 		self.positions = positions
 		if baseScale:
 			self.scalePositions(baseScale)
@@ -1044,8 +1062,6 @@ class SnpsData(_SnpsData_):
 		return self.freqs
 		#return numPairs
 		
-
-
 
 	def calcFreqsSimple(self):
 		freqs =	[]
@@ -1236,8 +1252,12 @@ class SnpsData(_SnpsData_):
 				break
 		return [ehh,ehhcount]
 
-#SnpsDataSet
-class SnpsDataSet:
+
+
+
+class SNPsDataSet:
+	#Log 110708 - bjarni: old name was SnpsDataSet
+	
 	"""
 	A class that encompasses multiple _SnpsData_ chromosomes objects (chromosomes), and can deal with them as a whole.
 
@@ -1334,6 +1354,117 @@ class SnpsDataSet:
 				f.write(outStr)
 				f.flush()
 			f.close()
+
+
+	def getSnps(self):
+		snplist = []
+		for snpsd in self.snpsDataList:
+			for snp in snpsd.snps:
+				snplist.append(snp)
+		return snplist
+		
+	def getPositions(self):
+		poslist = []
+		for snpsd in self.snpsDataList:
+			for pos in snpsd.positions:
+				poslist.append(pos)
+		return poslist
+		
+	def getChrPosList(self):
+		chr_pos_list = []
+		for i in range(0,len(self.snpsDataList)):
+			snpsd = self.snpsDataList[i]
+			chr = i+1
+			for pos in snpsd.positions:
+				chr_pos_list.append((chr,pos))
+		return chr_pos_list
+		
+	def getChrPosSNPList(self):
+		chr_pos_snp_list = []
+		for i in range(0,len(self.snpsDataList)):
+			snpsd = self.snpsDataList[i]
+			chr = i+1
+			for j in range(0,len(snpsd.positions)):
+				pos = snpsd.positions[j]
+				snp = snpsd.snps[j]
+				chr_pos_snp_list.append((chr,pos,snp))
+		return chr_pos_snp_list
+
+
+	def updateRegions(self,regionList):
+		"""
+		Deprecated 11/11/08 - Bjarni
+		"""
+		c_i=0
+		i=0
+		rl_i=0 #region list index
+		while c_i<len(self.chromosomes) and rl_i<len(regionList):
+			region = regionList[rl_i]
+			snpsd = self.snpsDataList[c_i]
+			cp1=(c_i+1,snpsd.positions[i])
+			cp_start=(region.chromosome,region.startPos)
+			while cp1 < cp_start:
+				if i < len(snpsd.positions):
+					i += 1
+				else:
+					c_i += 1
+					snpsd = self.snpsDataList[c_i]
+					i = 0
+				cp1=(c_i+1,snpsd.positions[i])
+			cp_end=(region.chromosome,region.endPos)
+			while cp1<=cp_end:
+				"""Update current region!"""
+				region.snps.append(snpsd.snps[i])
+				region.snps_indices.append((c_i,i))
+				
+				i += 1
+				if i < len(snpsd.positions):
+					cp1=(c_i+1,snpsd.positions[i])
+				else:
+					c_i += 1
+					i = 0
+					break
+						
+			rl_i += 1
+
+
+def coordinateSnpsAndPhenotypeData(phed,p_i,snpsds):
+	numAcc = len(snpsds[0].accessions)
+	phenotype = phed.getPhenIndex(p_i)
+	accIndicesToKeep = []			
+	phenAccIndicesToKeep = []
+	#Checking which accessions to keep and which to remove .
+	for i in range(0,len(snpsds[0].accessions)):
+		acc1 = snpsds[0].accessions[i]
+		for j in range(0,len(phed.accessions)):
+			acc2 = phed.accessions[j]
+			if acc1==acc2 and phed.phenotypeValues[j][phenotype]!='NA':
+				accIndicesToKeep.append(i)
+				phenAccIndicesToKeep.append(j)
+				break	
+
+
+	#Filter accessions which do not have the phenotype value (from the genotype data).
+	for snpsd in snpsds:
+		sys.stdout.write(".")
+		sys.stdout.flush()
+		snpsd.removeAccessionIndices(accIndicesToKeep)
+	print ""
+	print numAcc-len(accIndicesToKeep),"accessions removed from genotype data, leaving",len(accIndicesToKeep),"accessions in all."
+		
+
+	print "Filtering phenotype data."
+	phed.removeAccessions(phenAccIndicesToKeep) #Removing accessions that don't have genotypes or phenotype values
+
+	#Ordering accessions according to the order of accessions in the genotype file
+	accessionMapping = []
+	i = 0
+	for acc in snpsds[0].accessions:
+		if acc in phed.accessions:
+			accessionMapping.append((phed.accessions.index(acc),i))
+			i += 1
+	phed.orderAccessions(accessionMapping)
+	
 
 
 

@@ -1,7 +1,9 @@
+import pdb
+
 class PhenotypeData:
 	"""
-    A class that knows how to read simple tsv or csv phenotypefiles and facilitates their interactions with SnpsData objects.    
-    """
+	A class that knows how to read simple tsv or csv phenotypefiles and facilitates their interactions with SnpsData objects.	
+	"""
 
 	def __init__(self, accessions, phenotypeNames, phenotypeValues, accessionNames=None):
 		self.accessions = accessions
@@ -84,8 +86,8 @@ class PhenotypeData:
 
 	def removePhenotypes(self, indicesToKeep):
 		"""
-        Removes phenotypes from the data.
-        """
+		Removes phenotypes from the data.
+		"""
 		numRemoved = len(self.phenotypeNames)-len(indicesToKeep)
 		#print "Removing",numRemoved,"phenotypes in phenotype data, out of",len(self.phenotypeNames), "phenotypes."
 		newPhenotypeNames = []
@@ -106,10 +108,56 @@ class PhenotypeData:
 		#print "len(self.phenotypeValues[0]):",len(self.phenotypeValues[0])
 
 
+	def removePhenotypeIDs(self, idsToKeep):
+		"""
+		Removes phenotypes from the data.
+		"""
+		idMap = self._getIndexMapping_()
+		indicesToKeep = []
+		for p_i in idsToKeep:
+			indicesToKeep.append(idMap[p_i])
+		self.removePhenotypes(indicesToKeep)
 
-	def getPhenotypeName(self, phenotypeIndex):
+	def naOutliers(self, phenotypeID,iqrThreshold=10.0):
+		"""
+		Removes outliers from the data
+		"""
+		numNA = 0
+		idMap = self._getIndexMapping_()
+		#pdb.set_trace()
+		vals = zip(*self.phenotypeValues[:])[idMap[phenotypeID]]
+		vals = list(vals)
+		indices = []
+		values = []
+		for i in range(0,len(vals)):
+			if vals[i]!="NA":
+				indices.append(i)
+				values.append(float(vals[i]))
+		import util
+		quantiles = util.calcQuantiles(values[:])
+		print "Quantiles:",quantiles
+		median = quantiles[1]
+		iqr = abs(quantiles[2]-quantiles[0])
+		print iqr
+		for i in range(0,len(values)):
+			if abs(values[i]-median)>iqrThreshold*iqr:
+				print "removed",values[i]
+				vals[indices[i]]= "NA"
+				numNA += 1
+		for i in range(0,len(self.accessions)):
+			#print vals[i],idMap,phenotypeID,i
+			#pdb.set_trace()
+			#print self.phenotypeValues
+			self.phenotypeValues[i][idMap[phenotypeID]]=vals[i]
+		print "NAed",numNA,"values."		
+
+	def getPhenotypeName(self, phenotypeIndex,rawName=False):
 		indexMap = self._getIndexMapping_()
-		return self.phenotypeNames[indexMap[phenotypeIndex]]
+		phenName = self.phenotypeNames[indexMap[phenotypeIndex]]
+		if not rawName:
+			phenName = phenName.replace("/","_div_")
+			phenName = phenName.replace("*","_star_")
+		return phenName
 
 
 	def logTransform(self, pIndex):
@@ -119,16 +167,24 @@ class PhenotypeData:
 		if not self.isBinary(pIndex) and not self._lessOrEqualZero_(phenotypeIndex):
 			import math
 			for i in range(0,len(self.accessions)):
-				self.phenotypeValues[i][phenotypeIndex] = str(math.log(float(self.phenotypeValues[i][phenotypeIndex])))
+				if self.phenotypeValues[i][phenotypeIndex] !='NA':
+					self.phenotypeValues[i][phenotypeIndex] = str(math.log(float(self.phenotypeValues[i][phenotypeIndex])))
 		else:
 			print "Can't log-transform, since phenotype is binary OR values are out of logarithm range!"
+			return False
+		return True
 
 	def _lessOrEqualZero_(self,phenotypeIndex):
 		lessOrEqualZero = False
+		minVal = None
 		for i in range(0,len(self.accessions)):
-			if self.phenotypeValues[i][phenotypeIndex] <= 0:
+			if self.phenotypeValues[i][phenotypeIndex] != 'NA' and float(self.phenotypeValues[i][phenotypeIndex]) <= 0.0:
 				lessOrEqualZero = True
+				minVal = float(self.phenotypeValues[i][phenotypeIndex])
 				break
+			if self.phenotypeValues[i][phenotypeIndex] != 'NA' and (minVal==None or float(self.phenotypeValues[i][phenotypeIndex])<minVal):
+				minVal = float(self.phenotypeValues[i][phenotypeIndex])
+		print "Minimum value =",minVal
 		return lessOrEqualZero
 
 
@@ -149,10 +205,23 @@ class PhenotypeData:
 			raise Exception("Only one phenotype value")
 		return False
 
+	def countValues(self, phenotypeIndex):
+		indexMap = self._getIndexMapping_() #Modified 9/26/08
+		phenotypeIndex = indexMap[phenotypeIndex]
+
+		valCount = 0
+		for i in range(0,len(self.accessions)):
+			val = self.phenotypeValues[i][phenotypeIndex]
+			if val != 'NA':
+				valCount += 1
+		return valCount
+		
+
+
 	def orderAccessions(self, accessionMapping=None):
 		"""
-        Orders the accession alphabetically if no mapping is given.
-        """
+		Orders the accession alphabetically if no mapping is given.
+		"""
 		print "Ordering phenotype data accessions."
 		newAccessions = []
 		newPhenotVals = []
@@ -186,10 +255,24 @@ class PhenotypeData:
 			self.accessionNames = newAccessionNames
 
 
+	def addConstant(self, phenotypeID, constant):
+		i = self.getPhenIndex(phenotypeID)
+		for j in range(0,len(self.accessions)):
+			self.phenotypeValues[j][i] = str(float(self.phenotypeValues[j][i])+constant) 
+		
+
+	def removeAccessionsNotInSNPsData(self,snpsd):
+		indicesToKeep = []
+		for i in range(0,len(self.accessions)):
+			acc = self.accessions[i]
+			if acc in snpsd.accessions:
+				indicesToKeep.append(i)
+		self.removeAccessions(indicesToKeep)
+
 	def removeAccessions(self, indicesToKeep):
 		"""
-        Removes accessions from the data.
-        """
+		Removes accessions from the data.
+		"""
 		numAccessionsRemoved = len(self.accessions)-len(indicesToKeep)
 		print "Removing",numAccessionsRemoved,"accessions in phenotype data, out of",len(self.accessions), "accessions."
 		newAccessions = []
@@ -240,10 +323,11 @@ class PhenotypeData:
 		f.write(outStr)
 		f.close()
 
+
 def readPhenotypeFile(filename, delimiter=',', missingVal='NA', accessionDecoder=None, type=1):
 	"""
-    Reads a phenotype file and returns a phenotype object.
-    """
+	Reads a phenotype file and returns a phenotype object.
+	"""
 	f = open(filename,"r")
 	lines = f.readlines()
 	f.close()
@@ -264,6 +348,141 @@ def readPhenotypeFile(filename, delimiter=',', missingVal='NA', accessionDecoder
 
 	return PhenotypeData(accessions,phenotypeNames,phenotypeValues)
 
+
+def getPhenotypes(host="papaya.usc.edu", user=None, passwd=None, onlyBinary=False, onlyQuantitative=False, onlyCategorical=False, onlyReplicates=False, includeSD=False, rawPhenotypes=False, onlyPublishable=False):
+	print "onlyPublishable:",onlyPublishable
+	import dataParsers
+	e2a = dataParsers.getEcotypeToAccessionDictionary(host,user=user,passwd=passwd,defaultValue='100')
+
+	import MySQLdb
+	print "Connecting to db, host="+host
+	try:
+		conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "at")
+	except MySQLdb.Error, e:
+		print "Error %d: %s" % (e.args[0], e.args[1])
+		sys.exit (1)
+	cursor = conn.cursor ()
+
+		#"at.accession2tg_ecotypeid eva "
+		
+		#Retrieve the ecotypes
+	print "Fetching ecotypes"
+	if onlyPublishable:
+		numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id and pa.ready_for_publication=1 order by ei.tg_ecotypeid"))
+	else:
+		numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei where ei.ecotypeid=pa.ecotype_id order by ei.tg_ecotypeid"))
+	
+	
+	ecotypes = []
+	accessions = []
+	while(1):
+		row = cursor.fetchone()
+		if not row:
+			break;
+		ecotypes.append(str(int(row[0])))
+		accessions.append(row[1])
+	print len(ecotypes), "ecotypes (accessions) were found."
+
+	#Get the phenotypic values
+	phenotypeValues = []
+	phenotypeNames = []
+	valueColumn = "pa.transformed_value"
+	if rawPhenotypes:
+		print "Fetching raw phenotypic values"
+		valueColumn = "pa.value"
+	else:
+		print "Fetching phenotypic values"
+		
+	if onlyPublishable:
+		numRows = int(cursor.execute("select distinct pa.method_id, ei.tg_ecotypeid, "+valueColumn+", pm.short_name from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id and pa.ready_for_publication=1 order by pa.method_id, ei.tg_ecotypeid"))
+	else:
+		numRows = int(cursor.execute("select distinct pa.method_id, ei.tg_ecotypeid, "+valueColumn+", pm.short_name from stock_250k.phenotype_avg pa, stock.ecotypeid2tg_ecotypeid ei, stock_250k.phenotype_method pm where ei.ecotypeid=pa.ecotype_id and pa.method_id=pm.id order by pa.method_id, ei.tg_ecotypeid"))
+		
+	pvalues = [[] for j in range(0,len(ecotypes))]
+	row = cursor.fetchone()
+	currentMethod = int(row[0])
+	phenName = str(int(row[0]))+"_"+row[3]
+	#print phenName
+	phenotypeNames.append(phenName)
+	i=ecotypes.index(str(int(row[1])))
+	pvalues[i]+=[float(row[2])]
+	while(1):
+		row = cursor.fetchone()
+		if not row:
+			break;
+		nextMethod = int(row[0])
+		if currentMethod != nextMethod:
+			phenName = str(int(row[0]))+"_"+row[3]
+			#print phenName
+			phenotypeNames.append(phenName)
+			valCount = 0
+			for j in range(0,len(pvalues)):
+				if pvalues[j] == []:
+					pvalues[j] = "NA"
+				else:
+					valCount += len(pvalues[j])
+					pvalues[j] = sum(pvalues[j])/float(len(pvalues[j]))
+			phenotypeValues.append(pvalues)
+			pvalues = [[] for j in range(0,len(ecotypes))]
+			currentMethod = nextMethod
+		
+		i=ecotypes.index(str(int(row[1])))
+		if row[2]!=None:
+			pvalues[i]+=[float(row[2])]
+
+	for j in range(0,len(pvalues)):
+		if pvalues[j] == []:
+			pvalues[j] = "NA"
+		else:
+			pvalues[j] = sum(pvalues[j])/float(len(pvalues[j]))
+	phenotypeValues.append(pvalues)
+	print len(phenotypeValues), "phenotypes were found."
+	
+	cursor.close ()
+	conn.close ()
+	
+	phenotypeValues = zip(*phenotypeValues)  
+	phenotypeValues = map(list,phenotypeValues)
+
+	phenDat = PhenotypeData(ecotypes, phenotypeNames, phenotypeValues, accessionNames=accessions)
+	return phenDat
+
+
+
+def _getEcotypeIdToStockParentDict_(host="papaya.usc.edu", user="bvilhjal", passwd="bamboo123", defaultValue=None):
+	import MySQLdb
+	print "Connecting to db, host="+host
+	if not user:
+		import sys
+		sys.stdout.write("Username: ")
+		user = sys.stdin.readline().rstrip()
+	if not passwd:
+		import getpass
+		passwd = getpass.getpass()
+	try:
+		conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "at")
+	except MySQLdb.Error, e:
+		print "Error %d: %s" % (e.args[0], e.args[1])
+		sys.exit (1)
+	cursor = conn.cursor ()
+	#Retrieve the filenames
+	print "Fetching data"
+	ecotypeDict = {}
+	numRows = int(cursor.execute("select distinct ei.tg_ecotypeid, ei.nativename, ei.stockparent from stock.ecotypeid2tg_ecotypeid ei, stock_250k.array_info ai where ai.paternal_ecotype_id=ei.tg_ecotypeid and ai.maternal_ecotype_id=ei.tg_ecotypeid "))
+	i = 0
+	while(1):
+		row = cursor.fetchone()
+		if not row:
+			break;
+		ecotypeDict[int(row[0])] = (row[1],row[2])
+		sp = "NA"
+		if row[2]:
+			sp = row[2]
+		print str(int(row[0]))+","+str(row[1])+","+sp
+	cursor.close ()
+	conn.close ()
+	return ecotypeDict
+	
 
 
 
@@ -363,14 +582,74 @@ def _insertPhenotypesIntoDb_(host="papaya.usc.edu",user="bvilhjal",passwd="bambo
 	conn.close ()
 
 
+def _createRatioPhenotype_(pi1,pi2,methodID,short_name,method_description,data_description="",data_type="quantitative",created_by="bvilhjal",comment="",biology_category_id=1,only_first_96=0,readyForPublication = 0,user = "bvilhjal",host="papaya.usc.edu",passwd="bamboo123"):
+	phed = getPhenotypes(user=user, passwd=passwd,rawPhenotypes=True) 
+	pi1 = phed.getPhenIndex(pi1)
+	pi2 = phed.getPhenIndex(pi2)
+	print len(phed.accessions)
+	
+	newVals = []
+	for i in range(0,len(phed.accessions)):
+		newVal = 'NA'
+		if phed.phenotypeValues[i][pi1] != 'NA' and phed.phenotypeValues[i][pi2]!='NA':
+			v1 = float(phed.phenotypeValues[i][pi1])
+			v2 = float(phed.phenotypeValues[i][pi2])
+			#print v1, v2
+			if v2 != 0.0:
+				newVal = v1/v2
+		newVals.append(newVal)
+
+	import MySQLdb
+	print "Connecting to db, host="+host
+	if not user:
+		import sys
+		sys.stdout.write("Username: ")
+		user = sys.stdin.readline().rstrip()
+	if not passwd:
+		import getpass
+		passwd = getpass.getpass()
+	try:
+		conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = "at")
+	except MySQLdb.Error, e:
+		print "Error %d: %s" % (e.args[0], e.args[1])
+		sys.exit (1)
+	cursor = conn.cursor ()
+
+	sqlStat = """INSERT INTO stock_250k.phenotype_method 
+    (id,short_name,only_first_96,biology_category_id,method_description, data_description, comment, created_by, data_type) 
+    VALUES """
+	sqlStat += "("+str(methodID)+",'"+short_name+"',"+str(only_first_96)+","+str(biology_category_id)+",'"+method_description+"','"+data_description+"','"+comment+"','"+created_by+"','"+data_type+"')"	
+	#print sqlStat	
+	numRows = int(cursor.execute(sqlStat))
+	print "Inserted data into stock_250k.phenotype_method:",numRows
+	row = cursor.fetchone()
+	if row:
+		print row
+	
+	for i in range(0,len(phed.accessions)):
+		
+		val = newVals[i]
+		if val !='NA':
+			e_i = phed.accessions[i]
+			sqlStatement = "INSERT INTO stock_250k.phenotype_avg (ecotype_id, value, ready_for_publication, method_id) VALUES ( "+str(e_i)+", "+str(val)+", "+str(readyForPublication)+", "+str(methodID)+")"
+			#print sqlStatement
+			numRows = int(cursor.execute(sqlStatement))
+			row = cursor.fetchone()
+			if row:
+				print row
+	print "Done inserting data into table!"
+	conn.commit()
+	cursor.close ()
+	conn.close ()
 
 
+	
 
-
+		
 def _runTest_():
 	import dataParsers
 	filename = "/Network/Data/250k/finalData_051808/phenotypes_052208.tsv"
-	phed = readPhenotypeFile(filename,delimiter='\t')    
+	phed = readPhenotypeFile(filename,delimiter='\t')	
 	#print phed.accessions
 	#print phed.phenotypeNames
 	#print phed.phenotypeValues
@@ -379,7 +658,8 @@ def _runTest_():
 		print i, phed.phenotypeNames[i], binary
 
 if __name__ == '__main__':
+	_createRatioPhenotype_(184,183,222,"Trich_avg_JA_div_Trich_avg_C","Ratio: Trich_avg_JA/Trich_avg_C",biology_category_id=7)
 	pass
+	#_getEcotypeIdToStockParentDict_()
 	#_insertPhenotypesIntoDb_()
 	#_runTest_()
-

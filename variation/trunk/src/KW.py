@@ -19,11 +19,7 @@ Option:
 
 Examples:
 	KW.py -o outputFile  250K.csv phenotypes.tsv phenotype_index 
-
-Cluster examples:
-	KW.py -o --parallel=runIdentifier --parallelAll /global_path_to_data/250K.csv /global_path_to_data/phenotypes.tsv
 	
-
 Description:
   Applies the Kruskal Wallis test to phenotypes, which are not binary.
   Applies a Chi-square test to the phenotypes which are binary!
@@ -33,10 +29,10 @@ Description:
 import sys, getopt, traceback
 import os, env
 import phenotypeData
+#import AddResults2DB
 
-
-resultDir=env.resultDir
-scriptDir=env.scriptDir
+resultDir="/home/cmb-01/bvilhjal/results/"
+scriptDir="/home/cmb-01/bvilhjal/Projects/Python-snps/"
 
 
 def _run_():
@@ -106,7 +102,7 @@ def _run_():
 	def runParallel(phenotypeIndex):
 		#Cluster specific parameters
 		phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
-		phenName = phed.phenotypeNames[phenotypeIndex]
+		phenName = phed.getPhenotypeName(phenotypeIndex)
 		phenName = phenName.replace("/","_div_")
 		phenName = phenName.replace("*","_star_")
 		outputFile = resultDir+"KW_"+parallel+"_"+phenName
@@ -137,14 +133,14 @@ def _run_():
 	if parallel:  #Running on the cluster..
 		if parallelAll:
 			phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
-			for phenotypeIndex in range(0,len(phed.phenotypeNames)):
+			for phenotypeIndex in phed.phenIds:
 				runParallel(phenotypeIndex)
 		else:
 			phenotypeIndex = int(args[2])
 			runParallel(phenotypeIndex)
 		return
 	else:
-		phenotype = int(args[2])
+		phenotypeIndex = int(args[2])
 
 
 
@@ -154,6 +150,7 @@ def _run_():
 	snpsds = dataParsers.parseCSVData(snpsDataFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=withArrayIds)
 	
 	phed = phenotypeData.readPhenotypeFile(phenotypeDataFile, delimiter='\t')  #Get Phenotype data 
+	phenotype = phed.getPhenIndex(phenotypeIndex)
 	accIndicesToKeep = []			
 	phenAccIndicesToKeep = []
 	numAcc = len(snpsds[0].accessions)
@@ -230,7 +227,8 @@ def _run_():
 
 	rDataFile = outputFile+".rData"
 	pvalFile = outputFile+".pvals"
-	binary = phed.isBinary(phenotype)
+	#Is the phenotype binary?
+	binary = phed.isBinary(phenotypeIndex)
 	rstr = _generateRScript_(genotypeTempFile, phenotypeTempFile, rDataFile, pvalFile, name = phenotypeName, binary=binary)
 	rFileName = outputFile+".r"
 	f = open(rFileName,'w')
@@ -257,6 +255,7 @@ pvals <- c();
 positions <- c();
 chrs <- c();
 maf <- c();
+marf <- c();
 for (chr in (1:5)){
   mat250K <- as.matrix(data250K);
   mat250K <- mat250K[mat250K[,1]==chr,];
@@ -297,12 +296,19 @@ for (chr in (1:5)){
   chrs <- append(chrs,rep(chr,length(pos)));
 
   af <- c();
+  arf <- c();
   for(i in (1:length(mat250K[,1]))){
     f = factor(mat250K[i,]);
-    v <- summary(f)[[1]]/length(f);
-    af[i] <- min(v,1-v);
+    freq <- summary(f)[[1]]
+    alleleCount <- length(f)
+    v <- freq/alleleCount;
+    af[i] <- min(freq,alleleCount-freq);
+    arf[i] <- min(v,1-v);
   }
   res[[chr]][["maf"]] <- af;
+  res[[chr]][["marf"]] <- arf;
+
+  marf <- append(marf,arf);
   maf <- append(maf,af);
 }
 
@@ -311,6 +317,7 @@ l <- list();
 l[["Chromasome"]]<-chrs;
 l[["Positions"]]<-positions;
 l[["Pvalues"]]<-pvals;
+l[["MARF"]]<-marf;
 l[["MAF"]]<-maf;
 dl <- as.data.frame(l)
 """
