@@ -95,8 +95,11 @@ class CheckCandidateGeneRank(GeneListRankTest):
 			os.makedirs(self.output_dir)
 			
 	def getResultsIDLs(self, db, ResultsClass, results_type, phenotype_id_ls, min_distance=20000, get_closest=0, \
-					min_MAF=None, call_method_id=None):
+					min_MAF=None, call_method_id=None, analysis_method_id_set=None):
 		"""
+		2008-11-19
+			add option analysis_method_id_set, for PlotCmpTwoAnalysisMethods.py to call.
+			call_method_id filtering has effect only when call_method_id is not None or not zero.
 		2008-10-15
 			add option ResultsClass & results_type
 		2008-09-28
@@ -105,7 +108,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		phenotype_id2results_id_ls = {}
 		if results_type==1:
 			rows = ResultsClass.query.filter(ResultsMethod.phenotype_method_id.in_(phenotype_id_ls))
-			if call_method_id is not None:
+			if call_method_id is not None or call_method_id !=0:
 				rows = rows.filter_by(call_method_id=call_method_id)
 		elif results_type==2:
 			rows = ResultsClass.query.filter_by(min_distance=min_distance).filter_by(get_closest=get_closest).\
@@ -123,7 +126,10 @@ class CheckCandidateGeneRank(GeneListRankTest):
 				analysis_method_id = row.results_method.analysis_method_id
 			if phenotype_id not in phenotype_id2results_id_ls:
 				phenotype_id2results_id_ls[phenotype_id] = []
-			phenotype_id2results_id_ls[phenotype_id].append((analysis_method_id, row.id))
+			if analysis_method_id_set and analysis_method_id in analysis_method_id_set:	#2008-11-19
+				phenotype_id2results_id_ls[phenotype_id].append((analysis_method_id, row.id))
+			elif not analysis_method_id_set:
+				phenotype_id2results_id_ls[phenotype_id].append((analysis_method_id, row.id))
 			counter += 1
 		
 		#sort results_id_ls for each phenotype according to analysis_method_id
