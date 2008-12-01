@@ -8,6 +8,8 @@ Description:
 	2008-10-06 Program to put plots outputted by DrawSNPRegion.py into database.
 	
 	After base64 encoding, the file size should not exceed 134217728(~128MB).
+	
+	2008-11-30 program deprecated. DrawSNPRegion.py can send its data directly to db.
 """
 import sys, os, math
 #bit_number = math.log(sys.maxint)/math.log(2)
@@ -65,6 +67,9 @@ class PutSNPRegionPlotIntoDB(DrawSNPRegion):
 		
 	def save_one_plot(self, session, filename, plot_type, gene_annotation, distance_flanking_center_snp):
 		"""
+		2008-10-24
+			no need to base64.b64encode() the image data. underlying db library (elixir) can handle binary data.
+			
 		2008-10-06
 		"""
 		sys.stderr.write("Saving plot ...")
@@ -88,7 +93,8 @@ class PutSNPRegionPlotIntoDB(DrawSNPRegion):
 		snp_region_plot.plot_type = plot_type
 		f = open(filename, 'rb')
 		
-		snp_region_plot.img_data = base64.b64encode(f.read())
+		#snp_region_plot.img_data = base64.b64encode(f.read())
+		snp_region_plot.png_data = f.read()
 		session.save(snp_region_plot)
 		
 		no_of_genes = self.save_plot2gene(session, snp_region_plot, chromosome, start, stop, gene_annotation)
