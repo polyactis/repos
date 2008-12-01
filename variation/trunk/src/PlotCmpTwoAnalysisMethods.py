@@ -2,10 +2,14 @@
 """
 Examples:
 	#plots of comparison between analysis method 1 and 7 on phenotype 1-7 with gene list 28
-	PlotCmpTwoAnalysisMethods.py -e 1-7 -l 28 -u yh -p yh324 -o /Network/Data/250k/tmp-yh/PlotCmpTwoAnalysisMethods/ -m 500 -s ./mnt2/panfs/250k/snps_context_g0_m500 -a 1,7
+	PlotCmpTwoAnalysisMethods.py -e 1-7 -l 28 -u yh -p passw** -o /Network/Data/250k/tmp-yh/PlotCmpTwoAnalysisMethods/ -m 500 -s ./mnt2/panfs/250k/snps_context_g0_m500 -a 1,7
 	
 Description:
-	Program that makes plots comparing pvalues from two analysis methods. Highlight the SNPs that are close to genes in candidate gene list.
+	Program that makes 2 figures in one plot.
+	Figure 1 compares pvalues from two analysis methods. Highlight the SNPs that are close to genes in candidate gene list.
+	Figure 2 (on the right) has same x,y axis with space paritioned into sub-spaces by pvalue cutoffs. Each sub-space is painted
+	in a color representing the enrichment ratio (= candidate-ratio/non-candidate-ratio).
+	
 """
 
 import sys, os, math
@@ -24,18 +28,20 @@ from sets import Set
 from GeneListRankTest import GeneListRankTest, SnpsContextWrapper
 from DrawSNPRegion import DrawSNPRegion
 #from sqlalchemy.orm import join
-from matplotlib import rcParams
-rcParams['font.size'] = 6
-rcParams['legend.fontsize'] = 4
-#rcParams['text.fontsize'] = 6	#deprecated. use font.size instead
-rcParams['axes.labelsize'] = 4
-rcParams['axes.titlesize'] = 6
-rcParams['xtick.labelsize'] = 4
-rcParams['ytick.labelsize'] = 4
 import pylab
 import StringIO
 from common import get_total_gene_ls
 from CheckCandidateGeneRank import CheckCandidateGeneRank
+from matplotlib.patches import Polygon, CirclePolygon, Ellipse, Wedge
+
+from matplotlib import rcParams
+rcParams['font.size'] = 8
+rcParams['legend.fontsize'] = 8
+#rcParams['text.fontsize'] = 6	#deprecated. use font.size instead
+rcParams['axes.labelsize'] = 8
+rcParams['axes.titlesize'] = 10
+rcParams['xtick.labelsize'] = 8
+rcParams['ytick.labelsize'] = 8
 
 class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 	__doc__ = __doc__
@@ -59,6 +65,7 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 							('analysis_method_id_ls', 0, ):['1,7', 'a', 1, 'two analysis_method_ids separated by comma. Compare results from these two analysis methods. If more than two are given, only 1st two is taken.'],\
 							("allow_two_sample_overlapping", 1, int): [0, 'x', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
 							('null_distribution_type_id', 0, int):[1, 'y', 1, 'Type of null distribution. 1=original, 2=permutation, 3=random gene list. in db table null_distribution_type'],\
+							('pvalue_int_gap', 0, int):[1., '', 1, ''],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -75,7 +82,7 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		if self.output_dir and not os.path.isdir(self.output_dir):
 			os.makedirs(self.output_dir)
 	
-	def matchPvaluesFromTwoResults(self, genome_wide_result_ls, snps_context_wrapper, candidate_gene_set):
+	def matchPvaluesFromTwoResults(self, genome_wide_result_ls, snps_context_wrapper, candidate_gene_set, pvalue_int_gap=1.0):
 		"""
 		2008-11-19
 		"""
@@ -88,6 +95,9 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		chr_pos_ls1 = gwr1.chr_pos2index.keys()
 		chr_pos_ls2 = gwr2.chr_pos2index.keys()
 		chr_pos_set = Set(chr_pos_ls1)&Set(chr_pos_ls2)	#intersection of all SNPs
+		pvalue_int_pair2count_candidate = {}
+		pvalue_int_pair2count_non_candidate = {}
+		
 		for chr, pos in chr_pos_set:
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(chr, pos)
 			assign_snp_candidate_gene = 0
@@ -100,19 +110,80 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 					break
 			data_obj1 = gwr1.get_data_obj_by_chr_pos(chr, pos)
 			data_obj2 = gwr2.get_data_obj_by_chr_pos(chr, pos)
+			pvalue_int1 = int(data_obj1.value/pvalue_int_gap)
+			pvalue_int2 = int(data_obj2.value/pvalue_int_gap)
+			pvalue_int_pair = (pvalue_int1, pvalue_int2)
 			if assign_snp_candidate_gene:
 				pvalue_ls1_in_candidate.append(data_obj1.value)
 				pvalue_ls2_in_candidate.append(data_obj2.value)
+				if pvalue_int_pair not in pvalue_int_pair2count_candidate:
+					pvalue_int_pair2count_candidate[pvalue_int_pair] = 0
+				pvalue_int_pair2count_candidate[pvalue_int_pair] += 1
 			else:
 				pvalue_ls1_in_non_candidate.append(data_obj1.value)
 				pvalue_ls2_in_non_candidate.append(data_obj2.value)
-		
+				if pvalue_int_pair not in pvalue_int_pair2count_non_candidate:
+					pvalue_int_pair2count_non_candidate[pvalue_int_pair] = 0
+				pvalue_int_pair2count_non_candidate[pvalue_int_pair] += 1
 		return_data = PassingData(pvalue_ls1_in_candidate=pvalue_ls1_in_candidate, pvalue_ls2_in_candidate=pvalue_ls2_in_candidate,\
-								pvalue_ls1_in_non_candidate=pvalue_ls1_in_non_candidate, pvalue_ls2_in_non_candidate=pvalue_ls2_in_non_candidate)
+								pvalue_ls1_in_non_candidate=pvalue_ls1_in_non_candidate, pvalue_ls2_in_non_candidate=pvalue_ls2_in_non_candidate,\
+								pvalue_int_pair2count_candidate=pvalue_int_pair2count_candidate, pvalue_int_pair2count_non_candidate=pvalue_int_pair2count_non_candidate)
 		sys.stderr.write("Done.\n")
 		return return_data
 	
-	def plot(self, phenotype_method, list_type, rm_ls, pvalue_matching_data, output_dir=None, commit=0):
+	def plotEnrichmentRatio(self, rm_ls, pvalue_matching_data, pvalue_int_gap=1.0, output_fname_prefix=None):
+		"""
+		2008-11-25
+			plot the enrichment ratio for each pvalue window, represented by colors
+		"""
+		sys.stderr.write("Plotting enrichment ratio ...")
+		#calculate the number of rows needed according to how many score_rank_data, always two-column
+		no_of_rows = 1
+		rm1, rm2 = rm_ls
+		
+		pvalue_int_pair2enrichment_ratio = {}
+		for pvalue_int_pair in pvalue_matching_data.pvalue_int_pair2count_candidate:
+			if pvalue_int_pair in pvalue_matching_data.pvalue_int_pair2count_non_candidate:
+				candidate_ratio = pvalue_matching_data.pvalue_int_pair2count_candidate[pvalue_int_pair]/float(len(pvalue_matching_data.pvalue_ls1_in_candidate))
+				non_candidate_ratio = pvalue_matching_data.pvalue_int_pair2count_non_candidate[pvalue_int_pair]/float(len(pvalue_matching_data.pvalue_ls1_in_non_candidate))
+				enrichment_ratio = candidate_ratio/non_candidate_ratio
+				pvalue_int_pair2enrichment_ratio[pvalue_int_pair] = enrichment_ratio
+		
+		phenotype_cmap = mpl.cm.jet
+		max_phenotype = max(pvalue_int_pair2enrichment_ratio.values())
+		min_phenotype = min(pvalue_int_pair2enrichment_ratio.values())
+		phenotype_gap = max_phenotype - min_phenotype
+		phenotype_norm = mpl.colors.Normalize(vmin=min_phenotype, vmax=max_phenotype)
+		
+		if output_fname_prefix:
+			pylab.savefig('%s_%s.png'%(output_fname_prefix,1), dpi=300)
+		
+		ax = pylab.subplot(no_of_rows, 2, 2, frameon=False)
+		#pylab.title()
+		ax.set_xlabel(rm1.analysis_method.short_name)
+		ax.set_ylabel(rm2.analysis_method.short_name)
+		pylab.grid(True, alpha=0.3)
+		
+		for pvalue_int_pair, enrichment_ratio in pvalue_int_pair2enrichment_ratio.iteritems():
+			pvalue_int1, pvalue_int2 = pvalue_int_pair
+			xs = [pvalue_int1*pvalue_int_gap, (pvalue_int1+1)*pvalue_int_gap, (pvalue_int1+1)*pvalue_int_gap, pvalue_int1*pvalue_int_gap]	#anti-clockwise starting from lower left
+			ys = [pvalue_int2*pvalue_int_gap, pvalue_int2*pvalue_int_gap, (pvalue_int2+1)*pvalue_int_gap, (pvalue_int2+1)*pvalue_int_gap]	#anti-clockwise starting from lower left
+			facecolor = phenotype_cmap(phenotype_norm(enrichment_ratio))
+			patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=0.5)
+			ax.add_patch(patch)
+		
+		axe_map_phenotype_legend = pylab.axes([0.90, 0.08, 0.07, 0.3], frameon=False)
+		
+		#draw after ax, to avoid overwriting
+		cb = mpl.colorbar.ColorbarBase(axe_map_phenotype_legend, cmap=phenotype_cmap,
+									norm=phenotype_norm,
+									orientation='vertical')
+		cb.set_label('Enrichment Ratio')
+		axe_map_phenotype_legend.set_title('Enrichment Ratio')
+		sys.stderr.write("Done.\n")
+		return ax
+	
+	def plot(self, phenotype_method, list_type, rm_ls, pvalue_matching_data, output_dir=None, commit=0, pvalue_int_gap=1.0):
 		"""
 		2008-11-19
 		"""
@@ -122,7 +193,7 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		#calculate the number of rows needed according to how many score_rank_data, always two-column
 		no_of_rows = 1
 		rm1, rm2 = rm_ls
-		pylab.subplot(no_of_rows,2, 1, frameon=False)
+		ax_scatter = pylab.subplot(no_of_rows,2, 1, frameon=False)
 		#pylab.title()
 		pylab.xlabel(rm1.analysis_method.short_name)
 		pylab.ylabel(rm2.analysis_method.short_name)
@@ -138,7 +209,11 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		legend_patch_ls.append(s1)
 		
 		pylab.legend(legend_patch_ls, legend_ls, loc='upper left', handlelen=0.02)
-						
+		
+		ax_enrichment_ratio = self.plotEnrichmentRatio(rm_ls, pvalue_matching_data, pvalue_int_gap)
+		ax_enrichment_ratio.set_xlim(ax_scatter.get_xlim())
+		ax_enrichment_ratio.set_ylim(ax_scatter.get_ylim())
+		
 		ax = pylab.axes([0.1, 0.1, 0.8,0.8], frameon=False)
 		ax.set_xticks([])
 		ax.set_yticks([])
@@ -249,8 +324,10 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 			if len(genome_wide_result_ls)!=2:	#not two results, skip
 				continue
 			
-			pvalue_matching_data = self.matchPvaluesFromTwoResults(genome_wide_result_ls, snps_context_wrapper, candidate_gene_set)
-			self.plot(phenotype_method, list_type, rm_ls, pvalue_matching_data, output_dir=self.output_dir, commit=self.commit)
+			pvalue_matching_data = self.matchPvaluesFromTwoResults(genome_wide_result_ls, snps_context_wrapper, candidate_gene_set,\
+																pvalue_int_gap=self.pvalue_int_gap)
+			self.plot(phenotype_method, list_type, rm_ls, pvalue_matching_data, output_dir=self.output_dir, commit=self.commit,\
+					pvalue_int_gap=self.pvalue_int_gap)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
