@@ -26,6 +26,7 @@ import time, csv, getopt
 import warnings, traceback
 
 from Stock_250kDB import Stock_250kDB, GeneList, GeneListType
+from pymodule import figureOutDelimiter
 
 class PutGeneListIntoDb(object):
 	__doc__ = __doc__
@@ -36,7 +37,6 @@ class PutGeneListIntoDb(object):
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							("input_fname", 1, ): [None, 'i', 1, ''],\
-							("delimiter", 1, ): [',', '', 1, ''],\
 							("list_type_id", 0, int): [-1, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							("list_type_name", 0, ): [None, '', 1, 'Gene list type short name. if given, list_type_id would be ignored.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
@@ -56,14 +56,16 @@ class PutGeneListIntoDb(object):
 		
 	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, gene_symbol2gene_id_set, db):
 		"""
+		2008-11-20
+			use figureOutDelimiter() to get delimiter automatically
 		2008-07-15
 			if the list_type_name is given, forget about list_type_id. program will first search db for the given list_type_name, if search failed, create a new entry.
 		2008-07-15
 			use gene_id2original_name to avoid redundancy in gene list
 		"""
 		import csv, sys, os
-		session = db.session		
-		reader = csv.reader(open(input_fname), delimiter=',')
+		session = db.session
+		reader = csv.reader(open(input_fname), delimiter=figureOutDelimiter(input_fname))	#2008-11-20
 		reader.next()	#skips the 1st line
 		counter = 0
 		success_counter = 0
