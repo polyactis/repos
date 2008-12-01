@@ -82,6 +82,8 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		
 	def saveResultsByGene(self, session, rm, param_data):
 		"""
+		2008-11-30
+			add param_data.min_MAF into the filtering to get ResultsByGene.
 		2008-09-16
 			if analysis_method_id==13, get gene_id2hit using a different function
 		2008-09-16
@@ -95,8 +97,10 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 		"""
 		sys.stderr.write("Saving ResultsByGene ... \n")
 		#check if it's in db already or not
-		rbg = Stock_250kDB.ResultsByGene.query.filter_by(results_method_id=rm.id).filter_by(min_distance=param_data.min_distance).\
-			filter_by(get_closest=param_data.get_closest)
+		ResultsByGene = Stock_250kDB.ResultsByGene
+		rbg = ResultsByGene.query.filter_by(results_method_id=rm.id).filter_by(min_distance=param_data.min_distance).\
+			filter_by(get_closest=param_data.get_closest).filter(ResultsByGene.min_MAF>=param_data.min_MAF-0.0001).\
+			filter(ResultsByGene.min_MAF<=param_data.min_MAF+0.0001)
 		if rbg.count()>0:
 			rbg = rbg.first()
 			sys.stderr.write("Skip. An entry exists in results_by_gene (id=%s) with same (results_method_id, min_distance, get_closest)=(%s, %s, %s).\n"\
@@ -111,7 +115,7 @@ class ResultsMethod2ResultsByGene(TopSNPTest):
 			sys.stderr.write("Skip. gene_id2hit is None.\n")
 			return
 		gene_id_heap_ls = self.sortGeneIDBasedOnScore(gene_id2hit)
-		rbg = Stock_250kDB.ResultsByGene(short_name='%s_m%s_g%s_by_gene'%(rm.short_name, param_data.min_distance, param_data.get_closest),\
+		rbg = Stock_250kDB.ResultsByGene(short_name='%s_m%s_g%s_n%.2f_by_gene'%(rm.short_name, param_data.min_distance, param_data.get_closest, param_data.min_MAF),\
 										min_distance = param_data.min_distance, get_closest=param_data.get_closest, min_MAF=param_data.min_MAF)
 		rbg.results_method = rm
 		session.save(rbg)
