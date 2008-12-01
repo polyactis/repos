@@ -186,6 +186,10 @@ import matplotlib.transforms as transforms
 import matplotlib.cbook as cbook
 class ExonIntronCollection(PolyCollection, LineCollection):
 	"""
+	2008-11-30
+		add option rotate_xy to specify an anti-clockwise-90-degree rotation.
+		default rotate_xy=False, gene models sit on the y-axis, strand direction matching the x-axis.
+		if rotate_xy=True, gene models sit on the x-axis, strand direction matching the y-axis.
 	2008-10-01
 		it now can handle picker_event and alpha on both boxes and lines
 	2008-09-23	test PolyCollection, draw both exons and introns
@@ -198,7 +202,8 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 				 transOffset = None,#transforms.identity_transform(),
 				 norm = None,
 				 cmap = None,
-				 picker=False, pickradius=5, alpha=None, strand=None, facecolors=None, edgecolors=None, **kwargs):
+				 picker=False, pickradius=5, alpha=None, strand=None, facecolors=None, edgecolors=None, rotate_xy=False, \
+				 **kwargs):
 		"""
 		2008-10-01
 			block_type='exon' has both facecolor and edgecolor red.
@@ -258,7 +263,9 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 			if len(this_block)>=4:
 				is_translated = int(this_block[3])
 			if block_type=='exon':
-				verts = [[block_start, width/2.0+y], [block_start, -width/2.0+y], [block_end, -width/2.0+y], [block_end, width/2.0+y]]			
+				verts = [[block_start, width/2.0+y], [block_start, -width/2.0+y], [block_end, -width/2.0+y], [block_end, width/2.0+y]]
+				if rotate_xy:
+					verts = [[row[1], row[0]] for row in verts]
 				verts_ls.append(verts)
 				if is_translated==1:
 					verts_colors.append('r')
@@ -267,7 +274,10 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 					verts_colors.append('w')	#no face color
 					_edgecolors.append('k')
 			else:
-				segment_ls.append([(block_start, y), (block_end,y)])
+				if rotate_xy:
+					segment_ls.append([(y, block_start), (y, block_end)])
+				else:
+					segment_ls.append([(block_start, y), (block_end,y)])
 		if not facecolors:
 			facecolors = verts_colors
 		if not edgecolors:
@@ -290,7 +300,10 @@ class ExonIntronCollection(PolyCollection, LineCollection):
 			else:	#can't tell which strand
 				arrow_offset = 0
 				arrow_end = box_end
-			segment_ls.append([(arrow_end+arrow_offset, y+width), (arrow_end,y+width/2.0)])
+			if rotate_xy:
+				segment_ls.append([( y+width, arrow_end+arrow_offset), (y+width/2.0, arrow_end)])
+			else:
+				segment_ls.append([(arrow_end+arrow_offset, y+width), (arrow_end,y+width/2.0)])
 		self._segments = segment_ls
 		self.set_segments(segment_ls)
 		self._verts = verts
