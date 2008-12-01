@@ -833,6 +833,8 @@ class FTPathwayRelationship(Entity):
 	pathway1 = ManyToOne('FTPathway', colname='pathway1_id', ondelete='CASCADE', onupdate='CASCADE')
 	pathway2 = ManyToOne('FTPathway', colname='pathway2_id', ondelete='CASCADE', onupdate='CASCADE')
 	relationship_type_id = Field(Integer)
+	arrow_start_point_loc = Field(String(512))
+	arrow_end_point_loc = Field(String(512))
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -849,6 +851,7 @@ class FTGene(Entity):
 	"""
 	gene_id = Field(Integer)
 	pathway = ManyToOne('FTPathway', colname='pathway_id', ondelete='CASCADE', onupdate='CASCADE')
+	paper = Field(String(512))
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
