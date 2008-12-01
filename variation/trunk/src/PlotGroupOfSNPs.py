@@ -77,8 +77,14 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	def drawSNPMtrix(self, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
-					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1, draw_snp_id_label=True):
+					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1, \
+					draw_snp_id_label=True, strain_id_label_x_offset_extra=None):
 		"""
+		2008-11-25
+			allow the cell_x_len to vary by allowing values of SNPID2PCAPosInfo.snp_id2img_x_pos to become 2-element tuple or list
+				which stores the start and stop x-position of the cell
+			add option strain_id_label_x_offset_extra
+				if strain_id_label_x_offset_extra is not None, the odd/even-row (strain) labels stagger/zigzag with an extra x offset.
 		2008-10-07
 			1. allele=1 no color (white), 2(red)
 			2. snpData.snp_id2index_type.
@@ -92,13 +98,20 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		no_of_snps = len(top_snp_data.snp_id_ls)
 		max_score = max(top_snp_data.score_ls)
 		min_score = min(top_snp_data.score_ls)
-		cell_x_len = SNPID2PCAPosInfo.step
+		cell_x_len = getattr(SNPID2PCAPosInfo, 'step', None)
 		cell_y_len = StrainID2PCAPosInfo.step
-		radius = min(cell_x_len, cell_y_len)/2.	#half of the smaller one
+		if cell_x_len is not None and cell_y_len is not None:
+			radius = min(cell_x_len, cell_y_len)/2.	#half of the smaller one
 		for i in range(no_of_snps):
 			snp_id = top_snp_data.snp_id_ls[i]
 			#draw snp label
 			snp_img_x_pos = SNPID2PCAPosInfo.snp_id2img_x_pos[snp_id]
+			if type(snp_img_x_pos)==tuple or type(snp_img_x_pos)==list:	#2008-11-25 it's tuple used in DrawSNPRegion.py
+				cell_x_len = abs(snp_img_x_pos[1]-snp_img_x_pos[0])
+				snp_img_x_pos = min(snp_img_x_pos)
+				#reset radius
+				radius = min(cell_x_len, cell_y_len)/2.	#half of the smaller one
+				
 			if draw_snp_id_label:
 				axe_snp_matrix.text(snp_img_x_pos, snp_id_label_y_offset, snp_id, rotation='vertical', \
 								horizontalalignment ='left', verticalalignment='bottom', size=strain_snp_label_font_size)
@@ -106,7 +119,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			index_type = subSNPData.snp_id2index_type[snp_id]
 			score = top_snp_data.score_ls[i]
 			alpha = (score-min_score)/(max_score-min_score)*(1-0.2)+0.2	#alpha from 0.2 to 1. can't be low.
-			for strain_id in StrainID2PCAPosInfo.strain_id_ls:
+			for j in range(len(StrainID2PCAPosInfo.strain_id_ls)):
+				strain_id = StrainID2PCAPosInfo.strain_id_ls[j]
 				strain_img_y_pos = StrainID2PCAPosInfo.strain_id2img_y_pos[strain_id]
 				row_index = subSNPData.row_id2row_index[strain_id]
 				allele = subSNPData.data_matrix[row_index][col_index]
@@ -127,7 +141,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 						country = 'UNK'
 					#nativename = ecotype_info.ecotype_id2ecotype_obj[ecotype_id].nativename
 					strain_label = '%s_%s_%s'%(strain_id, nativename, country)	#add country into strain label
-					axe_snp_matrix.text(strain_id_label_x_offset, strain_img_y_pos, strain_label, \
+
+					if j%2==1 and strain_id_label_x_offset_extra is not None:	#even rows, push labels a bit to right
+						x_pos = strain_id_label_x_offset + strain_id_label_x_offset_extra
+					else:
+						x_pos = strain_id_label_x_offset
+					axe_snp_matrix.text(x_pos, strain_img_y_pos, strain_label, \
 							horizontalalignment ='left', verticalalignment='bottom', size=strain_snp_label_font_size)
 				center = (snp_img_x_pos+cell_x_len/2., strain_img_y_pos+cell_y_len/2.)
 				if index_type==1:
@@ -196,8 +215,9 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		
 		#freeze transformations of all 3 axes
 		for ax in [axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover]:
-			ax.transData.freeze()  # eval the lazy objects
-			ax.transAxes.freeze()
+			if ax:
+				ax.transData.freeze()  # eval the lazy objects
+				ax.transAxes.freeze()
 		
 		for strain_id in StrainID2PCAPosInfo.strain_id_ls:
 			x_value = StrainID2PCAPosInfo.strain_id2pca_x[strain_id]
@@ -251,8 +271,9 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		
 		#free transformations of all 3 axes
 		for ax in [axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover]:
-			ax.transData.thaw()  # eval the lazy objects
-			ax.transAxes.thaw()
+			if ax:
+				ax.transData.thaw()  # eval the lazy objects
+				ax.transAxes.thaw()
 		if draw_axe_strain_map:
 			axe_strain_map.set_xlim(map_data.map_xlim)
 			axe_strain_map.set_ylim(map_data.map_ylim)
@@ -308,6 +329,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	
 	def drawPhenotype(self, axe, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, ecotype_info):
 		"""
+		2008-11-30
+			fix a bug.
+				axe.hlines draws a gradient-diminishing line when phenotype is numpy.nan.
+				now use axe.plot to draw. NA-phenotype simply won't show up with anything.
 		2008-10-09
 			split out of drawMap()
 			1. draw each phenotype with a bar (temporary solution)
@@ -318,7 +343,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			phenotype_row_index = phenData.row_id2row_index[strain_id]
 			
 			phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
-			axe.hlines(img_y_pos, 0, phenotype, linewidth=0.2)
+			axe.plot([0, phenotype], [img_y_pos, img_y_pos], linewidth=0.2, c='k')
 		sys.stderr.write("Done.\n")
 	
 	def justDrawMap(self, axe):
@@ -473,17 +498,23 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return chr_pos_info
 	
-	def findOutWhichPhenotypeColumn(self, phenData, phenotype_method_id):
+	def findOutWhichPhenotypeColumn(cls, phenData, phenotype_method_id_set):
 		"""
+		2008-11-25
+			change option phenotype_method_id to phenotype_method_id_set
+			return a list
+			become classmethod
 		2008-10-07
 		"""
-		col_index_to_return = None
+		col_index_to_return_ls = []
 		for col_id, col_index in phenData.col_id2col_index.iteritems():
 			col_id_ls = col_id.split('_')
-			if int(col_id_ls[0])==phenotype_method_id:
-				col_index_to_return = col_index
-		return col_index_to_return
-		
+			phenotype_method_id=int(col_id_ls[0])
+			if phenotype_method_id in phenotype_method_id_set:
+				col_index_to_return_ls.append(col_index)
+		return col_index_to_return_ls
+	findOutWhichPhenotypeColumn = classmethod(findOutWhichPhenotypeColumn)
+	
 	def assignAncestralAlleleSmallerNumber(self, snpData, chr_pos2ancestral_allele):
 		"""
 		2008-10-07
@@ -496,7 +527,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		for snp_id, snp_allele2index in snpData.snp_id2snp_allele2index.iteritems():
 			col_index = snpData.col_id2col_index[snp_id]
 			snp_index2allele = snpData.snp_id2snp_allele2index[snp_id]
-			if snp_id in chr_pos2ancestral_allele:
+			if chr_pos2ancestral_allele and snp_id in chr_pos2ancestral_allele:
 				ancestral_allele = chr_pos2ancestral_allele[snp_id]
 				ancestral_allele_complement=number2complement[ancestral_allele]	#get the complement
 				if ancestral_allele in snp_allele2index:
@@ -519,6 +550,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	
 	def getSubStrainSNPMatrix(self, snpData, phenData, phenotype_method_id, phenotype_col_index, snp_id_ls, chr_pos2ancestral_allele=None):
 		"""
+		2008-11-30
+			fix a bug
+				previously, NA-phenotype strains were not thrown out due to numpy.nan!=numpy.nan.
+				now use numpy.isnan() to judge whether a data point is NA.
 		2008-10-07
 			Ancestral-allele=1 if it exists
 			Major allele=1 if no ancestral allele info
@@ -531,7 +566,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		sub_row_id_ls = []
 		
 		for row_id, row_index in phenData.row_id2row_index.iteritems():
-			if phenData.data_matrix[row_index][phenotype_col_index]!=numpy.nan:	#skip rows with NA
+			#if phenData.data_matrix[row_index][phenotype_col_index]!=numpy.nan:	#WATCH: numpy.nan!=numpy.nan, weird!
+			if not numpy.isnan(phenData.data_matrix[row_index][phenotype_col_index]):	#skip rows with NA.
 				sub_row_id_ls.append(row_id)
 		no_of_sub_rows = len(sub_row_id_ls)
 		no_of_sub_snps = len(snp_id_ls)
@@ -540,7 +576,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		snp_id2snp_allele2index = {}
 		for j in range(no_of_sub_snps):
 			snp_id = snp_id_ls[j]
-			col_index = snpData.col_id2col_index[snp_id]
+			col_index = snpData.col_id2col_index.get(snp_id)
 			snp_allele2index = {}
 			snp_allele2count = {}
 			snp_index2allele = {}
@@ -686,6 +722,9 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		StrainID2PCAPosInfo = PassingData()
 		import pca_module
 		T, P, explained_var = pca_module.PCA_svd(subSNPData.data_matrix, standardize=False)
+		#import PCA
+		#T, P, explained_var = PCA.eig(subSNPData.data_matrix)	#2008-11-30 try the PCA from pymodule
+		
 		#T[:,0] and T[:,1] are new positions corresponding to PC1 and PC2
 		strain_id_ls, strain_id2pca_y = self.sortObjByPCA_value_ls(subSNPData.row_id2row_index, T[:,0], pca_range)
 		strain_id2pca_x = self.getObj2posFromPCA_value_ls(subSNPData.row_id2row_index, T[:,1], pca_range)
@@ -767,7 +806,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		else:
 			chr_pos2ancestral_allele = {}
 		
-		phenotype_col_index = self.findOutWhichPhenotypeColumn(phenData, self.phenotype_method_id)
+		phenotype_col_index = self.findOutWhichPhenotypeColumn(phenData, Set([self.phenotype_method_id]))[0]
 		
 		if self.snp_region_tup:
 			#2008-11-14 region around FRI
@@ -778,7 +817,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			snp_start_stop = map(int, snp_start_stop)
 			snp_region_tup = [chr, snp_start_stop[0], chr, snp_start_stop[1]]
 			sortSNPByPCA_value = False
-			draw_snp_id_label = True
+			draw_snp_id_label = False
 			
 			#squeeze axe_snp_pca out as it won't be drawn
 			axe_height2 = 0.87	#height of axe_strain_pca, axe_snp_matrix, axe_map
@@ -926,6 +965,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			analysis_method = Stock_250kDB.AnalysisMethod.get(self.analysis_method_id)
 			axe_snp_pca.title.set_text('Top %s SNPs by %s. Layout by PC1(x-axis) vs PC2(y-axis)'%(self.no_of_top_hits, analysis_method.short_name))
 		else:
+			analysis_method = Stock_250kDB.AnalysisMethod.get(self.analysis_method_id)
 			axe_snp_matrix.title.set_text('SNPs from chr %s. Minor allele color gradient by %s score.'%(self.snp_region_tup, analysis_method.short_name))
 		png_output_fname = '%s.png'%self.output_fname_prefix
 		pylab.savefig(png_output_fname, dpi=600)
