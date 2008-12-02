@@ -36,6 +36,7 @@ from Scientific import MPI
 from pymodule.MPIwrapper import MPIwrapper
 from Kruskal_Wallis import Kruskal_Wallis
 from GeneListRankTest import SnpsContextWrapper
+from PlotGroupOfSNPs import PlotGroupOfSNPs
 
 num = importNumericArray()
 
@@ -52,17 +53,21 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 							("output_dir", 1, ): [None, 'o', 1, 'directory to store output association results. one phenotype, one file.'],\
 							('phenotype_fname', 1, ): [None, 'p', 1, 'phenotype file. Same format as input_fname. but replace the data matrix with phenotype data.', ],\
 							('min_data_point', 1, int): [3, 'm', 1, 'minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test'],\
-							('phenotype_index_ls', 0, ): [None, 'w', 1, 'which phenotypes to work on. a comma-separated list of column index in the phenotype file, starting from 0. Default is to take all.',],\
+							('phenotype_method_id_ls', 0, ): [None, 'w', 1, 'which phenotypes to work on. a comma-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method. Default is to take all.',],\
 							('block_size', 1, int):[1000, 's', 1, 'Minimum number of tests each computing node is gonna handle. The computing node loops over all phenotypes, test all pairwise SNPs within a gene.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
+		"""
+		2008-11-25
+			change option phenotype_index_ls to phenotype_method_id_ls to pick phenotypes. phenotype_method_id is more intuitive.
+		"""
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-	
-		if self.phenotype_index_ls is not None:
-			self.phenotype_index_ls = getListOutOfStr(self.phenotype_index_ls, data_type=int)
 		
+		if self.phenotype_method_id_ls is not None:
+			self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
+	
 	def get_gene_id2snps_id_ls(self, snps_context_wrapper):
 		"""
 		2008-09-07
@@ -90,7 +95,7 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 		2008-09-09
 			estimate the number of tests each gene would encompass, and decide how many genes should be included in a set to send out
 		2008-09-06
-			each node handles a certain number of genes.
+			each node handles a certain number of genes. identified by the index of the 1st gene and the index of the last gene.
 		"""
 		sys.stderr.write("Generating parameters ...")
 		params_ls = []
@@ -104,7 +109,7 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 			est_no_of_tests = (n*(n-1)*5/2.0 + n)*no_of_phenotypes	#this is the upper bound for the number of tests for each gene on a computing node. data missing would make the number smaller.
 			no_of_tests_per_node += est_no_of_tests
 			if no_of_tests_per_node>=block_size:
-				params_ls.append((start_index, i+1))
+				params_ls.append((start_index, i+1))	#the computing node is gonna handle genes from pdata.gene_id_ls[start_index] to pdata.gene_id_ls[i]
 				#reset the starting pointer to the index of the next gene
 				start_index = i+1
 				no_of_tests_per_node = 0	#reset this to 0
@@ -242,21 +247,27 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 			phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, data_matrix=data_matrix_phen)
 			phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, phenData.row_id_ls, phenData.data_matrix)
 			
+			self.phenotype_index_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(self.phenotype_method_id_ls))
+		
 			if not self.phenotype_index_ls:
 				self.phenotype_index_ls = range(len(phenData.col_id_ls))
 			pdata = PassingData(gene_id_ls=gene_id_ls, gene_id2snps_id_ls=gene_id2snps_id_ls, phenotype_index_ls=self.phenotype_index_ls)
 			params_ls = self.generate_params(pdata, self.block_size)
 			
-			other_data = PassingData(gene_id2snps_id_ls=gene_id2snps_id_ls, gene_id_ls=gene_id_ls, phenData=phenData)
+			other_data = PassingData(gene_id2snps_id_ls=gene_id2snps_id_ls, gene_id_ls=gene_id_ls, phenData=phenData, \
+									phenotype_index_ls=self.phenotype_index_ls)
 			other_data_pickle = cPickle.dumps(other_data, -1)
-			phenotype_label_ls_pickle = cPickle.dumps(phenData.col_id_ls, -1)
+			
+			output_node_data = PassingData(phenotype_label_ls=phenData.col_id_ls, \
+									phenotype_index_ls=self.phenotype_index_ls)
+			output_node_data_pickle = cPickle.dumps(output_node_data, -1)
 			
 			snpData_pickle = cPickle.dumps(snpData, -1)
 			del snpData, data_matrix
 			
 			#send the output node the phenotype_label_ls
-			self.communicator.send(phenotype_label_ls_pickle, output_node_rank, 0)
-			del phenotype_label_ls_pickle
+			self.communicator.send(output_node_data_pickle, output_node_rank, 0)
+			del output_node_data_pickle
 			
 			for node in free_computing_nodes:	#send it to the computing_node
 				sys.stderr.write("passing initial data to nodes from %s to %s ... "%(node_rank, node))
@@ -273,13 +284,12 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 			data, source, tag = self.communicator.receiveString(0, 0)
 			other_data = cPickle.loads(data)
 			del data
-			if not self.phenotype_index_ls:
-				self.phenotype_index_ls = range(len(other_data.phenData.col_id_ls))
+			self.phenotype_index_ls = other_data.phenotype_index_ls
 		else:
 			data, source, tag = self.communicator.receiveString(0, 0)
-			phenotype_label_ls = cPickle.loads(data)
-			if not self.phenotype_index_ls:
-				self.phenotype_index_ls = range(len(phenotype_label_ls))
+			output_node_data_pickle = cPickle.loads(data)
+			phenotype_label_ls = output_node_data_pickle.phenotype_label_ls
+			self.phenotype_index_ls = output_node_data_pickle.phenotype_index_ls
 			
 		self.synchronize()
 		if node_rank == 0:
@@ -307,7 +317,6 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 			self.output_node(free_computing_nodes, param_obj, self.output_node_handler)
 			del writer_dict
 		self.synchronize()	#to avoid some node early exits
-		
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
