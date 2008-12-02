@@ -25,7 +25,7 @@ rcParams['axes.titlesize'] = 8
 rcParams['xtick.labelsize'] = 6
 rcParams['ytick.labelsize'] = 6
 
-import time, csv, cPickle
+import time, csv, cPickle, random
 import warnings, traceback
 from pymodule import PassingData, figureOutDelimiter, getColName2IndexFromHeader, getListOutOfStr, SNPData, read_data,\
 	assignMatPlotlibHueColorToLs, drawName2FCLegend
@@ -63,11 +63,22 @@ class DrawEcotypeOnMap(PlotGroupOfSNPs):
 		session = db.session
 		
 		snpData = SNPData(input_fname=self.input_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1)
+		
+		max_no_of_snps = 30000
+		if len(snpData.col_id_ls)>max_no_of_snps:	#2008-12-01 randomly pick 30000 SNPs
+			picked_col_index_ls = random.sample(range(len(snpData.col_id_ls)), max_no_of_snps)
+			new_col_id_ls = [snpData.col_id_ls[i] for i in picked_col_index_ls]
+			newSnpData = SNPData(row_id_ls=snpData.row_id_ls, col_id_ls=new_col_id_ls, strain_acc_list=snpData.strain_acc_list,\
+							category_list=snpData.category_list)
+			newSnpData.data_matrix = snpData.data_matrix[:, picked_col_index_ls]
+			snpData = newSnpData
+		
+		snpData, allele2index_ls = snpData.convertSNPAllele2Index()
 		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.phenotype_fname, turn_into_integer=0)
 		phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)	#row label is that of the SNP matrix, because the phenotype matrix is gonna be re-ordered in that way
 		phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, strain_acc_list_phen, phenData.data_matrix)	#tricky, using strain_acc_list_phen
 		
-		phenotype_col_index = self.findOutWhichPhenotypeColumn(phenData, self.phenotype_method_id)
+		phenotype_col_index = self.findOutWhichPhenotypeColumn(phenData, Set([self.phenotype_method_id]))[0]
 		
 		
 		ecotype_info = getEcotypeInfo(db, self.country_order_type)
