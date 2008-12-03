@@ -1,0 +1,50 @@
+EIGENSOFT version 2.0, January 2008 (for Linux only)
+
+This is the same as our EIGENSOFT 2.0 BETA release with a few recent changes
+as described at http://genepath.med.harvard.edu/~reich/New_In_EIGENSOFT.htm.
+
+Features of EIGENSOFT version 2.0 include:
+-- Keeping track of ref/var alleles in all file formats: see CONVERTF/README
+-- Handling data sets up to 8 billion genotypes: see CONVERTF/README
+-- Output SNP weightings of each principal component: see POPGEN/README
+
+The EIGENSOFT package implements methods from the following 2 papers:
+Patterson N. et al. 2006 PLoS Genetics in press (population structure)
+Price A.L. et al. 2006 NG 38:904-9 (EIGENSTRAT stratification correction)
+
+See POPGEN/README for documentation of population structure programs.
+ 
+See EIGENSTRAT/README for documentation of EIGENSTRAT programs.
+
+See CONVERTF/README for documentation of programs for converting file formats.
+
+
+Executables and source code:
+----------------------------
+All C executables are in the bin/ directory.
+
+We have placed source code for all C executables in the src/ directory, 
+for users who wish to modify and recompile our programs.  For example, to
+recompile the eigenstrat program, type
+"cd src"
+"make eigenstrat"      
+"mv eigenstrat ../bin"
+
+Note that some of our software will only compile if your system has the
+lapack package installed.  (This package is used to compute eigenvectors.)
+Some users may need to change "blas-3" to "blas" in the Makefile,
+depending on how blas and lapack are installed.
+
+If cc is not available on your system, try "cp Makefile.alt Makefile"
+and then recompile. 
+
+If you have trouble compiling and running our code, try compiling and
+running the pcatoy program in the src directory:
+"cd src"
+"make pcatoy"
+"./pcatoy"
+If you are unable to run the pcatoy program successfully, please contact
+your system administrator for help, as this is a systems issue which is
+beyond our scope.  Your system administrator will be able to troubleshoot
+your systems issue using this trivial program.  [You can also try running
+the pcatoy program in the bin directory, which we have already compiled.]

@@ -1,0 +1,15 @@
+eigenstratQTL.big.perl program run using parameters
+ -i example.geno
+ -j example.phenoQTL
+ -p example.pca
+ -l 1
+ -o example.geno
+
+Chisq EIGENSTRAT
+2.2222 0.9615
+2.9167 0.2219
+2.0833 0.0612
+4.1667 0.1258
+2.9167 2.0997
+5.0000 3.0000
+3.8095 0.0764

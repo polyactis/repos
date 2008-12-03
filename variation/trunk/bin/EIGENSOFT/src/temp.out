@@ -1,0 +1,26 @@
+Sender: LSF System <lsfadmin@viola109.cl.med.harvard.edu>
+Subject: Job 93504: <./bigtesteigenstrat.perl> Exited
+
+Job <./bigtesteigenstrat.perl> was submitted from host <orchestra.med.harvard.edu> by user <ap92>.
+Job was executed on host(s) <viola109.cl.med.harvard.edu>, in queue <reich_2h>, as user <ap92>.
+</home/ap92> was used as the home directory.
+</home/ap92/REICH/SUM07/EIG2B/src> was used as the working directory.
+Started at Tue Sep 18 16:50:31 2007
+Results reported at Tue Sep 18 16:50:57 2007
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+./bigtesteigenstrat.perl
+------------------------------------------------------------
+
+Exited with exit code 127.
+
+Resource usage summary:
+
+    CPU time   :      0.02 sec.
+
+The output (if any) follows:
+
+/home/ap92/.lsbatch/1190148620.93504: line 8: ./bigtesteigenstrat.perl: No such file or directory

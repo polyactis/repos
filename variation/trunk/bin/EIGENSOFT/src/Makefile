@@ -1,0 +1,107 @@
+HOMEL=$(PWD)
+DEBUG_OPTIONS= -g -pg
+BIN=$(HOMEL)/bin
+# "make eigenstrat" to make eigenstrat program (ditto for other programs)
+# "mv eigenstrat ../bin" (or "make install" to copy all C programs to ../bin)
+# "make clean" to clean up extra files in this directory
+# "make clobber" to clobber all files and subdirectories except source files
+#    so as to enable recompiling from scratch.
+
+NLIB=$(HOMEL)/smartlib/nicklib.a
+IDIR=$(HOMEL)/smartinclude
+VPATH=.:nicksrc
+BLAS = blas-3
+# may need to change to BLAS = blas (depends on blas/lapack installation)
+
+CFLAGS= -c -O -I$(IDIR) -Wimplicit
+OBJ=strsubs.o sortit.o vsubs.o statsubs.o linsubs.o getpars.o xsearch.o gauss.o	gds.o
+TWTAB=\"$(HOMEL)/smarttables/twtable\"
+
+statsubs.o:     nicksrc/statsubs.c
+	$(CC)  $(CFLAGS) -DTWTAB=$(TWTAB) -o statsubs.o nicksrc/statsubs.c
+
+M1=smartpca
+M1O=smartpca.o  twsubs.o mcio.o admutils.o egsubs.o eigsubs.o  eigx.o 
+
+M2=convertf
+M2O=convertf.o  mcio.o admutils.o
+
+M3=twstats
+M3O=twstats.o  
+
+M4=eigenstrat
+M4O=eigenstrat.o
+
+M5=eigenstratQTL
+M5O=eigenstratQTL.o
+
+M6=pca
+M6O=pca.o eigsubs.o eigx.o
+
+M7=pcatoy
+M7O=pcatoy.o eigsubs.o eigx.o
+
+PROGS= smartpca convertf twstats eigenstrat eigenstratQTL pca
+all: nicklib $(PROGS)          
+
+install:	all
+	cp $(PROGS) $(HOMEL)/bin
+
+uninstall:   
+	rm -f $(BIN)/smartpca
+	rm -f $(BIN)/convertf
+	rm -f $(BIN)/twstats
+	rm -f $(BIN)/eigenstrat
+	rm -f $(BIN)/eigenstratQTL
+	rm -f $(BIN)/pca
+	rm -f $(NLIB)/libnick.a
+
+$(M1): nicklib $(M1O)
+	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M1) $(M1O) $(NLIB) -lm -llapack -l$(BLAS) -lf2c -Wimplicit
+
+$(M2): nicklib $(M2O)
+	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M2) $(M2O) $(NLIB) -Wimplicit
+
+$(M3): nicklib $(M3O)
+	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M3) $(M3O) $(NLIB) -Wimplicit
+
+$(M4): nicklib $(M4O)
+	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M4) $(M4O) $(NLIB) -Wimplicit
+
+$(M5): nicklib $(M5O)
+	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M5) $(M5O) $(NLIB) -Wimplicit
+
+$(M6): nicklib $(M6O)
+	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M6) $(M6O) $(NLIB) -lm -llapack -l$(BLAS) -lf2c -Wimplicit
+
+$(M7): nicklib $(M7O)
+	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M7) $(M7O) $(NLIB) -lm -llapack -l$(BLAS) -lf2c -Wimplicit
+
+libnick.a:	dirs  $(OBJ)
+	ar -r libnick.a $(OBJ)
+
+nicklib:	dirs   libnick.a 
+	cp libnick.a  $(NLIB)
+
+dirs:	
+	mkdir -p  $(HOMEL)/smartlib
+	mkdir -p  $(HOMEL)/smarttables
+	mkdir -p  $(HOMEL)/smartinclude
+	mkdir -p  $(BIN)
+	cp twtable  $(HOMEL)/smarttables
+	cp  nicksrc/*.h  $(IDIR)
+
+clean: 
+	rm -f *.o 
+	rm -f core
+	rm -f libnick.a
+	rm -f $(PROGS)
+
+clobber: clean rmdirs uninstall
+
+
+rmdirs: 
+	rm -rf $(HOMEL)/smartlib 
+	rm -rf $(HOMEL)/smarttables 
+	rm -rf $(HOMEL)/smartinclude 
+
