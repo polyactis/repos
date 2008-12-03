@@ -6,8 +6,12 @@ BIN=$(HOMEL)/bin
 # "make clean" to clean up extra files in this directory
 # "make clobber" to clobber all files and subdirectories except source files
 #    so as to enable recompiling from scratch.
+.PHONY: nicklib dirs rmdirs clobber
 
+PROGS= smartpca convertf twstats eigenstrat eigenstratQTL pca
 NLIB=$(HOMEL)/smartlib/nicklib.a
+all: $(NLIB) $(PROGS)
+
 IDIR=$(HOMEL)/smartinclude
 VPATH=.:nicksrc
 BLAS = blas-3
@@ -41,8 +45,8 @@ M6O=pca.o eigsubs.o eigx.o
 M7=pcatoy
 M7O=pcatoy.o eigsubs.o eigx.o
 
-PROGS= smartpca convertf twstats eigenstrat eigenstratQTL pca
-all: nicklib $(PROGS)          
+CC=gcc
+       
 
 install:	all
 	cp $(PROGS) $(HOMEL)/bin
@@ -54,42 +58,43 @@ uninstall:
 	rm -f $(BIN)/eigenstrat
 	rm -f $(BIN)/eigenstratQTL
 	rm -f $(BIN)/pca
-	rm -f $(NLIB)/libnick.a
+	rm -f $(NLIB)
 
-$(M1): nicklib $(M1O)
-	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M1) $(M1O) $(NLIB) -lm -llapack -l$(BLAS) -lf2c -Wimplicit
+$(M1): $(NLIB) $(M1O)
+	$(CC) -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M1) $(M1O) $(NLIB) /usr/lib/libf2c.a  -lm -llapack -l$(BLAS) -Wimplicit # -lf2c
+	#2008-12-02 -lf2c doesn't work. ERROR: "/usr/bin/../lib/libf2c.so: undefined reference to `MAIN__'"
 
-$(M2): nicklib $(M2O)
-	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M2) $(M2O) $(NLIB) -Wimplicit
+$(M2): $(NLIB) $(M2O)
+	$(CC) -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M2) $(M2O) $(NLIB) -Wimplicit
 
-$(M3): nicklib $(M3O)
-	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M3) $(M3O) $(NLIB) -Wimplicit
+$(M3): $(NLIB) $(M3O)
+	$(CC) -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M3) $(M3O) $(NLIB) -Wimplicit
 
-$(M4): nicklib $(M4O)
-	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M4) $(M4O) $(NLIB) -Wimplicit
+$(M4): $(NLIB) $(M4O)
+	$(CC) -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M4) $(M4O) $(NLIB) -Wimplicit
 
-$(M5): nicklib $(M5O)
-	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M5) $(M5O) $(NLIB) -Wimplicit
+$(M5): $(NLIB) $(M5O)
+	$(CC) -O -I$(IDIR) $(DEBUG_OPTIONS) -lm  -o $(M5) $(M5O) $(NLIB) -Wimplicit
 
-$(M6): nicklib $(M6O)
-	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M6) $(M6O) $(NLIB) -lm -llapack -l$(BLAS) -lf2c -Wimplicit
+$(M6): $(NLIB) $(M6O)
+	$(CC) -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M6) $(M6O) $(NLIB) /usr/lib/libf2c.a -lm -llapack -l$(BLAS) -Wimplicit #-lf2c 
 
-$(M7): nicklib $(M7O)
-	gcc -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M7) $(M7O) $(NLIB) -lm -llapack -l$(BLAS) -lf2c -Wimplicit
+$(M7): $(NLIB) $(M7O)
+	$(CC) -O -I$(IDIR) $(DEBUG_OPTIONS) -o $(M7) $(M7O) $(NLIB) -lm -llapack -l$(BLAS) -lf2c -Wimplicit
 
-libnick.a:	dirs  $(OBJ)
-	ar -r libnick.a $(OBJ)
-
-nicklib:	dirs   libnick.a 
-	cp libnick.a  $(NLIB)
-
-dirs:	
+$(NLIB):	$(OBJ)	#2008-12-02 phony target dirs triggers compilation no matter whether any source file has been modified. removed.
 	mkdir -p  $(HOMEL)/smartlib
 	mkdir -p  $(HOMEL)/smarttables
 	mkdir -p  $(HOMEL)/smartinclude
 	mkdir -p  $(BIN)
 	cp twtable  $(HOMEL)/smarttables
-	cp  nicksrc/*.h  $(IDIR)
+	cp nicksrc/*.h  $(IDIR)	ar -r libnick.a $(OBJ)
+	cp libnick.a  $(NLIB)
+
+#nicklib:	dirs   libnick.a 	#2008-12-02 phony target nicklib is totally eliminated by using $(NLIB).
+
+#dirs:	#2008-12-02 phony target dirs triggers compilation no matter whether any source file has been modified. removed.
+
 
 clean: 
 	rm -f *.o 
