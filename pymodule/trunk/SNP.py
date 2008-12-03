@@ -63,6 +63,7 @@ nt2number = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces
 number2nt = {-2: '|',	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
 	-1: '-',
 	0: 'NA',
+	num.nan: 'NA',	#2008-12-03	data_matrix might contain num.nan as NA
 	1:'A',
 	2:'C',
 	3:'G',
@@ -151,6 +152,9 @@ def RawSnpsData_ls2SNPData(rawSnpsData_ls, report=0, use_nt2number=0):
 
 def transposeSNPData(snpData, report=0):
 	"""
+	2008-12-03
+		newSnpData.processRowIDColID() after row_id_ls and col_id_ls are given
+		also copy strain_acc_list and category_list over to newSnpData
 	2008-05-18
 		use num.int8 to keep memory small in num.transpose(num.array(snpData.data_matrix, num.int8))
 	2008-05-18
@@ -174,6 +178,10 @@ def transposeSNPData(snpData, report=0):
 	"""
 	newSnpData.row_id_ls = copy.deepcopy(snpData.col_id_ls)
 	newSnpData.col_id_ls = copy.deepcopy(snpData.row_id_ls)
+	newSnpData.strain_acc_list = copy.deepcopy(snpData.strain_acc_list)
+	newSnpData.category_list = copy.deepcopy(snpData.category_list)
+	
+	newSnpData.processRowIDColID()	#2008-12-02	processRowIDColID() after row_id_ls and col_id_ls are given
 	if isinstance(snpData.data_matrix, list):
 		newSnpData.data_matrix = num.transpose(num.array(snpData.data_matrix, num.int8))
 	else:	#assume it's array type already. Numeric/numarray has ArrayType, but numpy doesn't
@@ -459,6 +467,9 @@ class SNPData(object):
 	
 	def processRowIDColID(self):
 		"""
+		2008-12-03
+			this function is called in __init__(). deal with the case that this class is initialized without any argument,
+				which means self.row_id_ls and self.col_id_ls are None.
 		2008-09-07
 			if turn the data_matrix into array, do not force num.int8 type.
 		2008-09-05
@@ -479,9 +490,10 @@ class SNPData(object):
 				self.row_id_ls.append(row_id)
 		
 		self.row_id2row_index = {}
-		for i in range(len(self.row_id_ls)):
-			row_id = self.row_id_ls[i]
-			self.row_id2row_index[row_id] = i
+		if self.row_id_ls:	#2008-12-03
+			for i in range(len(self.row_id_ls)):
+				row_id = self.row_id_ls[i]
+				self.row_id2row_index[row_id] = i
 		
 		if self.col_id_ls is None and self.header is not None:
 			self.col_id_ls = []
@@ -490,9 +502,10 @@ class SNPData(object):
 				self.col_id_ls.append(col_id)
 		
 		self.col_id2col_index = {}
-		for i in range(len(self.col_id_ls)):
-			col_id = self.col_id_ls[i]
-			self.col_id2col_index[col_id] = i
+		if self.col_id_ls:	#2008-12-03
+			for i in range(len(self.col_id_ls)):
+				col_id = self.col_id_ls[i]
+				self.col_id2col_index[col_id] = i
 	
 	def fromfile(self, input_fname, **keywords):
 		"""
@@ -841,13 +854,23 @@ class SNPData(object):
 	
 	def convertSNPAllele2Index(self, report=0):
 		"""
+		2008-12-02
+			code body moved to convert2Binary()
+			call convert2Binary with in_major_minor_order=False.
 		2008-11-20
 			newSnpData also copies self.strain_acc_list and self.category_list over.
 		2008-09-07
 			Convert SNP matrix into index (0,1,2...) is assigned as first-encounter, first-assign. if only two alleles, it's binary.
 			heterozygote is regarded as a different allele.
 		"""
-		sys.stderr.write("Converting SNP allele to index ...")
+		return self.convert2Binary(report=report, in_major_minor_order=False)
+	
+	def convert2Binary(self, report=0, in_major_minor_order=True):
+		"""
+		2008-12-02
+			based on the old convertSNPAllele2Index()
+		"""
+		sys.stderr.write("Converting SNP matrix to Binary ...")
 		no_of_hets = 0
 		newSnpData = SNPData(row_id_ls=self.row_id_ls, col_id_ls=self.col_id_ls)
 		newSnpData.strain_acc_list = self.strain_acc_list
@@ -856,22 +879,40 @@ class SNPData(object):
 		no_of_cols = len(self.data_matrix[0])
 		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
 		allele2index_ls = []
+		allele2count_ls = []
+		allele_index2allele_ls = []
 		for j in range(no_of_cols):
 			allele2index_ls.append({})
+			allele2count_ls.append({})
+			allele_index2allele_ls.append({})
+			allele_index2allele = allele_index2allele_ls[j]
 			for i in range(no_of_rows):
 				allele = self.data_matrix[i][j]
 				if allele==0 or allele==-2:
-					allele_index = -2
+					allele_index = num.nan	#numpy.nan is better than -2
 				elif allele not in allele2index_ls[j]:
 					allele_index = len(allele2index_ls[j])
 					allele2index_ls[j][allele] = allele_index
+					allele2count_ls[j][allele] = 1
+					allele_index2allele[allele_index] = allele
 				else:
 					allele_index = allele2index_ls[j][allele]
+					allele2count_ls[j][allele] += 1
 				newSnpData.data_matrix[i][j] = allele_index
 				if report and allele_index>1:
-					sys.stderr.write("%s alleles at SNP %s (id=%s).\n"%((allele_index+1), j, self.col_id_ls[j]))
+					sys.stderr.write("%s (more than 2) alleles at SNP %s (id=%s).\n"%((allele_index+1), j, self.col_id_ls[j]))
+			#2008-12-02	check if binary-allele codes are in major, minor order
+			if in_major_minor_order and len(allele2index_ls[j])==2:	#only two-allele SNPs
+				allele1 = allele_index2allele[0]
+				allele2 = allele_index2allele[1]
+				if allele2count_ls[j][allele1]<allele2count_ls[j][allele2]:	#minor allele got assigned the smaller number, reverse it
+					newSnpData.data_matrix[:,j] = num.abs(newSnpData.data_matrix[:,j]-1)	#reverse the index. won't affect nan.
+					allele2index_ls[j][allele1] = 1
+					allele2index_ls[j][allele2] = 0
+					allele_index2allele[0] = allele2
+					allele_index2allele[1] = allele1
 		sys.stderr.write("Done.\n")
-		return newSnpData, allele2index_ls
+		return newSnpData, allele_index2allele_ls
 		
 from db import TableClass
 class GenomeWideResults(TableClass):
