@@ -854,6 +854,8 @@ class SNPData(object):
 	
 	def convertSNPAllele2Index(self, report=0):
 		"""
+		2008-12-03
+			set in_major_minor_order to True
 		2008-12-02
 			code body moved to convert2Binary()
 			call convert2Binary with in_major_minor_order=False.
@@ -863,7 +865,7 @@ class SNPData(object):
 			Convert SNP matrix into index (0,1,2...) is assigned as first-encounter, first-assign. if only two alleles, it's binary.
 			heterozygote is regarded as a different allele.
 		"""
-		return self.convert2Binary(report=report, in_major_minor_order=False)
+		return self.convert2Binary(report=report, in_major_minor_order=True)
 	
 	def convert2Binary(self, report=0, in_major_minor_order=True):
 		"""
