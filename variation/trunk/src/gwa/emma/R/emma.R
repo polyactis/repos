@@ -84,13 +84,13 @@ emma.eigen.R.wo.Z <- function(K, X) {	#eigen of S(K+I)S
   n <- nrow(X)
   q <- ncol(X)
   S <- diag(n)-X%*%solve(crossprod(X,X))%*%t(X)	#S=I-X(X'X)^{-1}X'
-  eig <- eigen(S%*%K%*%S,symmetric=TRUE)	#eigen of SKS, 2008-10-04 by yh
-  #eig <- eigen(S%*%(K+diag(1,n))%*%S,symmetric=TRUE)	#eigen of S(K+I)S
+  #eig <- eigen(S%*%K%*%S,symmetric=TRUE)	#eigen of SKS, 2008-10-04 by yh
+  eig <- eigen(S%*%(K+diag(1,n))%*%S,symmetric=TRUE)	#eigen of S(K+I)S
   stopifnot(!is.complex(eig$values))
   #cat("eig$values:", eig$values, "\n")
   #cat("eig$vectors[,1:(n-q)]: ", eig$vectors[,1:(n-q)], "\n")
-  #return(list(values=eig$values[1:(n-q)]-1,vectors=eig$vectors[,1:(n-q)]))	#why -1?? because of S(K+I)S?
-  return(list(values=eig$values[1:(n-q)],vectors=eig$vectors[,1:(n-q)]))
+  return(list(values=eig$values[1:(n-q)]-1,vectors=eig$vectors[,1:(n-q)]))	#why -1?? because of S(K+I)S? this is more robust than straight eigen(SKS) against near-zero/zero eigen values.
+  #return(list(values=eig$values[1:(n-q)],vectors=eig$vectors[,1:(n-q)]))
 }
 
 emma.eigen.R.w.Z <- function(Z, K, X, complete = TRUE) {
