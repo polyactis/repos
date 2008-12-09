@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg4019"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="papaya.T8_annotation_TH"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs4021">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective4027" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="375"
+     inkscape:cy="600"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="998"
+     inkscape:window-height="1156"
+     inkscape:window-x="0"
+     inkscape:window-y="25" />
+  <metadata
+     id="metadata4024">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="156"
+       y="498.36218"
+       id="text4029"><tspan
+         sodipodi:role="line"
+         id="tspan4031"
+         x="156"
+         y="498.36218">in papaya.T8_annotation_TH.t8_func_desc,  transposable_element=transposon_fragment,</tspan><tspan
+         sodipodi:role="line"
+         x="156"
+         y="513.36218"
+         id="tspan4033"></tspan><tspan
+         sodipodi:role="line"
+         x="156"
+         y="528.36218"
+         id="tspan4035">transposable_element contains transposable_element_gene.</tspan><tspan
+         sodipodi:role="line"
+         x="156"
+         y="543.36218"
+         id="tspan4037" /><tspan
+         sodipodi:role="line"
+         x="156"
+         y="558.36218"
+         id="tspan4039" /></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 101,171.36218 C 95.732831,175.0148 86.373649,187.43907 80,196.36218 C 73.163342,205.9335 63.920222,214.13522 57,223.36218 C 51.879368,230.18969 53,240.10142 53,248.36218 C 53,256.2668 58.65739,264.67696 62,271.36218 C 65.497122,278.35643 67.211509,285.39096 70,292.36218 C 72.775364,299.30059 77.604936,305.57205 81,312.36218 C 84.091216,318.54461 87.136891,324.63596 90,330.36218 C 93.437472,337.23713 96.76838,343.89894 100,350.36218 C 101.77284,353.90787 106.6142,356.82283 110,359.36218"
+       id="path4061" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 57,237.36218 C 58.029547,239.42128 68.929829,241.36218 75,241.36218 C 80,241.36218 85,241.36218 90,241.36218"
+       id="path4063" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="116"
+       y="174.36218"
+       id="text4065"><tspan
+         sodipodi:role="line"
+         id="tspan4067"
+         x="116"
+         y="174.36218">gene</tspan><tspan
+         sodipodi:role="line"
+         x="116"
+         y="189.36218"
+         id="tspan4069">miRNA</tspan><tspan
+         sodipodi:role="line"
+         x="116"
+         y="204.36218"
+         id="tspan4071">protein</tspan><tspan
+         sodipodi:role="line"
+         x="116"
+         y="219.36218"
+         id="tspan4073" /><tspan
+         sodipodi:role="line"
+         x="116"
+         y="234.36218"
+         id="tspan4075">CDS</tspan><tspan
+         sodipodi:role="line"
+         x="116"
+         y="249.36218"
+         id="tspan4077">exon</tspan><tspan
+         sodipodi:role="line"
+         x="116"
+         y="264.36218"
+         id="tspan4087" /><tspan
+         sodipodi:role="line"
+         x="116"
+         y="279.36218"
+         id="tspan4081">five_prime_UTR</tspan><tspan
+         sodipodi:role="line"
+         x="116"
+         y="294.36218"
+         id="tspan4083">three_prime_UTR</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="12"
+       y="246.36218"
+       id="text4089"><tspan
+         sodipodi:role="line"
+         id="tspan4091"
+         x="12"
+         y="246.36218">gene</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="14"
+       y="392.36218"
+       id="text4093"><tspan
+         sodipodi:role="line"
+         id="tspan4095"
+         x="14"
+         y="392.36218">miRNA</tspan><tspan
+         sodipodi:role="line"
+         x="14"
+         y="407.36218"
+         id="tspan4097" /><tspan
+         sodipodi:role="line"
+         x="14"
+         y="422.36218"
+         id="tspan4099">peudogene</tspan><tspan
+         sodipodi:role="line"
+         x="14"
+         y="437.36218"
+         id="tspan4101" /><tspan
+         sodipodi:role="line"
+         x="14"
+         y="452.36218"
+         id="tspan4103">snoRNA</tspan><tspan
+         sodipodi:role="line"
+         x="14"
+         y="467.36218"
+         id="tspan4105" /><tspan
+         sodipodi:role="line"
+         x="14"
+         y="482.36218"
+         id="tspan4107">snRNA</tspan><tspan
+         sodipodi:role="line"
+         x="14"
+         y="497.36218"
+         id="tspan4111" /><tspan
+         sodipodi:role="line"
+         x="14"
+         y="512.36218"
+         id="tspan4113">TE</tspan><tspan
+         sodipodi:role="line"
+         x="14"
+         y="527.36218"
+         id="tspan4117" /><tspan
+         sodipodi:role="line"
+         x="14"
+         y="542.36218"
+         id="tspan4119">tRNA</tspan><tspan
+         sodipodi:role="line"
+         x="14"
+         y="557.36218"
+         id="tspan4121" /><tspan
+         sodipodi:role="line"
+         x="14"
+         y="572.36218"
+         id="tspan4123">rRNA</tspan><tspan
+         sodipodi:role="line"
+         x="14"
+         y="587.36218"
+         id="tspan4127" /><tspan
+         sodipodi:role="line"
+         x="14"
+         y="602.36218"
+         id="tspan4129">ncRNA</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 35,507.36218 C 149,507.36218 149,507.36218 149,507.36218"
+       id="path4125" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 110,404.36218 C 106.77256,404.61554 98.934016,407.89517 94,410.36218 C 85.920051,414.40216 85.697975,416.87231 85,420.36218 C 84.957401,420.57518 98.623014,425.01794 100,425.36218 C 104.96064,426.60234 110.01812,428.37577 114,431.36218"
+       id="path4131" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="123"
+       y="407.36218"
+       id="text4133"><tspan
+         sodipodi:role="line"
+         id="tspan4135"
+         x="123"
+         y="407.36218">pseudogenic_exon</tspan><tspan
+         sodipodi:role="line"
+         x="123"
+         y="422.36218"
+         id="tspan4137" /><tspan
+         sodipodi:role="line"
+         x="123"
+         y="437.36218"
+         id="tspan4139">pseudogenic_transcript</tspan></text>
+  </g>
+</svg>
