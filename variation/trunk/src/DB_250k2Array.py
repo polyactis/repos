@@ -7,8 +7,14 @@ Examples:
 	
 	#put them in some temporary directory
 	DB_250k2Array.py -o /tmp/arrays
+	
+	#output the intensity of CNV probes instead. a file called 'call_method_%s_CNV_intensity.tsv'%(call_method_id) would in the output dir.
+	DB_250k2Array.py -o /tmp/CNV/ -l 17 -t -u yh
+	
 Description:
-	output all .cel array files (according to array_info_table) as intensity matrices in output_dir
+	2008-12-09 This program outputs the intensity of two types of probes on the array.
+	1. SNP probes. each array (according to array_info_table) corresponds to one intensity matrix in output_dir.
+	2. CNV probes. one giant ProbeXArray matrix. Columns are: probe_id, array1_id, array2_id, ..., chromosome, position
 
 """
 
@@ -24,6 +30,7 @@ else:   #32bit
 import csv, numpy, getopt
 import traceback, gc
 from pymodule import process_function_arguments
+import numpy
 
 class probe:
 	def __init__(self, probes_id, snps_id, xpos, ypos, allele, strand):
@@ -88,16 +95,18 @@ class snps_class:
 class DB_250k2Array(object):
 	__doc__ = __doc__
 	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
-						('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
-						('db_user', 1, ): [None, 'u', 1, 'database username', ],\
-						('db_passwd', 1, ):[None, 'p', 1, 'database password', ],\
-						('output_dir', 1, ): [None, 'o', 1, ],\
-						('snps_table', 1, ): ['snps', 's', 1],\
-						('probes_table', 1, ): ['probes', 'e'],\
-						('array_info_table', 1, ):['array_info', 'y'],\
-						('array_id_ls', 0, ): [None, 'a', 1, 'comma-separated array id list, used to choose some arrays. Not specifying this means all arrays.'],\
-						('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
-						('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+							('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
+							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
+							('db_passwd', 1, ):[None, 'p', 1, 'database password', ],\
+							('output_dir', 1, ): [None, 'o', 1, ],\
+							('snps_table', 1, ): ['snps', 's', 1],\
+							('probes_table', 1, ): ['probes', 'e'],\
+							('array_info_table', 1, ):['array_info', 'y'],\
+							('array_id_ls', 0, ): [None, 'a', 1, 'comma-separated array id list, used to choose some arrays. Not specifying this means all arrays.'],\
+							('call_method_id', 0, int):[0, 'l', 1, 'Restrict arrays included in this call_method. Default is no such restriction.'],\
+							('output_CNV_intensity', 0, int):[0, 't', 0, 'toggle this to output the intensity of CNV probes instead of SNP probes'],\
+							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
 	def __init__(self, **keywords):
 		"""
@@ -124,23 +133,45 @@ class DB_250k2Array(object):
 		sys.stderr.write("Done.\n")
 		return snps
 	
-	def get_probes(self, curs, probes_table, snps):
+	def get_probes(self, curs, probes_table, snps, output_CNV_intensity=False):
 		"""
+		2008-12-09
+			add option output_CNV_intensity
 		"""
 		sys.stderr.write("Getting probes ... ")
 		probes = probes_class()
-		curs.execute("select id, snps_id, xpos, ypos, allele, strand from %s where snps_id is not null"%(probes_table))
+		if output_CNV_intensity:
+			curs.execute("select id, chromosome, position, xpos, ypos, allele, strand from %s where direction is not null order by chromosome, position"%(probes_table))
+		else:
+			curs.execute("select id, snps_id, xpos, ypos, allele, strand from %s where snps_id is not null"%(probes_table))
 		rows = curs.fetchall()
+		xy_ls = []
+		chr_pos_ls = []
+		probes_id_ls = []
+		counter = 0
 		for row in rows:
-			probes_id, snps_id, xpos, ypos, allele, strand = row
-			probes.add_one_probe(probes_id, snps_id, xpos, ypos, allele, strand)
-			snps.add_one_probes_id2snp(snps_id, probes_id, allele, strand)
+			if output_CNV_intensity:
+				probes_id, chromosome, position, xpos, ypos, allele, strand = row
+				xy_ls.append((xpos, ypos))
+				chr_pos_ls.append((chromosome, position))
+				probes_id_ls.append(probes_id)
+			else:
+				probes_id, snps_id, xpos, ypos, allele, strand = row
+				probes.add_one_probe(probes_id, snps_id, xpos, ypos, allele, strand)
+				snps.add_one_probes_id2snp(snps_id, probes_id, allele, strand)
+			counter += 1
+			if self.debug and counter%1000==0:
+				break
+			
 		del rows
 		sys.stderr.write("Done.\n")
-		return probes
+		return probes, xy_ls, chr_pos_ls, probes_id_ls
 	
-	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id_ls):
+	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id_ls, xy_ls, chr_pos_ls, probes_id_ls,\
+				call_method_id=0, output_CNV_intensity=False):
 		"""
+		2008-12-09
+			add option output_CNV_intensity
 		2008-07-12
 			add option array_id
 		2008-04-08
@@ -153,18 +184,28 @@ class DB_250k2Array(object):
 			os.makedirs(output_dir)
 		if array_id_ls:
 			curs.execute("select id, filename from %s where id in (%s)"%(array_info_table, array_id_ls))
+		elif call_method_id:
+			curs.execute("select v.array_id, a.filename from view_call v, %s a where v.array_id=a.id and v.call_method_id=%s order by array_id"%\
+						(array_info_table, call_method_id))
 		else:
 			curs.execute("select id, filename from %s"%(array_info_table))
 		rows = curs.fetchall()
 		no_of_objects = len(rows)
+		
+		if output_CNV_intensity:	#2008-12-09 don't initialize the data_matrix if output_CNV_intensity is False.
+			data_matrix = numpy.zeros([len(probes_id_ls), no_of_objects], numpy.float)
+		array_id_avail_ls = []
 		for i in range(no_of_objects):
 			array_id, filename = rows[i]
+			array_id_avail_ls.append(array_id)
+			
 			sys.stderr.write("\t%d/%d: Extracting intensity from %s ... \n"%(i+1, no_of_objects, filename))
 			
-			output_fname = os.path.join(output_dir, '%s_array_intensity.tsv'%(array_id))
-			if os.path.isfile(output_fname):
-				sys.stderr.write("\tFile %s already exists. Ignore.\n"%(output_fname))
-				continue
+			if not output_CNV_intensity:	#output SNP probe intensity within the loop
+				output_fname = os.path.join(output_dir, '%s_array_intensity.tsv'%(array_id))
+				if os.path.isfile(output_fname):
+					sys.stderr.write("\tFile %s already exists. Ignore.\n"%(output_fname))
+					continue
 			
 			#read array by calling R
 			array = rpy.r.read_affybatch(filenames=filename)
@@ -173,21 +214,50 @@ class DB_250k2Array(object):
 			if array_size == None:
 				array_size = int(math.sqrt(intensity_array_size))	#assume it's square array
 			
+			if output_CNV_intensity:
+				for j in range(len(xy_ls)):
+					xpos, ypos = xy_ls[j]
+					#chromosome, position = chr_pos_ls[j]
+					intensity_array_index = array_size*(array_size - xpos - 1) + ypos
+					#output_row = [chromosome, position]
+					intensity = math.log10(intensity_array[intensity_array_index][0])
+					#output_row.append(intensity)
+					#writer.writerow(output_row)
+					data_matrix[j][i] = intensity
+			else:	
+				writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+				header = [ 'sense1', 'sense2', 'antisense1', 'antisense2']
+				
+				func = lambda x: '%s_%s'%(array_id, x)
+				header = map(func, header)
+				header = ['SNP_ID'] + header
+				writer.writerow(header)
+				for snps_id in snps.snps_id_ls:
+					one_snp = snps.get_one_snp(snps_id)
+					output_row = [one_snp.snpid]
+					for probes_id in one_snp.probes_id_ls:
+						one_probe = probes.get_one_probe(probes_id)
+						intensity_array_index = array_size*(array_size - one_probe.xpos - 1) + one_probe.ypos
+						output_row.append(intensity_array[intensity_array_index][0])
+					writer.writerow(output_row)
+				del writer
+			
+
+			del intensity_array, array
+		
+		
+		if output_CNV_intensity:
+			#2008-11-13 output in Roger's multi-sample format
+			header =['probes_id'] + array_id_avail_ls + ['chromosome', 'position']
+			output_fname = os.path.join(output_dir, 'call_method_%s_CNV_intensity.tsv'%(call_method_id))
+			
 			writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-			header = [ 'sense1', 'sense2', 'antisense1', 'antisense2']
-			func = lambda x: '%s_%s'%(array_id, x)
-			header = map(func, header)
-			header = ['SNP_ID'] + header
 			writer.writerow(header)
-			for snps_id in snps.snps_id_ls:
-				one_snp = snps.get_one_snp(snps_id)
-				output_row = [one_snp.snpid]
-				for probes_id in one_snp.probes_id_ls:
-					one_probe = probes.get_one_probe(probes_id)
-					intensity_array_index = array_size*(array_size - one_probe.xpos - 1) + one_probe.ypos
-					output_row.append(intensity_array[intensity_array_index][0])
-				writer.writerow(output_row)
-			del writer, intensity_array, array
+			for i in range(data_matrix.shape[0]):
+				data_row = [probes_id_ls[i]] + list(data_matrix[i]) + list(chr_pos_ls[i])
+				writer.writerow(data_row)
+			del writer
+		
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
@@ -197,9 +267,15 @@ class DB_250k2Array(object):
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
-		snps = self.get_snps(curs, self.snps_table)
-		probes = self.get_probes(curs, self.probes_table, snps)
-		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes, self.array_id_ls)
+		if self.output_CNV_intensity:
+			snps = None			
+		else:
+			snps = self.get_snps(curs, self.snps_table)
+		probes, xy_ls, chr_pos_ls, probes_id_ls = self.get_probes(curs, self.probes_table, snps, \
+																output_CNV_intensity=self.output_CNV_intensity)
+		
+		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes, self.array_id_ls, xy_ls, \
+						chr_pos_ls, probes_id_ls, call_method_id=self.call_method_id, output_CNV_intensity=self.output_CNV_intensity)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
