@@ -222,7 +222,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		sys.stderr.write("Drawing histogram ...")
 		pylab.clf()
 		#calculate the number of rows needed according to how many score_rank_data, always two-column
-		pylab.subplots_adjust(left=0.08, right=0.92,bottom = 0.05)
+		pylab.subplots_adjust(left=0.08, right=0.92, bottom=0.05, top=0.9, wspace=0.2, hspace=0.2)
 		no_of_rows = len(score_rank_data_ls)/2.
 		if no_of_rows%1>0:
 			no_of_rows = int(no_of_rows)+1
@@ -334,6 +334,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		
 	def run(self):
 		"""
+		2008-12-08 if the plot under configuration is already in db, abort only if the program is gonna commit the database transaction.
 		2008-10-19
 			save figures in database if commit
 		"""
@@ -398,7 +399,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 			if hist_type.id:	#hist_type already in database
 				rows = Stock_250kDB.ScoreRankHistogram.query.filter_by(phenotype_method_id=phenotype_id).\
 					filter_by(list_type_id=self.list_type_id).filter_by(hist_type_id=hist_type.id)
-				if rows.count()>0:
+				if rows.count()>0 and self.commit:	#2008-12-08 only skip if the database transaction is gonna commit.
 					row = rows.first()
 					sys.stderr.write("Histogram already in database. id=%s, phenotype_id=%s, list_type_id=%s, hist_type_id=%s.\n"%\
 									(row.id, row.phenotype_method_id, row.list_type_id, row.hist_type_id))
