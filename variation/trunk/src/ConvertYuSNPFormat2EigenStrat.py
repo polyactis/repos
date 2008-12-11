@@ -2,7 +2,10 @@
 """
 
 Examples:
-	ConvertYuSNPFormat2EigenStrat.py -i /Network/Data/250k/tmp-yh/call_method_17.tsv -o /tmp/call_method_17_binary_eigenstrat
+	ConvertYuSNPFormat2EigenStrat.py -i /Network/Data/250k/tmp-yh/call_method_17.tsv -o /tmp/call_method_17_eigenstrat
+	
+	#convert the phenotype matrix into eigenstrat format as well. The StrainXSNP matrix is a watered-down version to speed up.
+	ConvertYuSNPFormat2EigenStrat.py -i /Network/Data/250k/tmp-yh/call_method_17_test.tsv -o /tmp/call_method_17_eigenstrat -p /Network/Data/250k/tmp-yh/phenotype.tsv -y 1
 
 Description:
 	Convert Yu's SNP format (input) to EigenStrat's (Price2006, http://genepath.med.harvard.edu/~reich/Software.htm).
@@ -12,7 +15,7 @@ Description:
 	Input format is strain X snp. 2nd column ignored by default (change by array_id_2nd_column).
 		delimiter (either tab or comma) is automatically detected. 	header is 'chromosome_position'.
 	
-	There are 3 output files.
+	There are 4 output files.
 		.geno
 			The genotype file contains 1 line per SNP.
 				Each line contains 1 character per individual:
@@ -39,7 +42,16 @@ Description:
 				4th column is physical position (in bases)
 					Optional 5th and 6th columns are reference and variant alleles.
 					For monomorphic SNPs, the variant allele can be encoded as X.
-
+		.pheno (if phenotype_fname and phenotype_method_id are given)
+			input file of phenotypes.  File contains one line.
+			Binary Phenotype: This line contains one character per individual:
+				0 means control, 1 means case, 9 means missing phenotype.
+				Note ../CONVERTF/ind2pheno.perl will convert from indiv file to .pheno file.
+				
+			Quantitative phenotypes are supported by the eigenstratQTL program, whose
+				syntax is identical to the eigenstrat program except that the input file of
+				phenotypes is one quantitative phenotype per line, using -100.0 for missing
+				quantitative phenotypes.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -53,13 +65,19 @@ from pymodule import process_function_arguments, write_data_matrix, figureOutDel
 from pymodule.SNP import transposeSNPData
 from QC_250k import SNPData
 from common import SNPData2RawSnpsData_ls
-import snpsdata, csv
+import snpsdata, csv, numpy
+from PlotGroupOfSNPs import PlotGroupOfSNPs
+from Kruskal_Wallis import Kruskal_Wallis
+from sets import Set
 
 class ConvertYuSNPFormat2EigenStrat(object):
 	__doc__ = __doc__
 	option_default_dict = {('input_fname', 1, ): [None, 'i', 1, ],\
 						('output_fname_prefix', 1, ): [None, 'o', 1, 'Output Filename prefix'],\
 						('array_id_2nd_column', 0, int): [0, 'a', 0, 'whether 2nd column in input_fname is array id or not'],\
+						('phenotype_fname', 0, ): [None, 'p', 1, 'phenotype file', ],\
+						('phenotype_method_id', 0, int): [0, 'y', 1, 'which phenotype',],\
+						('phenotype_is_binary', 0, int): [0, 'e', 1, 'is phenotype binary?',],\
 						('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 						('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -89,6 +107,26 @@ class ConvertYuSNPFormat2EigenStrat(object):
 							data_matrix=data_matrix)	#ignore category_list
 		
 		newSnpData, allele_index2allele_ls = snpData.convert2Binary(self.report)
+		
+		if self.phenotype_fname and self.phenotype_method_id:
+			header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.phenotype_fname, turn_into_integer=0)
+			phenData = SNPData(header=header_phen, strain_acc_list=newSnpData.strain_acc_list, data_matrix=data_matrix_phen)	#row label is that of the SNP matrix, because the phenotype matrix is gonna be re-ordered in that way
+			phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(newSnpData.row_id_ls, strain_acc_list_phen, phenData.data_matrix)	#tricky, using strain_acc_list_phen
+			
+			phenotype_col_index = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set([self.phenotype_method_id]))[0]
+			phenotype_label = phenData.col_id_ls[phenotype_col_index]
+			phenotype_f = open('%s_%s.pheno'%(self.output_fname_prefix, phenotype_label.replace('/', '_')), 'w')
+			for phenotype_value in phenData.data_matrix[:,phenotype_col_index]:
+				if self.phenotype_is_binary:	#binary and non-binary have different NA designator
+					if numpy.isnan(phenotype_value):
+						phenotype_value = 9
+					else:
+						phenotype_value = int(phenotype_value)
+				else:
+					if numpy.isnan(phenotype_value):
+						phenotype_value = -100.0
+				phenotype_f.write('%s\n'%phenotype_value)
+			del phenotype_f
 		
 		genotype_f = open('%s.geno'%self.output_fname_prefix, 'w')
 		ind_writer = csv.writer(open('%s.ind'%self.output_fname_prefix, 'w'), delimiter='\t')
