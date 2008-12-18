@@ -90,6 +90,8 @@ class GroupDuplicateEcotype(object):
 	
 	def createGenotypingAllNAEcotypeTable(db, table_name='genotyping_all_na_ecotype', commit=0):
 		"""
+		2008-12-18
+			remove 'unsigned' from integer definition of genotyping_all_na_ecotype table
 		2008-08-11
 			use StockDB
 		2007-10-22
@@ -112,7 +114,7 @@ class GroupDuplicateEcotype(object):
 		
 		if commit:
 			db.metadata.bind.execute("create table IF NOT EXISTS %s(id integer primary key auto_increment,\
-				ecotypeid	integer unsigned,\
+				ecotypeid	integer,\
 				strainid	integer,\
 				foreign key (ecotypeid) references ecotype(id) on delete cascade on update cascade,\
 				foreign key (strainid) references strain(id) on delete cascade on update cascade) engine=INNODB"%(table_name))
@@ -160,6 +162,8 @@ class GroupDuplicateEcotype(object):
 				nativename_stkparent2tg_ecotypeid_table='nativename_stkparent2tg_ecotypeid', \
 				ecotype_duplicate2tg_ecotypeid_table='ecotype_duplicate2tg_ecotypeid', commit=0):
 		"""
+		2008-12-18
+			remove 'unsigned' from integer definition of nativename_stkparent2tg_ecotypeid_table
 		2008-08-11
 			use StockDB
 		2008-05-15
@@ -243,7 +247,7 @@ class GroupDuplicateEcotype(object):
 			db.metadata.bind.execute("create table IF NOT EXISTS %s (id integer primary key auto_increment,\
 				nativename	varchar(50),\
 				stockparent	varchar(10),\
-				tg_ecotypeid	integer unsigned,\
+				tg_ecotypeid	integer,\
 				quality	varchar(50),\
 				foreign key (tg_ecotypeid) references ecotype(id) on delete cascade on update cascade) engine=INNODB"\
 				%(nativename_stkparent2tg_ecotypeid_table))
