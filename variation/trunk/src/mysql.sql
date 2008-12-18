@@ -174,7 +174,7 @@ DELIMITER ;
 --2007-10-21 for database stock or its replicates
 use stock;
 create table person(
-	id integer unsigned primary key auto_increment,
+	id integer primary key auto_increment,
 	title varchar(4),
 	surname varchar(40) not null,
 	firstname varchar(40) not null,
@@ -185,19 +185,9 @@ create table person(
 	donor integer not null
 	)engine=INNODB;
 
--- 2008-05-15 attempt to add foreign key constraints for tables created by GroupDuplicateEcotype.py but all failed. get "ERROR 1005 (HY000): Can't create table './stock/#sql-99_17.frm' (errno: 150)"
--- 2008-08-11 turns out that the type of id in table ecotype is 'integer unsigned'. after modifying those columns to be unsigned, succeed.
--- 2008-08-11 don't need these anymore. GroupDuplicateEcotype.py can create these on the fly
-alter table ecotype_duplicate2tg_ecotypeid add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
-alter table ecotype_duplicate2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
-
-alter table genotyping_all_na_ecotype add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
-
-alter table nativename_stkparent2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
-
 -- 2008-05-18 view to check other info (where and country) about ecotype
 create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent,
-	e.nativename, e.alias, e.siteid, s.name as site_name, c.abbr as country, p.firstname, p.surname from ecotype e,
+	e.nativename, e.latitude, e.longitude, e.alias, e.siteid, s.name as site_name, c.abbr as country, p.firstname, p.surname from ecotype e,
 	site s, address a, country c , person p where p.id=e.collectorid and e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
 
 
@@ -206,6 +196,23 @@ create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stock
 update ecotypeid_strainid2tg_ecotypeid set tg_ecotypeid=7183 where ecotypeid in (7185, 7183);
 update ecotypeid_strainid2tg_ecotypeid set tg_ecotypeid=8424 where ecotypeid in (6925, 7184, 8315, 8424);
 
+-- 2008-08-18 create a view to view qc results for db stock
+create or replace view view_qc as select q.strainid, e.id as ecotype_id, e.nativename, q.target_id, 
+q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
+q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, q.created_by, q.updated_by, q.date_created, q.date_updated
+from call_qc q , ecotype e, qc_method qm where e.id=q.ecotypeid 
+and qm.id=q.qc_method_id order by nativename, strainid, qc_method_id;
+
+-- 2008-08-11 don't need these anymore. GroupDuplicateEcotype.py can create these on the fly
+-- 2008-08-11 turns out that the type of id in table ecotype is 'integer unsigned'. after modifying those columns to be unsigned, succeed.
+-- 2008-05-15 attempt to add foreign key constraints for tables created by GroupDuplicateEcotype.py but all failed. get "ERROR 1005 (HY000): Can't create table './stock/#sql-99_17.frm' (errno: 150)"
+alter table ecotype_duplicate2tg_ecotypeid add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
+alter table ecotype_duplicate2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
+alter table genotyping_all_na_ecotype add foreign key (ecotypeid) references ecotype(id) on delete restrict on update cascade;
+alter table nativename_stkparent2tg_ecotypeid add foreign key (tg_ecotypeid) references ecotype(id) on delete restrict on update cascade;
+
+
+-- 2008-12-17 this part is outdated and defunct. check plone doc, /log/sql/, for updates.
 -- 2008-08-11 two new tables to split calls_byseq, in StockDB.py, but due to this f*** unsigned, have to manually create them
 CREATE TABLE strain (
 	id INTEGER NOT NULL AUTO_INCREMENT primary key, 
@@ -224,7 +231,7 @@ CREATE TABLE strain (
 	 CONSTRAINT strain_ecotypeid_fk FOREIGN KEY(ecotypeid) REFERENCES ecotype (id) ON DELETE CASCADE ON UPDATE CASCADE, 
 	 CONSTRAINT strain_extractionid_fk FOREIGN KEY(extractionid) REFERENCES extraction (id) ON DELETE CASCADE ON UPDATE CASCADE, 
 	 CONSTRAINT strain_seqinfoid_fk FOREIGN KEY(seqinfoid) REFERENCES seqinfo (id) ON DELETE CASCADE ON UPDATE CASCADE,
-	 FOREIGN KEY(contaminant_type_id) REFERENCES contaminant_type (id) ON DELETE restrict ON UPDATE CASCADE,
+	 FOREIGN KEY(contaminant_type_id) REFERENCES contaminant_type (id) ON DELETE restrict ON UPDATE CASCADE
 )ENGINE=InnoDB;
 
 CREATE TABLE calls (
@@ -236,12 +243,6 @@ CREATE TABLE calls (
 	 CONSTRAINT calls_snpid_fk FOREIGN KEY(snpid) REFERENCES snps (id) ON DELETE CASCADE ON UPDATE CASCADE
 )ENGINE=InnoDB;
 
---2008-08-18 create a view to view qc results for db stock
-create or replace view view_qc as select q.strainid, e.id as ecotype_id, e.nativename, q.target_id, 
-q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
-q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, q.created_by, q.updated_by, q.date_created, q.date_updated
-from call_qc q , ecotype e, qc_method qm where e.id=q.ecotypeid 
-and qm.id=q.qc_method_id order by nativename, strainid, qc_method_id;
 
 
 --2007-10-29 a copy of postgresql graphdb's dbsnp.snp_locus
