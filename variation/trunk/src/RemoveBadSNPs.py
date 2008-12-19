@@ -23,6 +23,8 @@ Description:
 
 """
 from __init__ import *
+from pymodule import read_data, importNumericArray, write_data_matrix
+num = importNumericArray()
 
 class RemoveBadSNPs:
 	def __init__(self, input_fname=None, output_fname=None, min_log_prob=-0.5, nt_alphabet_bits='00', debug=0, report=0):
