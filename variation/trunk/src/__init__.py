@@ -13,11 +13,10 @@ except ImportError:
 		import psycopg
 	except ImportError:
 		sys.stderr.write("Neither psycopg nor psycopg2 is installed.\n")
-		raise
 import sys, getopt, csv, re
-from codense.common import db_connect, dict_map
+#from codense.common import db_connect, dict_map
 from common import nt2number, number2nt
 from sets import Set
-import networkx as nx
-from pymodule import importNumericArray, ProcessOptions, SNPData, write_data_matrix, read_data, TwoSNPData
-num = importNumericArray()
+#import networkx as nx
+#from pymodule import importNumericArray, ProcessOptions, SNPData, write_data_matrix, read_data, TwoSNPData
+#num = importNumericArray()
