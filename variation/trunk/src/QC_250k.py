@@ -61,7 +61,7 @@ import Stock_250kDB
 from pymodule.db import formReadmeObj
 import sqlalchemy, numpy
 
-class QC_250k(object):
+class QC_250k(TwoSNPData):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
 							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
@@ -373,47 +373,7 @@ class QC_250k(object):
 			#		(NA_rate, call_info_id))
 		sys.stderr.write("Done.\n")
 	
-	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname, file_1st_open=1):
-		"""
-		2008-05-12
-			smart way to figure out how to deal with row_id and its labels
-		2008-05-12
-			tsv => csv fromat
-		2008-05-11
-			add file_1st_open argument
-		2008-04-22
-		"""
-		sys.stderr.write("Outputting row_id2NA_mismatch_rate to %s ..."%(output_fname))
-		if file_1st_open:
-			open_flag = 'w'
-		else:
-			open_flag = 'a'
-		writer = csv.writer(open(output_fname, open_flag))
-		NA_mismatch_ls_header = ['NA_rate', 'mismatch_rate', 'no_of_NAs', 'no_of_totals', \
-				'no_of_mismatches', 'no_of_non_NA_pairs', 'relative_NA_rate', 'relative_no_of_NAs', 'relative_no_of_totals']
-		row_id_ls = row_id2NA_mismatch_rate.keys()
-		row_id_ls.sort()	#try to keep them in call_info_id order
-		if len(row_id_ls)>0:
-			row_id0 = row_id_ls[0]
-			if not isinstance(row_id0, str) and hasattr(row_id0, '__len__'):
-				header = ['']*len(row_id0)
-			else:
-				header = ['']
-			header += NA_mismatch_ls_header
-			writer.writerow(header)
-			for row_id in row_id_ls:
-				NA_mismatch_ls = row_id2NA_mismatch_rate[row_id]
-				if isinstance(row_id, tuple):
-					row_id_ls = list(row_id)
-				elif isinstance(row_id, list):
-					row_id_ls = row_id
-				else:
-					row_id_ls = [row_id]
-				writer.writerow(row_id_ls + NA_mismatch_ls)
-		del writer
-		sys.stderr.write("Done.\n")
-	
-	output_row_id2NA_mismatch_rate = classmethod(output_row_id2NA_mismatch_rate)
+	#output_row_id2NA_mismatch_rate = classmethod(TwoSNPData.output_row_id2NA_mismatch_rate)
 	
 	def get_snps_name2snps_id(cls, db):
 		"""
