@@ -1080,6 +1080,9 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2008-12-18
+		if pdata has attribute 'gwr_name', assign it to GenomeWideResult.name.
+		otherwise GenomeWideResult.name = os.path.basename(input_fname)
 	2008-11-20
 		fix a bug that column_5th was skipped and column_6 was tried when there are only 5 columns
 	2008-11-12
@@ -1112,7 +1115,8 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	is_4th_col_stop_pos = getattr(pdata, 'is_4th_col_stop_pos', False)	#2008-10-14
 	chr_pos2index = getattr(pdata, 'chr_pos2index', None)	#2008-10-21
 	score_for_0_pvalue = getattr(pdata, 'score_for_0_pvalue', 50)
-	gwr = GenomeWideResult(name=os.path.basename(input_fname), construct_chr_pos2index=construct_chr_pos2index, \
+	gwr_name = getattr(pdata, 'gwr_name', os.path.basename(input_fname))
+	gwr = GenomeWideResult(name=gwr_name, construct_chr_pos2index=construct_chr_pos2index, \
 						construct_data_obj_id2index=construct_data_obj_id2index)
 	gwr.data_obj_ls = []	#list and dictionary are crazy references.
 	gwr.data_obj_id2index = {}
