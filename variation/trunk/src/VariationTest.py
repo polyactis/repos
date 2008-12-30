@@ -15,7 +15,7 @@ Examples:
 2008-10-08 4: TestGetEcotypeInfo
 2008-10-11 5: TestDrawMap
 2008-10-17 6: TestScoreRankHistogram
-
+2008-12-30 7: TestMAFVsScorePlot
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -353,6 +353,32 @@ class TestScoreRankHistogram(unittest.TestCase):
 		#outf.write(base64.b64decode(snp_region_plot.img_data))
 		outf.close()
 
+class TestMAFVsScorePlot(unittest.TestCase):
+	"""
+	2008-12-30
+		test to retrieve binary data from MAFVsScorePlot and store it in a file.
+	"""
+	def setUp(self):
+		print
+	
+	def test_SaveAndFetchOneImage(self):
+		import Stock_250kDB
+		hostname='papaya.usc.edu'
+		dbname='stock_250k'
+		db_user='yh'
+		db_passwd = '***'
+		drivername='mysql'
+		schema = None
+		db = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user,
+						password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+		db.setup(create_tables=False)
+		
+		one_entry = Stock_250kDB.MAFVsScorePlot.query.first()
+		
+		outf = open('/tmp/plot_1.png', 'wb')
+		outf.write(one_entry.png_data)
+		outf.close()
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		print __doc__
@@ -370,7 +396,8 @@ if __name__ == '__main__':
 		3:TestFetchSNPRegionPlot,
 		4:TestGetEcotypeInfo,
 		5:TestDrawMap,
-		6:TestScoreRankHistogram}
+		6:TestScoreRankHistogram,
+		7:TestMAFVsScorePlot}
 	type = 0
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
