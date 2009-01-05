@@ -388,6 +388,9 @@ class Calls2DB_250k(object):
 	
 	def submit_StrainxSNP_file2db(self, curs, input_fname, call_info_table, output_dir, method_id, user):
 		"""
+		2008-1-5
+			if the output_fname already exists, exit the program.
+			if db insertion fails, delete the file written out and exit the program.
 		2008-05-19
 			submit the calls from a matrix file (Strain X SNP format, tsv, nucleotides in numbers) to db
 		"""
@@ -406,16 +409,24 @@ class Calls2DB_250k(object):
 			if new_call_id!=-1:
 				output_fname = os.path.join(output_dir, '%s_call.tsv'%new_call_id)
 				if os.path.isfile(output_fname):
-					sys.stderr.write("%s already exists. Ignore.\n"%output_fname)
-					continue
+					sys.stderr.write("Error: %s already exists. Check why the file exists while db has no record.\n"%output_fname)
+					sys.exit(2)
 				writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
 				writer.writerow(['SNP_ID', array_id])
 				for i in range(2, len(row)):
 					snp_id = header[i]
 					writer.writerow([snp_id, number2nt[int(row[i])]])	#translate 
 				del writer
-				curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
-						(call_info_table, new_call_id, output_fname, array_id, method_id, user))
+				try:
+					curs.execute("insert into %s(id, filename, array_id, method_id, created_by) values (%s, '%s', %s, %s, '%s')"%\
+								(call_info_table, new_call_id, output_fname, array_id, method_id, user))
+				except:
+					traceback.print_exc()
+					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+					sys.stderr.write('Error encountered while inserting record into %s. Delete the file written.\n'%call_info_table)
+					commandline = 'rm %s'%(output_fname)
+					command_out = runLocalCommand(commandline)
+					sys.exit(3)
 				counter += 1
 		del reader
 		sys.stderr.write(" %s arrays. Done.\n"%counter)
