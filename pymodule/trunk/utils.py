@@ -245,6 +245,48 @@ def getListOutOfStr(list_in_str, data_type=int, separator1=',', separator2='-'):
 	list_to_return = map(data_type, list_to_return)	#2008-10-27
 	return list_to_return
 
+def runLocalCommand(commandline, report_stderr=True, report_stdout=False):
+		"""
+		2008-1-5
+			copied from utility/grid_job_mgr/hpc_cmb_pbs.py
+		2008-11-07
+			command_handler.communicate() is more stable than command_handler.stderr.read()
+		2008-11-04
+			refactor out of runRemoteCommand()
+			
+			run a command local (not on the cluster)
+		"""
+		import subprocess
+		import StringIO
+		command_handler = subprocess.Popen(commandline, shell=True, \
+										stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+		#command_handler.wait() #Warning: This will deadlock if the child process generates enough output to a stdout or stderr pipe such that it blocks waiting for the OS pipe buffer to accept more data. Use communicate() to avoid that.
+		
+		#command_handler.stderr.read() command_handler.stdout.read() also constantly deadlock the whole process.
+		
+		stderr_content = None
+		stdout_content = None
+		
+		stdout_content, stderr_content = command_handler.communicate()	#to circumvent deadlock caused by command_handler.stderr.read()
+		
+		output_stdout = None
+		output_stderr = None
+		if not report_stdout:	#if not reporting, assume the user wanna to have a file handler returned
+			output_stdout = StringIO.StringIO(stdout_content)
+		if not report_stderr:
+			output_stderr = StringIO.StringIO(stderr_content)
+		
+		if report_stdout:
+			sys.stderr.write('stdout of %s: %s \n'%(commandline, stdout_content))
+		
+		if report_stderr:
+			sys.stderr.write('stderr of %s: %s \n'%(commandline, stderr_content))
+		
+		return_data = PassingData(commandline=commandline, output_stdout=output_stdout, output_stderr=output_stderr,\
+								stderr_content=stderr_content, stdout_content=stdout_content)
+		return return_data
+
+
 if __name__ == '__main__':
 	FigureOutTaxID_ins = FigureOutTaxID()
 	print FigureOutTaxID_ins.returnTaxIDGivenSentence('>gi|172045488|ref|NW_001867254.1| Physcomitrella patens subsp. patens PHYPAscaffold_10696, whole genome shotgun sequence')
