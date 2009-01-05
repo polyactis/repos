@@ -9,8 +9,14 @@ Examples:
 	Association.py -i /Network/Data/250k/tmp-yh/call_method_17_test.tsv -p ./banyan_fs/tmp/phenotype.tsv -o /tmp/call_method_17_lm.tsv -y2
 	
 	#try emma (linear mixture model) on 1st 7 phenotypes
-	Association.py -i ./mnt2/panfs/250k/call_method_17.tsv -p ./banyan_fs/tmp/phenotype.tsv -o /tmp/call_method_17_y3.tsv  -y3 -w 0-6
+	Association.py -i ./mnt2/panfs/250k/call_method_17.tsv -p ./banyan_fs/tmp/phenotype.tsv -o /tmp/call_method_17_y3.tsv  -y3 -w 1-7
 
+	#linear model with principal components 0 to 9, phenotype from 1 to 7
+	Association.py -i /Network/Data/250k/tmp-yh/call_method_17.tsv -p /Network/Data/250k/tmp-yh/phenotype.tsv -y4 -o /Network/Data/250k/tmp-yh/eigenstrat//call_method_17_lm_with_pc0_9 -W 0-9 -f /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.pca.evec -r -w 1-7
+	
+	#linear model with PCs 0 to 1, phenotype from 1 to 5. the PCs are calculated on the fly according to the snp input file.
+	Association.py -i /Network/Data/250k/tmp-yh/250k_data/call_method_17_chr4_100000_700000.tsv -p /Network/Data/250k/tmp-yh/phenotype.tsv -o /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_chr4_100000_700000_y4_pc0_1 -W 0-1 -y 4 -w 1-5 -r
+	
 Description:
 	class to do association test on SNP data. option 'test_type' decides which test to run.
 	
@@ -19,8 +25,10 @@ Description:
 	
 	It requires a minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis or linear model test.
 	
-	For kruskal wallis & linear model, it will automatically match strains in two files.
+	For all methods, it will automatically match strains in two files.
 		NO worry for missing/extra data in either input file.
+	
+	All methods iterate through phenotypes given by '-w' except that Method "5: LM two phenotypes with PCs" takes two phenotypes from '-w'.
 """
 
 import sys, os, math
@@ -31,83 +39,80 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-import csv, numpy
+import csv, numpy, traceback
 from pymodule import read_data, ProcessOptions, PassingData, SNPData, getListOutOfStr
 from numpy import linalg
 
 from Kruskal_Wallis import Kruskal_Wallis
 import rpy
+from PlotGroupOfSNPs import PlotGroupOfSNPs
+from sets import Set
+#from DrawEcotypeOnMap import DrawEcotypeOnMap
 
 class Association(Kruskal_Wallis):
 	__doc__ = __doc__
 	option_default_dict = Kruskal_Wallis.option_default_dict.copy()
 	option_default_dict.pop(("which_phenotype", 1, int))
-	option_default_dict.update({('which_phenotype_ls', 1, ): ['0', 'w', 1, 'list of index indicating which phenotype, 0-1,3 = 1st,2nd, and 4th phenotype (starting from 3rd column in phenotype_fname) and so on.',]})
-	option_default_dict.update({('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis, 2:linear model(y=xb+e), 3:Emma']})
+	option_default_dict.update({('phenotype_method_id_ls', 0, ): ['1', 'w', 1, 'which phenotypes to work on. a comma-dash-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method.',]})
+	option_default_dict.update({('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis, 2:linear model(y=xb+e), 3:Emma, 4:LM with PCs, 5: LM two phenotypes with PCs']})
+	option_default_dict.update({('eigen_vector_fname', 0, ): [None, 'f', 1, 'eigen vector file with PCs outputted by smartpca.perl from EIGENSOFT', ]})
+	option_default_dict.update({('which_PC_index_ls', 0, ): [None, 'W', 1, 'list of indices indicating which PC(s) from eigen_vector_fname should be used. format: 0,1-3', ]})
 	def __init__(self, **keywords):
 		"""
 		2008-11-10
 		"""
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-		self.which_phenotype_ls = getListOutOfStr(self.which_phenotype_ls, data_type=int)
+		if self.phenotype_method_id_ls:
+			self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
+		
+		self.which_PC_index_ls = getListOutOfStr(self.which_PC_index_ls, data_type=int)
+		
 		self.run_whole_matrix = {1:self._kruskal_wallis_whole_matrix,
 								2:self.LM_whole_matrix,
-								3:self.Emma_whole_matrix}
+								3:self.Emma_whole_matrix,
+								4:self.LM_with_PCs_whole_matrix,
+								5:self.LM_with_PCs_whole_matrix}
 		
 		self.output_results = {1:self.output_kw_results,
 							2:self.output_lm_results,
 							3:self.output_lm_results}
 	
-	def pure_linear_model(cls, non_NA_genotype_ls, non_NA_phenotype_ls):
-		"""
-		2008-11-10
-			split out of linear_model()
-		"""
-		#rpy.r.as_factor.local_mode(rpy.NO_CONVERSION)
-		genotype_matrix = numpy.array(non_NA_genotype_ls, numpy.int)
-		genotype_var = numpy.var(genotype_matrix[:,1]) 	#2008-11-10 var=\sum(x_i-\bar{x})^2/(n-1)
-		"""
-		#2008-11-10 do linear regression by numpy
-		(p, residuals, rank, s) = linalg.lstsq(genotype_matrix, non_NA_phenotype_ls)	#all 4 returned elements are arrays
-		F = p[1]*p[1]/((residuals[0]/(n-2))/(genotype_var*(n-1)))	#page 108 of Seber2003LRA. F=r^2(n-2)/(1-r^2). T=sqrt(F) is t-stat with n-2 df. it's used in r.glm(). F-test gives slightly bigger p-value than t-test.
-		pvalue = rpy.r.pf(F,1, n-2, lower_tail=rpy.r.FALSE)
-		geno_effect_var = genotype_var*p[1]*p[1]*(n-1)
-		var_perc = geno_effect_var/(residuals[0]+geno_effect_var)
-		#var_perc2 = geno_effect_var/numpy.var(non_NA_phenotype_ls)	#this is also same as var_perc.
-		"""
-		
-		#2008-11-10 do linear regression by R
-		rpy.set_default_mode(rpy.NO_CONVERSION) #04-07-05
-		#data_frame = rpy.r.as_data_frame({"phenotype":non_NA_phenotype_ls, "genotype":rpy.r.as_factor(genotype_matrix[:,1])})
-		data_frame = rpy.r.as_data_frame({"phenotype":non_NA_phenotype_ls, "genotype":genotype_matrix[:,1]})
-		if len(non_NA_phenotype2count)==2:	#binary phenotype, use logistic regression
-			lm_result = rpy.r.glm(rpy.r("phenotype~genotype"), data=data_frame, family=rpy.r("binomial"))
-		else:
-			lm_result = rpy.r.glm(rpy.r("phenotype~genotype"), data=data_frame)	#06-30-05 use formula_list
-		rpy.set_default_mode(rpy.BASIC_CONVERSION) #04-07-05
-		#04-07-05 r.summary() requires lm_result in NO_CONVERSION state
-		summary_stat = rpy.r.summary(lm_result)
-		
-		#06-30-05	index 0 in summary_stat['coefficients'] is intercept
-		coeff_list = []
-		coeff_p_value_list = []
-		for i in range(len(summary_stat['coefficients'])):
-			coeff_list.append(summary_stat['coefficients'][i][0])	#0 is the coefficient
-			coeff_p_value_list.append(summary_stat['coefficients'][i][-1])	#-1 is the corresponding p-value
-		#06-30-05	fill in other efficients based on bit_string, NOTE i+1
-		pvalue = coeff_p_value_list[1]
-		residuals = summary_stat['deviance']
-		geno_effect_var = genotype_var*coeff_list[1]*coeff_list[1]*(n-1)
-		var_perc = geno_effect_var/(residuals+geno_effect_var)
-		
-		#pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
-		#2008-08-06 try wilcox
-		#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
-		pdata = PassingData(pvalue=pvalue, var_perc=var_perc, coeff_list=coeff_list, coeff_p_value_list=coeff_p_value_list)
-		return pdata
 	
-	pure_linear_model = classmethod(pure_linear_model)
-	def linear_model(cls, genotype_ls, phenotype_ls, min_data_point=3, snp_index=None, kinship_matrix=None, eig_L=None, run_type=1):
+	def getEigenValueFromFile(cls, eigen_value_fname):
+		"""
+		2008-12-03
+		"""
+		sys.stderr.write("Getting eigen values from %s ..."%eigen_value_fname)
+		inf = open(eigen_value_fname)
+		eigen_value_ls = []
+		for line in inf:
+			eigen_value = float(line.strip())
+			eigen_value_ls.append(eigen_value)
+		sys.stderr.write("Done.\n")
+		return eigen_value_ls
+	
+	getEigenValueFromFile = classmethod(getEigenValueFromFile)
+	
+	def getPCFromFile(cls, eigen_vector_fname):
+		"""
+		2008-12-03
+			
+		"""
+		sys.stderr.write("Getting principal components from %s ..."%eigen_vector_fname)
+		inf = open(eigen_vector_fname)
+		inf.next()	#skip first row (corresponding eigen values)
+		PC_matrix = []
+		for line in inf:
+			row = line.split()
+			PCs_for_one_entity = map(float, row[1:-1])	#1st entry in row is individual label. last entry is Case/Control.
+			PC_matrix.append(PCs_for_one_entity)
+		PC_matrix = numpy.array(PC_matrix)
+		sys.stderr.write("Done.\n")
+		return PC_matrix
+	
+	getPCFromFile = classmethod(getPCFromFile)
+	
+	def multi_linear_model(cls, genotype_matrix, phenotype_ls, min_data_point=3, snp_index=None, kinship_matrix=None, eig_L=None, run_type=1):
 		"""
 		
 		2008-11-13
@@ -118,31 +123,18 @@ class Association(Kruskal_Wallis):
 		2008-11-10
 			similar to _kruskal_wallis() of Kruskal_Wallis
 		"""
-		non_NA_genotype_ls = []
+		non_NA_genotype_matrix = []
 		non_NA_phenotype_ls = []
 		non_NA_genotype2count = {}
-		#non_NA_genotype2allele = {}
-		non_NA_phenotype2count = {}
 		#non_NA_genotype2phenotype_ls = {}	#2008-08-06 try wilcox
 		non_NA_index_ls = []
-		for i in range(len(genotype_ls)):
-			if genotype_ls[i]!=-2 and not numpy.isnan(phenotype_ls[i]):
+		for i in range(len(genotype_matrix)):
+			if not numpy.isnan(phenotype_ls[i]):
 				non_NA_index_ls.append(i)
-				non_NA_genotype = genotype_ls[i]
 				non_NA_phenotype = phenotype_ls[i]
-				if non_NA_phenotype not in non_NA_phenotype2count:
-					non_NA_phenotype2count[non_NA_phenotype] = 0
-				non_NA_phenotype2count[non_NA_phenotype] += 1
 				non_NA_phenotype_ls.append(non_NA_phenotype)
 				
-				if non_NA_genotype not in non_NA_genotype2count:
-					non_NA_genotype2count[non_NA_genotype] = 0
-					#non_NA_genotype2allele[non_NA_genotype] = len(non_NA_genotype2allele)
-					#non_NA_genotype2phenotype_ls[non_NA_genotype] = []	#2008-08-06 try wilcox
-				#allele = non_NA_genotype2allele[non_NA_genotype]
-				allele = genotype_ls[i]
-				non_NA_genotype_ls.append([1, allele])
-				non_NA_genotype2count[non_NA_genotype] += 1
+				non_NA_genotype_matrix.append(genotype_matrix[i,:])
 				#non_NA_genotype2phenotype_ls[non_NA_genotype].append(phenotype_ls[i])	#2008-08-06 try wilcox
 		"""
 		#2008-08-06 try wilcox
@@ -171,9 +163,173 @@ class Association(Kruskal_Wallis):
 			pdata = None
 		return pdata
 	
+	multi_linear_model = classmethod(multi_linear_model)
+	
+	def pure_linear_model(cls, non_NA_genotype_ls, non_NA_phenotype_ls, non_NA_phenotype2count=None):
+		"""
+		2008-11-10
+			split out of linear_model()
+		"""
+		#rpy.r.as_factor.local_mode(rpy.NO_CONVERSION)
+		if not isinstance(non_NA_genotype_ls, numpy.ndarray):
+			genotype_matrix = numpy.array(non_NA_genotype_ls)
+			if len(genotype_matrix.shape)==1:	#transform into 2D array
+				genotype_matrix.resize([len(genotype_matrix), 1])
+		else:
+			genotype_matrix = non_NA_genotype_ls
+		no_of_rows, no_of_cols = genotype_matrix.shape
+		
+		
+		#2008-11-10 do linear regression by numpy
+		genotype_matrix = numpy.hstack((numpy.ones([len(genotype_matrix),1], numpy.int), genotype_matrix))	#the design variable for intercept has to be included.
+		genotype_matrix2 = numpy.transpose(genotype_matrix)
+		D = linalg.inv(numpy.inner(genotype_matrix2, genotype_matrix2))	#2nd matrix's shape is opposite to real matrix algebra.
+
+		(p, residuals, rank, s) = linalg.lstsq(genotype_matrix, non_NA_phenotype_ls)	#all 4 returned elements are arrays
+		#coeff_list = [p[0]]	#put the intercept beta there first
+		#coeff_p_value_list = [-1]
+		coeff_list = []
+		coeff_p_value_list = []
+		for i in range(len(p)):
+			coeff_list.append(p[i])
+			F = p[i]*p[i]/((residuals[0]/(no_of_rows-len(p)))*D[i,i])	#page 106 of Seber2003LRA
+				#page 108 of Seber2003LRA. F=r^2(n-2)/(1-r^2). 
+				#T=sqrt(F) is t-stat with n-2 df. it's used in r.glm(). F-test gives slightly bigger p-value than t-test.
+			pvalue = rpy.r.pf(F,1, no_of_rows-len(p), lower_tail=rpy.r.FALSE)
+			coeff_p_value_list.append(pvalue)
+		pvalue = coeff_p_value_list[1]	#this is the pvalue to return, corresponding to the genotype vector
+		genotype_var = numpy.var(genotype_matrix[:,1]) 	#2008-11-10 var=\sum(x_i-\bar{x})^2/(n-1)
+		geno_effect_var = genotype_var*p[1]*p[1]*(no_of_rows-1)
+		var_perc = geno_effect_var/(residuals[0]+geno_effect_var)
+		#var_perc2 = geno_effect_var/numpy.var(non_NA_phenotype_ls)	#this is also same as var_perc.
+		
+		
+		"""
+		#2008-11-10 do linear regression by R
+		genotype_var = numpy.var(genotype_matrix[:,0]) 	#2008-11-10 var=\sum(x_i-\bar{x})^2/(n-1)
+		rpy.set_default_mode(rpy.NO_CONVERSION) #04-07-05
+		#data_frame = rpy.r.as_data_frame({"phenotype":non_NA_phenotype_ls, "genotype":rpy.r.as_factor(genotype_matrix[:,1])})
+		formula_list = []
+		data_frame_dict = {"phenotype":non_NA_phenotype_ls}
+		for i in range(genotype_matrix.shape[1]):
+			var_name = 'genotype%s'%i
+			formula_list.append(var_name)
+			data_frame_dict.update({var_name: genotype_matrix[:,i]})
+		data_frame = rpy.r.as_data_frame(data_frame_dict)
+		formula = 'phenotype~%s'%'+'.join(formula_list)
+		
+		if non_NA_phenotype2count and len(non_NA_phenotype2count)==2:	#binary phenotype, use logistic regression
+			lm_result = rpy.r.glm(rpy.r(formula), data=data_frame, family=rpy.r("binomial"))
+		else:
+			lm_result = rpy.r.glm(rpy.r(formula), data=data_frame)
+		rpy.set_default_mode(rpy.BASIC_CONVERSION)
+		#04-07-05 r.summary() requires lm_result in NO_CONVERSION state
+		summary_stat = rpy.r.summary(lm_result)
+		
+		#06-30-05	index 0 in summary_stat['coefficients'] is intercept
+		coeff_list = []
+		coeff_p_value_list = []
+		for i in range(len(summary_stat['coefficients'])):
+			coeff_list.append(summary_stat['coefficients'][i][0])	#0 is the coefficient
+			coeff_p_value_list.append(summary_stat['coefficients'][i][-1])	#-1 is the corresponding p-value
+		#06-30-05	fill in other efficients based on bit_string, NOTE i+1
+		pvalue = coeff_p_value_list[1]
+		residuals = summary_stat['deviance']
+		geno_effect_var = genotype_var*coeff_list[1]*coeff_list[1]*(no_of_rows-1)
+		var_perc = geno_effect_var/(residuals+geno_effect_var)
+		"""
+		
+		#pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
+		#2008-08-06 try wilcox
+		#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
+		pdata = PassingData(pvalue=pvalue, var_perc=var_perc, coeff_list=coeff_list, coeff_p_value_list=coeff_p_value_list)
+		return pdata
+	
+	pure_linear_model = classmethod(pure_linear_model)
+	def linear_model(cls, genotype_ls, phenotype_ls, min_data_point=3, snp_index=None, kinship_matrix=None, eig_L=None, \
+					run_type=1):
+		"""
+		2008-12-04
+			genotype_ls could be either 1D or 2D matrix
+			if it's 2D, only the 1st column is genotype. 2nd or further are PCs (so far).
+		2008-11-13
+			run_type
+				1: pure_linear_model
+				2: emma
+			genotype_ls is already in binary (or integer starting from 0)
+		2008-11-10
+			similar to _kruskal_wallis() of Kruskal_Wallis
+		"""
+		non_NA_genotype_ls = []
+		non_NA_phenotype_ls = []
+		non_NA_genotype2count = {}
+		#non_NA_genotype2allele = {}
+		non_NA_phenotype2count = {}
+		#non_NA_genotype2phenotype_ls = {}	#2008-08-06 try wilcox
+		non_NA_index_ls = []
+		for i in range(len(genotype_ls)):
+			if isinstance(genotype_ls[i], numpy.ndarray):
+				genotype = genotype_ls[i][0]
+			else:
+				genotype = genotype_ls[i]
+			if genotype!=-2 and not numpy.isnan(genotype) and not numpy.isnan(phenotype_ls[i]):
+				non_NA_index_ls.append(i)
+				non_NA_genotype = genotype
+				non_NA_phenotype = phenotype_ls[i]
+				if non_NA_phenotype not in non_NA_phenotype2count:
+					non_NA_phenotype2count[non_NA_phenotype] = 0
+				non_NA_phenotype2count[non_NA_phenotype] += 1
+				non_NA_phenotype_ls.append(non_NA_phenotype)
+				
+				if non_NA_genotype not in non_NA_genotype2count:
+					non_NA_genotype2count[non_NA_genotype] = 0
+					#non_NA_genotype2allele[non_NA_genotype] = len(non_NA_genotype2allele)
+					#non_NA_genotype2phenotype_ls[non_NA_genotype] = []	#2008-08-06 try wilcox
+				#allele = non_NA_genotype2allele[non_NA_genotype]
+				allele = genotype_ls[i]
+				if not isinstance(allele, numpy.ndarray):	#make non_NA_genotype_ls 2D
+					allele = [allele]
+				non_NA_genotype_ls.append(allele)
+				non_NA_genotype2count[non_NA_genotype] += 1
+				#non_NA_genotype2phenotype_ls[non_NA_genotype].append(phenotype_ls[i])	#2008-08-06 try wilcox
+		"""
+		#2008-08-06 try wilcox
+		new_snp_allele2index = returnTop2Allele(non_NA_genotype2count)
+		top_2_allele_ls = new_snp_allele2index.keys()
+		non_NA_genotype2count = {top_2_allele_ls[0]: non_NA_genotype2count[top_2_allele_ls[0]],
+								top_2_allele_ls[1]: non_NA_genotype2count[top_2_allele_ls[1]]}
+		"""
+		count_ls = non_NA_genotype2count.values()
+		n = len(non_NA_phenotype_ls)
+		if len(count_ls)>=2 and min(count_ls)>=min_data_point:	#require all alleles meet the min data point requirement
+			try:
+				if run_type==1:
+					pdata = cls.pure_linear_model(non_NA_genotype_ls, non_NA_phenotype_ls, non_NA_phenotype2count)
+				elif run_type==2:
+					if kinship_matrix.shape[0]!=n:	#there is NA and need slicing
+						new_kinship_matrix = kinship_matrix[non_NA_index_ls, non_NA_index_ls]
+					else:
+						new_kinship_matrix = kinship_matrix
+					pdata = cls.emma(non_NA_genotype_ls, non_NA_phenotype_ls, new_kinship_matrix, eig_L)
+				else:
+					sys.stderr.write("run_type=%s not supported.\n"%run_type)
+					return None
+				pdata.snp_index = snp_index
+				pdata.count_ls = count_ls
+			except:
+					sys.stderr.write("Except while running pure_linear_model on snp_index=%s with non_NA_genotype_ls=%s, \
+						non_NA_phenotype_ls=%s, non_NA_phenotype2count=%s.\n"%(snp_index, repr(non_NA_genotype_ls), \
+																			repr(non_NA_phenotype_ls), repr(non_NA_phenotype2count)))
+					traceback.print_exc()
+					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+					pdata = None
+		else:
+			pdata = None
+		return pdata
+	
 	linear_model = classmethod(linear_model)
 	
-	def LM_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3):
+	def LM_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3, **keywords):
 		"""
 		2008-11-10
 			adapted from _kruskal_wallis_whole_matrix() of Kruskal_Wallis
@@ -185,6 +341,46 @@ class Association(Kruskal_Wallis):
 		real_counter = 0
 		for j in range(no_of_cols):
 			genotype_ls = data_matrix[:,j]
+			pdata = self.linear_model(genotype_ls, phenotype_ls, min_data_point, snp_index=j)
+			if pdata is not None:
+				results.append(pdata)
+				real_counter += 1
+			counter += 1
+			if self.report and counter%2000==0:
+				sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, real_counter))
+		if self.report:
+			sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, real_counter))
+		sys.stderr.write("Done.\n")
+		return results
+	
+	def LM_with_PCs_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3, **keywords):
+		"""
+		2008-01-04
+			add code to deal with environment_matrix
+		2008-12-04
+		"""
+		sys.stderr.write("Association by linear model with principle components ...\n")
+		no_of_rows, no_of_cols = data_matrix.shape
+		which_PC_index_ls = keywords.get('which_PC_index_ls') or [0]
+		PC_matrix = keywords.get('PC_matrix')
+		environment_matrix = keywords.get('environment_matrix')
+		
+		results = []
+		counter = 0
+		real_counter = 0
+		if PC_matrix is not None:
+			sub_PC_matrix = PC_matrix[:, which_PC_index_ls]
+		else:
+			sub_PC_matrix = None
+		for j in range(no_of_cols):
+			genotype_ls = data_matrix[:,j]
+			genotype_ls = numpy.resize(genotype_ls, [len(genotype_ls),1])	#make it 2D , so able to hstack with sub_PC_matrix
+			if environment_matrix is not None:
+				genotype_ls = numpy.hstack((genotype_ls, environment_matrix))
+			
+			if sub_PC_matrix is not None:
+				genotype_ls = numpy.hstack((genotype_ls, sub_PC_matrix))
+			
 			pdata = self.linear_model(genotype_ls, phenotype_ls, min_data_point, snp_index=j)
 			if pdata is not None:
 				results.append(pdata)
@@ -216,8 +412,14 @@ class Association(Kruskal_Wallis):
 			call emma.REMLE()
 		"""
 		n = len(non_NA_genotype_ls)
-		genotype_matrix =  numpy.array(non_NA_genotype_ls, numpy.int)	#non_NA_genotype_ls is a list of (1, X)-tuples
-		#numpy.hstack(numpy.ones([n], numpy.int), ...)
+		if not isinstance(non_NA_genotype_ls, numpy.ndarray):
+			genotype_matrix = numpy.array(non_NA_genotype_ls)
+		else:
+			genotype_matrix = non_NA_genotype_ls
+		
+		#genotype_matrix =  numpy.array(non_NA_genotype_ls, numpy.int)	
+		genotype_matrix = numpy.hstack((numpy.ones([n ,1], numpy.int), genotype_matrix))	#the design variable for intercept has to be included.
+		
 		one_marker_rs = rpy.r.emma_REMLE(non_NA_phenotype_ls, genotype_matrix, kinship_matrix, eig_L=eig_L, cal_pvalue=rpy.r.TRUE)
 		coeff_list=[beta[0] for beta in one_marker_rs['beta']]
 		coeff_p_value_list=[None]*len(coeff_list)
@@ -226,7 +428,7 @@ class Association(Kruskal_Wallis):
 		return pdata
 	
 	emma = classmethod(emma)
-	def Emma_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3):
+	def Emma_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3, **keywords):
 		"""
 		2008-11-13
 			iteratively call rpy.r.emma_REMLE() through self.linear_model() in order to get MAF, MAC etc
@@ -371,18 +573,72 @@ class Association(Kruskal_Wallis):
 						data_matrix=data_matrix)
 		
 		#convert SNP matrix into binary
-		if self.test_type!=1:	#kruskal wallis doesn't need binary data matrix
-			newSnpData, allele2index_ls = snpData.convertSNPAllele2Index(self.report)	#0 (NA) or -2 (untouched) is all converted to -2 as 0 is used to denote allele
-		else:
-			newSnpData = snpData
+		#if self.test_type!=1:	#kruskal wallis doesn't need binary data matrix	#2008-11-25 all needs this binary conversion
+		newSnpData, allele2index_ls = snpData.convertSNPAllele2Index(self.report)	#0 (NA) or -2 (untouched) is all converted to -2 as 0 is used to denote allele
+		#else:
+		#	newSnpData = snpData
 		
 		data_matrix_phen = self.get_phenotype_matrix_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen)
-		for which_phenotype in self.which_phenotype_ls:
-			phenotype_name = header_phen[2+which_phenotype]
+		phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)
+		
+		if self.eigen_vector_fname:
+			PC_matrix = self.getPCFromFile(self.eigen_vector_fname)
+		else:
+			if self.test_type==4:	#eigen_vector_fname not given for this test_type. calcualte PCs.
+				import pca_module
+				T, P, explained_var = pca_module.PCA_svd(newSnpData.data_matrix, standardize=False)
+				PC_matrix = T
+			else:
+				PC_matrix = None
+		
+		which_phenotype_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(self.phenotype_method_id_ls))
+		
+		if self.test_type==5:
+			if len(which_phenotype_ls)<2:
+				sys.stderr.write("Error: Require to specify 2 phenotypes in order to carry out this test type.\n")
+				sys.exit(3)
+			del snpData
+			newSnpData.data_matrix = numpy.vstack((newSnpData.data_matrix, newSnpData.data_matrix))
+			#stack the two phenotypes, fake a data_matrix_phen, which_phenotype_ls
+			no_of_strains = len(strain_acc_list)
+			which_phenotype1, which_phenotype2 = which_phenotype_ls[:2]
+			phenotype1 = data_matrix_phen[:, which_phenotype1]
+			phenotype1 = numpy.resize(phenotype1, [no_of_strains, 1])	#phenotype1.resize([10,1]) doesn't work. ValueError: 'resize only works on single-segment arrays'
+			phenotype2 = data_matrix_phen[:, which_phenotype2]
+			phenotype2 = numpy.resize(phenotype2, [no_of_strains, 1])
+			data_matrix_phen = numpy.vstack((phenotype1, phenotype2))
+			which_phenotype_index_ls = [0]
+			#stack the PC_matrix as well
+			if PC_matrix is not None:
+				PC_matrix = numpy.vstack((PC_matrix, PC_matrix))
+			
+			#create an environment variable
+			a = numpy.zeros(no_of_strains)
+			a.resize([no_of_strains, 1])
+			b = numpy.ones(no_of_strains)
+			b.resize([no_of_strains, 1])
+			environment_matrix = numpy.vstack((a, b))
+		else:
+			which_phenotype_index_ls = which_phenotype_ls
+			environment_matrix = None
+		
+		for which_phenotype in which_phenotype_index_ls:
+			if self.test_type==5:
+				which_phenotype1, which_phenotype2 = which_phenotype_ls[:2]
+				phenotype1_name = header_phen[2+which_phenotype1]
+				phenotype2_name = header_phen[2+which_phenotype2]
+				phenotype_name = phenotype1_name+'_'+phenotype2_name
+			else:
+				phenotype_name = header_phen[2+which_phenotype]
 			phenotype_name = phenotype_name.replace('/', '_')	#'/' will be recognized as directory in output_fname
 			output_fname='%s_pheno_%s.tsv'%(os.path.splitext(self.output_fname)[0], phenotype_name)	#make up a new name corresponding to this phenotype
-			results = self.run_whole_matrix[self.test_type](newSnpData.data_matrix, data_matrix_phen[:, which_phenotype], self.min_data_point)
-			self.output_results[self.test_type](results, header[2:], output_fname, self.minus_log_pvalue)
+			results = self.run_whole_matrix[self.test_type](newSnpData.data_matrix, data_matrix_phen[:, which_phenotype], \
+														self.min_data_point, PC_matrix=PC_matrix, \
+														which_PC_index_ls=self.which_PC_index_ls, environment_matrix=environment_matrix)
+			output_results_func = self.output_results.get(self.test_type)
+			if output_results_func is None:
+				output_results_func = self.output_lm_results
+			output_results_func(results, header[2:], output_fname, self.minus_log_pvalue)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
