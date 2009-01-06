@@ -132,6 +132,8 @@ class MpiQCCall(object):
 	def doFilter(self, snpData, snpData_qc_strain, snpData_qc_snp, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size , output_dir=None):
 		"""
+		2008-12-22
+			replace '=' and ',' with '_' in the output filename
 		2008-05-19
 			matrix_ls has to be of length >0 before concatenation
 		2008-05-19
@@ -188,13 +190,13 @@ class MpiQCCall(object):
 			#output data here
 			if not os.path.isdir(output_dir):
 				os.makedirs(output_dir)
-			output_fname_prefix_ls = ['min_oligo_call_probability=%s'%min_call_probability,\
-									'max_array_mismatch_rate=%s'%max_call_mismatch_rate,\
-									'max_array_NA_rate=%s'%max_call_NA_rate,\
-									'max_snp_mismatch_rate=%s'%max_snp_mismatch_rate,\
-									'max_snp_NA_rate=%s'%max_snp_NA_rate,\
-									'npute_window_size=%s'%npute_window_size]
-			output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['before_imputation.tsv']))
+			output_fname_prefix_ls = ['min_oligo_call_probability_%s'%min_call_probability,\
+									'max_array_mismatch_rate_%s'%max_call_mismatch_rate,\
+									'max_array_NA_rate_%s'%max_call_NA_rate,\
+									'max_snp_mismatch_rate_%s'%max_snp_mismatch_rate,\
+									'max_snp_NA_rate_%s'%max_snp_NA_rate,\
+									'npute_window_size_%s'%npute_window_size]
+			output_fname = os.path.join(output_dir, '_'.join(output_fname_prefix_ls + ['before_imputation.tsv']))
 			newSnpData.tofile(output_fname)
 			#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]
 			#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
@@ -240,7 +242,7 @@ class MpiQCCall(object):
 				
 				if output_dir:	#2008-05-16 write the data out if output_fname is available
 					#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
-					output_fname = os.path.join(output_dir, ','.join(output_fname_prefix_ls + ['after_imputation.tsv']))
+					output_fname = os.path.join(output_dir, '_'.join(output_fname_prefix_ls + ['after_imputation.tsv']))
 					#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
 					snpData_imputed.tofile(output_fname)
 			
