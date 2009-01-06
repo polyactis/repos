@@ -7,31 +7,31 @@
 <table border=1>
 
 <tr>
-<th>ID</th>
-<th>Short Name</th>
-<th>No of arrays</th>
-<th>Method Description</th>
-<th>Data Description</th>
-<th>Comment</th>
-<th>Created By</th>
-<th>Updated By</th>
-<th>Date Created</th>
-<th>Date Updated</th>
+% for table_field in c.call_methods[0].c.keys():
+		% if table_field in ['min_oligo_call_prob', 'max_array_mismatch_rate', 'max_array_NA_rate', 'max_snp_mismatch_rate', 'max_snp_NA_rate', 'npute_window_size']:
+			<th>${table_field.replace('_', ' ')}</th>
+		% elif table_field=='short_name':
+			<th>${table_field}</th>
+			<th>No of arrays</th>
+		% else:
+			<th>${table_field}</th>
+		% endif
+% endfor
+
 
 </tr>
 % for call_method in c.call_methods:
 <tr>
-<td><a href=${h.url_for(controller='CallInfo', action='call_method', id=call_method.id)}>${call_method.id}</a></td>
-<td>${call_method.short_name}</td>
-<td>${len(call_method.call_info_ls)}</td>
-<td>${call_method.method_description}</td>
-<td>${call_method.data_description}</td>
-<td>${call_method.comment}</td>
-<td>${call_method.created_by}</td>
-<td>${call_method.updated_by}</td>
-<td>${call_method.date_created}</td>
-<td>${call_method.date_updated}</td>
-
+	% for table_field in call_method.c.keys():
+			% if table_field=='id':
+				<td><a href=${h.url_for(controller='CallInfo', action='call_method', id=call_method.id)}>${call_method.id}</a></td>
+			% elif table_field=='short_name':
+				<td>${getattr(call_method, table_field, '')}</td>
+				<td>${len(call_method.call_info_ls)}</td>
+			% else:
+				<td>${getattr(call_method, table_field, '')}</td>
+			% endif
+	% endfor
 </tr>
 % endfor
 
