@@ -34,16 +34,19 @@ if __name__ == '__main__':
 	from pymodule import yh_gnome
 	from variation.src.common import get_chr_pos_from_x_axis_pos
 
-import numpy
+import numpy, traceback
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle
+from matplotlib.patches import Patch, Rectangle, Polygon
 from matplotlib.text import Text
 from matplotlib.collections import LineCollection, Collection
 
-from pymodule.yh_matplotlib_artists import Gene
+from pymodule.yh_matplotlib_artists import Gene, ExonIntronCollection
 from pymodule.db import TableClass
 from Results2DB_250k import Results2DB_250k
 from pymodule import GenomeWideResults, GenomeWideResult, DataObject, getGenomeWideResultFromFile, PassingData
+from DrawSNPRegion import DrawSNPRegion	#2008-12-16 dealWithGeneAnnotation()
+import Stock_250kDB
+from GeneListRankTest import GeneListRankTest
 
 class GeneModel:
 	def __init__(self, gene_id=None, chromosome=None, symbol = None, description = None, type_of_gene = None, \
@@ -91,7 +94,26 @@ class GenomeBrowser(object):
 		self.vbox_matplotlib.pack_start(self.canvas_matplotlib)
 		
 		#matplotlib axes
-		self.ax = fig.add_subplot(111)
+		#self.ax = fig.add_subplot(111)
+		axe_y_offset1 = 0.05	#y_offset for axe_LD, axe_strain_pca, axe_phenotype, axe_map
+		axe_height1 = 0.15	#height of axe_LD or axe_snp_matrix
+		axe_y_offset2 = axe_y_offset1+axe_height1
+		axe_height2 = 0.75	#height of axe_gene_model
+		axe_y_offset3 = axe_y_offset2+axe_height2
+		
+		
+		axe_x_offset1 = 0.1	#
+		axe_width1 = 0.85
+		axe_x_offset2 = axe_x_offset1 + axe_width1
+		
+		self.ax = fig.add_axes([axe_x_offset1, axe_y_offset2, axe_width1, axe_height2], frameon=False)
+		self.ax.grid(True, alpha=0.3)
+		#self.ax.set_xticklabels([])	#remove xtick labels on ax1 because axe_LD's xtick labels cover this.
+		
+		self.axe_gene_model = fig.add_axes([axe_x_offset1, axe_y_offset1, axe_width1, axe_height1], frameon=False, sharex=self.ax)
+		#axe_gene_model.set_xticks([])	#this will set ax1's xticks off as well because the x-axis is shared.
+		self.axe_gene_model.set_yticks([])
+		
 		
 		# matplotlib toolbar
 		self.toolbar = NavigationToolbar(self.canvas_matplotlib, self.app1)
@@ -131,6 +153,8 @@ class GenomeBrowser(object):
 		self.entry_postgres_hostname = xml.get_widget("entry_postgres_hostname")
 		self.entry_postgres_dbname = xml.get_widget("entry_postgres_dbname")
 		self.entry_postgres_schema = xml.get_widget("entry_postgres_schema")
+		self.entry_gene_annotation_picklef = xml.get_widget("entry_gene_annotation_picklef")
+		self.filechooserbutton_gene_annot = xml.get_widget("filechooserbutton_gene_annot")
 		
 		self.dialog_preferences = xml.get_widget("dialog_preferences")
 		self.dialog_preferences.connect("delete_event", yh_gnome.subwindow_hide)
@@ -143,7 +167,9 @@ class GenomeBrowser(object):
 		self.aboutdialog1 = xml.get_widget("aboutdialog1")
 		self.aboutdialog1.connect("delete_event", yh_gnome.subwindow_hide)
 		
-		self.mysql_conn = self.mysql_curs = self.postgres_conn = self.postgres_curs = None
+		self.mysql_conn = self.mysql_curs = self.postgres_conn = self.postgres_curs = self.db = None
+		self.gene_annotation = None
+		self.candidate_gene_set = None
 		
 		self.chr_id2size = None
 		self.chr_id2cumu_size = None
@@ -160,7 +186,9 @@ class GenomeBrowser(object):
 		self.gene_id2artist_object_id = {}
 		self.chr_id2gene_id_ls = {}	#chr_id here is str type (db is varchar type)
 		self.gene_id2model = {}
-		self.artist_object_id2artist_gene_id_ls = {}
+		self.artist_obj_id2artist_gene_id_ls = {}
+		
+		self.gene_id2vspan_obj_id = {}	#for the axvspan()'s drawn on the canvas
 		
 		self.gene_width = 1.0
 		
@@ -260,9 +288,9 @@ class GenomeBrowser(object):
 		
 		"""
 		ax.add_artist(g_artist)
-		artist_object_id = id(g_artist)
-				self.artist_object_id2artist_gene_id_ls[artist_object_id] = [g_artist, gene_id]
-				self.gene_id2artist_object_id[gene_id] = artist_object_id
+		artist_obj_id = id(g_artist)
+				self.artist_obj_id2artist_gene_id_ls[artist_obj_id] = [g_artist, gene_id]
+				self.gene_id2artist_object_id[gene_id] = artist_obj_id
 				
 				x_ls = []
 		y_ls = []
@@ -284,6 +312,47 @@ class GenomeBrowser(object):
 			ax.vlines(cumu_size, y_base_value, y_top_value, color='k')
 		canvas.draw()
 		sys.stderr.write("Done.\n")
+	
+	def respond2GeneObjPicker(self, event, artist_obj_id, artist_obj_id2artist_gene_id_ls, gene_annotation,\
+							ax=None, draw_gene_symbol_when_clicked=False, canvas_matplotlib=None):
+		"""
+		2008-12-17
+			a common function specifying how to respond to picker events of 
+				both gene models in axe_gene_model and vertical gene spans in ax
+			called by on_canvas_pick()
+		"""
+		gene_id = artist_obj_id2artist_gene_id_ls[artist_obj_id][1]
+		gene_model = gene_annotation.gene_id2model[gene_id]
+		
+		if len(gene_model.gene_commentaries)==0:
+			gene_commentary = gene_model	#fake one here
+		else:
+			gene_commentary = gene_model.gene_commentaries[0]
+		
+		protein_label = getattr(gene_commentary, 'protein_label', None)
+		if not protein_label:
+			protein_label = getattr(gene_commentary, 'label', '')
+		
+		protein_comment = getattr(gene_commentary, 'protein_comment', None)
+		if not protein_comment:
+			protein_comment = getattr(gene_commentary, 'comment', '')
+		
+		if getattr(gene_commentary, 'protein_label', None) is not None:	#true gene_commentary is available
+			type_of_gene = getattr(gene_model, 'type_of_gene', '')
+		else:	#it doesn't have protein, get gene_commentary_type
+			type_of_gene = getattr(gene_commentary, 'gene_commentary_type', '')
+		
+		print '%s (gene id=%s) type_of_gene: %s. chromosome: %s. start: %s. stop: %s. strand: %s.'%\
+				(gene_model.gene_symbol, gene_id, type_of_gene, gene_model.chromosome, \
+				gene_model.start, gene_model.stop, gene_model.strand)
+		print '\t protein_label: %s.'%protein_label
+		print '\t protein_comment: %s.'%protein_comment
+		
+		if draw_gene_symbol_when_clicked:
+			if ax:
+				ax.text(event.mouseevent.xdata, event.mouseevent.ydata, gene_model.gene_symbol, size=8)
+			if canvas_matplotlib:
+				canvas_matplotlib.draw()
 	
 	def on_canvas_pick(self, event):
 		"""
@@ -310,7 +379,15 @@ class GenomeBrowser(object):
 			for i in ind:
 				print "snp chromosome: %s, position: %s, pvalue: %s"%(self.snp_pos_ls[i][0], self.snp_pos_ls[i][1], self.pvalue_ls[i])
 		"""
-		if isinstance(event.artist, Collection) or isinstance(event.artist, LineCollection):
+		if isinstance(event.artist, ExonIntronCollection):	#ExonIntronCollection is also a kind of Collection
+			artist_obj_id = id(event.artist)
+			if artist_obj_id in self.artist_obj_id2artist_gene_id_ls:
+				self.respond2GeneObjPicker(event, artist_obj_id, self.artist_obj_id2artist_gene_id_ls, self.gene_annotation,\
+							ax=self.axe_gene_model, draw_gene_symbol_when_clicked=self.draw_gene_symbol_when_clicked, \
+							canvas_matplotlib=self.canvas_matplotlib)
+			else:
+				sys.stderr.write("%s not in artist_obj_id2artist_gene_id_ls.\n"%(artist_obj_id))
+		elif isinstance(event.artist, Collection) or isinstance(event.artist, LineCollection):	#
 			artist_obj_id = id(event.artist)
 			if artist_obj_id in self.artist_obj_id2data_obj_key:
 				genome_wide_result_id, data_obj_id = self.artist_obj_id2data_obj_key[artist_obj_id]
@@ -333,21 +410,21 @@ class GenomeBrowser(object):
 					print output_str
 			else:
 				sys.stderr.write("%s not in artist_obj_id2data_obj_key.\n"%(artist_obj_id))
+		elif isinstance(event.artist, Polygon):	#ExonIntronCollection is also a kind of Collection
+			artist_obj_id = id(event.artist)
+			if artist_obj_id in self.artist_obj_id2artist_gene_id_ls:
+				self.respond2GeneObjPicker(event, artist_obj_id, self.artist_obj_id2artist_gene_id_ls, self.gene_annotation,\
+										ax=self.ax, draw_gene_symbol_when_clicked=self.draw_gene_symbol_when_clicked, \
+										canvas_matplotlib=self.canvas_matplotlib)
+			else:
+				sys.stderr.write("%s not in artist_obj_id2artist_gene_id_ls.\n"%(artist_obj_id))
 		elif isinstance(event.artist, Rectangle):
 			patch = event.artist
 			print 'onpick1 patch:', patch.get_verts()
 		elif isinstance(event.artist, Text):
 			text = event.artist
 			print 'onpick1 text:', text.get_text()
-		elif isinstance(event.artist, Gene):
-			artist_object_id = id(event.artist)
-			gene_id = self.artist_object_id2artist_gene_id_ls[artist_object_id][1]
-			gene_model = self.gene_id2model[gene_id]
-			print 'gene id: %s. symbol: %s. description: %s. type_of_gene: %s. chromosome: %s. start: %s. stop: %s. strand: %s.'%\
-				(gene_id, gene_model.symbol, gene_model.description, gene_model.type_of_gene, gene_model.chromosome, gene_model.start, gene_model.stop, gene_model.strand)
-			if self.draw_gene_symbol_when_clicked:
-				self.ax.text(event.mouseevent.xdata, event.mouseevent.ydata, gene_model.symbol, size=8)
-				self.canvas_matplotlib.draw()
+		
 	
 	def on_imagemenuitem_quit_activate(self, data=None):
 		"""
@@ -364,6 +441,9 @@ class GenomeBrowser(object):
 	
 	def on_button_filechooser_ok_clicked(self, widget, data=None):
 		"""
+		2008-12-16
+			allow gwr name to be specified
+			add function to get gwr from db based on call_method_id, analysis_method_id, phenotype_method_id
 		2008-10-12
 			add checkbutton_draw_line_as_point
 			add checkbutton_4th_col_stop_pos
@@ -378,7 +458,7 @@ class GenomeBrowser(object):
 		"""
 		input_fname = self.filechooserdialog1.get_filename()
 		self.filechooserdialog1.hide()
-		if not self.mysql_conn or not self.mysql_curs or not self.postgres_conn or not self.postgres_curs:
+		if not self.mysql_conn or not self.mysql_curs:
 			self.db_connect()
 		self.app1.set_title("Genome Browser: %s"%input_fname)
 		
@@ -416,6 +496,40 @@ class GenomeBrowser(object):
 		else:
 			draw_line_as_point = False
 		
+		entry_gwr_name = self.xml.get_widget("entry_gwr_name")
+		if entry_gwr_name.get_text():
+			pdata.gwr_name = entry_gwr_name.get_text()
+		else:
+			pdata.gwr_name = None
+		
+		entry_call_method_id = self.xml.get_widget("entry_call_method_id")
+		call_method_id = entry_call_method_id.get_text()
+		entry_analysis_method_id = self.xml.get_widget("entry_analysis_method_id")
+		analysis_method_id = entry_analysis_method_id.get_text()
+		entry_phenotype_method_id = self.xml.get_widget("entry_phenotype_method_id")
+		phenotype_method_id = entry_phenotype_method_id.get_text()
+		
+		if call_method_id and analysis_method_id and phenotype_method_id:
+			call_method_id = int(call_method_id)
+			analysis_method_id = int(analysis_method_id)
+			phenotype_method_id = int(phenotype_method_id)
+			rows = Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).filter_by(analysis_method_id=analysis_method_id).\
+					filter_by(phenotype_method_id=phenotype_method_id).filter_by(results_method_type_id=1)
+			if rows.count()==1:
+				rm = rows.first()
+			elif rows.count()==0:
+				sys.stderr.write("No result fetched from db based on call_method_id=%s, analysis_method_id=%s, phenotype_method_id=%s.\n"%\
+								(call_method_id, analysis_method_id, phenotype_method_id))
+				rm = None
+			else:
+				sys.stderr.write("First result out of %s results fetched from db based on call_method_id=%s, analysis_method_id=%s, phenotype_method_id=%s.\n"%\
+								(rows.count(), call_method_id, analysis_method_id, phenotype_method_id))
+				rm = rows.first()
+			if rm:
+				input_fname = rm.filename
+				pdata.gwr_name = '%s_%s_%s'%(rm.analysis_method.short_name, rm.phenotype_method_id, rm.phenotype_method.short_name)
+			
+		
 		genome_wide_result = getGenomeWideResultFromFile(input_fname, min_value_cutoff, do_log10_transformation, pdata)
 		if len(genome_wide_result.data_obj_ls)>0:
 			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
@@ -436,21 +550,40 @@ class GenomeBrowser(object):
 	
 	def db_connect(self):
 		"""
+		2008-12-16
+			add gene_annotation_picklef
 		2008-02-01
 			read the data in dialog_db_connect and establish the connections to two databases
 		"""
 		sys.stderr.write("Database Connecting ...")
 		hostname = self.entry_mysql_hostname.get_text()
 		dbname = self.entry_mysql_dbname.get_text()
+		db_user = self.xml.get_widget("entry_db_user").get_text()
+		db_passwd = self.xml.get_widget("entry_db_passwd").get_text()
+		
 		import MySQLdb
-		self.mysql_conn = MySQLdb.connect(db=dbname,host=hostname)
-		self.mysql_curs = self.mysql_conn.cursor()
+		try:
+			self.mysql_conn = MySQLdb.connect(db=dbname,host=hostname)
+			self.mysql_curs = self.mysql_conn.cursor()
+			self.db = Stock_250kDB.Stock_250kDB(drivername='mysql', username=db_user,
+					   password=db_passwd, hostname=hostname, database=dbname)
+			self.db.setup(create_tables=False)
+			self.session = self.db.session
+		except:
+			sys.stderr.write('DB connection error: %s\n'%repr(sys.exc_info()))
+			traceback.print_exc()
 		
 		hostname = self.entry_postgres_hostname.get_text()
 		dbname = self.entry_postgres_dbname.get_text()
 		schema = self.entry_postgres_schema.get_text()
-		from annot.bin.codense.common import db_connect
-		self.postgres_conn, self.postgres_curs = db_connect(hostname, dbname, schema)
+		
+		if not self.gene_annotation:
+			gene_annotation_picklef = self.entry_gene_annotation_picklef.get_text()
+			self.gene_annotation = DrawSNPRegion.dealWithGeneAnnotation(gene_annotation_picklef)
+		
+		#from annot.bin.codense.common import db_connect			#2008-12-16 don't need postgres conn anymore
+		#self.postgres_conn, self.postgres_curs = db_connect(hostname, dbname, schema)
+		
 		sys.stderr.write("Done.\n")
 	
 	def get_gene_id2model(cls, curs, entrezgene_mapping_table='genome.entrezgene_mapping', \
@@ -509,6 +642,8 @@ class GenomeBrowser(object):
 	
 	def plot_one_gene(self, ax, gene_id, gene_id2model, chr_id2cumu_size, chr_id2size, chr_gap, y_value=1, gene_width=1.0):
 		"""
+		2008-12-16
+			defunct. DrawSNPRegion.drawGeneModel() is used in on_button_draw_annotation_clicked()
 		2008-02-02
 			draw a single gene on the canvas, 
 		"""
@@ -537,24 +672,44 @@ class GenomeBrowser(object):
 				else:	#no arrow
 					g_artist = Gene(c_start_ls, c_end_ls, y=y_value, is_arrow=False, x_offset=this_chr_starting_pos_on_plot, width=gene_width, alpha=0.3, facecolor='r', picker=True)
 				ax.add_artist(g_artist)
-				artist_object_id = id(g_artist)
-				self.artist_object_id2artist_gene_id_ls[artist_object_id] = [g_artist, gene_id]
-				self.gene_id2artist_object_id[gene_id] = artist_object_id
+				artist_obj_id = id(g_artist)
+				self.artist_obj_id2artist_gene_id_ls[artist_obj_id] = [g_artist, gene_id]
+				self.gene_id2artist_object_id[gene_id] = artist_obj_id
 	
 	def on_button_draw_annotation_clicked(self, widget, data=None):
 		"""
+		2008-12-16
+			use DrawSNPRegion.drawGeneModel() to draw gene models
 		2008-02-02
 		"""
 		if not self.chr_id2size:
-			sys.stderr.write("No plot has been drawn yet. Open a file first!\n")
+			sys.stderr.write("No genome-wide pvalue plot has been drawn yet. Do it first!\n")
 			return
-		if not self.gene_id2model:
-			self.gene_id2model, self.chr_id2gene_id_ls = self.get_gene_id2model(self.postgres_curs, tax_id=3702)
-		from pymodule.yh_matplotlib_artists import Gene
-		xlim = self.ax.get_xlim()
+		#if not self.gene_id2model:
+		#	self.gene_id2model, self.chr_id2gene_id_ls = self.get_gene_id2model(self.postgres_curs, tax_id=3702)
+		if not self.gene_annotation:
+			self.gene_annotation = DrawSNPRegion.dealWithGeneAnnotation(self.entry_gene_annotation_picklef.get_text())
+		
+		xlim = self.axe_gene_model.get_xlim()
 		left_chr, left_pos = get_chr_pos_from_x_axis_pos(xlim[0], self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
 		right_chr, right_pos = get_chr_pos_from_x_axis_pos(xlim[1], self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
 		
+		#fake a snps_within_this_region for drawGeneModel()
+		snps_within_this_region = PassingData(chr_pos_ls=[[left_chr, left_pos],[right_chr, right_pos]])
+		base_y_value = 1
+		gene_width = 0.8
+		gene_position_cycle = 5
+		
+		return_data = DrawSNPRegion.drawGeneModel(self.axe_gene_model, snps_within_this_region, self.gene_annotation, candidate_gene_set=None,\
+								gene_width=gene_width, gene_position_cycle=gene_position_cycle, base_y_value=base_y_value, \
+								gene_box_text_gap=20, label_gene=0, rotate_xy=False,\
+								chr_id2cumu_size=self.chr_id2cumu_size, chr_id2size=self.chr_id2size, chr_gap=self.chr_gap,\
+								artist_obj_id2artist_gene_id_ls=self.artist_obj_id2artist_gene_id_ls, \
+								gene_id2artist_object_id=self.gene_id2artist_object_id, drawGeneOnTheBoundary=False)
+					#set drawGeneOnTheBoundary to False because later adding text to these genes would corrupt the running program.
+		self.axe_gene_model.set_ylim([base_y_value-gene_width, gene_position_cycle+gene_width*2])
+		
+		"""
 		for gene_id in self.chr_id2gene_id_ls[left_chr]:
 			gene_model = self.gene_id2model[gene_id]
 			if gene_model.start!=None and gene_model.stop!=None and gene_model.stop>left_pos and gene_id not in self.gene_id2artist_object_id:
@@ -569,6 +724,7 @@ class GenomeBrowser(object):
 				if gene_model.start!=None and gene_model.stop!=None and gene_model.start<right_pos and gene_id not in self.gene_id2artist_object_id:
 					y_value = len(self.gene_id2artist_object_id)%4	#cycling through the y position to avoid clogging
 					self.plot_one_gene(self.ax, gene_id, self.gene_id2model, self.chr_id2cumu_size, self.chr_id2size, self.chr_gap, y_value=-1-y_value, gene_width=self.gene_width)
+		"""
 		self.canvas_matplotlib.draw()
 	
 	def on_imagemenuitem_preferences_activate(self, event, data=None):
@@ -662,7 +818,65 @@ class GenomeBrowser(object):
 		2008-05-28
 		"""
 		self.gene_width = float(self.entry_gene_width.get_text())
-
+	
+	def on_filechooserbutton_gene_annot_file_set(self, widget):
+		"""
+		2008-12-16
+		"""
+		self.entry_gene_annotation_picklef.set_text(self.filechooserbutton_gene_annot.get_filename())
+	
+	def on_button_draw_gene_list_bars_clicked(self, widget):
+		"""
+		2008-12-16
+			draw vertical spans to denote the locations of genes from a candidate list
+		"""
+		if self.db is None:
+			self.db_connect()
+		if not self.chr_id2size:
+			sys.stderr.write("No genome-wide pvalue plot has been drawn yet. Do it first!\n")
+			return
+		entry_gene_list_id = self.xml.get_widget("entry_gene_list_id")
+		list_type_id = entry_gene_list_id.get_text()
+		comboboxentry_bar_color = self.xml.get_widget("comboboxentry_bar_color")
+		bar_color = comboboxentry_bar_color.get_active_text()
+		if not bar_color:	#default is black
+			bar_color = 'k'
+		if list_type_id:
+			list_type_id = int(list_type_id)
+			self.candidate_gene_set = GeneListRankTest.dealWithCandidateGeneList(list_type_id, return_set=True)
+			for gene_id in self.candidate_gene_set:
+				gene_model = self.gene_annotation.gene_id2model[gene_id]
+				if gene_id in self.gene_id2vspan_obj_id:
+					artist_obj_id = self.gene_id2vspan_obj_id[gene_id]
+					artist = self.artist_obj_id2artist_gene_id_ls[artist_obj_id][0]
+					if artist.get_edgecolor()!=bar_color:
+						artist.set_edgecolor(bar_color)
+					if artist.get_facecolor()!=bar_color:
+						artist.set_facecolor(bar_color)
+					#artist.remove()
+				else:
+					this_chr_starting_pos_on_plot = self.chr_id2cumu_size[gene_model.chromosome]-\
+							self.chr_id2size[gene_model.chromosome]-self.chr_gap
+					xmin = this_chr_starting_pos_on_plot + gene_model.start
+					xmax = this_chr_starting_pos_on_plot + gene_model.stop
+					artist = self.ax.axvspan(xmin, xmax, edgecolor=bar_color, facecolor=bar_color, alpha=0.3, picker=6)
+					artist_obj_id = id(artist)
+					self.artist_obj_id2artist_gene_id_ls[artist_obj_id] = [artist, gene_id]
+					self.gene_id2vspan_obj_id[gene_id] = artist_obj_id
+			self.canvas_matplotlib.draw()
+	
+	def on_button_adjust_gene_axis_clicked(self, widget):
+		"""
+		2008-12-19
+			sometimes after zoom-in/out, axe_gene_model loses track of its y-range and the gene models in it float into ax.
+			this function would bring the y-range of axe_gene_model into normal range.
+		"""
+		base_y_value = 1
+		gene_width = 0.8
+		gene_position_cycle = 5
+		self.axe_gene_model.set_ylim([base_y_value-gene_width, gene_position_cycle+gene_width*2])
+		self.canvas_matplotlib.draw()
+	
 if __name__ == '__main__':
 	prog = gnome.program_init('GenomeBrowser', '0.1')
 	instance = GenomeBrowser()
