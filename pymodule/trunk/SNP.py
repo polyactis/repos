@@ -26,7 +26,8 @@ number2ab = {0: 'NA',
 
 #2008-09-22 A:T, C:G complement group in number
 number2complement = {-1:-1, 0:0, 1:4, 4:1, 2:3, 3:2}
-
+#2008-01-06
+nt2complement = {'A':'T', 'T':'A', 'C':'G', 'G':'C'}
 #2008-05-12	a common NA set
 from sets import Set
 NA_set = Set([0, 'NA', 'N', -2, '|'])
@@ -1050,23 +1051,30 @@ class GenomeWideResult(object):
 			self.argsort_data_obj_ls = num.argsort(self.data_obj_ls)	#sort in ascending order
 		return self.argsort_data_obj_ls[-rank]	#value bigger, rank smaller
 	
-class DataObject(TableClass):
+class DataObject(object):
 	"""
+	2009-1-7
+		
 	2008-11-20
 		add mac
 	2008-11-12
 		add genotype_var_perc, comment
 	"""
-	chromosome = None
-	position = None
-	stop_position = None
-	name = None
-	value = None
-	genome_wide_result_id = None
-	maf = None
-	mac = None
-	genotype_var_perc = None
-	comment = None
+	def __init__(self, **keywords):
+		self.chromosome = None
+		self.position = None
+		self.stop_position = None
+		self.name = None
+		self.value = None
+		self.genome_wide_result_id = None
+		self.maf = None
+		self.mac = None
+		self.genotype_var_perc = None
+		self.extra_col_ls = []
+		self.comment = None
+		for key, value in keywords.iteritems():
+			setattr(self, key, value)
+	
 	def __cmp__(self, other):
 		"""
 		2008-08-20
@@ -1188,6 +1196,7 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			if column_6 is not None:
 				data_obj.genotype_var_perc = column_6
 			if rest_of_row:
+				data_obj.extra_col_ls = rest_of_row
 				data_obj.comment = ','.join(rest_of_row)
 			data_obj.genome_wide_result_id = genome_wide_result_id
 			gwr.add_one_data_obj(data_obj, chr_pos2index)
