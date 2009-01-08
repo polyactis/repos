@@ -140,6 +140,9 @@ class Results2DB_250k(object):
 	
 	def submit_results(cls, db, input_fname, rm, user, output_fname=None):
 		"""
+		2009-1-7
+			insert float into the middle below
+				column_5th=int(float(row[4]))	#int('89.0') would raise an exception
 		2008-11-12
 			parse lines with column_6(genotype_var_perc) and more (comment)
 		2008-09-30
@@ -226,7 +229,7 @@ class Results2DB_250k(object):
 				#score = row[3]
 			if len(row)>=5:
 				#column_4th=row[3]
-				column_5th=int(row[4])
+				column_5th=int(float(row[4]))	#2009-1-7 int('89.0') would raise an exception
 			if len(row)>=6:
 				column_6 = row[5]
 			if len(row)>=7:
