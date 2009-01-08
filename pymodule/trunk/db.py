@@ -310,6 +310,72 @@ def db_connect(hostname, dbname, schema=None, password=None, user=None):
 		curs.execute("set search_path to %s"%schema)
 	return (conn, curs)
 
+
+def get_sequence_segment(curs, gi, start, stop, annot_assembly_table='sequence.annot_assembly', \
+	raw_sequence_table='sequence.raw_sequence', chunk_size=10000):
+	"""
+	2009-01-03
+		moved from annot/bin/codense/common.py
+		curs could be elixirdb.metadata.bind other than the raw curs from psycopg
+		raw_sequence_table replaced column acc_ver with annot_assembly_gi
+		make sure no_of_chunks_before >=0. old expression becomes negative for genes that are near the tip of a chromosome, within chunk_size.
+	11-12-05 get a specified segment from chromosome sequence table
+		reverse is handled but complement(strand) is not. Upper level function should take care of this.
+	11-15-05 improve it to be more robust, add acc_ver and report if not found in raw_sequence_table
+	2006-08-28 fix a bug when the start%chunk_size =0 (sits on the edge of the previous chunk, two more chunks
+		are required)
+	"""
+	need_reverse = int(start>stop)
+	if need_reverse:
+		start, stop = stop, start
+	rows = curs.execute("select acc_ver, start, stop, raw_sequence_start_id from %s where gi=%s"%(annot_assembly_table, gi))
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2009-01-03 this curs is not elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
+	if is_elixirdb:	#2009-01-03
+		row = rows.fetchone()
+		acc_ver = row.acc_ver
+		orig_start = row.start
+		orig_stop = row.stop
+		raw_sequence_start_id = row.raw_sequence_start_id
+	else:
+		acc_ver, orig_start, orig_stop, raw_sequence_start_id = rows[0]
+	if stop>orig_stop:	#11-14-05 to avoid exceeding the boundary
+		stop = orig_stop
+	no_of_chunks_before = max(0, start/chunk_size-1)	#how many chunks are before this segment (2006-08-28) -1 ensures the edge.
+		#2008-01-03 max(0, ...) to make sure it >=0. old expression becomes negative for genes that are near the tip of a chromosome, within chunk_size.
+	
+	segment_size = stop - start +1
+	no_of_chunks_segment = segment_size/chunk_size + 1	#how many chunks could be included in this segment
+	raw_sequence_start_id += no_of_chunks_before	#the first chunk which contains teh segment
+	offset = no_of_chunks_segment + 2	#add two more chunks to ensure the segment is enclosed(2006-08-28)
+	#get the sequence from raw_sequence_table
+	seq = ''
+	for i in range(offset):
+		rows = curs.execute("select sequence from %s where annot_assembly_gi=%s and id=%s"%\
+						(raw_sequence_table, gi, raw_sequence_start_id+i))
+		if is_elixirdb:	#2009-01-03
+			rows = rows.fetchone()
+		else:
+			rows = curs.fetchall()
+		
+		if rows:	#11/14/05 it's possible to exceed the whole raw_sequence table because the offset adds one more chunk
+			if is_elixirdb:
+				seq += rows.sequence
+			else:
+				seq += rows[0][0]
+		else:
+			sys.stderr.write("id %s missing in raw_sequence table.\n"%(raw_sequence_start_id+i))
+			sys.stderr.write("gi: %s, start: %s, stop: %s, raw_sequence_start_id: %s\n"%(gi, start, stop, raw_sequence_start_id))
+	relative_start = start - no_of_chunks_before*chunk_size
+	segment = seq[relative_start-1:relative_start-1+segment_size]	#WATCH index needs -1
+	if need_reverse:
+		segment = list(segment)
+		segment.reverse()	#only 
+		segment = ''.join(segment)
+	return segment
+
 if __name__ == '__main__':
 	from pymodule import process_options, generate_program_doc
 	main_class = Database
