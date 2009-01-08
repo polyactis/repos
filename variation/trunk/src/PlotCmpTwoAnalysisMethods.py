@@ -84,13 +84,19 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 	
 	def matchPvaluesFromTwoResults(self, genome_wide_result_ls, snps_context_wrapper, candidate_gene_set, pvalue_int_gap=1.0):
 		"""
+		2009-1-7
+			get both raw pvalue and -log pvalue
 		2008-11-19
 		"""
 		sys.stderr.write("Matching pvalues from two results ...")
 		pvalue_ls1_in_candidate = []
 		pvalue_ls2_in_candidate = []
+		logpvalue_ls1_in_candidate = []
+		logpvalue_ls2_in_candidate = []
 		pvalue_ls1_in_non_candidate = []
 		pvalue_ls2_in_non_candidate = []
+		logpvalue_ls1_in_non_candidate = []
+		logpvalue_ls2_in_non_candidate = []
 		gwr1, gwr2 = genome_wide_result_ls[:2]
 		chr_pos_ls1 = gwr1.chr_pos2index.keys()
 		chr_pos_ls2 = gwr2.chr_pos2index.keys()
@@ -114,31 +120,37 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 			pvalue_int2 = int(data_obj2.value/pvalue_int_gap)
 			pvalue_int_pair = (pvalue_int1, pvalue_int2)
 			if assign_snp_candidate_gene:
-				pvalue_ls1_in_candidate.append(data_obj1.value)
-				pvalue_ls2_in_candidate.append(data_obj2.value)
+				logpvalue_ls1_in_candidate.append(data_obj1.value)
+				logpvalue_ls2_in_candidate.append(data_obj2.value)
+				pvalue_ls1_in_candidate.append(10**(-data_obj1.value))
+				pvalue_ls2_in_candidate.append(10**(-data_obj2.value))
 				if pvalue_int_pair not in pvalue_int_pair2count_candidate:
 					pvalue_int_pair2count_candidate[pvalue_int_pair] = 0
 				pvalue_int_pair2count_candidate[pvalue_int_pair] += 1
 			else:
-				pvalue_ls1_in_non_candidate.append(data_obj1.value)
-				pvalue_ls2_in_non_candidate.append(data_obj2.value)
+				logpvalue_ls1_in_non_candidate.append(data_obj1.value)
+				logpvalue_ls2_in_non_candidate.append(data_obj2.value)
+				pvalue_ls1_in_non_candidate.append(10**(-data_obj1.value))
+				pvalue_ls2_in_non_candidate.append(10**(-data_obj2.value))
 				if pvalue_int_pair not in pvalue_int_pair2count_non_candidate:
 					pvalue_int_pair2count_non_candidate[pvalue_int_pair] = 0
 				pvalue_int_pair2count_non_candidate[pvalue_int_pair] += 1
 		return_data = PassingData(pvalue_ls1_in_candidate=pvalue_ls1_in_candidate, pvalue_ls2_in_candidate=pvalue_ls2_in_candidate,\
+								logpvalue_ls1_in_candidate=logpvalue_ls1_in_candidate, logpvalue_ls2_in_candidate=logpvalue_ls2_in_candidate,\
 								pvalue_ls1_in_non_candidate=pvalue_ls1_in_non_candidate, pvalue_ls2_in_non_candidate=pvalue_ls2_in_non_candidate,\
+								logpvalue_ls1_in_non_candidate=logpvalue_ls1_in_non_candidate, logpvalue_ls2_in_non_candidate=logpvalue_ls2_in_non_candidate,\
 								pvalue_int_pair2count_candidate=pvalue_int_pair2count_candidate, pvalue_int_pair2count_non_candidate=pvalue_int_pair2count_non_candidate)
 		sys.stderr.write("Done.\n")
 		return return_data
 	
-	def plotEnrichmentRatio(self, rm_ls, pvalue_matching_data, pvalue_int_gap=1.0, output_fname_prefix=None):
+	def plotEnrichmentRatio(self, rm_ls, pvalue_matching_data, pvalue_int_gap=1.0, output_fname_prefix=None, \
+						no_of_rows=1, no_of_cols=3, which_figure=3):
 		"""
 		2008-11-25
 			plot the enrichment ratio for each pvalue window, represented by colors
 		"""
 		sys.stderr.write("Plotting enrichment ratio ...")
 		#calculate the number of rows needed according to how many score_rank_data, always two-column
-		no_of_rows = 1
 		rm1, rm2 = rm_ls
 		
 		pvalue_int_pair2enrichment_ratio = {}
@@ -158,7 +170,7 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		if output_fname_prefix:
 			pylab.savefig('%s_%s.png'%(output_fname_prefix,1), dpi=300)
 		
-		ax = pylab.subplot(no_of_rows, 2, 2, frameon=False)
+		ax = pylab.subplot(no_of_rows, no_of_cols, which_figure, frameon=False)
 		#pylab.title()
 		ax.set_xlabel(rm1.analysis_method.short_name)
 		ax.set_ylabel(rm2.analysis_method.short_name)
@@ -172,7 +184,7 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 			patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=0.5)
 			ax.add_patch(patch)
 		
-		axe_map_phenotype_legend = pylab.axes([0.90, 0.08, 0.07, 0.3], frameon=False)
+		axe_map_phenotype_legend = pylab.axes([0.92, 0.08, 0.05, 0.3], frameon=False)
 		
 		#draw after ax, to avoid overwriting
 		cb = mpl.colorbar.ColorbarBase(axe_map_phenotype_legend, cmap=phenotype_cmap,
@@ -183,8 +195,43 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		sys.stderr.write("Done.\n")
 		return ax
 	
+	def plot_scatter(self, ax, pvalue_matching_data, rm_ls, data_type=1):
+		"""
+		2008-12-17
+			refactored out of plot()
+		"""
+		rm1, rm2 = rm_ls
+		ax.set_xlabel(rm1.analysis_method.short_name)
+		ax.set_ylabel(rm2.analysis_method.short_name)
+		ax.grid(True, alpha=0.3)
+		legend_ls = []
+		legend_patch_ls = []
+		if data_type==1:
+			x_ls = pvalue_matching_data.pvalue_ls1_in_non_candidate
+			y_ls = pvalue_matching_data.pvalue_ls2_in_non_candidate
+		else:
+			x_ls = pvalue_matching_data.logpvalue_ls1_in_non_candidate
+			y_ls = pvalue_matching_data.logpvalue_ls2_in_non_candidate
+		s2 = ax.scatter(x_ls, y_ls, c='b', alpha=0.3, linewidth=0)
+		legend_patch_ls.append(s2)
+		legend_ls.append('non-candidate (%s)'%(len(pvalue_matching_data.pvalue_ls1_in_non_candidate)))
+		
+		if data_type==1:
+			x_ls = pvalue_matching_data.pvalue_ls1_in_candidate
+			y_ls = pvalue_matching_data.pvalue_ls2_in_candidate
+		else:
+			x_ls = pvalue_matching_data.logpvalue_ls1_in_candidate
+			y_ls = pvalue_matching_data.logpvalue_ls2_in_candidate
+		s1 = ax.scatter(x_ls, y_ls, c='r', alpha=0.3, linewidth=0)
+		legend_ls.append('candidate (%s)'%(len(pvalue_matching_data.pvalue_ls1_in_candidate)))
+		legend_patch_ls.append(s1)
+		
+		ax.legend(legend_patch_ls, legend_ls, loc='upper left', handlelen=0.02)
+	
 	def plot(self, phenotype_method, list_type, rm_ls, pvalue_matching_data, output_dir=None, commit=0, pvalue_int_gap=1.0):
 		"""
+		2009-1-7
+			add a scatter plot of raw pvalues 
 		2008-11-19
 		"""
 		sys.stderr.write("Making plots ...")
@@ -192,27 +239,18 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		pylab.subplots_adjust(left=0.08, right=0.92,bottom = 0.05)
 		#calculate the number of rows needed according to how many score_rank_data, always two-column
 		no_of_rows = 1
+		no_of_cols = 3
 		rm1, rm2 = rm_ls
-		ax_scatter = pylab.subplot(no_of_rows,2, 1, frameon=False)
-		#pylab.title()
-		pylab.xlabel(rm1.analysis_method.short_name)
-		pylab.ylabel(rm2.analysis_method.short_name)
-		pylab.grid(True, alpha=0.3)
-		legend_ls = []
-		legend_patch_ls = []
-		s2 = pylab.scatter(pvalue_matching_data.pvalue_ls1_in_non_candidate, pvalue_matching_data.pvalue_ls2_in_non_candidate, c='b', alpha=0.3, linewidth=0)
-		legend_patch_ls.append(s2)
-		legend_ls.append('non-candidate (%s)'%(len(pvalue_matching_data.pvalue_ls1_in_non_candidate)))
+		ax_scatter_pvalue = pylab.subplot(no_of_rows, no_of_cols, 1, frameon=False)
+		self.plot_scatter(ax_scatter_pvalue, pvalue_matching_data, rm_ls, data_type=1)
 		
-		s1 = pylab.scatter(pvalue_matching_data.pvalue_ls1_in_candidate, pvalue_matching_data.pvalue_ls2_in_candidate, c='r', alpha=0.3, linewidth=0)
-		legend_ls.append('candidate (%s)'%(len(pvalue_matching_data.pvalue_ls1_in_candidate)))
-		legend_patch_ls.append(s1)
+		ax_scatter_logpvalue = pylab.subplot(no_of_rows, no_of_cols, 2, frameon=False)
+		self.plot_scatter(ax_scatter_logpvalue, pvalue_matching_data, rm_ls, data_type=2)
 		
-		pylab.legend(legend_patch_ls, legend_ls, loc='upper left', handlelen=0.02)
-		
-		ax_enrichment_ratio = self.plotEnrichmentRatio(rm_ls, pvalue_matching_data, pvalue_int_gap)
-		ax_enrichment_ratio.set_xlim(ax_scatter.get_xlim())
-		ax_enrichment_ratio.set_ylim(ax_scatter.get_ylim())
+		ax_enrichment_ratio = self.plotEnrichmentRatio(rm_ls, pvalue_matching_data, pvalue_int_gap,\
+													no_of_rows=no_of_rows, no_of_cols=no_of_cols, which_figure=3)
+		ax_enrichment_ratio.set_xlim(ax_scatter_logpvalue.get_xlim())
+		ax_enrichment_ratio.set_ylim(ax_scatter_logpvalue.get_ylim())
 		
 		ax = pylab.axes([0.1, 0.1, 0.8,0.8], frameon=False)
 		ax.set_xticks([])
@@ -229,7 +267,7 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 			pylab.savefig(png_data, format='png', dpi=300)
 			#pylab.savefig(svg_data, format='svg', dpi=300)
 		elif output_dir:
-			output_fname_prefix = os.path.join(output_dir, title.replace('/', '_'))
+			output_fname_prefix = os.path.join(output_dir, title.replace('/', '_').replace(' ', '_'))
 			pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
 			#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
 		
