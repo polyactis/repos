@@ -23,7 +23,8 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import getopt, csv, math
 import Numeric, cPickle
 from pymodule import PassingData, importNumericArray, write_data_matrix, SNPData
-from Stock_250kDB import Stock_250kDB, Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
+import Stock_250kDB
+from Stock_250kDB import Snps, SnpsContext, ResultsMethod, GeneList, GeneListType, \
 	CandidateGeneTopSNPTest, CandidateGeneRankSumTestResult, AnalysisMethod, PhenotypeMethod, ResultsByGene
 from sets import Set
 from pymodule.DrawMatrix import drawMatrix, drawLegend, drawContinousLegend, get_font, combineTwoImages, Value2Color
@@ -43,16 +44,17 @@ class OutputTestResultInMatrix(object):
 							('min_MAF', 1, float): [0.1, 'n', 1, 'minimum Minor Allele Frequency.'],\
 							('max_pvalue_per_gene', 0, int): [0, 'a', 0, 'take the most significant among all SNPs associated with one gene'],\
 							('min_sample_size', 0, int): [5, 'i', 1, 'minimum size for both candidate and non-candidate sets to do wilcox.test'],\
-							('no_of_top_snps', 1, int): [100, 'f', 1, 'how many number of top snps based on score or -log10(pvalue).'],\
+							('no_of_top_snps', 1, int): [100, 'f', 1, 'For test_result_type=2. how many number of top snps based on score or -log10(pvalue).'],\
 							('call_method_id_ls', 1, ):[None, 'l', 1, 'Restrict results based on these call_methods, coma-separated list of ids.'],\
 							('analysis_method_id_ls', 0, ):[None, 'j', 1, 'Restrict results based on these analysis, coma-separated. Default is no such restriction.'],\
-							("result_type", 1, int): [1, 'y', 1, 'Which test result to output. 1: CandidateGeneRankSumTestResult, 2: CandidateGeneTopSNPTest'],\
+							("test_result_type", 1, int): [1, 'y', 1, 'Which test result to output. 1: CandidateGeneRankSumTestResult, 2: CandidateGeneTopSNPTest, 3: CandidateGeneRankSumTestResultMethod'],\
 							("super_type_id", 0, int): [1, 'q', 1, 'Super Type ID for candidate gene lists'],\
 							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
 							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'Filename to store data matrix'],\
 							("fig_fname", 1, ): [None, 'x', 1, 'File name for the figure'],\
 							("no_of_ticks", 1, int): [15, 't', 1, 'Number of ticks on the legend'],\
+							("test_type", 1, int): [0, 'w', 1, 'which type of test in each result_type. column test_type. Check GeneListRankTest.py or TopSNPTest.py for info.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -66,7 +68,7 @@ class OutputTestResultInMatrix(object):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def getListTypeInfo(self, db, result_class,  where_condition):
+	def getListTypeInfo(self, db,  where_condition):
 		"""
 		2008-08-29
 			add -1 as a separator into list_type_id_ls
@@ -87,7 +89,7 @@ class OutputTestResultInMatrix(object):
 		return list_type_id_ls
 			
 	
-	def getAnalysisMethodInfo(self, db, result_class, where_condition):
+	def getAnalysisMethodInfo(self, db, where_condition):
 		sys.stderr.write("Getting analysis method info ...")
 		rows = db.metadata.bind.execute("select distinct r.analysis_method_id from %s order by analysis_method_id"\
 								%(where_condition))
@@ -97,7 +99,7 @@ class OutputTestResultInMatrix(object):
 		sys.stderr.write("Done.\n")
 		return analysis_method_id_ls
 	
-	def getPhenotypeInfo(self, db, result_class,  where_condition):
+	def getPhenotypeInfo(self, db,  where_condition):
 		"""
 		2008-08-29
 			add -1 as a separator into phenotype_method_id_ls and others
@@ -163,7 +165,7 @@ class OutputTestResultInMatrix(object):
 		sys.stderr.write("Done.\n")
 		return return_data
 	
-	def get_data_matrix(self, db, phenotype_info, list_type_analysis_method_info, result_class,  where_condition):
+	def get_data_matrix(self, db, phenotype_info, list_type_analysis_method_info, where_condition):
 		sys.stderr.write("Getting data matrix ...")
 		data_matrix = num.zeros([len(list_type_analysis_method_info.list_type_id_analysis_method_id2index), len(phenotype_info.phenotype_method_id2index)], num.float)
 		data_matrix[:] = -1
@@ -219,22 +221,35 @@ class OutputTestResultInMatrix(object):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
-		db = Stock_250kDB(drivername=self.drivername, username=self.db_user,
+		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.db_user,
 						password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		db.setup()
 		session = db.session
 		
-		if self.result_type==1:
-			result_class = CandidateGeneRankSumTestResult
-		elif self.result_type==2:
-			result_class = CandidateGeneTopSNPTest
+		if self.test_result_type==1:
+			test_result_class_table = CandidateGeneRankSumTestResult.table.name
+			test_result_class_table = 'candidate_gene_rank_sum_test_result_2008_09_15'
+		elif self.test_result_type==2:
+			test_result_class_table = CandidateGeneTopSNPTest.table.name
+		elif self.test_result_type==3:
+			test_result_class_table = Stock_250kDB.CandidateGeneRankSumTestResultMethod.table.name
 		else:
-			sys.stderr.write(" result_type %s not supported.\n"%(self.result_type))
+			sys.stderr.write(" test_result_type %s not supported.\n"%(self.test_result_type))
 			sys.exit(2)
-		
-		where_condition = "%s r, %s rg, %s c, %s g where g.id=c.list_type_id and r.analysis_method_id is not null and r.id=rg.results_method_id and c.results_by_gene_id=rg.id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
-				%(ResultsMethod.table.name, ResultsByGene.table.name, result_class.table.name, GeneListType.table.name, self.get_closest, self.min_distance, self.min_MAF)	#the condition for min_MAF is tricky because of the floating precision.
-		
+
+		#the condition for min_MAF is tricky because of the floating precision.
+		if self.test_result_type==1:
+			where_condition = "%s r, %s c, %s g where g.id=c.list_type_id and r.analysis_method_id is not null \
+				and c.results_id=r.id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
+				%(ResultsMethod.table.name, test_result_class_table, GeneListType.table.name, self.get_closest, self.min_distance, self.min_MAF)
+		elif self.test_result_type==2:
+			where_condition = "%s r, %s rg, %s c, %s g where g.id=c.list_type_id and r.analysis_method_id is not null and r.id=rg.results_method_id \
+				and c.results_id=rg.id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
+				%(ResultsMethod.table.name, ResultsByGene.table.name, test_result_class_table, GeneListType.table.name, self.get_closest, self.min_distance, self.min_MAF)
+		elif self.test_result_type==3:
+			where_condition = "%s r, %s c, %s g where g.id=c.list_type_id and r.analysis_method_id is not null \
+				and c.results_id=r.id and c.get_closest=%s and c.min_distance=%s and abs(c.min_MAF-%s)<0.00001"\
+				%(ResultsMethod.table.name, test_result_class_table, GeneListType.table.name, self.get_closest, self.min_distance, self.min_MAF)
 		if self.call_method_id_ls:
 			where_condition += " and r.call_method_id in (%s)"%self.call_method_id_ls
 		
@@ -243,21 +258,20 @@ class OutputTestResultInMatrix(object):
 		if self.super_type_id:
 			where_condition += " and g.super_type_id=%s"%self.super_type_id
 		
-		if self.result_type==1:
-			result_class = CandidateGeneRankSumTestResult
-			#where_condition += " and c.max_pvalue_per_gene=%s"%(self.max_pvalue_per_gene)
-		elif self.result_type==2:
-			result_class = CandidateGeneTopSNPTest
-			where_condition += " and c.no_of_top_snps=%s"%(self.no_of_top_snps)
-		else:
-			sys.stderr.write(" result_type %s not supported.\n"%(self.result_type))
-			sys.exit(2)
+		if self.test_type:
+			where_condition += " and c.test_type=%s"%self.test_type
 		
-		list_type_id_ls = self.getListTypeInfo(db, result_class, where_condition)
-		analysis_method_id_ls = self.getAnalysisMethodInfo(db, result_class, where_condition)
+		if self.test_result_type==1:
+			pass
+			where_condition += " and c.max_pvalue_per_gene=%s"%(self.max_pvalue_per_gene)
+		elif self.test_result_type==2:
+			where_condition += " and c.no_of_top_snps=%s"%(self.no_of_top_snps)		
+		
+		list_type_id_ls = self.getListTypeInfo(db, where_condition)
+		analysis_method_id_ls = self.getAnalysisMethodInfo(db, where_condition)
 		list_type_analysis_method_info = self.orderListTypeAnalysisMethodID(list_type_id_ls, analysis_method_id_ls)
-		phenotype_info = self.getPhenotypeInfo(db, result_class, where_condition)
-		rdata = self.get_data_matrix(db, phenotype_info, list_type_analysis_method_info, result_class, where_condition)
+		phenotype_info = self.getPhenotypeInfo(db, where_condition)
+		rdata = self.get_data_matrix(db, phenotype_info, list_type_analysis_method_info, where_condition)
 		
 		rdata.data_matrix = self.markDataMatrixBoundary(rdata.data_matrix, phenotype_info, list_type_analysis_method_info)
 		
