@@ -13,6 +13,10 @@ Description:
 	It requires a minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test.
 	
 	It will automatically match strains in two files. NO worry for missing/extra data in either input file.
+	
+	2009-1-7
+		0 is no longer regarded as NA in genotype_ls. -2 or numpy.nan is regarded as NA.
+		please run this program on binary (0/1) SNPs. or run Association.py to invoke this KW instead.
 """
 
 import sys, os, math
@@ -104,6 +108,8 @@ class Kruskal_Wallis:
 	
 	def _kruskal_wallis(cls, genotype_ls, phenotype_ls, min_data_point=3, snp_index=None):
 		"""
+		2008-11-25
+			0 is no longer regarded as NA in genotype_ls. -2 or numpy.nan is regarded as NA.
 		2008-09-07
 			split out of _kruskal_wallis_whole_matrix()
 			input is one genotype list, one phenotype list
@@ -115,8 +121,8 @@ class Kruskal_Wallis:
 		non_NA_genotype2count = {}
 		#non_NA_genotype2phenotype_ls = {}	#2008-08-06 try wilcox
 		for i in range(len(genotype_ls)):
-			if genotype_ls[i]!=0 and genotype_ls[i]!=-2 and not numpy.isnan(phenotype_ls[i]):
-				non_NA_genotype = genotype_ls[i]
+			if genotype_ls[i]!=-2 and not numpy.isnan(genotype_ls[i]) and not numpy.isnan(phenotype_ls[i]):	#assume genotype_ls is either 0 or 1. -2 is NA.
+				non_NA_genotype = int(genotype_ls[i])	#2008-11-25 if genotype_ls[i] is of type numpy.int8, rpy.r.as_factor() won't handle.
 				non_NA_genotype_ls.append(non_NA_genotype)
 				non_NA_phenotype_ls.append(phenotype_ls[i])
 				if non_NA_genotype not in non_NA_genotype2count:
@@ -132,8 +138,10 @@ class Kruskal_Wallis:
 								top_2_allele_ls[1]: non_NA_genotype2count[top_2_allele_ls[1]]}
 		"""
 		count_ls = non_NA_genotype2count.values()
+		
 		if len(count_ls)>=2 and min(count_ls)>=min_data_point:	#require all alleles meet the min data point requirement
-			pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
+			kw_result = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))
+			pvalue = kw_result['p.value']
 			#2008-08-06 try wilcox
 			#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
 			pdata = PassingData(snp_index=snp_index, pvalue=pvalue, count_ls=count_ls)
@@ -144,7 +152,7 @@ class Kruskal_Wallis:
 	
 	_kruskal_wallis = classmethod(_kruskal_wallis)
 	
-	def _kruskal_wallis_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3):
+	def _kruskal_wallis_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3, **keywords):
 		"""
 		2008-09-07
 			_kruskal_wallis() spinned off.
