@@ -26,16 +26,15 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback
 from pymodule import PassingData, figureOutDelimiter
-import Stock_250kDB
 from pymodule import getGenomeWideResultFromFile
 from GeneListRankTest import SnpsContextWrapper
 from CheckCandidateGeneRank import CheckCandidateGeneRank
-from TopSNPTest import TopSNPTest
 from MpiTopSNPTest import MpiTopSNPTest
 from sets import Set
 from heapq import heappush, heappop, heapreplace
 from common import get_total_gene_ls
 import rpy, random, numpy
+import Stock_250kDB
 
 class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 	__doc__ = __doc__
@@ -70,7 +69,7 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 		pd.need_snp_index = False
 		pd.candidate_gene_set = candidate_gene_set
 		return_data = self.prepareDataForPermutationRankTest(rm, pd.snps_context_wrapper, pd)
-		
+		counter = 0
 		for snps_id, disp_pos, gene_id, score, rank in return_data.candidate_association_ls:
 			rows = Stock_250kDB.ResultsGene.query.filter_by(snps_id=snps_id).\
 				filter_by(gene_id=gene_id).\
@@ -85,7 +84,8 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 							break
 				if not already_in_db:	#2008-11-12
 					row.types.append(pd.type)
-					session.save_or_update(row)					
+					session.save_or_update(row)
+					counter += 1
 			elif rows.count()>1:
 				sys.stderr.write("Error: more than 1 db entries with snps_id=%s, gene_id=%s, results_id=%s.\n"%\
 								(snps_id, gene_id, results_id))
@@ -95,6 +95,7 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 											results_id=pd.results_id, score=score, rank=rank)
 				row.types.append(pd.type)
 				session.save_or_update(row)
+				counter += 1
 			if pd.commit:
 				try:	#2008-11-12 don't wanna db failure to bog down the whole program
 					session.flush()
@@ -104,7 +105,7 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 						sys.stderr.write("\t%s=%s.\n"%(column, getattr(row, column)))
 					traceback.print_exc()
 					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
-		sys.stderr.write("Done.\n")
+		sys.stderr.write("%s entries saved. Done.\n"%counter)
 	
 	def run(self):
 		"""
@@ -115,7 +116,7 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 			pdb.set_trace()
 		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
-		db.setup()
+		db.setup(create_tables=False)
 		session = db.session
 		
 		hist_type = CheckCandidateGeneRank.getHistType(self.call_method_id, self.min_distance, self.get_closest, self.min_MAF, \
