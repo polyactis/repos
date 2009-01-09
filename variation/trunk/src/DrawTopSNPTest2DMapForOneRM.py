@@ -4,9 +4,23 @@
 Examples:
 	#draw the 2D significance map of a result (results_id=2316 emma on LD) on candidate_gene_list 28(FT_short).
 	DrawTopSNPTest2DMapForOneRM.py -i 2316 -l 28 -x /tmp/rm_2316_l1_C2.png -g  -C 2
-
+	
+	#draw plots and store them into db. not get_closest. pvalue is got by gw_looping.
+	DrawTopSNPTest2DMapForOneRM.py -e 1,5,6,7 -l 28,64 -A 1-7,39-44 -x /tmp/TopSNPTest.png -C2 -z papaya -c
+	
+	#draw plots and store them into db. get_closest=1
+	DrawTopSNPTest2DMapForOneRM.py -e 1,5,6,7 -l 28,64 -A 1-7,39-44 -x /tmp/TopSNPTest.png -C2 -z papaya -c -g
+	
+	
 Description:
+	2008-11-12
+		draw candidate-ratio/non-candidate-ratio decay curve along score cutoffs.
+		curves at different min_distances are drawn on the same plot.
+		corresponding pvalue curves are drawn above.
+		
+		two real options. -g and -Cx.
 	2008-10-23
+		(function not used anymore)
 		draw 2D map based on top snp test results (-log pvalue). row is no_of_top_snps(score cutoff). col is minimum distance to associate SNP to genes.
 	
 """
@@ -50,7 +64,6 @@ class DrawTopSNPTest2DMapForOneRM(object):
 							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
-							("min_distance", 1, int): [20000, 'm', 1, 'minimum distance allowed from the SNP to gene. Deprecated.'],\
 							("get_closest", 0, int): [0, 'g', 0, 'only get genes closest to the SNP within that distance'],\
 							('min_MAF', 1, float): [0, 'n', 1, 'minimum Minor Allele Frequency.'],\
 							('max_pvalue_per_gene', 0, int): [0, 'a', 0, 'take the most significant among all SNPs associated with one gene'],\
@@ -58,18 +71,18 @@ class DrawTopSNPTest2DMapForOneRM(object):
 							('results_id', 0, ):[None, 'i', 1, 'data from which ResultsMethod/ResultsByGene to draw'],\
 							
 							('call_method_id', 0, int):[17, 'j', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
-							('analysis_method_id_ls', 0, ):['1,5,6,7', 'q', 1, 'Restrict results based on this set of analysis_method. Default is no such restriction. i.e., 1,7'],\
+							('analysis_method_id_ls', 0, ):['1,5,6,7', 'e', 1, 'Restrict results based on this set of analysis_method. Default is no such restriction. i.e., 1,7'],\
 							("list_type_id_ls", 0, ): ['1-3,6,8,28,51,64,65,68,71,76,129', 'l', 1, 'comma/dash-separated list of gene list type ids. Each id has to encompass>=10 genes.'],\
 							("phenotype_method_id_ls", 0, ): ['1-7,39-61,80-82', 'A', 1, 'Restrict results based on this set of phenotype_method ids.'],\
 							
 							("test_type_id", 1, int): [15, 'y', 1, 'which type of tests. check db table analysis_method. likely be 14,15 etc.'],\
 							("results_type", 1, int): [1, 'w', 1, 'data from Which result to output. 1: ResultsMethod, 2: ResultsByGene'],\
 							('null_distribution_type_id', 0, int):[1, 'C', 1, 'Type of null distribution. 1=original, 2=permutation, 3=random gene list. in db table null_distribution_type'],\
-							("allow_two_sample_overlapping", 1, int): [0, '', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
-							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', 'e', 1, 'path of the font used to draw labels'],\
+							("allow_two_sample_overlapping", 1, int): [0, 'W', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
+							('font_path', 1, ):['/usr/share/fonts/truetype/freefont/FreeSerif.ttf', '', 1, 'path of the font used to draw labels'],\
 							('font_size', 1, int):[20, 's', 1, 'size of font, which determines the size of the whole figure.'],\
 							("output_fname", 0, ): [None, 'o', 1, 'Filename to store data matrix'],\
-							("fig_fname", 1, ): [None, 'x', 1, 'File name for the figure'],\
+							("fig_fname", 0, ): [None, 'x', 1, 'File name prefix for the figure'],\
 							("no_of_ticks", 1, int): [15, 't', 1, 'Number of ticks on the legend'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -100,7 +113,7 @@ class DrawTopSNPTest2DMapForOneRM(object):
 			filter_by(allow_two_sample_overlapping = allow_two_sample_overlapping).\
 			filter_by(results_type=results_type).\
 			filter_by(test_type_id=test_type_id).\
-			filter_by(null_distribution_type_id=1)
+			filter_by(null_distribution_type_id=null_distribution_type_id)
 		for row in rows:
 			TopSNPTestType_id_ls.append(row.id)
 		sys.stderr.write("Done.\n")
@@ -211,6 +224,7 @@ class DrawTopSNPTest2DMapForOneRM(object):
 				data_matrix_non_candidate_sample_size[row_index, col_index] = row.non_candidate_sample_size
 				data_matrix_candidate_gw_size[row_index, col_index] = row.candidate_gw_size
 				data_matrix_non_candidate_gw_size[row_index, col_index] = row.non_candidate_gw_size
+				"""
 				null_datas = db.metadata.bind.execute("select candidate_sample_size, candidate_gw_size from %s where observed_id=%s and null_distribution_type_id=%s"%\
 											(Stock_250kDB.TopSNPTestRMNullData.table.name, row.id, null_distribution_type_id))
 				i = 0
@@ -220,6 +234,7 @@ class DrawTopSNPTest2DMapForOneRM(object):
 					i+=1
 					if i>=max_no_of_null_data:	#no more than this
 						break
+				"""
 		sys.stderr.write("Done.\n")
 		return_data = PassingData()
 		return_data.data_matrix = data_matrix
@@ -244,9 +259,13 @@ class DrawTopSNPTest2DMapForOneRM(object):
 		2008-10-28
 			called by plotCurve()
 		"""
+		marker = 'None'
+		if which_min_distance>6:	#plot() will alternative 7 colors automatically. after that period, change the marker to differentiate.
+			marker='+'
 		plot_kw = {'linewidth':0.5,\
 				'markerfacecolor': 'w',\
-				'markersize': 1}
+				'markersize': 2,
+				'marker':marker}
 		if len(legend_ls)==0:
 			fill_in_legend = True
 		else:
@@ -264,7 +283,7 @@ class DrawTopSNPTest2DMapForOneRM(object):
 		"""
 		new_ax = pylab.subplot(no_of_rows, 1, which_min_distance+1, frameon=False)	#which_figure is which_min_distance+1
 		pd.ax_ls.append(new_ax)
-		pylab.xlabel('min-distance=%s'%min_distance)
+		#pylab.xlabel('min-distance=%s'%min_distance)
 		pylab.yticks([])
 		pylab.xticks([])
 		
@@ -292,7 +311,6 @@ class DrawTopSNPTest2DMapForOneRM(object):
 					pd.max_x = min_score
 				elif min_score>pd.max_x:
 					pd.max_x = min_score
-				score_cutoff_ls.append(min_score)
 				candidate_sample_size = rdata.data_matrix_candidate_sample_size[i][which_min_distance]
 				if prev_candidate_sample_size==None:
 					score_cutoff_jump_pt_ls.append(min_score)
@@ -307,14 +325,23 @@ class DrawTopSNPTest2DMapForOneRM(object):
 						
 				candidate_gw_size = rdata.data_matrix_candidate_gw_size[i][which_min_distance]
 				candidate_ratio = candidate_sample_size/candidate_gw_size
-				candidate_ratio_ls.append(candidate_ratio)
 				
 				non_candidate_ratio = rdata.data_matrix_non_candidate_sample_size[i][which_min_distance]/rdata.data_matrix_non_candidate_gw_size[i][which_min_distance]
-				non_candidate_ratio_ls.append(non_candidate_ratio)
 				
-				candidate_vs_non_candidate_ratio_ls.append(candidate_ratio/non_candidate_ratio)
-				pvalue_ls.append(rdata.data_matrix[i][which_min_distance])
+				log_pvalue = rdata.data_matrix[i][which_min_distance]
+				if log_pvalue==-2:	#-2 is put there when pvalue=0 and can't do log10
+					log_pvalue = 5
 				
+				if non_candidate_ratio!=0:	#if non_candidate_ratio is 0. candidate_ratio/non_candidate_ratio is inf. cause plot error.
+					candidate_ratio_ls.append(candidate_ratio)
+					non_candidate_ratio_ls.append(non_candidate_ratio)
+					candidate_vs_non_candidate_ratio_ls.append(candidate_ratio/non_candidate_ratio)
+					score_cutoff_ls.append(min_score)
+					pvalue_ls.append(log_pvalue)
+				
+				
+				"""
+				#2008-11-09 comment out the section getting null distribution data for box plots
 				no_of_top_snps = rdata.data_matrix_candidate_sample_size[i][which_min_distance] + rdata.data_matrix_non_candidate_sample_size[i][which_min_distance]
 				no_of_total_snps = rdata.data_matrix_candidate_gw_size[i][which_min_distance] + rdata.data_matrix_non_candidate_gw_size[i][which_min_distance]
 				boxplot_data = []
@@ -341,12 +368,7 @@ class DrawTopSNPTest2DMapForOneRM(object):
 						emp_pvalue.append(4)
 					else:
 						emp_pvalue.append(-math.log(no_of_hits/float(k)))
-		
-		for i in range(len(score_cutoff_jump_pt_ls)):
-			score_cutoff = score_cutoff_jump_pt_ls[i]
-			candidate_sample_size = int(candidate_sample_size_jump_pt_ls[i])
-			pylab.axvline(score_cutoff, alpha=0.6)
-			pylab.text(score_cutoff, 0, str(candidate_sample_size), horizontalalignment='left', verticalalignment='center')
+				"""
 		#pylab.xticks(score_cutoff_jump_pt_ls, candidate_sample_size_jump_pt_ls)
 		"""
 		pylab.ylabel("candidate/non-candidate")
@@ -396,12 +418,21 @@ class DrawTopSNPTest2DMapForOneRM(object):
 		ax3.set_ylabel('-log10(pvalue)')
 		"""
 		#add the ratio-ratio curve onto ax_sum
-		if getattr(pd, 'ax_sum', None):
-			a = pd.ax_sum.plot(score_cutoff_ls, candidate_vs_non_candidate_ratio_ls, **plot_kw)
+		color_for_this_distance = None
+		if getattr(pd, 'ax_ratio', None):
+			a = pd.ax_ratio.plot(score_cutoff_ls, candidate_vs_non_candidate_ratio_ls, **plot_kw)
 			#if fill_in_legend:
 			legend_ls.append("min_distance=%s"%min_distance)
 			patch_ls.append(a[0])
+			color_for_this_distance = a[0].get_color()
+		if getattr(pd, 'ax_ratio_pvalue', None):
+			pd.ax_ratio_pvalue.plot(score_cutoff_ls, pvalue_ls, c=color_for_this_distance, **plot_kw)
 		
+		for i in range(len(score_cutoff_jump_pt_ls)):
+			score_cutoff = score_cutoff_jump_pt_ls[i]
+			candidate_sample_size = int(candidate_sample_size_jump_pt_ls[i])
+			pylab.axvline(score_cutoff, c=color_for_this_distance, alpha=0.6)
+			pylab.text(score_cutoff, 0, str(candidate_sample_size), horizontalalignment='left', verticalalignment='center')
 		return pd
 	plotSubCurve=classmethod(plotSubCurve)
 		
@@ -425,10 +456,18 @@ class DrawTopSNPTest2DMapForOneRM(object):
 		
 		#calculate the number of rows needed according to how many score_rank_data, always two-column
 		
-		ax1 = pylab.axes([0.08, 0.4, 0.84, 0.55], frameon=False)	#left gap, bottom gap, width, height, axes for pvalue, gene models
-		ax1.grid(True, alpha=0.3)
+		ax_ratio_pvalue = pylab.axes([0.08, 0.66, 0.84, 0.31], frameon=False)	#left gap, bottom gap, width, height, axes for pvalue, gene models
+		ax_ratio_pvalue.grid(True, alpha=0.3)
 		
-		pylab.subplots_adjust(left=0.08, right=0.92, bottom = 0.05, top=0.36, wspace=0.2, hspace = 0.25)
+		
+		ax_ratio = pylab.axes([0.08, 0.33, 0.84, 0.33], frameon=False, sharex=ax_ratio_pvalue)	#left gap, bottom gap, width, height, axes for pvalue, gene models
+		ax_ratio.grid(True, alpha=0.3)
+		
+		pylab.subplots_adjust(left=0.08, right=0.92, bottom = 0.02, top=0.33, wspace=0.2, hspace = 0.25)
+		
+		ax_cover_subplots = pylab.axes([0.08, 0.02, 0.84, 0.33], frameon=False)
+		ax_cover_subplots.set_xticks([])
+		ax_cover_subplots.set_yticks([])
 		
 		no_of_rows = rdata.data_matrix.shape[1]
 		legend_ls = []
@@ -437,7 +476,8 @@ class DrawTopSNPTest2DMapForOneRM(object):
 								right_1st_ax = None,
 								min_x = None,
 								max_x = None,
-								ax_sum =ax1,
+								ax_ratio =ax_ratio,
+								ax_ratio_pvalue = ax_ratio_pvalue,
 								ax_ls = [])
 		for i in range(rdata.data_matrix.shape[1]):
 			pd = cls.plotSubCurve(rdata, no_of_top_snps_info, min_distance_info, i, no_of_rows=no_of_rows, \
@@ -447,7 +487,7 @@ class DrawTopSNPTest2DMapForOneRM(object):
 		#ax = pylab.axes([0.1, 0.1, 0.9, 0.9], frameon=False)
 		#ax.set_xticks([])
 		#ax.set_yticks([])
-		ax1.legend(patch_ls, legend_ls, loc='upper left', handlelen=0.02)
+		ax_cover_subplots.legend(patch_ls, legend_ls, loc='lower left', handlelen=0.02)
 		xlim_cushion = (pd.max_x-pd.min_x)/20
 		xlim_ls = [pd.min_x-xlim_cushion, pd.max_x+xlim_cushion]
 		if pd.left_1st_ax and pd.right_1st_ax:
@@ -456,13 +496,14 @@ class DrawTopSNPTest2DMapForOneRM(object):
 		
 		if preset_xlim:
 			xlim_ls = preset_xlim
-		ax1.set_xlim(xlim_ls)
+		ax_ratio.set_xlim(xlim_ls)
 		for ax in pd.ax_ls:	#make all axes have the same xlim
 			ax.set_xlim(xlim_ls)
-		ax1.set_xlabel('score cutoff')
-		ax1.set_ylabel('candidate/non-candidate')
+		ax_ratio.set_xlabel('score cutoff')
+		ax_ratio.set_ylabel('candidate/non-candidate')
+		ax_ratio_pvalue.set_ylabel('pvalue')
 		if title:
-			ax1.title.set_text(title)
+			ax_ratio_pvalue.title.set_text(title)
 		"""
 		#put a main title and single legend for all plots
 		ax = pylab.axes([0.1, 0.1, 0.8, 0.85], frameon=False)
