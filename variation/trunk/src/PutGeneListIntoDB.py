@@ -38,7 +38,8 @@ class PutGeneListIntoDb(object):
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							("input_fname", 1, ): [None, 'i', 1, ''],\
 							("list_type_id", 0, int): [-1, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
-							("list_type_name", 0, ): [None, '', 1, 'Gene list type short name. if given, list_type_id would be ignored.'],\
+							("list_type_name", 0, ): [None, 's', 1, 'Gene list type short name. if given, list_type_id would be ignored.'],\
+							('skip_1st_line', 0, int):[0, 't', 0, 'skip the first line in the input file'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -54,8 +55,12 @@ class PutGeneListIntoDb(object):
 			sys.stderr.write("Error: None of list_type_id and list_type_name is specified.\n")
 			sys.exit(3)
 		
-	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, gene_symbol2gene_id_set, db):
+	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, gene_symbol2gene_id_set, db, skip_1st_line=False):
 		"""
+		2008-01-08
+			add option skip_1st_line
+			stop using csv.reader, use raw file handler instead
+			figureOutDelimiter() is modified not to use csv.Sniffer() by default. it'll return delimiter None if the file is single-column.
 		2008-12-11
 			more filtering:
 				1. strip the original_name
@@ -70,8 +75,10 @@ class PutGeneListIntoDb(object):
 		"""
 		import csv, sys, os
 		session = db.session
-		reader = csv.reader(open(input_fname), delimiter=figureOutDelimiter(input_fname))	#2008-11-20
-		reader.next()	#skips the 1st line
+		delimiter=figureOutDelimiter(input_fname)
+		inf = open(input_fname)	#2008-11-20
+		if skip_1st_line:
+			inf.next()	#skips the 1st line
 		counter = 0
 		success_counter = 0
 		import re
@@ -79,7 +86,10 @@ class PutGeneListIntoDb(object):
 		p_acc = re.compile(r'(\w+)')	#2008-12-11 only alphanumeric characters in gene_symbol (suzi's file contains weird characters sometimes)
 		
 		gene_id2original_name = {}	#to avoid redundancy in gene list
-		for row in reader:
+		for line in inf:
+			if line=='\n':	#skip empty lines
+				continue
+			row = line.split(delimiter)
 			original_name = row[0].strip()	#2008-12-11 remove spaces/tabs in the beginning/end
 			gene_symbol = original_name.upper()
 			if p_acc_ver.search(gene_symbol):
@@ -101,7 +111,7 @@ class PutGeneListIntoDb(object):
 			else:
 				sys.stderr.write("not supposed to happen: original_name=%s, gene_symbol=%s, gene_id_set=%s\n."%(original_name, gene_symbol, gene_id_set))
 			counter += 1
-		del reader
+		del inf
 		
 		if list_type_name:	#if the short name is given, forget about list_type_id
 			glt = GeneListType.query.filter_by(short_name=list_type_name).first()	#try search the db first.
@@ -143,7 +153,7 @@ class PutGeneListIntoDb(object):
 		
 		session = db.session
 		session.begin()
-		self.putGeneListIntoDb(self.input_fname, self.list_type_id, self.list_type_name, gene_symbol2gene_id_set, db)
+		self.putGeneListIntoDb(self.input_fname, self.list_type_id, self.list_type_name, gene_symbol2gene_id_set, db, self.skip_1st_line)
 		if self.commit:
 			session.commit()
 
