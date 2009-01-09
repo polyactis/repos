@@ -65,8 +65,10 @@ def importNumericArray():
 			setattr(num, numpy_type, getattr(num, numpy_type_in_other))
 	return num
 
-def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ',']):
+def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ','], use_sniff=False):
 	"""
+	2008-01-08
+		don't use cs.sniff unless the user specifies it. sniff gives you unexpected delimiter when it's a single-column.
 	2008-08-28
 		nothing weird on hpc-cmb. it's a bug in other code.
 		back to 'return None' if input_fname escapes all condition checking.
@@ -101,7 +103,7 @@ def figureOutDelimiter(input_fname, report=0, delimiter_choice_ls = ['\t', ','])
 		import sys
 		sys.stderr.write("Error: %s is neither a file name nor a file object. But try 'open' anyway.\n"%input_fname)
 		return None
-	if getattr(inf, 'readline', None) is not None:	
+	if getattr(inf, 'readline', None) is not None and use_sniff:	#2008-01-08 don't use cs.sniff unless the user specifies it. sniff gives you unexpected delimiter when it's a single-column.
 		line = inf.readline()
 		delimiter_chosen = cs.sniff(line).delimiter
 	else:
