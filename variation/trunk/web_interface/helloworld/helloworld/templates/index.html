@@ -1,0 +1,9 @@
+##<%inherit file="/base.html"/>\
+<%def name="title()">Greetings</%def>
+
+<frameset cols="20%,*">
+
+<frame src=${h.url_for(controller='greeting', id=None)}>
+
+<frame src=${h.url_for(controller='CallInfo', id=None)} name="showframe">
+</frameset>
