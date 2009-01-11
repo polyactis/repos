@@ -12,6 +12,8 @@ Description:
 		and put them into table ResultsGene.
 	
 	Ignore options: min_sample_size, no_of_min_breaks, no_of_permutations, test_type_id, results_type, tax_id.
+	
+	2009-1-8 list_type_id 0 = ensemble of genes.
 """
 
 import sys, os, math
@@ -62,7 +64,11 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 		if session is None:
 			sys.stderr.write("session is None. no db connection.\n")
 			return None
-		candidate_gene_set = self.dealWithCandidateGeneList(pd.list_type_id, return_set=True)	#internal cache
+		if pd.list_type_id==0:
+			total_gene_id_ls = get_total_gene_ls(Stock_250kDB.ResultsMethod.table.bind)
+			candidate_gene_set = Set(total_gene_id_ls)
+		else:
+			candidate_gene_set = self.dealWithCandidateGeneList(pd.list_type_id, return_set=True)	#internal cache
 		pd.construct_data_obj_id2index = False	#default in getResultMethodContent is True
 		pd.construct_chr_pos2index = False	#no need for this as well
 		pd.need_candidate_association = True
@@ -129,7 +135,8 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 								analysis_method_id_ls=getattr(self, 'analysis_method_id_ls', None),\
 								phenotype_method_id_ls=getattr(self, 'phenotype_method_id_ls', None),\
 								list_type_id_ls=self.list_type_id_ls, \
-								results_type=self.results_type)
+								results_type=self.results_type,\
+								no_check_gene_list=True)
 		params_ls = self.generate_params(param_obj)
 		
 		pd = PassingData(snps_context_wrapper=snps_context_wrapper, \
