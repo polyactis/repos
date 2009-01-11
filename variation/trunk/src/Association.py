@@ -17,6 +17,18 @@ Examples:
 	#linear model with PCs 0 to 1, phenotype from 1 to 5. the PCs are calculated on the fly according to the snp input file.
 	Association.py -i /Network/Data/250k/tmp-yh/250k_data/call_method_17_chr4_100000_700000.tsv -p /Network/Data/250k/tmp-yh/phenotype.tsv -o /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_chr4_100000_700000_y4_pc0_1 -W 0-1 -y 4 -w 1-5 -r
 	
+	#y = SNP + environment + noise, for phenotype 1 & 2
+	Association.py -i /Network/Data/250k/tmp-yh/call_method_17.tsv -p /Network/Data/250k/tmp-yh/phenotype.tsv -o /Network/Data/250k/tmp-yh/association_results/lm/call_method_17_y5.tsv -y5 -w 1,2 -r
+	
+	#y = SNP + environment + PC1 + PC2 + noise, for phenotype 1 & 2
+	Association.py -i /Network/Data/250k/tmp-yh/call_method_17.tsv -p /Network/Data/250k/tmp-yh/phenotype.tsv -o /Network/Data/250k/tmp-yh/association_results/lm_with_PC12/call_method_17_y5.tsv -W 0-1 -f /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.pca.evec -y5 -w 1,2 -r
+	
+	#y = SNP + environment + SNP X environ + noise, for phenotype 1 & 2
+	Association.py -i /Network/Data/250k/tmp-yh/call_method_17.tsv -p /Network/Data/250k/tmp-yh/phenotype.tsv -o /Network/Data/250k/tmp-yh/association_results/lm/call_method_17_y6.tsv -y6 -w 1,2 -r
+	
+	#y = SNP + environment + SNP X environ + PC1 + PC2 + noise, for phenotype 1 & 2
+	Association.py -i /Network/Data/250k/tmp-yh/call_method_17.tsv -p /Network/Data/250k/tmp-yh/phenotype.tsv -o /Network/Data/250k/tmp-yh/association_results/lm_with_PC12/call_method_17_y6.tsv -W 0-1 -f /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.pca.evec -y6 -w 1,2 -r
+
 Description:
 	class to do association test on SNP data. option 'test_type' decides which test to run.
 	
@@ -54,7 +66,7 @@ class Association(Kruskal_Wallis):
 	option_default_dict = Kruskal_Wallis.option_default_dict.copy()
 	option_default_dict.pop(("which_phenotype", 1, int))
 	option_default_dict.update({('phenotype_method_id_ls', 0, ): ['1', 'w', 1, 'which phenotypes to work on. a comma-dash-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method.',]})
-	option_default_dict.update({('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis, 2:linear model(y=xb+e), 3:Emma, 4:LM with PCs, 5: LM two phenotypes with PCs']})
+	option_default_dict.update({('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis, 2:linear model(y=xb+e), 3:Emma, 4:LM with PCs, 5: LM two phenotypes with PCs, 6: LM two phenotypes with PCs, GeneXEnvironment Interaction']})
 	option_default_dict.update({('eigen_vector_fname', 0, ): [None, 'f', 1, 'eigen vector file with PCs outputted by smartpca.perl from EIGENSOFT', ]})
 	option_default_dict.update({('which_PC_index_ls', 0, ): [None, 'W', 1, 'list of indices indicating which PC(s) from eigen_vector_fname should be used. format: 0,1-3', ]})
 	def __init__(self, **keywords):
@@ -71,7 +83,8 @@ class Association(Kruskal_Wallis):
 								2:self.LM_whole_matrix,
 								3:self.Emma_whole_matrix,
 								4:self.LM_with_PCs_whole_matrix,
-								5:self.LM_with_PCs_whole_matrix}
+								5:self.LM_with_PCs_whole_matrix,
+								6:self.LM_with_PCs_whole_matrix}
 		
 		self.output_results = {1:self.output_kw_results,
 							2:self.output_lm_results,
@@ -308,6 +321,7 @@ class Association(Kruskal_Wallis):
 				elif run_type==2:
 					if kinship_matrix.shape[0]!=n:	#there is NA and need slicing
 						new_kinship_matrix = kinship_matrix[non_NA_index_ls, non_NA_index_ls]
+						eig_L = rpy.r.emma_eigen_L(None, new_kinship_matrix)	#2008-1-5 generate new eig_L
 					else:
 						new_kinship_matrix = kinship_matrix
 					pdata = cls.emma(non_NA_genotype_ls, non_NA_phenotype_ls, new_kinship_matrix, eig_L)
@@ -364,6 +378,7 @@ class Association(Kruskal_Wallis):
 		which_PC_index_ls = keywords.get('which_PC_index_ls') or [0]
 		PC_matrix = keywords.get('PC_matrix')
 		environment_matrix = keywords.get('environment_matrix')
+		gene_environ_interaction = keywords.get('gene_environ_interaction')
 		
 		results = []
 		counter = 0
@@ -375,9 +390,15 @@ class Association(Kruskal_Wallis):
 		for j in range(no_of_cols):
 			genotype_ls = data_matrix[:,j]
 			genotype_ls = numpy.resize(genotype_ls, [len(genotype_ls),1])	#make it 2D , so able to hstack with sub_PC_matrix
+			
+			if gene_environ_interaction:
+				gene_environ_matrix = genotype_ls*environment_matrix
+			
 			if environment_matrix is not None:
 				genotype_ls = numpy.hstack((genotype_ls, environment_matrix))
 			
+			if gene_environ_interaction:
+				genotype_ls = numpy.hstack((genotype_ls, gene_environ_matrix))
 			if sub_PC_matrix is not None:
 				genotype_ls = numpy.hstack((genotype_ls, sub_PC_matrix))
 			
@@ -593,7 +614,7 @@ class Association(Kruskal_Wallis):
 		
 		which_phenotype_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(self.phenotype_method_id_ls))
 		
-		if self.test_type==5:
+		if self.test_type==5 or self.test_type==6:
 			if len(which_phenotype_ls)<2:
 				sys.stderr.write("Error: Require to specify 2 phenotypes in order to carry out this test type.\n")
 				sys.exit(3)
@@ -622,8 +643,13 @@ class Association(Kruskal_Wallis):
 			which_phenotype_index_ls = which_phenotype_ls
 			environment_matrix = None
 		
+		if self.test_type==6:
+			gene_environ_interaction = True
+		else:
+			gene_environ_interaction = False
+		
 		for which_phenotype in which_phenotype_index_ls:
-			if self.test_type==5:
+			if self.test_type==5 or self.test_type==6:
 				which_phenotype1, which_phenotype2 = which_phenotype_ls[:2]
 				phenotype1_name = header_phen[2+which_phenotype1]
 				phenotype2_name = header_phen[2+which_phenotype2]
@@ -634,7 +660,8 @@ class Association(Kruskal_Wallis):
 			output_fname='%s_pheno_%s.tsv'%(os.path.splitext(self.output_fname)[0], phenotype_name)	#make up a new name corresponding to this phenotype
 			results = self.run_whole_matrix[self.test_type](newSnpData.data_matrix, data_matrix_phen[:, which_phenotype], \
 														self.min_data_point, PC_matrix=PC_matrix, \
-														which_PC_index_ls=self.which_PC_index_ls, environment_matrix=environment_matrix)
+														which_PC_index_ls=self.which_PC_index_ls, environment_matrix=environment_matrix,\
+														gene_environ_interaction=gene_environ_interaction)
 			output_results_func = self.output_results.get(self.test_type)
 			if output_results_func is None:
 				output_results_func = self.output_lm_results
