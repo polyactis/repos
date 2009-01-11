@@ -48,6 +48,10 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		
 	def generate_params(cls, param_obj, min_no_of_genes=10):
 		"""
+		2009-1-11
+			handle param_obj.no_check_gene_list
+				if it's there and true, list_type_id_ls = param_obj.list_type_id_ls. no db check to make sure each gene list has enough genes in it.
+				added to let PickCandidateGenesIntoResultsGene.py deal with list_type_id=0 (all genes)
 		2008-11-13
 			add "results_type==3" same as "results_type==1"
 			
@@ -112,21 +116,24 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		#if self.debug:	#2008-10-25 temporary testing
 		#	results_method_id_ls = [2095, 2079]
 		
-		list_type_id_ls = []
-		if getattr(param_obj, 'list_type_id_ls', None):	#if list_type_id_ls is given, check whether each one exists in db and has minimum number of genes.
-			for list_type_id in param_obj.list_type_id_ls:
-				glt = GeneListType.get(list_type_id)
-				if glt and len(glt.gene_list)>=min_no_of_genes:
-					list_type_id_ls.append(list_type_id)
+		if getattr(param_obj, 'no_check_gene_list', None) and getattr(param_obj, 'list_type_id_ls', None):
+			list_type_id_ls = param_obj.list_type_id_ls
 		else:
-			i = 0
-			rows = GeneListType.query.offset(i).limit(block_size)
-			while rows.count()!=0:
-				for row in rows:
-					if len(row.gene_list)>=min_no_of_genes:
-						list_type_id_ls.append(row.id)
-					i += 1
+			list_type_id_ls = []
+			if getattr(param_obj, 'list_type_id_ls', None):	#if list_type_id_ls is given, check whether each one exists in db and has minimum number of genes.
+				for list_type_id in param_obj.list_type_id_ls:
+					glt = GeneListType.get(list_type_id)
+					if glt and len(glt.gene_list)>=min_no_of_genes:
+						list_type_id_ls.append(list_type_id)
+			else:
+				i = 0
 				rows = GeneListType.query.offset(i).limit(block_size)
+				while rows.count()!=0:
+					for row in rows:
+						if len(row.gene_list)>=min_no_of_genes:
+							list_type_id_ls.append(row.id)
+						i += 1
+					rows = GeneListType.query.offset(i).limit(block_size)
 		sys.stderr.write("%s candidate gene lists. "%(len(list_type_id_ls)))
 		
 		rm_id_lt_id_set = Set()
