@@ -78,8 +78,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	
 	def drawSNPMtrix(self, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1, \
-					draw_snp_id_label=True, strain_id_label_x_offset_extra=None):
+					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None):
 		"""
+		2008-12-09
+			the SNP matrix in subSNPData, if it's binary, it now uses 0,1 to represent alleles, rather than 1,2.
+		2008-12-01
+			add option snpData_before_impute
 		2008-11-25
 			allow the cell_x_len to vary by allowing values of SNPID2PCAPosInfo.snp_id2img_x_pos to become 2-element tuple or list
 				which stores the start and stop x-position of the cell
@@ -98,6 +102,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		no_of_snps = len(top_snp_data.snp_id_ls)
 		max_score = max(top_snp_data.score_ls)
 		min_score = min(top_snp_data.score_ls)
+		if min_score==max_score:
+			min_score=max_score/2.0
+			max_score = numpy.max(subSNPData.data_matrix)
+			min_score = numpy.min(subSNPData.data_matrix)
 		cell_x_len = getattr(SNPID2PCAPosInfo, 'step', None)
 		cell_y_len = StrainID2PCAPosInfo.step
 		if cell_x_len is not None and cell_y_len is not None:
@@ -124,12 +132,43 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				strain_img_y_pos = StrainID2PCAPosInfo.strain_id2img_y_pos[strain_id]
 				row_index = subSNPData.row_id2row_index[strain_id]
 				allele = subSNPData.data_matrix[row_index][col_index]
-				if allele==1:
+				_linewidth=0
+				if snpData_before_impute:	#2008-12-01	snpData_before_impute is available. highlight missing data.
+					before_impute_row_index = snpData_before_impute.row_id2row_index.get(strain_id)
+					before_impute_col_index = snpData_before_impute.col_id2col_index.get(snp_id)
+
+					if before_impute_row_index is not None and before_impute_col_index is not None:
+						before_impute_allele = snpData_before_impute.data_matrix[before_impute_row_index][before_impute_col_index]
+						if before_impute_allele==-2 or before_impute_allele==0 or numpy.isnan(before_impute_allele):
+							#allele = -1
+							_linewidth = 0.3	#mark the imputed with non-zero linewidth
+					else:	#NA
+						#allele = -1
+						_linewidth = 0.3
+					"""
+					#2008-12-05 temporary for CNV output
+					if before_impute_row_index is not None and before_impute_col_index is not None:
+						before_impute_allele = snpData_before_impute.data_matrix[before_impute_row_index][before_impute_col_index]
+						if before_impute_allele==-2 or numpy.isnan(before_impute_allele):
+							allele=1
+						elif before_impute_allele==0:	#white color
+							allele=1
+						elif before_impute_allele==-1:	#blue
+							allele=3
+						elif before_impute_allele==1:	#red
+							allele=2
+						else:
+							allele=1	#white default
+					else:	#NA
+						allele = 1
+					"""
+				if allele==0:
 					facecolor = 'w'
-				elif allele==2:
+				elif allele==1:
 					facecolor = 'r'
 				else:
 					facecolor = 'b'
+				#alpha = (allele-min_score)/(max_score-min_score)	#2008-12-05 use transparency to show CNV data intensity
 				if i ==0:	#draw strain label, first SNP
 					ecotype_id = int(strain_id)
 					ecotype_obj = ecotype_info.ecotype_id2ecotype_obj.get(ecotype_id)
@@ -152,13 +191,13 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				if index_type==1:
 					xs = [snp_img_x_pos, snp_img_x_pos+cell_x_len, snp_img_x_pos+cell_x_len, snp_img_x_pos]
 					ys = [strain_img_y_pos, strain_img_y_pos, strain_img_y_pos+cell_y_len, strain_img_y_pos+cell_y_len]
-					patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=0, alpha=alpha)	#
+					patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=_linewidth, alpha=alpha)	#
 				elif index_type==2:
-					patch = Ellipse(center, cell_x_len, cell_y_len, facecolor=facecolor, linewidth=0, alpha=alpha)
+					patch = Ellipse(center, cell_x_len, cell_y_len, facecolor=facecolor, linewidth=_linewidth, alpha=alpha)
 				else:
 					xs = [snp_img_x_pos, snp_img_x_pos+cell_x_len, snp_img_x_pos+cell_x_len/2.]
 					ys = [strain_img_y_pos, strain_img_y_pos, strain_img_y_pos+cell_y_len]
-					patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=0, alpha=alpha)
+					patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=_linewidth, alpha=alpha)
 				axe_snp_matrix.add_patch(patch)
 		
 		sys.stderr.write("Done.\n")
@@ -167,7 +206,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 					StrainID2PCAPosInfo, ecotype_info, phenData, \
 					phenotype_col_index, phenotype_cmap, phenotype_norm, rightmost_x_value=1.05,\
 					country_order_name='', alpha=0.8, strain_color_type=2, pca2map_line_color='g', ecotype_width_on_map=9,\
-					draw_lines_to_axe_snp_matrix=True, strain_size_on_axe_strain_pca=14, draw_axe_strain_map=True):
+					draw_lines_to_axe_snp_matrix=True, strain_size_on_axe_strain_pca=14, draw_axe_strain_map=True, \
+					pic_area=[-15,30,38,66], map_pca_line_alpha=0.2, map_pca_linewidth=0.2):
 		"""
 		2008-11-14
 			add option pca2map_line_color, color specification for the lines that connect objects from the axe_strain_pca
@@ -191,7 +231,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		"""
 		sys.stderr.write("Drawing strain PCA ...")
 		if draw_axe_strain_map:
-			map_data = self.justDrawMap(axe_strain_map)
+			map_data = self.justDrawMap(axe_strain_map, pic_area=pic_area)
 		
 		if strain_color_type==1:
 			country_abbr_set = Set()
@@ -240,12 +280,22 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			phenotype_row_index = phenData.row_id2row_index[strain_id]
 			phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
 			strain_fc = phenotype_cmap(phenotype_norm(phenotype))
+			if numpy.isnan(phenotype):
+				linewidth=0.5
+				strain_fc = 'w'
+				edgecolor = 'k'
+				_alpha = 0	#facecolor gets very transparent
+			else:
+				linewidth=0
+				strain_fc = strain_fc
+				edgecolor = 'k'
+				_alpha = alpha
 			if draw_axe_strain_map:
 				if lat and lon:
 					x, y = map_data.m(lon, lat)
 					
 					#mark the strain on the map
-					axe_strain_map.scatter([x],[y], s=ecotype_width_on_map, linewidth=0, facecolor=strain_fc, zorder=10)
+					axe_strain_map.scatter([x],[y], s=ecotype_width_on_map, linewidth=linewidth, facecolor=strain_fc, alpha=_alpha, zorder=10)
 					canvas_x, canvas_y = axe_strain_map.transData.xy_tup((x,y))
 					strain_map_cover_x,  strain_map_cover_y = axe_strain_map_pca_cover.transData.inverse_xy_tup((canvas_x,canvas_y))
 					
@@ -254,10 +304,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 					#connect the strain on axe_strain_pca to axe_strain_map
 					if pca2map_line_color:
 						axe_strain_map_pca_cover.plot([strain_pca_cover_x, strain_map_cover_x], [strain_pca_cover_y, strain_map_cover_y], c=pca2map_line_color, \
-												linestyle='--', alpha=0.2, linewidth=0.2)
+												linestyle='--', alpha=map_pca_line_alpha, linewidth=map_pca_linewidth)
 					else:
 						axe_strain_map_pca_cover.plot([strain_pca_cover_x, strain_map_cover_x], [strain_pca_cover_y, strain_map_cover_y],\
-												linestyle='--', alpha=0.2, linewidth=0.2)
+												linestyle='--', alpha=map_pca_line_alpha, linewidth=map_pca_linewidth)
 			
 			if strain_color_type==1:	#change strain color
 				if ecotype_obj:
@@ -267,7 +317,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				strain_fc = country2fc[country]
 			
 			#plot strain dot at last to avoid being shadowed by lines above
-			axe_strain_pca.scatter([x_value],[y_value], s=strain_size_on_axe_strain_pca, linewidth=0, facecolor=strain_fc, alpha=alpha, zorder=10)
+			axe_strain_pca.scatter([x_value],[y_value], s=strain_size_on_axe_strain_pca, linewidth=linewidth, facecolor=strain_fc, alpha=_alpha, zorder=10)
 		
 		#free transformations of all 3 axes
 		for ax in [axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover]:
@@ -346,11 +396,11 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			axe.plot([0, phenotype], [img_y_pos, img_y_pos], linewidth=0.2, c='k')
 		sys.stderr.write("Done.\n")
 	
-	def justDrawMap(self, axe):
+	def justDrawMap(self, axe, pic_area=[-15,30,38,66]):
 		from matplotlib.toolkits.basemap import Basemap
 		
 		#pic_area = [left longitude, bottom latitude, right longitude, upper latitude]
-		pic_area=[-15,30,38,66]	#[-125,-38,180,70] covers everything, [-125,10,90,70] covers US and europe.
+		#pic_area=[-15,30,38,66]	#[-125,-38,180,70] covers everything, [-125,10,90,70] covers US and europe.
 		m = Basemap(llcrnrlon=pic_area[0],llcrnrlat=pic_area[1],urcrnrlon=pic_area[2],urcrnrlat=pic_area[3],\
 				resolution='c',projection='mill', ax=axe)	#resolution: c=crude, l=low, i=intermediate, h=high
 		
@@ -548,8 +598,11 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		snpData.snp_id2index_type = snp_id2index_type
 		return snpData
 	
-	def getSubStrainSNPMatrix(self, snpData, phenData, phenotype_method_id, phenotype_col_index, snp_id_ls, chr_pos2ancestral_allele=None):
+	def getSubStrainSNPMatrix(self, snpData, phenData, phenotype_method_id, phenotype_col_index, snp_id_ls, \
+							chr_pos2ancestral_allele=None, need_convert_alleles2binary=True):
 		"""
+		2008-12-09
+			add option need_convert_alleles2binary and replace 1,2 with 0,1 to represent binary alleles.
 		2008-11-30
 			fix a bug
 				previously, NA-phenotype strains were not thrown out due to numpy.nan!=numpy.nan.
@@ -571,7 +624,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				sub_row_id_ls.append(row_id)
 		no_of_sub_rows = len(sub_row_id_ls)
 		no_of_sub_snps = len(snp_id_ls)
-		sub_matrix = numpy.zeros([no_of_sub_rows, no_of_sub_snps], numpy.int8)
+		sub_matrix = numpy.zeros([no_of_sub_rows, no_of_sub_snps], snpData.data_matrix.dtype)
 		snp_id2snp_index2allele = {}
 		snp_id2snp_allele2index = {}
 		for j in range(no_of_sub_snps):
@@ -584,28 +637,30 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				row_id = sub_row_id_ls[i]
 				row_index = snpData.row_id2row_index[row_id]
 				allele = snpData.data_matrix[row_index][col_index]
-				if allele not in snp_allele2index:	#if not given how to map allele1 and allele2
-					snp_allele2index[allele] = len(snp_allele2index)+1
+				if need_convert_alleles2binary:
+					if allele not in snp_allele2index:	#if not given how to map allele1 and allele2
+						snp_allele2index[allele] = len(snp_allele2index)
+						snp_index = snp_allele2index[allele]
+						snp_allele2count[allele] = 0
+						snp_index2allele[snp_index] = allele
+					#increase the counter
 					snp_index = snp_allele2index[allele]
-					snp_allele2count[allele] = 0
-					snp_index2allele[snp_index] = allele
-				#increase the counter
-				snp_index = snp_allele2index[allele]
-				snp_allele2count[allele] += 1
-				sub_matrix[i][j] = snp_index
+					snp_allele2count[allele] += 1
+					allele = snp_index
+				sub_matrix[i][j] = allele	#2008-12-05
 			if len(snp_allele2count)>2:
 				sys.stderr.write("Warnings: This SNP %s has %s (>2) alleles.\n"%(snp_id, len(snp_allele2count)))
 			
 			#make sure minor allele gets bigger number (assume newly-derived allele)
 			if len(snp_allele2count)==2:
-				allele1 = snp_index2allele[1]
-				allele2 = snp_index2allele[2]
+				allele1 = snp_index2allele[0]
+				allele2 = snp_index2allele[1]
 				if snp_allele2count[allele1]<snp_allele2count[allele2]:	#minor allele got assigned the smaller number, reverse it
-					sub_matrix[:,j] = numpy.abs(sub_matrix[:,j]-3)	#reverse the index
-					snp_allele2index[allele1] = 2
-					snp_allele2index[allele2] = 1
-					snp_index2allele[2] = allele1
-					snp_index2allele[1] = allele2
+					sub_matrix[:,j] = numpy.abs(sub_matrix[:,j]-1)	#reverse the index, 0,1 to 1,0
+					snp_allele2index[allele1] = 1
+					snp_allele2index[allele2] = 0
+					snp_index2allele[1] = allele1
+					snp_index2allele[0] = allele2
 			
 			snp_id2snp_index2allele[snp_id] = snp_index2allele
 			snp_id2snp_allele2index[snp_id] = snp_allele2index
@@ -617,7 +672,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return subSNPData
 	
-	def getTopSNPData(self, genome_wide_result, no_of_top_hits, snp_region_tup=[]):
+	def getTopSNPData(self, genome_wide_result, no_of_top_hits, snp_region_tup=[], chr_pos_ls=[]):
 		"""
 		2008-11-14
 			add option snp_region_tup.
@@ -630,15 +685,28 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		snp_id_ls = []
 		score_ls = []
 		if snp_region_tup:
+			
 			start_snp_chr, start_snp_pos, stop_snp_chr, stop_snp_pos = snp_region_tup
-			genome_chr_pos_ls = genome_wide_result.chr_pos2index.keys()
-			genome_chr_pos_ls.sort()
-			for chr_pos in genome_chr_pos_ls:
-				chr, pos = chr_pos
-				if chr==start_snp_chr and chr==stop_snp_chr and pos>=start_snp_pos and pos<=stop_snp_pos:
-					data_obj = genome_wide_result.get_data_obj_by_chr_pos(chr_pos[0], chr_pos[1])
-					snp_id_ls.append('%s_%s'%(data_obj.chromosome, data_obj.position))
-					score_ls.append(data_obj.value)
+			if chr_pos_ls:
+				genome_chr_pos_ls = chr_pos_ls
+				genome_chr_pos_ls.sort()
+				for chr_pos in genome_chr_pos_ls:
+					chr, pos = chr_pos
+					if chr==start_snp_chr and chr==stop_snp_chr and pos>=start_snp_pos and pos<=stop_snp_pos:
+						
+						snp_id_ls.append('%s_%s'%(chr, pos))
+						score_ls.append(1.0)
+			else:
+			
+				genome_chr_pos_ls = genome_wide_result.chr_pos2index.keys()
+				genome_chr_pos_ls.sort()
+				for chr_pos in genome_chr_pos_ls:
+					chr, pos = chr_pos
+					if chr==start_snp_chr and chr==stop_snp_chr and pos>=start_snp_pos and pos<=stop_snp_pos:
+						
+						data_obj = genome_wide_result.get_data_obj_by_chr_pos(chr_pos[0], chr_pos[1])
+						snp_id_ls.append('%s_%s'%(data_obj.chromosome, data_obj.position))
+						score_ls.append(data_obj.value)
 		else:
 			for i in range(no_of_top_hits):
 				data_obj = genome_wide_result.get_data_obj_at_given_rank(i+1)	#rank starts from 1
@@ -711,7 +779,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		return obj_id2img_pos, step
 			
 	
-	def getStrainID2PCAPosInfo(self, subSNPData, pca_range=[0,1], snp_id_label_y_offset=0.95):
+	def getStrainID2PCAPosInfo(self, subSNPData, pca_range=[0,1], snp_id_label_y_offset=0.95, explained_var=None, T=None):
 		"""
 		2008-10-08
 			fix a bug that using PC2 and PC3 to get coordinates.
@@ -720,8 +788,9 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		"""
 		sys.stderr.write("Getting  StrainID2PCAPosInfo ... ")
 		StrainID2PCAPosInfo = PassingData()
-		import pca_module
-		T, P, explained_var = pca_module.PCA_svd(subSNPData.data_matrix, standardize=False)
+		if explained_var is None or T is None:
+			import pca_module
+			T, P, explained_var = pca_module.PCA_svd(subSNPData.data_matrix, standardize=False)
 		#import PCA
 		#T, P, explained_var = PCA.eig(subSNPData.data_matrix)	#2008-11-30 try the PCA from pymodule
 		
@@ -733,6 +802,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		StrainID2PCAPosInfo.strain_id2pca_x = strain_id2pca_x
 		StrainID2PCAPosInfo.x_var = explained_var[1]
 		StrainID2PCAPosInfo.y_var = explained_var[0]
+		StrainID2PCAPosInfo.PC_matrix = T	#2008-12-08
+		StrainID2PCAPosInfo.explained_var = explained_var	#2008-12-08
 		obj_id2img_pos, step = self.getObj2ImgPos(strain_id_ls, img_pos_range=[0., snp_id_label_y_offset])
 		StrainID2PCAPosInfo.strain_id2img_y_pos = obj_id2img_pos
 		StrainID2PCAPosInfo.step = step
@@ -870,8 +941,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		
 		#legend for the ecotype color (by phenotype value) on the axe_map/axe_strain_pca
 		phenotype_cmap = mpl.cm.jet
-		max_phenotype = max(phenData.data_matrix[:,phenotype_col_index])
-		min_phenotype = min(phenData.data_matrix[:,phenotype_col_index])
+		max_phenotype = numpy.nanmax(phenData.data_matrix[:,phenotype_col_index])
+		min_phenotype = numpy.nanmin(phenData.data_matrix[:,phenotype_col_index])
 		phenotype_gap = max_phenotype - min_phenotype
 		phenotype_jitter = phenotype_gap/10.
 		phenotype_norm = mpl.colors.Normalize(vmin=min_phenotype-phenotype_jitter, vmax=max_phenotype+phenotype_jitter)
