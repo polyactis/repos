@@ -2797,7 +2797,7 @@ def drawScoreHistogram(curs, results_method_id, list_type_id=1, do_log10_transfo
 	pylab.title('results_method_id=%s, (%s on %s) by list type: %s.'%(rm.id, rm.analysis_method.short_name, rm.phenotype_method.short_name, gl.list_type.short_name))
 	n1 = pylab.hist(score_ls1, 100, alpha=0.4, normed=1)
 	n2 = pylab.hist(score_ls2, 100, alpha=0.4, normed=1, facecolor='r')
-	pylab.legend(['candidate gene list', 'non-candidate gene list'])
+	pylab.legend([n1[2][0], n2[2][0]], ['candidate gene list', 'non-candidate gene list'])
 	pylab.show()
 	return score_ls1, score_ls2
 
@@ -3365,6 +3365,389 @@ for i in range(4):
 output_fname = os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock_high_var.tsv')
 findStrainShowMsmatchRateVariationIn4Blocks(block_fname_ls, output_fname, max_no_of_strains=7000, min_no_of_non_NA_pairs=10, min_var=0.03)
 
+#2008-10-07 form a smaller 250k test dataset for PlotGroupOfSNPs.py, snp_id_ls is the top 200 snps from (KW,LD)
+
+from pymodule import SNPData, write_data_matrix
+input_fname = '/Network/Data/250k/tmp-yh/call_method_17.tsv'
+snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1)
+output_fname = '/Network/Data/250k/tmp-yh/call_method_17_test.tsv'
+from sets import Set
+good_snp_id_set = Set(snp_id_ls)
+col_index_to_be_tossed_set = Set()
+for snp_id, col_index in snpData.col_id2col_index.iteritems():
+	if snp_id not in good_snp_id_set:
+		col_index_to_be_tossed_set.add(col_index)
+write_data_matrix(snpData.data_matrix, output_fname, snpData.header, snpData.strain_acc_list, snpData.category_list, 
+				rows_to_be_tossed_out=None, cols_to_be_tossed_out=col_index_to_be_tossed_set)
+
+"""
+2008-10-11
+	window average of SNP mismatch rates.
+	input_fname is output of TwoSNPData.output_col_id2NA_mismatch_rate_InGWRFormat() (invoked in Qc.py)
+"""
+def average_SNP_mismatch_rate_within_window(input_fname, output_fname, window_size=100000):
+	"""
+	"""
+	from pymodule import figureOutDelimiter
+	import csv
+	delimiter = figureOutDelimiter(input_fname)
+	reader = csv.reader(open(input_fname), delimiter=delimiter)
+	
+	chr_pos2mismatch_rate = {}
+	for row in reader:
+		chr, pos, mismatch_rate = row
+		chr = int(chr)
+		pos = int(pos)
+		mismatch_rate = float(mismatch_rate)
+		chr_pos2mismatch_rate[(chr, pos)] = mismatch_rate
+	
+	prev_chr_pos = None
+	start_pos = None
+	no_of_mismatches = 0.
+	no_of_snps = 0
+	chr_pos_ls = chr_pos2mismatch_rate.keys()
+	chr_pos_ls.sort()
+	chr_start_stop2mismatch_rate_ls = {}
+	for chr_pos in chr_pos_ls:
+		chr, pos = chr_pos
+		if prev_chr_pos==None:
+			prev_chr_pos = chr_pos
+		if start_pos == None:
+			start_pos = pos
+		
+		if chr==prev_chr_pos[0]:
+			if pos-start_pos<=window_size:
+				no_of_mismatches += chr_pos2mismatch_rate[chr_pos]
+				no_of_snps += 1
+			else:	#out of window
+				chr_start_stop2mismatch_rate_ls[(prev_chr_pos[0], start_pos, prev_chr_pos[1])] = [no_of_mismatches/no_of_snps, no_of_snps]
+				
+				#reset
+				start_pos = pos
+				no_of_mismatches = chr_pos2mismatch_rate[chr_pos]
+				no_of_snps = 1
+		elif chr!=prev_chr_pos[0]:
+			chr_start_stop2mismatch_rate_ls[(prev_chr_pos[0], start_pos, prev_chr_pos[1])] = [no_of_mismatches/no_of_snps, no_of_snps]
+			
+			
+			#reset
+			start_pos = pos
+			no_of_mismatches = chr_pos2mismatch_rate[chr_pos]
+			no_of_snps = 1
+		
+		prev_chr_pos=chr_pos
+	
+	writer = csv.writer(open(output_fname, 'w'), delimiter=delimiter)
+	chr_start_stop_ls = chr_start_stop2mismatch_rate_ls.keys()
+	chr_start_stop_ls.sort()
+	for chr_start_stop in chr_start_stop_ls:
+		mismatch_rate_ls = chr_start_stop2mismatch_rate_ls[chr_start_stop]
+		chr, start_pos, stop_pos = chr_start_stop
+		writer.writerow([chr, start_pos, mismatch_rate_ls[0], stop_pos, mismatch_rate_ls[1]])
+	del writer
+
+"""
+input_fname = '/tmp/chromosmal_SNP_mismatch_139'
+output_fname = '%s_window_100k'%(input_fname)
+average_SNP_mismatch_rate_within_window(input_fname, output_fname, window_size=100000)
+"""
+
+
+
+"""
+2008-11-04
+	try estimating FDR on our genome association results
+"""
+def estimateFDRofGWA(results_id, output_fname_prefix, top_p_value_cutoff=1, lambda_gap=0.1):
+	from Stock_250kDB import Stock_250kDB, ResultsMethod
+	rm = ResultsMethod.get(results_id)
+	from GeneListRankTest import GeneListRankTest
+	from pymodule import PassingData
+	pd = PassingData(do_log10_transformation=False)
+	gwr = GeneListRankTest.getResultMethodContent(rm, min_MAF=0, pdata=pd)
+	pvalue_ls = [data_obj.value for data_obj in gwr.data_obj_ls]
+	pvalue_ls.sort()
+	from transfac.src.AnalyzeTRANSFACHits import AnalyzeTRANSFACHits
+	AnalyzeTRANSFACHits_ins = AnalyzeTRANSFACHits()
+	AnalyzeTRANSFACHits_ins.remove_top_p_values(pvalue_ls, top_p_value_cutoff)
+	figure_fname = '%s_p_value_hist.png'%output_fname_prefix
+	AnalyzeTRANSFACHits_ins.draw_pvalue_histogram(pvalue_ls, figure_fname)
+	figure_fname = '%s_pi0Tolambda.png'%output_fname_prefix
+	lambda_list, pi0_list = AnalyzeTRANSFACHits_ins.calculate_pi0_list(pvalue_ls, figure_fname, \
+																	top_p_value_cutoff=top_p_value_cutoff, lambda_gap=lambda_gap)
+	
+	estimated_pi0 = AnalyzeTRANSFACHits_ins.estimate_pi0(lambda_list, pi0_list)
+	
+	AnalyzeTRANSFACHits_ins.cal_q_value_list(pvalue_ls, estimated_pi0, top_p_value_cutoff, output_fname_prefix)
+	
+
+results_id = 2318
+output_fname_prefix = '/tmp/2318_FDR'
+estimateFDRofGWA(results_id, output_fname_prefix)
+	
+
+def outputSNPCandidateGeneAssociation(snps_context_picklef, list_type_id, output_fname):
+	"""
+	2008-11-13
+	output SNP-gene association (from a file containing the pickled snps_context_wrapper) into a file
+	for magnus
+	"""
+	import cPickle, csv
+	from GeneListRankTest import GeneListRankTest
+	candidate_gene_set = GeneListRankTest.dealWithCandidateGeneList(list_type_id, return_set=True)
+	from Stock_250kDB import SnpsContext
+	
+	picklef = open(snps_context_picklef)
+	snps_context_wrapper = cPickle.load(picklef)
+	del picklef
+	
+	chr_pos_ls = snps_context_wrapper.chrpos2snps_id.keys()
+	chr_pos_ls.sort()
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	header = ['gene_id', 'snps_id', 'chromosome', 'position', 'disp_pos', 'left_or_right', 'disp_pos_comment']
+	writer.writerow(header)
+	for chr, pos in chr_pos_ls:
+		snps_context_matrix = snps_context_wrapper.returnGeneLs(chr, pos)
+		assign_snp_candidate_gene = 0
+		assign_snp_non_candidate_gene = 0
+		for snps_context in snps_context_matrix:
+			snps_id, disp_pos, gene_id = snps_context
+			if gene_id in candidate_gene_set:
+				snps_context = SnpsContext.query.filter_by(snps_id=snps_id).filter_by(gene_id=gene_id).first()
+				left_or_right = getattr(snps_context, 'left_or_right', '')
+				disp_pos_comment = getattr(snps_context, 'disp_pos_comment', '')
+				writer.writerow([gene_id, snps_id, chr, pos, disp_pos, left_or_right, disp_pos_comment])
+	del writer
+
+
+snps_context_picklef = './mnt2/panfs/250k/snps_context_g0_m500'
+list_type_id = 28
+output_fname = '/tmp/snps_context_g0_m500_list28.tsv'
+outputSNPCandidateGeneAssociation(snps_context_picklef, list_type_id, output_fname)
+
+"""
+2008-11-25 dump all flowering time genes from table ft_gene into file. (for MpiInterGeneSNPPairAsso.py)
+"""
+def dumpFTGene2File(db, output_fname, list_type_id=28):
+	#rows = db.metadata.bind.execute("select distinct f.gene_id, g.gene_symbol from genome.gene g, ft_gene f where f.gene_id=g.gene_id")
+	rows = db.metadata.bind.execute("select distinct l.gene_id, g.gene_symbol from genome.gene g, candidate_gene_list l where l.gene_id=g.gene_id and l.list_type_id=%s order by gene_symbol"%(list_type_id))
+	import csv
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	for row in rows:
+		writer.writerow([row.gene_id, row.gene_symbol])
+	del writer
+
+
+
+"""
+2008-12-12 draw histogram of CNV amplitudes probe by probe. input file is the amplitude output of RunGADA.py.
+"""
+output_fname = '/tmp/ft_gene.tsv'
+dumpFTGene2File(db_250k, output_fname)
+
+def drawCNVAmpHist(snpData, output_dir, max_counter=None):
+	if not os.path.isdir(output_dir):
+		os.makedirs(output_dir)
+	import pylab
+	counter = 0
+	for col_id in snpData.col_id_ls:
+		col_index = snpData.col_id2col_index[col_id]
+		sys.stderr.write("%s\t%s"%('\x08'*20, counter))
+		output_fname = os.path.join(output_dir, '%s_amp_hist.png'%col_id)
+		amp_ls = snpData.data_matrix[:,col_index]
+		pylab.clf()
+		pylab.hist(amp_ls, 40, alpha=0.6)
+		pylab.title(col_id)
+		pylab.xlabel('amplitude')
+		pylab.ylabel('frequency')
+		pylab.xlim([-1,1])
+		pylab.savefig(output_fname, dpi=200)
+		counter += 1
+		if max_counter and counter>max_counter:
+			break
+
+input_fname = '/Network/Data/250k/tmp-yh/CNV/call_method_17_CNV_array_intensity_chr4_line_no_888148_1107622_norm_GADA_out_amp.tsv'
+from pymodule import SNPData
+snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1, matrix_data_type=float)
+output_dir = '/Network/Data/250k/tmp-yh/CNV/amp_hist/'
+drawCNVAmpHist(snpData, output_dir, max_counter=1000)
+
+
+"""
+2008-12-15 output a chromosome region of the SNP matrix
+"""
+def outputSNPmatrixGivenRegion(snpData, output_fname, chr, start_pos, stop_pos):
+	sys.stderr.write("Outputting a selected region of SNP matrix ...")
+	from pymodule import read_data, write_data_matrix, nt2number
+	#header, strain_acc_list, category_list, data_matrix = read_data(input_fname, turn_into_integer=1)
+	snp_acc_ls = snpData.col_id_ls
+	cols_to_be_tossed_out = set()
+	for i in range(len(snp_acc_ls)):
+		chr_pos = snp_acc_ls[i]
+		chr_pos = chr_pos.split('_')
+		chr_pos = map(int, chr_pos)
+		pos = chr_pos[1]
+		if not (chr_pos[0]==chr and pos>=start_pos and pos<=stop_pos):
+			cols_to_be_tossed_out.add(i)
+	
+	write_data_matrix(snpData.data_matrix, output_fname, snpData.header, snpData.strain_acc_list, snpData.category_list, cols_to_be_tossed_out=cols_to_be_tossed_out)
+
+input_fname= '/Network/Data/250k/tmp-yh/call_method_17.tsv'
+from pymodule import SNPData
+snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1)
+chr=4
+start_pos=100000
+stop_pos=700000
+output_fname = '/Network/Data/250k/tmp-yh/250k_data/call_method_17_chr%s_%s_%s.tsv'%(chr, start_pos, stop_pos)
+outputSNPmatrixGivenRegion(snpData, output_fname, chr, start_pos, stop_pos)
+
+"""
+2008-01-04 upgrade it to output a specified beta or its pvalue
+2008-12-18 take a genome-wide-result file, replace score with beta1 and output into a new file
+"""
+def outputGWRBetaPvalue(input_fname, output_fname, pos_index=1, need_beta=True, min_value_cutoff=None, do_log10_transformation=False):
+	from pymodule import getGenomeWideResultFromFile
+	genome_wide_result = getGenomeWideResultFromFile(input_fname, min_value_cutoff, do_log10_transformation)
+	import csv
+	writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+	header = ['chromosome', 'position', 'score', 'MAF', 'MAC', 'genotype_var_perc', 'beta0']
+	writer.writerow(header)
+	for data_obj in genome_wide_result.data_obj_ls:
+		value = None
+		if data_obj.comment:
+			beta_and_pvalue_ls = data_obj.comment.split(',')	#a list of betas are all separated by ','
+			if len(beta_and_pvalue_ls)>pos_index:
+				beta, pvalue = beta_and_pvalue_ls[pos_index].split(':')	#beta and its pvalue are separted by ':'
+				if need_beta:
+					value = abs(float(beta)*10)	#increase it 10 fold to match pvalue, also take absolute value
+				else:
+					value = abs(float(pvalue))
+		if value is not None:
+			row = [data_obj.chromosome, data_obj.position, value, data_obj.maf, data_obj.mac, data_obj.genotype_var_perc] + data_obj.extra_col_ls
+			writer.writerow(row)
+	del writer
+
+
+input_fname = '/Network/Data/250k/db/results/type_1/2898_results.tsv'	#LM_with_PC12 on LD
+output_fname = '/tmp/LM_with_PC12_on_LD_beta1.tsv'
+outputGWRBetaPvalue(input_fname, output_fname)
+
+input_fname = '/Network/Data/250k/db/results/type_1/2736_results.tsv'	#Emma on LD
+output_fname = '/tmp/Emma_on_LD_beta1.tsv'
+outputGWRBetaPvalue(input_fname, output_fname)
+
+#2008-01-04 check the gene-environ interaction pvalue
+input_fname = '/Network/Data/250k/tmp-yh/association_results/lm/call_method_17_y6_pheno_2_LD+V_1_LD.tsv'
+output_fname = '/Network/Data/250k/tmp-yh/association_results/lm/call_method_17_y6_pvalue_by_int_pheno_2_LD+V_1_LD.tsv'
+outputGWRBetaPvalue(input_fname, output_fname, pos_index=3, need_beta=False)
+
+pheno_pair_ls = ['2_LD+V_1_LD', '1_LD_3_SD', '1_LD_4_SD+V', '2_LD+V_3_SD', '2_LD+V_4_SD+V', '4_SD+V_3_SD', '5_FT_10C_6_FT_16C', '5_FT_10C_7_FT_22C', '6_FT_16C_7_FT_22C', '39_JIC0W_42_JIC8W']
+common_input_fname = '/Network/Data/250k/tmp-yh/association_results/lm/call_method_17_y6'
+for pheno_pair in pheno_pair_ls:
+	input_fname = '%s_pheno_%s.tsv'%(common_input_fname, pheno_pair)
+	output_fname = '%s_pvalue_by_int_pheno_%s.tsv'%(common_input_fname, pheno_pair)
+	outputGWRBetaPvalue(input_fname, output_fname, pos_index=3, need_beta=False)
+
+
+"""
+2008-01-04 recover array id (2nd column) of a StrainXSNP data file based on its old version
+"""
+def recoverArrayID2ndCol(input_fname, data_with_array_id_fname, output_fname):
+	from pymodule import read_data, SNPData
+	header, strain_acc_list, category_list, data_matrix = read_data(input_fname)
+	snpData = SNPData(header=header, strain_acc_list=strain_acc_list, data_matrix=data_matrix)
+	#
+	header2, strain_acc_list2, category_list2, data_matrix2 = read_data(data_with_array_id_fname)
+	#put the array_id from category_list2 into corresponding position in category_list
+	for i in range(len(strain_acc_list2)):
+		ecotype_id = strain_acc_list2[i]
+		array_id = category_list2[i]
+		row_index = snpData.row_id2row_index.get(ecotype_id)	#ecotype_id might not be in input_fname
+		if row_index is not None:
+			category_list[row_index] = array_id
+	
+	newSNPData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
+						data_matrix=data_matrix)
+	newSNPData.tofile(output_fname)
+
+
+input_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919_3_FRI_del_no_array_id.tsv')
+data_with_array_id_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919.tsv')
+output_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919_3_FRI_del.tsv')
+recoverArrayID2ndCol(input_fname, data_with_array_id_fname, output_fname)
+
+
+"""
+2008-1-11 draw nicer genome wide plots
+"""
+def drawGWRNicer(db, genome_wide_result, output_fname_prefix, min_value=2.5):
+	chr2xy_ls = {}
+	for data_obj in genome_wide_result.data_obj_ls:
+		if data_obj.value>=min_value:
+			chr = data_obj.chromosome
+			if chr not in chr2xy_ls:
+				chr2xy_ls[chr] = [[],[]]
+			chr2xy_ls[chr][0].append(data_obj.position)
+			chr2xy_ls[chr][1].append(data_obj.value)
+	
+	from variation.src.common import get_chr_id2size, get_chr_id2cumu_size
+	chr_id_int2size = get_chr_id2size(db.metadata.bind)
+	chr_id2cumu_size, chr_gap, chr_id_ls = get_chr_id2cumu_size(chr_id_int2size, chr_gap=0)
+	
+	import pylab
+	pylab.clf()
+	ax = pylab.axes()
+	import numpy
+	chr_ls = chr2xy_ls.keys()
+	chr_ls.sort()
+	for chr in chr_ls:
+		xy_ls = chr2xy_ls[chr]
+		x_ls = numpy.array(xy_ls[0])
+		x_ls += chr_id2cumu_size[chr]-chr_id_int2size[chr]
+		if xy_ls:
+			ax.plot(x_ls, xy_ls[1], '.', markeredgewidth=0, markersize=5, alpha=0.8)
+	#separate each chromosome
+	for chr in chr_ls[:-1]:
+		print chr
+		ax.axvline(chr_id2cumu_size[chr], linestyle='--', color='k', linewidth=0.8)
+	#draw the bonferroni line
+	bonferroni_value = -math.log10(0.01/len(genome_wide_result.data_obj_ls))
+	ax.axhline(bonferroni_value, linestyle='--', color='k', linewidth=0.8)
+	
+	ax.set_ylabel("Association -log Pvalue")
+	ax.set_xlabel('Chromosomal Position')
+	#ax.set_xlim([0, chr_id2cumu_size[chr_ls[-1]]])
+	y_lim = ax.get_ylim()
+	ax.set_ylim([0, y_lim[1]])
+	pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+	pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+
+
+
+input_fname = '/Network/Data/250k/db/results/type_1/3018_results.tsv'	#KW on LD, call method 22
+from pymodule import getGenomeWideResultFromFile
+genome_wide_result = getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=True)
+output_fname_prefix = '/tmp/call_22_KW_on_LD'
+drawGWRNicer(db_250k, genome_wide_result, output_fname_prefix)
+
+input_fname = '/Network/Data/250k/db/results/type_1/3025_results.tsv'	#Emma on LD, call method 22
+from pymodule import getGenomeWideResultFromFile
+genome_wide_result2 = getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=True)
+output_fname_prefix = '/tmp/call_22_Emma_on_LD'
+drawGWRNicer(db_250k, genome_wide_result2, output_fname_prefix, min_value=1)
+
+input_fname = '/Network/Data/250k/db/results/type_1/3024_results.tsv'	#KW on FT_22C, call method 22
+from pymodule import getGenomeWideResultFromFile
+genome_wide_result3 = getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=True)
+output_fname_prefix = '/tmp/call_22_KW_on_7_FT_22C'
+drawGWRNicer(db_250k, genome_wide_result3, output_fname_prefix)
+
+input_fname = '/Network/Data/250k/db/results/type_1/3031_results.tsv'	#Emma on FT_22C, call method 22
+from pymodule import getGenomeWideResultFromFile
+genome_wide_result4 = getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=True)
+output_fname_prefix = '/tmp/call_22_Emma_on_7_FT_22C'
+drawGWRNicer(db_250k, genome_wide_result4, output_fname_prefix, min_value=1)
+
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -3407,8 +3790,8 @@ curs = conn.cursor()
 
 drivername='mysql'
 schema = None
-from Stock_250kDB import Stock_250kDB
-db_250k = Stock_250kDB(drivername=drivername, username=db_user,
+import Stock_250kDB
+db_250k = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user,
 				password=db_passwd, hostname=hostname, database=dbname, schema=schema)
 db_250k.setup(create_tables=False)
 
