@@ -150,8 +150,10 @@ class GeneListRankTest(object):
 		else:
 			self.results_id_ls = []
 			
-	def constructDataStruc(self, min_distance=50000, get_closest=0):
+	def constructDataStruc(cls, min_distance=50000, get_closest=0):
 		"""
+		2009-1-11
+			become classmethod
 		2008-08-28
 			in debug mode, increase the break-off offset_index from 10000 to 50000
 		2008-08-14
@@ -179,6 +181,7 @@ class GeneListRankTest(object):
 			rows = SnpsContext.query.offset(offset_index).limit(block_size)
 		sys.stderr.write("Done.\n")
 		return data_struc
+	constructDataStruc = classmethod(constructDataStruc)
 	
 	def getChrPos2Pvalue(self, results_method_id):
 		"""
@@ -975,7 +978,7 @@ class GeneListRankTest(object):
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
 	
-	def dealWithSnpsContextWrapper(self, snps_context_picklef, min_distance, get_closest):
+	def dealWithSnpsContextWrapper(cls, snps_context_picklef, min_distance, get_closest):
 		"""
 		2008-09-08
 			split out of run()
@@ -989,16 +992,16 @@ class GeneListRankTest(object):
 				snps_context_wrapper = cPickle.load(picklef)
 				del picklef
 			else:	#if the file doesn't exist, but the filename is given, pickle snps_context_wrapper into it
-				snps_context_wrapper = self.constructDataStruc(min_distance, get_closest)
+				snps_context_wrapper = cls.constructDataStruc(min_distance, get_closest)
 				#2008-09-07 pickle the snps_context_wrapper object
 				picklef = open('%s_g%s_m%s'%(snps_context_picklef, get_closest, min_distance), 'w')
 				cPickle.dump(snps_context_wrapper, picklef, -1)
 				picklef.close()
 		else:
-			snps_context_wrapper = self.constructDataStruc(min_distance, get_closest)
+			snps_context_wrapper = cls.constructDataStruc(min_distance, get_closest)
 		sys.stderr.write("Done.\n")
 		return snps_context_wrapper
-	
+	dealWithSnpsContextWrapper = classmethod(dealWithSnpsContextWrapper)
 	def run(self):
 		if self.debug:
 			import pdb
