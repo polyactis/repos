@@ -5,6 +5,12 @@ Examples:
 	
 	#emma on all flowering phenotype. candidate-ratio/non-candidate-ratio
 	PlotTopSNPCandidateCrossPhenotype.py -m 1000 -q 7 -l 28 -A 1-7,39-61,80-82, -x /Network/Data/250k/tmp-yh/TopSNPCandidate_m1000_q7_FT_C1B1.png -C1 -B 1
+	
+	#emma on all disease phenotypes on list 130 (disease resistance) with output in both picture and table matrix format.
+	m=5000
+	q=7
+	l=130
+	PlotTopSNPCandidateCrossPhenotype.py  -m$m -q $q -l $l -A  9-13,32-38,65-74 -x /Network/Data/250k/tmp-yh/TopSNPCandidateCrossPhenotype/figures/TopSNPCandidate_m$m\_q$q\_disease_phenotype_list$l\.png -o /Network/Data/250k/tmp-yh/TopSNPCandidateCrossPhenotype/Disease_m$m\_q$q\_list$l\_ratio.tsv -C1 -B1
 
 Description:
 	2008-11-11
@@ -229,6 +235,8 @@ class PlotTopSNPCandidateCrossPhenotype(DrawTopSNPTest2DMapForOneRM):
 			#a short output label
 			output_label = '%s_%s (%s)'%\
 				(rm.phenotype_method.id, rm.phenotype_method.short_name, results_id)
+			phenotype_label = '%s_%s'%\
+				(rm.phenotype_method.id, rm.phenotype_method.short_name)
 			TopSNPTestType_id_ls = self.getTopSNPTestType_id_ls(self.get_closest, self.min_MAF, self.allow_two_sample_overlapping, self.results_type, \
 								self.test_type_id, self.null_distribution_type_id)
 			if self.commit:
@@ -257,13 +265,14 @@ class PlotTopSNPCandidateCrossPhenotype(DrawTopSNPTest2DMapForOneRM):
 				score_cutoff_take_log = False
 			return_code = self.plot_one_bar(ax, rdata, no_of_top_snps_info, min_distance_info, self.min_distance, result_index=result_index, data_type=self.data_type, \
 							output_fname=None, \
-							need_svg=False, title=title, commit=0, preset_xlim =None, score_cutoff_take_log=score_cutoff_take_log)
+							need_svg=False, title=phenotype_label, commit=0, preset_xlim =None, score_cutoff_take_log=score_cutoff_take_log)
 			if return_code:
 				data_to_output_label_ls.append(output_label)
 				data_to_output_ls.append(return_code)
 				result_index += 1
 		if self.fig_fname:
 			pylab.savefig(self.fig_fname, dpi=300)
+			pylab.savefig('%s.svg'%os.path.splitext(self.fig_fname)[0], dpi=300)
 		#pylab.show()
 		if self.output_fname and data_to_output_ls:
 			self.output_data(data_to_output_label_ls, data_to_output_ls, self.min_distance, self.output_fname)
