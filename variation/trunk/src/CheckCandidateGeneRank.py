@@ -183,8 +183,10 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		return score_rank_data
 	
 	def plotSubHistogram(self, candidate_data_ls, non_candidate_data_ls, which_figure, sub_title, xlabel, \
-						no_of_rows=2, max_no_of_bins=100, legend_loc='upper right'):
+						no_of_rows=2, max_no_of_bins=60, legend_loc='upper right'):
 		"""
+		2009-1-11
+			reduce max_no_of_bins from 100 to 60
 		2008-10-16
 			add option max_no_of_bins=200
 		2008-10-01
@@ -238,7 +240,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 			else:
 				candidate_data_ls = score_rank_data.candidate_rank_ls
 				non_candidate_data_ls = score_rank_data.non_candidate_rank_ls
-				legend_loc='upper left'	#not to block the right-end high rank peaks
+				legend_loc='upper right'	#not to block the right-end high rank peaks
 			sub_title = score_rank_data.analysis_method.short_name
 			xlabel = data_type
 			self.plotSubHistogram(candidate_data_ls, non_candidate_data_ls, i+1, sub_title, xlabel, no_of_rows=no_of_rows, legend_loc=legend_loc)
@@ -256,7 +258,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 			pylab.savefig(png_data, format='png', dpi=300)
 			pylab.savefig(svg_data, format='svg', dpi=300)
 		elif output_dir:
-			output_fname_prefix = os.path.join(output_dir, title.replace('/', '_'))
+			output_fname_prefix = os.path.join(output_dir, title.replace('/', '_').replace(' ', '_'))	#replace space with underscore
 			output_fname_prefix = '%s_%s'%(output_fname_prefix, data_type)
 			pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
 			pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
