@@ -17,6 +17,12 @@ Examples:
 	#draw gene labels for every gene, not just candidate genes
 	DrawSNPRegion.py -i /tmp/DrawSNPRegion_snps.csv -I /Network/Data/250k/tmp-yh/call_method_17.tsv -N /tmp/phenotype.tsv -l 28 -o /tmp/snp_region/ -j /tmp/at_gene_model_pickelf  -u yh -s
 	
+	#ditto but highlight imputed genotypes with blue color
+	DrawSNPRegion.py -i /tmp/DrawSNPRegion_snps.csv -I /Network/Data/250k/tmp-yh/call_method_17.tsv -J /Network/Data/250k/tmp-yh/call_method_17_from_18_before_imputation.tsv -N /tmp/phenotype.tsv -l 28 -o /tmp/snp_region/ -j /tmp/at_gene_model_pickelf  -u yh -s
+	
+	#database commit, specify plot_type_short_name by '-y'
+	DrawSNPRegion.py -i $tmp_fname -I /Network/Data/250k/tmp-yh/call_method_17.tsv -N /Network/Data/250k/tmp-yh/phenotype.tsv -l 28 -o /Network/Data/250k/tmp-yh/snp_region -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -u yh -s -y SuziHandPick20081209 -c
+	
 Description:
 	2008-09-24 program to draw pvalues, gene-models, LD around one SNP.
 		Top panel is pvalues from all different methods. Margarita and RF's values will be normalized in range of KW.
@@ -253,6 +259,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 							('rbg_results_directory', 0, ):[os.path.expanduser('~/panfs/db/results_by_gene/'), '', 1, 'The rbg results directory. Default is None. use the one given by db.'],\
 							("input_fname", 0, ): [None, 'i', 1, 'Filename which contains at least 3 columns: chromosome, position, phenotype_id. if not given, get from db'],\
 							('snp_matrix_fname', 0, ): ['', 'I', 1, 'genotype matrix. Strain X SNP format.', ],\
+							('snp_matrix_before_impute_fname', 0, ): ['', 'J', 1, 'genotype matrix, before imputation. Strain X SNP format, specify to check which positions are imputed. (colored in blue)', ],\
 							('phenotype_fname', 0, ): [None, 'N', 1, 'phenotype file, if snp_matrix_fname is given, this is needed as well.', ],\
 							("output_dir", 1, ): [None, 'o', 1, 'directory to store all images'],\
 							('call_method_id', 0, int):[17, '', 1, 'Restrict results based on this call_method. Default is no such restriction.'],\
@@ -344,25 +351,33 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		sys.stderr.write("Done.\n")
 		return LD_info
 	
-	def getGeneAnnotation(self):
+	def getGeneAnnotation(cls, tax_id=3702):
 		"""
+		2008-12-16
+			become classmethod
+			add option tax_id
 		2008-10-01
 			substitute GenomeBrowser.get_gene_id2model() with GenomeDB.GenomeDatabase.get_gene_id2model()
 			
 		2008-09-24
 		"""
 		from transfac.src import GenomeDB
-		db = GenomeDB.GenomeDatabase(drivername=self.drivername, username=self.db_user,
-				   password=self.db_passwd, hostname=self.hostname, database='genome', schema=self.schema)
+		db = GenomeDB.GenomeDatabase(drivername=cls.drivername, username=cls.db_user,
+				   password=cls.db_passwd, hostname=cls.hostname, database='genome', schema=cls.schema)
 		db.setup(create_tables=False)
-		gene_id2model, chr_id2gene_id_ls = db.get_gene_id2model(tax_id=3702)
+		gene_id2model, chr_id2gene_id_ls = db.get_gene_id2model(tax_id=tax_id)
 		gene_annotation = PassingData()
 		gene_annotation.gene_id2model = gene_id2model
 		gene_annotation.chr_id2gene_id_ls = chr_id2gene_id_ls
 		return gene_annotation
 	
-	def dealWithGeneAnnotation(self, gene_annotation_picklef):
+	getGeneAnnotation = classmethod(getGeneAnnotation)
+	
+	def dealWithGeneAnnotation(cls, gene_annotation_picklef, tax_id=3702):
 		"""
+		2008-12-16
+			become classmethod
+			add option tax_id
 		2008-10-01
 			similar to dealLD_info()
 		"""
@@ -373,24 +388,27 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				gene_annotation = cPickle.load(picklef)
 				del picklef
 			else:	#if the file doesn't exist, but the filename is given, pickle into it
-				gene_annotation = self.getGeneAnnotation()	#min_gap is 2 X min_distance + a few more bases
+				gene_annotation = cls.getGeneAnnotation(tax_id=tax_id)	#min_gap is 2 X min_distance + a few more bases
 				picklef = open(gene_annotation_picklef, 'w')
 				cPickle.dump(gene_annotation, picklef, -1)
 				picklef.close()
 		else:
-			gene_annotation = self.getGeneAnnotation()
+			gene_annotation = cls.getGeneAnnotation(tax_id=tax_id)
 		sys.stderr.write("Done.\n")
 		return gene_annotation
+	dealWithGeneAnnotation=classmethod(dealWithGeneAnnotation)
 	
 	def getSimilarGWResultsGivenResultsByGene(self, phenotype_method_id, call_method_id, results_directory=None, \
-											analysis_method_id_ls=[1,5,6,7]):
+											analysis_method_id_ls=[1,7,17,18,19]):
 		"""
+		2008-12-14
+			default value of analysis_method_id_ls is changed from [1,5,6,7] to [1,7,17,18,19]
 		2008-09-30
 			use phenotype_method_id and call_method_id to find out all genome-wide results
 		2008-09-24
 		"""
 		sys.stderr.write("Getting results with phenotype=%s and call_method=%s ..."%(phenotype_method_id, call_method_id))
-		if self.debug or 1:
+		if self.debug:
 			analysis_method_id_set = Set([1,7])
 		else:
 			analysis_method_id_set = Set(analysis_method_id_ls)
@@ -405,16 +423,19 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	
 	def getSNPInfo(cls, db):
 		"""
+		2009-1-5
+			add chr_pos2snps_id
 		2008-09-24
 			in order
 		"""
 		sys.stderr.write("Getting info of all SNPs in chromosomal order ...")
 		chr_pos_ls = []
+		data_ls = []
 		chr_pos2index = {}
 		snps_id2index = {}
 		i = 0
 		block_size = 50000
-		rows = db.metadata.bind.execute("select id, chromosome, position from %s where end_position is null"%Stock_250kDB.Snps.table.name)
+		rows = db.metadata.bind.execute("select id, chromosome, position, allele1, allele2 from %s where end_position is null"%Stock_250kDB.Snps.table.name)
 		#.query.offset(i).limit(block_size)
 		#while rows.count()!=0:
 		for row in rows:
@@ -422,6 +443,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			chr_pos_ls.append(chr_pos)
 			chr_pos2index[chr_pos] = len(chr_pos2index)
 			snps_id2index[row.id] = len(snps_id2index)
+			data_ls.append([row.id, row.chromosome, row.position, row.allele1, row.allele2])
 			i += 1
 		#	if self.debug and i>40000:
 		#		break
@@ -430,6 +452,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		snp_info.chr_pos_ls = chr_pos_ls
 		snp_info.chr_pos2index = chr_pos2index
 		snp_info.snps_id2index = snps_id2index
+		snp_info.data_ls = data_ls
 		sys.stderr.write("Done.\n")
 		return snp_info
 	getSNPInfo = classmethod(getSNPInfo)
@@ -483,12 +506,18 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	analysis_method_id2color = {1:'r',
 							5:'g',
 							6:'c',
-							7:'b'}
+							7:'b',
+							17:'g',
+							18:'c',
+							19:'k'}
 	
 	analysis_method_id2name = {1:'KW',
 							5:'Margarita',
 							6:'RF',
-							7:'Emma'}
+							7:'Emma',
+							17:'LM_with_PC12',
+							18:'LM_with_PC1_10',
+							19:'LM_with_PC1_34'}
 	
 	def getXY(self, snps_within_this_region, analysis_method_id2gwr=None, analysis_method_id=None, LD_info=None, which_LD_statistic=2):
 		"""
@@ -556,7 +585,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			gwr = analysis_method_id2gwr[analysis_method_id]
 			x_ls, y_ls = self.getXY(snps_within_this_region, analysis_method_id2gwr, analysis_method_id)
 			if x_ls and y_ls:
-				pscatter = ax1.scatter(x_ls, y_ls, s=10, linewidth=0.6, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w')
+				pscatter = ax1.scatter(x_ls, y_ls, s=10, linewidth=0.6, edgecolor=self.analysis_method_id2color[analysis_method_id], facecolor='w', alpha=0)	#2008-12-15 alpha=0 to turn off face drawing all together
 				legend_ls.append(self.analysis_method_id2name[analysis_method_id])
 				pscatter_ls.append(pscatter)
 		if LD_info and draw_LD_relative_to_center_SNP:	#draw LD with regard to the center SNP
@@ -573,7 +602,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	
 	gene_desc_names = ['gene_id', 'gene_symbol', 'type_of_gene', 'chr', 'start', 'stop', 'protein_label', 'protein_comment', 'protein_text']
 	
-	def returnGeneDescLs(self, gene_desc_names, gene_model, gene_commentary=None, cutoff_length=200):
+	def returnGeneDescLs(cls, gene_desc_names, gene_model, gene_commentary=None, cutoff_length=200):
 		"""
 		2008-10-02
 		"""
@@ -611,9 +640,14 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				element = element[:cutoff_length]
 			gene_desc_ls.append(element)
 		return gene_desc_ls
+	returnGeneDescLs = classmethod(returnGeneDescLs)
 	
-	def plot_one_gene(self, ax, gene_id, param_data, base_y_value=1):
+	def plot_one_gene(cls, ax, gene_id, param_data, base_y_value=1):
 		"""
+		2008-12-16
+			handle drawing on a genome-wide plot
+			param_data has chr_id2cumu_size, chr_id2size, chr_gap
+			add artist_obj_id2artist_gene_id_ls & gene_id2artist_object_id param_data
 		2008-10-02
 			plot all different forms of a gene out.
 		2008-10-01
@@ -622,13 +656,22 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			draw a single gene on the canvas, adapted from GenomeBrowser.plot_one_gene()
 		"""
 		gene_model = param_data.gene_id2model.get(gene_id)
+		chr_id2cumu_size = getattr(param_data, 'chr_id2cumu_size', None)
+		chr_id2size = getattr(param_data, 'chr_id2size', None)
+		chr_gap = getattr(param_data, 'chr_gap', None)
+		artist_obj_id2artist_gene_id_ls = getattr(param_data, 'artist_obj_id2artist_gene_id_ls', None)
+		gene_id2artist_object_id = getattr(param_data, 'gene_id2artist_object_id', None)
+		#2008-12-16
+		if artist_obj_id2artist_gene_id_ls is not None and gene_id2artist_object_id is not None:
+			if gene_id in gene_id2artist_object_id:	#drawn already
+				return
 		if gene_model:
 			if len(gene_model.gene_commentaries)==0:
 				gene_commentaries = [gene_model]	#fake one here
 			else:
 				gene_commentaries = gene_model.gene_commentaries
 			for gene_commentary in gene_model.gene_commentaries:	#multiple commentary
-				gene_desc_ls = self.returnGeneDescLs(self.gene_desc_names, gene_model, gene_commentary)
+				gene_desc_ls = cls.returnGeneDescLs(cls.gene_desc_names, gene_model, gene_commentary)
 				param_data.matrix_of_gene_descriptions.append(gene_desc_ls)
 				
 				if getattr(gene_commentary, 'box_ls', None):
@@ -640,15 +683,34 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				else:	#no coordinate. skip
 					sys.stderr.write("Warning: gene %s has either no start or no stop.\n"%(gene_commentary.gene_id))
 					continue
-				if gene_id in param_data.candidate_gene_set:
+				if param_data.candidate_gene_set and gene_id in param_data.candidate_gene_set:
 					gene_symbol_color = 'b'
 				else:
 					gene_symbol_color = 'k'
+				
+				#2008-12-16 draw genes on a genome-wide plot
+				if chr_id2cumu_size and chr_id2size and chr_gap:
+					this_chr_starting_pos_on_plot = chr_id2cumu_size[gene_model.chromosome]-chr_id2size[gene_model.chromosome]-chr_gap
+					for i in range(len(box_ls)):
+						box = box_ls[i]
+						box_ls[i] = [box[0]+this_chr_starting_pos_on_plot, box[1]+this_chr_starting_pos_on_plot]+list(box[2:])
+				else:
+					this_chr_starting_pos_on_plot = 0
 				y_value = base_y_value+param_data.no_of_genes_drawn%param_data.gene_position_cycle	#cycling through the y position to avoid clogging
+				
 				g_artist = ExonIntronCollection(box_ls, y=y_value, strand=gene_model.strand, width=param_data.gene_width, alpha=0.3, \
 											picker=True, linewidths=0.7, box_line_widths=0.3, rotate_xy=param_data.rotate_xy)
 				ax.add_artist(g_artist)
+				
+				#2008-12-16 for GenomeBrowser.py to keep track of objects
+				if artist_obj_id2artist_gene_id_ls is not None and gene_id2artist_object_id is not None:
+					artist_obj_id = id(g_artist)
+					param_data.artist_obj_id2artist_gene_id_ls[artist_obj_id] = [g_artist, gene_id]
+					param_data.gene_id2artist_object_id[gene_id] = artist_obj_id
+				
 				text_start_pos = box_ls[-1][1]
+				if this_chr_starting_pos_on_plot:	#2008-12-16
+					text_start_pos += this_chr_starting_pos_on_plot
 				#mid_point = (c_start_ls[0]+c_end_ls[-1])/2.
 				if param_data.label_gene or gene_symbol_color=='b':	#specified to label or it's candidate gene
 					if param_data.rotate_xy:
@@ -658,11 +720,19 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 						ax.text(text_start_pos+param_data.gene_box_text_gap, y_value, gene_model.gene_symbol, size=4, \
 							color=gene_symbol_color, alpha=0.8, verticalalignment='center')
 				param_data.no_of_genes_drawn += 1
-				
-					
-	def drawGeneModel(self, ax, snps_within_this_region, gene_annotation, candidate_gene_set, gene_width=1.0, \
-					gene_position_cycle=4, base_y_value=1, gene_box_text_gap=100, label_gene=0, rotate_xy=False):
+	plot_one_gene = classmethod(plot_one_gene)
+	
+	def drawGeneModel(cls, ax, snps_within_this_region, gene_annotation, candidate_gene_set=None, gene_width=1.0, \
+					gene_position_cycle=4, base_y_value=1, gene_box_text_gap=100, label_gene=0, rotate_xy=False,\
+					chr_id2cumu_size=None, chr_id2size=None, chr_gap=None, artist_obj_id2artist_gene_id_ls=None,\
+					gene_id2artist_object_id=None, drawGeneOnTheBoundary=True):
 		"""
+		2008-12-22
+			add argument drawGeneOnTheBoundary, which controls whether to draw genes that are not fully within this region.
+				genes that sit on the boundary of snps_within_this_region.
+			GenomeBrowser.py set it to False because later adding text to these genes would corrupt the running program.
+		2008-12-16
+			add options: chr_id2cumu_size, chr_id2size, chr_gap
 		2008-10-01
 		2008-09-24
 		"""
@@ -674,21 +744,32 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		param_data = PassingData(gene_id2model=gene_annotation.gene_id2model, candidate_gene_set=candidate_gene_set, \
 								gene_width=gene_width, gene_position_cycle=gene_position_cycle, no_of_genes_drawn=0, \
 								gene_box_text_gap=gene_box_text_gap, matrix_of_gene_descriptions = [], label_gene=label_gene,\
-								rotate_xy=rotate_xy)
+								rotate_xy=rotate_xy, chr_id2cumu_size=chr_id2cumu_size, chr_id2size=chr_id2size, chr_gap=chr_gap,\
+								artist_obj_id2artist_gene_id_ls=artist_obj_id2artist_gene_id_ls, gene_id2artist_object_id=gene_id2artist_object_id)
 		for gene_id in gene_annotation.chr_id2gene_id_ls[left_chr]:
 			gene_model = gene_annotation.gene_id2model[gene_id]
-			if gene_model.start!=None and gene_model.stop!=None and gene_model.stop>left_pos:
+			if drawGeneOnTheBoundary:
+				gene_position = gene_model.stop
+			else:
+				gene_position = gene_model.start
+			if gene_model.start!=None and gene_model.stop!=None and gene_position>left_pos:
 				if left_chr==right_chr:	#same chromosome
 					if gene_model.start>right_pos:	#totally out of range, skip it
 						continue
-				self.plot_one_gene(ax, gene_id, param_data, base_y_value=base_y_value)
+				cls.plot_one_gene(ax, gene_id, param_data, base_y_value=base_y_value)
 		if left_chr!=right_chr:
 			for gene_id in gene_annotation.chr_id2gene_id_ls[right_chr]:
 				gene_model = gene_annotation.gene_id2model[gene_id]
-				if gene_model.start!=None and gene_model.stop!=None and gene_model.start<right_pos:
-					self.plot_one_gene(ax, gene_id, param_data, base_y_value=base_y_value)
+				if drawGeneOnTheBoundary:
+					gene_position = gene_model.start
+				else:
+					gene_position = gene_model.stop
+				if gene_model.start!=None and gene_model.stop!=None and gene_position<right_pos:
+					cls.plot_one_gene(ax, gene_id, param_data, base_y_value=base_y_value)
 		sys.stderr.write("Done.\n")
-		return param_data.matrix_of_gene_descriptions
+		return param_data
+	
+	drawGeneModel = classmethod(drawGeneModel)
 	
 	def drawLD(self, axe_gene_model, ax2, snps_within_this_region, LD_info, gene_model_min_y,\
 				gene_model_max_y, which_LD_statistic=1):
@@ -769,8 +850,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	
 	def drawRegionAroundThisSNP(self, phenotype_method_id, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, \
 							LD_info, output_dir, which_LD_statistic, snp_region=None, min_distance=40000, list_type_id=None, label_gene=0,
-							draw_LD_relative_to_center_SNP=0, commit=0, snpData=None, phenData=None, ecotype_info=None):
+							draw_LD_relative_to_center_SNP=0, commit=0, snpData=None, phenData=None, ecotype_info=None,\
+							snpData_before_impute=None):
 		"""
+		2008-12-01
+			add option snpData_before_impute
 		2008-11-30
 			add code to replace axe_LD with axe_strain_pca, axe_snp_matrix, axe_map to demonstrate the haplotype structure,
 				phenotype and geographic source of strains.
@@ -799,8 +883,10 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			snps_within_this_region = snp_region
 		elif getattr(this_snp, 'stop', None):
 			snps_within_this_region = self.findSNPsInRegion(snp_info, this_snp.chromosome, this_snp.position, this_snp.stop)
+			snps_within_this_region_snpData = self.findSNPsInRegion(snpData, this_snp.chromosome, this_snp.position, this_snp.stop)
 		else:
 			snps_within_this_region = self.getSNPsAroundThisSNP(this_snp, snp_info, min_distance)
+			snps_within_this_region_snpData = snps_within_this_region
 		pylab.clf()
 		#fig = pylab.figure()
 		axe_y_offset1 = 0.05	#y_offset for axe_LD, axe_strain_pca, axe_phenotype, axe_map
@@ -831,8 +917,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		#axe_gene_model.set_xticks([])	#this will set ax1's xticks off as well because the x-axis is shared.
 		axe_gene_model.set_yticks([])
 		
-		snp_region_tup = [snps_within_this_region.chr_pos_ls[0][0], snps_within_this_region.chr_pos_ls[0][1],\
-						snps_within_this_region.chr_pos_ls[-1][0], snps_within_this_region.chr_pos_ls[-1][1]]
+		snp_region_tup = [snps_within_this_region_snpData.chr_pos_ls[0][0], snps_within_this_region_snpData.chr_pos_ls[0][1],\
+						snps_within_this_region_snpData.chr_pos_ls[-1][0], snps_within_this_region_snpData.chr_pos_ls[-1][1]]
 		axe_snp_matrix_margin = abs(snp_region_tup[3]-snp_region_tup[1])/15.	#offset to push strain labels on even rows further right
 		if LD_info:
 			axe_LD = pylab.axes([axe_x_offset2, axe_y_offset1, axe_width2, axe_height1], frameon=False)	#axes for LD
@@ -849,27 +935,27 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				sys.stderr.write("No genome association results for phenotype_method_id=%s, analysis_method_id=%s. Take a random one out of analysis_method_id2gwr.\n"%\
 							(phenotype_method_id, 1))
 				genome_wide_result = analysis_method_id2gwr.values()[0]	#take random gwr
-			top_snp_data = self.getTopSNPData(genome_wide_result, None, snp_region_tup)
+			top_snp_data = self.getTopSNPData(genome_wide_result, None, snp_region_tup)	#, snpData.chr_pos2index.keys()) 2008-12-08 temporarily use snpData.chr_pos2index.keys() to locate top_snp_data because here snpData doesn't match genome_wide_result. it's CNV probes.
 			
 			subSNPData = self.getSubStrainSNPMatrix(snpData, phenData, phenotype_method_id, phenotype_col_index, top_snp_data.snp_id_ls)
 			
 			#the two offsets below decides where the label of strains/snps should start in axe_snp_matrix
-			last_chr_pos = snps_within_this_region.chr_pos_ls[-1]
-			strain_id_label_x_offset=snps_within_this_region.chr_pos2adjacent_window[last_chr_pos][1]	#right next to the rightmost SNP
+			last_chr_pos = snps_within_this_region_snpData.chr_pos_ls[-1]
+			strain_id_label_x_offset=snps_within_this_region_snpData.chr_pos2adjacent_window[last_chr_pos][1]	#right next to the rightmost SNP
 			snp_id_label_y_offset=0.95
 			
 			StrainID2PCAPosInfo = self.getStrainID2PCAPosInfo(subSNPData, pca_range=[0,1], snp_id_label_y_offset=snp_id_label_y_offset)
 			
 			#fake one SNPID2PCAPosInfo only for drawSNPMtrix()
 			SNPID2PCAPosInfo = PassingData(step=None, snp_id2img_x_pos={})
-			for chr_pos, adjacent_window in snps_within_this_region.chr_pos2adjacent_window.iteritems():
+			for chr_pos, adjacent_window in snps_within_this_region_snpData.chr_pos2adjacent_window.iteritems():
 				snp_id = '%s_%s'%(chr_pos[0], chr_pos[1])
 				SNPID2PCAPosInfo.snp_id2img_x_pos[snp_id] = adjacent_window
 			
 			
 			phenotype_cmap = mpl.cm.jet
-			max_phenotype = max(phenData.data_matrix[:,phenotype_col_index])
-			min_phenotype = min(phenData.data_matrix[:,phenotype_col_index])
+			max_phenotype = numpy.nanmax(phenData.data_matrix[:,phenotype_col_index])
+			min_phenotype = numpy.nanmin(phenData.data_matrix[:,phenotype_col_index])
 			phenotype_gap = max_phenotype - min_phenotype
 			phenotype_jitter = phenotype_gap/10.
 			phenotype_norm = mpl.colors.Normalize(vmin=min_phenotype-phenotype_jitter, vmax=max_phenotype+phenotype_jitter)
@@ -923,7 +1009,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			axe_snp_matrix.set_yticks([])
 			self.drawSNPMtrix(axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 							ecotype_info, strain_id_label_x_offset, snp_id_label_y_offset, strain_id_label_x_offset_extra=axe_snp_matrix_margin,\
-							draw_snp_id_label=False)	#2008-11-14 turn draw_snp_id_label off
+							draw_snp_id_label=False, snpData_before_impute=snpData_before_impute)	#2008-11-14 turn draw_snp_id_label off
 			#axe_snp_matrix.set_xlim([0,1])
 			#axe_snp_matrix.set_ylim([0,1])
 			no_of_axes_drawn += 1
@@ -959,10 +1045,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		base_y_value = 1
 		gene_width=0.8
 		gene_box_text_gap = min_distance*2*0.005
-		matrix_of_gene_descriptions = self.drawGeneModel(axe_gene_model, snps_within_this_region, gene_annotation, \
+		return_data = self.drawGeneModel(axe_gene_model, snps_within_this_region, gene_annotation, \
 														candidate_gene_set, gene_width=gene_width, \
 						gene_position_cycle=gene_position_cycle, base_y_value=base_y_value, gene_box_text_gap=gene_box_text_gap,\
 						label_gene=label_gene)
+		matrix_of_gene_descriptions = return_data.matrix_of_gene_descriptions
 		gene_model_min_y = base_y_value-gene_width
 		gene_model_max_y = gene_position_cycle + base_y_value -1 + gene_width	#"-1" because genes never sit on y=gene_position_cycle + base_y_value
 		self.drawLD(axe_gene_model, axe_LD, snps_within_this_region, LD_info, gene_model_min_y=gene_model_min_y,\
@@ -1065,7 +1152,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				phenotype_id_index = col_name2index.get('phen')
 				phenotype_need_split = 1
 			if phenotype_id_index is not None:
-				if phenotype_id_index:	#2008-10-27 suzi's input '/Network/Data/250k/tmp-Suzi/sig_marker_ft_files/sig_marker_1_LD.csv' use 'phen' and the phenotype identifier, '1_LD', needs split to get id.
+				if phenotype_need_split:	#2008-10-27 suzi's input '/Network/Data/250k/tmp-Suzi/sig_marker_ft_files/sig_marker_1_LD.csv' use 'phen' and the phenotype identifier, '1_LD', needs split to get id.
 					phenotype_id = row[phenotype_id_index].split('_')[0]
 				else:
 					phenotype_id = row[phenotype_id_index]
@@ -1203,8 +1290,10 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		return snp_region
 	
 	def loadDataStructure(self, gene_annotation_picklef, LD_info_picklef, LD_fname=None, min_MAF=0.1, min_distance=20000, \
-						list_type_id=None, snp_matrix_fname=None, phenotype_fname=None):
+						list_type_id=None, snp_matrix_fname=None, phenotype_fname=None, snp_matrix_before_impute_fname=None):
 		"""
+		2008-12-04
+			add snp_matrix_before_impute_fname
 		2008-11-25
 			if snp_matrix_fname is provided
 				1. no LD_info will be loaded.
@@ -1232,11 +1321,19 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			candidate_gene_set = Set()
 		
 		if snp_matrix_fname:
-			snpData = SNPData(input_fname=snp_matrix_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1)
+			snpData = SNPData(input_fname=snp_matrix_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1)	#, matrix_data_type=float)
 			header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(phenotype_fname, turn_into_integer=0)
 			phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)	#row label is that of the SNP matrix, because the phenotype matrix is gonna be re-ordered in that way
 			phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, strain_acc_list_phen, phenData.data_matrix)	#tricky, using strain_acc_list_phen
 			
+			#2008-12-05 fake a snp_info for findSNPsInRegion
+			chr_pos2index = {}
+			for i in range(len(snpData.col_id_ls)):
+				col_id = snpData.col_id_ls[i]
+				chr_pos = col_id.split('_')
+				chr_pos = tuple(map(int, chr_pos))
+				chr_pos2index[chr_pos] = i
+			snpData.chr_pos2index = chr_pos2index
 			
 			ecotype_info = getEcotypeInfo(db)
 		else:
@@ -1244,9 +1341,15 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			phenData = None
 			ecotype_info = None
 		
+		if self.snp_matrix_before_impute_fname:
+			snpData_before_impute = SNPData(input_fname=self.snp_matrix_before_impute_fname, \
+							turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1)
+			#snpData_before_impute, allele2index_ls = snpData_before_impute.convertSNPAllele2Index(self.report)
+		else:
+			snpData_before_impute = None
 		return_data = PassingData(gene_annotation=gene_annotation, snp_info=snp_info, LD_info=LD_info, \
 								candidate_gene_set=candidate_gene_set, snpData=snpData, phenData=phenData,\
-								ecotype_info=ecotype_info)
+								ecotype_info=ecotype_info, snpData_before_impute=snpData_before_impute)
 		return return_data
 	
 	def drawSNPRegion(self, gene_annotation_picklef, LD_info_picklef, phenotype_method_id, chromosome, start, stop, \
@@ -1288,7 +1391,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			if not delete_gwr:
 				phenotype_id2analysis_method_id2gwr[phenotype_id] = analysis_method_id2gwr
 		if not analysis_method_id2gwr:	#still nothing, skip
-			sys.stderr.write("No gwr resutls available. skip.\n")
+			sys.stderr.write("No gwr results available. skip.\n")
 			return
 		after_plot_data = self.drawRegionAroundThisSNP(phenotype_id, this_snp, param_data.candidate_gene_set, param_data.gene_annotation, \
 													param_data.snp_info, \
@@ -1296,7 +1399,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 								min_distance=param_data.min_distance, list_type_id=param_data.list_type_id,
 								label_gene=param_data.label_gene, \
 								draw_LD_relative_to_center_SNP=param_data.draw_LD_relative_to_center_SNP,\
-								commit=commit, snpData=param_data.snpData, phenData=param_data.phenData, ecotype_info=param_data.ecotype_info)
+								commit=commit, snpData=param_data.snpData, phenData=param_data.phenData, \
+								ecotype_info=param_data.ecotype_info, snpData_before_impute=param_data.snpData_before_impute)
 		param_data.no_of_snps_drawn += 1
 		if commit and after_plot_data:
 			#2008-10-24 first check if it's in db or not
@@ -1373,7 +1477,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		gc.set_threshold(250,10,10)
 		grand_dataStructure = self.loadDataStructure(self.gene_annotation_picklef, self.LD_info_picklef, self.LD_fname, \
 							self.min_MAF, self.min_distance, self.list_type_id, snp_matrix_fname=self.snp_matrix_fname,\
-							phenotype_fname=self.phenotype_fname)
+							phenotype_fname=self.phenotype_fname, snp_matrix_before_impute_fname=self.snp_matrix_before_impute_fname)
 		gene_annotation, snp_info, LD_info = grand_dataStructure.gene_annotation, grand_dataStructure.snp_info, grand_dataStructure.LD_info
 		if not os.path.isdir(self.output_dir):
 			os.makedirs(self.output_dir)
