@@ -20,6 +20,7 @@ Description:
 	  1st column is filename (either full path or base filename, like /Network/Data/250k/raw_data/yanli8-8-07/Col-0A.CEL or Col-0A.CEL).
 	  2nd column is ecotypeid. 3rd column is optional.
 	  If 3rd column is available, it is treated as paternal ecotypeid and 2nd column becomes maternal ecotypeid.
+	  If only one column, the whole line is skipped.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -87,6 +88,8 @@ class ArrayInfo(object):
 	
 	def readMappingFile(cls, mapping_file):
 		"""
+		2009-1-23
+			skip lines with only one column
 		2008-04-12
 			read in a dictionary from array filename to ecotypeid (maternal/paternal)
 		"""
@@ -102,8 +105,9 @@ class ArrayInfo(object):
 				maternal_ecotype_id = int(row[1])
 				paternal_ecotype_id = int(row[2])
 			elif len(row)==1:
-				sys.stderr.write("Error: requires at least 2-column in %s.\n"%(mapping_file))
-				sys.exit(5)
+				sys.stderr.write("Ignore: requires at least 2-column in %s.\n"%(mapping_file))
+				#sys.exit(5)
+				continue
 			array_file_basename2ecotypeid_tuple[array_file_basename] = (maternal_ecotype_id, paternal_ecotype_id)
 		sys.stderr.write("Done.\n")
 		return array_file_basename2ecotypeid_tuple
