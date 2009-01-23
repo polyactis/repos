@@ -58,6 +58,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 	option_default_dict.update({('rank_gap', 1, float): [200, 'E', 1, 'the number of SNPs added onto previous no_of_top_snps to look for enrichment. negative gap could also be used. in that case, stop_rank means minimum score allowed.']})
 	option_default_dict.update({('stop_rank', 1, float): [10000, 'F', 1, 'program iterates over i different types of i*no_of_top_snps until i*no_of_top_snps > this number. maximum rank allowed.']})
 	option_default_dict.update({('alter_hostname', 1, ):['banyan.usc.edu', '', 1, 'host for non-output nodes to connect, since they only query and not save objects. this host can be a slave.']})
+	option_default_dict.update({('store_null_data', 0, int):[0, 'S', 0, 'whether to store the NULL/permutation results for the enrichment test in the database']})
 	def __init__(self,  **keywords):
 		"""
 		2008-08-20
@@ -125,6 +126,8 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		
 	def computing_node_handler(self, communicator, data, comp_param_obj):
 		"""
+		2009-1-22
+			deal with option self.store_null_data
 		2008-11-12
 			turn runHGTest() back into life
 			turn off runEnrichmentTestToGetNullData()
@@ -214,8 +217,10 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 			else:
 				pd.no_of_top_snps_ls = [cutoff]
 				pd.no_of_top_snps = cutoff
-			return_data = self.runHGTest(pd)
-			#return_data = self.runEnrichmentTestToGetNullData(comp_param_obj.session, pd)
+			if self.store_null_data:
+				return_data = self.runEnrichmentTestToGetNullData(comp_param_obj.session, pd)
+			else:
+				return_data = self.runHGTest(pd)
 			if return_data:
 				result_ls += return_data.result_ls
 				null_data_ls += return_data.null_data_ls
