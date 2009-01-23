@@ -381,6 +381,7 @@ class TopSNPTest(GeneListRankTest):
 	
 	def runEnrichmentTestToGetNullData(self, session, pd):
 		"""
+		2008-11-04	stop checking TopSNPTestRMNullData if same run_no exists. the chance is small, however, this incurs a huge load on db server.
 		2008-11-05
 			return result and null_data to be sent over to output node to save them in batch in MpiTopSNPTest.py (output node connects to the master db.)
 		2008-10-30
@@ -459,6 +460,7 @@ class TopSNPTest(GeneListRankTest):
 					if result:
 						if result.id is None:	#need to return this to save later
 							result_ls.append(result)
+						"""
 						#2008-11-04	doesn't care repeating run_no. the chance is small, however, this incurs a huge load on db server.
 						rows = Stock_250kDB.TopSNPTestRMNullData.query.\
 									filter_by(observed_id=result.id).\
@@ -469,6 +471,7 @@ class TopSNPTest(GeneListRankTest):
 								sys.stderr.write("null data for observed_id=%s, run_no=%s, null_distribution_type_id=%s already in db.\n"%\
 												(result.id, run_no, pd.null_distribution_type_id))
 							continue
+						"""
 						if len(result.null_data_ls)>pd.no_of_permutations:	#skip if it's too many already
 							continue
 						
