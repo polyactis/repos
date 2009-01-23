@@ -102,6 +102,9 @@ class QC_250k(TwoSNPData):
 
 	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0, min_no_of_non_NA_pairs=40, **keywords):
 		"""
+		2009-01-22
+			fix a bug which doesn't keep call_QC_with_max_no_of_non_NA_pairs for each call_info when max_call_info_mismatch_rate==1,
+				which further rendered the function of DB_250k2data.py that calls it to take unique call_info entries with lowest mismatch rate defunct.
 		2008-09-19
 			add option take_unique_ecotype to keep only one call_info with lowest mismatch_rate for one ecotype
 		2008-09-16
@@ -147,7 +150,7 @@ class QC_250k(TwoSNPData):
 						break
 			
 			#choose the call_QC with maximum no of non-NA pairs as the final QC. but if any QC of the call_info shows mismatch_rate>max, skip it.
-			if call_info.call_qc_ls and max_call_info_mismatch_rate<1:	#2008-07-01
+			if call_info.call_qc_ls and max_call_info_mismatch_rate<=1:	#2008-07-01	#2009-01-22 add = to "max_call_info_mismatch_rate<=1"
 				call_QC_with_max_no_of_non_NA_pairs = call_info.call_qc_ls[0]
 				for call_QC in call_info.call_qc_ls:
 					if call_QC.no_of_non_NA_pairs>=min_no_of_non_NA_pairs and call_QC.mismatch_rate>max_call_info_mismatch_rate:	#if enough pairs and mismatch_rate too high, ignore
