@@ -61,6 +61,7 @@ class MafvsscoreplotController(BaseController):
 				img_data = getattr(entry, img_type, None)
 				if img_data:
 					get_img_data_success = 1
+					img_data = img_data.__str__()	#2008-12-26	img_data becomes a buffer now. weird!
 				else:
 					get_img_data_success = 0
 		if not get_img_data_success:
