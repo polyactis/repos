@@ -13,8 +13,9 @@ class HelloController(BaseController):
 		#   return render('/some/template.mako')
 		# or, Return a response
 		#return 'Hello World'
-		response.headers['Content-Type'] = 'text/plain'
-		return 'Hello from the index() action!'
+		#response.headers['Content-Type'] = 'text/plain'
+		#return 'Hello from the index() action!'
+		return render('/index.html')
 
 
 	def serverinfo(self):
