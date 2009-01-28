@@ -156,6 +156,7 @@ class SnpregionplotController(BaseController):
 		2008-10-06
 		"""
 		response.headers['Content-type'] = 'image/png'
+		#response.content_type = 'image/png'
 		SNPRegionPlot = model.Stock_250kDB.SNPRegionPlot
 		if id is None:
 			id = request.params.get('id', None)
@@ -163,11 +164,11 @@ class SnpregionplotController(BaseController):
 		if id:
 			snp_region_plot = SNPRegionPlot.get(id)
 			if snp_region_plot:
-				img_data = snp_region_plot.png_data
+				img_data = snp_region_plot.png_data.__str__()	#2008-12-26 snp_region_plot.png_data becomes a buffer now. weird!
 				#img_data = base64.b64decode(snp_region_plot.img_data)
 				get_img_data_success = 1
 		if not get_img_data_success:
-			response.headers['Content-type'] = 'text/plain'
+			response.headers['content-type'] = 'text/plain'
 			img_data = 'No Image'
 		return img_data
 	
