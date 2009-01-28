@@ -12,7 +12,7 @@ class GreetingController(BaseController):
 		# Return a rendered template
 		#   return render('/some/template.mako')
 		# or, Return a response
-		c.greeting = request.params.get('greeting', '<b>Welcome</b>')
+		c.greeting = request.params.get('greeting', 'Welcome')
 		#2008-10-05 test db connection
 		#row = model.Stock_250kDB.GeneListType.query.first()
 		
