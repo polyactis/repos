@@ -31,6 +31,7 @@ There are different ways of associating a SNP to a certain gene.
 			<td>
 			% if table_field=='id':
 				<a href=${h.url_for(controller='DisplayTopSNPTestRM', action='type', id=row.id)}>${getattr(row, table_field, '')}</a>
+				<a href=${h.url_for(controller='DisplayTopSNPTestRM', action='form', id=row.id)}>view by form</a>
 			% elif table_field=='null_distribution_type_id':
 				${row.null_distribution_type.short_name}
 			% elif table_field=='test_type_id':

@@ -41,7 +41,7 @@
 </%def>
 
 
-<%def name="displayMatrix(controller='DisplayTopSNPTestRM', action='showOne')">
+<%def name="displayMatrix(controller='DisplayTopSNPTestRM', action='showOne', display_thumnail=True)">
 	<table border=1>
 	
 	<tr>
@@ -62,7 +62,14 @@
 			<td>
 			% if c.data_matrix[i][j] is not None:
 				% for results_id in c.data_matrix[i][j]:
-					<a href=${h.url_for(controller=controller, action=action, id=results_id[0], type_id=c.type.id, list_type_id=c.list_info.list_type_id_ls[i])}>${results_id[1]},</a>
+					<%
+					thumbnail_url = h.url_for(controller='DisplayTopSNPTestRM', action='queryImage', id=results_id[0], type_id=int(c.type.id), list_type_id=c.list_info.list_type_id_ls[i], img_type='png_thumbnail')
+					table_url = h.url_for(controller=controller, action=action, id=results_id[0], type_id=c.type.id, list_type_id=c.list_info.list_type_id_ls[i])
+					%>
+					<a href=${table_url}>${results_id[1]}-${results_id[0]},</a>
+					% if display_thumnail:
+						<a href=${table_url}><img src=${thumbnail_url}></a>
+					% endif
 				% endfor
 			% endif
 			</td>

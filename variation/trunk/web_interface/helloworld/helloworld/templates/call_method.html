@@ -8,13 +8,9 @@
 
 <tr>
 % for table_field in c.call_methods[0].c.keys():
-		% if table_field in ['min_oligo_call_prob', 'max_array_mismatch_rate', 'max_array_NA_rate', 'max_snp_mismatch_rate', 'max_snp_NA_rate', 'npute_window_size']:
-			<th>${table_field.replace('_', ' ')}</th>
-		% elif table_field=='short_name':
-			<th>${table_field}</th>
+		<th>${table_field.replace('_', ' ')}</th>
+		% if table_field=='short_name':
 			<th>No of arrays</th>
-		% else:
-			<th>${table_field}</th>
 		% endif
 % endfor
 

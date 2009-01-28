@@ -8,6 +8,11 @@ Type: ${h.select('type_id', 1, options=c.types, prompt='Please Choose ...', onch
 	h.url_for(controller="DisplayTopSNPTestRM", action="getPhenotypeMethodLsGivenTypeJson", id=None)
 	), required=True )}  <br/>
 
+<!-- Call Method: ${h.select('call_method_id', 1, options=[], prompt='Please Choose ...', onchange="SelectChange('%s', ['type_id', 'call_method_id'], 'phenotype_method_id'); return false;"%(
+	h.url_for(controller="DisplayTopSNPTestRM", action="getPhenotypeMethodLsGivenTypeJson", id=None)
+	), required=True )}  <br/>
+-->
+
 Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=c.phenotype_method_ls, onchange="SelectChange('%s', ['type_id', 'phenotype_method_id'], 'analysis_method_id'); return false;"%(
 	h.url_for(controller="DisplayTopSNPTestRM", action="getAnalysisMethodLsGivenTypeAndPhenotypeMethodJson", id=None)
 	), required=True)}  <br />

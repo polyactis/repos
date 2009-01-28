@@ -9,9 +9,20 @@
 <tr>
 <th>Number of SNPs / Minimum Score cutoff</th>
 
-% for label in c.min_distance_info.label_ls:
+% for i in range(len(c.min_distance_info.label_ls)):
+	<%
+	min_distance = c.min_distance_info.id_ls[i]
+	srh_type_id = c.CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id.get((int(c.type_id), min_distance))
+	%>
 	
-	<th>${label}</th>
+	<th>
+	% if srh_type_id:
+		<a href=${h.url_for(controller='ScoreRankHistogram', action='showHistogramByQuery', id=c.result.id, type_id=srh_type_id, list_type_id=c.list_type.id)}>
+		${c.min_distance_info.label_ls[i]}</a>
+	% else:
+		${c.min_distance_info.label_ls[i]}
+	% endif
+	</th>
 % endfor
 
 </tr>
@@ -22,13 +33,26 @@
 	<td>${c.no_of_top_snps_info.label_ls[i]}</td>
 	% for j in range(data_matrix.shape[1]):
 		<td>
+		<%
+		min_distance = c.min_distance_info.id_ls[j]
+		srh_type_id = c.CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id.get((int(c.type_id), min_distance))
+		%>
 		% if data_matrix[i][j]>=0:
+			% if srh_type_id:
+				<a href=${h.url_for(controller='DisplayResultsGene', action='showTopCandidateGenesFromOneResultOneGeneList', id=c.result.id, \
+				type_id=srh_type_id, list_type_id=c.list_type.id, max_rank=c.no_of_top_snps_info.id_ls[i])}>
+			% endif
+			
 			% if ref_data_matrix is not None:
 				${'%s/%s=%.5f'%(data_matrix[i][j], ref_data_matrix[i][j], float(data_matrix[i][j])/ref_data_matrix[i][j])}
 			% elif ref_number is not None:
 				${'%s/%s=%.5f'%(data_matrix[i][j], ref_number, float(data_matrix[i][j])/ref_number)}
 			% else:
 				${data_matrix[i][j]}
+			% endif
+			
+			% if srh_type_id:
+				</a>
 			% endif
 		% endif
 		</td>
@@ -57,12 +81,16 @@ Candidate gene list is ${c.list_type.short_name} with ${len(c.list_type.gene_lis
 
 <%
 pvalue_png_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.pvalue_png_fname)
+curve_url = h.url_for(controller='DisplayTopSNPTestRM', action='queryImage', id=c.result.id, type_id=int(c.type_id), list_type_id=c.list_type.id, img_type='png_data')
+svg_curve_url = h.url_for(controller='DisplayTopSNPTestRM', action='queryImage', id=c.result.id, type_id=int(c.type_id), list_type_id=c.list_type.id, img_type='svg_data')
+
 candidate_sample_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.candidate_sample_png_fname)
 non_candidate_sample_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.non_candidate_sample_png_fname)
-curve_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.curve_fname)
+##curve_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.curve_fname)
 %>
 
 <a href=${curve_url}><img width="1200" src=${curve_url}></a>
+<p>Get <a href=${svg_curve_url}>SVG format</a> (easy edit by vector graph software).</p>
 
 <h2>Candidate Ratio</h2>
 
