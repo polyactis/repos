@@ -58,6 +58,32 @@ class ScorerankhistogramController(BaseController):
 		c.score_rank_histgram = ScoreRankHistogram.get(id)
 		return render('/score_rank_histgram_single.html')
 	
+	def showHistogramByQuery(self, id=None, type_id=None, list_type_id=None):
+		"""
+		2008-11-05
+			similar to showHistogram, but identifying ScoreRankHistogram by results_id, type_id, list_type_id
+			
+			to be called by DisplayTopSNPTestRM.py's template
+		"""
+		type_id = request.params.get('type_id', type_id)
+		list_type_id = request.params.get('list_type_id', list_type_id)
+		results_id = request.params.get('id', id)
+		if results_id is None:
+			results_id = request.params.get('results_id', None)
+		if results_id is None:
+			return 'Nothing'
+		
+		ScoreRankHistogram = model.Stock_250kDB.ScoreRankHistogram
+		rm = model.Stock_250kDB.ResultsMethod.get(results_id)
+		if rm:
+			row = ScoreRankHistogram.query.filter_by(phenotype_method_id=rm.phenotype_method_id).\
+					filter_by(list_type_id=list_type_id).filter_by(hist_type_id=type_id).first()
+			c.score_rank_histgram = row
+			return render('/score_rank_histgram_single.html')
+		else:
+			return 'Nothing'
+		
+	
 	def getImage(self, id=None, img_type='score_hist'):
 		img_type = request.params.get('img_type', img_type)
 		if img_type[-3:]=='svg':
@@ -74,6 +100,7 @@ class ScorerankhistogramController(BaseController):
 				img_data = getattr(score_rank_histgram, img_type, None)
 				if img_data:
 					get_img_data_success = 1
+					img_data = img_data.__str__()	#2008-12-26	img_data is a buffer. weird!
 				else:
 					get_img_data_success = 0
 		if not get_img_data_success:
