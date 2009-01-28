@@ -42,12 +42,14 @@ class DisplayresultsgeneController(BaseController):
 		ScoreRankHistogramType = model.Stock_250kDB.ScoreRankHistogramType
 		return DisplaytopsnptestrmController.type(id, TypeClass=ScoreRankHistogramType, \
 												template='/display_results_gene_list_by_phenotype.html',\
-												phenotype_id_ls_str = '1-7,39-59,80-82,9-13,32-38,65-74,8,60-64,75-79,158-182',\
-												list_type_id_ls_str='3,6,8,28,51,64,65,68,71,76,129,24,29,30,130-139')
+												phenotype_id_ls_str = '1-7,39-59,80-82,9-13,14-31,32-38,65-74,8,60-64,75-79,158-186,',\
+												list_type_id_ls_str='3,6,8,28,51,64,65,68,71,76,129,24,29,30,130-139,141,144,86,43')
 		
 	
 	def showTopCandidateGenesFromOneResultOneGeneList(self, id=None, type_id=None, list_type_id=None, max_rank=None):
 		"""
+		2009-1-28
+			return snp annotation to the template as well
 		2008-11-05
 			add option max_rank, which would make this function only display genes whose rank below that
 		2008-10-29
@@ -78,6 +80,7 @@ class DisplayresultsgeneController(BaseController):
 			order_by(ResultsGene.rank)
 		c.row_ls = []
 		SnpsContext = model.Stock_250kDB.SnpsContext
+		SNPAnnotation = model.Stock_250kDB.SNPAnnotation
 		c.counter = 0
 		c.gene_desc_names = ['gene_symbol', 'description', 'type_of_gene', 'dbxrefs']
 		Gene = model.GenomeDB.Gene
@@ -92,6 +95,19 @@ class DisplayresultsgeneController(BaseController):
 				snps_context = SnpsContext.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).first()
 				row.left_or_right = getattr(snps_context, 'left_or_right', '')
 				row.disp_pos_comment = getattr(snps_context, 'disp_pos_comment', '')
+				
+				snp_annotation_text_ls = []
+				snp_annotation_ls = SNPAnnotation.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).all()
+				for snp_annotation in snp_annotation_ls:
+					snp_annotation_text = snp_annotation.snp_annotation_type.short_name
+					if snp_annotation.comment:
+						snp_annotation_text += ':%s'%snp_annotation.comment
+					if len(snp_annotation_text_ls)>0:
+						if snp_annotation_text!=snp_annotation_text_ls[-1]:
+							snp_annotation_text_ls.append(snp_annotation_text)
+					else:
+						snp_annotation_text_ls.append(snp_annotation_text)
+				row.snp_annotation = ';'.join(snp_annotation_text_ls)
 				
 				snp_region_plot_ls = model.Stock_250kDB.SNPRegionPlot.query.\
 					filter_by(center_snp_position=row.snp.position).\
