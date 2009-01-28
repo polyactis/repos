@@ -12,6 +12,12 @@ from variation.src.DrawSNPRegion import DrawSNPRegion
 from pymodule import PassingData
 from sets import Set
 
+#2008-12-24 for the forms
+from routes import redirect_to
+from routes import url_for
+from webhelpers.html.tags import *
+
+
 def returnGeneDescLs(gene_annotation, gene_id_ls=[]):
 	DrawSNPRegion_ins = DrawSNPRegion(db_user=model.db_user, db_passwd=model.db_passwd, hostname=model.hostname, database=model.dbname,\
 							input_fname='/tmp/dumb', output_dir='/tmp', debug=0)
