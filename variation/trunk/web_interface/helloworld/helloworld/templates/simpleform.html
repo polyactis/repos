@@ -1,0 +1,157 @@
+<%inherit file="/base.html" />
+<%def name="title()"> Simple Form </%def>
+<h1>Enter Your Email Address</h1>
+
+
+
+<!-- 2008-12-30 onsubmit="return handleResponse()" added to intercept "action='submit'" -->
+${h.form(h.url_for(action='submit'), method='get', onsubmit="return handleResponse()")}
+% if getattr(c, 'email_msg', None):
+    <span class="error-message">${c.email_msg}</span><br />
+% endif
+Email Address: ${h.text('email', value=getattr(c, 'email_value', ''))}<br />
+Date:          ${h.text('date')} 
+			${h.select("currency", "$", [["$", "Dollar"], ["DKK", "Kroner"]], prompt='Please Choose ...')} <br/>
+			<input id='button' type="button" value="Update" onClick="ajaxUpdater('updateme','updateme.php')">   <br/>
+               ${h.submit('submit', 'Submit')}
+${h.end_form()}
+
+
+<div id="response_text">anything</div>
+<script>
+
+var elm = document.getElementById("button");
+function fnCallback(e) {
+    alert("Button 1 was clicked.");
+    var before = document.getElementById('response_text');
+    before.innerHTML = <h3>'abc'</h3>;
+}
+YAHOO.util.Event.addListener(elm, "click", fnCallback);
+</script>
+
+<!-- 2008-12-30 script below copied from an example, http://developer.apple.com/internet/webcontent/client-complexer.html in http://developer.apple.com/internet/webcontent/iframe.html-->
+<script type="text/javascript">
+function buildQueryString(theFormName) {
+	theForm = document.forms[theFormName];
+	var qs = ''
+	for (e=0;e<theForm.elements.length;e++) {
+		if (theForm.elements[e].name!='') {
+			qs+=(qs=='')?'?':'&'
+			qs+=theForm.elements[e].name+'='+escape(theForm.elements[e].value)
+			}
+		}
+	return qs
+}
+
+var IFrameObj; // our IFrame object
+function callToServer(theFormName) {
+	if (!document.createElement) {return true};
+	var IFrameDoc;
+	var URL = 'server.html' + buildQueryString(theFormName);
+	if (!IFrameObj && document.createElement) {
+		// create the IFrame and assign a reference to the
+		// object to our global variable IFrameObj.
+		// this will only happen the first time 
+		// callToServer() is called
+		try {
+			var tempIFrame=document.createElement('iframe');
+			tempIFrame.setAttribute('id','RSIFrame');
+			tempIFrame.style.border='0px';
+			tempIFrame.style.width='0px';
+			tempIFrame.style.height='0px';
+			IFrameObj = document.body.appendChild(tempIFrame);
+			
+			if (document.frames) {
+				// this is for IE5 Mac, because it will only
+				// allow access to the document object
+				// of the IFrame if we access it through
+				// the document.frames array
+				IFrameObj = document.frames['RSIFrame'];
+			}
+		} catch(exception) {
+			// This is for IE5 PC, which does not allow dynamic creation
+			// and manipulation of an iframe object. Instead, we'll fake
+			// it up by creating our own objects.
+			iframeHTML='<iframe id="RSIFrame" style="';
+			iframeHTML+='border:0px;';
+			iframeHTML+='width:0px;';
+			iframeHTML+='height:0px;';
+			iframeHTML+='"><\/iframe>';
+			document.body.innerHTML+=iframeHTML;
+			IFrameObj = new Object();
+			IFrameObj.document = new Object();
+			IFrameObj.document.location = new Object();
+			IFrameObj.document.location.iframe = document.getElementById('RSIFrame');
+			IFrameObj.document.location.replace = function(location) {
+				this.iframe.src = location;
+			}
+		}
+	}
+	
+	if (navigator.userAgent.indexOf('Gecko') !=-1 && !IFrameObj.contentDocument) {
+		// we have to give NS6 a fraction of a second
+		// to recognize the new IFrame
+		setTimeout('callToServer("'+theFormName+'")',10);
+		return false;
+	}
+	
+	if (IFrameObj.contentDocument) {
+		// For NS6
+		IFrameDoc = IFrameObj.contentDocument; 
+	} else if (IFrameObj.contentWindow) {
+		// For IE5.5 and IE6
+		IFrameDoc = IFrameObj.contentWindow.document;
+	} else if (IFrameObj.document) {
+		// For IE5
+		IFrameDoc = IFrameObj.document;
+	} else {
+		return true;
+	}
+	
+	IFrameDoc.location.replace(URL);
+	return false;	<!-- 2008-12-30 return false to prevent form action 'server.html' from being invoked -->
+}
+	
+function handleResponse() {
+	var theFormDiv = document.getElementById('theFormDiv');
+	theFormDiv.style.display = 'none';
+	var responseMessage = document.getElementById('responseMessage');
+	var message = '<p>Your message has been sent! Thank you.<\/p>'
+	message += '<p><a href="#" onclick="showForm(); return false;">Send another message<\/a><\/p>'
+	responseMessage.innerHTML = message;
+	responseMessage.style.display = 'block';
+	return false;	<!-- 2008-12-30 return false to prevent form action 'server.html' from being invoked-->
+}
+
+function showForm() {
+	var theFormDiv = document.getElementById('theFormDiv');
+	theFormDiv.style.display = 'block';
+	document.forms['emailForm'].reset();
+	var responseMessage = document.getElementById('responseMessage');
+	responseMessage.style.display = 'none';
+}
+
+function processState(st) {
+	alert(st)
+	}
+</script>
+
+<body>
+
+<div id="responseMessage" style="display:none"></div>
+
+<div id="theFormDiv">
+<form name="emailForm" id="emailForm"
+	action="server.html"
+	onsubmit="return handleResponse()">	<!-- 2008-12-30 "callToServer(this.name)" replaced by "handleResponse()"-->
+Your name:<br>
+<input type="text" name="realname"><br>
+
+Your message:<br>
+<textarea name="message" cols="50" rows="10"></textarea><br><br>
+<input type="submit" value="submit">
+</form>
+</div>
+
+</body>
+</html>
