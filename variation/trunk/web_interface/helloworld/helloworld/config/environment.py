@@ -29,13 +29,13 @@ def load_environment(global_conf, app_conf):
 	config['pylons.h'] = helloworld.lib.helpers
 	
 	# Customize templating options via this variable
-	tmpl_options = config['buffet.template_options']
+	#tmpl_options = config['buffet.template_options']
 
 	# CONFIGURATION OPTIONS HERE (note: all config options will override
 	# any Pylons config options)
 	
 	#2008-10-05 Use the strict behaviour of the template context object
-	config['pylons.strict_c'] = True
+	#config['pylons.strict_c'] = True
 	
 	#2008-10-05 Create the Mako TemplateLookup, with the default auto-escaping. it doesn't work though.
 	config['pylons.g'].mako_lookup = TemplateLookup(
