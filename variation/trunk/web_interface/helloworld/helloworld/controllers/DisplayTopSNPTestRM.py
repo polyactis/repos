@@ -48,13 +48,42 @@ class DisplaytopsnptestrmController(BaseController):
 		return render('/display_top_snp_test_rm.html')
 	
 	@staticmethod
-	def getPhenotypeMethodLsGivenType(type_id):
+	def getCallMethodLsGivenType(type_id):
 		"""
 		2008-12-30
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
 		extra_tables = ' %s c '%model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
 		extra_condition = 'c.results_id=s.id and c.type_id=%s'%type_id
+		list_info  = h.getCallMethodInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
+											extra_tables=extra_tables)
+		call_method_ls = []
+		for i in range(len(list_info.id_ls)):
+			id = list_info.id_ls[i]
+			label = list_info.label_ls[i]
+			call_method_ls.append([id, label])
+		return call_method_ls
+	
+	@jsonify
+	def getCallMethodLsGivenTypeJson(self):
+		result = {
+				'options': [
+						dict(id=value, value=id) for id, value in self.getCallMethodLsGivenType(
+																									request.params.getone('type_id'))
+						]
+				}
+		#result['options'].append({'id': u'[At the end]', 'value': u''})
+		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0})
+		return result
+	
+	@staticmethod
+	def getPhenotypeMethodLsGivenType(type_id, call_method_id):
+		"""
+		2008-12-30
+		"""
+		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
+		extra_tables = ' %s c '%model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
+		extra_condition = 'c.results_id=s.id and c.type_id=%s and s.call_method_id=%s'%(type_id, call_method_id)
 		phenotype_info  = h.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
 											extra_tables=extra_tables)
 		phenotype_method_ls = []
@@ -69,7 +98,8 @@ class DisplaytopsnptestrmController(BaseController):
 		result = {
 				'options': [
 						dict(id=value, value=id) for id, value in self.getPhenotypeMethodLsGivenType(
-																									request.params.getone('type_id'))
+																									request.params.getone('type_id'),
+																									request.params.getone('call_method_id'))
 						]
 				}
 		#result['options'].append({'id': u'[At the end]', 'value': u''})
@@ -77,13 +107,14 @@ class DisplaytopsnptestrmController(BaseController):
 		return result
 	
 	@staticmethod
-	def getAnalysisMethodLsGivenTypeAndPhenotypeMethod(type_id, phenotype_method_id):
+	def getAnalysisMethodLsGivenTypeAndPhenotypeMethod(type_id, call_method_id, phenotype_method_id):
 		"""
 		2008-12-30
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name	#alias is 's'
 		extra_tables = ' %s c '%model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
-		extra_condition = 'c.results_id=s.id and c.type_id=%s and s.phenotype_method_id=%s'%(type_id, phenotype_method_id)
+		extra_condition = 'c.results_id=s.id and c.type_id=%s and s.call_method_id=%s and s.phenotype_method_id=%s'%\
+			(type_id, call_method_id, phenotype_method_id)
 		list_info = h.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
 		
 		analysis_method_ls = []
@@ -97,25 +128,26 @@ class DisplaytopsnptestrmController(BaseController):
 	@jsonify
 	def getAnalysisMethodLsGivenTypeAndPhenotypeMethodJson(self):
 		type_id = request.params.getone('type_id')
+		call_method_id = request.params.getone('call_method_id')
 		phenotype_method_id = request.params.getone('phenotype_method_id')
 		result = {
 				'options': [
 						dict(id=value, value=id) for id, value in self.getAnalysisMethodLsGivenTypeAndPhenotypeMethod(
-																									type_id, phenotype_method_id)
+																									type_id, call_method_id, phenotype_method_id)
 						]
 				}
 		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0})
 		return result
 	
 	@staticmethod
-	def getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod(type_id, phenotype_method_id, analysis_method_id):
+	def getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod(type_id, call_method_id, phenotype_method_id, analysis_method_id):
 		"""
 		2008-12-30
 		"""
 		affiliated_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name	#alias is 's'
 		extra_tables = ' %s c '%model.Stock_250kDB.ResultsMethod.table.name
-		extra_condition = 's.results_id=c.id and s.type_id=%s and c.phenotype_method_id=%s and c.analysis_method_id=%s'%\
-			(type_id, phenotype_method_id, analysis_method_id)
+		extra_condition = 's.results_id=c.id and s.type_id=%s and c.call_method_id=%s and c.phenotype_method_id=%s and c.analysis_method_id=%s'%\
+			(type_id, call_method_id, phenotype_method_id, analysis_method_id)
 		list_info = h.getListTypeInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
 		
 		ls = []
@@ -129,15 +161,17 @@ class DisplaytopsnptestrmController(BaseController):
 	@jsonify
 	def getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethodJson(self):
 		type_id = request.params.getone('type_id')
+		call_method_id = request.params.getone('call_method_id')
 		phenotype_method_id = request.params.getone('phenotype_method_id')
 		analysis_method_id = request.params.getone('analysis_method_id')
-		rm = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=17).filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
+		rm = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
+			filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
 		results_id = rm.id
 		result = {
 				'results_id': results_id,
 				'options': [
 						dict(id=value, value=id) for id, value in self.getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod(
-																									type_id, phenotype_method_id, analysis_method_id)
+																						type_id, call_method_id, phenotype_method_id, analysis_method_id)
 						]
 				}
 		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0})
@@ -169,8 +203,8 @@ class DisplaytopsnptestrmController(BaseController):
 			value = '%s :%s'%(row.id, value)
 			c.types.append([row.id, value])
 		
-		c.phenotype_method_ls = self.getPhenotypeMethodLsGivenType(id)
-		c.phenotype_method_ls.insert(0, [0, u'Please Choose ...'])
+		c.call_method_ls = self.getCallMethodLsGivenType(id)
+		c.call_method_ls.insert(0, [0, u'Please Choose ...'])
 		html = render('/display_top_snp_test_rm_form.html')
 		return htmlfill.render(html, defaults)
 	
