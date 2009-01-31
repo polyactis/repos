@@ -46,12 +46,12 @@ CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id = {}
 ScoreRankHistogramType = Stock_250kDB.ScoreRankHistogramType
 CandidateGeneTopSNPTestRMType = Stock_250kDB.CandidateGeneTopSNPTestRMType
 
-rows = db.metadata.bind.execute("select s.id as sid, s.min_distance, c.id as cid from %s s, %s c where s.null_distribution_type_id=c.null_distribution_type_id and\
-				s.results_type=c.results_type and s.get_closest=c.get_closest and s.min_MAF=c.min_MAF and\
-				s.allow_two_sample_overlapping=c.allow_two_sample_overlapping and s.call_method_id=17"%\
-					(ScoreRankHistogramType.table.name, CandidateGeneTopSNPTestRMType.table.name))	#2008-1-8 temporarily set call_method_id=17 cuz CandidateGeneTopSNPTestRMType doesn't include call_method_id
+rows = db.metadata.bind.execute("select s.id as sid, s.min_distance, s.call_method_id, c.id as cid from %s s, %s c where s.null_distribution_type_id=c.null_distribution_type_id and\
+				s.results_type=c.results_type and s.get_closest=c.get_closest and s.min_MAF=c.min_MAF and \
+				s.allow_two_sample_overlapping=c.allow_two_sample_overlapping"%\
+				(ScoreRankHistogramType.table.name, CandidateGeneTopSNPTestRMType.table.name))	#2008-1-8 temporarily set call_method_id=17 cuz CandidateGeneTopSNPTestRMType doesn't include call_method_id
 
 for row in rows:
-	key_tuple = (row.cid, row.min_distance)
+	key_tuple = (row.cid, row.min_distance, row.call_method_id)
 	CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id[key_tuple] = row.sid
 	
