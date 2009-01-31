@@ -1,0 +1,184 @@
+<%inherit file="/base.html"/>
+
+<%def name="title()">Select Genome-Wide Association</%def>
+
+${h.form(h.url_for(), method='get', onsubmit="return handleResponse('%s')"%h.url_for(controller="DisplayResults", action='showOne', id=None) )}
+
+<!-- ${h.checkbox('remove_old_plots')} Remove Old Plots<br />	<!-- 2009-1-29 Note: no way to set checkbox default to checked here. do it in the controller's defaults. --> 
+Call Method: ${h.select('call_method_id', selected_values=[], options=c.call_method_ls, onchange="SelectChange('%s', ['call_method_id'], 'phenotype_method_id'); return false;"%(
+	h.url_for(controller="DisplayResults", action="getPhenotypeMethodLsJson", id=None)
+	), required=True )}  <br/>
+
+Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=[], onchange="SelectChange('%s', ['call_method_id', 'phenotype_method_id'], 'analysis_method_id'); return false;"%(
+	h.url_for(controller="DisplayResults", action="getAnalysisMethodLsJson", id=None)
+	), required=True)}  <br />
+
+Analysis Method: ${h.select('analysis_method_id', selected_values=[], options=[], 
+	onchange="return handleResponse('%s', ['call_method_id', 'phenotype_method_id', 'analysis_method_id'])"%(h.url_for(controller="DisplayResults", action='fetchOne', id=None)),
+	required=True)}<br />
+
+
+${h.hidden('results_id', id='results_id')}
+<!-- ${h.submit('submit', 'Submit')} -->
+${h.end_form()}
+
+${self.js()}
+
+<div id="display_general" style="display:none"></div>
+<div id='display_gwr'>
+<table border=0>
+	<tr>
+		<td><div id="display_chr1" style="display:none"></div>
+		</td>
+	</tr>
+	<tr>
+		<td><div id="display_chr2" style="display:none"></div>
+		</td>
+	</tr>
+	<tr>	
+		<td><div id="display_chr3" style="display:none"></div>
+		</td>
+	</tr>
+	<tr>
+		<td><div id="display_chr4" style="display:none"></div>
+		</td>
+	</tr>
+	<tr>
+		<td><div id="display_chr5" style="display:none"></div>
+		</td>
+	</tr>
+</table>
+</div>
+
+<%def name="js()">
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/connection/connection-min.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/json/json-min.js" type="text/javascript"></script>
+	<script src="/scripts/form.js"></script>
+	<script type="text/javascript">
+	google.load("visualization", "1", {packages:["scatterchart"]});
+	//function drawChart() {}
+	
+	// The selection handler.
+	// Loop through all items in the selection and concatenate
+	// a single message from all of them.
+	
+	function generate_handler(chr){
+		return function(e) {
+			this.chr = chr;
+			//var elTarget = YAHOO.util.Event.getTarget(e);		//infer dom element from regular event
+			//var chr = elTarget.id[elTarget.id.length-1];
+			//alert(arguments.length);
+			//alert(arguments[0]);
+			//alert(this.chr);
+			var selection = chr2chart[this.chr].getSelection();
+			if (selection.length>0){
+				var item = selection[0];
+				var position = chr2data[this.chr].getValue(item.row, 0);
+				//alert('You selected chr='+this.chr +" pos="+position);
+				var start_pos = position-10000;
+				var stop_pos = position+10000;
+				var track_id = field_value_ls.join("_");
+				window.open("http://mahogany.usc.edu/cgi-bin/gbrowse/arabidopsis1/?start="+start_pos+";stop="+stop_pos+";ref=Chr"+this.chr+";width=640;version=100;cache=on;drag_and_drop=on;show_tooltips=on;grid=on;label=BAC-ProteinCoding-Pseudogene-TEGenes-"+track_id+"-"+track_id+"_SNP");
+				//chr2chart[this.chr].setSelection([{row:null, column:null}]);
+			}
+		};
+	}
+	
+	//2009-1-30 construct a handler for each chromosome, each handler is aware of the chromosome it corresponds to.
+	//	used later to addListener()
+	var no_of_chrs = 5;
+	chr2handler = {};
+	for (var i=0; i<no_of_chrs; i++) {
+		var chr = i+1;
+		chr2handler[chr] = generate_handler(chr);
+		//chr2handler[chr] = handler_ls[i];
+		}
+	
+	//2009-1-29 establish the click event handler to each chromosome region. The selectHandler for google visualization can't distinguish which visualization gets clicked.  	
+	//YAHOO.util.Event.addListener("display_general", "click", clickHandler);
+	
+	function drawChart(o)
+	{
+		var chr2div = {};
+		chr2chart = {};
+		chr2data = {};
+   	var no_of_chrs = 5;
+		//var remove_old_plots = YAHOO.util.Dom.get('remove_old_plots').value;
+		var server_data = YAHOO.lang.JSON.parse(o.responseText);
+		//var server_data = o.responseText;
+   	for (var i=0; i<no_of_chrs; i++) {
+   		var chr = i+1;
+   		chr2div[chr] = YAHOO.util.Dom.get('display_chr'+chr);
+   		//if (remove_old_plots==="on")
+   		//{
+      	while(chr2div[chr].hasChildNodes() === true)
+				{
+					chr2div[chr].removeChild(chr2div[chr].childNodes[0]);
+				}
+			//}
+   		chr2chart[chr] = new google.visualization.ScatterChart(chr2div[chr]);
+   		chr2data[chr] = new google.visualization.DataTable( eval("("+server_data[chr]+")"), 0.5);
+   		
+   		//{
+			//		cols: [{id: 'position', label: 'Position', type: 'number'},
+			//			{id: 'value', label: '-log Pvalue', type: 'number'}],
+			//		rows: [{c:[{v:6369765},{v:10.5636313711}]},
+			//			{c:[{v:6369609},{v:10.4426528837}]},
+			//			{c:[{v:3978063},{v:10.397535617}]}]
+			//}, 0.5);
+			
+   		//chr2data[chr] = new google.visualization.DataTable();
+			//chr2data[chr].addColumn('number', 'Position');
+			//chr2data[chr].addColumn('number', '-log Pvalue');
+   	}
+   	//<!--
+		//var server_data = YAHOO.lang.JSON.parse(o.responseText);
+		//for (var i=0; i<server_data.gwr.length; i++) {
+		//	var chr = server_data.gwr[i].chromosome;
+		//	var data_index = chr2data[chr].addRow();
+		//	chr2data[chr].setValue(data_index, 0, server_data.gwr[i].position);
+		//	chr2data[chr].setValue(data_index, 1, server_data.gwr[i].value);
+		//}
+		//-->
+		for (var i=0; i<no_of_chrs; i++) {
+			var chr = i+1;
+			var titleY = '-log Pvalue';
+			chr2chart[chr].draw(chr2data[chr], {width: 700, height: 200, titleX: 'Chr'+chr, titleY: titleY, legend: 'none', pointSize: 2});
+			chr2div[chr].style.display = 'block';
+			google.visualization.events.addListener(chr2chart[chr], 'select', chr2handler[chr]);	//2009-1-29 use the clickHandler to each chr division
+		}
+	}
+	
+	function handleResponse(url, field_ls) {
+		var callback = {
+				success: function(o) {
+					//google.setOnLoadCallback(drawChart(o));
+					drawChart(o);
+				},
+				failure: function(o) {
+					alert("Failed to retrieve required information.");
+				}
+		}
+		var url_query = "";
+		field_value_ls = new Array();
+		for (var i = 0; i < field_ls.length; i += 1) {
+			field = field_ls[i];
+			if (i!=0){
+				url_query = url_query + '&';
+			}
+			url_query = url_query + field + '=' + YAHOO.util.Dom.get(field).value;
+			field_value_ls.push(YAHOO.util.Dom.get(field).value);
+			//url = url +'?'+field+'='+YAHOO.util.Dom.get(field).value;
+		}
+		url = url +'?' + url_query;
+		
+		var transaction = YAHOO.util.Connect.asyncRequest('GET', url, callback, null);
+		var display_general = YAHOO.util.Dom.get('display_general');
+		display_general.innerHTML = field_value_ls.join(" ");
+		display_general.style.display = 'block';
+		return false;	<!-- 2008-12-30 return false to prevent form action 'server.html' from being invoked-->
+	}
+	</script>
+
+</%def>
