@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import helloworld.model as model
 
 from variation.src.DrawSNPRegion import DrawSNPRegion
+from variation.src.GeneListRankTest import GeneListRankTest
 from pymodule import PassingData
 from sets import Set
 
@@ -16,7 +17,6 @@ from sets import Set
 from routes import redirect_to
 from routes import url_for
 from webhelpers.html.tags import *
-
 
 def returnGeneDescLs(gene_annotation, gene_id_ls=[]):
 	DrawSNPRegion_ins = DrawSNPRegion(db_user=model.db_user, db_passwd=model.db_passwd, hostname=model.hostname, database=model.dbname,\
@@ -34,6 +34,35 @@ def returnGeneDescLs(gene_annotation, gene_id_ls=[]):
 				gene_desc_ls = DrawSNPRegion_ins.returnGeneDescLs(DrawSNPRegion_ins.gene_desc_names, gene_model, gene_commentary)
 				matrix_of_gene_descriptions.append(gene_desc_ls)
 	return matrix_of_gene_descriptions
+
+def getCallMethodInfo(affiliated_table_name, extra_condition=None, extra_tables=None):
+	"""
+	2009-1-30
+		similar to getPhenotypeInfo, getListTypeInfo, getAnalysisMethodInfo
+	"""
+	table_str = '%s s, %s p'%(affiliated_table_name, model.Stock_250kDB.CallMethod.table.name)
+	if extra_tables:
+		table_str += ', %s'%extra_tables
+	where_condition = 'p.id=s.call_method_id'
+	if extra_condition:
+		where_condition += ' and %s'%extra_condition
+	rows = model.db.metadata.bind.execute("select distinct p.id, p.short_name from %s \
+		where %s order by p.id"\
+		%(table_str, where_condition))
+	id_ls = []
+	id2index = {}
+	label_ls = []
+	prev_biology_category_id = -1
+	no_of_separators = 0
+	for row in rows:
+		id2index[row.id] = len(id_ls)
+		id_ls.append(row.id)
+		label_ls.append('%s %s'%(row.id, row.short_name))
+	list_info = PassingData()
+	list_info.id2index = id2index
+	list_info.id_ls = id_ls
+	list_info.label_ls = label_ls
+	return list_info
 
 def getPhenotypeInfo(affiliated_table_name=None, extra_condition=None, extra_tables=None):
 	"""
