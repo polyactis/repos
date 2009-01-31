@@ -4,21 +4,20 @@
 
 ${h.form(h.url_for(), method='get', onsubmit="return handleResponse('%s')"%h.url_for(controller="DisplayTopSNPTestRM", action='showOne', id=None) )}
 
-Type: ${h.select('type_id', 1, options=c.types, prompt='Please Choose ...', onchange="SelectChange('%s', ['type_id'], 'phenotype_method_id'); return false;"%(
+Type: ${h.select('type_id', 1, options=c.types, prompt='Please Choose ...', onchange="SelectChange('%s', ['type_id'], 'call_method_id'); return false;"%(
+	h.url_for(controller="DisplayTopSNPTestRM", action="getCallMethodLsGivenTypeJson", id=None)
+	), required=True )}  <br/>
+
+Call Method: ${h.select('call_method_id', selected_values=[], options=c.call_method_ls, onchange="SelectChange('%s', ['type_id', 'call_method_id'], 'phenotype_method_id'); return false;"%(
 	h.url_for(controller="DisplayTopSNPTestRM", action="getPhenotypeMethodLsGivenTypeJson", id=None)
 	), required=True )}  <br/>
 
-<!-- Call Method: ${h.select('call_method_id', 1, options=[], prompt='Please Choose ...', onchange="SelectChange('%s', ['type_id', 'call_method_id'], 'phenotype_method_id'); return false;"%(
-	h.url_for(controller="DisplayTopSNPTestRM", action="getPhenotypeMethodLsGivenTypeJson", id=None)
-	), required=True )}  <br/>
--->
-
-Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=c.phenotype_method_ls, onchange="SelectChange('%s', ['type_id', 'phenotype_method_id'], 'analysis_method_id'); return false;"%(
+Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=[], onchange="SelectChange('%s', ['type_id', 'call_method_id', 'phenotype_method_id'], 'analysis_method_id'); return false;"%(
 	h.url_for(controller="DisplayTopSNPTestRM", action="getAnalysisMethodLsGivenTypeAndPhenotypeMethodJson", id=None)
 	), required=True)}  <br />
 
 Analysis Method: ${h.select('analysis_method_id', selected_values=[], options=[],
-	onchange="SelectChange('%s', ['type_id', 'phenotype_method_id', 'analysis_method_id'], 'gene_list_type_id'); return false;"%(
+	onchange="SelectChange('%s', ['type_id', 'call_method_id', 'phenotype_method_id', 'analysis_method_id'], 'gene_list_type_id'); return false;"%(
 	h.url_for(controller="DisplayTopSNPTestRM", action="getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethodJson", id=None)
 	), required=True)}<br />
 ${h.hidden('results_id', id='results_id')}
@@ -35,52 +34,8 @@ ${self.js()}
 	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/connection/connection-min.js" type="text/javascript"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/json/json-min.js" type="text/javascript"></script>
+	<script src="/scripts/form.js"></script>
 	<script type="text/javascript">
-	function SelectChange(url, field_ls, replace){
-		var callback = {
-			success: function(o) {
-				// YAHOO.util.Dom.get(replace).innerHTML = o.responseText;
-				var parsed_options = YAHOO.lang.JSON.parse(o.responseText);
-				var replace_elem = document.getElementById(replace);
-				// Remove current options
-				while(replace_elem.hasChildNodes() === true)
-				{
-					replace_elem.removeChild(replace_elem.childNodes[0]);
-				}
-				// Add new options
-				for (var i=0; i<parsed_options.options.length; i++) {
-					var new_option = document.createElement('option');
-					new_option.text = parsed_options.options[i].id;
-					new_option.value =  parsed_options.options[i].value;
-					replace_elem.appendChild(new_option);
-				}
-				if (!YAHOO.lang.isUndefined(parsed_options.results_id)){
-					var results_id = document.getElementById('results_id');
-					results_id.value = parsed_options.results_id;
-				}
-			},
-			failure: function(o) {
-				alert("Please Choose a sensible Type.");
-				var replace_elem = document.getElementById(replace);
-				// Remove current options
-				while(replace_elem.hasChildNodes() === true)
-				{
-					replace_elem.removeChild(replace_elem.childNodes[0]);
-				}
-            }
-        }
-		var url_query = "";
-		for (var i = 0; i < field_ls.length; i += 1) {
-			field = field_ls[i];
-			if (i!=0){
-				url_query = url_query + '&'
-			}
-			url_query = url_query + field + '=' + YAHOO.util.Dom.get(field).value;
-			//url = url +'?'+field+'='+YAHOO.util.Dom.get(field).value;
-		}
-		url = url +'?' + url_query
-		var transaction = YAHOO.util.Connect.asyncRequest('GET', url, callback, null);
-	}
 	
 	function handleResponse(url) {
 		var callback = {
@@ -96,8 +51,8 @@ ${self.js()}
 		type_id = YAHOO.util.Dom.get('type_id').value;
 		list_type_id = YAHOO.util.Dom.get('gene_list_type_id').value;
 		results_id = YAHOO.util.Dom.get('results_id').value;
-		url = url + '?' + 'id=' + results_id + '&type_id=' + type_id + '&list_type_id='+list_type_id
-        var transaction = YAHOO.util.Connect.asyncRequest('GET', url, callback, null);
+		url = url + '?' + 'id=' + results_id + '&type_id=' + type_id + '&list_type_id='+list_type_id;
+		var transaction = YAHOO.util.Connect.asyncRequest('GET', url, callback, null);
 		
 		//var data_region = document.getElementById('data_region');
 		//var message = '<p>Your message has been sent! Thank you.<\/p>'
