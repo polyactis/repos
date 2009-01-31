@@ -12,7 +12,7 @@
 % for i in range(len(c.min_distance_info.label_ls)):
 	<%
 	min_distance = c.min_distance_info.id_ls[i]
-	srh_type_id = c.CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id.get((int(c.type_id), min_distance))
+	srh_type_id = c.CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id.get((int(c.type_id), min_distance, c.result.call_method_id))
 	%>
 	
 	<th>
@@ -35,7 +35,7 @@
 		<td>
 		<%
 		min_distance = c.min_distance_info.id_ls[j]
-		srh_type_id = c.CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id.get((int(c.type_id), min_distance))
+		srh_type_id = c.CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id.get((int(c.type_id), min_distance, c.result.call_method_id))
 		%>
 		% if data_matrix[i][j]>=0:
 			% if srh_type_id:
@@ -89,7 +89,7 @@ non_candidate_sample_url = h.url_for(controller='DisplayTopSNPTestRM', action='g
 ##curve_url = h.url_for(controller='DisplayTopSNPTestRM', action='getImage', id=c.curve_fname)
 %>
 
-<a href=${curve_url}><img width="1200" src=${curve_url}></a>
+<a href=${curve_url}><img width="800" src=${curve_url}></a>
 <p>Get <a href=${svg_curve_url}>SVG format</a> (easy edit by vector graph software).</p>
 
 <h2>Candidate Ratio</h2>
