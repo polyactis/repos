@@ -39,17 +39,19 @@ class ConvertSNPMatrix2Binary(object):
 		from pymodule import ProcessOptions
 		self.ad=ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def output_allele2index_ls(self, snpData, allele2index_ls, mapping_fname):
+	def output_allele2index_ls(self, snpData, allele_index2allele_ls, mapping_fname):
 		"""
+		2009-2-3
+			key/value order is reversed in allele_index2allele_ls. argument allele2index_ls is renamed to allele_index2allele_ls.
 		2008-09-07
 			output the mapping from allele to index
 		"""
-		sys.stderr.write("Outputting allele2index_ls ...")
+		sys.stderr.write("Outputting allele_index2allele_ls ...")
 		writer = csv.writer(open(mapping_fname, 'w'), delimiter='\t')
 		writer.writerow(['snp_id', 'allele', 'index'])
-		for i in range(len(allele2index_ls)):
+		for i in range(len(allele_index2allele_ls)):
 			snp_id = snpData.col_id_ls[i]
-			for allele, allele_index in allele2index_ls[i].iteritems():
+			for allele_index, allele in allele_index2allele_ls[i].iteritems():
 				row = [snp_id, allele, allele_index]
 				writer.writerow(row)
 		del writer
@@ -69,10 +71,10 @@ class ConvertSNPMatrix2Binary(object):
 		
 		snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
 						data_matrix=data_matrix)
-		newSnpData, allele2index_ls = snpData.convertSNPAllele2Index(self.report)
+		newSnpData, allele_index2allele_ls = snpData.convert2Binary(self.report)
 		
-		if self.mapping_fname:	#output allele2index_ls
-			self.output_allele2index_ls(snpData, allele2index_ls, self.mapping_fname)
+		if self.mapping_fname:	#output allele_index2allele_ls
+			self.output_allele2index_ls(snpData, allele_index2allele_ls, self.mapping_fname)
 		
 		newSnpData.tofile(self.output_fname)
 
