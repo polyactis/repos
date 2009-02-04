@@ -174,6 +174,9 @@ class DB_250k2Data(object):
 		"""
 		2008-05-20 read_call_matrix returns PassingData object
 		"""
+		if self.debug:
+			import pdb
+			pdb.set_trace()
 		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
 		db.setup(create_tables=False)
