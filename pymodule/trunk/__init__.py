@@ -9,7 +9,7 @@ from ProcessOptions import ProcessOptions, generate_program_doc, process_options
 from SNP import write_data_matrix, read_data, SNPData, GenomeWideResults, GenomeWideResult, DataObject, getGenomeWideResultFromFile, nt2number, number2nt
 from TwoSNPData import TwoSNPData, QualityControl
 from utils import PassingData, dict_map, importNumericArray, figureOutDelimiter, get_gene_symbol2gene_id_set, \
-	FigureOutTaxID, getColName2IndexFromHeader, getListOutOfStr, runLocalCommand
+	FigureOutTaxID, getColName2IndexFromHeader, getListOutOfStr, runLocalCommand, getGeneIDSetGivenAccVer
 
 from Genome import GeneModel
 
