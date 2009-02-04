@@ -108,6 +108,9 @@ class Association(Kruskal_Wallis):
 	
 	def getPCFromFile(cls, eigen_vector_fname):
 		"""
+		2009-2-2
+			add id_ls in the returning data
+			wrap the data under PC_data
 		2008-12-03
 			
 		"""
@@ -115,13 +118,16 @@ class Association(Kruskal_Wallis):
 		inf = open(eigen_vector_fname)
 		inf.next()	#skip first row (corresponding eigen values)
 		PC_matrix = []
+		id_ls = []
 		for line in inf:
 			row = line.split()
 			PCs_for_one_entity = map(float, row[1:-1])	#1st entry in row is individual label. last entry is Case/Control.
 			PC_matrix.append(PCs_for_one_entity)
+			id_ls.append(row[0])
 		PC_matrix = numpy.array(PC_matrix)
+		PC_data = PassingData(PC_matrix=PC_matrix, id_ls=id_ls)
 		sys.stderr.write("Done.\n")
-		return PC_matrix
+		return PC_data
 	
 	getPCFromFile = classmethod(getPCFromFile)
 	
@@ -603,7 +609,8 @@ class Association(Kruskal_Wallis):
 		phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)
 		
 		if self.eigen_vector_fname:
-			PC_matrix = self.getPCFromFile(self.eigen_vector_fname)
+			PC_data = self.getPCFromFile(self.eigen_vector_fname)
+			PC_matrix = PC_data.PC_matrix
 		else:
 			if self.test_type==4:	#eigen_vector_fname not given for this test_type. calcualte PCs.
 				import pca_module
