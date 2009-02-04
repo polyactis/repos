@@ -24,7 +24,7 @@ else:   #32bit
 
 import time, csv, getopt
 import traceback
-from pymodule import process_function_arguments, write_data_matrix, PassingData
+from pymodule import process_function_arguments, write_data_matrix, PassingData, SNPData
 
 class OutputPhenotype(object):
 	__doc__ = __doc__
@@ -56,54 +56,91 @@ class OutputPhenotype(object):
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
 		
-	def get_phenotype_method_id_info(self, curs, phenotype_avg_table, phenotype_method_table ):
+	def get_phenotype_method_id_info(cls, curs, phenotype_avg_table, phenotype_method_table ):
 		"""
+		2009-2-2
+			curs could be either MySQLdb cursor or elixirdb.metadata.bind.
+			do two selects in one
+			
 		2008-4-2
 		"""
 		sys.stderr.write("Getting phenotype_method_id info ... " )
 		phenotype_method_id2index = {}	#index of the matrix
 		method_id_name_ls = []	#as header for each phenotype
-		curs.execute("select distinct method_id from %s order by method_id"%phenotype_avg_table)
-		rows = curs.fetchall()
+		phenotype_id_ls = []
+		rows = curs.execute("select m.id, m.short_name, m.transformation_description from %s m, (select distinct method_id from %s) p where m.id=p.method_id order by id"%\
+					(phenotype_method_table, phenotype_avg_table))
+		is_elixirdb = 1
+		if hasattr(curs, 'fetchall'):	#2009-2-2 this curs is not elixirdb.metadata.bind
+			rows = curs.fetchall()
+			is_elixirdb = 0
 		phenotype_method_id2transformation_description = {}
 		for row in rows:
-			method_id = row[0]
+			if is_elixirdb:
+				method_id = row.id
+				method_short_name = row.short_name
+				transformation_description = row.transformation_description
+			else:
+				method_id, method_short_name, transformation_description = row[:3]
+			"""
 			curs.execute("select short_name, transformation_description from %s where id=%s"%(phenotype_method_table, method_id))
 			pm_rows = curs.fetchall()
 			method_short_name = pm_rows[0][0]
+			transformation_description = pm_rows[0][1]
+			"""
+			phenotype_id_ls.append(method_id)
 			method_id_name_ls.append('%s_%s'%(method_id, method_short_name))
 			phenotype_method_id2index[method_id] = len(phenotype_method_id2index)
-			transformation_description = pm_rows[0][1]
 			if transformation_description=='None':
 				transformation_description = None
 			phenotype_method_id2transformation_description[method_id] = transformation_description
 		return_data = PassingData(phenotype_method_id2index=phenotype_method_id2index, method_id_name_ls=method_id_name_ls,\
+								phenotype_id_ls=phenotype_id_ls,\
 								phenotype_method_id2transformation_description=phenotype_method_id2transformation_description)
 		sys.stderr.write("Done\n")
 		return return_data
+	get_phenotype_method_id_info = classmethod(get_phenotype_method_id_info)
 	
-	def get_ecotype_id2info(self, curs, phenotype_avg_table, ecotype_table):
+	def get_ecotype_id2info(cls, curs, phenotype_avg_table, ecotype_table):
 		"""
+		2009-2-2
+			curs could be either MySQLdb cursor or elixirdb.metadata.bind.
+			do two selects in one
+		
 		2008-4-2
 		"""
 		sys.stderr.write("Getting ecotype id info ... " )
 		ecotype_id2index = {}	#index of the matrix
 		ecotype_id_ls = []
 		ecotype_name_ls = []
-		curs.execute("select distinct ecotype_id from %s order by ecotype_id"%phenotype_avg_table)
-		rows = curs.fetchall()
+		rows = curs.execute("select e.id, e.nativename from %s e, (select distinct ecotype_id from %s) p where e.id=p.ecotype_id order by id"%\
+					(ecotype_table, phenotype_avg_table))
+		is_elixirdb = 1
+		if hasattr(curs, 'fetchall'):	#2009-2-2 this curs is not elixirdb.metadata.bind
+			rows = curs.fetchall()
+			is_elixirdb = 0
 		for row in rows:
-			ecotype_id = row[0]
+			if is_elixirdb:
+				ecotype_id = row.id
+				nativename = row.nativename
+			else:
+				ecotype_id, nativename = row[:2]
+			"""
 			curs.execute("select nativename from %s where id=%s"%(ecotype_table, ecotype_id))
 			nativename = curs.fetchall()[0][0]
+			"""
 			ecotype_name_ls.append(nativename)
 			ecotype_id_ls.append(ecotype_id)
 			ecotype_id2index[ecotype_id] = len(ecotype_id2index)
 		sys.stderr.write("Done\n")
 		return ecotype_id2index, ecotype_id_ls, ecotype_name_ls
+	get_ecotype_id2info = classmethod(get_ecotype_id2info)
 	
-	def get_matrix(self, curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data=0):
+	def get_matrix(cls, curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data=0):
 		"""
+		2009-2-2
+			curs could be either MySQLdb cursor or elixirdb.metadata.bind.
+			average phenotype values among replicates in the same phenotype method
 		2008-11-10
 			add code to transform phenotype according to phenotype_info.phenotype_method_id2transformation_description
 			add option get_raw_data, if True/1, no transformation.
@@ -119,10 +156,19 @@ class OutputPhenotype(object):
 		for i in range(len(ecotype_id2index)):
 			data_matrix[i] = ['NA']*len(phenotype_info.phenotype_method_id2index)
 		#data_matrix[:] = numpy.nan
-		curs.execute("select ecotype_id, method_id, value from %s"%phenotype_avg_table)
-		rows = curs.fetchall()
+		rows = curs.execute("select ecotype_id, method_id, avg(value) as value from %s group by ecotype_id, method_id"%phenotype_avg_table)
+		is_elixirdb = 1
+		if hasattr(curs, 'fetchall'):	#2009-2-2 this curs is not elixirdb.metadata.bind
+			rows = curs.fetchall()
+			is_elixirdb = 0
+		
 		for row in rows:
-			ecotype_id, phenotype_method_id, value = row
+			if is_elixirdb:
+				ecotype_id = row.ecotype_id
+				phenotype_method_id = row.method_id
+				value = row.value
+			else:
+				ecotype_id, phenotype_method_id, value = row
 			if value==None:	#some db entries have nothing there. convert None to 'NA'
 				value = 'NA'
 			elif not get_raw_data:	#2008-11-10
@@ -141,6 +187,21 @@ class OutputPhenotype(object):
 			data_matrix[ecotype_id2index[ecotype_id]][col_index] = value
 		sys.stderr.write("Done\n")
 		return data_matrix
+	get_matrix = classmethod(get_matrix)
+	
+	def getPhenotypeData(cls, curs, phenotype_avg_table=None, phenotype_method_table=None, ecotype_table='stock.ecotype', get_raw_data=1):
+		"""
+		2009-2-2
+			wrap up all other 3 methods
+		"""
+		phenotype_info = cls.get_phenotype_method_id_info(curs, phenotype_avg_table, phenotype_method_table)
+		ecotype_id2index, ecotype_id_ls, ecotype_name_ls = cls.get_ecotype_id2info(curs, phenotype_avg_table, ecotype_table)
+		data_matrix = cls.get_matrix(curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data)
+		pheno_data = SNPData(col_id_ls=phenotype_info.phenotype_id_ls, row_id_ls=ecotype_id_ls, data_matrix=data_matrix)
+		pheno_data.row_label_ls = ecotype_name_ls
+		pheno_data.col_label_ls = phenotype_info.method_id_name_ls
+		return pheno_data
+	getPhenotypeData = classmethod(getPhenotypeData)
 	
 	def run(self):
 		import MySQLdb
@@ -148,12 +209,10 @@ class OutputPhenotype(object):
 		curs = conn.cursor()
 		
 		
-		phenotype_info = self.get_phenotype_method_id_info(curs, self.phenotype_avg_table, self.phenotype_method_table)
-		ecotype_id2index, ecotype_id_ls, ecotype_name_ls = self.get_ecotype_id2info(curs, self.phenotype_avg_table, self.ecotype_table)
-		data_matrix = self.get_matrix(curs, self.phenotype_avg_table, ecotype_id2index, phenotype_info, self.get_raw_data)
-		
-		header = ['ecotype id', 'nativename'] + phenotype_info.method_id_name_ls
-		write_data_matrix(data_matrix, self.output_fname, header, ecotype_id_ls, ecotype_name_ls)
+		pheno_data = self.getPhenotypeData(curs, self.phenotype_avg_table, self.phenotype_method_table, \
+										self.ecotype_table, get_raw_data=self.get_raw_data)
+		header = ['ecotype id', 'nativename'] + pheno_data.col_label_ls
+		write_data_matrix(pheno_data.data_matrix, self.output_fname, header, pheno_data.row_id_ls, pheno_data.row_label_ls)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
