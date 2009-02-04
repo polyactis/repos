@@ -1,4 +1,4 @@
-import os, sys, csv
+import os, sys, csv, re
 
 def dict_map(dict, ls, type=1):
 	"""
@@ -288,6 +288,20 @@ def runLocalCommand(commandline, report_stderr=True, report_stdout=False):
 								stderr_content=stderr_content, stdout_content=stdout_content)
 		return return_data
 
+
+#2009-2-4 code to link something like AT1G01010.1 or AT1G01040 to NCBI gene id
+#refactored out of PutGeneListIntoDB.py
+p_acc_ver = re.compile(r'(\w+)\.(\d+)')
+p_acc = re.compile(r'(\w+)')	#2008-12-11 only alphanumeric characters in gene_symbol (suzi's file contains weird characters sometimes)	
+def getGeneIDSetGivenAccVer(acc_ver, gene_symbol2gene_id_set, noUpperCase=0):
+	if not noUpperCase:
+		gene_symbol = acc_ver.upper()
+	if p_acc_ver.search(gene_symbol):
+		gene_symbol, version = p_acc_ver.search(gene_symbol).groups()
+	if p_acc.search(gene_symbol):	#2008-12-11 pick out alphanumeric characters
+		gene_symbol, = p_acc.search(gene_symbol).groups()
+	gene_id_set = gene_symbol2gene_id_set.get(gene_symbol)
+	return gene_id_set
 
 if __name__ == '__main__':
 	FigureOutTaxID_ins = FigureOutTaxID()
