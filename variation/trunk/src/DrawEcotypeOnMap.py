@@ -238,8 +238,8 @@ class DrawEcotypeOnMap(PlotGroupOfSNPs, Association):
 			eigen_value_ls = self.getEigenValueFromFile(self.eigen_value_fname)
 			eigen_value_ls = numpy.array(eigen_value_ls)
 			explained_var = eigen_value_ls/numpy.sum(eigen_value_ls)
-			PC_matrix = self.getPCFromFile(self.eigen_vector_fname)
-			
+			PC_data = self.getPCFromFile(self.eigen_vector_fname)
+			PC_matrix = PC_data.PC_matrix
 		else:
 			max_no_of_snps = 10000
 			if len(snpData.col_id_ls)>max_no_of_snps:	#2008-12-01 randomly pick max_no_of_snps SNPs
