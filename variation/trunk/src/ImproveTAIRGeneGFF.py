@@ -5,8 +5,11 @@ Examples:
 		
 Description:
 	2009-2-4
-		program to insert more into into the gene GFF file from TAIR:
-			if the last column of a gene entry has 'ID' in it, find corresponding gene id using its value and add gene_symbol and description
+		program to insert more info into the gene GFF file from TAIR:
+			if the last column of a non-chromosome line has 'ID' in it, find corresponding gene id using its value
+			add gene_symbol as 'Alias' and description as 'description'.
+			
+			Put value of gene_symbol under 'Alias', rather than 'gene_symbol' because the former is built into the gbrowse search engine.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -16,7 +19,7 @@ if bit_number>40:       #64bit
 else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/')))
-import csv
+import csv, string
 from pymodule.utils import getGeneIDSetGivenAccVer, figureOutDelimiter
 from DrawSNPRegion import DrawSNPRegion
 
@@ -43,6 +46,11 @@ class ImproveTAIRGeneGFF(object):
 	
 	def improveTAIRGeneGFF(self, input_fname, gene_symbol2gene_id_set, gene_annotation, output_fname):
 		"""
+		2009-2-5
+			apply the improvement to any non-chromosome lines with 'ID' entry
+			escape ';' by '%3B', which is regarded as a separator for every "name=value"
+			escape ',' by '%2C', which is regarded as a separator for every "value"
+			esacpe gene_symbol/Alias whose value matches individual chromosome (like gene 'CHR5' = 'Gene CHR5')
 		2009-2-4
 			if the last column has 'ID' in it, find corresponding gene id using its value and add gene_symbol and description
 		"""
@@ -50,9 +58,11 @@ class ImproveTAIRGeneGFF(object):
 		import re
 		p_ID_acc_ver = re.compile(r'ID=(\w+)\.(\d+);')
 		p_ID_acc = re.compile(r'ID=(\w+);')
+		p_ID_protein_acc = re.compile(r'ID=(\w+)\.(\d+)-Protein;')
+		p_chr_name = re.compile(r'CHR\d+$')	#to esacpe gene_symbol/Alias whose value matches individual chromosome
 		delimiter = figureOutDelimiter(input_fname)
 		reader = csv.reader(open(input_fname), delimiter=delimiter)
-		writer = csv.writer(open(output_fname,'w'), delimiter=delimiter)
+		writer = csv.writer(open(output_fname,'w'), delimiter=delimiter, lineterminator='\n')	#lineterminator is important. GFF3Loader would break down if it's dos terminator('\r\n').
 		counter = 0
 		success_counter = 0
 		for row in reader:
@@ -62,8 +72,10 @@ class ImproveTAIRGeneGFF(object):
 				tair_id, version = p_ID_acc_ver.search(last_col).groups()
 			if p_ID_acc.search(last_col):
 				tair_id, = p_ID_acc.search(last_col).groups()
+			if p_ID_protein_acc.search(last_col):
+				tair_id, version = p_ID_protein_acc.search(last_col).groups()
 			counter += 1
-			if tair_id is not None and row[2]=='gene':
+			if tair_id is not None and row[2]!='chromosome':
 				gene_id_set = getGeneIDSetGivenAccVer(tair_id, gene_symbol2gene_id_set)
 				gene_id = None
 				
@@ -84,12 +96,24 @@ class ImproveTAIRGeneGFF(object):
 						gene_commentary = gene_model.gene_commentaries[0]
 						gene_desc_ls = DrawSNPRegion.returnGeneDescLs(self.gene_desc_names, gene_model, gene_commentary, cutoff_length=600,\
 																	replaceNoneElemWithEmptyStr=1)
-						description = ','.join([':'.join(entry) for entry in zip(self.gene_desc_names, gene_desc_ls)])
+						local_gene_desc_names = map(string.upper, self.gene_desc_names)
+						description = ',  '.join([': '.join(entry) for entry in zip(local_gene_desc_names, gene_desc_ls)])
+						description = description.replace(';', '%3B')	#escape ';', which is regarded as a separator for every "name=value"
+						description = description.replace(',', '%2C')	#escape ',', which is regarded as a separator for every "value"
+						
 						if last_col[-1]!=';':	#no ; delimiter at the end, append one
 							last_col += ';'
-						last_col += 'gene_symbol=%s;'%gene_model.gene_symbol
-						last_col += 'description=%s;'%description
+						gene_symbol = gene_model.gene_symbol
+						gene_symbol = gene_symbol.replace(';', '%3B')
+						gene_symbol = gene_symbol.replace(',', '%2C')
+						if p_chr_name.match(gene_symbol):	#match the chromosome name, change
+							gene_symbol = 'Gene %s'%gene_symbol
+						last_col += 'Alias=%s;'%gene_symbol
+						last_col += 'description=%s'%description
 						row[-1] = last_col
+			if last_col[-1]==';':
+				last_col = last_col[:-1]
+				row[-1] = last_col
 			if counter%5000==0:
 				sys.stderr.write("%s%s\t%s"%('\x08'*80, success_counter, counter))
 			writer.writerow(row)
