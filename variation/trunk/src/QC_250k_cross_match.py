@@ -6,9 +6,10 @@ Examples:
 	QC_250k_cross_match.py -l 3 -m 9 -c -a 1449,1452,1455,1457 -w -y 0.85
 
 Description:
-	cross-match 250k call data from call_info_table against 2010, perlegen, 149SNP data given a list of call_info_ids.
+	cross-match 250k call data (whose maternal_ecotype_id and paternal_ecotype_id must be same and non-null)
+		from call_info_table against 2010, perlegen, 149SNP data given a list of call_info_ids.
 	
-	The output is in QC_cross_match table.
+	The output is in QC_cross_match table (no output to output_fname even if it's given.)
 	
 	The max_call_info_mismatch_rate option is ignored.
 """
@@ -27,13 +28,13 @@ from pymodule import process_function_arguments, turn_option_default_dict2argume
 from variation.src.QualityControl import QualityControl
 from variation.src.common import number2nt, nt2number
 from QC_250k import QC_250k
-from variation.src import Stock_250kDB
-from variation.src.Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, CallInfo, README
+import Stock_250kDB
+from Stock_250kDB import Results, ResultsMethod, PhenotypeMethod, QCMethod, CallQC, CallInfo, README
 
 class QC_250k_cross_match(QC_250k):
 	__doc__ = __doc__
 	option_default_dict = QC_250k.option_default_dict
-	option_default_dict.update({('call_info_id_ls', 1, ): [None, 'a', 1, 'list of call_info_ids to be cross-matched, coma-separated'],\
+	option_default_dict.update({('call_info_id_ls', 1, ): [None, '', 1, 'list of call_info_ids to be cross-matched, coma-separated'],\
 							('new_QC_cross_match_table', 0, int):[0, 'w', 0, 'whether the QC_cross_match table is new or not' ]})
 	
 	def __init__(self,  **keywords):
@@ -48,6 +49,8 @@ class QC_250k_cross_match(QC_250k):
 		
 	def plone_run(self):
 		"""
+		2009-2-5
+			add "create_tables=False" to db.setup()
 		2008-07-02
 			fix a bug which causes the program to continue read data even while call_info_id2fname is empty and input_dir is null.
 		2008-07-01
@@ -66,7 +69,7 @@ class QC_250k_cross_match(QC_250k):
 		#database connection and etc
 		db = Stock_250kDB.Stock_250kDB(username=self.user,
 				   password=self.passwd, hostname=self.hostname, database=self.dbname)
-		db.setup()
+		db.setup(create_tables=False)
 		session = db.session
 		session.begin()
 		#transaction = session.create_transaction()
