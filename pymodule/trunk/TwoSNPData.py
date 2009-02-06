@@ -4,6 +4,10 @@ Examples:
 	TwoSNPData.py -i /Network/Data/250k/db/reference_dataset/data_2010_ecotype_id_y0002_n1c1d110_mergedup.tsv -j /Network/Data/250k/db/reference_dataset/stock_149SNP_y0000110101_mergedup.csv -o /tmp/2010_149.csv -c 1 -w 1
 	
 Description:
+	2009-2-5
+		add option row_matching_by_which_value to allow both the 1st and 2nd column from the first file to be retained while matching
+			rows from the 2nd file using designated column.
+			
 	Merge two SNPData.
 """
 import sys, os, csv
@@ -1309,7 +1313,8 @@ class MergeTwoSNPData(object):
 							('row_id_merge_type', 1, int): [0, 'w', 1, '0=SNPData1, 1=union, 2=intersection'],\
 							('col_id_merge_type', 1, int): [0, 'c', 1, '0=SNPData1, 1=union, 2=intersection'],\
 							('priority', 1, int): [1, 'p', 1, '1=SNPData1 with SNPData2 covering where SNPData1 is NA, 2=SNPData2 with SNPData1 covering where SNPData2 is NA, 3=SNPData1 (not care SNPData2), 4=SNPData2'],\
-							('output_fname', 1, ): [None, 'o', 1, '', ],\
+							('output_fname', 1, ): [None, 'o', 1, 'Final output.', ],\
+							('row_matching_by_which_value', 0, int):[0, 'm', 1, 'which column in the input_fname1 should be used to establish row-id linking to input_fname2. 0=both inputs discard the 2nd column and use the 1st column, 1=1st column(input_fname1 keeps both columns), 2=2nd column(ditto).'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 							#('input_fname1_format',1,int): [1, 'k', 1, 'Format of input_fname1. 1=strain X snp (Yu). 2=snp X strain (Bjarni) without arrayId. 3=snp X strain with arrayId.'],\
@@ -1330,9 +1335,17 @@ class MergeTwoSNPData(object):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
-		snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1, ignore_2nd_column=1)
+		if self.row_matching_by_which_value==0:
+			snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1, ignore_2nd_column=1)
+		else:
+			snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1)
 		snpData2 = SNPData(input_fname=self.input_fname2, turn_into_array=1, ignore_2nd_column=1)
-		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, debug=self.debug)
+		
+		if self.row_matching_by_which_value==1 or self.row_matching_by_which_value==2:
+			row_matching_by_which_value = self.row_matching_by_which_value-1
+		else:
+			row_matching_by_which_value = None
+		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, debug=self.debug, row_matching_by_which_value=row_matching_by_which_value)
 		newSnpData= twoSNPData.mergeTwoSNPData(self.row_id_merge_type, self.col_id_merge_type, self.priority)
 		newSnpData.tofile(self.output_fname)
 
