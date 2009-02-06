@@ -27,7 +27,6 @@ import warnings, traceback
 from pymodule import ProcessOptions, PassingData
 import Stock_250kDB
 
-from transfac.src.TFBindingSiteParse import TFBindingSiteParse
 #from annot.bin.codense.common import get_entrezgene_annotated_anchor
 from DrawSNPRegion import DrawSNPRegion	#to handle gene_annotation_picklef
 from GeneListRankTest import GeneListRankTest, SnpsContextWrapper	#to handle snps_context_picklef
@@ -75,6 +74,8 @@ class ConstructSNPAnnotation(object):
 	
 	def _constructSNPAnnotation(self, session, snp_info, snps_context_wrapper, gene_annotation, snp_annotation_short_name2id):
 		"""
+		2009-2-5
+			bug fixed. when adding a box as UTR, make sure after the forloop above, the current box is still the UTR.
 		2009-1-5
 		"""
 		sys.stderr.write("Constructing SNPAnnotation ...\n")
@@ -139,7 +140,7 @@ class ConstructSNPAnnotation(object):
 										no_of_introns += 1
 							
 							if box_type!=None and is_SNP_within_box==1:	#box_type is the type of the box where the SNP resides
-								if UTR_type!=None:	#UTR
+								if UTR_type!=None and box_type=='exon' and is_translated==0:	#it's UTR. bug fixed. make sure after the forloop above, the current box is still the UTR.
 									snp_annotation_type_short_name_ls.append((UTR_type, gene_id, gene_commentary.gene_commentary_id))
 								else:
 									if gene_model.strand=='-1':	#reverse the order of exon/intron
@@ -189,7 +190,7 @@ class ConstructSNPAnnotation(object):
 												continue
 											if cds_seq[SNP_index_in_CDS]!=gene_allele1 and cds_seq[SNP_index_in_CDS]!=gene_allele2:
 												sys.stderr.write("Error: Neither allele (%s, %s) from SNP (%s,%s) matches the nucleotide, %s, from the cds seq of gene %s (gene_commentary_id=%s).\n"%\
-																	(gene_allele1, gene_allele2, chr, pos, cds_seq[SNP_index_in_CDS].tostring(), gene_id, gene_commentary.gene_commentary_id))
+																	(gene_allele1, gene_allele2, chr, pos, cds_seq[SNP_index_in_CDS], gene_id, gene_commentary.gene_commentary_id))
 												sys.exit(3)
 											cds_mut_ar = cds_seq.tomutable()
 											cds_mut_ar[SNP_index_in_CDS] = gene_allele1
