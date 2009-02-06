@@ -229,7 +229,7 @@ class Calls2DB_250k(object):
 							('o', 'output_dir',1, 'file system storage for the call files. call_info_table would point each entry to this.', 1, ):'/Network/Data/250k/db/calls/' ,\
 							('a', 'call_method_table', 1, 'table storing the calling methods', 1, ): 'call_method',\
 							('t', 'call_info_table', 1, 'table to store final call file entries', 1, ): 'call_info',\
-							('y', 'input_type', 1, 'The input type. 1: directory. 2: SNP X strain format (bjarni). 3: Strain X SNP format (Yu)', 1, int): 1,\
+							('y', 'input_type', 1, 'The input type. 1: directory. 2: SNP X strain format (bjarni, 1st row is array id. 2nd row is ecotype id, not used though.). 3: Strain X SNP format (Yu)', 1, int): 1,\
 							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
 							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
 							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
