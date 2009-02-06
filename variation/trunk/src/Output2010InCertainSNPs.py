@@ -29,6 +29,9 @@ Examples:
 	#to output 2010 data in its own SNP set with ecotype id
 	Output2010InCertainSNPs.py -o ../data/2010/data_2010_ecotype_id_y0002.tsv -r -y0002
 	
+	#2009-1-28 output one FRI deletion by setting version=4 and offset=8
+	Output2010InCertainSNPs.py -o data/2010/data_2010_ecotype_id_y0002_version4_offset_8.tsv -r -y0002 -v 4 -f 8
+	
 Description:
 	program to output 2010/Perlegen data from db at with columns/SNPs from either 250k or 149SNP
 	
@@ -45,7 +48,7 @@ Description:
 	3rd bit controls the 2nd column. duplicate id or strain name. 0: duplicate(default). 1: name
 	4th bit controls what SNP set gets outputted.
 		0: all SNPs from snp_locus_table(default); 1: intersection between snp_locus_table and the SNPs where there's data
-		2: all SNPs from the datat type itself (according to 2nd bit).
+		2: all SNPs from the data type itself (according to 2nd bit).
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -82,6 +85,8 @@ class Output2010InCertainSNPs(object):
 							('alignment_table', 1, ): ['at.alignment', 'a', ],\
 							('sequence_table',1,): ['at.sequence', 's', 1, 'raw sequence table. not used anymore.'],\
 							('snp_locus_table',1,): ['snps', 'n', ],\
+							('offset',0, int): [0, 'f', 1, 'offset of SNPs relative to a reference genome position that are to be included, positive only for insertions'],\
+							('version',0, int): [3, 'v', 1, 'version of SNPs that are to be included. 3 is published/good-quality. 1 & 2 are early versions. 4 is the version with FRI deletions.'],\
 							('output_fname',1,): ['', 'o', ],\
 							('processing_bits',1,): ['0000', 'y', ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -246,8 +251,10 @@ class Output2010InCertainSNPs(object):
 		sys.stderr.write("Done.\n")
 		return data_matrix, data_matrix_touched, snp_index2alignment_id
 	
-	def setup_SNP_dstruc2(self, curs, snp_locus_table, cross_linking_table=None):
+	def setup_SNP_dstruc2(self, curs, snp_locus_table, cross_linking_table=None, offset=0):
 		"""
+		2009-2-6
+			add offset
 		2008-05-12
 			snp_acc = '%s_%s'%(chromosome, position)	#to standardize between different SNP dataset
 			correct a bug when SNPpos_set is empty
@@ -265,7 +272,7 @@ class Output2010InCertainSNPs(object):
 				SNPpos_set.add((chromosome, position))
 		snp_acc_ls = []
 		SNPpos2col_index = {}
-		curs.execute("select distinct chromosome, position from %s order by chromosome, position"%(snp_locus_table))
+		curs.execute("select distinct chromosome, position from %s where offset=%s order by chromosome, position"%(snp_locus_table, offset))
 		rows = curs.fetchall()
 		for row in rows:
 			chromosome, position = row
@@ -279,8 +286,11 @@ class Output2010InCertainSNPs(object):
 	
 	def setup_row_dstruc(self, curs, SNPpos2col_index, accession_id2name, genotype_table='at.genotype', \
 						allele_table='at.allele', locus_table='at.locus', alignment_table='at.alignment', \
-						perlegen_table='chip.snp_combined_may_9_06_no_van', data_type=0, ecotype_name2accession_id=None):
+						perlegen_table='chip.snp_combined_may_9_06_no_van', data_type=0, ecotype_name2accession_id=None,\
+						offset=0, version=3):
 		"""
+		2009-2-6
+			add argument offset and version
 		2008-02-07
 			get row_dstruc
 			SNPpos2col_index makes sure that SNPs are from snp_locus_table
@@ -292,8 +302,8 @@ class Output2010InCertainSNPs(object):
 		if data_type==0:
 			#offset=0 and version=3
 			sql_string_func = lambda key_tuple: "select g.accession, al.base from %s g, %s al, %s l, %s an where g.allele=al.id \
-				and l.id=al.locus and l.alignment=an.id and l.offset=0 and an.version=3 and l.chromosome=%s and l.position=%s"%\
-				(genotype_table, allele_table, locus_table, alignment_table, key_tuple[0], key_tuple[1])
+				and l.id=al.locus and l.alignment=an.id and l.offset=%s and an.version=%s and l.chromosome=%s and l.position=%s"%\
+				(genotype_table, allele_table, locus_table, alignment_table, offset, version, key_tuple[0], key_tuple[1])
 			"""
 			#offset=0
 			sql_string_func = lambda key_tuple: "select g.accession, al.base from %s g, %s al, %s l, %s an where g.allele=al.id \
@@ -326,7 +336,7 @@ class Output2010InCertainSNPs(object):
 				counter += 1
 			snp_counter += 1
 			if self.report and snp_counter%1000==0:
-				sys.stderr.write("\t%s%s\t%s"%('\x08'*80, snp_counter, counter))
+				sys.stderr.write("%s\t%s\t%s"%('\x08'*80, snp_counter, counter))
 		if self.report:
 			sys.stderr.write("\t%s%s\t%s"%('\x08'*80, snp_counter, counter))
 		sys.stderr.write("Done.\n")
@@ -366,22 +376,27 @@ class Output2010InCertainSNPs(object):
 		accession_X_snp_matrix, accession_X_snp_matrix_touched, snp_index2alignment_id = self.get_accession_X_snp_matrix(curs, accession_id2row_index, SNPpos2col_index, self.sequence_table, self.alignment_table, alignment_id2positions_to_be_checked_ls)
 		"""
 		if self.processing_bits[3]==0:
-			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table)
+			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table, offset=self.offset)
 		elif self.processing_bits[3]==1:
-			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table, cross_linking_table=self.data_type2data_table[self.processing_bits[1]])
+			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table, \
+																cross_linking_table=self.data_type2data_table[self.processing_bits[1]], \
+																offset=self.offset)
 		elif self.processing_bits[3]==2:
-			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.data_type2data_table[self.processing_bits[1]])
+			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.data_type2data_table[self.processing_bits[1]], \
+																offset=self.offset)
 		else:
 			sys.stderr.write("Error: unsupported 3rd bit in processing_bits %s.\n"%self.processing_bits[3])
 			sys.exit(3)
 		from variation.src.common import get_accession_id2name
 		accession_id2name = get_accession_id2name(curs)
 		if self.processing_bits[1]==0:
-			row_id2dstruc = self.setup_row_dstruc(curs, SNPpos2col_index, accession_id2name)
+			row_id2dstruc = self.setup_row_dstruc(curs, SNPpos2col_index, accession_id2name, offset=self.offset, version=self.version)
 		elif self.processing_bits[1]==1:
 			from variation.src.common import map_perlegen_ecotype_name2accession_id
 			ecotype_name2accession_id = map_perlegen_ecotype_name2accession_id(curs)
-			row_id2dstruc = self.setup_row_dstruc(curs, SNPpos2col_index, accession_id2name, data_type=self.processing_bits[1], ecotype_name2accession_id=ecotype_name2accession_id)
+			row_id2dstruc = self.setup_row_dstruc(curs, SNPpos2col_index, accession_id2name, data_type=self.processing_bits[1], \
+												ecotype_name2accession_id=ecotype_name2accession_id,\
+												offset=self.offset, version=self.version)
 		else:
 			sys.stderr("Unsupported data type: %s or no ecotype_name2accession_id specified.\n"%self.processing_bits[1])
 			sys.exit(2)
