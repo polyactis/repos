@@ -126,7 +126,7 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 				for chr_pos in snp_chr_pos_ls:
 					snp2_id = '%s_%s'%(chr_pos[0], chr_pos[1])
 					snp2_index = snpData.col_id2col_index.get(snp2_id)
-					if snp2_index is None and snp2_index==snp1_index:	#snp2_id not in input matrix, or two SNPs are same
+					if snp2_index is None or snp2_index==snp1_index:	#snp2_id not in input matrix, or two SNPs are same
 						continue
 					for bool_type in bool_type2merge_oper:
 						merge_oper_matrix = bool_type2merge_oper[bool_type]
