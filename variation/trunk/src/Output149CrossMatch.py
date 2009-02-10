@@ -8,7 +8,11 @@ Examples:
 	Output149CrossMatch.py -m 4 -i ~/panfs/149CrossMatch/149_cross_match.tsv -o /tmp/149CrossMatch_m4_a0.2.tsv -s 5 -r -a 0.2
 	
 	#pretty similar to above, but no drawing. and align strains according to sequenom plates.
-	Output149CrossMatch.py -m 4 -i ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match.tsv -o ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match_matrix_a0.3_g.tsv -a 0.3 -g
+	Output149CrossMatch.py -m 4 -i ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match.tsv -o ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match_matrix_a0.3_g.tsv -a 0.3 -g 2
+	
+	#
+	pretty similar to above, no drawing. and align row-strains according to sequenom plates and column-strains by (country, longitude).
+	Output149CrossMatch.py -m 4 -i ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match.tsv -o ~/panfs/149CrossMatch/149SNPSequenomBlock_0_cross_match_matrix_a0.3_g.tsv -a 0.3 -g 3
 	
 Description:
 	Output 149 QCCrossMatch results (output of QC_149_cross_match.py/MpiQC149CrossMatch.py) into matrix (and draw the matrix).
@@ -48,7 +52,9 @@ class Output149CrossMatch(object):
 							("output_fname", 0, ): [None, 'o', 1, 'Filename to store data matrix'],\
 							("fig_fname", 0, ): [None, 'x', 1, 'File name for the figure'],\
 							("no_of_ticks", 1, int): [5, 't', 1, 'Number of ticks on the legend'],\
-							("group_strains_by_sequenom_plate", 0, ): [0, 'g', 0, 'By default this program order/group strains by country, strain longitude. This option order/group strains by sequenom plate, country, strain longitude.'],\
+							("how_to_group_strains", 0, ): [1, 'g', 1, '1: this program order/group strains by (country, longitude).\
+								2: order/group strains by (sequenom plate, country, longitude).\
+								3: order/group rows by (sequenom plate, country, longitude) and columns by (country, longitude), QC_method=4 only.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -381,8 +387,10 @@ class Output149CrossMatch(object):
 				elif data_value>max_value:
 					max_value =data_value
 				data_matrix[row_index, col_index] = data_value
-				if QC_method_id==4 and row_index!=col_index:	#149 self-cross-match
-					data_matrix[col_index, row_index] = data_value
+				if QC_method_id==4:	#149 self-cross-match
+					row_index = strain_id_info.strain_id2index.get(target_id)
+					col_index = target_id_info.strain_id2index.get(strainid)
+					data_matrix[row_index, col_index] = data_value
 			i += 1
 			if self.report and i%100000==0:
 				sys.stderr.write("%s\t%s"%('\x08'*40, i))
@@ -438,7 +446,7 @@ class Output149CrossMatch(object):
 			strain_where_condition = common_where_condition%(" and e.id=st.ecotypeid and st.id=q.strainid")
 			strain_id_info_query = "select distinct q.strainid, e.id as ecotypeid, e.nativename, s.name as sitename, c.abbr %s, %s st %s"%(sql_table_str, StockDB.Strain.table.name, strain_where_condition)
 		
-		if self.group_strains_by_sequenom_plate:
+		if self.how_to_group_strains==2 or self.how_to_group_strains==3:
 			plate_info = self.alignStrainsAccordingToSeqPlate(db)
 			id_set_data = PassingData()
 			id_set_data.strain_id_set = None
@@ -450,13 +458,17 @@ class Output149CrossMatch(object):
 			id_set_data.strain_id_set = None
 			id_set_data.target_id_set = None
 		
-		if self.group_strains_by_sequenom_plate:
+		if self.how_to_group_strains==2 or self.how_to_group_strains==3:
 			strain_id_info = self.getStrainInfoGivenPlateInfo(db, plate_info, strain_id_info_query, strain_id_set=None)
 		else:
 			strain_id_info = self.getStrainIDInfo(db, strain_id_info_query, id_set_data.strain_id_set)
 		
 		if self.QC_method_id==4:
-			target_id_info = strain_id_info
+			if self.how_to_group_strains==3:
+				#2008-09-15 column strain id is in country, strain-longitude order
+				target_id_info = self.getStrainIDInfo(db, strain_id_info_query, id_set_data.strain_id_set)
+			else:
+				target_id_info = strain_id_info
 		else:
 			target_where_condition = common_where_condition%(" and e.id=q.target_id")
 			target_id_info_query = "select distinct e.id as strainid, e.id as ecotypeid, e.nativename, s.name as sitename, c.abbr %s %s"%(sql_table_str, target_where_condition)
