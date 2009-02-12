@@ -268,6 +268,8 @@ class Association(Kruskal_Wallis):
 	def linear_model(cls, genotype_ls, phenotype_ls, min_data_point=3, snp_index=None, kinship_matrix=None, eig_L=None, \
 					run_type=1):
 		"""
+		2009-2-11
+			simply report the snp_index when numpy.linalg.linalg.LinAlgError is caught
 		2008-12-04
 			genotype_ls could be either 1D or 2D matrix
 			if it's 2D, only the 1st column is genotype. 2nd or further are PCs (so far).
@@ -336,13 +338,17 @@ class Association(Kruskal_Wallis):
 					return None
 				pdata.snp_index = snp_index
 				pdata.count_ls = count_ls
+			except numpy.linalg.linalg.LinAlgError:
+				sys.stderr.write("Except while running pure_linear_model on snp_index=%s:\n"%(snp_index))
+				sys.stderr.write('\t%s.\n'%repr(sys.exc_info()))
+				pdata = None
 			except:
-					sys.stderr.write("Except while running pure_linear_model on snp_index=%s with non_NA_genotype_ls=%s, \
-						non_NA_phenotype_ls=%s, non_NA_phenotype2count=%s.\n"%(snp_index, repr(non_NA_genotype_ls), \
-																			repr(non_NA_phenotype_ls), repr(non_NA_phenotype2count)))
-					traceback.print_exc()
-					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
-					pdata = None
+				sys.stderr.write("Except while running pure_linear_model on snp_index=%s with non_NA_genotype_ls=%s, \
+					non_NA_phenotype_ls=%s, non_NA_phenotype2count=%s.\n"%(snp_index, repr(non_NA_genotype_ls), \
+																		repr(non_NA_phenotype_ls), repr(non_NA_phenotype2count)))
+				traceback.print_exc()
+				sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+				pdata = None
 		else:
 			pdata = None
 		return pdata
@@ -420,8 +426,10 @@ class Association(Kruskal_Wallis):
 		sys.stderr.write("Done.\n")
 		return results
 	
-	def get_kinship_matrix(self, data_matrix):
+	def get_kinship_matrix(cls, data_matrix):
 		"""
+		2009-2-9
+			make it classmethod
 		2008-11-11
 		"""
 		no_of_rows, no_of_cols = data_matrix.shape
@@ -432,6 +440,8 @@ class Association(Kruskal_Wallis):
 				kinship_matrix[i,j] = sum(identity_vector)/float(no_of_cols)
 				kinship_matrix[j,i] = kinship_matrix[i,j]
 		return kinship_matrix
+	
+	get_kinship_matrix = classmethod(get_kinship_matrix)
 	
 	def emma(cls, non_NA_genotype_ls, non_NA_phenotype_ls, kinship_matrix, eig_L = None):
 		"""
