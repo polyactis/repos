@@ -130,6 +130,8 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 							('phenotype_method_id_ls', 0, ): [None, 'w', 1, 'which phenotypes to work on. a comma-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method. Default is to take all.',],\
 							('block_size', 1, int):[10000, 's', 1, '~Maximum number of tests each computing node is gonna handle. The computing node loops over all phenotypes, test all pairwise SNPs within a gene.'],\
 							('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis on a SNP boolean-merged from two SNPs, 2:linear model(y=b + SNP1 + SNP2 + SNP1xSNP2 + e)'],\
+							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
+							('call_method_id', 0, int):[17, 'l', 1, 'Restrict results based on this call_method.'],\
 							('gene_id_fname', 0, ): [None, 'g', 1, 'A file with gene id on each line.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -179,7 +181,7 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 		sys.stderr.write("Done.\n")
 		return gene_id2snps_id_ls
 	
-	def generate_params(self, gene_id_fname, pdata, block_size=1000):
+	def generate_params(self, gene_id_fname, pdata, block_size=1000, **keywords):
 		"""
 		2009-2-12
 			use yield make this function a generator
@@ -190,8 +192,6 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 		2008-09-06
 			each node handles a certain number of genes. identified by the index of the 1st gene and the index of the last gene.
 		"""
-		#sys.stderr.write("Generating parameters ...")
-		#params_ls = []
 		no_of_phenotypes = len(pdata.phenotype_index_ls)
 		start_index = 0	#for each computing node: the index of gene >= start_index
 		no_of_tests_per_node = 0
@@ -221,8 +221,6 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 			elif i==no_of_genes-1:	#this is the last gene, have to include them
 				yield (start_index, i+1)
 				#no need to cleanup because this is the end of loop
-		#sys.stderr.write("%s params. Done.\n"%(len(params_ls)))
-		#return params_ls
 	
 	def inputNodePrepare(self, snp_info=None):
 		"""
