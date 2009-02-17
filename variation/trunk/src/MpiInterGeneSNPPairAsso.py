@@ -15,8 +15,9 @@ Examples:
 	
 Description:
 	2008-11-25
-	Program to do inter-gene SNP pair association (vs MpiIntraGeneSNPPairAsso.py). Each SNP pair is tested by 5 different boolean operations
-	(AND, Inhibition, Inhibition, XOR, OR).
+	Program to do inter-gene SNP pair association (vs MpiIntraGeneSNPPairAsso.py).
+	
+	2009-2-8 'gene_id_fname' contains genes to pair with each other. at least 1 column, which is gene id.
 	
 	Input is StrainXSNP matrix with SNP 0 or 1 or <0(=NA). Be careful in choosing the block_size which determines the lower bound of #tests each computing node handles.
 		The input node tells the computing node which genes it should work on. A computing node might have to deal with lots of tests regardless of the block_size, if one gene has lots of SNPs in it with #tests far exceeding the lower bound.
@@ -44,16 +45,7 @@ from PlotGroupOfSNPs import PlotGroupOfSNPs
 
 class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 	__doc__ = __doc__
-	option_default_dict = {('snps_context_fname',1, ): [None, 'n', 1, 'a file containing a pickled snps_context_wrapper. outputted by GeneListRankTest.constructDataStruc()'],\
-							('input_fname',1, ): [None, 'i', 1, 'a file containing StrainXSNP matrix. must be binary matrix.'],\
-							("output_dir", 1, ): [None, 'o', 1, 'directory to store output association results. one phenotype, one file.'],\
-							('phenotype_fname', 1, ): [None, 'p', 1, 'phenotype file. Same format as input_fname. but replace the data matrix with phenotype data.', ],\
-							('min_data_point', 1, int): [3, 'm', 1, 'minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test'],\
-							('phenotype_method_id_ls', 0, ): [None, 'w', 1, 'which phenotypes to work on. a comma-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method. Default is to take all.',],\
-							('block_size', 1, int):[1000, 's', 1, 'Minimum number of tests each computing node is gonna handle. The computing node loops over all phenotypes, test all pairwise SNPs within a gene.'],\
-							('gene_id_fname', 1, ): [None, 'g', 1, 'A file with gene id on each line'],\
-							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
-							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	option_default_dict = MpiIntraGeneSNPPairAsso.option_default_dict.copy()
 	def __init__(self, **keywords):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
@@ -61,14 +53,16 @@ class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		if self.phenotype_method_id_ls is not None:
 			self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
 	
-	def generate_params(self, gene_id_fname, pdata, block_size=1000):
+	def generate_params(self, gene_id_fname, pdata, block_size=1000, **keywords):
 		"""
+		2009-2-12
+			use yield to become a generator
 		2008-11-25
 			read gene ids from gene_id_fname and generate pairs among them
 			each node handle a number of pairs, depending on many SNP pairs it incurs
 		"""
-		sys.stderr.write("Generating parameters ...")
-		params_ls = []
+		#sys.stderr.write("Generating parameters ...")
+		#params_ls = []
 		no_of_phenotypes = len(pdata.phenotype_index_ls)
 		start_index = 0	#for each computing node: the index of gene >= start_index
 		#no_of_genes = len(pdata.gene_id2snps_id_ls)
@@ -86,6 +80,7 @@ class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		for i in range(no_of_genes):
 			gene1_id = gene_id_ls[i]
 			n1 = len(pdata.gene_id2snps_id_ls[gene1_id])	#no_of_snps_of_this_gene
+			#for gene2_id in pdata.gene_id2snps_id_ls:	#2009-2-8 another setting: gene_id_fname vs all genes
 			for j in range(i+1, no_of_genes):
 				gene2_id = gene_id_ls[j]
 				n2 = len(pdata.gene_id2snps_id_ls[gene2_id])
@@ -93,17 +88,17 @@ class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 				no_of_tests_per_node += est_no_of_tests
 				gene_id_pairs_for_each_node.append((gene1_id, gene2_id))
 				if no_of_tests_per_node>=block_size:
-					params_ls.append(gene_id_pairs_for_each_node)	#
+					yield gene_id_pairs_for_each_node
 					#reset gene_id_pairs_for_each_node
 					gene_id_pairs_for_each_node = []
 					no_of_tests_per_node = 0	#reset this to 0
 				
 		#pick up the last gene_id_pairs_for_each_node if it's not empty
 		if gene_id_pairs_for_each_node:
-			params_ls.append(gene_id_pairs_for_each_node)
+			yield gene_id_pairs_for_each_node
 			#no need to cleanup because this is the end of loop
-		sys.stderr.write("%s params. Done.\n"%(len(params_ls)))
-		return params_ls
+		#sys.stderr.write("%s params. Done.\n"%(len(params_ls)))
+		#return params_ls
 	
 	def computing_node_handler(self, communicator, data, param_obj):
 		"""
@@ -126,20 +121,18 @@ class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 						continue
 					for snp2_id in snps_id_ls2:
 						snp2_index = snpData.col_id2col_index.get(snp2_id)
-						if snp2_index is None:	#snp2_id not in input matrix
+						if snp2_index is None or snp2_index==snp1_index:	#snp2_id not in input matrix or two SNPs are same
 							continue
-						for bool_type in bool_type2merge_oper:
-							merge_oper_matrix = bool_type2merge_oper[bool_type]
-							genotype_ls = self.mergeTwoGenotypeLs(snpData.data_matrix[:,snp1_index], snpData.data_matrix[:,snp2_index], merge_oper_matrix)
-							for phenotype_index in param_obj.phenotype_index_ls:
-								if phenotype_index>=no_of_phenotypes:	#skip if out of bound
-									continue
-								phenotype_ls = param_obj.phenData.data_matrix[:, phenotype_index]
-								pdata = Kruskal_Wallis._kruskal_wallis(genotype_ls, phenotype_ls, param_obj.min_data_point)
-								if pdata:
-									pdata = PassingData(snp1_id=snp1_id, gene1_id=gene1_id, snp2_id=snp2_id, gene2_id=gene2_id, pvalue=pdata.pvalue,\
-													count1=pdata.count_ls[0], count2=pdata.count_ls[1], bool_type=bool_type, phenotype_index=phenotype_index)
-									result_ls.append(pdata)
+						for phenotype_index in param_obj.phenotype_index_ls:
+							if phenotype_index>=no_of_phenotypes:	#skip if out of bound
+								continue
+							phenotype_ls = param_obj.phenData.data_matrix[:, phenotype_index]
+							
+							pdata_ls = self.test_type2test[param_obj.test_type](snp1_id, gene1_id, snpData.data_matrix[:,snp1_index], \
+																		snp2_id, gene2_id, snpData.data_matrix[:,snp2_index], \
+																		phenotype_index, phenotype_ls, \
+																		min_data_point=param_obj.min_data_point)
+							result_ls += pdata_ls
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
 		return result_ls
 	
@@ -151,25 +144,6 @@ class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 			#for one-node testing purpose
 			import pdb
 			pdb.set_trace()
-			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname)
-			snpData = SNPData(header=header, strain_acc_list=strain_acc_list, \
-							data_matrix=data_matrix, turn_into_array=1)	#category_list is not used to facilitate row-id matching
-			
-			picklef = open(self.snps_context_fname)
-			snps_context_wrapper = cPickle.load(picklef)
-			del picklef
-			gene_id2snps_id_ls = self.get_gene_id2snps_id_ls(snps_context_wrapper)
-			gene_id_ls = gene_id2snps_id_ls.keys()
-			gene_id_ls.sort()
-			
-			header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.phenotype_fname, turn_into_integer=0)
-			phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list, data_matrix=data_matrix_phen)	#row label is that of the SNP matrix, because the phenotype matrix is gonna be re-ordered in that way
-			phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, phenData.row_id_ls, phenData.data_matrix)
-			
-			other_data = PassingData(gene_id2snps_id_ls=gene_id2snps_id_ls, gene_id_ls=gene_id_ls, phenData=phenData)
-			other_data_pickle = cPickle.dumps(other_data, -1)
-			phenotype_label_ls_pickle = cPickle.dumps(phenData.col_id_ls, -1)
-			snpData_pickle = cPickle.dumps(snpData, -1)
 			sys.exit(2)
 		
 		self.communicator = MPI.world.duplicate()
@@ -179,52 +153,19 @@ class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		output_node_rank = self.communicator.size-1
 		
 		if node_rank == 0:
-			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname)
-			snpData = SNPData(header=header, strain_acc_list=strain_acc_list, \
-							data_matrix=data_matrix, turn_into_array=1)	#category_list is not used to facilitate row-id matching
-			
-			picklef = open(self.snps_context_fname)
-			snps_context_wrapper = cPickle.load(picklef)
-			del picklef
-			gene_id2snps_id_ls = self.get_gene_id2snps_id_ls(snps_context_wrapper)
-			del snps_context_wrapper
-			gene_id_ls = gene_id2snps_id_ls.keys()
-			gene_id_ls.sort()
-			
-			header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.phenotype_fname, turn_into_integer=0)
-			phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, data_matrix=data_matrix_phen)
-			phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, phenData.row_id_ls, phenData.data_matrix)
-			
-			self.phenotype_index_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(self.phenotype_method_id_ls))
-		
-			if not self.phenotype_index_ls:
-				self.phenotype_index_ls = range(len(phenData.col_id_ls))
-			pdata = PassingData(gene_id_ls=gene_id_ls, gene_id2snps_id_ls=gene_id2snps_id_ls, phenotype_index_ls=self.phenotype_index_ls)
-			params_ls = self.generate_params(self.gene_id_fname, pdata, self.block_size)
-			
-			other_data = PassingData(gene_id2snps_id_ls=gene_id2snps_id_ls, gene_id_ls=gene_id_ls, phenData=phenData, \
-									phenotype_index_ls=self.phenotype_index_ls)
-			other_data_pickle = cPickle.dumps(other_data, -1)
-			
-			output_node_data = PassingData(phenotype_label_ls=phenData.col_id_ls, \
-									phenotype_index_ls=self.phenotype_index_ls)
-			output_node_data_pickle = cPickle.dumps(output_node_data, -1)
-			
-			snpData_pickle = cPickle.dumps(snpData, -1)
-			del snpData, data_matrix
+			dstruc = self.inputNodePrepare()
+			params_ls = dstruc.params_ls
 			
 			#send the output node the phenotype_label_ls
-			self.communicator.send(output_node_data_pickle, output_node_rank, 0)
-			del output_node_data_pickle
+			self.communicator.send(dstruc.output_node_data_pickle, output_node_rank, 0)
+			del dstruc.output_node_data_pickle
 			
 			for node in free_computing_nodes:	#send it to the computing_node
 				sys.stderr.write("passing initial data to nodes from %s to %s ... "%(node_rank, node))
-				self.communicator.send(snpData_pickle, node, 0)
-				self.communicator.send(other_data_pickle, node, 0)
+				self.communicator.send(dstruc.snpData_pickle, node, 0)
+				self.communicator.send(dstruc.other_data_pickle, node, 0)
 				sys.stderr.write(".\n")
-			del snpData_pickle, other_data_pickle
-			del other_data
-			
+			del dstruc
 		elif node_rank in free_computing_node_set:
 			data, source, tag = self.communicator.receiveString(0, 0)
 			snpData =  cPickle.loads(data)
@@ -242,28 +183,16 @@ class MpiInterGeneSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		self.synchronize()
 		if node_rank == 0:
 			param_obj = PassingData(params_ls=params_ls, output_node_rank=output_node_rank, report=self.report, counter=0)
-			self.input_node(param_obj, free_computing_nodes, input_handler=self.input_fetch_handler, message_size=1)
-			#self.input_node(param_obj, free_computing_nodes, self.message_size)
+			self.inputNode(param_obj, free_computing_nodes, param_generator = params_ls)
+			#self.input_node(param_obj, free_computing_nodes, input_handler=self.input_fetch_handler, message_size=1)
 		elif node_rank in free_computing_node_set:
 			computing_parameter_obj = PassingData(snpData=snpData, gene_id_ls=other_data.gene_id_ls, \
 												gene_id2snps_id_ls=other_data.gene_id2snps_id_ls, phenData=other_data.phenData,
-												phenotype_index_ls=self.phenotype_index_ls, min_data_point=self.min_data_point)
+												phenotype_index_ls=self.phenotype_index_ls, min_data_point=self.min_data_point,
+												test_type=self.test_type)
 			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
-			if not os.path.isdir(self.output_dir):
-				os.makedirs(self.output_dir)
-			writer_dict = {}
-			header_row = ['snp1_id', 'gene1_id', 'snp2_id', 'gene2_id', 'bool_type', 'pvalue', 'count1', 'count2']
-			for phenotype_index in self.phenotype_index_ls:
-				phenotype_label = phenotype_label_ls[phenotype_index]
-				phenotype_label = phenotype_label.replace('/', '_')	#'/' is taken as folder separator
-				output_fname = os.path.join(self.output_dir, 'SNPpair_%s.tsv'%phenotype_label)
-				writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-				writer.writerow(header_row)
-				writer_dict[phenotype_index] = writer
-			param_obj = PassingData(writer_dict=writer_dict, header_row=header_row)
-			self.output_node(free_computing_nodes, param_obj, self.output_node_handler)
-			del writer_dict
+			self.general_output_node(self.output_dir, self.phenotype_index_ls, phenotype_label_ls, free_computing_nodes)
 		self.synchronize()	#to avoid some node early exits
 		
 
