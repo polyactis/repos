@@ -353,3 +353,17 @@ def get_total_gene_ls(curs, gene_table='genome.gene', tax_id=3702, debug=False):
 	if debug:
 		sys.stderr.write("Done.\n")
 	return gene_id_ls
+
+def get_phenotype_method_id_lsFromPhenData(phenData):
+	"""
+	2009-2-16
+		phenData is a SNPData-class data structure read in from the file outputted by OutputPhenotype.py.
+			each col_id is sth like '1_LD'.
+		this function is to extract the integer phenotype_method_id out of col_id, in the same order as col_id_ls.
+	"""
+	phenotype_method_id_ls = []
+	for col_id in phenData.col_id_ls:
+		col_id_ls = col_id.split('_')
+		phenotype_method_id=int(col_id_ls[0])
+		phenotype_method_id_ls.append(phenotype_method_id)
+	return phenotype_method_id_ls
