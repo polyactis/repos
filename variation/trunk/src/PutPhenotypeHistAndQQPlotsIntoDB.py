@@ -73,6 +73,8 @@ class PutPhenotypeHistAndQQPlotsIntoDB(object):
 	def savePlots(self, session, input_dir, call_method_id):
 		"""
 		2009-2-17
+			fix the bug so that it works even if some of phenotype histogram and(or) qq plot is in db
+		2009-2-17
 		"""
 		files = os.listdir(input_dir)
 		sys.stderr.write("Saving plots: %d files to be processed ...\n"%len(files))
@@ -80,6 +82,8 @@ class PutPhenotypeHistAndQQPlotsIntoDB(object):
 		pheno_entry = None
 		call_phen_entry = None
 		prev_phenotype_method_id = None
+		pheno_hist_in_db = 0
+		call_phen_in_db = 0
 		
 		for i in range(len(files)):
 			fname = files[i]
@@ -102,20 +106,30 @@ class PutPhenotypeHistAndQQPlotsIntoDB(object):
 					call_phen_in_db = 1
 				
 				if prev_phenotype_method_id==None:
-					pheno_entry = Stock_250kDB.PhenotypeHistPlots(phenotype_method_id=phenotype_method_id)
-					call_phen_entry = Stock_250kDB.CallPhenotypeQQPlots(phenotype_method_id=phenotype_method_id, call_method_id=call_method_id)
+					if not pheno_hist_in_db:
+						pheno_entry = Stock_250kDB.PhenotypeHistPlots(phenotype_method_id=phenotype_method_id)
+					else:
+						pheno_entry = PassingData()
+					if not call_phen_in_db:
+						call_phen_entry = Stock_250kDB.CallPhenotypeQQPlots(phenotype_method_id=phenotype_method_id, call_method_id=call_method_id)
+					else:
+						call_phen_entry = PassingData()
 					prev_phenotype_method_id = phenotype_method_id
 				elif prev_phenotype_method_id!=phenotype_method_id:	#different phenotype here
 					if pheno_entry:
-						if not pheno_hist_in_db:
+						if hasattr(pheno_entry, 'phenotype_method_id'):
 							session.save_or_update(pheno_entry)
-						pheno_entry = None
-						pheno_entry = Stock_250kDB.PhenotypeHistPlots(phenotype_method_id=phenotype_method_id)
+						if not pheno_hist_in_db:
+							pheno_entry = Stock_250kDB.PhenotypeHistPlots(phenotype_method_id=phenotype_method_id)
+						else:
+							pheno_entry = PassingData()
 					if call_phen_entry:
-						if not call_phen_in_db:
+						if hasattr(call_phen_entry, 'phenotype_method_id'):
 							session.save_or_update(call_phen_entry)
-						call_phen_entry = None
-						call_phen_entry = Stock_250kDB.CallPhenotypeQQPlots(phenotype_method_id=phenotype_method_id, call_method_id=call_method_id)
+						if not call_phen_in_db:
+							call_phen_entry = Stock_250kDB.CallPhenotypeQQPlots(phenotype_method_id=phenotype_method_id, call_method_id=call_method_id)
+						else:
+							call_phen_entry = PassingData()
 					prev_phenotype_method_id = phenotype_method_id
 				img = self.getImageFromFile(input_dir, fname)
 				if plot_type=='qqplot':
@@ -125,20 +139,19 @@ class PutPhenotypeHistAndQQPlotsIntoDB(object):
 				elif plot_type=='qqplot_log':
 					call_phen_entry.qq_log_thumb = img.thumb_data
 					call_phen_entry.qq_log_plot = img.data
-				elif plot_type=='hist_logTransformed':
+				elif plot_type=='hist':
 					pheno_entry.hist_thumb = img.thumb_data
 					pheno_entry.hist_plot = img.data
 					pheno_entry.hist_plot_fname = img.filename
-				elif plot_type=='hist':
+				elif plot_type=='hist_logTransformed':
 					pheno_entry.hist_log_thumb = img.thumb_data
 					pheno_entry.hist_log_plot = img.data
 		#don't forget the last file if it contains plot we want
-		if pheno_entry:
+		if pheno_entry and hasattr(pheno_entry, 'phenotype_method_id'):
 			session.save_or_update(pheno_entry)
-		if call_phen_entry:
+		if call_phen_entry and hasattr(call_phen_entry, 'phenotype_method_id'):
 			session.save_or_update(call_phen_entry)
 		sys.stderr.write("Done.\n")
-				
 	
 	def run(self):
 		"""
