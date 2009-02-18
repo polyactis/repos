@@ -263,6 +263,31 @@ class MPIwrapper(object):
 			communicator.send("-1", node, 0)
 		sys.stderr.write("Input node(%s) done\n"%(node_rank))
 	
+	def inputNode(self, param_obj, free_computing_nodes, param_generator=None):
+		"""
+		2009-2-10
+			version similar to input_node() but use a generator (argument param_generator)
+		"""
+		communicator = self.communicator
+		node_rank = communicator.rank
+		sys.stderr.write("Input node(%s) working...\n"%node_rank)
+		counter = 0
+		for param in param_generator:
+			communicator.send("1", param_obj.output_node_rank, 1)	#WATCH: tag is 1, to the output_node.
+			free_computing_node, source, tag = communicator.receiveString(param_obj.output_node_rank, 2)
+				#WATCH: tag is 2, from the output_node
+			data_pickle = cPickle.dumps(param, -1)
+			communicator.send(data_pickle, int(free_computing_node), 0)	#WATCH: int()
+			if self.report:
+				sys.stderr.write("block %s sent to %s.\n"%(counter, free_computing_node))
+			counter += 1
+		#tell computing_node to exit the loop
+		for node in free_computing_nodes:	#send it to the computing_node
+			if self.report:
+				sys.stderr.write("exit signal sent to %s.\n"%(node))
+			communicator.send("-1", node, 0)
+		sys.stderr.write("Input node(%s) done\n"%(node_rank))
+	
 	def computing_cleanup_handler(cls, communicator):
 		"""
 		10-22-05
