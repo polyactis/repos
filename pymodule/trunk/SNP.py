@@ -339,6 +339,10 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int):
 	"""
+	2009-2-18
+		no 'e' or 'E' among the letters to be checked in the 1st column in order to decide whether to cast it into matrix_data_type
+		because 'e' or 'E' could be used in scientific number.
+		a better version is only to check whether nucleotide letters are in it, because nt2number is used if the check is positive.
 	2008-08-29
 		put the handling of each row into a "try ... except ..."
 	2008-08-07
@@ -376,7 +380,7 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	strain_acc_list = []
 	category_list = []
 	import re
-	p_char = re.compile(r'[a-zA-Z]')
+	p_char = re.compile(r'[a-df-zA-DF-Z]')	#no 'e' or 'E', used in scientific number
 	i = 0
 	for row in reader:
 		i += 1
@@ -1035,21 +1039,31 @@ class GenomeWideResult(object):
 	
 	def get_data_obj_at_given_rank(self, rank):
 		"""
+		2009-2-18
+			if rank is beyond reach, return None
 		2008-10-02
 			rank starts from 1.
 		"""
 		if self.argsort_data_obj_ls is None:
 			self.argsort_data_obj_ls = num.argsort(self.data_obj_ls)	#sort in ascending order
-		return self.data_obj_ls[self.argsort_data_obj_ls[-rank]]	#value bigger, rank smaller
+		if rank>len(self.data_obj_ls):
+			return None
+		else:
+			return self.data_obj_ls[self.argsort_data_obj_ls[-rank]]	#value bigger, rank smaller
 	
 	def get_data_obj_index_given_rank(self, rank):
 		"""
+		2009-2-18
+			if rank is beyond reach, return None
 		2008-10-15
 			similar to get_data_obj_at_given_rank() but instead of returning data_obj, it returns the index of data_obj in self.data_obj_ls
 		"""
 		if self.argsort_data_obj_ls is None:
 			self.argsort_data_obj_ls = num.argsort(self.data_obj_ls)	#sort in ascending order
-		return self.argsort_data_obj_ls[-rank]	#value bigger, rank smaller
+		if rank>len(self.data_obj_ls):
+			return None
+		else:
+			return self.argsort_data_obj_ls[-rank]	#value bigger, rank smaller
 	
 class DataObject(object):
 	"""
@@ -1088,6 +1102,9 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2009-2-18
+		handle filtering by min_MAC (column_5th)
+		column 6 and 7 are allowed to be empty placeholder. (previously it causes type cast error if it's empty)
 	2008-12-18
 		if pdata has attribute 'gwr_name', assign it to GenomeWideResult.name.
 		otherwise GenomeWideResult.name = os.path.basename(input_fname)
@@ -1155,9 +1172,9 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 				column_4th=float(row[3])
 		if len(row)>=5:
 			column_5th = float(row[4])
-		if len(row)>=6:
+		if len(row)>=6 and row[5]:
 			column_6 = float(row[5])
-		if len(row)>=7:
+		if len(row)>=7 and row[6]:
 			rest_of_row = row[6:]
 		"""
 		else:
@@ -1169,6 +1186,7 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			pdata.start = getattr(pdata, 'start', None)
 			pdata.stop = getattr(pdata, 'stop', None)
 			pdata.min_MAF = getattr(pdata, 'min_MAF', None)
+			pdata.min_MAC = getattr(pdata, 'min_MAC', None)	#2009-1-29
 			if pdata.chromosome!=None and chr!=pdata.chromosome:
 				continue
 			if pdata.start!=None and start_pos<pdata.start:
@@ -1176,6 +1194,8 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			if pdata.stop!=None and start_pos>pdata.stop:
 				continue
 			if pdata.min_MAF!=None and column_4th!=None and column_4th<pdata.min_MAF:	#MAF too small
+				continue
+			if pdata.min_MAC!=None and column_5th!=None and column_5th<pdata.min_MAC:	#2009-1-29 MAC too small
 				continue
 		if do_log10_transformation:
 			if score<=0:
