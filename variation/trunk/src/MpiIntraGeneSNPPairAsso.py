@@ -42,6 +42,7 @@ from Kruskal_Wallis import Kruskal_Wallis
 from Association import Association
 from GeneListRankTest import SnpsContextWrapper
 from PlotGroupOfSNPs import PlotGroupOfSNPs
+from common import get_phenotype_method_id_lsFromPhenData
 
 num = importNumericArray()
 
@@ -130,7 +131,7 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 							('phenotype_method_id_ls', 0, ): [None, 'w', 1, 'which phenotypes to work on. a comma-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method. Default is to take all.',],\
 							('block_size', 1, int):[10000, 's', 1, '~Maximum number of tests each computing node is gonna handle. The computing node loops over all phenotypes, test all pairwise SNPs within a gene.'],\
 							('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis on a SNP boolean-merged from two SNPs, 2:linear model(y=b + SNP1 + SNP2 + SNP1xSNP2 + e)'],\
-							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None. use the one given by db.'],\
+							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None, then use the one given by db.'],\
 							('call_method_id', 0, int):[17, 'l', 1, 'Restrict results based on this call_method.'],\
 							('gene_id_fname', 0, ): [None, 'g', 1, 'A file with gene id on each line.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -224,6 +225,8 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 	
 	def inputNodePrepare(self, snp_info=None):
 		"""
+		2009-2-16
+			get phenData.phenotype_method_id_ls in the same order as phenData.col_id_ls
 		2009-2-11
 			refactored out of run()
 		"""
@@ -242,11 +245,13 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.phenotype_fname, turn_into_integer=0)
 		phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, data_matrix=data_matrix_phen)
 		phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, phenData.row_id_ls, phenData.data_matrix)
+		phenData.phenotype_method_id_ls = get_phenotype_method_id_lsFromPhenData(phenData)	#2009-2-16
 		
 		self.phenotype_index_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(self.phenotype_method_id_ls))
 		
 		if not self.phenotype_index_ls:
 			self.phenotype_index_ls = range(len(phenData.col_id_ls))
+		
 		pdata = PassingData(gene_id_ls=gene_id_ls, gene_id2snps_id_ls=gene_id2snps_id_ls, \
 						phenotype_index_ls=self.phenotype_index_ls, snp_info=snp_info)
 		params_ls = self.generate_params(self.gene_id_fname, pdata, self.block_size)
