@@ -1226,3 +1226,38 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	del reader
 	sys.stderr.write(" %s results. Done.\n"%(len(gwr.data_obj_ls)))
 	return gwr
+
+
+class SNPInfo(object):
+	"""
+	2009-2-18
+		a class to hold chromosome, position, allele, snps_id (db)
+		DrawSNPRegion.getSNPInfo(db) does the job of filling it up
+	"""
+	chr_pos_ls = None
+	chr_pos2index = None
+	snps_id2index = None
+	data_ls = None	#a list of [snps_d, chromosome, position, allele1, allele2]
+	
+	def __init__(self, **keywords):
+		"""
+		2009-2-18 allow any type of keywords
+		"""
+		for argument_key, argument_value in keywords.iteritems():
+			setattr(self, argument_key, argument_value)
+	
+	def getSnpsIDGivenChrPos(self, chromosome, position):
+		snp_info_index = self.chr_pos2index.get((chromosome, position))
+		if snp_info_index is not None:
+			snps_id = self.data_ls[snp_info_index][0]
+		else:
+			snps_id = None
+		return snps_id
+	
+	def getSnpsAllelesGivenChrPos(self, chromosome, position):
+		snp_info_index = self.chr_pos2index.get((chromosome, position))
+		if snp_info_index is not None:
+			alleles = self.data_ls[snp_info_index][3:5]
+		else:
+			alleles = None
+		return alleles
