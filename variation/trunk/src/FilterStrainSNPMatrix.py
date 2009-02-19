@@ -169,6 +169,8 @@ class FilterStrainSNPMatrix(object):
 	
 	def remove_identity_strains(self, data_matrix, rows_to_be_checked, cols_to_be_checked):
 		"""
+		2009-2-18
+			class "dbSNP2data" has a few non-null arguments. feed it during initialization
 		2007-04-16
 			the similarity graph structure complicated the issue
 			bug found by Chris Toomajian
@@ -202,7 +204,7 @@ class FilterStrainSNPMatrix(object):
 		g = nx.Graph()
 		g.add_edges_from(identity_pair_ls)
 		from dbSNP2data import dbSNP2data
-		dbSNP2data_instance = dbSNP2data()
+		dbSNP2data_instance = dbSNP2data(user='yh', passwd='secret', output_fname='/tmp/nothing')	#dbSNP2data has a few non-null arguments.
 		vertex_list_to_be_deleted = dbSNP2data_instance.find_smallest_vertex_set_to_remove_all_edges(g)
 		identity_strains_to_be_removed = Set(vertex_list_to_be_deleted)
 		"""
