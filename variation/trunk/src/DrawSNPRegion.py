@@ -43,7 +43,7 @@ sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import time, csv, cPickle
 import warnings, traceback
-from pymodule import PassingData, figureOutDelimiter, getColName2IndexFromHeader, getListOutOfStr, GeneModel, read_data, SNPData
+from pymodule import PassingData, figureOutDelimiter, getColName2IndexFromHeader, getListOutOfStr, GeneModel, read_data, SNPData, SNPInfo
 import Stock_250kDB
 from sets import Set
 import matplotlib; matplotlib.use("Agg")	#to avoid popup and collapse in X11-disabled environment
@@ -423,6 +423,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	
 	def getSNPInfo(cls, db):
 		"""
+		2009-2-18
+			replace PassingData with class SNPInfo from pymodule.SNP to wrap up all data
+		2009-1-22
+			order by chromosome, position
+			no chr_pos2snps_id, can get snps_id from chr_pos2index => data_ls
 		2009-1-5
 			add chr_pos2snps_id
 		2008-09-24
@@ -435,7 +440,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		snps_id2index = {}
 		i = 0
 		block_size = 50000
-		rows = db.metadata.bind.execute("select id, chromosome, position, allele1, allele2 from %s where end_position is null"%Stock_250kDB.Snps.table.name)
+		rows = db.metadata.bind.execute("select id, chromosome, position, allele1, allele2 from %s where end_position is null order by chromosome, position"\
+									%Stock_250kDB.Snps.table.name)
 		#.query.offset(i).limit(block_size)
 		#while rows.count()!=0:
 		for row in rows:
@@ -448,7 +454,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		#	if self.debug and i>40000:
 		#		break
 		#	rows = Stock_250kDB.Snps.query.offset(i).limit(block_size)
-		snp_info = PassingData()
+		snp_info = SNPInfo()
 		snp_info.chr_pos_ls = chr_pos_ls
 		snp_info.chr_pos2index = chr_pos2index
 		snp_info.snps_id2index = snps_id2index
@@ -602,8 +608,10 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	
 	gene_desc_names = ['gene_id', 'gene_symbol', 'type_of_gene', 'chr', 'start', 'stop', 'protein_label', 'protein_comment', 'protein_text']
 	
-	def returnGeneDescLs(cls, gene_desc_names, gene_model, gene_commentary=None, cutoff_length=200):
+	def returnGeneDescLs(cls, gene_desc_names, gene_model, gene_commentary=None, cutoff_length=200, replaceNoneElemWithEmptyStr=0):
 		"""
+		2009-2-4
+			add argument replaceNoneElemWithEmptyStr, which toggles the option whether to set None element to empty string ('').
 		2008-10-02
 		"""
 		#2008-10-01	get the gene descriptions
@@ -638,6 +646,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				element = getattr(gene_commentary, gene_desc_name, '')
 			if cutoff_length is not None and type(element)==str and len(element)>cutoff_length:	#only 20 characters
 				element = element[:cutoff_length]
+			if replaceNoneElemWithEmptyStr and element is None:
+				element = ''
 			gene_desc_ls.append(element)
 		return gene_desc_ls
 	returnGeneDescLs = classmethod(returnGeneDescLs)
