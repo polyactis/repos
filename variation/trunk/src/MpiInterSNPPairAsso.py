@@ -21,7 +21,7 @@ Description:
 		(AND, Inhibition, Inhibition, XOR, OR).
 	2. Conventional Linear Model interaction detection. y = b + SNP1 + SNP2 + SNP1xSNP2 + e
 	
-	'gene_id_fname' contains genes from which SNPs are selected to pair with all SNPs.
+	'gene_id_fname' contains genes from which SNPs are selected to pair with all SNPs. if not given, pairwise between top 10K snps for each phenotype.
 	
 	Input is StrainXSNP matrix with SNP 0 or 1 or <0(=NA). Be careful in choosing the block_size which determines the lower bound of #tests each computing node handles.
 		The input node tells the computing node which genes it should work on. A computing node might have to deal with lots of tests regardless of the block_size, if one gene has lots of SNPs in it with #tests far exceeding the lower bound.
@@ -42,7 +42,7 @@ from sets import Set
 from Scientific import MPI
 from pymodule.MPIwrapper import MPIwrapper
 from Kruskal_Wallis import Kruskal_Wallis
-from GeneListRankTest import SnpsContextWrapper
+from GeneListRankTest import SnpsContextWrapper, GeneListRankTest
 
 from MpiIntraGeneSNPPairAsso import MpiIntraGeneSNPPairAsso, num, bool_type2merge_oper
 from PlotGroupOfSNPs import PlotGroupOfSNPs
@@ -67,10 +67,36 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		if self.phenotype_method_id_ls is not None:
 			self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
 	
-	def generate_params(self, gene_id_fname, pdata, block_size=1000):
+	def getTopNumberSNPs(self, call_method_id, phenotype_method_id, analysis_method_id=1, results_directory=None, min_MAC=7,\
+						no_of_top_snps=10000):
 		"""
+		2009-2-16
+			get a certain number of top SNPs from a result (according to call_method_id, phenotype_method_id, analysis_method_id)
+		"""
+		rm = Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
+			filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
+		result_id = rm.id
+		param_data = PassingData(min_MAC=min_MAC)
+		genome_wide_result = GeneListRankTest.getResultMethodContent(rm, results_directory=results_directory, min_MAF=0., \
+																	pdata=param_data)
+		
+		chr_pos_ls = []
+		for i in range(no_of_top_snps):
+			data_obj = genome_wide_result.get_data_obj_at_given_rank(i+1)
+			chr_pos_ls.append((data_obj.chromosome, data_obj.position))
+		chr_pos_ls.sort()
+		return chr_pos_ls
+	
+	def generate_params(self, gene_id_fname, pdata, block_size=1000, **keywords):
+		"""
+		2009-2-18
+			if gene_id_fname is a file:
+				yield (gene1_id, snp_start_index, snp_stop_index)
+			else:
+				yield (phenotype_index, snp_start_index1, snp_stop_index1, snp_start_index2, snp_stop_index2)
 		2009-2-12
 			use yield to become a generator
+			called by inputNodePrepare()
 		2009-1-22
 		"""
 		no_of_phenotypes = len(pdata.phenotype_index_ls)
@@ -78,39 +104,47 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		#no_of_genes = len(pdata.gene_id2snps_id_ls)
 		no_of_tests_per_node = 0
 		
-		reader = csv.reader(open(gene_id_fname), delimiter=figureOutDelimiter(gene_id_fname))
-		gene_id_ls = []
-		for row in reader:
-			gene_id = int(row[0])
-			gene_id_ls.append(gene_id)
-		del reader
+		if gene_id_fname and os.path.isfile(gene_id_fname):
+			reader = csv.reader(open(gene_id_fname), delimiter=figureOutDelimiter(gene_id_fname))
+			gene_id_ls = []
+			for row in reader:
+				gene_id = int(row[0])
+				gene_id_ls.append(gene_id)
+			del reader
+			no_of_genes = len(gene_id_ls)
+			no_of_total_snps = len(pdata.snp_info.chr_pos_ls)
+			for i in range(no_of_genes):
+				gene1_id = gene_id_ls[i]
+				n1 = len(pdata.gene_id2snps_id_ls[gene1_id])	#no_of_snps_of_this_gene
+				snp_start_index = 0
+				while snp_start_index < no_of_total_snps:
+					no_of_snps_to_consider = block_size/(n1*no_of_phenotypes)
+					snp_stop_index = snp_start_index+no_of_snps_to_consider
+					if snp_stop_index > no_of_total_snps:
+						snp_stop_index = no_of_total_snps
+					yield (gene1_id, snp_start_index, snp_stop_index)
+					snp_start_index += no_of_snps_to_consider
+		else:
+			#no gene_id_fname. pairwise among all SNPs
+			no_of_snps_to_consider = int(math.sqrt(block_size))
+			no_of_total_snps = len(pdata.snp_info.chr_pos_ls)
+			for phenotype_index in pdata.phenotype_index_ls:
+				for snp_start_index1 in range(0, no_of_total_snps, no_of_snps_to_consider):
+					snp_stop_index1 = min(no_of_total_snps, snp_start_index1+no_of_snps_to_consider)
+					for snp_start_index2 in range(snp_start_index1, no_of_total_snps, no_of_snps_to_consider):
+						snp_stop_index2 = min(no_of_total_snps, snp_start_index2+no_of_snps_to_consider)
+						yield (phenotype_index, snp_start_index1, snp_stop_index1, snp_start_index2, snp_stop_index2)
 		
-		no_of_genes = len(gene_id_ls)
-		no_of_total_snps = len(pdata.snp_info.chr_pos_ls)
-		for i in range(no_of_genes):
-			gene1_id = gene_id_ls[i]
-			n1 = len(pdata.gene_id2snps_id_ls[gene1_id])	#no_of_snps_of_this_gene
-			snp_start_index = 0
-			while snp_start_index < no_of_total_snps:
-				no_of_snps_to_consider = block_size/(n1*no_of_phenotypes)
-				snp_stop_index = snp_start_index+no_of_snps_to_consider
-				if snp_stop_index > no_of_total_snps:
-					snp_stop_index = no_of_total_snps
-				yield (gene1_id, snp_start_index, snp_stop_index)
-				snp_start_index += no_of_snps_to_consider
-	
-	def computing_node_handler(self, communicator, data, param_obj):
+	def computeGeneVsSNP(self, gene_id, snp_start_index, snp_stop_index, param_obj):
 		"""
-		2009-1-22 modified from MpiInterGeneSNPPairAsso.computing_node_handler()
+		2009-2-16
+			refactored out of computing_node_handler()
+			
+			handle the pairwise computation between SNPs from one gene and SNPs defined by (snp_start_index, snp_stop_index)
 		"""
-		node_rank = communicator.rank
-		sys.stderr.write("Node no.%s working...\n"%node_rank)
-		data = cPickle.loads(data)
 		result_ls = []
 		snpData = param_obj.snpData
 		no_of_phenotypes = param_obj.phenData.data_matrix.shape[1]		
-		gene_id, snp_start_index, snp_stop_index = data
-		
 		snps_id_ls1 = param_obj.gene_id2snps_id_ls[gene_id]
 		snp_chr_pos_ls = param_obj.snp_info.chr_pos_ls[snp_start_index:snp_stop_index]
 		for snp1_id in snps_id_ls1:
@@ -122,7 +156,7 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 				snp2_index = snpData.col_id2col_index.get(snp2_id)
 				if snp2_index is None or snp2_index==snp1_index:	#snp2_id not in input matrix, or two SNPs are same
 					continue
-				for phenotype_index in param_obj.phenotype_index_ls:					
+				for phenotype_index in param_obj.phenotype_index_ls:
 					if phenotype_index>=no_of_phenotypes:	#skip if out of bound
 						continue
 					phenotype_ls = param_obj.phenData.data_matrix[:, phenotype_index]
@@ -132,6 +166,69 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 																phenotype_index, phenotype_ls, \
 																min_data_point=param_obj.min_data_point)
 					result_ls += pdata_ls
+		return result_ls
+	
+	def computeSNPVsSNP(self, phenotype_index, snp_start_index1, snp_stop_index1, snp_start_index2, snp_stop_index2, param_obj):
+		"""
+		2009-2-16
+			in contrast to computeGeneVsSNP()
+			this is pairwise between [snp_start_index1:snp_stop_index1] and [snp_start_index2:snp_stop_index2].
+		"""
+		result_ls = []
+		no_of_phenotypes = param_obj.phenData.data_matrix.shape[1]
+		if phenotype_index>=no_of_phenotypes:	#skip if out of bound
+			return result_ls
+		phenotype_ls = param_obj.phenData.data_matrix[:, phenotype_index]
+		snpData = param_obj.snpData
+		phenotype_method_id = param_obj.phenData.phenotype_method_id_ls[phenotype_index]
+		which_chr_pos_ls = param_obj.snp_info.phenotype_method_id2chr_pos_ls[phenotype_method_id]
+		snp_chr_pos_ls1 = which_chr_pos_ls[snp_start_index1:snp_stop_index1]
+		snp_chr_pos_ls2 = which_chr_pos_ls[snp_start_index2:snp_stop_index2]
+		is_two_chr_pos_ls_same = 0
+		if snp_start_index1==snp_start_index2 and snp_stop_index1==snp_stop_index2:
+			is_two_chr_pos_ls_same = 1
+		
+		for i in range(len(snp_chr_pos_ls1)):
+			chr_pos1 = snp_chr_pos_ls1[i]
+			snp1_id = '%s_%s'%(chr_pos1[0], chr_pos1[1])
+			snp1_index = snpData.col_id2col_index.get(snp1_id)
+			if snp1_index is None:	#snp1_id not in input matrix
+				continue
+			if is_two_chr_pos_ls_same:	#to avoid redundancy
+				chr_pos_ls = snp_chr_pos_ls2[i+1:]
+			else:
+				chr_pos_ls = snp_chr_pos_ls2
+			for chr_pos in chr_pos_ls:
+				snp2_id = '%s_%s'%(chr_pos[0], chr_pos[1])
+				snp2_index = snpData.col_id2col_index.get(snp2_id)
+				if snp2_index is None or snp2_index==snp1_index:	#snp2_id not in input matrix, or two SNPs are same
+					continue
+				pdata_ls = self.test_type2test[param_obj.test_type](snp1_id, None, snpData.data_matrix[:,snp1_index], \
+																snp2_id, None, snpData.data_matrix[:,snp2_index], \
+																phenotype_index, phenotype_ls, \
+																min_data_point=param_obj.min_data_point)
+				result_ls += pdata_ls
+		return result_ls
+	
+	def computing_node_handler(self, communicator, data, param_obj):
+		"""
+		2009-2-16
+			call computeGeneVsSNP() or computeSNPVsSNP() according to data passed from input node
+		2009-1-22 modified from MpiInterGeneSNPPairAsso.computing_node_handler()
+		"""
+		node_rank = communicator.rank
+		sys.stderr.write("Node no.%s working...\n"%node_rank)
+		data = cPickle.loads(data)
+
+		if len(data)==3:
+			gene_id, snp_start_index, snp_stop_index = data
+			result_ls = self.computeGeneVsSNP(gene_id, snp_start_index, snp_stop_index, param_obj)
+		elif len(data)==5:
+			phenotype_index, snp_start_index1, snp_stop_index1, snp_start_index2, snp_stop_index2 = data
+			result_ls = self.computeSNPVsSNP(phenotype_index, snp_start_index1, snp_stop_index1, snp_start_index2, snp_stop_index2, param_obj)
+		else:
+			result_ls = []
+		
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
 		return result_ls
 	
@@ -156,7 +253,18 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 			db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.db_user,
 				  				password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 			db.setup(create_tables=False)
-			snp_info = DrawSNPRegion.getSNPInfo(db)
+			
+			#snp_info = DrawSNPRegion.getSNPInfo(db)	#2009-2-12 turn this off
+			
+			#2009-2-16 get top snps for each phenotype_method_id.
+			snp_info = PassingData(phenotype_method_id2chr_pos_ls={})
+			for phenotype_method_id in self.phenotype_method_id_ls:
+				chr_pos_ls = self.getTopNumberSNPs(self.call_method_id, phenotype_method_id, analysis_method_id=1, \
+							results_directory=self.results_directory, min_MAC=7, no_of_top_snps=10000)
+				snp_info.phenotype_method_id2chr_pos_ls[phenotype_method_id] = chr_pos_ls
+				if not hasattr(snp_info, 'chr_pos_ls'):	#this is from a random phenotype (1st one). chr_pos_ls is for generate_params(). The actual SNPs in it dont' matter.
+					snp_info.chr_pos_ls = chr_pos_ls
+			
 			dstruc = self.inputNodePrepare(snp_info)
 			params_ls = dstruc.params_ls
 			
