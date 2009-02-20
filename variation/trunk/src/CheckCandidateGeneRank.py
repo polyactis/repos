@@ -47,10 +47,10 @@ from matplotlib import rcParams
 rcParams['font.size'] = 6
 rcParams['legend.fontsize'] = 4
 #rcParams['text.fontsize'] = 6	#deprecated. use font.size instead
-rcParams['axes.labelsize'] = 4
-rcParams['axes.titlesize'] = 6
-rcParams['xtick.labelsize'] = 4
-rcParams['ytick.labelsize'] = 4
+rcParams['axes.labelsize'] = 10
+rcParams['axes.titlesize'] = 12
+rcParams['xtick.labelsize'] = 8
+rcParams['ytick.labelsize'] = 8
 import pylab
 import StringIO
 from common import get_total_gene_ls
@@ -183,8 +183,10 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		return score_rank_data
 	
 	def plotSubHistogram(self, candidate_data_ls, non_candidate_data_ls, which_figure, sub_title, xlabel, \
-						no_of_rows=2, max_no_of_bins=60, legend_loc='upper right'):
+						no_of_rows=2, max_no_of_bins=60, legend_loc='upper right', no_of_cols=2):
 		"""
+		2009-2-19
+			add argument no_of_cols
 		2009-1-11
 			reduce max_no_of_bins from 100 to 60
 		2008-10-16
@@ -193,7 +195,7 @@ class CheckCandidateGeneRank(GeneListRankTest):
 			reduce the handle length in the legend
 		2008-09-28
 		"""
-		pylab.subplot(no_of_rows,2,which_figure, frameon=False)
+		pylab.subplot(no_of_rows, no_of_cols, which_figure, frameon=False)
 		pylab.title(sub_title)
 		pylab.xlabel(xlabel)
 		pylab.grid(True, alpha=0.3)
@@ -206,16 +208,22 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		pylab.ylabel('non-candidate count')
 		
 		no_of_bins = min(max_no_of_bins, int(len(candidate_data_ls)/30))
-		ax2 = pylab.twinx()
-		h2 = ax2.hist(candidate_data_ls, no_of_bins, alpha=0.3, facecolor='r', linewidth=0)
-		hist_patch_ls.append(h2[2][0])
-		legend_ls.append('candidate (%s)'%(len(candidate_data_ls)))
-		pylab.ylabel('candidate count')
+		if no_of_bins>0:
+			ax2 = pylab.twinx()
+			h2 = ax2.hist(candidate_data_ls, no_of_bins, alpha=0.3, facecolor='r', linewidth=0)
+			hist_patch_ls.append(h2[2][0])
+			legend_ls.append('candidate (%s)'%(len(candidate_data_ls)))
+			pylab.ylabel('candidate count')
 		
 		pylab.legend(hist_patch_ls, legend_ls, loc=legend_loc, handlelen=0.02)
 	
 	def plotHistForOnePhenotype(self, phenotype_method, list_type, score_rank_data_ls, output_dir=None, data_type='score', commit=0):
 		"""
+		2009-2-19
+			if len(score_rank_data_ls)>1:
+				no_of_cols=2
+			else:
+				no_of_cols=1
 		2008-10-16
 			add option commit
 			save fig into StringIO to skip file storage to be directly passed onto a database binary variable
@@ -231,6 +239,12 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		else:
 			no_of_rows = int(no_of_rows)
 		
+		if len(score_rank_data_ls)>1:
+			no_of_cols = 2
+		else:
+			no_of_cols = 1
+		
+		
 		for i in range(len(score_rank_data_ls)):
 			score_rank_data = score_rank_data_ls[i]
 			if data_type=='score':
@@ -243,7 +257,8 @@ class CheckCandidateGeneRank(GeneListRankTest):
 				legend_loc='upper right'	#not to block the right-end high rank peaks
 			sub_title = score_rank_data.analysis_method.short_name
 			xlabel = data_type
-			self.plotSubHistogram(candidate_data_ls, non_candidate_data_ls, i+1, sub_title, xlabel, no_of_rows=no_of_rows, legend_loc=legend_loc)
+			self.plotSubHistogram(candidate_data_ls, non_candidate_data_ls, i+1, sub_title, xlabel, no_of_rows=no_of_rows, \
+						legend_loc=legend_loc, no_of_cols=no_of_cols)
 		ax = pylab.axes([0.1, 0.1, 0.8,0.8], frameon=False)
 		ax.set_xticks([])
 		ax.set_yticks([])
@@ -365,6 +380,8 @@ class CheckCandidateGeneRank(GeneListRankTest):
 		if len(candidate_gene_list)<self.min_sample_size:
 			sys.stderr.write("Candidate gene list of %s too small: %s.\n"%(self.list_type_id, len(candidate_gene_list)))
 			sys.exit(4)
+		#candidate_gene_list = []		#2009-01-12 just to plot the histogram of pvalue
+		
 		candidate_gene_set = Set(candidate_gene_list)
 		list_type = Stock_250kDB.GeneListType.get(self.list_type_id)
 		if list_type is None:
