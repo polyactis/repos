@@ -27,6 +27,7 @@ import warnings, traceback
 
 from Stock_250kDB import Stock_250kDB, GeneList, GeneListType
 from pymodule import figureOutDelimiter
+from pymodule.utils import getGeneIDSetGivenAccVer
 
 class PutGeneListIntoDb(object):
 	__doc__ = __doc__
@@ -57,6 +58,8 @@ class PutGeneListIntoDb(object):
 		
 	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, gene_symbol2gene_id_set, db, skip_1st_line=False):
 		"""
+		2009-2-4
+			use getGeneIDSetGivenAccVer() from pymodule.utils to find gene_id_set
 		2008-01-08
 			add option skip_1st_line
 			stop using csv.reader, use raw file handler instead
@@ -81,35 +84,26 @@ class PutGeneListIntoDb(object):
 			inf.next()	#skips the 1st line
 		counter = 0
 		success_counter = 0
-		import re
-		p_acc_ver = re.compile(r'(\w+)\.(\d+)')
-		p_acc = re.compile(r'(\w+)')	#2008-12-11 only alphanumeric characters in gene_symbol (suzi's file contains weird characters sometimes)
-		
 		gene_id2original_name = {}	#to avoid redundancy in gene list
 		for line in inf:
 			if line=='\n':	#skip empty lines
 				continue
 			row = line.split(delimiter)
 			original_name = row[0].strip()	#2008-12-11 remove spaces/tabs in the beginning/end
-			gene_symbol = original_name.upper()
-			if p_acc_ver.search(gene_symbol):
-				gene_symbol, version = p_acc_ver.search(gene_symbol).groups()
-			if p_acc.search(gene_symbol):	#2008-12-11 pick out alphanumeric characters
-				gene_symbol, = p_acc.search(gene_symbol).groups()
-			gene_id_set = gene_symbol2gene_id_set.get(gene_symbol)
+			gene_id_set = getGeneIDSetGivenAccVer(original_name, gene_symbol2gene_id_set)
 			if gene_id_set==None:
-				sys.stderr.write("Linking to gene id failed for %s. No such gene_symbol, %s, in gene_symbol2gene_id_set.\n"%(original_name, gene_symbol))
+				sys.stderr.write("Linking to gene id failed for %s. No such in gene_symbol2gene_id_set.\n"%(original_name))
 			elif len(gene_id_set)==1:
 				gene_id = list(gene_id_set)[0]
 				if gene_id not in gene_id2original_name:
 					gene_id2original_name[gene_id] = original_name
 				success_counter += 1
 			elif len(gene_id_set)>1:
-				sys.stderr.write("Too many gene_ids: %s, %s.\n"%(gene_symbol, gene_id_set))
+				sys.stderr.write("Too many gene_ids for %s: %s.\n"%(original_name, gene_id_set))
 			elif len(gene_id_set)==0:
-				sys.stderr.write("Linking to gene id failed for %s. There is gene_symbol, %s, in gene_symbol2gene_id_set but it's empty.\n"%(original_name, gene_symbol))
+				sys.stderr.write("Linking to gene id failed for %s. gene_id_set is empty.\n"%(original_name))
 			else:
-				sys.stderr.write("not supposed to happen: original_name=%s, gene_symbol=%s, gene_id_set=%s\n."%(original_name, gene_symbol, gene_id_set))
+				sys.stderr.write("not supposed to happen: original_name=%s, gene_id_set=%s\n."%(original_name, gene_id_set))
 			counter += 1
 		del inf
 		
