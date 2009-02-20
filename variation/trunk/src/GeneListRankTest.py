@@ -152,6 +152,8 @@ class GeneListRankTest(object):
 			
 	def constructDataStruc(cls, min_distance=50000, get_closest=0):
 		"""
+		2009-2-20
+			fix a bug. 'self.debug' => 'cls.debug'
 		2009-1-11
 			become classmethod
 		2008-08-28
@@ -176,7 +178,7 @@ class GeneListRankTest(object):
 					counter += 1
 				offset_index += 1
 			sys.stderr.write("%s%s\t%s"%('\x08'*40, offset_index, counter))
-			if self.debug and offset_index > 50000:
+			if cls.debug and offset_index > 50000:
 				break
 			rows = SnpsContext.query.offset(offset_index).limit(block_size)
 		sys.stderr.write("Done.\n")
