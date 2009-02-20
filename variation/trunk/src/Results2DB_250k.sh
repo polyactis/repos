@@ -17,7 +17,7 @@ call_method_id=$2
 analysis_method_id=$3
 db_password=$4
 
-for((i=1;i<187;i++))
+for((i=1;i<300;i++))
 	do echo $i;
 	~/script/variation/src/Results2DB_250k.py -a $call_method_id -e $i -i $file_prefix$i\_* -l $analysis_method_id -u yh -p $db_password -c
 done
