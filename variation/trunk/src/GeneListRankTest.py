@@ -133,6 +133,7 @@ class GeneListRankTest(object):
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	#("allow_two_sample_overlapping", 1, int): [0, 'x', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
+	debug = 0
 	def __init__(self,  **keywords):
 		"""
 		2008-10-09
