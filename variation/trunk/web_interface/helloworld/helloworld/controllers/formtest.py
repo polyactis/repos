@@ -25,7 +25,9 @@ class FormtestController(BaseController):
 	def form(self):
 		return render('/simpleform.html')
 	
+	@validate(schema=EmailForm(), form='form', post_only=False, on_get=True)
 	def submit(self):
+		"""
 		schema = EmailForm()
 		try:
 			form_result = schema.to_python(dict(request.params))
@@ -42,7 +44,14 @@ class FormtestController(BaseController):
 			#response.content_type = 'text/plain'
 			#return 'Invalid: '+str(error)
 		else:
-			return 'Your email is: %s, date selected was %r.'%(form_result.get('email'), form_result.get('date'))
+		"""
+		html = render('/simpleform.html')
+		return htmlfill.render(
+					html,
+					defaults=self.form_result,
+					#errors=self.form_errors
+					)
+		#return 'Your email is: %s, date selected was %r.'%(self.form_result.get('email'), self.form_result.get('date'))
 		
 		"""
 		c.email_msg = ''
