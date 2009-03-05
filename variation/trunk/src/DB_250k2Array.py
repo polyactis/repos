@@ -107,7 +107,7 @@ class DB_250k2Array(object):
 							('output_CNV_intensity', 0, int):[0, 't', 0, 'toggle this to output the intensity of CNV probes instead of SNP probes'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
-	
+	debug = 0
 	def __init__(self, **keywords):
 		"""
 		2008-04-08
@@ -133,8 +133,10 @@ class DB_250k2Array(object):
 		sys.stderr.write("Done.\n")
 		return snps
 	
-	def get_probes(self, curs, probes_table, snps, output_CNV_intensity=False):
+	def get_probes(cls, curs, probes_table, snps=None, output_CNV_intensity=False):
 		"""
+		2009-2-12
+			become a classmethod
 		2008-12-09
 			add option output_CNV_intensity
 		"""
@@ -160,12 +162,14 @@ class DB_250k2Array(object):
 				probes.add_one_probe(probes_id, snps_id, xpos, ypos, allele, strand)
 				snps.add_one_probes_id2snp(snps_id, probes_id, allele, strand)
 			counter += 1
-			if self.debug and counter%1000==0:
+			if cls.debug and counter%1000==0:
 				break
 			
 		del rows
 		sys.stderr.write("Done.\n")
 		return probes, xy_ls, chr_pos_ls, probes_id_ls
+	
+	get_probes = classmethod(get_probes)
 	
 	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id_ls, xy_ls, chr_pos_ls, probes_id_ls,\
 				call_method_id=0, output_CNV_intensity=False):
