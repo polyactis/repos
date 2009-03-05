@@ -88,6 +88,8 @@ class ArrayInfo(object):
 	
 	def readMappingFile(cls, mapping_file):
 		"""
+		2009-3-5
+			skip line with two column but the 2nd column is empty
 		2009-1-23
 			skip lines with only one column
 		2008-04-12
@@ -99,13 +101,17 @@ class ArrayInfo(object):
 		for row in list_f:
 			array_file_basename = os.path.basename(row[0])
 			if len(row)==2:
-				maternal_ecotype_id = int(row[1])
-				paternal_ecotype_id = maternal_ecotype_id
+				if row[1]:
+					maternal_ecotype_id = int(row[1])
+					paternal_ecotype_id = maternal_ecotype_id
+				else:	#row[1] is empty, ignore
+					sys.stderr.write("Ignore: ecotype id not available for %s.\n"%(row[0]))
+					continue
 			elif len(row)==3:
 				maternal_ecotype_id = int(row[1])
 				paternal_ecotype_id = int(row[2])
 			elif len(row)==1:
-				sys.stderr.write("Ignore: requires at least 2-column in %s.\n"%(mapping_file))
+				sys.stderr.write("Ignore: ecotype id not available for %s.\n"%(row[0]))
 				#sys.exit(5)
 				continue
 			array_file_basename2ecotypeid_tuple[array_file_basename] = (maternal_ecotype_id, paternal_ecotype_id)
