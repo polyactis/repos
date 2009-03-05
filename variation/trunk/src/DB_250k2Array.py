@@ -53,7 +53,7 @@ class probes_class:
 		self.probes_id2probes_info[probes_id] = probe_ins
 	
 	def get_one_probe(self, probes_id):
-		return self.probes_id2probes_info[probes_id]
+		return self.probes_id2probes_info.get(probes_id)
 
 class snp:
 	def __init__(self, snps_id, snpid):
@@ -174,6 +174,7 @@ class DB_250k2Array(object):
 	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id_ls, xy_ls, chr_pos_ls, probes_id_ls,\
 				call_method_id=0, output_CNV_intensity=False):
 		"""
+		2009-3-5 skip if no probes (if one_snp.probes_id_ls == [-1]*4:) for that SNP (fake SNP in the SNP table)
 		2008-12-09
 			add option output_CNV_intensity
 		2008-07-12
@@ -239,6 +240,8 @@ class DB_250k2Array(object):
 				for snps_id in snps.snps_id_ls:
 					one_snp = snps.get_one_snp(snps_id)
 					output_row = [one_snp.snpid]
+					if one_snp.probes_id_ls == [-1]*4:	#2009-3-5 skip if no probes for that SNP (fake SNP in the SNP table)
+						continue
 					for probes_id in one_snp.probes_id_ls:
 						one_probe = probes.get_one_probe(probes_id)
 						intensity_array_index = array_size*(array_size - one_probe.xpos - 1) + one_probe.ypos
