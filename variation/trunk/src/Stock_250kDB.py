@@ -245,12 +245,14 @@ class ResultsMethod(Entity):
 
 class Results(Entity):
 	"""
+	2009-2-22
+		change column name of "results_method" from results_method_id to results_id
 	2009-2-6
 		a table to store data derived from filenames stored in results_method
 		add more fields
 	"""
 	snp = ManyToOne('Snps', colname='snps_id', ondelete='CASCADE', onupdate='CASCADE')
-	results_method = ManyToOne('ResultsMethod', colname='results_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
 	score = Field(Float)
 	rank = Field(Integer)
 	beta = Field(Float)
@@ -260,7 +262,7 @@ class Results(Entity):
 	object = Field(Binary(134217728), deferred=True)	#a python dictionary to store other attributes
 	using_options(tablename='results', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('results_method_id', 'snps_id'))
+	using_table_options(UniqueConstraint('results_id', 'snps_id'))
 
 class CandidateGeneRankSumTestResult(Entity):
 	"""
