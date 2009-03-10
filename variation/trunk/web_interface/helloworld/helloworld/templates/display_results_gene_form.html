@@ -8,6 +8,7 @@ Type: ${h.select('type_id', 1, options=c.types, prompt='Please Choose ...',
 	onchange="SelectChange('%s', ['type_id'], 'phenotype_method_id'); return false;"%
 		(h.url_for(controller="DisplayResultsGene", action="getPhenotypeMethodLsGivenTypeJson", id=None)),
 	required=True )}  <br/>
+${h.hidden('call_method_id', id='call_method_id')}
 
 Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=[], 
 	onchange="SelectChange('%s', ['type_id', 'phenotype_method_id'], 'analysis_method_id'); return false;"%
@@ -15,17 +16,19 @@ Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=
 	required=True)}  <br />
 
 Analysis Method: ${h.select('analysis_method_id', selected_values=[], options=[],
-	onchange="SelectChange('%s', ['type_id', 'phenotype_method_id', 'analysis_method_id'], 'gene_list_type_id'); return false;"%
-		(h.url_for(controller="DisplayResultsGene", action="getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethodJson", id=None)),
+	onchange="return handleResponse('%s')"%(h.url_for(controller="DisplayResultsGene", action='showTopCandidateGenesFromOneResultOneGeneList', id=None)),
 	required=True)}<br />
 ${h.hidden('results_id', id='results_id')}
 
+<!--	onchange="SelectChange('%s', ['type_id', 'phenotype_method_id', 'analysis_method_id'], 'gene_list_type_id'); return false;"%
+		(h.url_for(controller="DisplayResultsGene", action="getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethodJson", id=None)),-->
 
-Maximum Rank: ${h.text('max_rank', value=getattr(c, 'max_rank', 1000))}<br/>
+Maximum Rank: ${h.text('max_rank', value=getattr(c, 'max_rank', 500))}<br/>
 
-Gene List Type: ${h.select('gene_list_type_id', [], options=[],
+Gene List Type: ${h.select('gene_list_type_id', [], options=c.gene_list_ls,
 	onchange="return handleResponse('%s')"%(h.url_for(controller="DisplayResultsGene", action='showTopCandidateGenesFromOneResultOneGeneList', id=None)),
 	required=True )}  <br/>
+
 
 <!-- ${h.submit('submit', 'Submit')} -->
 ${h.end_form()}
@@ -52,9 +55,12 @@ function handleResponse(url) {
 	}
 	type_id = YAHOO.util.Dom.get('type_id').value;
 	list_type_id = YAHOO.util.Dom.get('gene_list_type_id').value;
-	results_id = YAHOO.util.Dom.get('results_id').value;
+	//results_id = YAHOO.util.Dom.get('results_id').value;
+	call_method_id = YAHOO.util.Dom.get('call_method_id').value;
+	phenotype_method_id = YAHOO.util.Dom.get('phenotype_method_id').value;
+	analysis_method_id = YAHOO.util.Dom.get('analysis_method_id').value;
 	max_rank = YAHOO.util.Dom.get('max_rank').value;
-	url = url + '?' + 'id=' + results_id + '&type_id=' + type_id + '&list_type_id='+list_type_id+'&max_rank='+max_rank;
+	url = url + '?' + 'call_method_id=' + call_method_id + '&phenotype_method_id=' + phenotype_method_id + '&analysis_method_id=' + analysis_method_id + '&type_id=' + type_id + '&list_type_id='+list_type_id+'&max_rank='+max_rank;
 	
 	var link2data = YAHOO.util.Dom.get('link2data');
 	link2data.innerHTML = '<a href='+url+'>Link to the following table</a>';
