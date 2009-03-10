@@ -11,6 +11,7 @@ Description:
 	2008-07-09
 	This is a wrapper for the genome database, build on top of elixir. supercedes the table definitions in genomedb.sql.
 """
+import sys, os
 from sqlalchemy.engine.url import URL
 from elixir import Unicode, DateTime, String, Integer, UnicodeText, Text
 from elixir import Entity, Field, using_options, using_table_options
