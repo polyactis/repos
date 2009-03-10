@@ -19,8 +19,12 @@ function SelectChange(url, field_ls, replace){
 				replace_elem.appendChild(new_option);
 			}
 			if (!YAHOO.lang.isUndefined(parsed_options.results_id)){
-				var results_id = document.getElementById('results_id');
-				results_id.value = parsed_options.results_id;
+				var elem = document.getElementById('results_id');
+				elem.value = parsed_options.results_id;
+			}
+			if (!YAHOO.lang.isUndefined(parsed_options.call_method_id)){
+				var elem = document.getElementById('call_method_id');
+				elem.value = parsed_options.call_method_id;
 			}
 		},
 		failure: function(o) {
