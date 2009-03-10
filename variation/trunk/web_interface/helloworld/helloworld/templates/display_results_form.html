@@ -23,14 +23,16 @@ Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=
 	required=True)}  <br />
 
 Analysis Method: ${h.select('analysis_method_id', selected_values=[], options=[], 
-	onchange="return handleResponse('%s', '%s', '%s', '%s', ['call_method_id', 'phenotype_method_id', 'analysis_method_id'])"%
-		(GWABaseURL, CallInfoBaseURL, PhenotypeHistImageBaseURL, CallPhenotypeQQImageBaseURL),
+	onchange="return handleResponse(['%s', '%s', '%s', '%s', '%s'], ['call_method_id', 'phenotype_method_id', 'analysis_method_id'])"%
+		(GWABaseURL, CallInfoBaseURL, PhenotypeHistImageBaseURL, CallPhenotypeQQImageBaseURL, h.GBrowseURLJS),
 	required=True)}<br />
 
 
 ${h.hidden('results_id', id='results_id')}
 <!-- ${h.submit('submit', 'Submit')} -->
 ${h.end_form()}
+
+<div id="display_general" style="display:none"></div>
 
 <div id='display_static_plots'>
 	<table border=0>
@@ -63,26 +65,25 @@ ${h.end_form()}
 </table>
 </div>
 
-<div id="display_general" style="display:none"></div>
-
-		<table border=0>
-			<tr>
-				<td><div id="phenotype_hist_div" style="display:none"></div></td>
-			</tr>
-			<tr>
-				<td><div id="pca_select_div" style="display:none"></div></td>
-			</tr>
-			<tr>
-				<td><div id="strain_pca_div" style="display:none"></div></td>
-				<td><div id="strain_map_div" style="width: 500px; height: 300;"></div></td>
-			</tr>
-		</table>
+<table border=0>
+	<tr>
+		<td><div id="phenotype_hist_div" style="display:none"></div></td>
+	</tr>
+	<tr>
+		<td><div id="pca_select_div" style="display:none"></div></td>
+	</tr>
+	<tr>
+		<td><div id="strain_pca_div" style="display:none"></div></td>
+		<td><div id="strain_map_div" style="width: 500px; height: 300;"></div></td>
+	</tr>
+</table>
 <div id="strain_motion_chart_div" style="display:none"></div>
 
-	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/connection/connection-min.js" type="text/javascript"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/json/json-min.js" type="text/javascript"></script>
-	<script src="/scripts/form.js"></script>
-	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAEN_qS1l219tT8Orrr7RzDhQCBCvPop-R7bJnP7PY0srByCgosRQws_R88YrzkpUPFgf7qkOEdOwXAQ"
-		type="text/javascript"></script>
-	<script src="/scripts/display_results_form.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/connection/connection-min.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/json/json-min.js" type="text/javascript"></script>
+<script src="/scripts/form.js"></script>
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAEN_qS1l219tT8Orrr7RzDhQCBCvPop-R7bJnP7PY0srByCgosRQws_R88YrzkpUPFgf7qkOEdOwXAQ"
+	type="text/javascript"></script>
+<script src="/scripts/common.js" type="text/javascript"></script>
+<script src="/scripts/display_results_form.js" type="text/javascript"></script>
