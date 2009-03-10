@@ -1,7 +1,7 @@
 import pdb,gc
 
 class ResultType(object):
-	def __init__(self,resultType=None,fileType=None,datasetName=None,resultDir=None,mafCutoff=0,logTransform=None):
+	def __init__(self,resultType=None,fileType=None,datasetName=None,resultDir=None,mafCutoff=0,logTransform=None,name=None):
 		self.resultType=resultType
 		self.fileType=fileType
 		self.datasetName=datasetName
@@ -14,15 +14,20 @@ class ResultType(object):
 				self.logTransform = True
 			else:
 				self.logTransform = False
-		if datasetName:
+		self.name = name
+		if not name and datasetName:
 			self.name = resultType+"_"+datasetName
 		if resultDir and datasetName:
 			self.filenamePrefix = resultDir+resultType+"_"+datasetName+"_"
 		
 		
-	def getFileName(self,phed,phenotypeID):
+	def getFileName(self,phed,phenotypeID,secondRun=False):
 		print phenotypeID
-		return self.filenamePrefix+str(phed.getPhenotypeName(phenotypeID))+self.fileType
+		if secondRun:
+			filename = self.filenamePrefix+str(phed.getPhenotypeName(phenotypeID))+".sr"+self.fileType
+		else:
+			filename = self.filenamePrefix+str(phed.getPhenotypeName(phenotypeID))+self.fileType
+		return filename
 
 	def __str__(self):
 		return self.resultType+"_"+self.datasetName
@@ -113,7 +118,7 @@ class Result(object):
 	"""
 	Contains information on the result.
 	"""
-	def __init__(self,resultFile=None,snpsds=None,name=None,resultType=None,phenotypeID=None):
+	def __init__(self,resultFile=None,snpsds=None,name=None,resultType=None,phenotypeID=None,interactionResult=False):
 
 		self.phenotypeID =phenotypeID
 		self.resultType=resultType
@@ -132,7 +137,9 @@ class Result(object):
 		self.orders = None
 		self.ranks = None
 		self.snps = None
-
+		self.interactionResult=interactionResult
+		if interactionResult:
+			self.interactionPositions = []			
 		if resultFile:
 			self._loadResult_(resultFile)
 		if snpsds:
@@ -169,6 +176,9 @@ class Result(object):
 					if lastPos:
 						self.chromosomeEnds.append(lastPos)
 				self.chromosomes.append(newChrom)
+				if self.interactionResult:
+					iPos = [int(line[-1].strip())]
+					self.interactionPositions.append(iPos)
 				lastPos = int(line[1].strip())
 				self.positions.append(lastPos)
 				self.scores.append(float(line[2].strip()))
@@ -181,6 +191,9 @@ class Result(object):
 					if lastPos:
 						self.chromosomeEnds.append(lastPos)
 				self.chromosomes.append(newChrom)
+				if self.interactionResult:
+					iPos = [int(line[-1].strip())]
+					self.interactionPositions.append(iPos)
 				lastPos = int(line[1].strip())
 				self.positions.append(lastPos)
 				self.scores.append(float(line[2].strip()))
@@ -278,8 +291,11 @@ class Result(object):
 		import math
 		newScores = []
 		for score in self.scores:
-			newScore = -math.log(score,10)
-			newScores.append(newScore)
+			if score != 0.0:
+				newScore = -math.log(score,10)
+				newScores.append(newScore)
+			else:
+				newScores.append(50)  				
 		self.scores = newScores
 		
 
@@ -406,10 +422,18 @@ class Result(object):
 		print "results size after filtration =",finalSize
 
 
-	def filterMAF(self, minMaf=0.1):
+	def filterMAF(self, minMaf=15):
 		"""
 		Filter out scores/pvalues which have maf<minMaf.		
 		"""
+		if self.interactionResult:
+			newIPos = []
+			for i in range(0,len(self.scores)):
+				if self.mafs[i]>= minMaf:
+					newIPos.append(self.interactionPositions[i])
+			del self.interactionPositions
+			self.interactionPositions = newIPos
+
 		newScores = []
 		newPositions = []
 		newChromosomes = []
@@ -422,18 +446,18 @@ class Result(object):
 				newChromosomes.append(self.chromosomes[i])
 				newMafs.append(self.mafs[i])
 				newMarfs.append(self.marfs[i])
+
 		del self.scores
 		del self.positions
 		del self.chromosomes
 		del self.mafs
 		del self.marfs
-
+		
 		self.scores = newScores
 		self.positions = newPositions
 		self.chromosomes = newChromosomes
 		self.mafs = newMafs
 		self.marfs = newMarfs
-
 
 
 	def filterNonSegregatingSnps(self, ecotype1, ecotype2, snpsd):
@@ -490,6 +514,15 @@ class Result(object):
 
 			
 	def filterScoreCutoff(self, scoreCutoff):
+
+		if self.interactionResult:
+			newIPos = []
+			for i in range(0,len(self.scores)):
+				if self.scores[i]>scoreCutoff:
+					newIPos.append(self.interactionPositions[i])
+			del self.interactionPositions
+			self.interactionPositions = newIPos
+
 		newScores = []
 		newPositions = []
 		newChromosomes = []
@@ -588,6 +621,36 @@ class Result(object):
 			oldPos = pos
 		
 		return countRegions
+
+
+	def getChrScorePos(self,chromosome):
+		"""
+		returns a list of (score,pos) tuples.
+		"""
+		i = 0
+		while i<len(self.chromosomes) and self.chromosomes[i]<chromosome:
+			i += 1
+		
+		posList = []
+		scoreList = []
+		while i<len(self.chromosomes) and self.chromosomes[i]==chromosome:
+			posList.append(self.positions[i])
+			scoreList.append(self.scores[i])
+			i += 1
+
+		return zip(scoreList,posList)
+
+	def getChrPos(self):
+		"""
+		returns a list of (chr,pos) tuples
+		"""
+		posList = []
+		chrList = []
+		for i in range(0,len(self.positions)):
+			posList.append(self.positions[i])
+			chrList.append(self.chromosomes[i])
+		return zip(chrList,posList)
+
 
 
 	def getTopRegions(self,n,window=[25000,25000],minScore=None):
@@ -849,6 +912,18 @@ class Result(object):
 			region.snpsInfo[self.resultType.name] = {"maxScore":maxScore,"maxRank":maxRank,"maxPos":maxPos}
 			rl_i += 1
 			
+	
+	def writeToFile(self,filename,format="simple"):
+		f = open(filename,"w")
+		f.write("Chromosome,Position,Score,MARF,MAF \n")
+		for (ch,pos,score,marf,maf) in zip(self.chromosomes,self.positions,self.scores,self.marfs,self.mafs):
+			l = map(str,[ch,pos,score,marf,maf])
+			f.write(",".join(l)+"\n")
+		f.close()
+		
+		
+		
+			
 		
 			
 
@@ -976,7 +1051,7 @@ class SNPResult(Result):
 
 
 
-	def filterMAF(self, minMaf=10):
+	def filterMAF(self, minMaf=15):
 		"""
 		Filter out scores/pvalues which have maf<minMaf.		
 		"""
@@ -1269,9 +1344,9 @@ class RegionsTable(object):
 		del merged_result
 
 		self.region_by_methods_table = [] # list[region_index][method/phenotype_index][snp_index]
-		for (chr,startPos,endPos,size) in self.regions:
+		for (chr,startPos,endPos,size) in self.regions:  #For all regions
 			methods_snps_ls = []
-			for m_i in range(0,len(result_ls)):
+			for m_i in range(0,len(result_ls)):      #for all results
 				result = result_ls[m_i]
 				snps_ls = []				
 				
@@ -1357,23 +1432,65 @@ class Gene(object):
 	"""
 	A class which encompasses basic information about a gene.
 	"""
-	def __init__(self):
-		self.chromosome = None
-		self.startPos = None
-		self.endPos = None
+	def __init__(self,chromosome=None,startPos=None,endPos=None,name="",description=None, dbRef=""):
+		self.chromosome = chromosome
+		self.startPos = startPos
+		self.endPos = endPos
 		self.exons = []
 		self.introns = []
 		self.tairID = ""
-		self.name = ""
+		self.dbRef = dbRef
+		self.name = name
+		self.description = description
 		self.functionDescriptions = []
 		self.shortDescriptions = []
 		self.direction = None
 
 
 	def __str__(self):
-		return "Chromosome="+str(self.chromosome)+", position=("+str(self.startPos)+","+str(self.endPos)+"), tair ID="+self.tairID+", short descriptions="+str(self.shortDescriptions)+", function descriptions="+str(self.functionDescriptions)+"."
+		if not self.description:
+			return "Chromosome="+str(self.chromosome)+", position=("+str(self.startPos)+","+str(self.endPos)+"), tair ID="+self.tairID+", short descriptions="+str(self.shortDescriptions)+", function descriptions="+str(self.functionDescriptions)+"."
+		else:
+			return "Chromosome="+str(self.chromosome)+", position=("+str(self.startPos)+","+str(self.endPos)+"), tdbRef="+self.dbRef+", name="+str(self.name)+", description="+str(self.description)+"."
 
 
+
+def getCandidateGeneList(cgl_id,host="papaya.usc.edu",user="bvilhjal",passwd="bamboo123",db="stock_250k"):
+	import MySQLdb
+	#Load cand. gene list.	
+	print "Connecting to db, host="+host
+	if not user:
+		import sys
+		sys.stdout.write("Username: ")
+		user = sys.stdin.readline().rstrip()
+	if not passwd:
+		import getpass
+		passwd = getpass.getpass()
+	try:
+		conn = MySQLdb.connect (host = host, user = user, passwd = passwd, db = db)
+	except MySQLdb.Error, e:
+		print "Error %d: %s" % (e.args[0], e.args[1])
+		sys.exit (1)
+	cursor = conn.cursor ()
+	#Retrieve the filenames
+	print "Fetching data"  
+
+	#select c.locustag, b.start, b.stop, a.comment from genome.gene_commentary a, genome.entrezgene_mapping b, genome.gene c where b.start > 25000 and b.stop < 75000 and b.chromosome=1 and b.gene_id = c.gene_id and c.gene_id = a.gene_id and a.gene_commentary_type_id = 8
+	#select distinct t8_fd.tair_id, t8.chromosome, t8.start, t8.end, t8_fd.type, t8_fd.short_description from T8_annotation_TH.t8_063008 t8, T8_annotation_TH.t8_func_desc t8_fd, stock_250k.candidate_gene_list cgl where t8.pub_locus+'.1' = t8_fd.tair_id and cgl.list_type_id=129  and cgl.original_name=t8.pub_locus and t8.chromosome =1 order by t8.chromosome, t8.start
+	#select distinct gm.chromosome, gm.start, gm.stop, g.locustag from genome.entrezgene_mapping gm, genome.gene g, stock_250k.candidate_gene_list cgl where cgl.list_type_id=129 and gm.gene_id = g.gene_id and cgl.gene_id=g.gene_id order by gm.chromosome, gm.start, gm.stop
+
+	numRows = int(cursor.execute("select distinct gm.chromosome, gm.start, gm.stop, g.locustag, g.gene_symbol, g.description, g.dbxrefs from genome.entrezgene_mapping gm, genome.gene g, stock_250k.candidate_gene_list cgl where cgl.list_type_id="+str(cgl_id)+" and gm.gene_id = g.gene_id and cgl.gene_id=g.gene_id order by gm.chromosome, gm.start, gm.stop"))
+	candGenes = []
+	while(1):
+		row = cursor.fetchone()
+		if not row:
+			break;
+		gene = Gene(int(row[0]),int(row[1]),int(row[2]),name=row[4],description=row[5],dbRef=row[6])
+		candGenes.append(gene)
+	cursor.close ()
+	conn.close ()
+	print "Candiate genelists fetched"
+	return candGenes
 
 
 def getResultsFilename(host,user,passwd,callMethodID,phenotypeMethodID,analysisMethodID):
@@ -1421,6 +1538,30 @@ def _getStandardResultTypes_():
 	resultTypes.append(ResultType("RF",".imp","newDataset",res_path+"rf_results/",mafCutoff=15))
 	return resultTypes
 
+def _getStandardResultTypes2_():
+	res_path="/Network/Data/250k/tmp-bvilhjal/"	
+	resultTypes = []
+	resultTypes.append(ResultType("KW",".pvals","raw",res_path+"kw_results/"))
+	resultTypes.append(ResultType("Emma",".pvals","newDataset",res_path+"emma_results/",mafCutoff=15))
+	resultTypes.append(ResultType("Marg",".score","newDataset",res_path+"marg_results/"))
+	resultTypes.append(ResultType("RF",".imp","newDataset",res_path+"rf_results/",mafCutoff=15))
+	return resultTypes
+
+def _getStandardResultTypes3_():
+	res_path="/Network/Data/250k/tmp-bvilhjal/"	
+	resultTypes = []
+	resultTypes.append(ResultType("KW",".pvals","raw",res_path+"kw_results/"))
+	resultTypes.append(ResultType("Emma",".pvals","newDataset",res_path+"emma_results/",mafCutoff=15))
+	return resultTypes
+
+def _getStandardResultTypes4_():
+	res_path="/Network/Data/250k/tmp-bvilhjal/"	
+	resultTypes = []
+	resultTypes.append(ResultType("KW",".pvals","raw",res_path+"kw_results/"))
+	resultTypes.append(ResultType("Emma",".pvals","new_trans_",res_path+"emma_results/",mafCutoff=10))
+	return resultTypes
+
+
 def _getStandardBinaryResultTypes_():
 	res_path="/Network/Data/250k/tmp-bvilhjal/"	
 	resultTypes = []
@@ -1429,37 +1570,59 @@ def _getStandardBinaryResultTypes_():
 	resultTypes.append(ResultType("RF",".imp","newDataset",res_path+"rf_results/",mafCutoff=15))
 	return resultTypes
 
-def loadResults(phenotypeIndices,resultTypes=None,phed=None,snpsds=None,phenotypeFile="/Network/Data/250k/dataFreeze_080608/phenotypes_all_raw_111008.tsv"):
+def _getStandardSecondRunResultTypes_():
+	res_path="/Network/Data/250k/tmp-bvilhjal/"	
+	resultTypes = []
+	resultTypes.append(ResultType("KW",".pvals","raw",res_path+"kw_results/"))
+	resultTypes.append(ResultType("KW",".pvals","raw",res_path+"kw_results/"))
+#	resultTypes.append(ResultType("Emma",".pvals","logTransform",res_path+"emma_results/",mafCutoff=20))
+#	resultTypes.append(ResultType("Emma",".pvals","logTransform",res_path+"emma_results/",mafCutoff=20))
+#	resultTypes.append(ResultType("Emma",".pvals","raw",res_path+"emma_results/",mafCutoff=15))
+#	resultTypes.append(ResultType("Emma",".pvals","raw",res_path+"emma_results/",mafCutoff=15))
+	return resultTypes
+
+
+def loadResults(phenotypeIndices,resultTypes=None,phed=None,snpsds=None,filterPercentile=None,filterCutoffs=None,phenotypeFile="/Network/Data/250k/dataFreeze_080608/phenotypes_all_raw_111008.tsv",secondRun=False):
 	
 	if not phed:
 		phed = phenotypeData.readPhenotypeFile(phenotypeFile, delimiter='\t')
 		
 	if not resultTypes:
-		resultTypes = _getStandardResultTypes_() 
-	
+		if secondRun:
+			resultTypes = _getStandardSecondRunResultTypes_()
+		else:
+			resultTypes = _getStandardResultTypes4_() 
+		
 	results_map = {}
 	for i in phenotypeIndices:
 		
 		results = []
-		for resultType in resultTypes:
+		for j in range(0,len(resultTypes)):
+			resultType = resultTypes[j]
 			phenName = phed.getPhenotypeName(i)
-			resultFile=resultType.getFileName(phed,i)
-			try:
-				print "Loading result file",resultFile
-				if snpsds:
-					result = SNPResult(resultFile,snpsds=snpsds,name=str(resultType)+"_"+phenName, resultType=resultType, phenotypeID=i)
-				else:
-					result = Result(resultFile,name=str(resultType)+"_"+phenName, resultType=resultType, phenotypeID=i)					
-				if resultType.logTransform:
-					print "Log transformed the p-values"
-					result.negLogTransform()
-
-				result.filterMAF(minMaf=resultType.mafCutoff)
-				results.append(result)
-			except Exception, e:
-				print e.message
-				print "Couldn't load",resultFile
-							
+			if phenName:
+				resultFile=resultType.getFileName(phed,i,secondRun=(secondRun and j%2==1))  #Modify back to get old results 120708
+				try:
+					print "Loading result file",resultFile
+					if snpsds:
+						result = SNPResult(resultFile,snpsds=snpsds,name=str(resultType)+"_"+phenName, resultType=resultType, phenotypeID=i)
+					else:
+						result = Result(resultFile,name=str(resultType)+"_"+phenName, resultType=resultType, phenotypeID=i)					
+					if resultType.logTransform:
+						print "Log transformed the p-values"
+						result.negLogTransform()
+	
+					result.filterMAF(minMaf=resultType.mafCutoff)
+					if filterPercentile:
+						result.filterPercentile(filterPercentile)
+					elif filterCutoffs:
+						result.filterScoreCutoff(filterCutoffs[j])
+						
+					results.append(result)
+				except Exception, e:
+					print e.message
+					print "Couldn't load",resultFile
+				
 		results_map[i] = results
 		gc.collect()  #Calling garbage collector, in an attempt to clean up memory..
 	return results_map

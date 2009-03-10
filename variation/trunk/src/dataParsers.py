@@ -326,6 +326,8 @@ def get250KDataFromDb(host="banyan.usc.edu", chromosomes=[1,2,3,4,5], db = "stoc
 	conn.close ()
 	return snpsds
 
+
+
   
 def get149DataFromDb(host="papaya.usc.edu",chromosomes=[1,2,3,4,5], db = "at", only96accessions=False, user = None,passwd = None):
 	import MySQLdb
@@ -652,6 +654,7 @@ def parseCSVData(datafile, format=1, deliminator=",", missingVal='NA', withArray
 		rawSnpsData.chromosome = oldChr
 		while i < len(lines) and newChr == oldChr:
 			line = lines[i].split(deliminator)
+			#print i,":",lines[i]
 			oldChr = int(line[0])
 			rawSnpsData.positions.append(int(line[1]))
 			snp = []

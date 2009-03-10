@@ -3,25 +3,25 @@
 Usage: MergeSNPsData.py [OPTIONS] -o OUTPUT_FILE datafile1 datafile2
 
 Option:
-        -o ...,	output file
-        -p ..., --priority=...          1 for giving first file priority, 2 for second file (if SNPs values disagree). (1 is default)
-        -d ..., --delim=...             default is ", "      
-        -m ..., --missingval=...        default is "NA"
-	-a ..., --withArrayId=...       0 for no array ID info (default), 1 if first file has array ID info, 2 if both have.
-        -u ..., --union=...             1: All SNPs are included in the dataset 
-	                                2: All accessions are included in the merged dataset 
+	-o ...,	output file
+	-p ..., --priority=...		1 for giving first file priority, 2 for second file (if SNPs values disagree). (1 is default)
+	-d ..., --delim=...		default is ", "	  
+	-m ..., --missingval=...	default is "NA"
+	-a ..., --withArrayId=...	0 for no array ID info (default), 1 if first file has array ID info, 2 if both have.
+	-u ..., --union=...		1: All SNPs are included in the dataset 
+					2: All accessions are included in the merged dataset 
 					3: Both all SNPs and accessions are included in the merged dataset
 
-        -i ..., --intersection=...      1: Only common SNPs are included in the dataset 
-	                                2: Only common accessions are included in the merged dataset 
+	-i ..., --intersection=...	1: Only common SNPs are included in the dataset 
+					2: Only common accessions are included in the merged dataset 
 					3: Only common SNPs and accessions are included in the merged dataset 
 
-	-b, --debug	enable debug
-	-r, --report	enable more progress-related output
-	-h, --help	show this help
+	-b, --debug			enable debug
+	-r, --report			enable more progress-related output
+	-h, --help			show this help
 
 Examples:
-	 MergeSNPsData.py -o /tmp/phenotype.csv datafile1 datafile2
+	MergeSNPsData.py -o /tmp/phenotype.csv datafile1 datafile2
 	
 Description:
 	Merges two datafiles into a new file, in a csv format (or with another deliminator separated format).
@@ -51,18 +51,19 @@ def _run_():
 		sys.exit(2)
 	
 	if len(args)!=2:
-            raise Exception("Number of arguments isn't correct.")
-        inputFile1 = args[0]
+		raise Exception("Number of arguments isn't correct.")
+	inputFile1 = args[0]
 	inputFile2 = args[1]
 	priority = 1
-        union = 0
-        intersection = 0
-        output_fname = None
+	union = 0
+	intersection = 0
+	output_fname = None
 	delim = ","
 	missingVal = "NA"
 	debug = None
 	report = None
 	withArrayIds = 0
+	chromosomes = [1,2,3,4,5]
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -92,44 +93,66 @@ def _run_():
 				print __doc__
 			sys.exit(2)
 
-        
+		
 	if not output_fname:
 		if help==0:
 			print "Output file missing!!\n"
 			print __doc__
 		sys.exit(2)
-        
+		
 	waid1 = withArrayIds==1 or withArrayIds==2
 	waid2 = withArrayIds==2
 
-        import dataParsers
-	snpsds1 = dataParsers.parseCSVData(inputFile1, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
-	snpsds2 = dataParsers.parseCSVData(inputFile2, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2)
+	import dataParsers
+	(snpsds1,chromosomes1) = dataParsers.parseCSVData(inputFile1, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1,returnChromosomes=True)
+	(snpsds2,chromosomes2) = dataParsers.parseCSVData(inputFile2, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid2,returnChromosomes=True)
 	withArrayIds = waid1
 	
 	
-        if len(snpsds1) != len(snpsds2):
+	if len(snpsds1) != len(snpsds2):
 		print("Warning: Unequal number of chromosomes.")
 		#raise Exception("Unequal number of chromosomes.")
-        
+		
 	import snpsdata
 	if union==0 and intersection==0:
-		for i in range(0,len(snpsds1)):
-			snpsds1[i].mergeData(snpsds2[i],priority=priority)
-		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+		for i in range(0,len(chromosomes1)):
+			chr1 = chromosomes1[i]
+			for j in range(0,len(chromosomes2)):
+				chr2 = chromosomes2[j]
+				if chr1==chr2:
+					snpsds1[i].mergeData(snpsds2[j],priority=priority)
+		chromosomes = chromosomes1
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=chromosomes, deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 	elif 0<union<4 and intersection==0:
-		for i in range(0,len(snpsds1)):
-			snpsds1[i].mergeDataUnion(snpsds2[i], priority=priority, unionType=union)
-		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal)
+		for i in range(0,len(chromosomes1)):
+			chr1 = chromosomes1[i]
+			for j in range(0,len(chromosomes2)):
+				chr2 = chromosomes2[j]
+				if chr1==chr2:
+					snpsds1[i].mergeDataUnion(snpsds2[j], priority=priority, unionType=union)
+		if union==1 or union==3:			
+			chromosomes = set(chromosomes1).union(set(chromosomes2))
+			chromosomes = list(chromosomes)
+			chromosomes.sort()
+		elif union==2:
+			chromosomes = chromosomes1
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=chromosomes, deliminator=delim, missingVal = missingVal)
 	elif 0<intersection<4 and union==0:
 		for i in range(0,len(snpsds1)):
 			snpsds1[i].mergeDataIntersection(snpsds2[i], priority=priority, intersectionType=intersection)
-		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal)
+		if intersection==1 or intersection==3:
+			chromosomes = set(chromosomes1).intersection(set(chromosomes2))
+			chromosomes = list(chromosomes)
+			chromosomes.sort()
+		elif intersection==2:
+			chromosomes = chromosomes1
+			
+		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds1,chromosomes=chromosomes, deliminator=delim, missingVal = missingVal)
 	else:
 		if help==0:
-                        print "The union or intersection options used are wrong!!\n"
-                        print __doc__
-                sys.exit(2)
+			print "The union or intersection options used are wrong!!\n"
+			print __doc__
+			sys.exit(2)
 
 
 
@@ -152,9 +175,9 @@ def merge(snpsds1,snpsds2,unionType=0,priority=1):
 
 
 def _test_():
-        import dataParsers
+	import dataParsers
 	snpsds1 = dataParsers.parseCSVData("149_v1.csv", deliminator=",")
-        snpsds2 = dataParsers.parseCSVData("384.csv", deliminator=",")	
+	snpsds2 = dataParsers.parseCSVData("384.csv", deliminator=",")	
 	merge(snpsds1,snpsds2,unionType=1,priority=1)
 	print snpsds1[0].positions
 

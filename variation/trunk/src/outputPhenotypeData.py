@@ -27,6 +27,7 @@ Examples:
 Description:
 
 """
+from doctest import SKIP
 
 import sys, getopt, traceback
 import phenotypeData, dataParsers
@@ -153,13 +154,77 @@ def _run_():
 	phenData.writeToFile(output_fname, delimiter='\t')
 
 
+#transformationMap = {210: (1,1), 211: (1,1), 212: (1,1), 213: (5,1), 214: (5,1), 215: (5,1)}
+#transformationMap = {253: (0,1), 254: (0,1), 255: (0,1), 256: (8,1), 257: (0,1), 258: (1,1), 259: (0,1)}
+transformationMap = {5: (9,1), 6: (9,1), 7: (9,1), 65: (6,1), 67: (6,1), 71: (6,1), 73: (6,1)}
 
-def _transformPhenotypes_(phenotypeTransformations = {210:(1,1),211:(0,1),212:(2,1),213:(5,1),214:(5,1),215:(5,1)}):
+#transformationMap = {1: (1,1), 2: (1,1), 3: (1,1), 4: (1,1), 5: (1,1), 6: (1,1), 7: (1,1), 
+#					8: (0,1),
+#					9: (0,3), 10: (0,3), 11: (0,3), 12: (0,3), 13: (0,3),
+#					14: (0,1), 15: (0,1), 16: (1,1), 17: (0,1), 18: (0,1), 19: (0,1), 20: (0,1), 
+#					21: (0,1), 22: (1,1), 23: (0,1), 24: (1,1), 25: (0,1), 26: (0,1), 27: (0,1), 28: (1,1), 29: (0,1), 30: (1,1), 31: (1,1),
+#					32: (0,3), 33: (0,3), 34: (0,3), 35: (0,3), 36: (0,3), 37: (0,3), 38: (0,3),
+#					39: (1,1), 40: (1,1), 41: (1,1), 42: (1,1), 43: (1,1), 44: (1,1), 45: (1,1), 46: (1,1), 47: (1,1), 48: (7,1),
+#					57: (0,1), 58: (0,1), 59: (1,1), 60: (1,1), 61: (1,1), 62: (1,1), 
+#					63: (0,1), 64: (0,1), 65: (6,1), 66: (0,1), 67: (6,1), 68: (0,1), 69: (0,1), 70: (0,1), 71: (6,1), 72: (0,1), 73: (6,1), 74: (0,1), 75: (1,1), 76: (1,1), 
+#					77: (0,3), 78: (0,3), 79: (0,3), 
+#					80: (1,1), 81: (1,1), 82: (1,1), 
+#					158: (0,2), 159: (0,2), 160: (1,2), 161: (0,2), 162: (4,3), 163: (1,2), 164: (1,1), 165: (0,1), 166: (0,1), 167: (0,3), 168: (0,3), 169: (0,3), 170: (0,3), 
+#					171: (0,3), 172: (0,3), 173: (0,2), 174: (0,2), 175: (0,2), 176: (0,3), 177: (0,3), 178: (0,3), 179: (0,2), 180: (0,2), 181: (0,2), 182: (1,1), 
+#					183: (1,1), 184: (1,1), 185: (0,1), 186: (0,1)}
+
+
+transformation2phenotype = {0: [8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 29, 32, 33, 34, 35, 36, 37, 
+							38, 57,	58, 63, 64, 66, 68, 69, 70, 72, 74, 77, 78, 79, 158, 159, 161, 165, 166, 167, 168, 169, 
+							170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 185, 186], 
+							1: [1, 2, 3, 4, 5, 6, 7, 16, 22, 24, 28, 30, 31, 39, 40, 41, 42, 43, 44, 45, 46, 47, 59, 60, 61, 62,
+							75, 76, 80, 81, 82, 160, 163, 164, 182, 183, 184], 
+							4: [162], 
+							6: [ 65, 67, 71, 73], 
+							7: [48]}
+
+
+datatypeDict = {1:"quantitative",2:"ordered_categorical",3:"binary"}
+transformationTypes = {0:"None", 1:"Log(x)", 2:"Log(0.5+x)", 3:"Log(5+x)", 4:"(x-3)", 5:"Log(x) w. outlier cutoff = IQR*10", 6: "Log(SD/10+x)", 7:"Ranks", 8:"Log(-x-minVal+SD/10)", 9:"Log(x) w. 192 only"}
+
+
+def _fakeTransformPhenotypes_():
+	import os
+	res_dir = "/Network/Data/250k/tmp-bvilhjal/emma_results/"
+	phenotypeFile = "/Network/Data/250k/dataFreeze_011209/phenotypes_all_raw_012509.tsv"
+	phed = phenotypeData.readPhenotypeFile(phenotypeFile, delimiter = '\t')
+	for p_i in transformationMap: 
+		(trans_type,data_type) = transformationMap[p_i]
+		print trans_type
+		if trans_type==1 or trans_type==6:
+			t_type = "new_logTransform" #m"
+		elif trans_type==9 :
+			t_type = "new_logTransform_f192" #m"
+		elif trans_type==5:
+			t_type = "newDataset_logTransform_noOutliers"
+		elif trans_type==7:
+			t_type = "new_ranks"
+		elif trans_type==8:
+			t_type = "neg_const_logTransform"
+		else: #if trans_type==0:
+			t_type = "new_raw"
+		phenName = phed.getPhenotypeName(p_i)
+#		oldName = res_dir+"Emma_"+t_type+"_"+phenName+".pvals"
+#		newName = res_dir+"Emma_new_trans_"+phenName+".pvals"
+#		cp_command = "sudo cp "+oldName+" "+newName
+#		print cp_command
+#		os.system(cp_command)
+		oldName = res_dir+"Emma_"+t_type+"_"+phenName+".sr.pvals"
+		newName = res_dir+"Emma_new_trans_"+phenName+".sr.pvals"
+		cp_command = "sudo cp "+oldName+" "+newName
+		print cp_command
+		os.system(cp_command)
+
+
+def _transformPhenotypes_(phenotypeTransformations = {224:(0,1),225:(0,1),226:(1,1),227:(0,1),228:(1,1),229:(0,1),230:(1,1),231:(0,1),232:(1,1),233:(1,1),234:(1,1),235:(1,1),236:(0,1),237:(1,1),238:(1,1),239:(0,1),240:(1,1),241:(0,1),242:(1,1)}):
 	"""
 	Transforms phenotypes.  {phenotype_id: (type_transform,data_type)}
 	"""
-	datatypeDict = {1:"quantitative",2:"ordered_categorical",3:"binary"}
-	transformationTypes = {0:"None", 1:"Log(x)", 2:"Log(0.5+x)", 3:"Log(5+x)", 4:"(x-3)", 5:"Log(x) w. outlier cutoff = IQR*10"}
 	
 	#																			 32			   58						66							74								  90				   110 
 	
@@ -258,5 +323,6 @@ def _test1_():
 if __name__ == '__main__':
 	#_test1_()
 	#_transformPhenotypes_()
-	_run_()
+	_fakeTransformPhenotypes_()
+	#_run_()
 

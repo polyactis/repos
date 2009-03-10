@@ -6,14 +6,14 @@ Option:
 	-z ..., --hostname=...	the hostname, (papaya.usc.edu is default).
 	-u ..., --user=...	the username, (otherwise it will ask for it).
 	-p ..., --passwd=...	the password, (otherwise it will ask for it).
-        -o ...,	output file
-        -t ..., --method=...    (1 is default)
-        -d ..., --delim=...         default is ", "      
-        -m ..., --missingval=...    default is "NA"
+	-o ...,	output file
+	-t ..., --method=...	(1 is default)
+	-d ..., --delim=...		 default is ", "	  
+	-m ..., --missingval=...	default is "NA"
 	-a ..., --withArrayId=...   0 for no array ID info (default), 1 if file has array ID info.
-        --callProbFile=...,	output call probabilities in a file
+	--callProbFile=...,	output call probabilities in a file
 	-h, --help	show this help
-	--newBatch      retrieves only the new batch. (This option is volatile)
+	--newBatch	  retrieves only the new batch. (This option is volatile)
 
 Examples:
 	Output250KSNPs.py -o /tmp/250K.csv
@@ -99,4 +99,3 @@ def _run_():
 
 if __name__ == '__main__':
 	_run_()
-

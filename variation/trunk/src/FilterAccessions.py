@@ -17,6 +17,7 @@ Option:
 				    file).
 	--onlyCommon		    removes all accessions which are not both in the input file and the comparison file,
 				    (requires a comparison file).
+        --heterozygous2NA           Treat heterozygous SNPs as NAs 
 
         --first96                   Outputs only the first (old) 96 accessions.
 	-b, --debug	            enable debug
@@ -39,7 +40,9 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "removeEcotypeId=", "removeArrayId=", "first96", "removeIdentical", "onlyCommon", "delim=", "missingval=", "withArrayId=", "debug", "report", "help"]
+	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "removeEcotypeId=", "removeArrayId=", "first96", 
+			     "removeIdentical", "onlyCommon", "delim=", "missingval=", "withArrayId=", "debug", "report", 
+			     "help", "heterozygous2NA"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:bh", long_options_list)
 
@@ -57,7 +60,7 @@ def _run_():
 	comparisonFile = None
 	maxMissing = 1.0
 	maxError = 1.0
-	removeEcotype = None
+	removeEcotypes = None
 	removeArray = None
 	removeIdentical = False
 	onlyCommon = False
@@ -66,6 +69,7 @@ def _run_():
 	help = 0
 	withArrayIds = 1
 	first96 = False
+	heterozygous2NA = False
 	
 	for opt, arg in opts:
 		if opt in ('-o'):
@@ -81,8 +85,11 @@ def _run_():
 			maxError = float(arg)
 		elif opt in ("--maxMissing"):
 			maxMissing = float(arg)
+		elif opt in ("--heterozygous2NA"):
+			heterozygous2NA = True
 		elif opt in ("--removeEcotypeId"):
-			removeEcotype = int(arg)
+			removeEcotypes = arg.split(",")
+			removeEcotypes = map(int,removeEcotypes)
 		elif opt in ("--removeArrayId"):
 			removeArray = int(arg)
 		elif opt in ("--removeIdentical"):
@@ -155,7 +162,7 @@ def _run_():
 		res = []
 		sys.stderr.write("Comparing accessions.")
 		for i in range(0,len(snpsds)):
-			res.append(snpsds[i].compareWith(snpsds2[i],withArrayIds=withArrayIds,verbose=False))
+			res.append(snpsds[i].compareWith(snpsds2[i],withArrayIds=withArrayIds,verbose=False,heterozygous2NA=heterozygous2NA))
 			sys.stderr.write(".")
 		sys.stderr.write("\n")
 
@@ -256,13 +263,15 @@ def _run_():
 					accessionsToRemove.append(ecotype)
 
 
-	if removeEcotype:
-		accessionsToRemove.append(str(int(removeEcotype)))
+	if removeEcotypes:
+		for removeEcotype in removeEcotypes:
+			accessionsToRemove.append(str(int(removeEcotype)))
+		print "Removing", len(accessionsToRemove), "accessions."
 	if removeArray:
 		if not arraysToRemove:
 			arraysToRemove = []
 		arraysToRemove.append(str(removeArray))
-		
+		print "Removing", len(arraysToRemove)," arrays."
 
 	numAccessions = len(snpsds[0].accessions)
 	sys.stderr.write("Removing accessions.")

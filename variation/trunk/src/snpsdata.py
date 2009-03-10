@@ -6,8 +6,8 @@ This python library aims to do two things.
 Bjarni Vilhjalmsson, bvilhjal@usc.edu
 """
 
-from sets import Set
-from sets import Set as set
+#from sets import Set
+#from sets import Set as set
 import sys
 
 class _SnpsData_(object):
@@ -15,18 +15,15 @@ class _SnpsData_(object):
 	05/11/2008 yh. add chromosome
 	An abstract superclass.
 	"""
-	accessions = [] #list[accession_index]
-	arrayIds = None #list[accession_index]
-	snps = []  #list[position_index][accession_index]
-	positions = [] #list[position_index]
-	chromosome = None
+	alphabet = None
+	missingVal = None
 	def __init__(self,snps,positions,baseScale=None,accessions=None,arrayIds=None, chromosome=None):
-		self.snps = snps
-		self.positions = positions
+		self.snps = snps #list[position_index][accession_index]
+		self.positions = positions #list[position_index]
 		if accessions: 
-			self.accessions=accessions
+			self.accessions=accessions #list[accession_index]
 		if arrayIds: 
-			self.arrayIds=arrayIds
+			self.arrayIds=arrayIds #list[accession_index]
 		self.chromosome = chromosome
 
 	def scalePositions(self,baseScale):
@@ -62,14 +59,36 @@ class _SnpsData_(object):
 		self.positions = newPositions
 		return numRemoved
 
+	def onlyBinarySnps(self):
+		"""
+		Removes all but binary SNPs.  (I.e. monomorphic, tertiary and quaternary alleles SNPs are removed.)
+		"""
+		newPositions = []
+		newSnps = []
+		for i in range(0,len(self.positions)):
+			count = 0
+			for nt in self.alphabet:
+				if nt in self.snps[i]:
+					count += 1
+			if count==2:
+				newSnps.append(self.snps[i])
+				newPositions.append(self.positions[i])
+		numRemoved = len(self.positions)-len(newPositions)
+		self.no_of_nonbinary_snps_removed = numRemoved
+		self.snps = newSnps
+		self.positions = newPositions
+		return numRemoved
+	
+	
+	
 	def orderAccessions(self,accessionMapping):
-		newAccessions = [""]*len(self.accessions)
+		newAccessions = [None for i in range(0,len(accessionMapping))]
 		for (i,j) in accessionMapping:
 			newAccessions[j]=self.accessions[i]
 
 		newSnps = []
 		for pos in self.positions:
-			newSnps.append([""]*len(self.accessions))
+			newSnps.append([self.missingVal for i in range(0,len(accessionMapping))])
 		
 		for (i,j) in accessionMapping:
 			for posIndex in range(0,len(self.positions)):
@@ -79,11 +98,12 @@ class _SnpsData_(object):
 		self.snps = newSnps
 
 		if self.arrayIds:
-			newArrayIds = [""]*len(self.arrayIds)
+			newArrayIds = [None for i in range(0,len(self.arrayIds))]
 			for (i,j) in accessionMapping:
 				newArrayIds[j]=self.arrayIds[i]
+			self.arrayIds = newArrayIds
 
-			self.arrayIds = arrayIds
+	
 
 	
 	def filterRegion(self,startPos,endPos):
@@ -103,6 +123,9 @@ class _SnpsData_(object):
 		self.snps = newSnps
 		self.positions = newPositions
 
+
+
+
 class RawDecoder(dict):
 	def __missing__(self, key):
 		return 'NA'
@@ -111,6 +134,7 @@ class RawDecoder(dict):
 			self[letter]=letter
 		for letter in initdict:
 			self[letter]=initdict[letter]
+	
 	
 
 class RawSnpsData(_SnpsData_):
@@ -130,10 +154,8 @@ class RawSnpsData(_SnpsData_):
 	def __init__(self,snps=None,positions=None,baseScale=None,accessions=None,arrayIds=None, callProbabilities=None):
 		self.snps = snps
 		self.positions = positions
-		if accessions: 
-			self.accessions=accessions
-		if arrayIds: 
-			self.arrayIds=arrayIds
+		self.accessions=accessions
+		self.arrayIds=arrayIds
 		if callProbabilities:
 			self.callProbabilities = callProbabilities
 
@@ -440,7 +462,8 @@ class RawSnpsData(_SnpsData_):
 				break
 		
 		
-		print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
+		if len(snpErrorRate):
+			print "Mean Snp Error:",sum(snpErrorRate)/float(len(snpErrorRate))
 		print "Number of SNPs in merged data:",len(newPositions)
 		print "Number of SNPs in merged data:",len(newSnps)
 		print "Number of accessions in merged data:",len(newAccessions)
@@ -505,7 +528,7 @@ class RawSnpsData(_SnpsData_):
 						if snp1!=snp2:
 							fails = fails+1
 
-					if self.snps[index[0]] == self.missingVal or priority==2 and self.snps[index[1]] != self.missingVal:
+					if self.snps[i][index[0]] == self.missingVal or priority==2 and snpsd.snps[j][index[1]] != self.missingVal:
 						self.snps[i][index[0]]=snpsd.snps[j][index[1]]		   
 
 				goodSnpsCounts.append(counts)
@@ -525,7 +548,7 @@ class RawSnpsData(_SnpsData_):
 
 
 
-	def compareWith(self,snpsd, withArrayIds=0, verbose=True):
+	def compareWith(self,snpsd, withArrayIds=0, verbose=True, heterozygous2NA=False):
 		"""
 		05/10/2008 len(commonSnpsPos) could be zero
 		This function performs QC on two datasets.
@@ -534,6 +557,8 @@ class RawSnpsData(_SnpsData_):
 
 		withArrayIds = 0 (no array IDs), =1 the object called from has array IDs, =2 both objects have array IDs 
 		"""
+		basicAlphabet = ['-','A','C','G','T']
+
 		if verbose:
 			print "Comparing datas"
 			print "Number of snps:",len(self.snps),"and",len(snpsd.snps)
@@ -587,19 +612,35 @@ class RawSnpsData(_SnpsData_):
 					accIndices = accessionsIndices[k]
 					snp1 = self.snps[i][accIndices[0]]
 					snp2 = snpsd.snps[j][accIndices[1]]
-					if snp1!=self.missingVal and snp2!=self.missingVal:
-						accessionCounts[k] += 1
-						counts += 1
-						if snp1!=snp2:
-							fails = fails+1
-							accessionErrorRate[k] += 1
+					
+					if heterozygous2NA:
+						if snp1 in basicAlphabet and snp2 in basicAlphabet:
+							accessionCounts[k] += 1
+							counts += 1
+							if snp1!=snp2:
+								fails = fails+1
+								accessionErrorRate[k] += 1
+						else:
+							if snp1==self.missingVal:
+								accessionCallRates[0][k]+=1
+								missing1 += 1
+							if snp2==self.missingVal:
+								accessionCallRates[1][k]+=1
+								missing2 += 1
 					else:
-						if snp1==self.missingVal:
-							accessionCallRates[0][k]+=1
-							missing1 += 1
-						if snp2==self.missingVal:
-							accessionCallRates[1][k]+=1
-							missing2 += 1
+						if snp1!=self.missingVal and snp2!=self.missingVal:
+							accessionCounts[k] += 1
+							counts += 1
+							if snp1!=snp2:
+								fails = fails+1
+								accessionErrorRate[k] += 1
+						else:
+							if snp1==self.missingVal:
+								accessionCallRates[0][k]+=1
+								missing1 += 1
+							if snp2==self.missingVal:
+								accessionCallRates[1][k]+=1
+								missing2 += 1
 				goodSnpsCounts.append(counts)
 				error = 0
 				totalCounts += counts
@@ -706,7 +747,7 @@ class RawSnpsData(_SnpsData_):
 
 		newSnps = []
 		newPositions = []
-		sys.stderr.write( "Comparing datas. Number of snps: %s vs %s"%(len(self.snps), len(snpsd.snps)))
+		sys.stderr.write( "Comparing datas. Number of snps: %s vs %s. \n"%(len(self.snps), len(snpsd.snps)))
 		# Find common accession indices
 		accessionsIndices = []
 		commonAccessions = []
@@ -756,7 +797,7 @@ class RawSnpsData(_SnpsData_):
 				# One pointer has reached and the end and the other surpassed it.
 				break
 		self.no_of_snps_filtered_by_mismatch = len(self.snps)-len(newSnps)
-		sys.stderr.write('%s were filtered\n'%(self.no_of_snps_filtered_by_mismatch))
+		sys.stderr.write('%s SNPs were filtered\n'%(self.no_of_snps_filtered_by_mismatch))
 		self.snps = newSnps
 		self.positions = newPositions
 		
@@ -833,7 +874,47 @@ class RawSnpsData(_SnpsData_):
 
 	def filterMinMAF(self, minMAF=0):
 		"""
-		Removes SNPs from the data which have a MAF less than the given one.
+		Removes SNPs from the data which have a minor allele count less than the given one.
+		"""
+		newPositions = []
+		newSnps = []
+		ntCounts = [0.0]*len(self.alphabet)
+		ntl = self.alphabet
+		for i in range(0,len(self.positions)):
+			snp = self.snps[i]
+			totalCount = 0
+			for j in range(0,len(self.alphabet)):
+				nt = ntl[j]
+				c = snp.count(nt)
+				ntCounts[j] = c
+				totalCount += c
+			if totalCount==0 :
+				print "snp:",snp
+				print "self.alphabet:",self.alphabet
+			maxAF = max(ntCounts)
+			maf = 0
+			if ntCounts.count(maxAF)<2:
+				for j in range(0,len(self.alphabet)):
+					if ntCounts[j]<maxAF and ntCounts[j] > 0:
+						if ntCounts[j]>maf:
+							maf = ntCounts[j]
+			else:
+				maf = maxAF
+								
+			if minMAF<=maf:
+				newSnps.append(self.snps[i])
+				newPositions.append(self.positions[i])
+
+		numRemoved = len(self.positions)-len(newPositions)
+		self.snps = newSnps
+		self.positions = newPositions
+		return numRemoved
+
+
+
+	def filterMinRMAF(self, minMAF=0):
+		"""
+		Removes SNPs from the data which have a Relative MAF less than the given one.
 		"""
 		newPositions = []
 		newSnps = []
@@ -872,34 +953,14 @@ class RawSnpsData(_SnpsData_):
 		return numRemoved
 
 
-	def onlyBinarySnps(self):
-		"""
-		Removes all but binary SNPs.  (I.e. monomorphic, tertiary and quaternary alleles SNPs are removed.)
-		"""
-		newPositions = []
-		newSnps = []
-		for i in range(0,len(self.positions)):
-			count = 0
-			for nt in self.alphabet:
-				if nt in self.snps[i]:
-					count += 1
-			if count==2:
-				newSnps.append(self.snps[i])
-				newPositions.append(self.positions[i])
-		numRemoved = len(self.positions)-len(newPositions)
-		self.no_of_nonbinary_snps_removed = numRemoved
-		self.snps = newSnps
-		self.positions = newPositions
-		return numRemoved
+
 
 	
 	def removeAccessions(self,accessions,arrayIds=None):
 		"""
-		05/10/08 modified by yh. merge the function and replace list with Set to look up
-		
 		Removes accessions from the data.
 		"""
-		accPair = Set()
+		accPair = set()
 		for i in range(0,len(accessions)):
 			if arrayIds:
 				key = (accessions[i],arrayIds[i])
@@ -985,6 +1046,8 @@ class RawSnpsData(_SnpsData_):
 					st += acc+" has "+str(count)+" occurrences.\n\n"
 		return st
 
+ 		
+ 
  
 class SnpsData(_SnpsData_):
 	"""
@@ -996,14 +1059,38 @@ class SnpsData(_SnpsData_):
 	#freqs = [] #list[position_index1][position_index2-position_index1+1] Linkage frequencies. 
 	#baseScale = 1 #Scaling for positions
 	alphabet = [0,1,2,3]
-	def __init__(self,snps,positions,baseScale=None,accessions=None):
+	missingVal = -1
+	def __init__(self,snps,positions,baseScale=None,accessions=None,arrayIds=None,chromosome=None):
 		self.snps = snps 
 		self.positions = positions
 		if baseScale:
 			self.scalePositions(baseScale)
-		if accessions: 
-			self.accessions=accessions
+		self.accessions=accessions
+		self.arrayIds = arrayIds
+		self.chromosome=chromosome
 
+
+	def clone(self):
+		"""
+		Filter all SNPs but those in region.
+		"""
+		newSNPs = []
+		newPositions = []
+		newAccessions = []
+		for acc in self.accessions:
+			newAccessions.append(acc)
+		
+		
+		for i in range(0,len(self.positions)):
+			new_snp = []
+			for j in range(0,len(self.accessions)):
+				new_snp.append(self.snps[i][j])
+			newSNPs.append(new_snp)
+			newPositions.append(self.positions[i])
+				
+		return SnpsData(newSNPs, newPositions, accessions=newAccessions,arrayIds=self.arrayIds,chromosome=self.chromosome)
+
+		
 
 	def calcFreqs(self,windowSize, innerWindowSize = 0): # Returns a list of two loci comparison frequencies with in a window.
 		freqs =	[]
@@ -1427,8 +1514,36 @@ class SNPsDataSet:
 						
 			rl_i += 1
 
+def readSNPsDataSetFile(delim=","):
+	"""
+	Read data file and return a SNPsDataSet object.
+	"""
+	pass
+	
+def readSNPsDataSetAccessions(datafile,delim=","):
+	f = open(datafile, 'r')
+	line = f.readline().split(delim)
+	arrayIDs = []
+	if line[0]!="Chromosome":
+		for aID in line[2:]:
+			arrayIDs.append(aID.strip())		
+		line = f.readline().split(delim)
+	f.close()
+	accessions = []
+	for acc in line[2:]:
+		accessions.append(acc.strip())
+	return (accessions,arrayIDs)
 
-def coordinateSnpsAndPhenotypeData(phed,p_i,snpsds):
+
+
+
+def coordinateSnpsAndPhenotypeData(phed,p_i,snpsds,onlyBinarySNPs=True):
+	"""
+	1. Remove accessions which are not in either of the two datasets
+	2. Order the data in same way.
+	3. Remove monomorphic SNPs
+	"""
+	
 	numAcc = len(snpsds[0].accessions)
 	phenotype = phed.getPhenIndex(p_i)
 	accIndicesToKeep = []			
@@ -1466,6 +1581,9 @@ def coordinateSnpsAndPhenotypeData(phed,p_i,snpsds):
 	phed.orderAccessions(accessionMapping)
 	
 
+	for snpsd in snpsds:
+		snpsd.onlyBinarySnps()
+			
 
 
 def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator=", ", missingVal = "NA", accDecoder=None, withArrayIds = False, callProbFile=None):
@@ -1543,6 +1661,13 @@ def writeRawSnpsDatasToFile(filename,snpsds,chromosomes=[1,2,3,4,5], deliminator
 		
 	sys.stderr.write("Done.\n")
 
+def getMAF(snp,alphabet=[0,1]): 
+	counts = []
+	for letter in alphabet:
+		counts.append(snp.count(letter))
+	maf = min(counts) 
+	marf = maf/float(sum(counts))
+	return (marf,maf)
 
 def estimateRecomb(snpsdList,baseNum,filterProb,id):
 	rho = 0

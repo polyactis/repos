@@ -11,13 +11,13 @@ import plotResults, gwaResults,pylab
 class RegionPlotter():
 	
 	def __init__(self,phenotypeIndices=None,snpsds=None,results=None,results_map=None):
-		phenotypeFile = "/Network/Data/250k/dataFreeze_080608/phenotypes_all_raw_102208.tsv"
+		phenotypeFile = "/Network/Data/250k/dataFreeze_011209/phenotypes_all_raw_012509.tsv"
 		self.phed = phenotypeData.readPhenotypeFile(phenotypeFile, delimiter='\t')
-		if snpsds:
-			self.snpsds = snpsds
-		else:
-			snpsDataFile="/Network/Data/250k/dataFreeze_080608/250K_f11_100708.csv"
-			self.snpsds = dataParsers.parseCSVData(snpsDataFile, format=1, deliminator=",")
+		#if snpsds:
+		self.snpsds = snpsds
+		#else:
+		#	snpsDataFile="/Network/Data/250k/dataFreeze_011209/250K_f13_012509.csv"
+		#	self.snpsds = dataParsers.parseCSVData(snpsDataFile, format=1, deliminator=",")
 		self.results_map = {}	
 		if results_map:
 			self.results_map=results_map
@@ -37,43 +37,43 @@ class RegionPlotter():
 	
 		res_path="/Network/Data/250k/tmp-bvilhjal/"
 
-		resultsDirs = [res_path+"kw_results/",res_path+"emma_results/",res_path+"marg_results/",res_path+"rf_results/",res_path+"cs_results/"]
-		methods=["KW","Emma","Marg","RF"]#,"CS"]
-		fileTypes=[".pvals",".pvals",".score",".imp",".score"]
-		#csDataName = "newDataset_ker_v3_bc1_vs_cgl129_g8_f33_w5000"
-		#csDataName = "newDataset_ker_v3_bc3_vs_cgl43_g10_f33_w10000"
-		#csDataName = "newDataset_simpleCS"
-		#csDataName = "newDataset_ker_w10000_g10_cgl129_bc_1"
-		csDataName = "newDataset_simpleCS"
-		datasetNames=["newDataset","newDataset","newDataset","newDataset",csDataName]
-		logTransform = [True,True,False,False,False]
-		mafCutoffs = [0,15,0,15,0]
+		resultsDirs = [res_path+"kw_results/",res_path+"kw_results/",res_path+"emma_results/",res_path+"emma_results/"]
+		methods=["KW","KW","Emma","Emma"]
+		fileTypes=[".pvals",".sr.pvals",".pvals",".sr.pvals",]
+		datasetNames=["new_raw","new_raw","new_trans","new_trans"]
+		logTransform = [True,True,True,True]
+		mafCutoffs = [0,0,15,15]
+		percentiles = [0.0,0.9,0.0,0.9]
+		interactionResults = [False,True,False,True]
 
 		#mrIndex = 1  #The guiding (main) result
 
 		self.results_map = {}
 		for i in phenotypeIndices:
 			phenName=self.phed.getPhenotypeName(i)
-			phenName = phenName.replace("/","_div_")
-			phenName = phenName.replace("*","_star_")
-			phenIndex = self.phed.getPhenIndex(i)
 			
 			results = []
 			resultTypes = []
 			for j in range(0,len(methods)):
-				try:
+				#try:
 					resultFile=resultsDirs[j]+methods[j]+"_"+datasetNames[j]+"_"+phenName+fileTypes[j]
 					print "Loading result file",resultFile
-					result = gwaResults.SNPResult(resultFile,self.snpsds,name=methods[j]+"_"+datasetNames[j]+"_"+phenName, resultType=methods[j], phenotypeID=i)
+					rt = gwaResults.ResultType(resultType=methods[j],fileType="pvals",mafCutoff=mafCutoffs[j])
+					if self.snpsds:
+						result = gwaResults.SNPResult(resultFile,self.snpsds,name=methods[j]+"_"+datasetNames[j]+"_"+phenName, resultType=rt, phenotypeID=i)
+					else:
+						result = gwaResults.Result(resultFile,name=methods[j]+"_"+datasetNames[j]+"_"+phenName, resultType=rt, phenotypeID=i,interactionResult=interactionResults[j])
 					if logTransform[j]:
-						print "Log transformed the p-values"
+						print "Log transforming the p-values.."
 						result.negLogTransform()
 
 					result.filterMAF(minMaf=mafCutoffs[j])
+					if percentiles[j]>0:
+						result.filterPercentile(percentiles[j])
 					results.append(result)
 					resultTypes.append(methods[j])
-				except Exception:
-					print "Couldn't load",resultFile
+				#except Exception:
+				#	print "Couldn't load",resultFile
 								
 			self.results_map[i] = results
 			gc.collect()  #Calling garbage collector, in an attempt to clean up memory..
@@ -82,7 +82,7 @@ class RegionPlotter():
 	def plotReg(self,region,phenotypeID,snpPos=None,pdfFile=None,pngFile=None,tairFile=None,plotGenes=True,printTairInfo=True,binary=False,results=None):
 		return self.plotRegion(region.chromosome,region.startPos,region.endPos,phenotypeID,snpPos=snpPos,pdfFile=pdfFile,pngFile=pngFile,tairFile=tairFile,plotGenes=plotGenes,printTairInfo=printTairInfo,binary=binary,results=results)
 
-	def plotRegion(self,chr,startPos,endPos,phenotypeID,snpPos=None,pdfFile=None,pngFile=None,tairFile=None,plotGenes=True,printTairInfo=True,binary=False,results=None):
+	def plotRegion(self,chr,startPos,endPos,phenotypeID,snpPos=None,pdfFile=None,pngFile=None,tairFile=None,plotGenes=True,printTairInfo=True,binary=False,results=None,maxLogPval=None,plotColors=None,plotOrder=None,bonferoniCorrections=[6.64,9.02],labels=None):
 		if not results:
 			results = self.results_map[phenotypeID]
 		resultTypes = [result.resultType.resultType for result in results]
@@ -108,7 +108,8 @@ class RegionPlotter():
 		if plotGenes:
 			genes = tairGenes
 		if not snpPos:
-			self.drawSNPPlot(chr,startPos,endPos,phenName,results,resultTypes,genes=genes,pdfFile=pdfFile,pngFile=pngFile,binary=binary)
+			self.drawSNPPlot(chr,startPos,endPos,phenName,results,resultTypes,genes=genes,pdfFile=pdfFile,pngFile=pngFile,binary=binary,
+					maxLogPval=maxLogPval,plotColors=plotColors,plotOrder=plotOrder,bonferoniCorrections=bonferoniCorrections,labels=labels)
 		else:
 			snpsd = self.snpsds[chr-1]
 			pos = snpsd.positions[0]
@@ -125,15 +126,163 @@ class RegionPlotter():
 				print chr,snpsd.positions[i]
 				
 			snp = gwaResults.SNP(snpsd.positions[i],chr,alleles=snpsd.snps[i])
-			self.drawSNPPlot(chr,startPos,endPos,phenName,results,resultTypes,genes=genes,ldSNP=snp,pdfFile=pdfFile,pngFile=pngFile,binary=binary)
+			self.drawSNPPlot(chr,startPos,endPos,phenName,results,resultTypes,genes=genes,ldSNP=snp,pdfFile=pdfFile,pngFile=pngFile,binary=binary,
+					maxLogPval=maxLogPval,plotColors=plotColors,plotOrder=plotOrder,bonferoniCorrections=bonferoniCorrections,labels=labels)
 		
 		gc.collect()  #Calling garbage collector, in an attempt to clean up memory..
 		
 		return tairInfo
 
+	
+	
+	def drawSNPPlot(self,chr,startPos,endPos,phenName,results,resultTypes,genes=None,ldSNP=None,pdfFile=None,
+			pngFile=None,binary=False,maxLogPval=None,plotColors=None,plotOrder=None,bonferoniCorrections=[6.64,9.02],labels=None):
+		"""
+		Draws a snp-plot
+		
+		At least on result is required.
+		
+		requires pylab to be installed.
+		"""
+  		#FIXME: Handle ldSNP....
+   
+   		if not plotColors:
+   			plotColors = []
+   			defaultColors = ['b','r','c','g','m','y']
+   			for i in range(0,len(results)):
+   				plotColors.append(defaultColors[i%len(defaultColors)])
+   
+		if not plotOrder:
+			plotOrder = range(1,len(results)+1)
+			
+		if not labels:
+   			labels = [""]*len(results)
+			
+   		if not maxLogPval:
+   			maxList = []
+   			for result in results:
+   				maxList.append(max(result.scores))
+   			maxLogPval = max(maxList)
+   			
+   		
+		import pylab
+		size = endPos - startPos
+	 
+			
+		maxVal = maxLogPval
+		minVal = 0
+		rangeVal = maxVal-minVal
 
 		
-	def drawSNPPlot(self,chr,startPos,endPos,phenName,results,resultTypes,genes=None,ldSNP=None,pdfFile=None,pngFile=None,binary=False):
+		positionsList = []
+		scoreList = []
+#		if result.interactionResult:
+		
+		newMaxPos=0 
+		for result in results:
+			positions = []
+			scores = []
+			i = 0
+			
+			currPos = result.positions[0]
+			currChr = result.chromosomes[0]
+		
+			while currChr<chr: 
+				i += 1
+				currChr = result.chromosomes[i]
+			#Found chromsome..
+	
+			while currChr==chr and currPos<startPos:
+				i += 1
+				currPos = result.positions[i]
+				currChr = result.chromosomes[i]
+			#Found start..
+	
+			while currChr==chr and currPos<endPos:
+				currPos = result.positions[i]
+				pos=currPos
+				if result.interactionResult:
+					pos = []
+					pos.append(currPos)
+					pos += result.interactionPositions[i]
+					
+				positions.append(pos)			
+				if maxLogPval and result.scores[i]>maxVal:
+					scores.append(maxVal)
+				else:
+					scores.append(result.scores[i])			
+				i += 1
+				currChr = result.chromosomes[i]
+				currPos = result.positions[i]
+	
+			positionsList.append(positions)
+			scoreList.append(scores)
+			if result.interactionResult:
+				for p_list in positions:
+					if max(p_list)> newMaxPos:
+						newMaxPos=max(p_list)
+		
+		endPos = max(endPos,newMaxPos)
+		posRange = endPos-startPos
+
+
+		#Now plotting...
+		print "Now plotting.."
+		if genes:
+			numGeneLines= int(2+len(genes)/14)
+			pylab.figure(1,figsize=(18,4+0.4*numGeneLines))
+		else:
+			pylab.figure(1,figsize=(18,4))
+
+
+		for i in plotOrder:
+			print "plotting",i," result."
+			positions = positionsList[i-1]
+			scores = scoreList[i-1]
+			c = plotColors[i-1]
+			l = labels[i-1]
+			print "interactionResult:",results[i-1].interactionResult
+			if results[i-1].interactionResult and len(positions)>0:
+				for (pos,score) in zip(positions,scores):
+					p_list = list(pos)
+					s_list = [score]*len(p_list)
+					pylab.plot(p_list,s_list,":",color=c,ms=1.8,lw=0.8)
+					for (p,s) in zip(p_list,s_list):
+						pylab.plot([p],[s],".",color=c,ms=1.8)	
+				pylab.plot([p],[s],".",color=c,label=l,ms=1.8)							
+			else:
+				pylab.plot(positions,scores,".",color=c,label=l)
+
+		for bfc in bonferoniCorrections:
+			pylab.plot([startPos-0.05*posRange,endPos+0.05*posRange],[bfc,bfc],"k-.")
+
+		if genes:
+			numGeneLines= int(2+len(genes)/14)
+			self.drawGenes(genes, gene_position_cycle=numGeneLines)
+			pylab.axis([startPos-0.05*posRange,endPos+0.05*posRange,minVal-rangeVal*0.05-0.49*numGeneLines,maxVal+rangeVal*0.05])
+		else:
+			pylab.axis([startPos-0.05*posRange,endPos+0.05*posRange,minVal-rangeVal*0.05,maxVal+rangeVal*0.05])
+
+		pylab.title(phenName+": chromosome "+str(chr)+".")
+
+		pylab.subplots_adjust(right=0.98)
+		pylab.subplots_adjust(left=0.03)
+		pylab.subplots_adjust(bottom=0.15)
+		pylab.subplots_adjust(top=0.9)
+		pylab.legend(numpoints=2,handlelen=0.005)
+
+		if pdfFile:
+			pylab.savefig(pdfFile,format="pdf")
+		if pngFile:
+			pylab.savefig(pngFile,format="png")
+		if not (pdfFile or pngFile):
+			pylab.show()
+
+		pylab.close(1)
+
+		
+	def drawSNPPlot_old(self,chr,startPos,endPos,phenName,results,resultTypes,genes=None,ldSNP=None,pdfFile=None,
+			pngFile=None,binary=False,maxLogPval=12,interactionResult=[False]):
 		"""
 		Draws a snp-plot
 		
@@ -145,21 +294,23 @@ class RegionPlotter():
 		import pylab
 		size = endPos - startPos
 	 
-		maxVal = 12
+		maxVal = maxLogPval
 		minVal = 0
 		rangeVal = maxVal-minVal
-		pvals = [True,True,False,False,False]
+		pvals = [True,True,True,True]
 
 		positionsList = []
 		scoreList = []
 		snps = []
-	
+		
 		result = results[0]
 		positions = []
 		scores = []
 		i = 0
 		currPos = result.positions[0]
 		currChr = result.chromosomes[0]
+		if interactionResults[0]:
+			iPositions = []
 		
 		while currChr<chr: 
 			i += 1
@@ -171,13 +322,17 @@ class RegionPlotter():
 			currPos = result.positions[i]
 			currChr = result.chromosomes[i]
 		#Found start..
-	
+
 		while currChr==chr and currPos<endPos:
 			currPos = result.positions[i]
+			pos = []
+			pos.append(currPos)
+			if interactionResults[0]:
+				pos += result.interactionPositions
 			currChr = result.chromosomes[i]
 			if ldSNP:
 				snps.append(result.snps[i])
-			positions.append(currPos)			
+			positions.append(pos)			
 			if result.scores[i]>maxVal and pvals[0]:
 				scores.append(maxVal)
 			else:
@@ -208,8 +363,12 @@ class RegionPlotter():
 	
 			while currChr==chr and currPos<endPos:
 				currPos = result.positions[i]
+				pos = []
+				pos.append(currPos)
+				if interactionResults[0]:
+					pos.append(result.interactionResults[i])
 				currChr = result.chromosomes[i]
-				positions.append(currPos)			
+				positions.append(pos)			
 				if result.scores[i]>10 and pvals[j]:
 					scores.append(10.0)
 				else:
@@ -224,10 +383,10 @@ class RegionPlotter():
 		endPos = positionsList[0][len(positionsList[0])-1]
 		for i in range(1,len(positionsList)):
 			positions = positionsList[i]
-			if positions[0]<startPos:
-				startPos = positions[0]
-			if positions[len(positions)-1]>endPos:
-				endPos = positions[len(positions)-1]
+			if positions[0][0]<startPos:
+				startPos = positions[0][0]
+			if positions[len(positions)-1][0]>endPos:
+				endPos = positions[len(positions)-1][0]
 		posRange = endPos-startPos
 
 		if genes:
@@ -266,8 +425,8 @@ class RegionPlotter():
 
 	
 		pylab.plot(positionsList[0],scoreList[0],"r.",label='KW')
-		if not binary:
-			pylab.plot(positionsList[1],scoreList[1],"b.",label='Emma')
+#		if not binary:
+#			pylab.plot(positionsList[1],scoreList[1],"b.",label='Emma')
 
 		pylab.plot([startPos-0.05*posRange,endPos+0.05*posRange],[6.68,6.68],"k:")
 
@@ -805,8 +964,19 @@ def na_23(rp):
 	
 
 
+def _test_():
+	rp = RegionPlotter([1,2,3,4,5,6,7])
+	rp.plotRegion(5, 18550000, 18670000,1,pngFile='/Users/bjarni/tmp/DOG_region_1.png',labels=["KW","KW SR","Emma","Emma SR"],plotColors=['b','g','r','c'],plotOrder=[2,4,1,3])
+	rp.plotRegion(5, 18550000, 18670000,2,pngFile='/Users/bjarni/tmp/DOG_region_2.png',labels=["KW","KW SR","Emma","Emma SR"],plotColors=['b','g','r','c'],plotOrder=[2,4,1,3])
+	rp.plotRegion(5, 18550000, 18670000,3,pngFile='/Users/bjarni/tmp/DOG_region_3.png',labels=["KW","KW SR","Emma","Emma SR"],plotColors=['b','g','r','c'],plotOrder=[2,4,1,3])
+	rp.plotRegion(5, 18550000, 18670000,4,pngFile='/Users/bjarni/tmp/DOG_region_4.png',labels=["KW","KW SR","Emma","Emma SR"],plotColors=['b','g','r','c'],plotOrder=[2,4,1,3])
+	rp.plotRegion(5, 18550000, 18670000,5,pngFile='/Users/bjarni/tmp/DOG_region_5.png',labels=["KW","KW SR","Emma","Emma SR"],plotColors=['b','g','r','c'],plotOrder=[2,4,1,3])
+	rp.plotRegion(5, 18550000, 18670000,6,pngFile='/Users/bjarni/tmp/DOG_region_6.png',labels=["KW","KW SR","Emma","Emma SR"],plotColors=['b','g','r','c'],plotOrder=[2,4,1,3])
+	rp.plotRegion(5, 18550000, 18670000,7,pngFile='/Users/bjarni/tmp/DOG_region_7.png',labels=["KW","KW SR","Emma","Emma SR"],plotColors=['b','g','r','c'],plotOrder=[2,4,1,3])
+
+
 if __name__ == '__main__':
-	flc_test()
+	_test_()
 	pass
 
 

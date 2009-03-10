@@ -3,15 +3,16 @@
 Usage: CompareSNPsData.py [OPTIONS] datafile1 [datafile2]
 
 Option:
-        -o ...,	--rFile=...             Output file (R format), a script that generates several graphs.
-        -d ..., --delim=...             default is ", "
-        -m ..., --missingval=...        default is "NA"
-	-a ..., --withArrayId=...       0 for no array ID info (default), 1 if first file has array ID info, 2 if both have.
-	-s ..., --statFile=...          Writes several comparison statistics to a file.
-	-c [...], --crossExamine=...    Check arrays in datafile, requires argument of what persentage of SNPs it should base the calculations on. (0.05 is default)
-	--strainIdentity                Check strains for naming errors..
-	-v, --verbose   Prints various comparison statistics to the screen.
-	-h, --help	show this help
+	-o ...,	--rFile=...		Output file (R format), a script that generates several graphs.
+	-d ..., --delim=...		default is ", "
+	-m ..., --missingval=...	default is "NA"
+	-a ..., --withArrayId=...	0 for no array ID info (default), 1 if first file has array ID info, 2 if both have.
+	-s ..., --statFile=...		Writes several comparison statistics to a file.
+	-c [...], --crossExamine=...	Check arrays in datafile, requires argument of what persentage of SNPs it should base the calculations on. (0.05 is default)
+	--strainIdentity		Check strains for naming errors..
+	--heterozygous2NA		Treat heterozygous SNPs as NAs 
+	-v, --verbose   		Prints various comparison statistics to the screen.
+	-h, --help			show this help
 
 Examples:
 	 CompareSNPsData.py datafile1 datafile2
@@ -179,7 +180,8 @@ def _run_():
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["rFile=", "delim=", "missingval=", "crossExamine=", "statFile=", "debug", "report", "help", "withArrayId=","strainIdentity"]
+	long_options_list = ["rFile=", "delim=", "missingval=", "crossExamine=", "statFile=", "debug", 
+						"report", "help", "withArrayId=","strainIdentity", "heterozygous2NA"]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:s:c:vh", long_options_list)
 
@@ -192,7 +194,7 @@ def _run_():
 	if len(args)>2:
 		print args
 		raise Exception("Number of arguments isn't correct.")
-        inputFile1 = args[0]
+	inputFile1 = args[0]
 	inputFile2 = None
 	crossExamineData=False
 	if len(args)>1:
@@ -200,8 +202,8 @@ def _run_():
 	else:
 		crossExamineData=True
 	
-        rFile = None
-        statFile = None
+	rFile = None
+	statFile = None
 	verbose = False
 	delim = ","
 	missingVal = "NA"
@@ -209,6 +211,7 @@ def _run_():
 	report = None
 	withArrayIds = 0
 	fractionSnps = 0.05
+	heterozygous2NA = False
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -228,6 +231,8 @@ def _run_():
 			withArrayIds = int(arg)
 		elif opt in ("-v", "--verbose"):
 			verbose = True
+		elif opt in ("--heterozygous2NA"):
+			heterozygous2NA = True
 		elif opt in ("-c", "--crossExamine"):
 			fractionSnps = float(arg)
 		elif opt in ("--strainIdentity"):
@@ -249,16 +254,16 @@ def _run_():
 		return
 	
 
-        if len(snpsds1) != len(snpsds2):
+	if len(snpsds1) != len(snpsds2):
 		raise Exception("Unequal number of chromosomes in files.")
-        
-        res = []
-        naRate1 = 0
-        naRate2 = 0
+		
+	res = []
+	naRate1 = 0
+	naRate2 = 0
 	numSNPs1 = 0
 	numSNPs2 = 0
 	for i in range(0,len(snpsds1)):
-		res.append(snpsds1[i].compareWith(snpsds2[i],withArrayIds=withArrayIds))
+		res.append(snpsds1[i].compareWith(snpsds2[i],withArrayIds=withArrayIds,heterozygous2NA=heterozygous2NA))
 		naRate1 += snpsds1[i].countMissingSnps()*len(snpsds1[i].positions)
 		naRate2 += snpsds2[i].countMissingSnps()*len(snpsds2[i].positions)
 		numSNPs1 += len(snpsds1[i].positions)
@@ -334,7 +339,7 @@ def _run_():
 		statstr += "#ArrayIds:\n"
 		statstr += str(commonArrayIds)+'\n'
 
-        if not verbose:
+	if not verbose:
 		print "In all",len(commonAccessions),"common accessions found"
 		print "In all",totalCommonPos,"common snps found"
 		print "Average Snp Error:",sum(snpsErrorRate)/float(len(snpsErrorRate))
@@ -396,10 +401,10 @@ def _run_():
  
 	"""
 	print "Sorted list, based on error rates: ",accErrAndID,'\n'
-        accMissAndID[0].sort(reverse=True)
-        print "Sorted list, based on missing rates (1st file): ",accMissAndID[0],'\n'
-        accMissAndID[1].sort(reverse=True)
-        print "Sorted list, based on missing rates (2nd file): ",accMissAndID[1],'\n'
+	accMissAndID[0].sort(reverse=True)
+	print "Sorted list, based on missing rates (1st file): ",accMissAndID[0],'\n'
+	accMissAndID[1].sort(reverse=True)
+	print "Sorted list, based on missing rates (2nd file): ",accMissAndID[1],'\n'
 	"""
 		
 

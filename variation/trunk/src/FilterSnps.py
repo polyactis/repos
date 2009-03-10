@@ -20,6 +20,8 @@ Option:
 	-b, --debug	enable debug
 	-r, --report	enable more progress-related output
 	-h, --help	show this help
+	
+	--filterRegion=chr,start,stop	Retrieve only SNPs within region...
 
 Examples:
 	FilterSnps.py --maxMissing=0.5 -o /tmp/2010_filtered.csv 2010.csv
@@ -32,13 +34,17 @@ Description:
 """
 
 import sys, getopt, traceback
+import snpsdata
+import dataParsers
 
 def _run_():
 	if len(sys.argv) == 1:
 		print __doc__
 		sys.exit(2)
 	
-	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "onlyBinary", "delim=", "missingval=", "withArrayId=", "callProbFile=", "minMAF=", "minCallProb=", "debug", "report", "help", "output01Format"]
+	long_options_list = ["maxError=", "comparisonFile=", "maxMissing=", "monomorphic", "onlyBinary", "delim=", 
+						"missingval=", "withArrayId=", "callProbFile=", "minMAF=", "minCallProb=", "debug", 
+						"report", "help", "output01Format", "filterRegion="]
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "o:d:m:a:brh", long_options_list)
 
@@ -66,6 +72,11 @@ def _run_():
 	callProbFile = None
 	onlyBinary = False
 	output01Format = False
+	filterRegion = False
+	startPos = None
+	endPos = None
+	chromosome = None
+	chromosomes=[1,2,3,4,5]
 	
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
@@ -101,6 +112,13 @@ def _run_():
 			onlyBinary = True
 		elif opt in ("--output01Format"):
 			output01Format = True
+		elif opt in ("--filterRegion"):
+			filterRegion = True
+			region = arg.split(",")
+			region = map(int,region)
+			chromosome = region[0]
+			startPos = region[1]
+			endPos = region[2]
 		else:
 			if help==0:
 				print "Unkown option!!\n"
@@ -117,10 +135,10 @@ def _run_():
 	waid1 = withArrayIds==1 or withArrayIds==2
 	waid2 = withArrayIds==2
 
-	import dataParsers
 	if callProbFile and minCallProb:
 		#Read prob file into SNPsdatas.
-		snpsds = dataParsers.parseCSVDataWithCallProb(inputFile, callProbFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
+		#snpsds = dataParsers.parseCSVDataWithCallProb(inputFile, callProbFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
+		pass
 	else:
 		snpsds = dataParsers.parseCSVData(inputFile, format=1, deliminator=delim, missingVal=missingVal, withArrayIds=waid1)
 	
@@ -149,27 +167,77 @@ def _run_():
 		for i in range(0,len(snpsds)):
 			snpsds[i].filterBadSnps(snpsds2[i],maxError)
 			
-	#Converting lousy calls to NAs
-	if callProbFile and minCallProb:
-		print "Converting base calls with call prob. lower than",minCallProb,"to NAs"
-		for i in range(0,len(snpsds)):
-			print "Fraction converted =",snpsds[i].convertBadCallsToNA(minCallProb)
 
 	if minMAF:
 		print "Removing SNPs withe MAF <",minMAF
 		for snpsd in snpsds:
 			print "Removed", str(snpsd.filterMinMAF(minMAF)),"Snps"
-	
+
+	#Output specific region..
+	if filterRegion:
+		chromosomes = [chromosome]
+		snpsd = snpsds[chromosome-1]
+		snpsd.filterRegion(startPos,endPos)
+		snpsds = [snpsd]
 		
-	import snpsdata
-	if output01Format:
-		snpsds01format = []
-		for snpsd in snpsds:
-			snpsds01format.append(snpsd.getSnpsData(missingVal=missingVal))
-		#FINISH
-		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds01format,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+		
+	#Converting lousy calls to NAs
+	if callProbFile and minCallProb:
+		print "Converting base calls with call prob. lower than",minCallProb,"to NAs"
+		#To avoid memory problems, the file/data is processed one line at a time.
+		gInFile = open(inputFile,"r")
+		pInFile = open(callProbFile,"r")
+		outFile = open(output_fname,"w")
+		if withArrayIds==2:
+			gline = gInFile.readline()
+			outFile.write(gline)
+			pInFile.readline()
+		gline = gInFile.readline()
+		outFile.write(gline)
+		pInFile.readline()
+		i = 0
+		totalCount = 0.0
+		convertedCount = 0.0 
+		
+		while(1):
+			i += 1
+			gline = gInFile.readline()
+			pline = pInFile.readline()
+			#print gline
+			if gline and pline:
+				snp = gline.strip().split(delim) 
+				probs = pline.strip().split(delim)
+				probs = map(float,probs)
+				newSNP = []
+				totalCount += len(snp)
+				for (nt,prob) in zip(snp,probs):
+					if prob>minCallProb:
+						newSNP.append(nt)
+						convertedCount += 1.0
+					else:
+						newSNP.append('NA')
+				outFile.write(delim.join(newSNP)+"\n")
+			else:
+				print i,gline,pline		
+				break
+			
+			if i%10000==0:
+				print i
+		print i
+		gInFile.close()
+		pInFile.close()
+		outFile.close()		
+		print "Fraction converted =",convertedCount/totalCount
+		
 	else:
-		snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=[1,2,3,4,5], deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+		if output01Format:
+			snpsds01format = []
+			for snpsd in snpsds:
+				snpsds01format.append(snpsd.getSnpsData(missingVal=missingVal))
+			#FINISH
+			snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds01format,chromosomes=chromosomes, deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
+		else:
+			snpsdata.writeRawSnpsDatasToFile(output_fname,snpsds,chromosomes=chromosomes, deliminator=delim, missingVal = missingVal, withArrayIds = waid1)
 
 
 def filterByError(snpsds,comparisonSnpsds,maxError):
