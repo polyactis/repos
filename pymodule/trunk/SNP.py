@@ -413,6 +413,16 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 
 class SNPData(object):
 	"""
+	2009-3-5
+		example usages:
+		
+			snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1, ignore_2nd_column=1)
+			
+			snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1)
+			
+			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, delimiter=delimiter)
+			snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
+							data_matrix=data_matrix)
 	2008-05-19
 		either directly specify row_id_ls, col_id_ls, data_matrix
 			(if strain_acc_list and category_list is given rather than row_id_ls and col_id_ls, row_id_ls and col_id_ls will be formed from them).
