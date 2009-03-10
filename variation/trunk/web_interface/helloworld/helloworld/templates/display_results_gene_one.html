@@ -1,28 +1,45 @@
 <%inherit file="/base.html"/>
 
-<%def name="title()">View Top Candidate Gene </%def>
+<%def name="title()">View Top SNP/Gene(s) </%def>
 
 <ul>
 <li>
-${c.result.analysis_method.short_name} works on ${c.result.phenotype_method.short_name}.
-
+SNP-Gene Assocation setting is: <b>${c.snp_gene_association_id2desc[c.type.id]}</b>.
 </li>
 
 <li>
-Candidate gene list is ${c.list_type.short_name} with ${len(c.list_type.gene_list)} genes.
+Dataset is call method: <b>${c.result.call_method.id} ${c.result.call_method.short_name}</b>.
+</li>
+
+<li>
+Phenotype is <b>${c.result.phenotype_method.id} ${c.result.phenotype_method.short_name}</b>.
+</li>
+
+<li>
+Association method is <b>${c.result.analysis_method.id} ${c.result.analysis_method.short_name}</b>.
+</li>
+
+<li>
+% if c.list_type is None:
+	No candidate gene list is used. all SNPs ranked above <b>${c.max_rank}</b> are shown.
+% else:
+	Candidate gene list is <b>${c.list_type.id} ${c.list_type.short_name}</b> with <b>${len(c.list_type.gene_list)}</b> genes. Ranked above <b>${c.max_rank}</b>.
+% endif
 </li>
 
 <li>
 Column <b>disp_pos</b> denotes the relative distance from the gene starting position (probably TSS) to the SNP.
 Negative for upstream. Positive for downstream. If a SNP is further downstream out of a gene itself, the <b>disp_pos</b> is calculated from the gene's stop position.
 </li>
+
 </ul>
 
 <p> ${c.counter} genes in total.</p>
 
 <%
-field_ls = ['gene_id', 'rank', 'score'] + c.gene_desc_names + ['snps_id', 'snp-chr', 'snp-pos', \
-	'disp_pos', 'left_or_right', 'disp_pos_comment', 'snp_annotation', 'results_id', 'plots']
+field_ls = ['gene_id', 'rank', 'score'] + c.gene_desc_names + ['SNP ID', 'SNP chr', 'SNP pos', \
+	'disp_pos', 'left_or_right', 'disp_pos_comment', 'SNP annotation', 'results_id', 'plots']
+track_id = '%s_%s_%s'%(c.result.call_method.id, c.result.phenotype_method.id, c.result.analysis_method.id)
 %>
 
 % if len(c.row_ls)>0:
@@ -42,15 +59,23 @@ field_ls = ['gene_id', 'rank', 'score'] + c.gene_desc_names + ['snps_id', 'snp-c
 		% for table_field in field_ls:
 			<td>
 			% if table_field=='gene_id':
-				<a href=http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=search&db=gene&term=${row.gene_id}[uid]>${row.gene_id}</a>
-			% elif table_field=='snp-chr':
+				<a href=${h.NCBIGeneDBURL%row.gene_id}>${row.gene_id}</a>
+			% elif table_field=='SNP chr':
 				${row.snp.chromosome}
-			% elif table_field=='snp-pos':
+			% elif table_field=='SNP pos':
 				${row.snp.position}
+			% elif table_field=='SNP ID':
+				<a href=${h.url_for(controller='SNP', id=None, chromosome=row.snp.chromosome, position=row.snp.position, results_id=row.results_id, score=row.score)}>${row.snps_id}</a>
+			% elif table_field=='SNP annotation':
+				${row.snp_annotation}
 			% elif table_field=='plots':
 				<%
 				no_of_plots=len(row.snp_region_plot_id_ls)
+				start_pos = row.snp.position-50000
+				stop_pos = row.snp.position+50000
+				gbrowseLink = h.GBrowseURL%(start_pos, stop_pos, row.snp.chromosome)+track_id+"-"+track_id+"_SNP"	
 				%>
+				<a href=${gbrowseLink}>GBrowse</a> 
 				% if no_of_plots>0:
 					<a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id='', snp_region_plot_ids=','.join(row.snp_region_plot_id_ls))}>${no_of_plots}</a>
 				% else:
