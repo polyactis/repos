@@ -28,10 +28,10 @@ function generate_handler(chr){
 			var position = chr2data[this.chr].getValue(item.row, 0);
 			var score = chr2data[this.chr].getValue(item.row, 1);
 			//alert('You selected chr='+this.chr +" pos="+position);
-			var start_pos = position-10000;
-			var stop_pos = position+10000;
+			var start_pos = position-50000;
+			var stop_pos = position+50000;
 			var track_id = displayResultsSpace.field_value_ls.join("_");
-			window.open("http://mahogany.usc.edu/cgi-bin/gbrowse/arabidopsis/?start="+start_pos+";stop="+stop_pos+";ref=Chr"+this.chr+";width=640;version=100;cache=on;drag_and_drop=on;show_tooltips=on;grid=on;label=BAC-ProteinCoding-Pseudogene-TEGenes-"+track_id+"-"+track_id+"_SNP");
+			window.open(displayResultsSpace.GBrowseURLJS.format(start_pos, stop_pos, this.chr)+track_id+"-"+track_id+"_SNP");
 			window.open("/SNP/?chromosome="+this.chr+"&position="+position+"&call_method_id="+YAHOO.util.Dom.get("call_method_id").value+"&phenotype_method_id="+YAHOO.util.Dom.get("phenotype_method_id").value+"&analysis_method_id="+YAHOO.util.Dom.get("analysis_method_id").value+"&score="+score);
 			//chr2chart[this.chr].setSelection([{row:null, column:null}]);
 		}
@@ -149,7 +149,12 @@ function showCallInfoData(o)
 
 }
 
-function handleResponse(GWABaseURL, CallInfoBaseURL, PhenotypeHistImageBaseURL, CallPhenotypeQQImageBaseURL, field_ls) {
+function handleResponse(urlArray, field_ls) {
+	GWABaseURL=urlArray[0];
+	CallInfoBaseURL=urlArray[1];
+	PhenotypeHistImageBaseURL=urlArray[2];
+	CallPhenotypeQQImageBaseURL=urlArray[3];
+	displayResultsSpace.GBrowseURLJS=urlArray[4];
 	var callback = {
 			success: function(o) {
 				//google.setOnLoadCallback(drawGWChart(o));
