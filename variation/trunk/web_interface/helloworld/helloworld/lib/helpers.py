@@ -10,13 +10,26 @@ import helloworld.model as model
 
 from variation.src.DrawSNPRegion import DrawSNPRegion
 from variation.src.GeneListRankTest import GeneListRankTest
-from pymodule import PassingData
+from pymodule import PassingData, SNPData
 from sets import Set
 
 #2008-12-24 for the forms
 from routes import redirect_to
 from routes import url_for
 from webhelpers.html.tags import *
+
+#2009-3-4 common URLs to link objects to external websites
+NCBIGeneDBURL = 'http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=search&db=gene&term=%s[uid]'
+GBrowseURL = 'http://mahogany.usc.edu/cgi-bin/gbrowse/arabidopsis/?start=%s;stop=%s;ref=Chr%s;width=640;version=100;cache=on;drag_and_drop=on;show_tooltips=on;grid=on;label=BAC-ProteinCoding-Pseudogene-TEGenes-'
+#2009-3-5 same as GBrowseURL above, but for handling in javascript
+GBrowseURLJS = 'http://mahogany.usc.edu/cgi-bin/gbrowse/arabidopsis/?start={0};stop={1};ref=Chr{2};width=640;version=100;cache=on;drag_and_drop=on;show_tooltips=on;grid=on;label=BAC-ProteinCoding-Pseudogene-TEGenes-'
+
+#2009-3-5 store 250k snp dataset sucked in from filesystem
+call_method_id2dataset = {}
+#2009-3-5 load ecotype_info on demand
+ecotype_info = None
+#2009-3-5 path to get ecotype X SNP matrix
+SNPDatasetPath = '/Network/Data/250k/db/dataset/'
 
 def returnGeneDescLs(gene_annotation, gene_id_ls=[]):
 	DrawSNPRegion_ins = DrawSNPRegion(db_user=model.db_user, db_passwd=model.db_passwd, hostname=model.hostname, database=model.dbname,\
@@ -114,6 +127,8 @@ def getPhenotypeInfo(affiliated_table_name=None, extra_condition=None, extra_tab
 
 def getListTypeInfo(affiliated_table_name=None, extra_condition=None, extra_tables=None):
 	"""
+	2009-3-9
+		handle the case in which there is no the where_condition at all.
 	2008-10-30
 		affiliated_table_name becomes optional
 	2008-10-19
@@ -134,9 +149,14 @@ def getListTypeInfo(affiliated_table_name=None, extra_condition=None, extra_tabl
 	
 	if extra_condition:
 		where_condition.append(extra_condition)
+	
+	if where_condition:	#2009-3-9
+		where_condition = 'where ' + ' and '.join(where_condition)
+	else:
+		where_condition = ''
 	rows = model.db.metadata.bind.execute("select distinct p.id, p.biology_category_id, p.short_name from %s \
-		where %s order by p.biology_category_id, p.id"\
-		%(table_str, ' and '.join(where_condition)))
+		%s order by p.biology_category_id, p.id"\
+		%(table_str, where_condition))
 	list_type_id_ls = []
 	list_type_id2index = {}
 	list_type_label_ls = []
@@ -187,3 +207,12 @@ def getAnalysisMethodInfo(affiliated_table_name, extra_condition=None, extra_tab
 	list_info.id_ls = id_ls
 	list_info.label_ls = label_ls
 	return list_info
+
+def getSNPDataGivenCallMethodID(call_method_id):
+	"""
+	2009-3-5
+		read a 250k dataset from SNPDatasetPath
+	"""
+	datasetPath = os.path.join(SNPDatasetPath, 'call_method_%s.tsv'%call_method_id)
+	snpData = SNPData(input_fname=datasetPath, turn_into_array=1, ignore_2nd_column=1)	#use 1st column (ecotype id) as main ID
+	return snpData
