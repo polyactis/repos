@@ -169,9 +169,9 @@ class DisplayresultsController(BaseController):
 		"""
 		#1st get call_info_id 2 PC12 mapping
 		rows = model.Stock_250kDB.CallInfo.query.filter_by(method_id=call_method_id).all()
-		call_info_id2pc12 = {}
+		call_info_id2pcs = {}
 		for row in rows:
-			call_info_id2pc12[row.id] = row.pc_value_ls[:2]
+			call_info_id2pcs[row.id] = row.pc_value_ls[:2]
 		
 		
 		#2nd check if model.pheno_data exists
@@ -190,7 +190,7 @@ class DisplayresultsController(BaseController):
 		rows = model.db.metadata.bind.execute("select * from view_call where call_method_id=%s"%(call_method_id))
 		return_ls = []
 		for row in rows:
-			pc12 = call_info_id2pc12.get(row.call_info_id)
+			pc12 = call_info_id2pcs.get(row.call_info_id)
 			if pc12:
 				call_info_pc1, call_info_pc2 = pc12[:2]
 				pc1 = call_info_pc1.pc_value
@@ -205,7 +205,8 @@ class DisplayresultsController(BaseController):
 					phenotype_value = -0.01
 			else:
 				phenotype_value = -0.01	#numpy.nan can't be recognized by ToJSon()
-			label = 'ID:%s. Name=%s. Phenotype=%s.'%(row.ecotype_id, row.nativename, phenotype_value)
+			label = '%s ID:%s Phenotype:%s.'%(row.nativename, row.ecotype_id, phenotype_value)
+			#label = 'ID:%s. Name=%s. Phenotype=%s.'%(row.ecotype_id, row.nativename, phenotype_value)
 			return_ls.append(dict(ecotypeid=row.ecotype_id, name=row.nativename, lat=row.latitude, lon=row.longitude,\
 								pc1=pc1, pc2=pc2, phenotype=phenotype_value, label=label, date=datetime.date(2009,2,3)))
 		
