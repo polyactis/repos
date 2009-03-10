@@ -48,12 +48,16 @@ class DisplaytopsnptestrmController(BaseController):
 		return render('/display_top_snp_test_rm.html')
 	
 	@staticmethod
-	def getCallMethodLsGivenType(type_id):
+	def getCallMethodLsGivenType(type_id, extra_table_name=None):
 		"""
+		2009-2-22
+			add argument extra_table_name
 		2008-12-30
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
-		extra_tables = ' %s c '%model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
+		if not extra_table_name:
+			extra_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
+		extra_tables = ' %s c '%extra_table_name
 		extra_condition = 'c.results_id=s.id and c.type_id=%s'%type_id
 		list_info  = h.getCallMethodInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
 											extra_tables=extra_tables)
@@ -66,10 +70,15 @@ class DisplaytopsnptestrmController(BaseController):
 	
 	@jsonify
 	def getCallMethodLsGivenTypeJson(self):
+		"""
+		2009-2-22
+			handle one more argument: extra_table_name 
+		"""
+		type_id = request.params.getone('type_id')
+		extra_table_name = request.params.get('extra_table_name', None)
 		result = {
 				'options': [
-						dict(id=value, value=id) for id, value in self.getCallMethodLsGivenType(
-																									request.params.getone('type_id'))
+						dict(id=value, value=id) for id, value in self.getCallMethodLsGivenType(type_id, extra_table_name)
 						]
 				}
 		#result['options'].append({'id': u'[At the end]', 'value': u''})
@@ -77,12 +86,16 @@ class DisplaytopsnptestrmController(BaseController):
 		return result
 	
 	@staticmethod
-	def getPhenotypeMethodLsGivenType(type_id, call_method_id):
+	def getPhenotypeMethodLsGivenType(type_id, call_method_id, extra_table_name=None):
 		"""
+		2009-2-22
+			add argument extra_table_name
 		2008-12-30
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
-		extra_tables = ' %s c '%model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
+		if not extra_table_name:
+			extra_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
+		extra_tables = ' %s c '%extra_table_name
 		extra_condition = 'c.results_id=s.id and c.type_id=%s and s.call_method_id=%s'%(type_id, call_method_id)
 		phenotype_info  = h.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
 											extra_tables=extra_tables)
@@ -95,11 +108,17 @@ class DisplaytopsnptestrmController(BaseController):
 	
 	@jsonify
 	def getPhenotypeMethodLsGivenTypeJson(self):
+		"""
+		2009-2-22
+			
+		"""
+		type_id = request.params.getone('type_id')
+		call_method_id = request.params.getone('call_method_id')
+		extra_table_name = request.params.get('extra_table_name', None)
 		result = {
 				'options': [
 						dict(id=value, value=id) for id, value in self.getPhenotypeMethodLsGivenType(
-																									request.params.getone('type_id'),
-																									request.params.getone('call_method_id'))
+																									type_id, call_method_id, extra_table_name)
 						]
 				}
 		#result['options'].append({'id': u'[At the end]', 'value': u''})
@@ -107,12 +126,16 @@ class DisplaytopsnptestrmController(BaseController):
 		return result
 	
 	@staticmethod
-	def getAnalysisMethodLsGivenTypeAndPhenotypeMethod(type_id, call_method_id, phenotype_method_id):
+	def getAnalysisMethodLsGivenTypeAndPhenotypeMethod(type_id, call_method_id, phenotype_method_id, extra_table_name=None):
 		"""
+		2009-2-22
+			add argument extra_table_name
 		2008-12-30
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name	#alias is 's'
-		extra_tables = ' %s c '%model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
+		if not extra_table_name:
+			extra_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
+		extra_tables = ' %s c '%extra_table_name
 		extra_condition = 'c.results_id=s.id and c.type_id=%s and s.call_method_id=%s and s.phenotype_method_id=%s'%\
 			(type_id, call_method_id, phenotype_method_id)
 		list_info = h.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
@@ -127,24 +150,32 @@ class DisplaytopsnptestrmController(BaseController):
 	
 	@jsonify
 	def getAnalysisMethodLsGivenTypeAndPhenotypeMethodJson(self):
+		"""
+		2009-2-24
+			get extra_table_name from request.params
+		"""
 		type_id = request.params.getone('type_id')
 		call_method_id = request.params.getone('call_method_id')
 		phenotype_method_id = request.params.getone('phenotype_method_id')
+		extra_table_name = request.params.get('extra_table_name', None)
 		result = {
 				'options': [
 						dict(id=value, value=id) for id, value in self.getAnalysisMethodLsGivenTypeAndPhenotypeMethod(
-																									type_id, call_method_id, phenotype_method_id)
+																									type_id, call_method_id, phenotype_method_id, extra_table_name)
 						]
 				}
 		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0})
 		return result
 	
 	@staticmethod
-	def getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod(type_id, call_method_id, phenotype_method_id, analysis_method_id):
+	def getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod(type_id, call_method_id, phenotype_method_id, analysis_method_id, affiliated_table_name=None):
 		"""
+		2009-2-22
+			add argument affiliated_table_name (but not used)
 		2008-12-30
 		"""
-		affiliated_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name	#alias is 's'
+		if not affiliated_table_name:
+			affiliated_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name	#alias is 's'
 		extra_tables = ' %s c '%model.Stock_250kDB.ResultsMethod.table.name
 		extra_condition = 's.results_id=c.id and s.type_id=%s and c.call_method_id=%s and c.phenotype_method_id=%s and c.analysis_method_id=%s'%\
 			(type_id, call_method_id, phenotype_method_id, analysis_method_id)
