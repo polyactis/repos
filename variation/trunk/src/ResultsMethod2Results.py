@@ -77,7 +77,7 @@ class ResultsMethod2Results(object):
 							result_obj = cPickle.dumps(data_obj.extra_col_ls)
 						else:
 							result_obj = None
-						Stock_250kDB.Results(snps_id=snps_id, results_method_id=rm.id, score=data_obj.value, rank=i+1, beta=None,\
+						Stock_250kDB.Results(snps_id=snps_id, results_id=rm.id, score=data_obj.value, rank=i+1, beta=None,\
 											maf=data_obj.maf, mac=data_obj.mac, genotype_var_perc=data_obj.genotype_var_perc,\
 											object=result_obj)
 			if self.commit:
