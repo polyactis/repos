@@ -18,10 +18,10 @@ Examples:
 	DrawSNPRegion.py -i /tmp/DrawSNPRegion_snps.csv -I /Network/Data/250k/tmp-yh/call_method_17.tsv -N /tmp/phenotype.tsv -l 28 -o /tmp/snp_region/ -j /tmp/at_gene_model_pickelf  -u yh -s
 	
 	#ditto but highlight imputed genotypes with blue color
-	DrawSNPRegion.py -i /tmp/DrawSNPRegion_snps.csv -I /Network/Data/250k/tmp-yh/call_method_17.tsv -J /Network/Data/250k/tmp-yh/call_method_17_from_18_before_imputation.tsv -N /tmp/phenotype.tsv -l 28 -o /tmp/snp_region/ -j /tmp/at_gene_model_pickelf  -u yh -s
+	DrawSNPRegion.py -i /tmp/DrawSNPRegion_snps.csv -I /Network/Data/250k/tmp-yh/call_method_17.tsv -J /Network/Data/250k/tmp-yh/call_method_17_from_18_before_imputation.tsv -N /tmp/phenotype.tsv -l 28 -o /tmp/snp_region/ -j /tmp/at_gene_model_pickelf -e 17 -u yh -s
 	
 	#database commit, specify plot_type_short_name by '-y'
-	DrawSNPRegion.py -i $tmp_fname -I /Network/Data/250k/tmp-yh/call_method_17.tsv -N /Network/Data/250k/tmp-yh/phenotype.tsv -l 28 -o /Network/Data/250k/tmp-yh/snp_region -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -u yh -s -y SuziHandPick20081209 -c
+	DrawSNPRegion.py -i $tmp_fname -I /Network/Data/250k/tmp-yh/call_method_17.tsv -N /Network/Data/250k/tmp-yh/phenotype.tsv -l 28 -o /Network/Data/250k/tmp-yh/snp_region -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -e 17 -u yh -s -y SuziHandPick20081209 -c
 	
 Description:
 	2008-09-24 program to draw pvalues, gene-models, LD around one SNP.
@@ -32,7 +32,7 @@ Description:
 	The input file contains at least 3 columns, chromosome/chr, position/pos, phenotype_id/phenot_id. tab or comma-delimited.
 		The 1st row is a header telling which column is which. No particular order is required. The name could either be full (chromosome) or short(chr).
 		Output of FindTopSharedGenes.py conforms to this standard.
-		
+	2009-3-10 call_method_id (-e) has to match the input file (-I). GWA results would get into trouble in matching SNPs from the input SNP matrix. 
 """
 
 import sys, os, math
