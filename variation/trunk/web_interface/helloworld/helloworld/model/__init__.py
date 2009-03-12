@@ -16,7 +16,7 @@ pool_recycle = 3600
 db = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user, password=db_passwd, \
 				hostname=hostname, database=dbname, schema=schema, pool_recycle=pool_recycle)
 
-from transfac.src import GenomeDB
+from pymodule import GenomeDB
 
 genome_db = GenomeDB.GenomeDatabase(drivername=drivername, username=db_user, password=db_passwd, \
 				hostname=hostname, database='genome', schema=schema, pool_recycle=pool_recycle)
