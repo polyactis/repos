@@ -19,7 +19,7 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 
-import yh_gnome, csv
+import yh_gnome, csv, traceback
 from SNP import SNPData, read_data
 from utils import figureOutDelimiter
 from sets import Set
@@ -110,6 +110,9 @@ class DataMatrixGuiXYProbe(gtk.Window):
 	def on_click(self, event):
 		"""
 		2009-3-13
+			use (x_lim[1]-x_lim[0])/200. as the resolution for a dot to be called identical to a data point.
+			similar for the y_data
+		2009-3-13
 			deal with checkbutton_label_dot, entry_dot_label_column, entry_x_column, entry_y_column
 		2008-01-01
 			derived from on_click_row() of QualityControl.py
@@ -121,14 +124,17 @@ class DataMatrixGuiXYProbe(gtk.Window):
 		dot_label_column = int(self.entry_dot_label_column.get_text())
 		x_column = int(self.entry_x_column.get_text())
 		y_column = int(self.entry_y_column.get_text())
-		
+		x_lim = self.ax.get_xlim()
+		x_grain_size = (x_lim[1]-x_lim[0])/200.
+		y_lim = self.ax.get_ylim()
+		y_grain_size = (y_lim[1]-y_lim[0])/200.
 		if event.button==1:
 			if event.inaxes is not None:
 				print 'data coords', event.xdata, event.ydata
 				for row in self.list_2d:
 					x_data = row[x_column]
 					y_data = row[y_column]
-					if abs(x_data-event.xdata)<0.005 and abs(y_data-event.ydata)<0.005:
+					if abs(x_data-event.xdata)<x_grain_size and abs(y_data-event.ydata)<y_grain_size:
 						info = row[dot_label_column]
 						if to_label_dot:
 							self.ax.text(event.xdata, event.ydata, info, size=8)
@@ -314,6 +320,8 @@ class DataMatrixGuiXYProbe(gtk.Window):
 	def readInDataToPlot(self, input_fname):
 		"""
 		2009-3-13
+			wrap the float conversion part into try...except to report what goes wrong
+		2009-3-13
 		"""
 		reader = csv.reader(open(input_fname), delimiter=figureOutDelimiter(input_fname))
 		self.column_header=reader.next()
@@ -323,7 +331,11 @@ class DataMatrixGuiXYProbe(gtk.Window):
 		self.list_2d = []		
 		for row in reader:
 			float_part = row[2:]
-			float_part = map(float, float_part)
+			try:
+				float_part = map(float, float_part)
+			except:
+				sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
+				traceback.print_exc()
 			new_row = row[:2]+float_part
 			self.list_2d.append(new_row)
 		self.setupColumns(self.treeview_matrix)
