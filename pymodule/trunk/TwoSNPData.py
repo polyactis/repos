@@ -10,7 +10,7 @@ Description:
 			
 	Merge two SNPData.
 """
-import sys, os, csv
+import sys, os, csv, traceback
 
 from sets import Set
 from SNP import get_nt_number2diff_matrix_index, nt2number, number2nt, NA_set, SNPData
@@ -754,6 +754,8 @@ class QualityControl(object):
 	
 	def submit_row_id2pairwise_dist(self, curs, qc_cross_match_table, row_id2pairwise_dist):
 		"""
+		2009-3-13
+			wrap the insertion sql into "try ... except ..." to allow insertion error (non-unique entries etc)
 		2008-07-01
 			some fields in qc_cross_match_table renamed
 		2008-01-11
@@ -770,7 +772,11 @@ class QualityControl(object):
 				else:
 					ecotype_id = row_id
 					sql_string = "insert into %s(ecotype_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
-				curs.execute(sql_string)
+				try:
+					curs.execute(sql_string)
+				except:
+					sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
+					traceback.print_exc()
 		sys.stderr.write("Done.\n")
 
 
