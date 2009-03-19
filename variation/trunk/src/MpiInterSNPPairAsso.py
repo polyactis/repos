@@ -70,6 +70,8 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 	def getTopNumberSNPs(self, call_method_id, phenotype_method_id, analysis_method_id=1, results_directory=None, min_MAC=7,\
 						no_of_top_snps=10000):
 		"""
+		2009-3-18
+			if data_obj from genome_wide_result is None, ignore it
 		2009-2-16
 			get a certain number of top SNPs from a result (according to call_method_id, phenotype_method_id, analysis_method_id)
 		"""
@@ -83,14 +85,15 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		chr_pos_ls = []
 		for i in range(no_of_top_snps):
 			data_obj = genome_wide_result.get_data_obj_at_given_rank(i+1)
-			chr_pos_ls.append((data_obj.chromosome, data_obj.position))
+			if data_obj is not None:
+				chr_pos_ls.append((data_obj.chromosome, data_obj.position))
 		chr_pos_ls.sort()
 		return chr_pos_ls
 	
 	def generate_params(self, gene_id_fname, pdata, block_size=1000, **keywords):
 		"""
 		2009-2-18
-			if gene_id_fname is a file:
+			if gene_id_fname is given and is a file:
 				yield (gene1_id, snp_start_index, snp_stop_index)
 			else:
 				yield (phenotype_index, snp_start_index1, snp_stop_index1, snp_start_index2, snp_stop_index2)
@@ -134,7 +137,7 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 					for snp_start_index2 in range(snp_start_index1, no_of_total_snps, no_of_snps_to_consider):
 						snp_stop_index2 = min(no_of_total_snps, snp_start_index2+no_of_snps_to_consider)
 						yield (phenotype_index, snp_start_index1, snp_stop_index1, snp_start_index2, snp_stop_index2)
-		
+	
 	def computeGeneVsSNP(self, gene_id, snp_start_index, snp_stop_index, param_obj):
 		"""
 		2009-2-16
@@ -219,7 +222,7 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 		node_rank = communicator.rank
 		sys.stderr.write("Node no.%s working...\n"%node_rank)
 		data = cPickle.loads(data)
-
+		
 		if len(data)==3:
 			gene_id, snp_start_index, snp_stop_index = data
 			result_ls = self.computeGeneVsSNP(gene_id, snp_start_index, snp_stop_index, param_obj)
@@ -260,7 +263,7 @@ class MpiInterSNPPairAsso(MpiIntraGeneSNPPairAsso):
 			snp_info = PassingData(phenotype_method_id2chr_pos_ls={})
 			for phenotype_method_id in self.phenotype_method_id_ls:
 				chr_pos_ls = self.getTopNumberSNPs(self.call_method_id, phenotype_method_id, analysis_method_id=1, \
-							results_directory=self.results_directory, min_MAC=7, no_of_top_snps=10000)
+							results_directory=self.results_directory, min_MAC=7, no_of_top_snps=self.no_of_top_snps)
 				snp_info.phenotype_method_id2chr_pos_ls[phenotype_method_id] = chr_pos_ls
 				if not hasattr(snp_info, 'chr_pos_ls'):	#this is from a random phenotype (1st one). chr_pos_ls is for generate_params(). The actual SNPs in it dont' matter.
 					snp_info.chr_pos_ls = chr_pos_ls
