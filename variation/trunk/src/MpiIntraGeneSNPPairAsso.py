@@ -121,6 +121,32 @@ class TwoSNPAssociation(object):
 	
 	IntLMOnTwoSNPs = classmethod(IntLMOnTwoSNPs)
 
+	def countAlleleComboFrequency(cls, snp1_id, gene1_id, genotype_ls1, snp2_id, gene2_id, genotype_ls2, phenotype_index, phenotype_ls, \
+					min_data_point=3):
+		"""
+		2009-2-18
+			to test how many distinct allele-combos each SNP pair has
+		"""
+		return_ls = []
+		no_of_rows = len(genotype_ls1)
+		allele_combo2freq = {}
+		for i in range(no_of_rows):
+			allele1 = genotype_ls1[i]
+			allele2 = genotype_ls2[i]
+			phenotype_value = phenotype_ls[i]
+			if numpy.isnan(allele1) or numpy.isnan(allele2) or numpy.isnan(phenotype_value):
+				continue
+			allele_combo = (allele1, allele2)
+			
+			if allele_combo not in allele_combo2freq:
+				allele_combo2freq[allele_combo] = 0
+			allele_combo2freq[allele_combo] += 1
+		pdata = PassingData(snp1_id=snp1_id, gene1_id=gene1_id, snp2_id=snp2_id, gene2_id=gene2_id, pvalue=None,\
+								count1=len(allele_combo2freq), count2=None, phenotype_index=phenotype_index, coeff_list=allele_combo2freq)
+		return_ls.append(pdata)
+		return return_ls
+	countAlleleComboFrequency  = classmethod(countAlleleComboFrequency)
+
 class MpiIntraGeneSNPPairAsso(MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = {('snps_context_fname',1, ): [None, 'n', 1, 'a file containing a pickled snps_context_wrapper. outputted by GeneListRankTest.constructDataStruc()'],\
@@ -133,6 +159,7 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 							('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis on a SNP boolean-merged from two SNPs, 2:linear model(y=b + SNP1 + SNP2 + SNP1xSNP2 + e)'],\
 							('results_directory', 0, ):[None, 't', 1, 'The results directory. Default is None, then use the one given by db.'],\
 							('call_method_id', 0, int):[17, 'l', 1, 'Restrict results based on this call_method.'],\
+							('no_of_top_snps', 0, int):[10000, 'f', 1, 'MpiInterSNPPairAsso.py needs this to limit the pairwise tests only to certain top SNPs.'],\
 							('gene_id_fname', 0, ): [None, 'g', 1, 'A file with gene id on each line.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -148,7 +175,8 @@ class MpiIntraGeneSNPPairAsso(MPIwrapper):
 			self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
 	
 	test_type2test = {1: TwoSNPAssociation.KWOnBooleanSNP,
-					2: TwoSNPAssociation.IntLMOnTwoSNPs}
+					2: TwoSNPAssociation.IntLMOnTwoSNPs,
+					3: TwoSNPAssociation.countAlleleComboFrequency}
 	def get_gene_id2snps_id_ls(self, snps_context_wrapper):
 		"""
 		2009-2-8
