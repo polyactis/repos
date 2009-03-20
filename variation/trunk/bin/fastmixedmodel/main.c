@@ -26,17 +26,20 @@ SEXP rint_flmm(SEXP pexplan_sexp, SEXP presp_sexp, SEXP pn_sexp, SEXP pp_sexp, S
   unsigned int *pn, *pp_covar, *pp;
  
 
-  char* pret_names[2]={"chi.sq", "herit"};
+  char pret_names[][100]={"chi.sq", "herit", "null.herit"};
 
   SEXP preturn_list_SEXP, preturn_names_SEXP, paname_SEXP;
     
   SEXP pchisq_SEXP;
   SEXP pherit_SEXP;
+  SEXP pnullherit_SEXP;
 
   gsl_matrix* pvar1_mat, *pvar2_mat;
   gsl_matrix* pcovar_mat;
  
   gsl_vector* presponse_vec;
+
+  double* pnullherit;
       
   // really must check all gsl returns
   //gsl_set_error_handler_off();
@@ -73,12 +76,15 @@ SEXP rint_flmm(SEXP pexplan_sexp, SEXP presp_sexp, SEXP pn_sexp, SEXP pp_sexp, S
   pchisq=NUMERIC_POINTER(pchisq_SEXP);
   PROTECT(pherit_SEXP=NEW_NUMERIC(*pp));
   pherit=NUMERIC_POINTER(pherit_SEXP);
+  PROTECT(pnullherit_SEXP=NEW_NUMERIC(1));
+  pnullherit=NUMERIC_POINTER(pnullherit_SEXP);
 
     
   TwoVarCompModel DaddyTwoVarCompModel(presponse_vec, pcovar_mat, pvar1_mat, pvar2_mat, pincid1_mat, pincid2_mat);  
   double nullminimand=0.5;
   double altminimand;
   double nulldev=DaddyTwoVarCompModel.MinimiseNullDeviance(&nullminimand);
+  *pnullherit=nullminimand;
   //std::cout << "null sigmasq=" << nullminimand<<std::endl<<std::endl;
   //DaddyTwoVarCompModel.NullDeviance(0.5);
   
@@ -97,28 +103,31 @@ SEXP rint_flmm(SEXP pexplan_sexp, SEXP presp_sexp, SEXP pn_sexp, SEXP pp_sexp, S
 	  ChildTwoVarCompModel.SetExplan(&(gsl_vector_view_array(pexplan+(*pn)*it, *pn).vector));
 	  altminimand=nullminimand;
 	  pchisq[it]=nulldev-ChildTwoVarCompModel.MinimiseDeviance(&altminimand);
+	  pherit[it]=altminimand;
 	
 	}    
     }
   
   
-  PROTECT(preturn_list_SEXP=allocVector(VECSXP,1));
+
+  PROTECT(preturn_list_SEXP=allocVector(VECSXP,3));
   SET_VECTOR_ELT(preturn_list_SEXP, 0,pchisq_SEXP);
-  //SET_VECTOR_ELT(preturn_list_SEXP, 1,pherit_SEXP);
+  SET_VECTOR_ELT(preturn_list_SEXP, 1,pherit_SEXP);
+  SET_VECTOR_ELT(preturn_list_SEXP, 2,pnullherit_SEXP);
  
  
-  PROTECT(preturn_names_SEXP=allocVector(STRSXP,1));
+  PROTECT(preturn_names_SEXP=allocVector(STRSXP,3));
 
   
-  for(int it=0;it<1;it++)
+  for(int it=0;it<3;it++)
     {
-      std::cout<<pret_names[it];
-      //paname_SEXP=Rf_mkChar(pret_names[it]);
-      SET_STRING_ELT(preturn_names_SEXP,it,Rf_mkChar(pret_names[it]));
+      
+      PROTECT(paname_SEXP=Rf_mkChar(pret_names[it]));
+      SET_STRING_ELT(preturn_names_SEXP,it,paname_SEXP);
     }
   setAttrib(preturn_list_SEXP, R_NamesSymbol,preturn_names_SEXP);
   
-  UNPROTECT(4);
+  UNPROTECT(8);
 
   return preturn_list_SEXP;
 }

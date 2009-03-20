@@ -491,7 +491,6 @@ double TwoVarCompModel::MinimiseADeviance(bool null, double* pminimand)
 	    }
 	  if(!((fabs(m-a)>0.00000001)))
 	    {
-	      printf("OUCH");
 	      *pminimand=a;
 	      return deva;
 	    }
@@ -506,7 +505,6 @@ double TwoVarCompModel::MinimiseADeviance(bool null, double* pminimand)
 	    }
 	  if(!((fabs(m-b)>0.00000001)))
 	    {
-	      printf("OUCH");
 	      *pminimand=b;
 	      return devb;
 	    }
