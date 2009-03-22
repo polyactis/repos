@@ -8,6 +8,9 @@ Examples:
 	#test parallel run on desktop
 	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython ~/script/...
 	
+	#no cutoff, randomly sample 0.1% total pairs to calculate LD
+	mpiexec ~/script/variation/src/MpiLD.py -i ~/panfs/250k/dataset/call_method_29.tsv -o ~/panfs/250k/dataset/call_method_29_LD_D_prime_m0_p.999.tsv -m 0 -p 0.999
+	
 Description:
 	2008-09-05 a MPI program to calculate LD of an input SNP matrix. The input format is StrainXSNP matrix, either tab or comma-delimited.
 	Apart from 1st row as header, 1st column as strain id, 2nd column is affiliating information for each strain.
@@ -19,7 +22,7 @@ import sys, os, math
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import getopt, csv, math
+import getopt, csv, math, random
 import Numeric, cPickle
 from pymodule import PassingData, importNumericArray, SNPData, read_data
 from sets import Set
@@ -36,6 +39,7 @@ class MpiLD(MPIwrapper):
 							('block_size', 1, int):[1000, 's', 1, 'square of it is the number (or half of that) of LDs each computing node handles. Imagine a SNPXSNP LD matrix. block_size is the dimension of the block each node handles.'],\
 							("min_LD_to_output", 1, float): [0.3, 'm', 1, "output LD data whose |D'| is above this cutoff"],\
 							('min_MAF', 1, float): [0.10, 'n', 1, 'minimum Minor Allele Frequency for both SNPs.'],\
+							('discard_perc', 1, float): [0.999, 'p', 1, 'percentage of SNP Pairs to be randomly discarded. this filter is applied before min_LD_to_output and min_MAF'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
@@ -48,10 +52,12 @@ class MpiLD(MPIwrapper):
 	
 	def generate_params(self, no_of_snps, block_size=1000):
 		"""
+		2009-3-21
+			using yield
 		2008-09-06
 			cut the SNPXSNP LD matrix into blocks and put the two dimensions into params_ls
 		"""
-		sys.stderr.write("Generating parameters ...")
+		#sys.stderr.write("Generating parameters ...")
 		params_ls = []
 		no_of_blocks = int(no_of_snps/block_size)+1
 		for i in range(no_of_blocks+1):
@@ -65,12 +71,14 @@ class MpiLD(MPIwrapper):
 				if min_index2>=no_of_snps:	#out of bound
 					continue
 				stop2 = min((j+1)*block_size, no_of_snps)
-				params_ls.append([(min_index1,stop1), (min_index2,stop2)])
-		sys.stderr.write("Done.\n")
-		return params_ls
+				yield [(min_index1,stop1), (min_index2,stop2)]
+		#sys.stderr.write("Done.\n")
+		#return params_ls
 				
 	def input_handler(self, param_obj, message_size=1, report=0):
 		"""
+		2009-3-21
+			deprecated. run() directly calls inputNode()
 		2008-09-06
 		"""
 		if param_obj.report:
@@ -122,6 +130,9 @@ class MpiLD(MPIwrapper):
 	
 	def computing_node_handler(self, communicator, data, param_obj):
 		"""
+		2009-3-21
+			1. data = [(min_index1,stop1), (min_index2,stop2)]. remove one for loop.
+			2. add another filter, discard_perc. discard a certain percentage of SNP Pairs randomly
 		2008-09-29
 			filter LD using |D'| >= min_LD_to_output
 			both SNPs have to pass min_MAF
@@ -136,17 +147,19 @@ class MpiLD(MPIwrapper):
 		data = cPickle.loads(data)
 		result_ls = []
 		snpData = param_obj.snpData
-		for col1_range, col2_range in data:
-			min_index1, stop1 = col1_range
-			min_index2, stop2 = col2_range
-			for i in range(min_index1, stop1):
-				for j in range(max(i+1, min_index2), stop2):	#the lower bound of j is the bigger one of i+1 and min_index2
+		col1_range, col2_range = data
+		min_index1, stop1 = col1_range
+		min_index2, stop2 = col2_range
+		for i in range(min_index1, stop1):
+			for j in range(max(i+1, min_index2), stop2):	#the lower bound of j is the bigger one of i+1 and min_index2
+				u = random.random()
+				if u>=param_obj.discard_perc:	#
 					col_id1 = snpData.col_id_ls[i]
 					col_id2 = snpData.col_id_ls[j]
 					LD_data = snpData.calLD(col_id1, col_id2)
 					if LD_data is not None and LD_data.allele_freq[0]>=param_obj.min_MAF and LD_data.allele_freq[1]>=param_obj.min_MAF and abs(LD_data.D_prime)>=param_obj.min_LD_to_output:
 						result_ls.append(LD_data)
-						
+				
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
 		return result_ls
 	
@@ -219,10 +232,11 @@ class MpiLD(MPIwrapper):
 		self.synchronize()
 		if node_rank == 0:
 			param_obj = PassingData(params_ls=params_ls, output_node_rank=output_node_rank, report=self.report, counter=0)
-			self.input_node(param_obj, free_computing_nodes, input_handler=self.input_handler, message_size=1)
+			self.inputNode(param_obj, free_computing_nodes, param_generator = params_ls)
+			#self.input_node(param_obj, free_computing_nodes, input_handler=self.input_handler, message_size=1)
 			#self.input_node(param_obj, free_computing_nodes, self.message_size)
 		elif node_rank in free_computing_node_set:
-			computing_parameter_obj = PassingData(snpData=snpData, min_LD_to_output=self.min_LD_to_output, min_MAF=self.min_MAF)
+			computing_parameter_obj = PassingData(snpData=snpData, min_LD_to_output=self.min_LD_to_output, min_MAF=self.min_MAF, discard_perc=self.discard_perc)
 			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			if getattr(self, 'output_fname', None):
