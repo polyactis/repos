@@ -25,6 +25,8 @@ Examples:
 	QC_250k.py -m 3 -l 3 -y 0.85 -c
 	#accession-wise QC between 250k (call_method_id=3) and 384-illumina, one by one and fetch call files in a different directory.
 	QC_250k.py -m 8 -l 3 -y 0.85 -c -a -n ~/banyan_fs/Network/Data/250k/db/calls/method_3/
+	#accession-wise QC between 250k (call_method_id=3) and 2010_149_384
+	~/script/variation/src/QC_250k.py -m 9 -l 3 -c -y 0.85 -u yh
 	
 	#do snp-wise QC between 250k (call_method_id=3, excluding arrays with > 20% mismatch rate, according to the QC with maximum no_of_non_NA_pairs) and Perlegen
 	QC_250k.py -m 2 -l 3 -y 0.85 -e 2 -x 0.20 -c
@@ -32,7 +34,7 @@ Examples:
 	#QC on an NPUTE output file.
 	QC_250k.py -n /mnt/nfs/NPUTE_data/250k_l3_y0..6_w0.2_x0.2_h170_w10.npute -m 3
 	QC_250k.py -n /mnt/nfs/NPUTE_data/NPUTE_output/250k_l3_y0.70_v0.6_w0.2_x0.2.tsv_w10.npute -m 8 -o /tmp/250k_l3_y0.70_v0.6_w0.2_x0.2.tsv_w10.npute_m8_QC.tsv -l 3
-	
+
 Description:
 	QC for 250k call data from call_info_table against 2010, perlegen, 149SNP data.
 	It will select the call_info entries that haven't been QCed for a particular QC method.
@@ -553,7 +555,7 @@ class QC_250k(TwoSNPData):
 					del pdata
 			else:
 				#input file is SNP by strain format. double header (1st two lines)
-				header, snps_name_ls, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_dir, double_header=1)
+				header, snps_name_ls, category_list, data_matrix = read_data(self.input_dir, double_header=1)
 				pdata = PassingData()
 				pdata.ecotype_id_ls = header[0][2:]
 				pdata.call_info_id_ls = header[1][2:]
