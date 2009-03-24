@@ -65,8 +65,8 @@ class Association(Kruskal_Wallis):
 	__doc__ = __doc__
 	option_default_dict = Kruskal_Wallis.option_default_dict.copy()
 	option_default_dict.pop(("which_phenotype", 1, int))
-	option_default_dict.update({('phenotype_method_id_ls', 0, ): ['1', 'w', 1, 'which phenotypes to work on. a comma-dash-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method.',]})
-	option_default_dict.update({('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis, 2:linear model(y=xb+e), 3:Emma, 4:LM with PCs, 5: LM two phenotypes with PCs, 6: LM two phenotypes with PCs, GeneXEnvironment Interaction']})
+	option_default_dict.update({('phenotype_method_id_ls', 0, ): ['1', 'w', 1, 'which phenotypes to work on. a comma-dash-separated list phenotype_method ids in the phenotype file. Check db Table phenotype_method. if not available, take all phenotypes in the phenotype_fname.',]})
+	option_default_dict.update({('test_type', 1, int): [1, 'y', 1, 'Which type of test to do. 1:Kruskal_Wallis, 2:linear model(y=xb+e), 3:Emma, 4:LM with PCs, 5: LM two phenotypes with PCs, 6: LM two phenotypes with PCs, GeneXEnvironment Interaction, 7: Emma for genotype matrix without NA (no MAC and MAF output)']})
 	option_default_dict.update({('eigen_vector_fname', 0, ): [None, 'f', 1, 'eigen vector file with PCs outputted by smartpca.perl from EIGENSOFT', ]})
 	option_default_dict.update({('which_PC_index_ls', 0, ): [None, 'W', 1, 'list of indices indicating which PC(s) from eigen_vector_fname should be used. format: 0,1-3', ]})
 	def __init__(self, **keywords):
@@ -84,11 +84,13 @@ class Association(Kruskal_Wallis):
 								3:self.Emma_whole_matrix,
 								4:self.LM_with_PCs_whole_matrix,
 								5:self.LM_with_PCs_whole_matrix,
-								6:self.LM_with_PCs_whole_matrix}
+								6:self.LM_with_PCs_whole_matrix,
+								7:self.Emma_whole_matrixForNoNAGenotypeMatrix}
 		
 		self.output_results = {1:self.output_kw_results,
 							2:self.output_lm_results,
-							3:self.output_lm_results}
+							3:self.output_lm_results,
+							7:self.output_emma_results}
 	
 	
 	def getEigenValueFromFile(cls, eigen_value_fname):
@@ -481,8 +483,8 @@ class Association(Kruskal_Wallis):
 			3. run emma
 		"""
 		sys.stderr.write("Association by emma (linear mixture model) ...\n")
-		
-		#remove non-NA phenotype
+				
+		#remove NA phenotype and genotypes from the corresponding accessions
 		non_phenotype_NA_row_index_ls = []
 		non_NA_phenotype_ls = []
 		for i in range(len(phenotype_ls)):
@@ -494,16 +496,16 @@ class Association(Kruskal_Wallis):
 		new_data_matrix = data_matrix[non_phenotype_NA_row_index_ls,:]
 		kinship_matrix = self.get_kinship_matrix(new_data_matrix)
 		
-		no_of_rows, no_of_cols = data_matrix.shape
+		no_of_rows, no_of_cols = new_data_matrix.shape
 		results = []
 		counter = 0
 		real_counter = 0
 		rpy.r.source(os.path.expanduser('~/script/variation/src/gwa/emma/R/emma.R'))
 		
-		eig_L = rpy.r.emma_eigen_L(None, kinship_matrix)	#to avoid repetitive computing of eig_L inside emma.REMLE
+		eig_L = rpy.r.emma_eigen_L(None, kinship_matrix)	#to avoid repeating the computation of eig_L inside emma.REMLE
 		for j in range(no_of_cols):
-			genotype_ls = data_matrix[:,j]
-			pdata = self.linear_model(genotype_ls, phenotype_ls, min_data_point, snp_index=j, \
+			genotype_ls = new_data_matrix[:,j]
+			pdata = self.linear_model(genotype_ls, non_NA_phenotype_ls, min_data_point, snp_index=j, \
 									kinship_matrix=kinship_matrix, eig_L=eig_L, run_type=2)
 			if pdata is not None:
 				results.append(pdata)
@@ -514,13 +516,33 @@ class Association(Kruskal_Wallis):
 		if self.report:
 			sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, real_counter))
 		
+		sys.stderr.write("Done.\n")
+		return results
+	
+	def Emma_whole_matrixForNoNAGenotypeMatrix(self, data_matrix, phenotype_ls, min_data_point=3, **keywords):
 		"""
-		#
+		2009-3-18
+			carved out of old Emma_whole_matrix() for data_matrix that has no NA in it.
+			no MAC and MAF information.
+		"""
+		sys.stderr.write("Association by monolithic-emma (linear mixture model) ...\n")
+		
+		#remove NA phenotype
+		non_phenotype_NA_row_index_ls = []
+		non_NA_phenotype_ls = []
+		for i in range(len(phenotype_ls)):
+			if not numpy.isnan(phenotype_ls[i]):
+				non_phenotype_NA_row_index_ls.append(i)
+				non_NA_phenotype_ls.append(phenotype_ls[i])
+		
+		non_NA_phenotype_ar = numpy.array(non_NA_phenotype_ls)
+		new_data_matrix = data_matrix[non_phenotype_NA_row_index_ls,:]
+		kinship_matrix = self.get_kinship_matrix(new_data_matrix)
+		
 		rpy.r.source(os.path.expanduser('~/script/variation/src/gwa/emma/R/emma.R'))
 		#rpy.set_default_mode(rpy.NO_CONVERSION)
 		non_NA_phenotype_ar.resize([len(non_NA_phenotype_ar),1])	#transform it into 2-D for emma
 		results = rpy.r.emma_REML_t(non_NA_phenotype_ar.transpose(), new_data_matrix.transpose(), kinship_matrix)	#in emma, row is marker. col is strain.
-		"""
 		
 		sys.stderr.write("Done.\n")
 		return results
@@ -598,66 +620,83 @@ class Association(Kruskal_Wallis):
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def run(self):
-		if self.debug:
-			import pdb
-			pdb.set_trace()
-		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.phenotype_fname, turn_into_integer=0)
-		header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname)
-		#if type(data_matrix)==list:
-		#	data_matrix = numpy.array(data_matrix)
+	def readInData(self, phenotype_fname, input_fname, eigen_vector_fname, phenotype_method_id_ls, test_type=1, report=0):
+		"""
+		2009-3-20
+			refactored out of run(), easy for MpiAssociation.py to call
+		"""
+		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(phenotype_fname, turn_into_integer=0)
+		header, strain_acc_list, category_list, data_matrix = read_data(input_fname)
 		snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
 						data_matrix=data_matrix)
 		
-		#convert SNP matrix into binary
-		#if self.test_type!=1:	#kruskal wallis doesn't need binary data matrix	#2008-11-25 all needs this binary conversion
-		newSnpData, allele2index_ls = snpData.convertSNPAllele2Index(self.report)	#0 (NA) or -2 (untouched) is all converted to -2 as 0 is used to denote allele
-		#else:
-		#	newSnpData = snpData
+		newSnpData, allele2index_ls = snpData.convertSNPAllele2Index(report)	#0 (NA) or -2 (untouched) is all converted to -2 as 0 is used to denote allele
+		newSnpData.header = snpData.header
 		
 		data_matrix_phen = self.get_phenotype_matrix_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen)
 		phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)
 		
-		if self.eigen_vector_fname:
-			PC_data = self.getPCFromFile(self.eigen_vector_fname)
+		if eigen_vector_fname:
+			PC_data = self.getPCFromFile(eigen_vector_fname)
 			PC_matrix = PC_data.PC_matrix
 		else:
-			if self.test_type==4:	#eigen_vector_fname not given for this test_type. calcualte PCs.
+			if test_type==4:	#eigen_vector_fname not given for this test_type. calcualte PCs.
 				import pca_module
 				T, P, explained_var = pca_module.PCA_svd(newSnpData.data_matrix, standardize=False)
 				PC_matrix = T
 			else:
 				PC_matrix = None
 		
-		which_phenotype_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(self.phenotype_method_id_ls))
+		del snpData
+		if phenotype_method_id_ls:
+			which_phenotype_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(phenotype_method_id_ls))
+		else:	#if not available, take all phenotypes
+			which_phenotype_ls = range(len(phenData.col_id_ls))
+		pdata = PassingData(snpData=newSnpData, phenData=phenData, PC_matrix=PC_matrix, which_phenotype_ls=which_phenotype_ls, \
+						phenotype_method_id_ls=phenotype_method_id_ls)
+		return pdata
+	
+	def preprocessForTwoPhenotypeAsso(self, snpData, which_phenotype_ls):
+		"""
+		2009-3-20
+			refactored out of run(), easy for MpiAssociation.py to call
+		"""
+		if len(which_phenotype_ls)<2:
+			sys.stderr.write("Error: Require to specify 2 phenotypes in order to carry out this test type.\n")
+			sys.exit(3)
+		snpData.data_matrix = numpy.vstack((snpData.data_matrix, snpData.data_matrix))
+		#stack the two phenotypes, fake a data_matrix_phen, which_phenotype_ls
+		no_of_strains = len(strain_acc_list)
+		which_phenotype1, which_phenotype2 = which_phenotype_ls[:2]
+		phenotype1 = data_matrix_phen[:, which_phenotype1]
+		phenotype1 = numpy.resize(phenotype1, [no_of_strains, 1])	#phenotype1.resize([10,1]) doesn't work. ValueError: 'resize only works on single-segment arrays'
+		phenotype2 = data_matrix_phen[:, which_phenotype2]
+		phenotype2 = numpy.resize(phenotype2, [no_of_strains, 1])
+		data_matrix_phen = numpy.vstack((phenotype1, phenotype2))
+		which_phenotype_index_ls = [0]
+		#stack the PC_matrix as well
+		if PC_matrix is not None:
+			PC_matrix = numpy.vstack((PC_matrix, PC_matrix))
+		
+		#create an environment variable
+		a = numpy.zeros(no_of_strains)
+		a.resize([no_of_strains, 1])
+		b = numpy.ones(no_of_strains)
+		b.resize([no_of_strains, 1])
+		environment_matrix = numpy.vstack((a, b))
+		return which_phenotype_index_ls, environment_matrix
+	
+	def run(self):
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		
+		initData = self.readInData(self.phenotype_fname, self.input_fname, self.eigen_vector_fname, self.phenotype_method_id_ls, self.test_type, self.report)
 		
 		if self.test_type==5 or self.test_type==6:
-			if len(which_phenotype_ls)<2:
-				sys.stderr.write("Error: Require to specify 2 phenotypes in order to carry out this test type.\n")
-				sys.exit(3)
-			del snpData
-			newSnpData.data_matrix = numpy.vstack((newSnpData.data_matrix, newSnpData.data_matrix))
-			#stack the two phenotypes, fake a data_matrix_phen, which_phenotype_ls
-			no_of_strains = len(strain_acc_list)
-			which_phenotype1, which_phenotype2 = which_phenotype_ls[:2]
-			phenotype1 = data_matrix_phen[:, which_phenotype1]
-			phenotype1 = numpy.resize(phenotype1, [no_of_strains, 1])	#phenotype1.resize([10,1]) doesn't work. ValueError: 'resize only works on single-segment arrays'
-			phenotype2 = data_matrix_phen[:, which_phenotype2]
-			phenotype2 = numpy.resize(phenotype2, [no_of_strains, 1])
-			data_matrix_phen = numpy.vstack((phenotype1, phenotype2))
-			which_phenotype_index_ls = [0]
-			#stack the PC_matrix as well
-			if PC_matrix is not None:
-				PC_matrix = numpy.vstack((PC_matrix, PC_matrix))
-			
-			#create an environment variable
-			a = numpy.zeros(no_of_strains)
-			a.resize([no_of_strains, 1])
-			b = numpy.ones(no_of_strains)
-			b.resize([no_of_strains, 1])
-			environment_matrix = numpy.vstack((a, b))
+			which_phenotype_index_ls, environment_matrix = self.preprocessForTwoPhenotypeAsso(initData.snpData, initData.which_phenotype_ls)
 		else:
-			which_phenotype_index_ls = which_phenotype_ls
+			which_phenotype_index_ls = initData.which_phenotype_ls
 			environment_matrix = None
 		
 		if self.test_type==6:
@@ -667,22 +706,22 @@ class Association(Kruskal_Wallis):
 		
 		for which_phenotype in which_phenotype_index_ls:
 			if self.test_type==5 or self.test_type==6:
-				which_phenotype1, which_phenotype2 = which_phenotype_ls[:2]
-				phenotype1_name = header_phen[2+which_phenotype1]
-				phenotype2_name = header_phen[2+which_phenotype2]
+				which_phenotype1, which_phenotype2 = initData.which_phenotype_ls[:2]
+				phenotype1_name = initData.phenData.col_id_ls[which_phenotype1]
+				phenotype2_name = initData.phenData.col_id_ls[which_phenotype2]
 				phenotype_name = phenotype1_name+'_'+phenotype2_name
 			else:
-				phenotype_name = header_phen[2+which_phenotype]
+				phenotype_name = initData.phenData.col_id_ls[which_phenotype]
 			phenotype_name = phenotype_name.replace('/', '_')	#'/' will be recognized as directory in output_fname
 			output_fname='%s_pheno_%s.tsv'%(os.path.splitext(self.output_fname)[0], phenotype_name)	#make up a new name corresponding to this phenotype
-			results = self.run_whole_matrix[self.test_type](newSnpData.data_matrix, data_matrix_phen[:, which_phenotype], \
-														self.min_data_point, PC_matrix=PC_matrix, \
+			results = self.run_whole_matrix[self.test_type](initData.snpData.data_matrix, initData.phenData.data_matrix[:, which_phenotype], \
+														self.min_data_point, PC_matrix=initData.PC_matrix, \
 														which_PC_index_ls=self.which_PC_index_ls, environment_matrix=environment_matrix,\
 														gene_environ_interaction=gene_environ_interaction)
 			output_results_func = self.output_results.get(self.test_type)
 			if output_results_func is None:
 				output_results_func = self.output_lm_results
-			output_results_func(results, header[2:], output_fname, self.minus_log_pvalue)
+			output_results_func(results, initData.snpData.col_id_ls, output_fname, self.minus_log_pvalue)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
