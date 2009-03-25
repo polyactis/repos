@@ -78,8 +78,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	
 	def drawSNPMtrix(self, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1, \
-					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None):
+					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None, useAlleleToDetermineAlpha=False):
 		"""
+		2009-3-23
+			add argument useAlleleToDetermineAlpha, which decides whether to use allele in subSNPData or association score to decide alpha
+			add a grid to the whole matrix
+			change the color coding for major/minor from white/red to blue/yellow
 		2008-12-09
 			the SNP matrix in subSNPData, if it's binary, it now uses 0,1 to represent alleles, rather than 1,2.
 		2008-12-01
@@ -110,6 +114,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		cell_y_len = StrainID2PCAPosInfo.step
 		if cell_x_len is not None and cell_y_len is not None:
 			radius = min(cell_x_len, cell_y_len)/2.	#half of the smaller one
+		
+		#2009-3-23 2 variables below is used to draw horizontal lines as part of the grid
+		min_img_x_pos = None
+		max_img_x_pos = None
 		for i in range(no_of_snps):
 			snp_id = top_snp_data.snp_id_ls[i]
 			#draw snp label
@@ -119,17 +127,26 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				snp_img_x_pos = min(snp_img_x_pos)
 				#reset radius
 				radius = min(cell_x_len, cell_y_len)/2.	#half of the smaller one
-				
+			
+			#2009-3-23 vertical line for the grid
+			axe_snp_matrix.vlines([snp_img_x_pos], ymin=0, ymax=1, linewidth=0.15)
+			#2009-3-23 for horizontal lines
+			if min_img_x_pos is None or snp_img_x_pos<min_img_x_pos:
+				min_img_x_pos=snp_img_x_pos
+			if max_img_x_pos is None or snp_img_x_pos>max_img_x_pos:
+				max_img_x_pos=snp_img_x_pos
+			
 			if draw_snp_id_label:
 				axe_snp_matrix.text(snp_img_x_pos, snp_id_label_y_offset, snp_id, rotation='vertical', \
 								horizontalalignment ='left', verticalalignment='bottom', size=strain_snp_label_font_size)
+			
 			col_index = subSNPData.col_id2col_index[snp_id]
 			index_type = subSNPData.snp_id2index_type[snp_id]
 			score = top_snp_data.score_ls[i]
 			alpha = (score-min_score)/(max_score-min_score)*(1-0.2)+0.2	#alpha from 0.2 to 1. can't be low.
 			for j in range(len(StrainID2PCAPosInfo.strain_id_ls)):
 				strain_id = StrainID2PCAPosInfo.strain_id_ls[j]
-				strain_img_y_pos = StrainID2PCAPosInfo.strain_id2img_y_pos[strain_id]
+				strain_img_y_pos = StrainID2PCAPosInfo.strain_id2img_y_pos[strain_id]					
 				row_index = subSNPData.row_id2row_index[strain_id]
 				allele = subSNPData.data_matrix[row_index][col_index]
 				_linewidth=0
@@ -163,12 +180,13 @@ class PlotGroupOfSNPs(GeneListRankTest):
 						allele = 1
 					"""
 				if allele==0:
-					facecolor = 'w'
-				elif allele==1:
-					facecolor = 'r'
-				else:
 					facecolor = 'b'
-				#alpha = (allele-min_score)/(max_score-min_score)	#2008-12-05 use transparency to show CNV data intensity
+				elif allele==1:
+					facecolor = 'y'
+				else:
+					facecolor = 'g'
+				if useAlleleToDetermineAlpha:	#2009-3-23
+					alpha = (allele-min_score)/(max_score-min_score)	#2008-12-05 use transparency to show CNV data intensity
 				if i ==0:	#draw strain label, first SNP
 					ecotype_id = int(strain_id)
 					ecotype_obj = ecotype_info.ecotype_id2ecotype_obj.get(ecotype_id)
@@ -200,6 +218,9 @@ class PlotGroupOfSNPs(GeneListRankTest):
 					patch = Polygon(zip(xs,ys), facecolor=facecolor, linewidth=_linewidth, alpha=alpha)
 				axe_snp_matrix.add_patch(patch)
 		
+		
+		#2009-3-23 draw a grid, horizontal lines first. vertical lines are tricky cuz value of SNPID2PCAPosInfo.snp_id2img_x_pos might be a tuple, rather than a simple integer
+		axe_snp_matrix.hlines(StrainID2PCAPosInfo.strain_id2img_y_pos.values(), xmin=min_img_x_pos, xmax=max_img_x_pos, linewidth=0.15)
 		sys.stderr.write("Done.\n")
 			
 	def drawStrainPCA(self, axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover, axe_strain_pca_legend, \
@@ -281,7 +302,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
 			strain_fc = phenotype_cmap(phenotype_norm(phenotype))
 			if numpy.isnan(phenotype):
-				linewidth=0.5
+				linewidth=0.2
 				strain_fc = 'w'
 				edgecolor = 'k'
 				_alpha = 0	#facecolor gets very transparent
@@ -379,6 +400,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	
 	def drawPhenotype(self, axe, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, ecotype_info):
 		"""
+		2009-3-23
+			draw blue line for NA phenotype
 		2008-11-30
 			fix a bug.
 				axe.hlines draws a gradient-diminishing line when phenotype is numpy.nan.
@@ -393,7 +416,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			phenotype_row_index = phenData.row_id2row_index[strain_id]
 			
 			phenotype = phenData.data_matrix[phenotype_row_index][phenotype_col_index]
-			axe.plot([0, phenotype], [img_y_pos, img_y_pos], linewidth=0.2, c='k')
+			if numpy.isnan(phenotype):	#draw blue line for NA phenotype
+				phenotype = numpy.nanmax(phenData.data_matrix[:, phenotype_col_index])
+				color = 'b'
+			else:
+				color = 'k'
+			axe.plot([0, phenotype], [img_y_pos, img_y_pos], linewidth=0.2, c=color)
 		sys.stderr.write("Done.\n")
 	
 	def justDrawMap(self, axe, pic_area=[-15,30,38,66]):
@@ -418,6 +446,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	def drawMap(self, axe_map_frame, axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, \
 			ecotype_info, phenotype_cmap, phenotype_norm):
 		"""
+		2009-3-23
+			draw empty black circles for NA phenotypes
 		2008-10-07
 			1. draw map, locate ecotype and color according to phentoype
 			2. because the axe_map would be contracted to the center(default) of the original axe_map due to Basemap,
@@ -445,9 +475,19 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				continue
 			if lat and lon:
 				x, y = map_data.m(lon, lat)
-				color = phenotype_cmap(phenotype_norm(phenotype))
+				if numpy.isnan(phenotype):	#2009-3-23
+					linewidth=0.2
+					color = 'w'
+					edgecolor = 'k'
+					_alpha = 0	#facecolor gets very transparent
+				else:
+					linewidth=0
+					color = phenotype_cmap(phenotype_norm(phenotype))
+					edgecolor = 'k'
+					_alpha = 1
+				
 				#axe_map.plot([0, x], [img_y_pos, y], linestyle='--', alpha=0.2, linewidth=0.2)
-				axe_map.scatter([x],[y], s=1, linewidth=0, facecolor=color, zorder=10)
+				axe_map.scatter([x],[y], s=1, linewidth=linewidth, facecolor=color, zorder=10, alpha=_alpha, edgecolor=edgecolor)
 				canvas_x, canvas_y = axe_map.transData.xy_tup((x,y))
 				map_frame_x,  map_frame_y = axe_map_frame.transData.inverse_xy_tup((canvas_x,canvas_y))
 				axe_map_frame.plot([0, map_frame_x], [img_y_pos, map_frame_y], linestyle='--', alpha=0.2, linewidth=0.2)
@@ -599,8 +639,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		return snpData
 	
 	def getSubStrainSNPMatrix(self, snpData, phenData, phenotype_method_id, phenotype_col_index, snp_id_ls, \
-							chr_pos2ancestral_allele=None, need_convert_alleles2binary=True):
+							chr_pos2ancestral_allele=None, need_convert_alleles2binary=True, skip_strains_with_NA_phenotype=False):
 		"""
+		2009-3-23
+			add argument skip_strains_with_NA_phenotype
 		2008-12-09
 			add option need_convert_alleles2binary and replace 1,2 with 0,1 to represent binary alleles.
 		2008-11-30
@@ -620,8 +662,9 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		
 		for row_id, row_index in phenData.row_id2row_index.iteritems():
 			#if phenData.data_matrix[row_index][phenotype_col_index]!=numpy.nan:	#WATCH: numpy.nan!=numpy.nan, weird!
-			if not numpy.isnan(phenData.data_matrix[row_index][phenotype_col_index]):	#skip rows with NA.
-				sub_row_id_ls.append(row_id)
+			if skip_strains_with_NA_phenotype and numpy.isnan(phenData.data_matrix[row_index][phenotype_col_index]):	#skip rows with NA.
+				continue
+			sub_row_id_ls.append(row_id)
 		no_of_sub_rows = len(sub_row_id_ls)
 		no_of_sub_snps = len(snp_id_ls)
 		sub_matrix = numpy.zeros([no_of_sub_rows, no_of_sub_snps], snpData.data_matrix.dtype)
@@ -630,19 +673,31 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		for j in range(no_of_sub_snps):
 			snp_id = snp_id_ls[j]
 			col_index = snpData.col_id2col_index.get(snp_id)
+			if col_index is None:
+				sys.stderr.write("Warning: col_index for snp: %s is None and so is skipped.\n"%snp_id)
+				continue
 			snp_allele2index = {}
 			snp_allele2count = {}
 			snp_index2allele = {}
 			for i in range(no_of_sub_rows):
 				row_id = sub_row_id_ls[i]
 				row_index = snpData.row_id2row_index[row_id]
+				if row_index is None:
+					sys.stderr.write("Warning: row_index for row_id: %s is None and so is skipped.\n"%row_id)
+					continue
 				allele = snpData.data_matrix[row_index][col_index]
 				if need_convert_alleles2binary:
-					if allele not in snp_allele2index:	#if not given how to map allele1 and allele2
-						snp_allele2index[allele] = len(snp_allele2index)
-						snp_index = snp_allele2index[allele]
-						snp_allele2count[allele] = 0
-						snp_index2allele[snp_index] = allele
+					try:
+						if allele not in snp_allele2index:	#if not given how to map allele1 and allele2
+							snp_allele2index[allele] = len(snp_allele2index)
+							snp_index = snp_allele2index[allele]
+							snp_allele2count[allele] = 0
+							snp_index2allele[snp_index] = allele
+					except:
+						sys.stderr.write('Except: %s\n'%repr(sys.exc_info()))
+						traceback.print_exc()
+						import pdb
+						pdb.set_trace()
 					#increase the counter
 					snp_index = snp_allele2index[allele]
 					snp_allele2count[allele] += 1
