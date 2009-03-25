@@ -23,6 +23,12 @@ Examples:
 	#database commit, specify plot_type_short_name by '-y'
 	DrawSNPRegion.py -i $tmp_fname -I /Network/Data/250k/tmp-yh/call_method_17.tsv -N /Network/Data/250k/tmp-yh/phenotype.tsv -l 28 -o /Network/Data/250k/tmp-yh/snp_region -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -e 17 -u yh -s -y SuziHandPick20081209 -c
 	
+	#use CNV discrete calls (1/-1) as SNP matrix
+	DrawSNPRegion.py -i /tmp/CycB25CycB23Region.tsv -I /Network/Data/250k/tmp-yh/CNV/call_method_17_CNV_array_intensity_norm_chr1_GADA_M10_discrete_m.3125.tsv -N /Network/Data/250k/tmp-yh/phenotype.tsv -l 28 -o /Network/Data/250k/tmp-yh/snp_region_CNV_M10_discrete_m.3125 -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -e 17 -u yh -s -V 2
+	
+	#use CNV amplitude (float) output as SNP matrix
+	DrawSNPRegion.py -i /tmp/CycB25CycB23Region.tsv -I /Network/Data/250k/tmp-yh/CNV/call_method_17_CNV_array_intensity_norm_chr1_GADA_M10_out_amp.tsv -N /Network/Data/250k/tmp-yh/phenotype.tsv -l 28 -o /Network/Data/250k/tmp-yh/snp_region_CNV_M10_amp -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -e 17 -u yh -s -V 3
+	
 Description:
 	2008-09-24 program to draw pvalues, gene-models, LD around one SNP.
 		Top panel is pvalues from all different methods. Margarita and RF's values will be normalized in range of KW.
@@ -273,6 +279,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 							("label_gene", 0, int): [0, 's', 0, 'toggle this to label every gene by gene symbol. otherwise only candidate genes are labeled'],\
 							("draw_LD_relative_to_center_SNP", 0, int): [1, '', 0, 'toggle this to draw LD between other SNPs and the center SNP'],\
 							("plot_type_short_name", 0, ): [None, 'y', 1, 'A short name (<256 chars) to characterize the type of all the plots. it could have existed in table SNPRegionPlotType'],\
+							('snp_matrix_data_type', 1, int):[1, 'V', 1, 'what type of data in snp_matrix_fname? 1: SNP data. 2: CNV discrete call data (1 or -1); 3: CNV amplitude data. input file has to contain start, stop position for the latter two. Providing central position works only for SNP data.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 1, 'debug mode. 1=level 1 (pdb mode). 2=level 2 (same as 1 except no pdb mode)'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -399,8 +406,10 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	dealWithGeneAnnotation=classmethod(dealWithGeneAnnotation)
 	
 	def getSimilarGWResultsGivenResultsByGene(self, phenotype_method_id, call_method_id, results_directory=None, \
-											analysis_method_id_ls=[1,7,17,18,19]):
+											analysis_method_id_ls=[1,7]):
 		"""
+		2009-3-24
+			default value of analysis_method_id_ls is changed from [1,7,17,18,19] to [1,7]
 		2008-12-14
 			default value of analysis_method_id_ls is changed from [1,5,6,7] to [1,7,17,18,19]
 		2008-09-30
@@ -861,8 +870,10 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	def drawRegionAroundThisSNP(self, phenotype_method_id, this_snp, candidate_gene_set, gene_annotation, snp_info, analysis_method_id2gwr, \
 							LD_info, output_dir, which_LD_statistic, snp_region=None, min_distance=40000, list_type_id=None, label_gene=0,
 							draw_LD_relative_to_center_SNP=0, commit=0, snpData=None, phenData=None, ecotype_info=None,\
-							snpData_before_impute=None):
+							snpData_before_impute=None, snp_matrix_data_type=1):
 		"""
+		2009-3-23
+			add arguments snp_matrix_data_type to allow CNV or CNV amplitude to fill the SNP matrix
 		2008-12-01
 			add option snpData_before_impute
 		2008-11-30
@@ -900,11 +911,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		pylab.clf()
 		#fig = pylab.figure()
 		axe_y_offset1 = 0.05	#y_offset for axe_LD, axe_strain_pca, axe_phenotype, axe_map
-		axe_height1 = 0.45	#height of axe_LD or axe_snp_matrix
+		axe_height1 = 0.55	#height of axe_LD or axe_snp_matrix
 		axe_y_offset2 = axe_y_offset1+axe_height1
 		axe_height2 = 0.1	#height of axe_gene_model
 		axe_y_offset3 = axe_y_offset2+axe_height2
-		axe_height3 = 0.35	#height of ax1
+		axe_height3 = 0.25	#height of ax1
 		axe_y_offset4 = axe_y_offset3+axe_height3
 		
 		axe_x_offset1 = 0.02	#
@@ -945,9 +956,20 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				sys.stderr.write("No genome association results for phenotype_method_id=%s, analysis_method_id=%s. Take a random one out of analysis_method_id2gwr.\n"%\
 							(phenotype_method_id, 1))
 				genome_wide_result = analysis_method_id2gwr.values()[0]	#take random gwr
-			top_snp_data = self.getTopSNPData(genome_wide_result, None, snp_region_tup)	#, snpData.chr_pos2index.keys()) 2008-12-08 temporarily use snpData.chr_pos2index.keys() to locate top_snp_data because here snpData doesn't match genome_wide_result. it's CNV probes.
+			if snp_matrix_data_type==2 or snp_matrix_data_type==3:
+				chr_pos_ls = snpData.chr_pos2index.keys()
+				#2008-12-08 for CNV probes. use snpData.chr_pos2index.keys() to locate top_snp_data because here snpData doesn't match genome_wide_result.
+			else:
+				chr_pos_ls = None
+			top_snp_data = self.getTopSNPData(genome_wide_result, None, snp_region_tup, chr_pos_ls=chr_pos_ls)
 			
-			subSNPData = self.getSubStrainSNPMatrix(snpData, phenData, phenotype_method_id, phenotype_col_index, top_snp_data.snp_id_ls)
+			if snp_matrix_data_type==3:	#2009-3-23 for CNV amplitude data, don't convert alleles into binary 0/1=major/minor form and use allele/amplitude to determine alpha
+				need_convert_alleles2binary = False
+				useAlleleToDetermineAlpha = True
+			else:
+				need_convert_alleles2binary = True
+				useAlleleToDetermineAlpha = False
+			subSNPData = self.getSubStrainSNPMatrix(snpData, phenData, phenotype_method_id, phenotype_col_index, top_snp_data.snp_id_ls, need_convert_alleles2binary=need_convert_alleles2binary)	#2009-3-23 last argument is for CNV intensity matrix
 			
 			#the two offsets below decides where the label of strains/snps should start in axe_snp_matrix
 			last_chr_pos = snps_within_this_region_snpData.chr_pos_ls[-1]
@@ -1019,7 +1041,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			axe_snp_matrix.set_yticks([])
 			self.drawSNPMtrix(axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 							ecotype_info, strain_id_label_x_offset, snp_id_label_y_offset, strain_id_label_x_offset_extra=axe_snp_matrix_margin,\
-							draw_snp_id_label=False, snpData_before_impute=snpData_before_impute)	#2008-11-14 turn draw_snp_id_label off
+							draw_snp_id_label=False, snpData_before_impute=snpData_before_impute, useAlleleToDetermineAlpha=useAlleleToDetermineAlpha)	#2008-11-14 turn draw_snp_id_label off
 			#axe_snp_matrix.set_xlim([0,1])
 			#axe_snp_matrix.set_ylim([0,1])
 			no_of_axes_drawn += 1
@@ -1300,8 +1322,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		return snp_region
 	
 	def loadDataStructure(self, gene_annotation_picklef, LD_info_picklef, LD_fname=None, min_MAF=0.1, min_distance=20000, \
-						list_type_id=None, snp_matrix_fname=None, phenotype_fname=None, snp_matrix_before_impute_fname=None):
+						list_type_id=None, snp_matrix_fname=None, phenotype_fname=None, snp_matrix_before_impute_fname=None,\
+						snp_matrix_data_type=1):
 		"""
+		2009-3-23
+			add argument snp_matrix_data_type to allow CNV or CNV amplitude data
 		2008-12-04
 			add snp_matrix_before_impute_fname
 		2008-11-25
@@ -1331,7 +1356,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			candidate_gene_set = Set()
 		
 		if snp_matrix_fname:
-			snpData = SNPData(input_fname=snp_matrix_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1)	#, matrix_data_type=float)
+			if snp_matrix_data_type==3:
+				matrix_data_type=float		#2009-3-23 for CNV amplitude file
+			else:
+				matrix_data_type=int
+			snpData = SNPData(input_fname=snp_matrix_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1, matrix_data_type=matrix_data_type)
 			header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(phenotype_fname, turn_into_integer=0)
 			phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)	#row label is that of the SNP matrix, because the phenotype matrix is gonna be re-ordered in that way
 			phenData.data_matrix = Kruskal_Wallis.get_phenotype_matrix_in_data_matrix_order(snpData.row_id_ls, strain_acc_list_phen, phenData.data_matrix)	#tricky, using strain_acc_list_phen
@@ -1410,7 +1439,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 								label_gene=param_data.label_gene, \
 								draw_LD_relative_to_center_SNP=param_data.draw_LD_relative_to_center_SNP,\
 								commit=commit, snpData=param_data.snpData, phenData=param_data.phenData, \
-								ecotype_info=param_data.ecotype_info, snpData_before_impute=param_data.snpData_before_impute)
+								ecotype_info=param_data.ecotype_info, snpData_before_impute=param_data.snpData_before_impute,\
+								snp_matrix_data_type=param_data.snp_matrix_data_type)
 		param_data.no_of_snps_drawn += 1
 		if commit and after_plot_data:
 			#2008-10-24 first check if it's in db or not
@@ -1487,7 +1517,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		gc.set_threshold(250,10,10)
 		grand_dataStructure = self.loadDataStructure(self.gene_annotation_picklef, self.LD_info_picklef, self.LD_fname, \
 							self.min_MAF, self.min_distance, self.list_type_id, snp_matrix_fname=self.snp_matrix_fname,\
-							phenotype_fname=self.phenotype_fname, snp_matrix_before_impute_fname=self.snp_matrix_before_impute_fname)
+							phenotype_fname=self.phenotype_fname, snp_matrix_before_impute_fname=self.snp_matrix_before_impute_fname, \
+							snp_matrix_data_type=self.snp_matrix_data_type)
 		gene_annotation, snp_info, LD_info = grand_dataStructure.gene_annotation, grand_dataStructure.snp_info, grand_dataStructure.LD_info
 		if not os.path.isdir(self.output_dir):
 			os.makedirs(self.output_dir)
@@ -1513,6 +1544,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		param_data.no_of_snps_drawn = 0
 		param_data.label_gene = self.label_gene
 		param_data.draw_LD_relative_to_center_SNP = self.draw_LD_relative_to_center_SNP
+		param_data.snp_matrix_data_type = self.snp_matrix_data_type
 		no_of_genes_handled = 0
 		
 		#2008-10-23 handle plot_type
