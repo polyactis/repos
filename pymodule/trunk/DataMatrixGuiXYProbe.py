@@ -23,6 +23,7 @@ import yh_gnome, csv, traceback
 from SNP import SNPData, read_data
 from utils import figureOutDelimiter
 from sets import Set
+import __init__	#used to know the path to this file itself
 
 class DataMatrixGuiXYProbe(gtk.Window):
 	"""
@@ -42,7 +43,7 @@ class DataMatrixGuiXYProbe(gtk.Window):
 		"""
 		prog = gnome.program_init('DataMatrixGuiXYProbe', '0.1')	#this must be called before any initialization for gnome app
 		
-		program_path = os.path.dirname(sys.argv[0])
+		program_path = os.path.dirname(__init__.__file__)	#sys.argv[0])
 		xml = gtk.glade.XML(os.path.join(program_path, 'DataMatrixGuiXYProbe.glade'))
 		xml.signal_autoconnect(self)
 		self.app1 = xml.get_widget("app1")
