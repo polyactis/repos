@@ -32,6 +32,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import datetime
 
+from pymodule import SNPData
 from pymodule.db import ElixirDB
 
 __session__ = scoped_session(sessionmaker(autoflush=False, transactional=False))
@@ -154,6 +155,8 @@ class SnpsContext(Entity):
 
 class CallMethod(Entity):
 	"""
+	2009-3-12
+		add column filename
 	2009-2-22
 		add field unique_ecotype
 	2009-2-6
@@ -171,6 +174,7 @@ class CallMethod(Entity):
 	imputed = Field(Boolean)
 	unique_ecotype = Field(Boolean)
 	avg_array_mismatch_rate = Field(Float)
+	filename = Field(String(2024))
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
 	comment = Field(String(8000))
@@ -405,6 +409,10 @@ class ContaminantType(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class ArrayInfo(Entity):
+	"""
+	2009-3-25
+		add median_intensity
+	"""
 	name = Field(String(40))
 	filename = Field(String(1000))
 	original_filename = Field(String(1000))
@@ -415,6 +423,7 @@ class ArrayInfo(Entity):
 	contaminant_type = ManyToOne("ContaminantType", colname='contaminant_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	md5sum = Field(String(100))
 	experimenter = Field(String(200))
+	median_intensity = Field(Float)
 	samples = Field(String(20))
 	dna_amount = Field(String(20))
 	S260_280 = Field(Float)
@@ -1101,7 +1110,28 @@ class Stock_250kDB(ElixirDB):
 		setup_all(create_tables=create_tables)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
 		#2008-08-26 setup_all() would setup other databases as well if they also appear in the program. Seperate this to be envoked after initialization
 		# to ensure the metadata of other databases is setup properly.
-
+	
+	def getGWA(self, call_method_id, phenotype_method_id, analysis_method_id, results_directory=None, min_MAF=0.1, construct_chr_pos2index=False, pdata=None):
+		"""
+		2009-3-12
+			convenient function to get genome-wide-association result from database
+		"""
+		rm = ResultsMethod.query.filter_by(call_method_id=call_method_id).filter_by(phenotype_method_id=phenotype_method_id).\
+					filter_by(analysis_method_id=analysis_method_id).first()
+		from GeneListRankTest import GeneListRankTest
+		return GeneListRankTest.getResultMethodContent(rm, results_directory=results_directory, min_MAF=min_MAF, 
+																construct_chr_pos2index=construct_chr_pos2index,\
+																pdata=pdata)
+	
+	def getSNPMatrix(self, call_method_id, ignore_2nd_column=True):
+		"""
+		2009-3-12
+			given a call_method_id, fetch a whole SNP dataset
+		"""
+		cm = CallMethod.get(call_method_id)
+		snpData = SNPData(input_fname=cm.filename, turn_into_array=1, ignore_2nd_column=ignore_2nd_column)	#use 1st column (ecotype id) as main ID
+		return snpData
+		
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
 	main_class = Stock_250kDB
