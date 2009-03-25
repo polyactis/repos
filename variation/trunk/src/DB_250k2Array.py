@@ -2,19 +2,24 @@
 """
 
 Examples:
-	#put intensity matrices into designated file-system storage
+	#put SNP intensity matrices into designated file-system storage
 	DB_250k2Array.py -o /Network/Data/250k/db/intensity/
 	
-	#put them in some temporary directory
-	DB_250k2Array.py -o /tmp/arrays
+	#output SNP intensity matrix in some temporary directory
+	DB_250k2Array.py -o /tmp/arrays -a 616-710,811
 	
 	#output the intensity of CNV probes instead. a file called 'call_method_%s_CNV_intensity.tsv'%(call_method_id) would in the output dir.
-	DB_250k2Array.py -o /tmp/CNV/ -l 17 -t -u yh
+	DB_250k2Array.py -o /tmp/CNV/ -l 17 -t 2 -u yh
+	
+	#calculate median_intensity for array 498,499 and store the value into db. '-o' is ju
+	~/script/variation/src/DB_250k2Array.py -a 498,499 -t 3 -c
 	
 Description:
-	2008-12-09 This program outputs the intensity of two types of probes on the array.
-	1. SNP probes. each array (according to array_info_table) corresponds to one intensity matrix in output_dir.
-	2. CNV probes. one giant ProbeXArray matrix. Columns are: probe_id, array1_id, array2_id, ..., chromosome, position
+	2008-12-09 This program outputs the intensity of two types of probes on the array in run_type:
+		1. SNP probes. each array (according to array_info_table) corresponds to one intensity matrix in output_dir.
+		2. CNV probes. one giant ProbeXArray matrix. Columns are: probe_id, array1_id, array2_id, ..., chromosome, position
+	2009-3-11 in run-type=3:
+		3: calculate intensity medium of all probes in the array and store the value in db
 
 """
 
@@ -29,8 +34,9 @@ else:   #32bit
 
 import csv, numpy, getopt
 import traceback, gc
-from pymodule import process_function_arguments
+from pymodule import process_function_arguments, getListOutOfStr
 import numpy
+import Stock_250kDB
 
 class probe:
 	def __init__(self, probes_id, snps_id, xpos, ypos, allele, strand):
@@ -94,17 +100,20 @@ class snps_class:
 
 class DB_250k2Array(object):
 	__doc__ = __doc__
-	option_default_dict = {('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
 							('dbname', 1, ): ['stock_250k', 'd', 1, '', ],\
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ):[None, 'p', 1, 'database password', ],\
-							('output_dir', 1, ): [None, 'o', 1, ],\
+							('output_dir', 0, ): [None, 'o', 1, 'directory to contain output files for run_type=1/2'],\
 							('snps_table', 1, ): ['snps', 's', 1],\
 							('probes_table', 1, ): ['probes', 'e'],\
 							('array_info_table', 1, ):['array_info', 'y'],\
-							('array_id_ls', 0, ): [None, 'a', 1, 'comma-separated array id list, used to choose some arrays. Not specifying this means all arrays.'],\
+							('array_id_ls', 0, ): [None, 'a', 1, 'comma or dash-separated array id list, like 61-70,81. Not specifying this means all arrays.'],\
 							('call_method_id', 0, int):[0, 'l', 1, 'Restrict arrays included in this call_method. Default is no such restriction.'],\
-							('output_CNV_intensity', 0, int):[0, 't', 0, 'toggle this to output the intensity of CNV probes instead of SNP probes'],\
+							('run_type', 1, int):[1, 't', 1, '1: output SNP probe intensity, 2: output the intensity of CNV probes, 3: calculate intensity medium of all probes in the array and put into db'],\
+							('commit', 0, int):[0, 'c', 0, 'commit the db operation.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	debug = 0
@@ -114,7 +123,9 @@ class DB_250k2Array(object):
 		"""
 		from pymodule import ProcessOptions
 		self.ad=ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-		
+		if self.array_id_ls:
+			self.array_id_ls = getListOutOfStr(self.array_id_ls, data_type=str)
+	
 	def get_snps(self, curs, snps_table):
 		"""
 		2008-07-13
@@ -133,16 +144,16 @@ class DB_250k2Array(object):
 		sys.stderr.write("Done.\n")
 		return snps
 	
-	def get_probes(cls, curs, probes_table, snps=None, output_CNV_intensity=False):
+	def get_probes(cls, curs, probes_table, snps=None, run_type=1):
 		"""
 		2009-2-12
 			become a classmethod
 		2008-12-09
-			add option output_CNV_intensity
+			add option run_type
 		"""
 		sys.stderr.write("Getting probes ... ")
 		probes = probes_class()
-		if output_CNV_intensity:
+		if run_type==2:
 			curs.execute("select id, chromosome, position, xpos, ypos, allele, strand from %s where direction is not null order by chromosome, position"%(probes_table))
 		else:
 			curs.execute("select id, snps_id, xpos, ypos, allele, strand from %s where snps_id is not null"%(probes_table))
@@ -152,7 +163,7 @@ class DB_250k2Array(object):
 		probes_id_ls = []
 		counter = 0
 		for row in rows:
-			if output_CNV_intensity:
+			if run_type==2:
 				probes_id, chromosome, position, xpos, ypos, allele, strand = row
 				xy_ls.append((xpos, ypos))
 				chr_pos_ls.append((chromosome, position))
@@ -171,12 +182,17 @@ class DB_250k2Array(object):
 	
 	get_probes = classmethod(get_probes)
 	
-	def outputArray(self, curs, output_dir, array_info_table, snps, probes, array_id_ls, xy_ls, chr_pos_ls, probes_id_ls,\
-				call_method_id=0, output_CNV_intensity=False):
+	def outputArray(self, session, curs, output_dir, array_info_table, snps, probes, array_id_ls, xy_ls, chr_pos_ls, probes_id_ls,\
+				call_method_id=0, run_type=1):
 		"""
-		2009-3-5 skip if no probes (if one_snp.probes_id_ls == [-1]*4:) for that SNP (fake SNP in the SNP table)
+		2009-3-11
+			add run_type=3
+				calculate intensity medium of all probes in the array and store the value in db
+			array_id_ls is a list of array_ids in str type
+		2009-3-5
+			skip if no probes (if one_snp.probes_id_ls == [-1]*4:) for that SNP (fake SNP in the SNP table)
 		2008-12-09
-			add option output_CNV_intensity
+			add option run_type
 		2008-07-12
 			add option array_id
 		2008-04-08
@@ -185,10 +201,10 @@ class DB_250k2Array(object):
 		import rpy
 		rpy.r.library('affy')
 		array_size = None
-		if not os.path.isdir(output_dir):
+		if run_type!=3 and not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
 		if array_id_ls:
-			curs.execute("select id, filename from %s where id in (%s)"%(array_info_table, array_id_ls))
+			curs.execute("select id, filename from %s where id in (%s)"%(array_info_table, ','.join(array_id_ls)))
 		elif call_method_id:
 			curs.execute("select v.array_id, a.filename from view_call v, %s a where v.array_id=a.id and v.call_method_id=%s order by array_id"%\
 						(array_info_table, call_method_id))
@@ -197,7 +213,7 @@ class DB_250k2Array(object):
 		rows = curs.fetchall()
 		no_of_objects = len(rows)
 		
-		if output_CNV_intensity:	#2008-12-09 don't initialize the data_matrix if output_CNV_intensity is False.
+		if run_type==2:	#2008-12-09 don't initialize the data_matrix if run_type is not 2 (CNV probe).
 			data_matrix = numpy.zeros([len(probes_id_ls), no_of_objects], numpy.float)
 		array_id_avail_ls = []
 		for i in range(no_of_objects):
@@ -206,7 +222,7 @@ class DB_250k2Array(object):
 			
 			sys.stderr.write("\t%d/%d: Extracting intensity from %s ... \n"%(i+1, no_of_objects, filename))
 			
-			if not output_CNV_intensity:	#output SNP probe intensity within the loop
+			if run_type==1:	#output SNP probe intensity within the loop
 				output_fname = os.path.join(output_dir, '%s_array_intensity.tsv'%(array_id))
 				if os.path.isfile(output_fname):
 					sys.stderr.write("\tFile %s already exists. Ignore.\n"%(output_fname))
@@ -219,7 +235,7 @@ class DB_250k2Array(object):
 			if array_size == None:
 				array_size = int(math.sqrt(intensity_array_size))	#assume it's square array
 			
-			if output_CNV_intensity:
+			if run_type==2:	#CNV probe
 				for j in range(len(xy_ls)):
 					xpos, ypos = xy_ls[j]
 					#chromosome, position = chr_pos_ls[j]
@@ -229,7 +245,7 @@ class DB_250k2Array(object):
 					#output_row.append(intensity)
 					#writer.writerow(output_row)
 					data_matrix[j][i] = intensity
-			else:	
+			elif run_type==1:	#SNP probe intensity
 				writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
 				header = [ 'sense1', 'sense2', 'antisense1', 'antisense2']
 				
@@ -248,12 +264,19 @@ class DB_250k2Array(object):
 						output_row.append(intensity_array[intensity_array_index][0])
 					writer.writerow(output_row)
 				del writer
-			
+			elif run_type==3:	#calculate the intensity medium of all probes and store into db
+				median_intensity = numpy.median(intensity_array)[0]
+				array_info_entry = Stock_250kDB.ArrayInfo.get(array_id)
+				array_info_entry.median_intensity = median_intensity
+				session.save_or_update(array_info_entry)
+			else:
+				sys.stderr.write("Error: run_type %s is not supported.\n"%run_type)
+				sys.exit(3)
 
 			del intensity_array, array
 		
 		
-		if output_CNV_intensity:
+		if run_type==2:
 			#2008-11-13 output in Roger's multi-sample format
 			header =['probes_id'] + array_id_avail_ls + ['chromosome', 'position']
 			output_fname = os.path.join(output_dir, 'call_method_%s_CNV_intensity.tsv'%(call_method_id))
@@ -271,18 +294,40 @@ class DB_250k2Array(object):
 		if self.debug:
 			import pdb
 			pdb.set_trace()
+		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.db_user,
+									password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
+		db.setup(create_tables=False)
+		session = db.session
+		session.begin()
+		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
-		if self.output_CNV_intensity:
-			snps = None			
-		else:
-			snps = self.get_snps(curs, self.snps_table)
-		probes, xy_ls, chr_pos_ls, probes_id_ls = self.get_probes(curs, self.probes_table, snps, \
-																output_CNV_intensity=self.output_CNV_intensity)
 		
-		self.outputArray(curs, self.output_dir, self.array_info_table, snps, probes, self.array_id_ls, xy_ls, \
-						chr_pos_ls, probes_id_ls, call_method_id=self.call_method_id, output_CNV_intensity=self.output_CNV_intensity)
+		if self.run_type==1 or self.run_type==2:
+			if not self.output_dir:
+				sys.stderr.write("Run_Type 1 or 2 requires output_dir (-o).\n")
+				sys.exit(2)
+		
+		if self.run_type==1:
+			snps = self.get_snps(curs, self.snps_table)
+		else:
+			snps = None
+		if self.run_type==1 or self.run_type==2:
+			probes, xy_ls, chr_pos_ls, probes_id_ls = self.get_probes(curs, self.probes_table, snps, \
+																			run_type=self.run_type)
+		else:
+			probes, xy_ls, chr_pos_ls, probes_id_ls = None, None, None, None
+		
+		self.outputArray(session, curs, self.output_dir, self.array_info_table, snps, probes, self.array_id_ls, xy_ls, \
+						chr_pos_ls, probes_id_ls, call_method_id=self.call_method_id, run_type=self.run_type)
+		
+		if self.commit:
+			session.flush()
+			session.commit()
+			session.clear()
+		else:
+			session.rollback()
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
