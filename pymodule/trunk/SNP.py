@@ -339,6 +339,8 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int):
 	"""
+	2009-3-21
+		add '-' into vocabulary of p_char and append '$' requiring the entry ends with any characters in that vocabulary
 	2009-2-18
 		no 'e' or 'E' among the letters to be checked in the 1st column in order to decide whether to cast it into matrix_data_type
 		because 'e' or 'E' could be used in scientific number.
@@ -380,7 +382,7 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	strain_acc_list = []
 	category_list = []
 	import re
-	p_char = re.compile(r'[a-df-zA-DF-Z]')	#no 'e' or 'E', used in scientific number
+	p_char = re.compile(r'[a-df-zA-DF-Z\-]$')	#no 'e' or 'E', used in scientific number, add '-' and append '$'
 	i = 0
 	for row in reader:
 		i += 1
