@@ -1,0 +1,44 @@
+// This is an example of a custom manifest
+{"betaManifestVersion" : 1,
+  "version" : "B3AE7CF1F51F3B585FD6FB6D0F7E4569",
+  "entries" : [
+    // The following line will be automatically expanded
+    { "url" : "06095E7DDD370C6C229C06B4005F83E2.cache.html" },
+{ "url" : "548CDF11D6FE9011F3447CA200D7FB7F.cache.png" },
+{ "url" : "5ED6149DE5156E4A050671E9661F7B99.cache.html" },
+{ "url" : "9DA92932034707C17CFF15F95086D53F.cache.png" },
+{ "url" : "A0275773F95DCC51D518DA65C5363EFF.cache.html" },
+{ "url" : "ABAF6EDF8927842046A026B3DE51EBA6.cache.html" },
+{ "url" : "BB469E8807F83616A3680436629F1670.cache.html" },
+{ "url" : "F18E02DF49AEB6E6AD4345B535AF6F89.cache.html" },
+{ "url" : "FFB73D312A64B044008F84796EDAE680.cache.html" },
+{ "url" : "ManagedResourceStoreDemo_offline.html" },
+{ "url" : "clear.cache.gif" },
+{ "url" : "com.google.gwt.gears.sample.managedresourcestore.ManagedResourceStoreDemo.nocache.js" },
+{ "url" : "gears_init.js" },
+{ "url" : "gwt/standard/images/corner.png" },
+{ "url" : "gwt/standard/images/hborder.png" },
+{ "url" : "gwt/standard/images/ie6/corner_dialog_topleft.png" },
+{ "url" : "gwt/standard/images/ie6/corner_dialog_topright.png" },
+{ "url" : "gwt/standard/images/ie6/hborder_blue_shadow.png" },
+{ "url" : "gwt/standard/images/ie6/hborder_gray_shadow.png" },
+{ "url" : "gwt/standard/images/ie6/vborder_blue_shadow.png" },
+{ "url" : "gwt/standard/images/ie6/vborder_gray_shadow.png" },
+{ "url" : "gwt/standard/images/vborder.png" },
+{ "url" : "gwt/standard/standard.css" },
+{ "url" : "gwt/standard/standard_rtl.css" },
+{ "url" : "history.html" },
+{ "url" : "hosted.html" },
+{ "url" : "com.google.gwt.gears.sample.managedresourcestore.ManagedResourceStoreDemo.nocache.js?compiled" },
+    //         ^--- This comma is necessary because we have entries below
+    
+    // Make the "directory" url redirect to the host page
+    { "url" : ".", "redirect" : "ManagedResourceStoreDemo.html" },
+    
+    // This is a custom entry showing how to use an offline-only host page.
+    // The filter directive could be placed anywhere in the file
+    // @filter ManagedResourceStoreDemo.html
+    { "url": "ManagedResourceStoreDemo.html",
+      "src": "ManagedResourceStoreDemo_offline.html" }
+  ]
+}
