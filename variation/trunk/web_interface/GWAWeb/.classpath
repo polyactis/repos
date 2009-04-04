@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/ia32-java-6-sun-1.6.0.07"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/home_ubuntu/crocea/script/gwt-linux-1.5.3/gwt-user.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/home_ubuntu/crocea/script/gwt-linux-1.5.3/gwt-dev-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/home_ubuntu/crocea/script/gwt-visualization-1.0.0/gwt-visualization.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
