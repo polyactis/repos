@@ -1,0 +1,17 @@
+<%inherit file="/base.html"/>
+<%def name="title()">Accession Query Page</%def>
+
+
+<%def name="head()">
+	<link rel="stylesheet" type="text/css" href="${h.url_for('/style/style.css')}" />
+	<meta name="pygwt:module" content="Accession">
+	<link rel='stylesheet' href='/Accession/pyjamas.css'>
+</%def>
+
+<%def name="body()">
+	<script language="javascript" src="/Accession/pygwt.js"></script>
+	<iframe id='__pygwt_historyFrame' style='width:0;height:0;border:0'></iframe>
+</%def>
+
+<%def name="footer()">
+</%def>
