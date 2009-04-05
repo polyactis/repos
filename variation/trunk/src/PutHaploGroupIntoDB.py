@@ -23,6 +23,7 @@ import csv, stat, getopt, re
 import traceback, gc, subprocess
 import StockDB
 from pymodule import figureOutDelimiter, nt2number, number2nt, getColName2IndexFromHeader
+from common import get_ecotypeid2tg_ecotypeid
 
 class PutHaploGroupIntoDB(object):
 	__doc__ = __doc__	#use documentation in the beginning of the file as this class's doc
@@ -59,9 +60,11 @@ class PutHaploGroupIntoDB(object):
 		sys.stderr.write("Done.\n")
 		return snp_id_ls
 	
-	def constructHaplotypeGroup(self, input_fname, session, max_snp_typing_error_rate, snp_id_ls):
+	def putHaplotypeGroupIntoDB(self, session, input_fname, tg_ecotypeid2row, max_snp_typing_error_rate, snp_id_ls):
 		"""
 		2009-3-31
+		2009-4-4
+			add argument tg_ecotypeid2row
 		"""
 		sys.stderr.write("Constructing haplotype groups ...\n")
 		pattern_ecotypeid = re.compile(r'(?<=\))\d+')
@@ -72,8 +75,9 @@ class PutHaploGroupIntoDB(object):
 		geographic_integrity_idx = col_name2col_index['geographic_integrity']
 		filtered_SNPs_idx = col_name2col_index['filtered_SNPs']
 		counter = 0
-		for row in reader:
+		for tg_ecotypeid, row in tg_ecotypeid2row.iteritems():
 			ecotypeid = int(row[ecotypeid_idx])
+			ecotypeid = tg_ecotypeid	#2009-4-4 use tg_ecotypeid instead
 			haplo_name = row[haplo_name_idx]
 			geographic_integrity_name = row[geographic_integrity_idx]
 			filtered_SNPs = row[filtered_SNPs_idx]
@@ -110,6 +114,50 @@ class PutHaploGroupIntoDB(object):
 		session.flush()
 		sys.stderr.write("Done.\n")
 	
+	def dropRedundantEcotypes(self, input_fname, ecotypeid2tg_ecotypeid):
+		"""
+		2009-4-4
+			retain only one row out of duplicated ecotype rows based on ecotypeid2tg_ecotypeid.
+				it's not random. usually the one with same ecotype id as tg_ecotypeid unless tg_ecotypeid doesn't appear.
+			if duplicated ecotypes belong to different haplotype group, choose the one with tg_ecotypeid otherwise random.
+		"""
+		sys.stderr.write("Dropping redundant ecotypes ...\n")
+		reader = csv.reader(open(input_fname), delimiter=figureOutDelimiter(input_fname))
+		col_name2col_index = getColName2IndexFromHeader(reader.next())
+		ecotypeid_idx = col_name2col_index['ecotypeid']
+		haplo_name_idx = col_name2col_index['haplogroup']
+		nativename_idx = col_name2col_index['nativename']
+		tg_ecotypeid2row = {}
+		no_of_duplicates = 0
+		no_of_duplicates_with_different_haplogroups = 0
+		counter = 0
+		for row in reader:
+			ecotypeid = int(row[ecotypeid_idx])
+			haplo_name = row[haplo_name_idx]
+			nativename = row[nativename_idx]
+			if ecotypeid in ecotypeid2tg_ecotypeid:
+				tg_ecotypeid = ecotypeid2tg_ecotypeid[ecotypeid]
+				if tg_ecotypeid not in tg_ecotypeid2row:
+					tg_ecotypeid2row[tg_ecotypeid] = row
+				else:
+					no_of_duplicates += 1
+					old_row = tg_ecotypeid2row[tg_ecotypeid]
+					old_ecotypeid = int(old_row[ecotypeid_idx])
+					old_haplo_name = old_row[haplo_name_idx]
+					old_nativename = row[nativename_idx]
+					if old_haplo_name!=haplo_name:
+						sys.stderr.write("ecotype %s(%s) in haplotype group %s, while duplicate %s(%s) in haplotype group %s.\n"%\
+										 (ecotypeid, nativename, haplo_name, old_ecotypeid, old_nativename, old_haplo_name))
+						no_of_duplicates_with_different_haplogroups += 1
+					if ecotypeid==tg_ecotypeid:	#replace if the new ecotypeid matching the tg_ecotypeid whether the haplotype group is same or not.
+						tg_ecotypeid2row[tg_ecotypeid] = row
+			else:
+				sys.stderr.write("Warning: ecotype %s not in ecotypeid2tg_ecotypeid.\n"%(ecotypeid))
+			counter += 1
+		sys.stderr.write("no_of_duplicates: %s, out of which %s encompass different haplotype groups. %s accessions in total. Done.\n"%\
+						 (no_of_duplicates, no_of_duplicates_with_different_haplogroups, counter))
+		return tg_ecotypeid2row
+	
 	def run(self):
 		"""
 		"""
@@ -122,9 +170,10 @@ class PutHaploGroupIntoDB(object):
 		db.setup()
 		session = db.session
 		session.begin()
-		
+		ecotypeid2tg_ecotypeid = get_ecotypeid2tg_ecotypeid(db.metadata.bind, debug=self.debug)
+		tg_ecotypeid2row = self.dropRedundantEcotypes(self.input_fname, ecotypeid2tg_ecotypeid)
 		snp_id_ls = self.getSNPIDLs()
-		self.constructHaplotypeGroup(self.input_fname, session, self.max_snp_typing_error_rate, snp_id_ls)
+		self.putHaplotypeGroupIntoDB(session, self.input_fname, tg_ecotypeid2row, self.max_snp_typing_error_rate, snp_id_ls)
 		
 		if self.commit:
 			session.commit()
