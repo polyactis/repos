@@ -467,13 +467,13 @@ create or replace view view_call as select c.id as call_info_id, c.filename,
 	a.id=c.array_id and e.id=a.maternal_ecotype_id and e.siteid=s.id and s.addressid=ad.id and ad.countryid=co.id \
 	order by nativename;
 
---2008-05-27 view the arrays
-
+-- 2008-05-27 view the arrays
+-- 2009-4-5 add a date array_created to view stock_250k.view_array
 create or replace view view_array as select a.id as array_id, a.filename, 
 	a.original_filename as array_filename,  a.maternal_ecotype_id,
 	e1.nativename as maternal_nativename, e1.stockparent as maternal_stockparent,
 	a.paternal_ecotype_id, e2.nativename as paternal_nativename,
-	e2.stockparent as paternal_stockparent from array_info a, stock.ecotype e1,
+	e2.stockparent as paternal_stockparent, a.date_created as array_created from array_info a, stock.ecotype e1,
 	stock.ecotype e2 where e1.id=a.maternal_ecotype_id and e2.id=a.paternal_ecotype_id
 	order by maternal_nativename, paternal_nativename;
 
