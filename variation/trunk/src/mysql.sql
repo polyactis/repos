@@ -186,9 +186,21 @@ create table person(
 	)engine=INNODB;
 
 -- 2008-05-18 view to check other info (where and country) about ecotype
+-- 2009-3-30 add column tg_ecotypeid to view stock.ecotype_info
 create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent,
-	e.nativename, e.latitude, e.longitude, e.alias, e.siteid, s.name as site_name, c.abbr as country, p.firstname, p.surname from ecotype e,
-	site s, address a, country c , person p where p.id=e.collectorid and e.siteid=s.id and s.addressid=a.id and a.countryid=c.id;
+	e.nativename, e2t.tg_ecotypeid, e.latitude, e.longitude, e.alias, e.siteid, s.name as site_name, 
+	c.abbr as country, p.firstname, p.surname, e.collectiondate from ecotype e,
+	site s, address a, country c , person p, ecotypeid_strainid2tg_ecotypeid e2t
+	where p.id=e.collectorid and e.siteid=s.id and s.addressid=a.id and a.countryid=c.id
+	and e.id=e2t.ecotypeid;
+
+-- 2009-3-30 view doesn't allow selection clause in FROM, so construct more views based on ecotype_info to generate more info
+create or replace view ecotype_info_with_trip as select e.*, s2t.tripid from
+	ecotype_info e left outer join site_trip s2t on e.siteid=s2t.siteid;
+
+-- 2009-3-30 
+create or replace view ecotype_info_with_collectiondate as select e.*, t.collectiondate from
+	ecotype_info_with_trip e left outer join trip t on e.tripid=t.id;
 
 
 -- 2008-08-08 manual tg_ecotypeid linking after GroupDuplicateEcotype.py http://papaya.usc.edu/2010/149-snps/149SNP-data-introduction
@@ -198,10 +210,11 @@ update ecotypeid_strainid2tg_ecotypeid set tg_ecotypeid=8424 where ecotypeid in 
 
 -- 2008-08-18 create a view to view qc results for db stock
 create or replace view view_qc as select q.strainid, e.id as ecotype_id, e.nativename, q.target_id, 
-q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
-q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, q.created_by, q.updated_by, q.date_created, q.date_updated
-from call_qc q , ecotype e, qc_method qm where e.id=q.ecotypeid 
-and qm.id=q.qc_method_id order by nativename, strainid, qc_method_id;
+	q.qc_method_id, qm.short_name as QC_method_name, q.NA_rate as QC_NA_rate, 
+	q.mismatch_rate , q.no_of_mismatches, q.no_of_non_NA_pairs, q.created_by, q.updated_by, q.date_created, q.date_updated
+	from call_qc q , ecotype e, qc_method qm where e.id=q.ecotypeid 
+	and qm.id=q.qc_method_id order by nativename, strainid, qc_method_id;
+
 
 -- 2008-08-11 don't need these anymore. GroupDuplicateEcotype.py can create these on the fly
 -- 2008-08-11 turns out that the type of id in table ecotype is 'integer unsigned'. after modifying those columns to be unsigned, succeed.
