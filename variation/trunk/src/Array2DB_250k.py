@@ -32,7 +32,8 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import csv, stat, getopt
-import traceback, gc, subprocess
+import traceback, gc, subprocess, re
+from common import get_ecotypeid2tg_ecotypeid
 
 class ArrayInfo(object):
 	def __init__(self, **keywords):
@@ -135,8 +136,14 @@ class ArrayInfo(object):
 	
 	get_md5sum = classmethod(get_md5sum)
 	
-	def assignNewIdToThisArray(self, array_filename, output_dir):
+	ecotypeid_in_fname_p = re.compile(r'_(\d+)\).CEL')
+	def assignNewIdToThisArray(self, array_filename, output_dir, ecotypeid2tg_ecotypeid=None):
 		"""
+		2009-4-5
+			add argument ecotypeid2tg_ecotypeid to link ecotypeid to tg_ecotypeid
+			if array's ecotypeid is not given in the map (array_file_basename2ecotypeid_tuple),
+				use ecotypeid_in_fname_p to search for the ecotype id embedded in the filename. like
+				6039 in "Q270-A-atSNPtilx520433-01-1 (Hovdala-2_6039).CEL"
 		2008-07-12
 			ignore files whose filename extension is not .cel.
 		2008-04-23
@@ -166,8 +173,18 @@ class ArrayInfo(object):
 			if array_file_basename in self.array_file_basename2ecotypeid_tuple:
 				maternal_ecotype_id, paternal_ecotype_id = self.array_file_basename2ecotypeid_tuple[array_file_basename]
 			else:
-				sys.stderr.write("%s not in mapping_file. No ecotype id assigned.\n"%array_file_basename)
-				maternal_ecotype_id = paternal_ecotype_id = 'NULL'
+				ecotypeid_in_fname_p_search_result = self.ecotypeid_in_fname_p.search(array_file_basename)
+				if ecotypeid_in_fname_p_search_result:
+					ecotypeid = int(ecotypeid_in_fname_p_search_result.group(1))
+					maternal_ecotype_id = paternal_ecotype_id = ecotypeid
+				else:
+					sys.stderr.write("%s neither in mapping_file nor coded in array filename. No ecotype id assigned.\n"%array_file_basename)
+					maternal_ecotype_id = paternal_ecotype_id = 'NULL'
+			if ecotypeid2tg_ecotypeid:
+				if maternal_ecotype_id!='NULL':
+					maternal_ecotype_id = ecotypeid2tg_ecotypeid.get(maternal_ecotype_id, maternal_ecotype_id)
+				if paternal_ecotype_id!='NULL':
+					paternal_ecotype_id = ecotypeid2tg_ecotypeid.get(paternal_ecotype_id, paternal_ecotype_id)
 			
 			cp_p = subprocess.Popen(['cp', array_filename, output_fname], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 			cp_p_stdout_out = cp_p.stdout.read()
@@ -444,6 +461,10 @@ class Array2DB_250k(object):
 				copy the original cel file to output_dir and put array_id in the beginning of the filename.
 		2008-02-28
 		"""
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
@@ -457,10 +478,11 @@ class Array2DB_250k(object):
 		"""
 		arrayInfo = ArrayInfo(curs=curs, array_info_table=self.array_info_table, user=self.user, \
 							experimenter=self.experimenter, mapping_file=self.mapping_file)
+		ecotypeid2tg_ecotypeid = get_ecotypeid2tg_ecotypeid(curs, debug=self.debug)
 		input_fname_ls = self.get_all_files_in_input_dir(self.input_dir)
 		for filename in input_fname_ls:
 			sys.stderr.write("Assigning new id to %s ... "%filename)
-			return_value = arrayInfo.assignNewIdToThisArray(filename, self.output_dir)
+			return_value = arrayInfo.assignNewIdToThisArray(filename, self.output_dir, ecotypeid2tg_ecotypeid=ecotypeid2tg_ecotypeid)
 			if return_value==-1:
 				sys.stderr.write("Failed.\n")
 			else:
