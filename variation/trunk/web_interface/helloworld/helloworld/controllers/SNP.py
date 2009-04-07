@@ -128,6 +128,8 @@ class SnpController(BaseController):
 	
 	def getSignificantHits(self, id=None):
 		"""
+		2009-4-7
+			enlarge the GBrowse region from 20kb to 80kb
 		2009-3-2
 			significant hits (stored in Stock_250kDB.Results, assume top 1000) in all phenotypes for the given SNP
 			and feed back to the javascript request
@@ -147,8 +149,8 @@ class SnpController(BaseController):
 		
 		rows = Results.query.filter_by(snps_id=snp.id).all()
 		return_ls =[]
-		start_pos = c.position-10000
-		stop_pos = c.position+10000
+		start_pos = c.position-40000
+		stop_pos = c.position+40000
 		for row in rows:
 			phenotype_method = row.result.phenotype_method
 			analysis_method = row.result.analysis_method
