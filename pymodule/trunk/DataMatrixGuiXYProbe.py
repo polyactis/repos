@@ -5,6 +5,7 @@ a treeview to store data.  Double click on an entry to update plot
 data
 
 """
+import __init__	#used to know the path to this file itself
 import os, sys, pygtk
 pygtk.require('2.0')
 import gtk, gtk.glade, gobject
@@ -23,7 +24,6 @@ import yh_gnome, csv, traceback
 from SNP import SNPData, read_data
 from utils import figureOutDelimiter
 from sets import Set
-import __init__	#used to know the path to this file itself
 
 class DataMatrixGuiXYProbe(gtk.Window):
 	"""
