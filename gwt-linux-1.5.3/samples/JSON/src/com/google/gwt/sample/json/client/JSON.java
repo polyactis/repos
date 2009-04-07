@@ -47,193 +47,193 @@ import java.util.Set;
  * the results.
  */
 public class JSON {
-  /**
-   * Class for handling the response text associated with a request for a JSON
-   * object.
-   * 
-   */
-  private class JSONResponseTextHandler implements RequestCallback {
-    public void onError(Request request, Throwable exception) {
-      displayRequestError(exception.toString());
-      resetSearchButtonCaption();
-    }
+	/**
+	 * Class for handling the response text associated with a request for a JSON
+	 * object.
+	 * 
+	 */
+	private class JSONResponseTextHandler implements RequestCallback {
+		public void onError(Request request, Throwable exception) {
+			displayRequestError(exception.toString());
+			resetSearchButtonCaption();
+		}
 
-    public void onResponseReceived(Request request, Response response) {
-      String responseText = response.getText();
-      try {
-        JSONValue jsonValue = JSONParser.parse(responseText);
-        displayJSONObject(jsonValue);
-      } catch (JSONException e) {
-        displayParseError(responseText);
-      }
-      resetSearchButtonCaption();
-    }
-  }
+		public void onResponseReceived(Request request, Response response) {
+			String responseText = response.getText();
+			try {
+				JSONValue jsonValue = JSONParser.parse(responseText);
+				displayJSONObject(jsonValue);
+			} catch (JSONException e) {
+				displayParseError(responseText);
+			}
+			resetSearchButtonCaption();
+		}
+	}
 
-  /*
-   * Class for handling the fetch button's click event.
-   */
-  private class SearchButtonClickListener implements ClickListener {
-    public void onClick(Widget sender) {
-      jsonTree.setVisible(false);
-      doFetchURL();
-    }
-  }
+	/*
+	 * Class for handling the fetch button's click event.
+	 */
+	private class SearchButtonClickListener implements ClickListener {
+		public void onClick(Widget sender) {
+			jsonTree.setVisible(false);
+			doFetchURL();
+		}
+	}
 
-  /*
-   * Default URL to use to fetch JSON objects. Note that the contents of this
-   * JSON result were as a result of requesting the following URL:
-   * 
-   * http://api.search.yahoo.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query=potato&results=2&output=json
-   * 
-   */
-  private static final String DEFAULT_SEARCH_URL = "search-results.js";
+	/*
+	 * Default URL to use to fetch JSON objects. Note that the contents of this
+	 * JSON result were as a result of requesting the following URL:
+	 * 
+	 * http://api.search.yahoo.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query=potato&results=2&output=json
+	 * 
+	 */
+	private static final String DEFAULT_SEARCH_URL = "http://banyan.usc.edu:5000/Accession/autoComplete/";//"search-results.js";
 
-  /*
-   * Text displayed on the fetch button when we are in a default state.
-   */
-  private static final String SEARCH_BUTTON_DEFAULT_TEXT = "Search";
+	/*
+	 * Text displayed on the fetch button when we are in a default state.
+	 */
+	private static final String SEARCH_BUTTON_DEFAULT_TEXT = "Search";
 
-  /*
-   * Text displayed on the fetch button when we are waiting for a JSON reply.
-   */
-  private static final String SEARCH_BUTTON_WAITING_TEXT = "Waiting for JSON Response...";
+	/*
+	 * Text displayed on the fetch button when we are waiting for a JSON reply.
+	 */
+	private static final String SEARCH_BUTTON_WAITING_TEXT = "Waiting for JSON Response...";
 
-  /*
-   * RequestBuilder used to issue HTTP GET requests.
-   */
-  private final RequestBuilder requestBuilder = new RequestBuilder(
-      RequestBuilder.GET, DEFAULT_SEARCH_URL);
+	/*
+	 * RequestBuilder used to issue HTTP GET requests.
+	 */
+	private final RequestBuilder requestBuilder = new RequestBuilder(
+			RequestBuilder.GET, DEFAULT_SEARCH_URL);
 
-  private Tree jsonTree = new Tree();
+	private Tree jsonTree = new Tree();
 
-  private Button searchButton = new Button();
+	private Button searchButton = new Button();
 
-  /**
-   * Entry point for this simple application. Currently, we build the
-   * application's form and wait for events.
-   */
-  public void onModuleLoad() {
-    initializeMainForm();
-  }
+	/**
+	 * Entry point for this simple application. Currently, we build the
+	 * application's form and wait for events.
+	 */
+	public void onModuleLoad() {
+		initializeMainForm();
+	}
 
-  /*
-   * Add the object presented by the JSONValue as a children to the requested
-   * TreeItem.
-   */
-  private void addChildren(TreeItem treeItem, JSONValue jsonValue) {
-    JSONArray jsonArray;
-    JSONObject jsonObject;
-    JSONString jsonString;
+	/*
+	 * Add the object presented by the JSONValue as a children to the requested
+	 * TreeItem.
+	 */
+	private void addChildren(TreeItem treeItem, JSONValue jsonValue) {
+		JSONArray jsonArray;
+		JSONObject jsonObject;
+		JSONString jsonString;
 
-    if ((jsonArray = jsonValue.isArray()) != null) {
-      for (int i = 0; i < jsonArray.size(); ++i) {
-        TreeItem child = treeItem.addItem(getChildText("["
-            + Integer.toString(i) + "]"));
-        addChildren(child, jsonArray.get(i));
-      }
-    } else if ((jsonObject = jsonValue.isObject()) != null) {
-      Set<String> keys = jsonObject.keySet();
-      for (String key : keys) {
-        TreeItem child = treeItem.addItem(getChildText(key));
-        addChildren(child, jsonObject.get(key));
-      }
-    } else if ((jsonString = jsonValue.isString()) != null) {
-      // Use stringValue instead of toString() because we don't want escaping
-      treeItem.addItem(jsonString.stringValue());
-    } else {
-      // JSONBoolean, JSONNumber, and JSONNull work well with toString().
-      treeItem.addItem(getChildText(jsonValue.toString()));
-    }
-  }
+		if ((jsonArray = jsonValue.isArray()) != null) {
+			for (int i = 0; i < jsonArray.size(); ++i) {
+				TreeItem child = treeItem.addItem(getChildText("["
+						+ Integer.toString(i) + "]"));
+				addChildren(child, jsonArray.get(i));
+			}
+		} else if ((jsonObject = jsonValue.isObject()) != null) {
+			Set<String> keys = jsonObject.keySet();
+			for (String key : keys) {
+				TreeItem child = treeItem.addItem(getChildText(key));
+				addChildren(child, jsonObject.get(key));
+			}
+		} else if ((jsonString = jsonValue.isString()) != null) {
+			// Use stringValue instead of toString() because we don't want escaping
+			treeItem.addItem(jsonString.stringValue());
+		} else {
+			// JSONBoolean, JSONNumber, and JSONNull work well with toString().
+			treeItem.addItem(getChildText(jsonValue.toString()));
+		}
+	}
 
-  private void displayError(String errorType, String errorMessage) {
-    jsonTree.removeItems();
-    jsonTree.setVisible(true);
-    TreeItem treeItem = jsonTree.addItem(errorType);
-    treeItem.addItem(errorMessage);
-    treeItem.setStyleName("JSON-JSONResponseObject");
-    treeItem.setState(true);
-  }
+	private void displayError(String errorType, String errorMessage) {
+		jsonTree.removeItems();
+		jsonTree.setVisible(true);
+		TreeItem treeItem = jsonTree.addItem(errorType);
+		treeItem.addItem(errorMessage);
+		treeItem.setStyleName("JSON-JSONResponseObject");
+		treeItem.setState(true);
+	}
 
-  /*
-   * Update the treeview of a JSON object.
-   */
-  private void displayJSONObject(JSONValue jsonValue) {
-    jsonTree.removeItems();
-    jsonTree.setVisible(true);
-    TreeItem treeItem = jsonTree.addItem("JSON Response");
-    addChildren(treeItem, jsonValue);
-    treeItem.setStyleName("JSON-JSONResponseObject");
-    treeItem.setState(true);
-  }
+	/*
+	 * Update the treeview of a JSON object.
+	 */
+	private void displayJSONObject(JSONValue jsonValue) {
+		jsonTree.removeItems();
+		jsonTree.setVisible(true);
+		TreeItem treeItem = jsonTree.addItem("JSON Response");
+		addChildren(treeItem, jsonValue);
+		treeItem.setStyleName("JSON-JSONResponseObject");
+		treeItem.setState(true);
+	}
 
-  private void displayParseError(String responseText) {
-    displayError("Failed to parse JSON response", responseText);
-  }
+	private void displayParseError(String responseText) {
+		displayError("Failed to parse JSON response", responseText);
+	}
 
-  private void displayRequestError(String message) {
-    displayError("Request failed.", message);
-  }
+	private void displayRequestError(String message) {
+		displayError("Request failed.", message);
+	}
 
-  private void displaySendError(String message) {
-    displayError("Failed to send the request.", message);
-  }
+	private void displaySendError(String message) {
+		displayError("Failed to send the request.", message);
+	}
 
-  /*
-   * Fetch the requested URL.
-   */
-  private void doFetchURL() {
-    searchButton.setText(SEARCH_BUTTON_WAITING_TEXT);
-    try {
-      requestBuilder.sendRequest(null, new JSONResponseTextHandler());
-    } catch (RequestException ex) {
-      displaySendError(ex.toString());
-      resetSearchButtonCaption();
-    }
-  }
+	/*
+	 * Fetch the requested URL.
+	 */
+	private void doFetchURL() {
+		searchButton.setText(SEARCH_BUTTON_WAITING_TEXT);
+		try {
+			requestBuilder.sendRequest(null, new JSONResponseTextHandler());
+		} catch (RequestException ex) {
+			displaySendError(ex.toString());
+			resetSearchButtonCaption();
+		}
+	}
 
-  /*
-   * Causes the text of child elements to wrap.
-   */
-  private String getChildText(String text) {
-    return "<span style='white-space:normal'>" + text + "</span>";
-  }
+	/*
+	 * Causes the text of child elements to wrap.
+	 */
+	private String getChildText(String text) {
+		return "<span style='white-space:normal'>" + text + "</span>";
+	}
 
-  /**
-   * Initialize the main form's layout and content.
-   */
-  private void initializeMainForm() {
-    searchButton.setStyleName("JSON-SearchButton");
-    searchButton.setText(SEARCH_BUTTON_DEFAULT_TEXT);
-    searchButton.addClickListener(new SearchButtonClickListener());
+	/**
+	 * Initialize the main form's layout and content.
+	 */
+	private void initializeMainForm() {
+		searchButton.setStyleName("JSON-SearchButton");
+		searchButton.setText(SEARCH_BUTTON_DEFAULT_TEXT);
+		searchButton.addClickListener(new SearchButtonClickListener());
 
-    // Avoids showing an "empty" cell
-    jsonTree.setVisible(false);
+		// Avoids showing an "empty" cell
+		jsonTree.setVisible(false);
 
-    // Find out where the host page wants the button.
-    //
-    RootPanel searchButtonSlot = RootPanel.get("search");
-    if (searchButtonSlot == null) {
-      Window.alert("Please define a container element whose id is 'search'");
-      return;
-    }
+		// Find out where the host page wants the button.
+		//
+		RootPanel searchButtonSlot = RootPanel.get("search");
+		if (searchButtonSlot == null) {
+			Window.alert("Please define a container element whose id is 'search'");
+			return;
+		}
 
-    // Find out where the host page wants the tree view.
-    //
-    RootPanel treeViewSlot = RootPanel.get("tree");
-    if (treeViewSlot == null) {
-      Window.alert("Please define a container element whose id is 'tree'");
-      return;
-    }
+		// Find out where the host page wants the tree view.
+		//
+		RootPanel treeViewSlot = RootPanel.get("tree");
+		if (treeViewSlot == null) {
+			Window.alert("Please define a container element whose id is 'tree'");
+			return;
+		}
 
-    // Add both widgets.
-    //
-    searchButtonSlot.add(searchButton);
-    treeViewSlot.add(jsonTree);
-  }
+		// Add both widgets.
+		//
+		searchButtonSlot.add(searchButton);
+		treeViewSlot.add(jsonTree);
+	}
 
-  private void resetSearchButtonCaption() {
-    searchButton.setText(SEARCH_BUTTON_DEFAULT_TEXT);
-  }
+	private void resetSearchButtonCaption() {
+		searchButton.setText(SEARCH_BUTTON_DEFAULT_TEXT);
+	}
 }
