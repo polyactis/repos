@@ -833,6 +833,8 @@ class MAFVsScorePlot(Entity):
 
 class ResultsGene(Entity):
 	"""
+	2009-4-7
+		add rank into the unique combo. rank could be different for the same SNP under different MAF scenarios.
 	2008-10-30
 		remove order_by='rank' in types = ManyToMany('ScoreRankHistogramType', ...)
 	2008-10-28
@@ -852,7 +854,7 @@ class ResultsGene(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='results_gene', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('snps_id', 'gene_id', 'results_id'))
+	using_table_options(UniqueConstraint('snps_id', 'gene_id', 'results_id', 'rank'))
 
 
 class FTPathway(Entity):
