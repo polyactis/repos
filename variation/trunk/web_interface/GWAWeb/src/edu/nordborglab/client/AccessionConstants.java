@@ -34,6 +34,69 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String ClassName();
 
   /**
+   * Translated "/Phenotype/getPhenotypeIcon".
+   * 
+   * @return translated "/Phenotype/getPhenotypeIcon"
+   */
+  @DefaultStringValue("/Phenotype/getPhenotypeIcon")
+  @Key("GetPhenotypeIconURL")
+  String GetPhenotypeIconURL();
+
+  /**
+   * Translated "/Phenotype/getPhenotypeValue".
+   * 
+   * @return translated "/Phenotype/getPhenotypeValue"
+   */
+  @DefaultStringValue("/Phenotype/getPhenotypeValue")
+  @Key("GetPhenotypeValueURL")
+  String GetPhenotypeValueURL();
+
+  /**
+   * Translated "diaplay all".
+   * 
+   * @return translated "diaplay all"
+   */
+  @DefaultStringValue("diaplay all")
+  @Key("MapWithPhenotypeDisplayOption1")
+  String MapWithPhenotypeDisplayOption1();
+
+  /**
+   * Translated "diaplay only accessions with phenotype".
+   * 
+   * @return translated "diaplay only accessions with phenotype"
+   */
+  @DefaultStringValue("diaplay only accessions with phenotype")
+  @Key("MapWithPhenotypeDisplayOption2")
+  String MapWithPhenotypeDisplayOption2();
+
+  /**
+   * Translated "diaplay only accessions without phenotype".
+   * 
+   * @return translated "diaplay only accessions without phenotype"
+   */
+  @DefaultStringValue("diaplay only accessions without phenotype")
+  @Key("MapWithPhenotypeDisplayOption3")
+  String MapWithPhenotypeDisplayOption3();
+
+  /**
+   * Translated "diaplay all, diaplay only accessions with phenotype, diaplay only accessions without phenotype".
+   * 
+   * @return translated "diaplay all, diaplay only accessions with phenotype, diaplay only accessions without phenotype"
+   */
+  @DefaultStringValue("diaplay all, diaplay only accessions with phenotype, diaplay only accessions without phenotype")
+  @Key("MapWithPhenotypeDisplayOptions")
+  String MapWithPhenotypeDisplayOptions();
+
+  /**
+   * Translated "/Phenotype/getPhenotypeMethodLs".
+   * 
+   * @return translated "/Phenotype/getPhenotypeMethodLs"
+   */
+  @DefaultStringValue("/Phenotype/getPhenotypeMethodLs")
+  @Key("MapWithPhenotypeGetPhenotypeMethodLsURL")
+  String MapWithPhenotypeGetPhenotypeMethodLsURL();
+
+  /**
    * Translated "".
    * 
    * @return translated ""

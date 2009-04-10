@@ -9,6 +9,8 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
 
 import com.google.gwt.user.client.ui.SuggestBox;
 
@@ -30,11 +32,20 @@ import com.google.gwt.user.client.ui.SuggestionEvent;
 
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
+import com.google.gwt.visualization.client.visualizations.Table.Options.Policy;
+/*
+import com.google.gwt.visualization.client.visualizations.MotionChart;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptException;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import java.util.Date;
+
 import com.google.gwt.visualization.client.Query;
 import com.google.gwt.visualization.client.QueryResponse;
 import com.google.gwt.visualization.client.Query.Callback;
+*/
 
-import java.util.Set;
 
 public class AccessionByName extends Composite implements ClickListener{
 
@@ -50,17 +61,15 @@ public class AccessionByName extends Composite implements ClickListener{
 	//suggestBox.ensureDebugId("cwSuggestBox");
 	private HorizontalPanel suggestPanel = new HorizontalPanel();
 	private VerticalPanel panel = new VerticalPanel();
-	private Tree jsonTree = new Tree();
 	
-	private Table accessionTable = new Table();
 	//private String dataUrl = "http://spreadsheets.google.com/tq?key=prll1aQH05yQqp_DKPP9TNg&pub=1";
 	//private Query query = Query.create(dataUrl);
-	
-	
+	private DisplayJSONObject jsonErrorDialog;
+	private MapTableTree contentTree;
 	private DialogBox dialogBox = new DialogBox();
-
+	
+	
 	public void onClick(Widget sender) {
-		//jsonTree.setVisible(false);
 		doFetchURL();
 	}
 
@@ -95,7 +104,6 @@ public class AccessionByName extends Composite implements ClickListener{
 
 	private class SuggestBoxSuggestionHandler implements SuggestionHandler {
 		public void onSuggestionSelected(SuggestionEvent event){
-			jsonTree.setVisible(false);
 			doFetchURL();
 		}
 	}
@@ -104,29 +112,29 @@ public class AccessionByName extends Composite implements ClickListener{
 	 * 
 	 * @param constants the constants
 	 */
-	public AccessionByName(AccessionConstants constants) {
+	public AccessionByName(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
 		//super(constants);
 		this.constants = constants;
 		oracle.setConstants(constants);
+		this.jsonErrorDialog = jsonErrorDialog;
+		
 		
 		//Label lbl = new Label(constants.cwAccessionByNameLabel());
 		//suggestBox.addChangeListener(new SuggestBoxChangeListener());
 		suggestBox.addEventHandler(new SuggestBoxSuggestionHandler());
+		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
+		suggestButton.addClickListener(this);
 
 		suggestPanel.add(new HTML(constants.cwAccessionByNameLabel()));
 		suggestPanel.add(suggestBox);
 		suggestPanel.add(suggestButton);
-		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
-		suggestButton.addClickListener(this);
-
+		suggestPanel.setSpacing(5);
+		
 		panel.add(suggestPanel);
 		//panel.add(textBox);
-
-		panel.add(jsonTree);
-		//Avoids showing an "empty" cell
-		jsonTree.setVisible(false);
-
-		panel.add(accessionTable);
+		
+		contentTree = new MapTableTree(constants, jsonErrorDialog);
+		panel.add(contentTree);
 		
 		/*
 		 * 2009-4-3 construction and more has to be put into constructors, not under the class.
@@ -174,7 +182,7 @@ public class AccessionByName extends Composite implements ClickListener{
 	 */
 	private class JSONResponseTextHandler implements RequestCallback {
 		public void onError(Request request, Throwable exception) {
-			displayRequestError(exception.toString());
+			jsonErrorDialog.displayRequestError(exception.toString());
 			resetSearchButtonCaption();
 		}
 
@@ -184,83 +192,14 @@ public class AccessionByName extends Composite implements ClickListener{
 				//JSONValue jsonValue = JSONParser.parse(responseText);
 				//displayJSONObject(jsonValue);
 				DataTable data = asDataTable(responseText);	//DataTable.create();//new google.visualization.DataTable(eval("("+response+")"), 0.5)
-				Table.Options options = Table.Options.create();
-				options.setShowRowNumber(true);
-				accessionTable.draw(data, options);
+				contentTree.populateData(data);
+				
 			} catch (JSONException e) {
-				displayParseError(responseText);
+				jsonErrorDialog.displayParseError(responseText);
 			}
 			resetSearchButtonCaption();
 		}
 	}
-
-	/*
-	 * Add the object presented by the JSONValue as a children to the requested
-	 * TreeItem.
-	 */
-	private void addChildren(TreeItem treeItem, JSONValue jsonValue) {
-		JSONArray jsonArray;
-		JSONObject jsonObject;
-		JSONString jsonString;
-
-		if ((jsonArray = jsonValue.isArray()) != null) {
-			for (int i = 0; i < jsonArray.size(); ++i) {
-				TreeItem child = treeItem.addItem(getChildText("["
-						+ Integer.toString(i) + "]"));
-				addChildren(child, jsonArray.get(i));
-			}
-		} else if ((jsonObject = jsonValue.isObject()) != null) {
-			Set<String> keys = jsonObject.keySet();
-			for (String key : keys) {
-				TreeItem child = treeItem.addItem(getChildText(key));
-				addChildren(child, jsonObject.get(key));
-			}
-		} else if ((jsonString = jsonValue.isString()) != null) {
-			// Use stringValue instead of toString() because we don't want escaping
-			treeItem.addItem(jsonString.stringValue());
-		} else {
-			// JSONBoolean, JSONNumber, and JSONNull work well with toString().
-			treeItem.addItem(getChildText(jsonValue.toString()));
-		}
-	}
-
-	/*
-	 * Causes the text of child elements to wrap.
-	 */
-	private String getChildText(String text) {
-		return "<span style='white-space:normal'>" + text + "</span>";
-	}
-
-	private void displayJSONObject(JSONValue jsonValue) {
-		jsonTree.removeItems();
-		jsonTree.setVisible(true);
-		TreeItem treeItem = jsonTree.addItem("JSON Response");
-		addChildren(treeItem, jsonValue);
-		treeItem.setStyleName("JSON-JSONResponseObject");
-		treeItem.setState(true);
-	}
-
-	private void displayParseError(String responseText) {
-		displayError("Failed to parse JSON response", responseText);
-	}
-
-	private void displayRequestError(String message) {
-		displayError("Request failed.", message);
-	}
-
-	private void displaySendError(String message) {
-		displayError("Failed to send the request.", message);
-	}
-
-	private void displayError(String errorType, String errorMessage) {
-		jsonTree.removeItems();
-		jsonTree.setVisible(true);
-		TreeItem treeItem = jsonTree.addItem(errorType);
-		treeItem.addItem(errorMessage);
-		treeItem.setStyleName("JSON-JSONResponseObject");
-		treeItem.setState(true);
-	}
-
 
 	private void doFetchURL() {
 		suggestButton.setText(SUGGEST_BUTTON_WAITING_TEXT);
@@ -269,30 +208,14 @@ public class AccessionByName extends Composite implements ClickListener{
 		try {
 			requestBuilder.sendRequest(null, new JSONResponseTextHandler());
 		} catch (RequestException ex) {
-			displaySendError(ex.toString());
+			jsonErrorDialog.displaySendError(ex.toString());
 			resetSearchButtonCaption();
 		}
-		/*
-		query.send(new Callback() {
-			public void onResponse(QueryResponse response) {
-				if (response.isError()) {
-					dialogBox.setText("Error in query: " + response.getMessage() + ' '
-							+ response.getDetailedMessage());
-					dialogBox.center();
-					dialogBox.show();
-					return;
-				}
-				Table.Options options = Table.Options.create();
-				options.setShowRowNumber(true);
-				accessionTable.draw(response.getDataTable(), options);
-			}
-		});
-		*/
 		
 	}
 
 	private void resetSearchButtonCaption() {
 		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
 	}
-
+	
 }
