@@ -53,6 +53,8 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 	
 	def pick_candidate_genes(self, pd):
 		"""
+		2009-4-10
+			rank is now part of the whole unique constraint in table Stock_250kDB.ResultsGene.
 		2008-11-12
 			if entry already exists in ResultsGene, make sure it doesn't have the current type associated with
 			upon failure of 'session.flush()', expunge the current entry and report error. avoid failure of the whole program.
@@ -79,7 +81,7 @@ class PickCandidateGenesIntoResultsGene(MpiTopSNPTest):
 		for snps_id, disp_pos, gene_id, score, rank in return_data.candidate_association_ls:
 			rows = Stock_250kDB.ResultsGene.query.filter_by(snps_id=snps_id).\
 				filter_by(gene_id=gene_id).\
-				filter_by(results_id=pd.results_id)
+				filter_by(results_id=pd.results_id).filter_by(rank=rank)
 			if rows.count()==1:
 				row = rows.first()
 				already_in_db = 0
