@@ -367,3 +367,30 @@ def get_phenotype_method_id_lsFromPhenData(phenData):
 		phenotype_method_id=int(col_id_ls[0])
 		phenotype_method_id_ls.append(phenotype_method_id)
 	return phenotype_method_id_ls
+
+def get_ecotypeid2tg_ecotypeid(curs, table='stock.ecotypeid2tg_ecotypeid', debug=False):
+	"""
+	2009-4-4
+		get the mapping between ecotypeid and tg_ecotypeid
+	"""
+	if debug:
+		sys.stderr.write("Getting ecotypeid2tg_ecotypeid ...")
+	ecotypeid2tg_ecotypeid = {}
+	rows = curs.execute("select * from %s"%(table))
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#this curs is not elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
+	
+	#rows = StockDB.EcotypeIDStrainID2TGEcotypeID.query()
+	for row in rows:
+		if is_elixirdb:
+			ecotypeid = row.ecotypeid
+			tg_ecotypeid = row.tg_ecotypeid
+		else:
+			ecotypeid = row[0]
+			tg_ecotypeid = row[6]
+		ecotypeid2tg_ecotypeid[ecotypeid] = tg_ecotypeid
+	if debug:
+		sys.stderr.write("Done.\n")
+	return ecotypeid2tg_ecotypeid
