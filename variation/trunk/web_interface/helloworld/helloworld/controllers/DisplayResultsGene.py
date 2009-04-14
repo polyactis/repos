@@ -151,6 +151,9 @@ class DisplayresultsgeneController(BaseController):
 	@staticmethod
 	def getPhenotypeMethodLsGivenType(type_id, extra_table_name=None):
 		"""
+		2009-4-13
+			added results_gene2type into the condition to restrict phenotype_methods
+			type_id is actually used now.
 		2009-3-4
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
@@ -158,8 +161,9 @@ class DisplayresultsgeneController(BaseController):
 		call_method_id = type.call_method_id
 		if not extra_table_name:
 			extra_table_name = model.Stock_250kDB.ResultsGene.table.name
-		extra_tables = ' %s c '%extra_table_name
-		extra_condition = 'c.results_id=s.id and s.call_method_id=%s'%(call_method_id)
+		extra_tables = ' %s c, %s y'%(extra_table_name, "results_gene2type")
+		extra_condition = 'c.results_id=s.id and s.call_method_id=%s and y.score_rank_histogram_type_id=%s and y.results_gene_id=c.id'%\
+				(call_method_id, type_id)
 		phenotype_info  = h.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
 											extra_tables=extra_tables)
 		phenotype_method_ls = []
@@ -191,6 +195,9 @@ class DisplayresultsgeneController(BaseController):
 	@staticmethod
 	def getAnalysisMethodLsGivenTypeAndPhenotypeMethod(type_id, phenotype_method_id, extra_table_name=None):
 		"""
+		2009-4-13
+			added results_gene2type into the condition to restrict analysis_methods
+			type_id is actually used now.
 		2009-3-4
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name	#alias is 's'
@@ -198,9 +205,9 @@ class DisplayresultsgeneController(BaseController):
 		call_method_id = type.call_method_id
 		if not extra_table_name:
 			extra_table_name = model.Stock_250kDB.ResultsGene.table.name
-		extra_tables = ' %s c '%extra_table_name
-		extra_condition = 'c.results_id=s.id and s.call_method_id=%s and s.phenotype_method_id=%s'%\
-			(call_method_id, phenotype_method_id)
+		extra_tables = ' %s c, %s y '%(extra_table_name, "results_gene2type")
+		extra_condition = 'c.results_id=s.id and s.call_method_id=%s and s.phenotype_method_id=%s and y.score_rank_histogram_type_id=%s and y.results_gene_id=c.id'%\
+			(call_method_id, phenotype_method_id, type_id)
 		list_info = h.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
 		
 		analysis_method_ls = []
