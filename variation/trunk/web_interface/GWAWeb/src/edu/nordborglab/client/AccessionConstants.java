@@ -97,11 +97,11 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String MapWithPhenotypeGetPhenotypeMethodLsURL();
 
   /**
-   * Translated "".
+   * Translated "Support wild character like .* or ? etc. \"V.*r\"".
    * 
-   * @return translated ""
+   * @return translated "Support wild character like .* or ? etc. \"V.*r\""
    */
-  @DefaultStringValue("")
+  @DefaultStringValue("Support wild character like .* or ? etc. \"V.*r\"")
   @Key("cwAccessionByNameDescription")
   String cwAccessionByNameDescription();
 
@@ -115,11 +115,11 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String cwAccessionByNameLabel();
 
   /**
-   * Translated "".
+   * Translated "By Name".
    * 
-   * @return translated ""
+   * @return translated "By Name"
    */
-  @DefaultStringValue("")
+  @DefaultStringValue("By Name")
   @Key("cwAccessionByNameName")
   String cwAccessionByNameName();
 }

@@ -9,8 +9,6 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
 
 import com.google.gwt.user.client.ui.SuggestBox;
 
@@ -31,8 +29,6 @@ import com.google.gwt.user.client.ui.SuggestionHandler;
 import com.google.gwt.user.client.ui.SuggestionEvent;
 
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.gwt.visualization.client.visualizations.Table.Options.Policy;
 /*
 import com.google.gwt.visualization.client.visualizations.MotionChart;
 import com.google.gwt.core.client.GWT;
@@ -47,7 +43,7 @@ import com.google.gwt.visualization.client.Query.Callback;
 */
 
 
-public class AccessionByName extends Composite implements ClickListener{
+public class AccessionByName extends Sink implements ClickListener{
 
 	private AccessionSuggestOracle oracle = new AccessionSuggestOracle();
 	//String[] words = constants.cwSuggestBoxWords();
@@ -68,10 +64,6 @@ public class AccessionByName extends Composite implements ClickListener{
 	private MapTableTree contentTree;
 	private DialogBox dialogBox = new DialogBox();
 	
-	
-	public void onClick(Widget sender) {
-		doFetchURL();
-	}
 
 	/**
 	 * An instance of the constants.
@@ -99,14 +91,9 @@ public class AccessionByName extends Composite implements ClickListener{
 			}
 		}
 	}
-	 */
-
-
-	private class SuggestBoxSuggestionHandler implements SuggestionHandler {
-		public void onSuggestionSelected(SuggestionEvent event){
-			doFetchURL();
-		}
-	}
+	*/
+	
+	
 	/**
 	 * Constructor.
 	 * 
@@ -160,12 +147,27 @@ public class AccessionByName extends Composite implements ClickListener{
 		setStyleName("AccessionByName");
 	}
 
+	public void onClick(Widget sender) {
+		doFetchURL();
+	}
+	
+	private class SuggestBoxSuggestionHandler implements SuggestionHandler {
+		public void onSuggestionSelected(SuggestionEvent event){
+			doFetchURL();
+		}
+	}
+	
 	//@Override
 	public String getDescription() {
 		return constants.cwAccessionByNameDescription();
 	}
-
-	//@Override
+	
+	@Override
+	public HTML getDescriptionHTML() {
+		return new HTML("<p>" + getDescription() + "</p>");
+	}
+	
+	@Override
 	public String getName() {
 		return constants.cwAccessionByNameName();
 	}

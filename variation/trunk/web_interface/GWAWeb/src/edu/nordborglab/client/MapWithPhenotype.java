@@ -58,6 +58,10 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+
+import edu.nordborglab.module.Pair;
+import edu.nordborglab.module.Tuple;
 
 
 public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.CustomVisualizationDrawOptions> implements Selectable{
@@ -96,14 +100,14 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 	private int selectedRow=-1;
 	private SelectHandler selectHandler;
 	
-	@Override
-	public void draw(AbstractDataTable dataTable, CustomVisualizationDrawOptions options)
-	{
-		/*
-		 * 2009-4-9 required for AbstractVisualization
-		 */
-		addMarkers(dataTable);
-	}
+	//
+	private double latitude_step = 0.0025;	// step size around central point
+	private double longitude_step = 0.005;
+	// 8 angles to circle around one point
+	private Double[][] angleCoefficients = {{1.0,0.0}, {0.7071,0.7071}, {0.0,1.0}, {-0.7071,0.7071}, {-1.0,0.0}, {-0.7071,-0.7071}, {0.0,-1.0}, {0.7071,-0.7071} };
+	// dictionary records how many times one point has occurred
+	//private HashMap<LatLng, Integer> latlngPnt2counter = new HashMap<LatLng, Integer>();	LatLng's hashcode() is different on same GPS coordinates.
+	private HashMap<Pair<Double, Double>, Integer> latlngPnt2counter = new HashMap<Pair<Double, Double>, Integer>();
 	
 	public MapWithPhenotype(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
 		this.constants = constants;
@@ -113,7 +117,7 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 
 		// setSize("800px", "600px");
 
-		//fillPhenotypeSelectBox(phenotypeSelectBox);
+		fillPhenotypeSelectBox(phenotypeSelectBox);
 		phenotypeSelectBox.addChangeListener(new ChangeListener() {
 			public void onChange(Widget sender) {
 				refreshMap(map, phenotypeSelectBox.getSelectedIndex(), displayOptionSelectBox.getSelectedIndex());
@@ -135,7 +139,7 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		topHPanel.add(displayOptionSelectBox);
 
 		map = new MapWidget();
-		map.setSize("900px", "500px");
+		map.setSize("1000px", "400px");
 
 		// Add some controls for the zoom level
 		map.addControl(new LargeMapControl());
@@ -144,8 +148,8 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		map.setCurrentMapType(MapType.getPhysicalMap());	//2009-4-9 set the terrain map as default
 		map.setScrollWheelZoomEnabled(true);
 		
-		dialogVPanel.add(topHPanel);
 		dialogVPanel.add(map);
+		dialogVPanel.add(topHPanel);
 		initWidget(dialogVPanel);
 
 	}
@@ -167,67 +171,81 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 				ecotypeid_idx = i;
 		}
 	}
-
+	
+	@Override
+	public void draw(AbstractDataTable dataTable, CustomVisualizationDrawOptions options)
+	{
+		/*
+		 * 2009-4-9 required for AbstractVisualization
+		 */
+		addMarkers(dataTable);
+	}
+	
 	public void addMarkers(AbstractDataTable dataTable)
 	{
+		this.dataTable = dataTable;
 		findLatLongCol(dataTable);
 		JSONObject ecotype_id2phenotype_value = null;
 		double min_value = 0;
 		double max_value = 0;
-		int phenotype_method_id = -1;
+		String phenotype_method_id = "-1";
 		int displayOption = 0;
 		addMarkers(dataTable, ecotype_id2phenotype_value, min_value, max_value, phenotype_method_id, displayOption);
 	}
 
-	public void addMarkers(AbstractDataTable dataTable, JSONObject ecotype_id2phenotype_value, double min_value, double max_value, int phenotype_method_id, int displayOption)
+	public void addMarkers(AbstractDataTable dataTable, JSONObject ecotype_id2phenotype_value, double min_value, double max_value, String phenotype_method_id, int displayOption)
 	{
 		/*
 		 * 1. create 3 data tables
 		 * 2. for loop to add markers (with url for the icon) 
 		 * 3. add click callback on each marker
 		 */
+		latlngPnt2counter.clear();	//clear up
+		rowIndex2Marker.clear();
 		map.clearOverlays();
 
 		double latitude;
 		double longitude;
-		if (ecotype_id2phenotype_value== null)
+		for (int i=0; i<dataTable.getNumberOfRows(); i++)
 		{
-			for (int i=0; i<dataTable.getNumberOfRows(); i++)
+			latitude = dataTable.getValueDouble(i, latitude_idx);
+			longitude = dataTable.getValueDouble(i, longitude_idx);
+			LatLng point = LatLng.newInstance(latitude, longitude);
+			
+			final String markerLabel = dataTable.getValueString(i, nativename_idx)+" ID: " + dataTable.getValueInt(i, ecotypeid_idx);
+			final MarkerOptions markerOption = MarkerOptions.newInstance();
+			markerOption.setTitle(markerLabel);	// title shows up as tooltip
+			final Marker marker = new Marker(newNonOverlappingPnt(point), markerOption);
+			if (ecotype_id2phenotype_value== null)
 			{
-				latitude = dataTable.getValueDouble(i, latitude_idx);
-				longitude = dataTable.getValueDouble(i, longitude_idx);
-				LatLng point = LatLng.newInstance(latitude, longitude);
-				final String markerLabel = dataTable.getValueString(i, nativename_idx)+" ID: " + dataTable.getValueInt(i, ecotypeid_idx);
-				final MarkerOptions markerOption = MarkerOptions.newInstance();
-				markerOption.setTitle(markerLabel);	// title shows up as tooltip
-				final Marker marker = new Marker(point, markerOption);
-				final int rowIndex = i;
-				rowIndex2Marker.put(rowIndex, marker);
-
-				map.addOverlay(marker);
-				marker.addMarkerClickHandler(new MarkerClickHandler() {
-					public void onClick(MarkerClickEvent event) {
-						InfoWindow info = map.getInfoWindow();
-						info.open(marker, new InfoWindowContent(markerLabel));
-						selectedRow = rowIndex;
-						//Selection.triggerSelection(MapWithPhenotype.this, getSelections());	//2009-4-9  doesn't work
-						if (selectHandler!=null)	//2009-4-9 check if selectHandler is initialized.
-						{
-							SelectEvent e = new SelectEvent();
-							selectHandler.onSelect(e);
-						}
-						//MapWithPhenotype.this.fireSelectionEvent();	//2009-4-9 fireSelectionEvent() below doesn't work 
-					}
-				});
-				/*
-				marker.addMarkerMouseOverHandler(new MarkerMouseOverHandler(){
-					public void onMouseOver(MarkerMouseOverEvent event) {
-						InfoWindow info = map.getInfoWindow();
-						info.open(marker, new InfoWindowContent(markerLabel));
-					}
-				});
-				 */
+				
 			}
+			final int rowIndex = i;
+			rowIndex2Marker.put(rowIndex, marker);
+
+			map.addOverlay(marker);
+			marker.addMarkerClickHandler(new MarkerClickHandler() {
+				public void onClick(MarkerClickEvent event) {
+					InfoWindow info = map.getInfoWindow();
+					info.open(marker, new InfoWindowContent(markerLabel));
+					selectedRow = rowIndex;
+					//Selection.triggerSelection(MapWithPhenotype.this, getSelections());	//2009-4-9  doesn't work
+					if (selectHandler!=null)	//2009-4-9 check if selectHandler is initialized.
+					{
+						SelectEvent e = new SelectEvent();
+						selectHandler.onSelect(e);
+					}
+					//MapWithPhenotype.this.fireSelectionEvent();	//2009-4-9 fireSelectionEvent() below doesn't work 
+				}
+			});
+			/*
+			marker.addMarkerMouseOverHandler(new MarkerMouseOverHandler(){
+				public void onMouseOver(MarkerMouseOverEvent event) {
+					InfoWindow info = map.getInfoWindow();
+					info.open(marker, new InfoWindowContent(markerLabel));
+				}
+			});
+			 */
 		}
 
 	}
@@ -246,8 +264,9 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 				double min_value = jsonObject.get("min_value").isNumber().doubleValue();
 				double max_value = jsonObject.get("max_value").isNumber().doubleValue();
 				JSONObject ecotype_id2phenotype_value = jsonObject.get("ecotype_id2phenotype_value").isObject();
-				addMarkers(dataTable, ecotype_id2phenotype_value, min_value, max_value, phenotypeSelectBox.getSelectedIndex(), displayOptionSelectBox.getSelectedIndex());
-
+				String phenotype_method_id = phenotypeSelectBox.getValue(phenotypeSelectBox.getSelectedIndex());
+				addMarkers(dataTable, ecotype_id2phenotype_value, min_value, max_value, phenotype_method_id, displayOptionSelectBox.getSelectedIndex());
+				
 				//displayJSONObject(jsonValue);
 
 			} catch (JSONException e) {
@@ -257,20 +276,24 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		}
 	}
 
-	public void refreshMap(MapWidget map, int phenotype_method_id, int displayOption)
+	public void refreshMap(MapWidget map, int phenotype_method_index, int displayOption)
 	{
 		/*
 		 * 1. fetch data (phenotype-value + icon urls)
 		 * 3. addMarkers
 		 */
 		//setText(DIALOG_WAITING_TEXT);
-		String url = URL.encode(constants.GetPhenotypeValueURL() + "/" + phenotype_method_id);
-		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-		try {
-			requestBuilder.sendRequest(null, new PhenotypeChangeJSONResponseHandler());
-		} catch (RequestException ex) {
-			jsonErrorDialog.displaySendError(ex.toString());
-			resetSearchButtonCaption();
+		if (this.dataTable!=null)	// dataTable is not null. already initialized.
+		{
+			String phenotype_method_id = phenotypeSelectBox.getValue(phenotype_method_index);
+			String url = URL.encode(constants.GetPhenotypeValueURL() + "/" + phenotype_method_id);
+			RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+			try {
+				requestBuilder.sendRequest(null, new PhenotypeChangeJSONResponseHandler());
+			} catch (RequestException ex) {
+				jsonErrorDialog.displaySendError(ex.toString());
+				resetSearchButtonCaption();
+			}
 		}
 	}
 
@@ -310,7 +333,7 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 			jsonErrorDialog.displaySendError(ex.toString());
 			resetSearchButtonCaption();
 		}
-	}	
+	}
 	private void resetSearchButtonCaption() {
 		//setText(DIALOG_DEFAULT_TEXT);
 	}
@@ -345,4 +368,42 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		//JsArray<Selection> sel = new JsArray<Selection>();
 		return ArrayHelper.toJsArray(Selection.createRowSelection(selectedRow));
 	}
+	
+	private LatLng newNonOverlappingPnt(LatLng point)
+	{
+		Pair key = Pair.from(point.getLatitude(), point.getLongitude());
+		if (!latlngPnt2counter.containsKey(key))
+		{
+			
+			latlngPnt2counter.put(key, 0);
+		}
+		latlngPnt2counter.put(key, latlngPnt2counter.get(key)+1);
+		if (latlngPnt2counter.get(key)==1)	// 1st point, no wiggling
+			return point;
+		
+		int no_of_rounds = (latlngPnt2counter.get(key)-2)/angleCoefficients.length + 1;	//1st point = 1 (-1/8=0, not -1), 2nd-9th = 1, etc
+		int angleCoefficientsIdx = (latlngPnt2counter.get(key)-2)%angleCoefficients.length;
+		/*
+		// 2009-4-9 debug purpose
+		String errorStr = " latlngPnt2counter.get(key)= "+latlngPnt2counter.get(key);
+		errorStr += "\n angleCoefficients.length= "+angleCoefficients.length;
+		errorStr += "\n no_of_rounds= "+no_of_rounds;
+		errorStr += "\n angleCoefficientsIdx= "+angleCoefficientsIdx;
+		jsonErrorDialog.displayParseError(errorStr);
+		*/
+		double newLat = point.getLatitude() + no_of_rounds*angleCoefficients[angleCoefficientsIdx][0]*latitude_step;
+		double newLon = point.getLongitude() + no_of_rounds*angleCoefficients[angleCoefficientsIdx][1]*longitude_step;
+		LatLng newPoint = LatLng.newInstance(newLat, newLon);
+		
+		// add the new point to the dictionary as well
+		key = Pair.from(newPoint.getLatitude(), newPoint.getLongitude());
+		if (!latlngPnt2counter.containsKey(key))
+		{
+			latlngPnt2counter.put(key, 0);
+		}
+		latlngPnt2counter.put(key, latlngPnt2counter.get(key)+1);
+		
+		return newPoint;
+	}
+	
 }
