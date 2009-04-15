@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 
 import com.google.gwt.visualization.client.AbstractDataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
@@ -22,7 +23,7 @@ import com.google.gwt.visualization.client.AbstractVisualization.VisualizationFa
 import com.google.gwt.visualization.client.events.SelectHandler;
 import com.google.gwt.visualization.client.events.SelectHandler.SelectEvent;
 
-public class MapTableTree extends Tree{
+public class MapTableTree extends VerticalPanel{
 	private MapWithPhenotype mapWidget;
 
 	private HTML accessionReport = new HTML();
@@ -36,6 +37,8 @@ public class MapTableTree extends Tree{
 	
 	private AbstractDataTable dataTable;
 	private Button pageRefreshButton;
+	private DisclosurePanel mapPanel;
+	private DisclosurePanel tablePanel;
 	
 	class TableSelectionHandler extends SelectHandler {
 		private final Selectable viz;
@@ -64,10 +67,16 @@ public class MapTableTree extends Tree{
 		
 		mapWidget = new MapWithPhenotype(constants, jsonErrorDialog);
 		mapWidget.addSelectHandler(new TableSelectionHandler(mapWidget, accessionTable));
-		TreeItem treeItem = this.addItem(accessionReport);
-		treeItem.addItem(mapWidget);
+		mapPanel = new DisclosurePanel("Map");
+		mapPanel.setAnimationEnabled(true);
+		mapPanel.setContent(mapWidget);
+		//mapPanel.setHeader(accessionReport);
+		mapPanel.setOpen(true);
+		
+		//TreeItem treeItem = this.addItem(accessionReport);
+		//treeItem.addItem(mapWidget);
 		//treeItem.setStyleName("JSON-JSONResponseObject");
-		treeItem.setState(true);
+		//treeItem.setState(true);
 
 
 		entriesPerPageBox = new TextBox();
@@ -92,13 +101,21 @@ public class MapTableTree extends Tree{
 		accessionTable.addSelectHandler(new TableSelectionHandler(accessionTable, mapWidget));
 		vpanel.add(hpanel);
 		
+		tablePanel = new DisclosurePanel("Table");
+		tablePanel.setAnimationEnabled(true);
+		tablePanel.setContent(vpanel);
+		tablePanel.setOpen(true);
+		
+		/*
 		TreeItem treeItemTable = this.addItem("Table");
 		treeItemTable.addItem(vpanel);
 		treeItemTable.setState(true);
+		*/
 		// make the whole tree visible
-		this.setVisible(true);
+		//this.setVisible(true);
 		//this.setFocus(false);
-
+		this.add(mapPanel);
+		this.add(tablePanel);
 	}
 	
 	public void fillInTable(AbstractDataTable dataTable)
@@ -118,7 +135,8 @@ public class MapTableTree extends Tree{
 	public void populateData(AbstractDataTable dataTable)
 	{
 		this.dataTable = dataTable;
-		accessionReport.setHTML("Found <b>" + dataTable.getNumberOfRows() + "</b> Accessions.");
+		//accessionReport.setHTML("Found <b>" + dataTable.getNumberOfRows() + "</b> Accessions.");
+		mapPanel.getHeaderTextAccessor().setText("Found " + dataTable.getNumberOfRows() + " Accessions.");
 		fillInTable(dataTable);
 		pageRefreshButton.setVisible(true);
 		mapWidget.addMarkers(dataTable);		

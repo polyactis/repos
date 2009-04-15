@@ -5,8 +5,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 
@@ -43,27 +42,16 @@ import com.google.gwt.visualization.client.Query.Callback;
 */
 
 
-public class AccessionByName extends Sink implements ClickListener{
+public class AccessionByID extends Sink implements ClickListener{
 
-	private AccessionSuggestOracle oracle = new AccessionSuggestOracle();
-	//String[] words = constants.cwSuggestBoxWords();
-	//for (int i = 0; i < words.length; ++i) {
-	//	oracle.add(words[i]);
-	//}
-
-	// Create the suggest box
-	private SuggestBox suggestBox = new SuggestBox(oracle);
-	private Button suggestButton = new Button();
-	//suggestBox.ensureDebugId("cwSuggestBox");
-	private HorizontalPanel suggestPanel = new HorizontalPanel();
-	private VerticalPanel panel = new VerticalPanel();
+	private TextBox idBox = new TextBox();
+	private Button submitButton = new Button();
+	private HorizontalPanel submitPanel = new HorizontalPanel();
+	private VerticalPanel vpanel = new VerticalPanel();
 	
-	//private String dataUrl = "http://spreadsheets.google.com/tq?key=prll1aQH05yQqp_DKPP9TNg&pub=1";
-	//private Query query = Query.create(dataUrl);
 	private DisplayJSONObject jsonErrorDialog;
-	private MapTableTree contentTree;
+	private MapTableTree contentTree;	
 	
-
 	/**
 	 * An instance of the constants.
 	 */
@@ -98,50 +86,44 @@ public class AccessionByName extends Sink implements ClickListener{
 	 * 
 	 * @param constants the constants
 	 */
-	public AccessionByName(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
+	public AccessionByID(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
 		//super(constants);
 		this.constants = constants;
-		oracle.setConstants(constants);
 		this.jsonErrorDialog = jsonErrorDialog;
 		
 		
 		//Label lbl = new Label(constants.cwAccessionByNameLabel());
 		//suggestBox.addChangeListener(new SuggestBoxChangeListener());
-		suggestBox.addEventHandler(new SuggestBoxSuggestionHandler());
-		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
-		suggestButton.addClickListener(this);
+		submitButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
+		submitButton.addClickListener(this);
 
-		suggestPanel.add(new HTML(constants.cwAccessionByNameLabel()));
-		suggestPanel.add(suggestBox);
-		suggestPanel.add(suggestButton);
-		suggestPanel.setSpacing(5);
+		submitPanel.add(new HTML(constants.cwAccessionByIDLabel()));
+		submitPanel.add(idBox);
+		submitPanel.add(submitButton);
+		submitPanel.setSpacing(5);
 		
-		panel.add(suggestPanel);
+		vpanel.add(submitPanel);
 		//panel.add(textBox);
 		
 		contentTree = new MapTableTree(constants, jsonErrorDialog);
-		panel.add(contentTree);
+		vpanel.add(contentTree);
+		
 		
 		// All composites must call initWidget() in their constructors.
-		initWidget(panel);
+		initWidget(vpanel);
 
 		// Give the overall composite a style name.
-		setStyleName("AccessionByName");
+		setStyleName("AccessionByID");
 	}
 
 	public void onClick(Widget sender) {
 		doFetchURL();
 	}
 	
-	private class SuggestBoxSuggestionHandler implements SuggestionHandler {
-		public void onSuggestionSelected(SuggestionEvent event){
-			doFetchURL();
-		}
-	}
 	
 	//@Override
 	public String getDescription() {
-		return constants.cwAccessionByNameDescription();
+		return constants.cwAccessionByIDDescription();
 	}
 	
 	@Override
@@ -151,7 +133,7 @@ public class AccessionByName extends Sink implements ClickListener{
 	
 	@Override
 	public String getName() {
-		return constants.cwAccessionByNameName();
+		return constants.cwAccessionByIDName();
 	}
 	
 	private final native DataTable asDataTable(String json) /*-{
@@ -186,8 +168,8 @@ public class AccessionByName extends Sink implements ClickListener{
 	}
 
 	private void doFetchURL() {
-		suggestButton.setText(SUGGEST_BUTTON_WAITING_TEXT);
-		String url = URL.encode(constants.AccessionByNameURL() + suggestBox.getText());
+		submitButton.setText(SUGGEST_BUTTON_WAITING_TEXT);
+		String url = URL.encode(constants.AccessionByIDURL() + idBox.getText());
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		try {
 			requestBuilder.sendRequest(null, new JSONResponseTextHandler());
@@ -199,7 +181,7 @@ public class AccessionByName extends Sink implements ClickListener{
 	}
 
 	private void resetSearchButtonCaption() {
-		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
+		submitButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
 	}
 	
 }

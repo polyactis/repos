@@ -7,11 +7,20 @@ package edu.nordborglab.client;
 public interface AccessionConstants extends com.google.gwt.i18n.client.Constants {
   
   /**
-   * Translated "/Accession/findAccessions".
+   * Translated "/Accession/findAccessionsByID".
    * 
-   * @return translated "/Accession/findAccessions"
+   * @return translated "/Accession/findAccessionsByID"
    */
-  @DefaultStringValue("/Accession/findAccessions")
+  @DefaultStringValue("/Accession/findAccessionsByID")
+  @Key("AccessionByIDURL")
+  String AccessionByIDURL();
+
+  /**
+   * Translated "/Accession/findAccessionsByName".
+   * 
+   * @return translated "/Accession/findAccessionsByName"
+   */
+  @DefaultStringValue("/Accession/findAccessionsByName")
   @Key("AccessionByNameURL")
   String AccessionByNameURL();
 
@@ -95,6 +104,33 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   @DefaultStringValue("/Phenotype/getPhenotypeMethodLs")
   @Key("MapWithPhenotypeGetPhenotypeMethodLsURL")
   String MapWithPhenotypeGetPhenotypeMethodLsURL();
+
+  /**
+   * Translated "Get ID from \"By Name\" Panel.".
+   * 
+   * @return translated "Get ID from \"By Name\" Panel."
+   */
+  @DefaultStringValue("Get ID from \"By Name\" Panel.")
+  @Key("cwAccessionByIDDescription")
+  String cwAccessionByIDDescription();
+
+  /**
+   * Translated "<b>Enter an ecotype ID: </b> ".
+   * 
+   * @return translated "<b>Enter an ecotype ID: </b> "
+   */
+  @DefaultStringValue("<b>Enter an ecotype ID: </b> ")
+  @Key("cwAccessionByIDLabel")
+  String cwAccessionByIDLabel();
+
+  /**
+   * Translated "By ID".
+   * 
+   * @return translated "By ID"
+   */
+  @DefaultStringValue("By ID")
+  @Key("cwAccessionByIDName")
+  String cwAccessionByIDName();
 
   /**
    * Translated "Support wild character like .* or ? etc. \"V.*r\"".
