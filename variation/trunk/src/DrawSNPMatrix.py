@@ -66,7 +66,11 @@ class DrawSNPMatrix:
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def transformMatrixIntoTwoAllelesAndHetero(self, data_matrix, snp_allele2index_ls=None):
+	def transformMatrixIntoTwoAllelesAndHetero(cls, data_matrix, snp_allele2index_ls=None):
+		"""
+		2009-3-27
+			turn into classmethod
+		"""
 		sys.stderr.write("Transforming matrix into Two Alleles and Hetero ...")
 		no_of_rows = len(data_matrix)
 		no_of_cols = len(data_matrix[0])
@@ -88,8 +92,13 @@ class DrawSNPMatrix:
 					new_data_matrix[i][j] = snp_allele2index[data_matrix[i][j]]
 		sys.stderr.write("Done.\n")
 		return new_data_matrix
+	transformMatrixIntoTwoAllelesAndHetero = classmethod(transformMatrixIntoTwoAllelesAndHetero)
 	
-	def transformMatrixIntoHomoAndHetero(self, data_matrix, snp_allele2index_ls=None):
+	def transformMatrixIntoHomoAndHetero(cls, data_matrix, snp_allele2index_ls=None):
+		"""
+		2009-3-27
+			turn into classmethod
+		"""
 		sys.stderr.write("Transforming matrix into Homo and Hetero ...")
 		no_of_rows = len(data_matrix)
 		no_of_cols = len(data_matrix[0])
@@ -104,8 +113,13 @@ class DrawSNPMatrix:
 					new_data_matrix[i][j] = 1
 		sys.stderr.write("Done.\n")
 		return new_data_matrix
+	transformMatrixIntoHomoAndHetero = classmethod(transformMatrixIntoHomoAndHetero)
 	
-	def transformMatrixIntoFourNucleotides(self, data_matrix):
+	def transformMatrixIntoFourNucleotides(cls, data_matrix):
+		"""
+		2009-3-27
+			turn into classmethod
+		"""
 		sys.stderr.write("Transforming matrix into Four Nucleotides ...")
 		no_of_rows = len(data_matrix)
 		no_of_cols = len(data_matrix[0])
@@ -121,6 +135,7 @@ class DrawSNPMatrix:
 					new_data_matrix[2*i+1][j] = nt2number[nt[1]]
 		sys.stderr.write("Done.\n")
 		return new_data_matrix
+	transformMatrixIntoFourNucleotides = classmethod(transformMatrixIntoFourNucleotides)
 	
 	def get_snp_allele2index_ls(self, curs, snp_acc_ls, snps_sequenom_info_table='dbsnp.snps_sequenom_info'):
 		sys.stderr.write("Getting snp_allele2index_ls ...")
