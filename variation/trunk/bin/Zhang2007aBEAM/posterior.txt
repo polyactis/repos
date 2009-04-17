@@ -1,0 +1,58 @@
+Run1:
+Estimate of Posterior Sizes:
+Marginal Association Size:
+0: 0.799, 1: 0.177, 2: 0.023, 3: 0.002, 4: 0.000, 
+Interaction Association Size:
+0: 0.000, 2: 0.000, 3: 1.000, 
+Metropolis-Hastings Acceptance Rates:
+burnin: 0.029,	move0= 0.000,	move1= 0.085,	move2= 0.000,	
+---------------------------------------------------
+Run2:
+Estimate of Posterior Sizes:
+Marginal Association Size:
+0: 0.793, 1: 0.189, 2: 0.016, 3: 0.002, 4: 0.000, 5: 0.000, 6: 0.000, 
+Interaction Association Size:
+0: 0.000, 2: 0.000, 3: 1.000, 
+Metropolis-Hastings Acceptance Rates:
+burnin: 0.028,	move0= 0.000,	move1= 0.091,	move2= 0.000,	
+---------------------------------------------------
+Run3:
+Estimate of Posterior Sizes:
+Marginal Association Size:
+0: 0.787, 1: 0.192, 2: 0.020, 3: 0.001, 4: 0.000, 
+Interaction Association Size:
+0: 0.000, 2: 0.000, 3: 1.000, 
+Metropolis-Hastings Acceptance Rates:
+burnin: 0.051,	move0= 0.000,	move1= 0.086,	move2= 0.000,	
+---------------------------------------------------
+971 :	 B-stat = 14.036978	 P = 0.895177
+826 :	 B-stat = 14.997512	 P = 0.553773
+841 :	 B-stat = 14.465618	 P = 0.722489
+256 :	 B-stat = 13.830888	 P = 0.992341
+114 :	 B-stat = 10.083040	 P = 1.000000
+252 :	 B-stat = 10.276089	 P = 1.000000
+99 :	 B-stat = 9.323028	 P = 1.000000
+508 :	 B-stat = 6.649813	 P = 1.000000
+875 :	 B-stat = 10.617903	 P = 1.000000
+327 :	 B-stat = 1.211694	 P = 1.000000
+818 :	 B-stat = 1.465258	 P = 1.000000
+24 :	 B-stat = 7.919559	 P = 1.000000
+938 :	 B-stat = 5.887828	 P = 1.000000
+520 :	 B-stat = 0.786938	 P = 1.000000
+941 :	 B-stat = 7.406611	 P = 1.000000
+903 :	 B-stat = 5.672139	 P = 1.000000
+694 :	 B-stat = 7.752613	 P = 1.000000
+590 :	 B-stat = 6.172723	 P = 1.000000
+244 :	 B-stat = 2.609332	 P = 1.000000
+74 :	 B-stat = 0.257146	 P = 1.000000
+249 :	 B-stat = 5.581883	 P = 1.000000
+254 :	 B-stat = 3.694985	 P = 1.000000
+13 :	 B-stat = 9.365071	 P = 1.000000
+986 :	 B-stat = 1.704752	 P = 1.000000
+424 :	 B-stat = 4.896891	 P = 1.000000
+805 :	 B-stat = 7.371910	 P = 1.000000
+330 :	 B-stat = 1.061644	 P = 1.000000
+20, 30 :	 B-stat = 33.889419	 P = 1.000000
+10, 30 :	 B-stat = 35.233981	 P = 1.000000
+10, 20 :	 B-stat = 46.382679	 P = 0.100410
+10, 20, 30 :	 B-stat = 125.216938	 P = 0.000001
