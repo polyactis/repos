@@ -9,7 +9,7 @@
 
 %opening
 \title{GWA Sections}
-\author{Yu Huang}
+\author{Rong Jiang, Yu Huang}
 
 \begin{document}
 
@@ -21,18 +21,10 @@
 
 \tableofcontents
 
-\section{SNP Genotyping (Base-calling) by Rong Jiang}
-SNP genotyping was performed with a custom version of the Affymetrix 250K SNP-tiling array (AtSNPtile1).  In brief, each custom SNP-tiling array contains probe sets for 248,584 pre-selected SNPs, where each probe set consists of four probes, i.e., combinations of two alleles and two strands (sense and anti-sense).  Samples were processed at the University of Chicago (?).
-
-CEL files provide the intensities of the various probes on each array and genotypes were called with a modified R package, Oligo \cite{Carvalho2007}.  The Oligo package was designed to call genotypes with the affymetrix Human Mapping array sets.  The calling algorithm summaries each strand across samples and SNPs with an aim to estimate the cluster centers/spread for each SNP using a training data set.  Our modifications are as follows: (1) we modified the readcel.R file in the package such that it could read in the intensities for the custom probe sets (i.e., four perfect match probes for each SNP); (2) we only consider calling homozygotes since our Arabidopsis samples are almost homozygous everywhere in the genome; (3) we used the Perlegen data, \cite{Clark2007a}, as the training set, i.e., 20 accessions in 31 arrays (with duplicates). With “leave-one-out” approach, we estimated the cluster parameters and applied logistic regression on predicted calls to output a confidence measure (again, only between the two homozygous clusters).
-
-(add the rest of genotype pipeline here, e.g., how the arrays/SNPs are filtered)
-
-\section{QC of SNP Calls}
+\section{Pipeline of SNP Genotyping}
 \begin{enumerate}
- \item oligo genotype calling (parameter learning using 31 arrays with correspondent perlegen calls)
+ \item oligo genotype calling (parameter learning using 31 arrays with correspondent perlegen calls), section~\ref{oligo_calling}
  \item filter strains according to mismatch rate from a comparison with the 1st reference dataset
- \item filter strains according NA rate
  \item filter snps according to mismatch from a comparison with the 2nd reference dataset
  \item filter snps according to NA rate
  \item merge the data with 2nd reference dataset. as far as the 2nd reference dataset has non-NA value,  substitute call at the corresponding strain/snp with this non-NA value.
@@ -57,20 +49,25 @@ NPUTE window size & 30 \\
 \end{tabular}
 \end{table}
 
+\subsection{oligo SNP Genotyping (Base-calling)}
+\label{oligo_calling}
+SNP genotyping was performed with a custom version of the Affymetrix 250K SNP-tiling array (AtSNPtile1).  In brief, each custom SNP-tiling array contains probe sets for 248,584 pre-selected SNPs, where each probe set consists of four probes, i.e., combinations of two alleles and two strands (sense and anti-sense).  Samples were processed at the University of Chicago (?).
+
+CEL files provide the intensities of the various probes on each array and genotypes were called with a modified R package, Oligo \cite{Carvalho2007}.  The Oligo package was designed to call genotypes with the affymetrix Human Mapping array sets.  The calling algorithm summaries each strand across samples and SNPs with an aim to estimate the cluster centers/spread for each SNP using a training data set.  Our modifications are as follows: (1) we modified the readcel.R file in the package such that it could read in the intensities for the custom probe sets (i.e., four perfect match probes for each SNP); (2) we only consider calling homozygotes since our Arabidopsis samples are almost homozygous everywhere in the genome; (3) we used the Perlegen data, \cite{Clark2007a}, as the training set, i.e., 20 accessions in 31 arrays (with duplicates). With “leave-one-out” approach, we estimated the cluster parameters and applied logistic regression on predicted calls to output a confidence measure (again, only between the two homozygous clusters).
+
 \subsection{How to get the best parameter setting}
 \begin{itemize}
  \item Draw Figure and prepare qhull input.
  \item 3D Convex Hull algorithm to get the boundary points of the parameter surface.
- \item pick the parameter setting with best coverage and accuracy
+ \item Pick the parameter setting with best coverage and accuracy
 \end{itemize}
 
 \subsection{Best setting}
 \begin{verbatim}
 min_oligo_call_probability=0.85,
-max_array_mismatch_rate=0.12,
-max_array_NA_rate=1.0,
-max_snp_mismatch_rate=0.3,
-max_snp_NA_rate=0.55,
+max_array_mismatch_rate=0.10,
+max_snp_mismatch_rate=0.1,
+max_snp_NA_rate=0.25,
 npute_window_size=30.0,
 after_imputation.
 \end{verbatim}
