@@ -1,0 +1,27 @@
+<module>
+
+      <!-- Inherit the core Web Toolkit stuff.                        -->
+      <inherits name='com.google.gwt.user.User'/>
+	  <inherits name='com.google.gwt.http.HTTP'/>
+      <inherits name='com.google.gwt.json.JSON'/>
+      <inherits name="com.google.gwt.i18n.I18N"/>
+      <inherits name="com.google.gwt.visualization.Visualization" />
+      
+      <!-- Inherit the default GWT style sheet.  You can change       -->
+      <!-- the theme of your GWT application by uncommenting          -->
+      <!-- any one of the following lines.                            -->
+      <inherits name='com.google.gwt.user.theme.standard.Standard'/>
+      <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+      <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+      <!-- Other module inherits                                      -->
+      <inherits name="com.google.gwt.visualization.Visualization" />
+
+
+      <!-- Specify the app entry point class.                         -->
+      <entry-point class='edu.nordborglab.client.GWASPhenotypes'/>
+    
+      <!-- Specify the application specific style sheet.              -->
+      <stylesheet src='GWASPhenotypes.css' />
+	
+</module>
