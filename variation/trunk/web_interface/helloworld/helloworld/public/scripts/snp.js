@@ -27,7 +27,12 @@ function loadTable(baseURL, elemName, columnIndexArray, sndElem) {
 					//jsView.setColumns(columnIndexArray);
 					var motionChartDiv = document.getElementById(sndElem);
 					var motionChart = new google.visualization.MotionChart(motionChartDiv);
-					motionChart.draw(jsData, {width: 1000, height:700});
+					var options = {};
+					options['state'] = '{"iconType":"BAR","showTrails":false,"xAxisOption":"6","colorOption":"7","yAxisOption":"6","playDuration":15,"orderedByX":true,"orderedByY":false,"sizeOption":"_UNISIZE","nonSelectedAlpha":0.4,"stateVersion":3,"dimensions":{"iconDimensions":["dim0"]},"yLambda":1,"yZoomedIn":false};';
+					//{"iconType":"BAR","xZoomedDataMin":null,"yZoomedDataMax":null,"xZoomedIn":false,"iconKeySettings":[],"showTrails":false,"xAxisOption":"6","colorOption":"7","yAxisOption":"6","playDuration":15,"xZoomedDataMax":null,"orderedByX":true,"duration":{"multiplier":1},"xLambda":1,"orderedByY":false,"sizeOption":"_UNISIZE","yZoomedDataMin":null,"nonSelectedAlpha":0.4,"stateVersion":3,"dimensions":{"iconDimensions":["dim0"]},"yLambda":1,"yZoomedIn":false};
+					options['width'] = 1000;
+					options['height'] = 700;					
+					motionChart.draw(jsData, options);
 					motionChartDiv.style.display = 'block';
 				}
 			},
