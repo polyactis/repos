@@ -26,4 +26,9 @@ public abstract class Sink extends Composite {
 	 */
 	public void onShow() {
 	}
+	
+	public void resetSize()
+	{
+		
+	}
 }

@@ -5,12 +5,10 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 
-import com.google.gwt.user.client.ui.SuggestBox;
 
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -18,15 +16,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONException;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 
-import com.google.gwt.user.client.ui.SuggestionHandler;
-import com.google.gwt.user.client.ui.SuggestionEvent;
 
 import com.google.gwt.visualization.client.DataTable;
 /*
@@ -43,107 +34,45 @@ import com.google.gwt.visualization.client.Query.Callback;
 */
 
 
-public class AccessionByName extends Sink implements ClickListener{
-
-	private AccessionSuggestOracle oracle = new AccessionSuggestOracle();
-	//String[] words = constants.cwSuggestBoxWords();
-	//for (int i = 0; i < words.length; ++i) {
-	//	oracle.add(words[i]);
-	//}
-
-	// Create the suggest box
-	private SuggestBox suggestBox = new SuggestBox(oracle);
-	private Button suggestButton = new Button();
-	//suggestBox.ensureDebugId("cwSuggestBox");
-	private HorizontalPanel suggestPanel = new HorizontalPanel();
-	private VerticalPanel panel = new VerticalPanel();
+public class Accession250k extends Sink{
+	private VerticalPanel vpanel = new VerticalPanel();
 	
-	//private String dataUrl = "http://spreadsheets.google.com/tq?key=prll1aQH05yQqp_DKPP9TNg&pub=1";
-	//private Query query = Query.create(dataUrl);
 	private DisplayJSONObject jsonErrorDialog;
-	private MapTableTree contentTree;
-	
-
+	private MapTableTree contentTree;	
+	private String find250kAccessionsURL;
 	/**
 	 * An instance of the constants.
 	 */
 	private AccessionConstants constants;
+	
 	private static final String SUGGEST_BUTTON_DEFAULT_TEXT = "Search";
 	private static final String SUGGEST_BUTTON_WAITING_TEXT = "Waiting...";
-
-	/*
-	private class SuggestBoxChangeListener implements ChangeListener {
-		public void onChange(Widget sender) {
-			oracle.requestSuggestions(SuggestOracle.Request request,
-					new AccessionSuggestOracleCallback());
-		}
-	}
-
-	private class OracleRequestSuggestionsCallBack implements SuggestOracle.Callback {
-		public void onSuggestionsReady(SuggestOracle.Request request, SuggestOracle.Response response) {
-			String responseText = response.toString();	//getText();
-			try {
-				JSONValue jsonValue = JSONParser.parse(responseText);
-				displayJSONObject(jsonValue);
-			} catch (JSONException e) {
-				displayParseError(responseText);
-			}
-		}
-	}
-	*/
-	
-	
 	/**
 	 * Constructor.
 	 * 
 	 * @param constants the constants
 	 */
-	public AccessionByName(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
+	public Accession250k(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
 		//super(constants);
 		this.constants = constants;
-		oracle.setConstants(constants);
 		this.jsonErrorDialog = jsonErrorDialog;
 		
-		
-		//Label lbl = new Label(constants.cwAccessionByNameLabel());
-		//suggestBox.addChangeListener(new SuggestBoxChangeListener());
-		suggestBox.addEventHandler(new SuggestBoxSuggestionHandler());
-		suggestBox.setTitle(constants.cwAccessionByNameDescription());
-		
-		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
-		suggestButton.addClickListener(this);
-
-		suggestPanel.add(new HTML(constants.cwAccessionByNameLabel()));
-		suggestPanel.add(suggestBox);
-		suggestPanel.add(suggestButton);
-		suggestPanel.setSpacing(5);
-		
-		panel.add(suggestPanel);
-		//panel.add(textBox);
+		find250kAccessionsURL = this.getFetchURL();
 		
 		contentTree = new MapTableTree(constants, jsonErrorDialog);
-		panel.add(contentTree);
+		vpanel.add(contentTree);
 		
 		// All composites must call initWidget() in their constructors.
-		initWidget(panel);
+		initWidget(vpanel);
 
 		// Give the overall composite a style name.
-		setStyleName("AccessionByName");
-	}
-
-	public void onClick(Widget sender) {
+		setStyleName("Accession250k");
 		doFetchURL();
-	}
-	
-	private class SuggestBoxSuggestionHandler implements SuggestionHandler {
-		public void onSuggestionSelected(SuggestionEvent event){
-			doFetchURL();
-		}
 	}
 	
 	//@Override
 	public String getDescription() {
-		return constants.cwAccessionByNameDescription();
+		return constants.cwAccession250kDescription();
 	}
 	
 	@Override
@@ -153,12 +82,16 @@ public class AccessionByName extends Sink implements ClickListener{
 	
 	@Override
 	public String getName() {
-		return constants.cwAccessionByNameName();
+		return constants.cwAccession250kName();
 	}
 	
 	private final native DataTable asDataTable(String json) /*-{
 		dataTable = new $wnd.google.visualization.DataTable(eval("("+json+")"), 0.5); 
 		return dataTable;
+	}-*/;
+	
+	private final native String getFetchURL() /*-{
+		return $wnd.find250kAccessionsURL; 
 	}-*/;
 	
 	/**
@@ -188,8 +121,8 @@ public class AccessionByName extends Sink implements ClickListener{
 	}
 
 	private void doFetchURL() {
-		suggestButton.setText(SUGGEST_BUTTON_WAITING_TEXT);
-		String url = URL.encode(constants.AccessionByNameURL() + suggestBox.getText());
+		contentTree.setTablePanelHeaderText(SUGGEST_BUTTON_WAITING_TEXT);
+		String url = URL.encode(find250kAccessionsURL);
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		try {
 			requestBuilder.sendRequest(null, new JSONResponseTextHandler());
@@ -201,10 +134,10 @@ public class AccessionByName extends Sink implements ClickListener{
 	}
 
 	private void resetSearchButtonCaption() {
-		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
+		contentTree.resetTablePanelHeaderText();
 	}
 	public void resetSize()
 	{
-		contentTree.resetSize();
+		contentTree.resetSize();	//2009-4-17 this would avoid map partial coverup.		
 	}
 }

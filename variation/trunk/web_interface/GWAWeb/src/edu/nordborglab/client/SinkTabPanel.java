@@ -74,6 +74,8 @@ public class SinkTabPanel extends TabPanel {
 	
 	public void setSinkSelection(int i) {
 		this.selectTab(i);
+		Sink sink = (Sink)this.getWidget(i);
+		sink.resetSize();	//2009-4-17 in most sinks, this resizes the map size and would avoid map partial blank.
 		/*
 		for (int i = 0; i < this.getWidgetCount(); ++i) {
 			Sink sink = (Sink) this.getWidget(i);

@@ -109,6 +109,10 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 	//private HashMap<LatLng, Integer> latlngPnt2counter = new HashMap<LatLng, Integer>();	LatLng's hashcode() is different on same GPS coordinates.
 	private HashMap<Pair<Double, Double>, Integer> latlngPnt2counter = new HashMap<Pair<Double, Double>, Integer>();
 	
+	private String mapWidth = "1000px";
+	private String mapHeight = "400px";
+	LatLng mapCenter = LatLng.newInstance(30.93992433102344, 121.5966796875);	//it's shanghai
+
 	public MapWithPhenotype(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
@@ -137,9 +141,9 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		});
 		topHPanel.add(phenotypeSelectBox);
 		topHPanel.add(displayOptionSelectBox);
-
-		map = new MapWidget();
-		map.setSize("1000px", "400px");
+		
+		map = new MapWidget(mapCenter, 1);
+		map.setSize(mapWidth, mapHeight);
 
 		// Add some controls for the zoom level
 		map.addControl(new LargeMapControl());
@@ -147,6 +151,7 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		map.addMapType(MapType.getPhysicalMap());	//2009-4-9 add the terrain map
 		map.setCurrentMapType(MapType.getPhysicalMap());	//2009-4-9 set the terrain map as default
 		map.setScrollWheelZoomEnabled(true);
+		map.setVisible(true);
 		
 		dialogVPanel.add(map);
 		dialogVPanel.add(topHPanel);
@@ -203,7 +208,8 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		latlngPnt2counter.clear();	//clear up
 		rowIndex2Marker.clear();
 		map.clearOverlays();
-
+		map.setSize(mapWidth, mapHeight);	//2009-4-17 this would avoid map partial blank.
+		
 		double latitude;
 		double longitude;
 		for (int i=0; i<dataTable.getNumberOfRows(); i++)
@@ -406,4 +412,8 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		return newPoint;
 	}
 	
+	public void resetMapSize()
+	{
+		map.setSize(mapWidth, mapHeight);
+	}
 }

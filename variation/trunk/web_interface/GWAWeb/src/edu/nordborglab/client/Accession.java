@@ -65,12 +65,12 @@ public class Accession implements EntryPoint, HistoryListener{
 		*/
 		
 		tp = new SinkTabPanel(jsonErrorDialog);
-		tp.addSink(new ToySink("Accessions", "Accessions"));
+		tp.addSink(new Accession250k(constants, jsonErrorDialog));
 		tp.addSink(new AccessionByName(constants, jsonErrorDialog));
 		tp.addSink(new AccessionByID(constants, jsonErrorDialog));
 		tp.addSink(new ToySink("By Genetic Distance", "Under construction"));
 		tp.addSink(new ToySink("By Geographic Distance", "Under construction"));
-		tp.addSink(new ToySink("By Country", "Under construction"));
+		// tp.addSink(new ToySink("By Country", "Under construction"));
 		// Show the 'bar' tab initially.
 		tp.selectTab(1);
 		tp.setWidth("1000px");

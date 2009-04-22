@@ -24,7 +24,7 @@ public class DisplayJSONObject extends DialogBox{
 	{
 		// Set the dialog box's caption.
 		setText(dialogTitle);
-		setSize("600px", "600px");
+		//setSize("600px", "600px");
 		
 		dialogVPanel.add(jsonTree);
 		//Avoids showing an "empty" cell

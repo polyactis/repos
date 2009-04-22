@@ -1,6 +1,10 @@
 package edu.nordborglab.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+
+import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -8,57 +12,122 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.ClickListener;
 
+import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.HistoryListener;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class HaplotypeView implements EntryPoint {
+public class HaplotypeView implements EntryPoint, ClickListener, HistoryListener {
 
-  /**
-   * This is the entry point method.
-   */
-  public void onModuleLoad() {
-    Image img = new Image("http://code.google.com/webtoolkit/logo-185x175.png");
-    Button button = new Button("Click me");
-    
-    // We can add style names
-    button.addStyleName("pc-template-btn");
-    // or we can set an id on a specific element for styling
-    img.getElement().setId("pc-template-img");
-    
-    VerticalPanel vPanel = new VerticalPanel();
-    vPanel.setWidth("100%");
-    vPanel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-    vPanel.add(img);
-    vPanel.add(button);
+	/**
+	 * This is the entry point method.
+	 */
+	private SinkList sinkList;
+	public DisplayJSONObject jsonErrorDialog;
+	public AccessionConstants constants;
+	private RootPanel rootPanel;
+	private int curSinkIndex=-1;
 
-    // Add image and button to the RootPanel
-    RootPanel.get().add(vPanel);
+	public void onModuleLoad() {
+		jsonErrorDialog = new DisplayJSONObject("Error Dialog");
+		constants = (AccessionConstants) GWT.create(AccessionConstants.class);
 
-    // Create the dialog box
-    final DialogBox dialogBox = new DialogBox();
-    dialogBox.setText("Welcome to GWT!");
-    dialogBox.setAnimationEnabled(true);
-    Button closeButton = new Button("close");
-    VerticalPanel dialogVPanel = new VerticalPanel();
-    dialogVPanel.setWidth("100%");
-    dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-    dialogVPanel.add(closeButton);
+		sinkList = new SinkList(jsonErrorDialog);
+		rootPanel = RootPanel.get("gwt");
 
-    closeButton.addClickListener(new ClickListener() {
-      public void onClick(Widget sender) {
-        dialogBox.hide();
-      }
-    });
+		History.addHistoryListener(this);
 
-    // Set the contents of the Widget
-    dialogBox.setWidget(dialogVPanel);
-    
-    button.addClickListener(new ClickListener() {
-      public void onClick(Widget sender) {
-        dialogBox.center();
-        dialogBox.show();
-      }
-    });
-  }
+
+		String initToken = History.getToken();
+		if (initToken.length() > 0) {
+			onHistoryChanged(initToken);
+		}
+
+		HaplotypeSingleView haplotypeSingleView = new HaplotypeSingleView(constants, jsonErrorDialog);
+		haplotypeSingleView.submitButton.addClickListener(this);
+		rootPanel.add(haplotypeSingleView);
+
+	}
+	public native String getHaplotypeImgURL()/*-{
+		return $wnd.haplotypeImgURL;
+	}-*/;
+
+	public void onClick(Widget sender) {
+		Sink oldSink = (Sink)rootPanel.getWidget(0);
+		sinkList.addSink(oldSink);
+		rootPanel.remove(0);
+
+		// create a new one
+		HaplotypeSingleView haplotypeSingleView = new HaplotypeSingleView(constants, jsonErrorDialog);
+		// pass old parameters to old one ??
+		haplotypeSingleView.copySetting((HaplotypeSingleView)oldSink);
+		haplotypeSingleView.submitButton.addClickListener(this);
+		curSinkIndex = sinkList.addSink(haplotypeSingleView);
+		HaplotypeSingleView curSink = (HaplotypeSingleView) sinkList.getSelectedSink(curSinkIndex);
+		curSink.setSubmitButtonInProgress();
+		curSink.image.setUrl("http://www.google.com/images/logo.gif");
+		curSink.image.setVisible(true);
+		
+		rootPanel.add(curSink);
+		History.newItem(sinkList.getSinkName(curSinkIndex));
+		curSink.resetSubmitButtonCaption();
+		//img.setVisibleRect(70, 0, 47, 110);
+	}
+
+	public void onHistoryChanged(String token) {
+		// This method is called whenever the application's history changes. Set
+		// the label to reflect the current history token.
+		//lbl.setText("The current history token is: " + historyToken);
+		//	 Find the MapsDemoInfo associated with the history context. If one is
+		// found, show it (It may not be found, for example, when the user mis-
+		// types a URL, or on startup, when the first context will be "").
+
+		//jsonErrorDialog.displayRequestError("The current history token is: " + token);
+
+		int i = sinkList.find(token);
+		if (i == -1) {
+			//showInfo();
+			//Window.alert("Couldn't find " + token);
+			return;
+		}
+		show(i, false);
+	}
+
+	public void show(int selectedSink, boolean affectHistory) {
+		// Don't bother re-displaying the existing MapsDemo. This can be an issue
+		// in practice, because when the history context is set, our
+		// onHistoryChanged() handler will attempt to show the currently-visible
+		// MapsDemo.
+		if (selectedSink == curSinkIndex) {
+			return;
+		}
+		curSinkIndex = selectedSink;
+		rootPanel.add(sinkList.getSelectedSink(curSinkIndex));
+
+		// If affectHistory is set, create a new item on the history stack. This
+		// will ultimately result in onHistoryChanged() being called. It will call
+		// show() again, but nothing will happen because it will request the exact
+		// same MapsDemo we're already showing.
+		if (affectHistory) {
+			History.newItem(sinkList.getSinkName(curSinkIndex));
+		}
+		//curSink.onShow();
+	}
+
+	private void showInfo() {
+		if (sinkList.getNumberOfSinks()>0)
+		{
+			rootPanel.add(sinkList.getSelectedSink(0));
+		}
+		else
+		{
+			HaplotypeSingleView haplotypeSingleView = new HaplotypeSingleView(constants, jsonErrorDialog);
+			haplotypeSingleView.submitButton.addClickListener(this);
+			sinkList.addSink(haplotypeSingleView);
+			curSinkIndex = 0;
+			show(0, false);
+		}
+	}
 }

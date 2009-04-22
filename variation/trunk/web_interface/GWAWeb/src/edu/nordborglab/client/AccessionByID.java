@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 
-import com.google.gwt.user.client.ui.SuggestBox;
 
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -17,15 +16,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONException;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 
-import com.google.gwt.user.client.ui.SuggestionHandler;
-import com.google.gwt.user.client.ui.SuggestionEvent;
 
 import com.google.gwt.visualization.client.DataTable;
 /*
@@ -50,7 +42,7 @@ public class AccessionByID extends Sink implements ClickListener{
 	private VerticalPanel vpanel = new VerticalPanel();
 	
 	private DisplayJSONObject jsonErrorDialog;
-	private MapTableTree contentTree;	
+	public MapTableTree contentTree;	
 	
 	/**
 	 * An instance of the constants.
@@ -98,7 +90,9 @@ public class AccessionByID extends Sink implements ClickListener{
 		submitButton.addClickListener(this);
 
 		submitPanel.add(new HTML(constants.cwAccessionByIDLabel()));
+		idBox.setTitle(constants.cwAccessionByIDDescription());
 		submitPanel.add(idBox);
+		
 		submitPanel.add(submitButton);
 		submitPanel.setSpacing(5);
 		
@@ -182,6 +176,10 @@ public class AccessionByID extends Sink implements ClickListener{
 
 	private void resetSearchButtonCaption() {
 		submitButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
+	}
+	public void resetSize()
+	{
+		contentTree.resetSize();
 	}
 	
 }

@@ -139,6 +139,25 @@ public class MapTableTree extends VerticalPanel{
 		mapPanel.getHeaderTextAccessor().setText("Found " + dataTable.getNumberOfRows() + " Accessions.");
 		fillInTable(dataTable);
 		pageRefreshButton.setVisible(true);
-		mapWidget.addMarkers(dataTable);		
+		mapWidget.addMarkers(dataTable);
+	}
+	
+	public void setMapPanelHeaderText(String caption)
+	{
+		mapPanel.getHeaderTextAccessor().setText(caption);
+	}
+	
+	public void setTablePanelHeaderText(String caption)
+	{
+		tablePanel.getHeaderTextAccessor().setText(caption);
+	}
+	
+	public void resetTablePanelHeaderText()
+	{
+		tablePanel.getHeaderTextAccessor().setText("Table");
+	}
+	public void resetSize()
+	{
+		mapWidget.resetMapSize();
 	}
 }
