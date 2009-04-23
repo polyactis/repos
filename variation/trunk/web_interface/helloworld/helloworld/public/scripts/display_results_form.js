@@ -3,10 +3,10 @@ var displayResultsSpace = {};
 displayResultsSpace.call_method_id = null;
 displayResultsSpace.phenotype_method_id = null;
 displayResultsSpace.analysis_method_id = null;
-displayResultsSpace.static_plot_name_arr = [['getPhenotypeHistImage','hist_thumb'],
-		['getPhenotypeHistImage','hist_log_thumb'],
-		['getCallPhenotypeQQImage', 'qq_thumb'],
-		['getCallPhenotypeQQImage', 'qq_log_thumb']]
+displayResultsSpace.static_plot_name_arr = [['getPhenotypeHistImage', 'hist_thumb','hist_plot'],
+		['getPhenotypeHistImage', 'hist_log_thumb','hist_log_plot'],
+		['getCallPhenotypeQQImage', 'qq_thumb', 'qq_plot'],
+		['getCallPhenotypeQQImage', 'qq_log_thumb', 'qq_log_plot']]
 
 google.load("visualization", "1", {packages:["scatterchart", 'map', 'motionchart']});
 
@@ -68,7 +68,7 @@ function drawGWChart(o)
 		chr2chart[chr] = new google.visualization.ScatterChart(chr2div[chr]);
 		chr2data[chr] = new google.visualization.DataTable( eval("("+server_data[chr]+")"), 0.5);
 		
-		chr2chart[chr].draw(chr2data[chr], {width: 700, height: 200, titleX: 'Chr'+chr, titleY: titleY, legend: 'none', pointSize: 3});
+		chr2chart[chr].draw(chr2data[chr], {width: 1000, height: 200, titleX: 'Chr'+chr, titleY: titleY, legend: 'none', pointSize: 3});
 		chr2div[chr].style.display = 'block';
 		google.visualization.events.addListener(chr2chart[chr], 'select', chr2handler[chr]);	//2009-1-29 use the clickHandler to each chr division
 		//chr2data[chr] = new google.visualization.DataTable();
@@ -144,7 +144,11 @@ function showCallInfoData(o)
 	motionView.setColumns([2,0,4,3,8,5,6,7]);
 	var strain_motion_chart_div = document.getElementById('strain_motion_chart_div');
 	var strain_motion_chart = new google.visualization.MotionChart(strain_motion_chart_div);
-	strain_motion_chart.draw(motionView, {width: 1000, height:700});
+	var options = {};
+	options['state'] = '{"time":"notime","iconType":"BUBBLE","xZoomedDataMin":null,"yZoomedDataMax":null,"xZoomedIn":false,"iconKeySettings":[],"showTrails":true,"xAxisOption":"2","colorOption":"4","yAxisOption":"3","playDuration":15,"xZoomedDataMax":null,"orderedByX":false,"duration":{"multiplier":1,"timeUnit":"none"},"xLambda":1,"orderedByY":false,"sizeOption":"_UNISIZE","yZoomedDataMin":null,"nonSelectedAlpha":0.4,"stateVersion":3,"dimensions":{"iconDimensions":["dim0"]},"yLambda":1,"yZoomedIn":false};';
+	options['width'] = 1000;
+	options['height'] = 700;
+	strain_motion_chart.draw(motionView, options);
 	strain_motion_chart_div.style.display = 'block';
 
 }
@@ -200,6 +204,7 @@ function handleResponse(urlArray, field_ls) {
 	for (var i = 0; i < displayResultsSpace.static_plot_name_arr.length; i+=1){
 		var action_name = displayResultsSpace.static_plot_name_arr[i][0];
 		var img_type = displayResultsSpace.static_plot_name_arr[i][1];
+		var fullImg = displayResultsSpace.static_plot_name_arr[i][2];
 		var div_name = 'display_'+img_type;
 		//02/17/09 test if necessary to update plots			
 		if (action_name==="getPhenotypeHistImage"){
@@ -207,15 +212,17 @@ function handleResponse(urlArray, field_ls) {
 				continue;
 			}
 			displayResultsSpace.imgQueryURL = PhenotypeHistImageBaseURL+'?'+url_query+'&img_type='+img_type;
+			displayResultsSpace.fullImgURL = PhenotypeHistImageBaseURL+'?'+url_query+'&img_type='+fullImg;
 		}
 		else if (action_name==="getCallPhenotypeQQImage"){
 			if (displayResultsSpace.phenotype_method_id===YAHOO.util.Dom.get("phenotype_method_id").value && displayResultsSpace.call_method_id===YAHOO.util.Dom.get("call_method_id").value ){
 				continue;
 			}
 			displayResultsSpace.imgQueryURL = CallPhenotypeQQImageBaseURL+'?'+url_query+'&img_type='+img_type;
+			displayResultsSpace.fullImgURL = CallPhenotypeQQImageBaseURL+'?'+url_query+'&img_type='+fullImg;
 		}
 		var replace_elem = document.getElementById(div_name);
-		replace_elem.innerHTML = "<a href="+displayResultsSpace.imgQueryURL+"><img src="+displayResultsSpace.imgQueryURL+"></a>";
+		replace_elem.innerHTML = "<a href="+displayResultsSpace.fullImgURL+"><img src="+displayResultsSpace.imgQueryURL+"></a>";
 		replace_elem.style.display = 'block';
 		//displayStaticPlot(displayResultsSpace.imgQueryURL, div_name);
 	}

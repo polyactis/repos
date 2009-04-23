@@ -34,25 +34,41 @@ ${h.end_form()}
 
 <div id="display_general" style="display:none"></div>
 
-<div id='display_static_plots'>
-	<table border=0>
-		<tr>
-			<td><div id="display_hist_thumb" style="display:none"></div></td>
-			<td><div id="display_hist_log_thumb" style="display:none"></div></td>
-			<td><div id="display_qq_thumb" style="display:none"></div></td>
-			<td><div id="display_qq_log_thumb" style="display:none"></div></td>
-		</tr>
-	</table>
+<ul id="menu">
+  <li id="Phenotype"><a href="javascript:showone('display_static_plots')">Phenotype</a></li>
+  <li id="GWA"><a href="javascript:showone('display_gwa')">GWA</a></li>
+  <li id="Accession"><a href="javascript:showone('therest')">Accession</a> </li>
+</ul>
+
+<div name="display_static_plots" id='display_static_plots' >
+<ul id="menu_display_general">
+<table border=0>
+	<tr>
+		<td>
+  		<div name="display_static_plots" id="display_hist_thumb" style="display:none"></div>
+  		</td>
+  		<td>
+		<div  name="display_static_plots" id="display_hist_log_thumb" style="display:none"></div>
+		</td>
+  		<td>
+		<div  name="display_static_plots" id="display_qq_thumb" style="display:none"></div>
+		</td>
+  		<td>
+		<div  name="display_static_plots" id="display_qq_log_thumb" style="display:none"></div>
+		</td>
+	</tr>
+</table>
 </div>
 
-<div id='display_gwa'>
+
+<div name="display_gwa" id='display_gwa' style="display:none">
 <table border=0>
 	<tr>
 		<td>
 		<table border=0>
 			% for i in range(5):
 					<tr>
-						<td><div id="${"display_chr%s"%(i+1)}" style="display:none"></div></td>
+						<td><div name="display_gwa" id="${"display_chr%s"%(i+1)}" style="display:none"></div></td>
 					</tr>
 			% endfor
 		</table>
@@ -65,19 +81,23 @@ ${h.end_form()}
 </table>
 </div>
 
+<div name = "therest" id = "therest" style="display:block">
+<div name="therest" id="strain_motion_chart_div"></div>
 <table border=0>
-	<tr>
-		<td><div id="phenotype_hist_div" style="display:none"></div></td>
-	</tr>
-	<tr>
-		<td><div id="pca_select_div" style="display:none"></div></td>
-	</tr>
-	<tr>
-		<td><div id="strain_pca_div" style="display:none"></div></td>
-		<td><div id="strain_map_div" style="width: 500px; height: 300;"></div></td>
-	</tr>
+	<tr><td>
+	<div name ="therest" id="phenotype_hist_div" ></div>
+	</td></tr>
+	<tr><td>
+	<div name="therest" id="pca_select_div" ></div>
+	</td></tr>
+	<tr><td>
+	<div name="therest" id="strain_pca_div" ></div>
+	</td><td>
+	<div name="therest" id="strain_map_div" style="width: 500px; height: 300px;" ></div>
+	</td></tr>
 </table>
-<div id="strain_motion_chart_div" style="display:none"></div>
+</div>
+
 
 <script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/connection/connection-min.js" type="text/javascript"></script>
@@ -85,3 +105,19 @@ ${h.end_form()}
 <script src="/scripts/form.js"></script>
 <script src="/scripts/common.js" type="text/javascript"></script>
 <script src="/scripts/display_results_form.js" type="text/javascript"></script>
+<script>
+function showone(theone) {
+	var newboxes = document.getElementsByTagName("div");
+	for(var x=0; x<newboxes.length; x++)
+	{
+	       name = newboxes[x].getAttribute("name");
+	       if (name == theone) {
+	             newboxes[x].style.display = 'block';
+	       }
+	       else {
+	             newboxes[x].style.display = 'none';
+	       }
+	}
+}
+
+</script>
