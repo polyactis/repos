@@ -453,7 +453,8 @@ class SNPData(object):
 							('col_id2id', 0, ):None,\
 							('max_call_info_mismatch_rate', 0, float): 1,\
 							('snps_table', 0, ):None,\
-							('matrix_data_type', 0, ):int}
+							('matrix_data_type', 0, ):int,\
+							('debug', 0, int): [0, '', 0, 'turn on the debug flag']}
 	def __init__(self, **keywords):
 		from __init__ import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
@@ -868,6 +869,40 @@ class SNPData(object):
 		return_data.snp_pair_ls = (col1_id, col2_id)
 		return_data.no_of_pairs = total_num
 		return return_data
+	
+	def calRowPairwiseDist(self):
+		"""
+		2009-4-18
+			calculate distance between all rows except itself.
+			only calculate half non-redundant pairs.
+		"""
+		sys.stderr.write("Calculating row-wise pairwise distance ...")
+		row_id2pairwise_dist = {}
+		counter = 0
+		
+		for i in range(len(self.row_id_ls)):
+			row_id1 = self.row_id_ls[i]
+			pairwise_dist = []
+			for j in range(i+1, len(self.row_id_ls)):
+				row_id2 = self.row_id_ls[j]
+				no_of_mismatches = 0
+				no_of_non_NA_pairs = 0
+				for col_index in range(len(self.col_id_ls)):
+					if self.data_matrix[i][col_index] not in NA_set and self.data_matrix[j][col_index] not in NA_set:
+						no_of_non_NA_pairs += 1
+						if self.data_matrix[i][col_index] != self.data_matrix[j][col_index]:
+							no_of_mismatches += 1
+				if no_of_non_NA_pairs>0:
+					mismatch_rate = no_of_mismatches/float(no_of_non_NA_pairs)
+				else:
+					mismatch_rate = -1
+					if self.debug:
+						sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
+				pairwise_dist.append([mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs])
+			pairwise_dist.sort()
+			row_id2pairwise_dist[row_id1] = pairwise_dist
+		sys.stderr.write("Done.\n")
+		return row_id2pairwise_dist
 	
 	def convertSNPAllele2Index(self, report=0):
 		"""
