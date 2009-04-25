@@ -754,6 +754,9 @@ class QualityControl(object):
 	
 	def submit_row_id2pairwise_dist(self, curs, qc_cross_match_table, row_id2pairwise_dist):
 		"""
+		2009-4-24
+			if type(row_id)==tuple:
+				check if the entry is already in db before insertion
 		2009-3-13
 			wrap the insertion sql into "try ... except ..." to allow insertion error (non-unique entries etc)
 		2008-07-01
@@ -768,7 +771,15 @@ class QualityControl(object):
 				accession_id = row_id2
 				if type(row_id)==tuple:
 					ecotype_id, duplicate = row_id
-					sql_string = "insert into %s(ecotype_id, call_info_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
+					#2009-4-24 check if it's already in db.
+					curs.execute("select id from %s where ecotype_id=%s and call_info_id=%s and vs_ecotype_id=%s"%\
+						(qc_cross_match_table, ecotype_id, duplicate, accession_id))
+					rows = curs.fetchall()
+					if len(rows)>0:
+						continue
+					
+					sql_string = "insert into %s(ecotype_id, call_info_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s, %s)"%\
+						(qc_cross_match_table, ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
 				else:
 					ecotype_id = row_id
 					sql_string = "insert into %s(ecotype_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
