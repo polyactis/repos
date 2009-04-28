@@ -1,17 +1,20 @@
+/*
+ * 2009-4-26 This custom google visualization table sinks the click event (besides the inherent select event).
+ * 		One unique feature about calling the click handler here is the Event is passed along with the Widget. 
+ */
+
 package edu.nordborglab.client;
 
 import com.google.gwt.user.client.Event;
 
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.ClickListener;
-import com.google.gwt.user.client.ui.Widget;
 
 import com.google.gwt.visualization.client.AbstractDataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.gwt.visualization.client.visualizations.Table.Options.Policy;
 
 public class CustomVisualizationTable extends Table{
 	private CustomClickListener cListener;
+	
 	
 	public CustomVisualizationTable() {
 		super();
@@ -19,10 +22,11 @@ public class CustomVisualizationTable extends Table{
 		sinkEvents(Event.ONCLICK);
 	}
 
+	
+	
 	public void onBrowserEvent(Event evt) {
 		switch (DOM.eventGetType(evt)) {
 		case Event.ONCLICK:
-			//evt.getClientX();
 			cListener.onClick(this.getParent(), evt);
 			break;
 		}
