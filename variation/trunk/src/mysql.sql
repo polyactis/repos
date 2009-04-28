@@ -185,23 +185,32 @@ create table person(
 	donor integer not null
 	)engine=INNODB;
 
--- 2008-05-18 view to check other info (where and country) about ecotype
 -- 2009-3-30 add column tg_ecotypeid to view stock.ecotype_info
+-- 2008-05-18 view to check other info (where and country) about ecotype
 create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent,
 	e.nativename, e2t.tg_ecotypeid, e.latitude, e.longitude, e.alias, e.siteid, s.name as site_name, 
-	c.abbr as country, p.firstname, p.surname, e.collectiondate from ecotype e,
-	site s, address a, country c , person p, ecotypeid_strainid2tg_ecotypeid e2t
+	c.abbr as country, p.firstname, p.surname, e.collectiondate, e.geographic_integrity_id from ecotype e,
+	site s, address a, country c , person p, ecotypeid_strainid2tg_ecotypeid e2t 
 	where p.id=e.collectorid and e.siteid=s.id and s.addressid=a.id and a.countryid=c.id
 	and e.id=e2t.ecotypeid;
 
--- 2009-3-30 view doesn't allow selection clause in FROM, so construct more views based on ecotype_info to generate more info
+-- 2009-4-28 split table geographic_integrity out of ecotype_info and do left outer join to avoid no-geographic integrity rows being left out
+create or replace view ecotype_info_with_gps_integrity as select e.*, g.short_name as geographic_integrity 
+	from ecotype_info e left outer join
+	geographic_integrity g on e.geographic_integrity_id=g.id;
+
+-- 2009-3-30 table site_trip is not maintained. so useless. 
+-- view doesn't allow selection clause in FROM, so construct more views based on ecotype_info to generate more info
 create or replace view ecotype_info_with_trip as select e.*, s2t.tripid from
 	ecotype_info e left outer join site_trip s2t on e.siteid=s2t.siteid;
 
--- 2009-3-30 
+-- 2009-3-30 table trip is not maintained. so this view is useless.
 create or replace view ecotype_info_with_collectiondate as select e.*, t.collectiondate from
 	ecotype_info_with_trip e left outer join trip t on e.tripid=t.id;
 
+-- 2009-4-5 combine the haplogroup info here
+create or replace view ecotype_info_with_haplogroup as select e.*, h.haplo_group_id from
+	ecotype_info_with_gps_integrity e left outer join haplo_group2ecotype h on e.ecotypeid=h.ecotype_id;
 
 -- 2008-08-08 manual tg_ecotypeid linking after GroupDuplicateEcotype.py http://papaya.usc.edu/2010/149-snps/149SNP-data-introduction
 -- for Kas-1 & Kas-2
