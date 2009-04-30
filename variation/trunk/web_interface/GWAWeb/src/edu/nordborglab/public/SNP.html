@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<%inherit file="/base.html"/>
+<%def name="title()">SNP</%def>
+
+
+<%def name="head()">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="${h.url_for('/style/style.css')}" />
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/connection/connection-min.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/json/json-min.js" type="text/javascript"></script>
+
+	<script type="text/javascript" language="javascript" src="edu.nordborglab.SNP.nocache.js"></script>
+	<script src="/scripts/common.js" type="text/javascript"></script>	<!-- for the string formating function  -->
+	<script src="/scripts/snp.js" type="text/javascript"></script>
+	
+</%def>
+
+<%def name="body()">
+	<script type="text/javascript">
+		google.load("visualization", "1", {'packages' : ["table", "motionchart"] });
+		var call_method_id = ${c.call_method_id};
+		var phenotype_method_id = ${c.phenotype_method_id};
+		var analysis_method_id = ${c.analysis_method_id};
+		
+		var snpSpace = {};
+		var url_query = "chromosome="+"${c.chromosome}"+"&position="+"${c.position}"+"&call_method_id="+"${c.call_method_id}"+"&phenotype_method_id="+"${c.phenotype_method_id}"+"&analysis_method_id="+"${c.analysis_method_id}"+"&score="+"${c.score}";		
+		var pageTitle = "${c.pageTitle}";
+		
+		var snpSummaryQueryURL = "${h.url_for(controller='SNP', action='getSNPSummaryInfo', id=None)}"+'?'+url_query;
+		var snpSignificantHitsQueryURL = "${h.url_for(controller='SNP', action='getSignificantHits', id=None)}"+'?'+url_query;
+		var ecotypeAllelePhenotypeURL = "${h.url_for(controller='SNP', action='getEcotypeAllelePhenotype', id=None)}"+'?'+url_query;
+
+		var track_id = call_method_id+"_"+phenotype_method_id+"_"+analysis_method_id;
+
+		var GBrowseURL = "${c.gbrowseLink}";
+		var GBrowseURLJS = "${h.GBrowseURLJS}";
+		GBrowseURLJS.format(${c.position-40000}, ${c.position+40000}, ${c.chromosome})+track_id+"-"+track_id+"_SNP";
+
+		loadTable(snpSummaryQueryURL, "SNPSummaryDiv");
+		
+		loadTable(snpSignificantHitsQueryURL, "SignificantHitsInAllPhenotypeDiv");
+		
+		loadTable(ecotypeAllelePhenotypeURL, "EcotypeAlleleTableDiv", [4,5,2,3,6,7,8,9,10], 'EcotypeAlleleMotionChartDiv');
+	</script>
+	<div id="snp"></div>
+	
+	<div id="SNPSummary" style="display:block">
+		<div id="SNPSummaryDivStatus" style="display:block">Loading...</div>
+		<div id="SNPSummaryDiv" style="display:none"></div>
+	</div>
+
+
+	<div id="SignificantHitsInAllPhenotype" style="display:block">
+		<div id="SignificantHitsInAllPhenotypeDivStatus" style="display:block">Loading...</div>
+		<div id="SignificantHitsInAllPhenotypeDiv" style="display:none"></div>
+	</div>
+
+	
+	<div id="EcotypeAlleleMotionChart" style="display:block">
+		<div id="EcotypeAlleleMotionChartDivStatus" style="display:block">Loading...</div>
+		<div id="EcotypeAlleleMotionChartDiv" style="display:none"></div>
+	</div>
+
+	<div id="EcotypeAlleleTable" style="display:block">
+		<div id="EcotypeAlleleTableDivStatus" style="display:block">Loading...</div>
+		<div id="EcotypeAlleleTableDiv" style="display:none"></div>
+	</div>
+	
+	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+</%def>
