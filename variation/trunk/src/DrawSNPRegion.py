@@ -279,7 +279,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 							("label_gene", 0, int): [0, 's', 0, 'toggle this to label every gene by gene symbol. otherwise only candidate genes are labeled'],\
 							("draw_LD_relative_to_center_SNP", 0, int): [1, '', 0, 'toggle this to draw LD between other SNPs and the center SNP'],\
 							("plot_type_short_name", 0, ): [None, 'y', 1, 'A short name (<256 chars) to characterize the type of all the plots. it could have existed in table SNPRegionPlotType'],\
-							('snp_matrix_data_type', 1, int):[1, 'V', 1, 'what type of data in snp_matrix_fname? 1: SNP data. 2: CNV discrete call data (1 or -1); 3: CNV amplitude data. input file has to contain start, stop position for the latter two. Providing central position works only for SNP data.'],\
+							('snp_matrix_data_type', 1, int):[1, 'V', 1, 'what type of data in snp_matrix_fname? 1: SNP data (snps are subset of what db has). 2: CNV discrete call data (1 or -1); 3: CNV amplitude data; 4: arbitrary non-diallelic SNP data (SNPs are not required to be included in db). input file has to contain start, stop position for 2 & 3. Providing central position works only for SNP data.'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 1, 'debug mode. 1=level 1 (pdb mode). 2=level 2 (same as 1 except no pdb mode)'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -746,6 +746,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 					chr_id2cumu_size=None, chr_id2size=None, chr_gap=None, artist_obj_id2artist_gene_id_ls=None,\
 					gene_id2artist_object_id=None, drawGeneOnTheBoundary=True):
 		"""
+		2009-4-30
+			handle chr,pos,offset in snps_within_this_region.chr_pos_ls by ignoring the offset bit
 		2008-12-22
 			add argument drawGeneOnTheBoundary, which controls whether to draw genes that are not fully within this region.
 				genes that sit on the boundary of snps_within_this_region.
@@ -756,8 +758,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		2008-09-24
 		"""
 		sys.stderr.write("\t Drawing gene model  ...")
-		left_chr, left_pos = snps_within_this_region.chr_pos_ls[0]
-		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1]
+		left_chr, left_pos = snps_within_this_region.chr_pos_ls[0][:2]
+		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1][:2]
 		left_chr = str(left_chr)
 		right_chr = str(right_chr)
 		param_data = PassingData(gene_id2model=gene_annotation.gene_id2model, candidate_gene_set=candidate_gene_set, \
@@ -793,6 +795,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	def drawLD(self, axe_gene_model, ax2, snps_within_this_region, LD_info, gene_model_min_y,\
 				gene_model_max_y, which_LD_statistic=1):
 		"""
+		2009-4-30
+			handle chr,pos,offset in snps_within_this_region.chr_pos_ls by ignoring the offset bit
 		2008-09-28
 			represent r2 by HSL color, rather than a grayscale intensity. matplotlib doesn't support hsl notation (i'm not aware).
 			Use ImageColor.getrgb to convert hsl representation to RGB format.
@@ -801,8 +805,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		"""
 		sys.stderr.write("\t Drawing LD info  ...")
 		no_of_snps = len(snps_within_this_region.chr_pos_ls)
-		left_chr, left_pos = snps_within_this_region.chr_pos_ls[0]
-		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1]
+		left_chr, left_pos = snps_within_this_region.chr_pos_ls[0][:2]
+		right_chr, right_pos = snps_within_this_region.chr_pos_ls[-1][:2]
 		#ax1.hlines(y_value, left_pos, right_pos, linewidth=0.3)
 		for i in range(no_of_snps):
 			chr_pos1 = snps_within_this_region.chr_pos_ls[i]
@@ -872,6 +876,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 							draw_LD_relative_to_center_SNP=0, commit=0, snpData=None, phenData=None, ecotype_info=None,\
 							snpData_before_impute=None, snp_matrix_data_type=1):
 		"""
+		2009-4-30
+			deal with argument snp_matrix_data_type =4 (arbitrary non-diallelic SNP matrix)
+			could handle both (chr,pos) and (chr,pos,offset) SNP representation
+			skip drawing gene models if no SNPs in the region at all.
+			return None if no SNPs are found in the region.
 		2009-3-23
 			add arguments snp_matrix_data_type to allow CNV or CNV amplitude to fill the SNP matrix
 		2008-12-01
@@ -908,6 +917,9 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		else:
 			snps_within_this_region = self.getSNPsAroundThisSNP(this_snp, snp_info, min_distance)
 			snps_within_this_region_snpData = snps_within_this_region
+		if len(snps_within_this_region.chr_pos_ls)==0 and len(snps_within_this_region_snpData.chr_pos_ls)==0:
+			return None
+		
 		pylab.clf()
 		#fig = pylab.figure()
 		axe_y_offset1 = 0.05	#y_offset for axe_LD, axe_strain_pca, axe_phenotype, axe_map
@@ -956,20 +968,31 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				sys.stderr.write("No genome association results for phenotype_method_id=%s, analysis_method_id=%s. Take a random one out of analysis_method_id2gwr.\n"%\
 							(phenotype_method_id, 1))
 				genome_wide_result = analysis_method_id2gwr.values()[0]	#take random gwr
-			if snp_matrix_data_type==2 or snp_matrix_data_type==3:
+			if snp_matrix_data_type==1:
+				chr_pos_ls = None
+			else:
 				chr_pos_ls = snpData.chr_pos2index.keys()
 				#2008-12-08 for CNV probes. use snpData.chr_pos2index.keys() to locate top_snp_data because here snpData doesn't match genome_wide_result.
-			else:
-				chr_pos_ls = None
 			top_snp_data = self.getTopSNPData(genome_wide_result, None, snp_region_tup, chr_pos_ls=chr_pos_ls)
 			
 			if snp_matrix_data_type==3:	#2009-3-23 for CNV amplitude data, don't convert alleles into binary 0/1=major/minor form and use allele/amplitude to determine alpha
 				need_convert_alleles2binary = False
 				useAlleleToDetermineAlpha = True
+			elif snp_matrix_data_type==4:			
+				#2009-3-27, for arbitrary non-diallelic SNP matrix
+				need_convert_alleles2binary = False
+				useAlleleToDetermineAlpha = False
 			else:
 				need_convert_alleles2binary = True
 				useAlleleToDetermineAlpha = False
+				
 			subSNPData = self.getSubStrainSNPMatrix(snpData, phenData, phenotype_method_id, phenotype_col_index, top_snp_data.snp_id_ls, need_convert_alleles2binary=need_convert_alleles2binary)	#2009-3-23 last argument is for CNV intensity matrix
+			snp_value2color = None
+			if snp_matrix_data_type==4:
+				##2009-3-27 it's for SNP matrix inferred from raw sequences, might have >2 alleles, heterozygous calls, deletions etc.
+				from DrawSNPMatrix import DrawSNPMatrix
+				subSNPData.data_matrix = DrawSNPMatrix.transformMatrixIntoTwoAllelesAndHetero(subSNPData.data_matrix)
+				snp_value2color = self.snp_value2five_color
 			
 			#the two offsets below decides where the label of strains/snps should start in axe_snp_matrix
 			last_chr_pos = snps_within_this_region_snpData.chr_pos_ls[-1]
@@ -981,9 +1004,9 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			#fake one SNPID2PCAPosInfo only for drawSNPMtrix()
 			SNPID2PCAPosInfo = PassingData(step=None, snp_id2img_x_pos={})
 			for chr_pos, adjacent_window in snps_within_this_region_snpData.chr_pos2adjacent_window.iteritems():
-				snp_id = '%s_%s'%(chr_pos[0], chr_pos[1])
+				chr_pos = map(str, chr_pos)
+				snp_id = '_'.join(chr_pos)
 				SNPID2PCAPosInfo.snp_id2img_x_pos[snp_id] = adjacent_window
-			
 			
 			phenotype_cmap = mpl.cm.jet
 			max_phenotype = numpy.nanmax(phenData.data_matrix[:,phenotype_col_index])
@@ -1041,7 +1064,9 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			axe_snp_matrix.set_yticks([])
 			self.drawSNPMtrix(axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 							ecotype_info, strain_id_label_x_offset, snp_id_label_y_offset, strain_id_label_x_offset_extra=axe_snp_matrix_margin,\
-							draw_snp_id_label=False, snpData_before_impute=snpData_before_impute, useAlleleToDetermineAlpha=useAlleleToDetermineAlpha)	#2008-11-14 turn draw_snp_id_label off
+							draw_snp_id_label=False, snpData_before_impute=snpData_before_impute, \
+							useAlleleToDetermineAlpha=useAlleleToDetermineAlpha,\
+							snp_value2color=snp_value2color)	#2008-11-14 turn draw_snp_id_label off
 			#axe_snp_matrix.set_xlim([0,1])
 			#axe_snp_matrix.set_ylim([0,1])
 			no_of_axes_drawn += 1
@@ -1077,14 +1102,25 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		base_y_value = 1
 		gene_width=0.8
 		gene_box_text_gap = min_distance*2*0.005
-		return_data = self.drawGeneModel(axe_gene_model, snps_within_this_region, gene_annotation, \
-														candidate_gene_set, gene_width=gene_width, \
-						gene_position_cycle=gene_position_cycle, base_y_value=base_y_value, gene_box_text_gap=gene_box_text_gap,\
-						label_gene=label_gene)
+		
+		skip_gene_model = False
+		if len(snps_within_this_region.chr_pos_ls)>0:
+			_snps_within_this_region = snps_within_this_region
+		elif len(snps_within_this_region_snpData.chr_pos_ls)>0:
+			_snps_within_this_region = snps_within_this_region_snpData
+		else:
+			skip_gene_model = True
+		if not skip_gene_model:
+			return_data = self.drawGeneModel(axe_gene_model, _snps_within_this_region, gene_annotation, \
+											candidate_gene_set, gene_width=gene_width, gene_position_cycle=gene_position_cycle, \
+											base_y_value=base_y_value, gene_box_text_gap=gene_box_text_gap,\
+											label_gene=label_gene)
 		matrix_of_gene_descriptions = return_data.matrix_of_gene_descriptions
 		gene_model_min_y = base_y_value-gene_width
 		gene_model_max_y = gene_position_cycle + base_y_value -1 + gene_width	#"-1" because genes never sit on y=gene_position_cycle + base_y_value
-		self.drawLD(axe_gene_model, axe_LD, snps_within_this_region, LD_info, gene_model_min_y=gene_model_min_y,\
+		
+		if not skip_gene_model:
+			self.drawLD(axe_gene_model, axe_LD, _snps_within_this_region, LD_info, gene_model_min_y=gene_model_min_y,\
 					gene_model_max_y=gene_model_max_y, which_LD_statistic=which_LD_statistic)
 		if LD_info:
 			self.drawLDLegend(axe_LD_legend, which_LD_statistic)
@@ -1105,7 +1141,12 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		png_data = None
 		svg_data = None
 		png_output_fname = None
-		distance = abs(snps_within_this_region.chr_pos_ls[-1][1] - snps_within_this_region.chr_pos_ls[0][1])
+		if len(snps_within_this_region.chr_pos_ls)>0:
+			distance = abs(snps_within_this_region.chr_pos_ls[-1][1] - snps_within_this_region.chr_pos_ls[0][1])
+		elif len(snps_within_this_region_snpData.chr_pos_ls)>0:
+			distance = abs(snps_within_this_region_snpData.chr_pos_ls[-1][1] - snps_within_this_region_snpData.chr_pos_ls[0][1])
+		else:
+			distance = 0
 		if commit:	#2008-10-24
 			png_data = StringIO.StringIO()
 			svg_data = StringIO.StringIO()
@@ -1279,6 +1320,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 	
 	def findSNPsInRegion(self, snp_info, chromosome, start, stop, center_snp_position=None):
 		"""
+		2009-4-30
+			decide whether to use (chr,pos) or (chr,pos,offset) to represent a SNP based on snp_info.chr_pos2index
 		2008-10-1
 			called by plotSNPRegion()
 			find SNPs in this region, if center_snp_position is not given, find one.
@@ -1294,9 +1337,17 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		else:
 			_center_snp_position = center_snp_position
 		center_snp = SNPPassingData(chromosome=chromosome, position=_center_snp_position, snps_id=None)
+		
+		#2009-3-27 get a SNP representation from snp_info to see whether the SNP is represented by chr_pos or chr_pos_offset
+		fst_chr_pos = snp_info.chr_pos2index.keys()[0]
+		snp_representation_type = len(fst_chr_pos)
+		
 		for i in range(start-1, stop+2):
 			new_pos = i
-			new_chr_pos = (chromosome, new_pos)
+			if snp_representation_type==3:	#2009-3-27, 3-number representation
+				new_chr_pos = (chromosome, new_pos, 0)
+			else:
+				new_chr_pos = (chromosome, new_pos)
 			if new_chr_pos in snp_info.chr_pos2index:
 				if center_snp_position is None and abs(new_pos-midpoint)<abs(center_snp.position-midpoint):	#this SNP is closer to the center
 					center_snp.position = new_pos
@@ -1304,20 +1355,22 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				if j!=0:
 					self.add_mid_point(chr_pos_ls, chr_pos2adjacent_window)
 				j += 1
-		#deal with the leftest point of the 1st chr_pos
-		chr_pos = chr_pos_ls[0]
-		if chr_pos in chr_pos2adjacent_window:	#if chr_pos_ls has only one element, then nothing would be in chr_pos2adjacent_window
-			window_size = chr_pos2adjacent_window[chr_pos][0]-chr_pos[1]
-			chr_pos2adjacent_window[chr_pos] = [chr_pos[1]-window_size, chr_pos[1]+window_size]
+		if len(chr_pos_ls)>1:
+			#deal with the leftest point of the 1st chr_pos
+			chr_pos = chr_pos_ls[0]
+			if chr_pos in chr_pos2adjacent_window:	#if chr_pos_ls has only one element, then nothing would be in chr_pos2adjacent_window
+				window_size = chr_pos2adjacent_window[chr_pos][0]-chr_pos[1]
+				chr_pos2adjacent_window[chr_pos] = [chr_pos[1]-window_size, chr_pos[1]+window_size]
 		
-		#deal with the rightest point of the 1st chr_pos
-		chr_pos = chr_pos_ls[-1]
-		if chr_pos in chr_pos2adjacent_window:	#
-			window_size = chr_pos[1] - chr_pos2adjacent_window[chr_pos][0]
-			chr_pos2adjacent_window[chr_pos] = [chr_pos[1]-window_size, chr_pos[1]+window_size]
+			#deal with the rightest point of the 1st chr_pos
+			chr_pos = chr_pos_ls[-1]
+			if chr_pos in chr_pos2adjacent_window:	#
+				window_size = chr_pos[1] - chr_pos2adjacent_window[chr_pos][0]
+				chr_pos2adjacent_window[chr_pos] = [chr_pos[1]-window_size, chr_pos[1]+window_size]
 		
 		center_snp.snps_id = '%s_%s'%(center_snp.chromosome, center_snp.position)
-		snp_region = PassingData(chr_pos_ls=chr_pos_ls, chr_pos2adjacent_window=chr_pos2adjacent_window, center_snp=center_snp)
+		snp_region = PassingData(chr_pos_ls=chr_pos_ls, chr_pos2adjacent_window=chr_pos2adjacent_window, center_snp=center_snp,\
+								snp_representation_type=snp_representation_type)
 		sys.stderr.write("Done.\n")
 		return snp_region
 	
@@ -1370,6 +1423,8 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 			for i in range(len(snpData.col_id_ls)):
 				col_id = snpData.col_id_ls[i]
 				chr_pos = col_id.split('_')
+				if len(chr_pos)==3 and chr_pos[2]!='0':	#2009-3-27 ignore insertion right now
+					continue
 				chr_pos = tuple(map(int, chr_pos))
 				chr_pos2index[chr_pos] = i
 			snpData.chr_pos2index = chr_pos2index
