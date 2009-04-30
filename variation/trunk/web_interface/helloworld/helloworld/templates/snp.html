@@ -3,17 +3,21 @@
 <%def name="title()">SNP View</%def>
 
 <b>SNP Summary Info</b><br />
+<div id="SNPSummaryStatus" style="display:block">Loading...</div>
 <div id="SNPSummary" style="display:none"></div>
 
 <div id="AllelePhenotypeHistogram" style="display:none"></div>
 
 <b>Significant Hits (Top 1000) in all Phenotypes for the same SNP</b><br />
+<div id="SignificantHitsInAllPhenotypeStatus" style="display:block">Loading...</div>
 <div id="SignificantHitsInAllPhenotype" style="display:none"></div>
 
 <b>Ecotype Allele Phenotype MotionChart</b><br />
+<div id="EcotypeAlleleMotionChartStatus" style="display:block">Loading...</div>
 <div id="EcotypeAlleleMotionChart" style="display:none"></div>
 
 <b>Ecotype Allele Phenotype Table</b><br />
+<div id="EcotypeAlleleTableStatus" style="display:block">Loading...</div>
 <div id="EcotypeAlleleTable" style="display:none"></div>
 
 
@@ -25,6 +29,8 @@
 	type="text/javascript"></script>
 <script src="/scripts/snp.js" type="text/javascript"></script>
 <script type="text/javascript">
+	google.load("visualization", "1", {packages:["scatterchart", 'map', 'motionchart', "table"]});
+
 	var snpSpace = {};
 	var url_query = "chromosome="+"${c.chromosome}"+"&position="+"${c.position}"+"&call_method_id="+"${c.call_method_id}"+"&phenotype_method_id="+"${c.phenotype_method_id}"+"&analysis_method_id="+"${c.analysis_method_id}"+"&score="+"${c.score}";		
 	
@@ -34,7 +40,7 @@
 	snpSpace.snpSignificantHitsQueryURL = "${h.url_for(controller='SNP', action='getSignificantHits', id=None)}"+'?'+url_query;
 	loadTable(snpSpace.snpSignificantHitsQueryURL, "SignificantHitsInAllPhenotype");
 	
-	snpSpace.snpSignificantHitsQueryURL = "${h.url_for(controller='SNP', action='getEcotypeAllelePhenotype', id=None)}"+'?'+url_query;
-	loadTable(snpSpace.snpSignificantHitsQueryURL, "EcotypeAlleleTable", [4,5,2,3,6,7,8,9,10], 'EcotypeAlleleMotionChart');
+	snpSpace.ecotypeAllelePhenotypeURL = "${h.url_for(controller='SNP', action='getEcotypeAllelePhenotype', id=None)}"+'?'+url_query;
+	loadTable(snpSpace.ecotypeAllelePhenotypeURL, "EcotypeAlleleTable", [4,5,2,3,6,7,8,9,10], 'EcotypeAlleleMotionChart');
 	
 </script>
