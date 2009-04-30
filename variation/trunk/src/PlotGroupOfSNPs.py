@@ -76,10 +76,15 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
+	snp_value2five_color = {-1:'k', 0:'w', 1:'b', 2:'g', 3:'r'}	#deletion, NA, allele1, allele2, heterozygous
+	
 	def drawSNPMtrix(self, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1, \
-					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None, useAlleleToDetermineAlpha=False):
+					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None, useAlleleToDetermineAlpha=False,\
+					snp_value2color=None):
 		"""
+		2009-4-30
+			add argument snp_value2color
 		2009-3-23
 			add argument useAlleleToDetermineAlpha, which decides whether to use allele in subSNPData or association score to decide alpha
 			add a grid to the whole matrix
@@ -185,8 +190,14 @@ class PlotGroupOfSNPs(GeneListRankTest):
 					facecolor = 'y'
 				else:
 					facecolor = 'g'
+				if snp_value2color is not None:	#2009-3-27
+					facecolor = snp_value2color.get(allele)
+					if facecolor is None:
+						facecolor = 'g'
+				
 				if useAlleleToDetermineAlpha:	#2009-3-23
 					alpha = (allele-min_score)/(max_score-min_score)	#2008-12-05 use transparency to show CNV data intensity
+				
 				if i ==0:	#draw strain label, first SNP
 					ecotype_id = int(strain_id)
 					ecotype_obj = ecotype_info.ecotype_id2ecotype_obj.get(ecotype_id)
@@ -729,6 +740,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	
 	def getTopSNPData(self, genome_wide_result, no_of_top_hits, snp_region_tup=[], chr_pos_ls=[]):
 		"""
+		2009-4-30
+			can handle chr,pos,offset in chr_pos_ls by ignoring offset
 		2008-11-14
 			add option snp_region_tup.
 			snp_region_tup = [start_snp_chr=None, start_snp_pos=None, stop_snp_chr=None, stop_snp_pos=None]
@@ -740,25 +753,22 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		snp_id_ls = []
 		score_ls = []
 		if snp_region_tup:
-			
 			start_snp_chr, start_snp_pos, stop_snp_chr, stop_snp_pos = snp_region_tup
 			if chr_pos_ls:
 				genome_chr_pos_ls = chr_pos_ls
 				genome_chr_pos_ls.sort()
 				for chr_pos in genome_chr_pos_ls:
-					chr, pos = chr_pos
+					chr, pos = chr_pos[:2]
 					if chr==start_snp_chr and chr==stop_snp_chr and pos>=start_snp_pos and pos<=stop_snp_pos:
-						
-						snp_id_ls.append('%s_%s'%(chr, pos))
+						chr_pos = map(str, chr_pos)
+						snp_id_ls.append('_'.join(chr_pos))
 						score_ls.append(1.0)
 			else:
-			
 				genome_chr_pos_ls = genome_wide_result.chr_pos2index.keys()
 				genome_chr_pos_ls.sort()
 				for chr_pos in genome_chr_pos_ls:
 					chr, pos = chr_pos
 					if chr==start_snp_chr and chr==stop_snp_chr and pos>=start_snp_pos and pos<=stop_snp_pos:
-						
 						data_obj = genome_wide_result.get_data_obj_by_chr_pos(chr_pos[0], chr_pos[1])
 						snp_id_ls.append('%s_%s'%(data_obj.chromosome, data_obj.position))
 						score_ls.append(data_obj.value)
@@ -772,7 +782,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return top_snp_data
 	
-	def sortObjByPCA_value_ls(self, obj_id2index, pca_value_ls, pca_range):
+	def sortObjByPCA_value_ls(cls, obj_id2index, pca_value_ls, pca_range):
 		"""
 		2008-10-07
 			position on axe_strain_pca or axe_snp_pca, the constraint axis (adjacent to axe_snp_matrix)
@@ -795,8 +805,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			obj_id_ls.append(obj_id)
 			obj_id2pos[obj_id] = pos
 		return obj_id_ls, obj_id2pos
+	sortObjByPCA_value_ls=classmethod(sortObjByPCA_value_ls)
 	
-	def getObj2posFromPCA_value_ls(self, obj_id2index, pca_value_ls, pca_range):
+	@classmethod
+	def getObj2posFromPCA_value_ls(cls, obj_id2index, pca_value_ls, pca_range):
 		"""
 		2008-10-07
 			position on axe_strain_pca or axe_snp_pca, the non-constraint axis (not adjacent to axe_snp_matrix)
@@ -820,7 +832,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			obj_id2pos[obj_id] = pos
 		return 	obj_id2pos
 	
-	def getObj2ImgPos(self, obj_id_ls, img_pos_range=[0., 0.9]):
+	def getObj2ImgPos(cls, obj_id_ls, img_pos_range=[0., 0.9]):
 		"""
 		2008-10-07
 			position on axe_snp_matrix (either x or y axis)
@@ -832,9 +844,10 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			obj_id = obj_id_ls[i]
 			obj_id2img_pos[obj_id] = i*step
 		return obj_id2img_pos, step
-			
+	getObj2ImgPos = classmethod(getObj2ImgPos)
 	
-	def getStrainID2PCAPosInfo(self, subSNPData, pca_range=[0,1], snp_id_label_y_offset=0.95, explained_var=None, T=None):
+	
+	def getStrainID2PCAPosInfo(cls, subSNPData, pca_range=[0,1], snp_id_label_y_offset=0.95, explained_var=None, T=None):
 		"""
 		2008-10-08
 			fix a bug that using PC2 and PC3 to get coordinates.
@@ -850,8 +863,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		#T, P, explained_var = PCA.eig(subSNPData.data_matrix)	#2008-11-30 try the PCA from pymodule
 		
 		#T[:,0] and T[:,1] are new positions corresponding to PC1 and PC2
-		strain_id_ls, strain_id2pca_y = self.sortObjByPCA_value_ls(subSNPData.row_id2row_index, T[:,0], pca_range)
-		strain_id2pca_x = self.getObj2posFromPCA_value_ls(subSNPData.row_id2row_index, T[:,1], pca_range)
+		strain_id_ls, strain_id2pca_y = cls.sortObjByPCA_value_ls(subSNPData.row_id2row_index, T[:,0], pca_range)
+		strain_id2pca_x = cls.getObj2posFromPCA_value_ls(subSNPData.row_id2row_index, T[:,1], pca_range)
 		StrainID2PCAPosInfo.strain_id_ls = strain_id_ls
 		StrainID2PCAPosInfo.strain_id2pca_y = strain_id2pca_y
 		StrainID2PCAPosInfo.strain_id2pca_x = strain_id2pca_x
@@ -859,11 +872,13 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		StrainID2PCAPosInfo.y_var = explained_var[0]
 		StrainID2PCAPosInfo.PC_matrix = T	#2008-12-08
 		StrainID2PCAPosInfo.explained_var = explained_var	#2008-12-08
-		obj_id2img_pos, step = self.getObj2ImgPos(strain_id_ls, img_pos_range=[0., snp_id_label_y_offset])
+		obj_id2img_pos, step = cls.getObj2ImgPos(strain_id_ls, img_pos_range=[0., snp_id_label_y_offset])
 		StrainID2PCAPosInfo.strain_id2img_y_pos = obj_id2img_pos
 		StrainID2PCAPosInfo.step = step
 		sys.stderr.write("Done.\n")
 		return StrainID2PCAPosInfo
+	
+	getStrainID2PCAPosInfo = classmethod(getStrainID2PCAPosInfo)
 	
 	def getSNPID2PCAPosInfo(self, subSNPData, pca_range=[0,1], strain_id_label_x_offset=0.95, sortObjByPCA_value=True):
 		"""
