@@ -999,6 +999,8 @@ class GenomeWideResults(TableClass):
 
 class GenomeWideResult(object):
 	"""
+	2009-4-24
+		add data structure chr2min_max_pos to keep track of min,max chromosomal position all SNPs on that chromosome span
 	2008-10-30
 		no longer inherit from TableClass
 	2008-10-21
@@ -1019,6 +1021,7 @@ class GenomeWideResult(object):
 	
 	def __init__(self, construct_data_obj_id2index=True, construct_chr_pos2index=False, name=None, base_value = 0):
 		"""
+		2009-4-24
 		2008-10-30
 			no longer inherit from TableClass
 			add this __init__()
@@ -1027,6 +1030,7 @@ class GenomeWideResult(object):
 		self.construct_chr_pos2index = construct_chr_pos2index	#True if get_data_obj_by_chr_pos() is desired.
 		self.name = name
 		self.base_value = base_value
+		self.chr2min_max_pos = {}
 	
 	def get_data_obj_by_obj_id(self, obj_id):
 		return self.data_obj_ls[self.data_obj_id2index[obj_id]]
@@ -1047,6 +1051,7 @@ class GenomeWideResult(object):
 	
 	def add_one_data_obj(self, data_obj, chr_pos2index=None):
 		"""
+		2009-4-24 update self.chr2min_max_pos
 		2008-10-23
 			handle chr2no_of_snps
 		2008-10-21
@@ -1083,6 +1088,15 @@ class GenomeWideResult(object):
 		if data_obj.chromosome not in self.chr2no_of_snps:
 			self.chr2no_of_snps[data_obj.chromosome] = 0
 		self.chr2no_of_snps[data_obj.chromosome] += 1
+		
+		#2009-4-24 update self.chr2min_max_pos
+		if data_obj.chromosome not in self.chr2min_max_pos:
+			self.chr2min_max_pos[data_obj.chromosome] = [data_obj.position, data_obj.position]
+		else:	# change the minimum and maximum position if condition is met
+			if data_obj.position<self.chr2min_max_pos[data_obj.chromosome][0]:
+				self.chr2min_max_pos[data_obj.chromosome][0]=data_obj.position
+			if data_obj.position>self.chr2min_max_pos[data_obj.chromosome][1]:
+				self.chr2min_max_pos[data_obj.chromosome][1]=data_obj.position
 	
 	def get_data_obj_at_given_rank(self, rank):
 		"""
