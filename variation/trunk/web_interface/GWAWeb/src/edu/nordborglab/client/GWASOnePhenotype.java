@@ -40,6 +40,8 @@ public class GWASOnePhenotype implements EntryPoint {
 	public AccessionConstants constants;
 	private ArrayList<ArrayList<String>> phenotypeCategoryLs;
 	
+	private OnePhenotypePanel onePhenotypePanel;
+	
 	private TabPanel tPanel;
 	
 	
@@ -70,10 +72,14 @@ public class GWASOnePhenotype implements EntryPoint {
 		// Add it to the root panel.
 		RootPanel.get("gwt").add(tPanel);
 		
+		onePhenotypePanel = new OnePhenotypePanel(constants, jsonErrorDialog);
+		
+		/* 2009-5-2 not necessary, use OnePhenotypePanel
 		//move the onePhenotype division into tabPanel
 		RootPanel onePhenotypeDiv = RootPanel.get("onePhenotype");
 		RootPanel.detachNow(onePhenotypeDiv);	//2009-4-23 detach the element now in order to be attached in another place.
-		tPanel.add(onePhenotypeDiv, "Phenotype");
+		*/
+		tPanel.add(onePhenotypePanel, "Phenotype");
 		
 		tPanel.selectTab(0);
 		
