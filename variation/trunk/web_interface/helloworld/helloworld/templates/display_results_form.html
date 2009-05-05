@@ -34,11 +34,19 @@ ${h.end_form()}
 
 <div id="display_general" style="display:none"></div>
 
-<ul id="menu">
-  <li id="Phenotype"><a href="javascript:showone('display_static_plots')">Phenotype</a></li>
-  <li id="GWA"><a href="javascript:showone('display_gwa')">GWA</a></li>
-  <li id="Accession"><a href="javascript:showone('therest')">Accession</a> </li>
-</ul>
+<table border=0>
+	<tr>
+	<td>
+	<div name="menu"><a href="javascript:showone('display_static_plots')">Phenotype</a></div>
+	</td>
+	<td>
+    <div name="menu"><a href="javascript:showone('display_gwa')">GWA</a></div>
+	</td>
+	<td>
+    <div name="menu"><a href="javascript:showone('therest')">Accession</a> </div>
+	</td>
+	</tr>
+</table>
 
 <div name="display_static_plots" id='display_static_plots' >
 <ul id="menu_display_general">
@@ -114,7 +122,7 @@ function showone(theone) {
 	       if (name == theone) {
 	             newboxes[x].style.display = 'block';
 	       }
-	       else {
+	       else if (name!='menu'){
 	             newboxes[x].style.display = 'none';
 	       }
 	}

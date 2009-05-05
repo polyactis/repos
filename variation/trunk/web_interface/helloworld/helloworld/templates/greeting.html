@@ -5,6 +5,10 @@
 
 <p><b>${c.greeting}</b> ${c.name}!</p>
 
+<p>
+<a href=${h.url_for(controller='Accession', id=None)} target ="showframe">Accession</a>
+</p>
+
 
 <p>
 <a href=${h.url_for(controller='CallInfo', id=None)} target ="showframe">Check all call methods.</a>
@@ -23,6 +27,10 @@
 </p>
 
 <p>
+<a href=${h.url_for(controller='DisplayResults', id=None)} target ="showframe">GWAS for all Phenotypes</a>
+</p>
+
+<p>
 <a href=${h.url_for(controller='DisplayResults', action='form', id=None)} target ="showframe">Display Genome-Wide Association Results</a>
 </p>
 
@@ -32,4 +40,8 @@
 
 <p>
 <a href=${h.url_for(controller='DisplayResultsGene', action='form', id=None)} target ="showframe">Display Top SNP&Genes from Genome-Wide Association Results</a>
+</p>
+
+<p>
+<a href=https://dl324b-1.cmb.usc.edu/projects/hapmap/newticket target ="showframe">Feature Request/Bug Report</a>
 </p>

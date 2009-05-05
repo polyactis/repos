@@ -8,67 +8,37 @@
 ##<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/base/base.css">
 ##<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/reset-fonts-grids/reset-fonts-grids.css">
 
-<link rel="stylesheet" type="text/css"
-    href="${h.url_for('/style/style.css')}" />
+<%def name="head()">
+<link rel="stylesheet" type="text/css" href="${h.url_for('/style/style.css')}" />
+</%def>
 
 
 <%def name="loadScriptLibrary()">
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yuiloader/yuiloader-min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
 	<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAEN_qS1l219tT8Orrr7RzDhS6A-JmVGQQCrBrhdaVWRhXUi_sDxRXLaKngvWH7xoJORtEQJCujxglZg"></script>
 	<!--
 	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAEN_qS1l219tT8Orrr7RzDhQCBCvPop-R7bJnP7PY0srByCgosRQws_R88YrzkpUPFgf7qkOEdOwXAQ"
 	type="text/javascript"></script> ##2009-3-30 key for banyan.usc.edu, commented out cuz it's limited usage.-->
 	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAEN_qS1l219tT8Orrr7RzDhSBPiVsk8Yy1LA9skGTkSBokjxzgRTktPnvhUXISPiTyzVWO76uBRs1Aw"
 	type="text/javascript"></script>	<!-- 2009-3-30 map api key for usc.edu -->
-	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yuiloader/yuiloader-min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
-	
+
+</%def>
+
+<%def name="footer()">
+	<p>Data presented from database stock_250k in <a href=http://papaya.usc.edu/>Nordborg Lab</a>. Page generated at ${str(datetime.datetime.now())}. <a href=https://dl324b-1.cmb.usc.edu/projects/hapmap/newticket target="_blank">Feature Request/Bug Report</a>.</p>
 </%def>
 
 <html>
     <head>
+    		${self.head()}
         <title>${self.title()}</title>
         ${self.loadScriptLibrary()}
     </head>
     <body>
         ${self.body()}
-        <div id="map_canvas"></div>
-        <div class="footer">
-            <p>Data presented from database stock_250k in <a href=http://papaya.usc.edu/>Nordborg Lab</a>. Page generated at ${str(datetime.datetime.now())}. Questions/Suggestions to <a href=http://papaya.usc.edu/people>Yu Huang</a>.</p>
-        </div>
+			<div class="footer">
+				${self.footer()}
+			</div>
     </body>
 </html>
-
-<!--
-<%def name="gmap()">
-	<script type="text/javascript">
-		google.load('visualization', '1', {'packages': ['geomap']});
-		google.setOnLoadCallback(drawMap);
-		function drawMap() {
-		  var data = new google.visualization.DataTable();
-		  data.addRows(6);
-		  data.addColumn('string', 'Country');
-		  data.addColumn('number', 'Popularity');
-		  data.setValue(0, 0, 'Germany');
-		  data.setValue(0, 1, 200);
-		  data.setValue(1, 0, 'United States');
-		  data.setValue(1, 1, 300);
-		  data.setValue(2, 0, 'Brazil');
-		  data.setValue(2, 1, 400);
-		  data.setValue(3, 0, 'Canada');
-		  data.setValue(3, 1, 500);
-		  data.setValue(4, 0, 'France');
-		  data.setValue(4, 1, 600);
-		  data.setValue(5, 0, 'RU');
-		  data.setValue(5, 1, 700);
-		
-		  var options = {};
-		  options['dataMode'] = 'regions';
-		
-		  var container = document.getElementById('map_canvas');
-		  var geomap = new google.visualization.GeoMap(container);
-		  geomap.draw(data, options);
-		};
-	
-	</script>
-</%def>
--->
