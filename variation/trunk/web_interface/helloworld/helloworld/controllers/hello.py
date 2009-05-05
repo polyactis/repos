@@ -9,14 +9,27 @@ log = logging.getLogger(__name__)
 class HelloController(BaseController):
 
 	def index(self):
+		"""
+		2009-5-4
+			choose the homepage depending on the config['app_conf']['site_public'] flag
+		"""
 		# Return a rendered template
 		#   return render('/some/template.mako')
 		# or, Return a response
 		#return 'Hello World'
 		#response.headers['Content-Type'] = 'text/plain'
 		#return 'Hello from the index() action!'
+		site_public = config['app_conf']['site_public']
+		if site_public=='true' or site_public=='True':
+			return render('/public.html')
 		return render('/index.html')
-
+	
+	def public(self):
+		"""
+		2009-5-4
+			display the public page
+		"""
+		return render('/public.html')
 
 	def serverinfo(self):
 		import cgi
