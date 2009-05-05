@@ -183,6 +183,10 @@ class Cross(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class Ecotype(Entity):
+	"""
+	2009-3-30
+		add column haplo_groups.
+	"""
 	donor = ManyToOne("Person", colname='donorid', ondelete='CASCADE', onupdate='CASCADE')
 	collector = ManyToOne("Person", colname='collectorid', ondelete='CASCADE', onupdate='CASCADE')
 	site = ManyToOne("Site", colname='siteid', ondelete='CASCADE', onupdate='CASCADE')
@@ -205,9 +209,25 @@ class Ecotype(Entity):
 	bulkdate = Field(DateTime)
 	labderived = Field(Boolean)
 	incompleteplex = Field(Integer)
+	haplo_groups = ManyToMany("HaploGroup", tablename='haplo_group2ecotype', ondelete='CASCADE', onupdate='CASCADE')
+	geographic_integrity = ManyToOne("GeographicIntegrity", colname='geographic_integrity_id', ondelete='CASCADE', onupdate='CASCADE')
 	using_options(tablename='ecotype', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	
+
+class GeographicIntegrity(Entity):
+	"""
+	2009-3-31
+		a table storing different qualities of Geographic/GPS information associated with each ecotype
+	"""
+	short_name = Field(String(40), unique=True)
+	description = Field(String(8192))
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='geographic_integrity', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
 class Calls(Entity):
 	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
 	snp = ManyToOne("SNPs", colname='snpid', ondelete='CASCADE', onupdate='CASCADE')
@@ -301,6 +321,105 @@ class QCCrossMatch(Entity):
 	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	using_options(tablename='qc_cross_match')
 	using_table_options(mysql_engine='InnoDB')
+
+class HaploGroup(Entity):
+	"""
+	2009-3-30
+		table to store the haplotype groups generated from Alex
+	"""
+	short_name = Field(String(40), unique=True)
+	ref_ecotype = ManyToOne("Ecotype", colname='ref_ecotypeid', ondelete='CASCADE', onupdate='CASCADE')	#the ecotype with the best reference genotype.
+	latitude = Field(Float)
+	longitude = Field(Float)
+	max_snp_typing_error_rate = Field(Float)
+	comment = Field(String(8192))
+	ecotypes = ManyToMany("Ecotype", tablename='haplo_group2ecotype', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='haplo_group', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('short_name', 'ref_ecotypeid'))
+
+class FilteredCalls(Entity):
+	"""
+	2009-3-30
+		table to store calls filtered (bad calls) by alex 
+	"""
+	ecotype = ManyToOne("Ecotype", colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
+	snp = ManyToOne("SNPs", colname='snpid', ondelete='CASCADE', onupdate='CASCADE')
+	allele = Field(String(5))	#'call' is mysql reserved keyword
+	using_options(tablename='filtered_calls', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('snpid', 'ecotypeid'))
+
+class HaploGroupPCValues(Entity):
+	"""
+	2009-4-16
+		table to store principle component values after PCA is applied on sequences from all haplo groups
+	"""
+	haplo_group = ManyToOne('HaploGroup', colname='haplo_group_id', ondelete='CASCADE', onupdate='CASCADE')
+	which_pc = Field(Integer)
+	pc_value = Field(Float)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='haplo_group_pc_values', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('haplo_group_id', 'which_pc'))
+
+
+class HaploGroupEigenValues(Entity):
+	"""
+	2009-4-16
+		table to store eigen values after PCA is applied on sequences from all haplo groups
+	"""
+	which_eigen = Field(Integer)
+	eigen_value = Field(Float)
+	variance_perc = Field(Float)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='haplo_group_eigen_values', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('which_eigen'))
+
+class HaploGroupPairwiseGeneticDist(Entity):
+	"""
+	2009-4-16
+		genetic distance between each haplogroup pair
+	"""
+	haplo_group1 = ManyToOne('HaploGroup', colname='haplo_group_id1', ondelete='CASCADE', onupdate='CASCADE')
+	haplo_group2 = ManyToOne('HaploGroup', colname='haplo_group_id2', ondelete='CASCADE', onupdate='CASCADE')
+	mismatch_rate = Field(Float)
+	no_of_mismatches = Field(Integer)
+	no_of_non_NA_pairs = Field(Integer)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='haplo_group_pairwise_genetic_dist', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('haplo_group_id1', 'haplo_group_id2'))
+
+class EcotypePairwiseGeographicDist(Entity):
+	"""
+	2009-4-16
+		genetic distance between each haplogroup pair
+	"""
+	ecotype1 = ManyToOne("Ecotype", colname='ecotypeid1', ondelete='CASCADE', onupdate='CASCADE')
+	ecotype2 = ManyToOne("Ecotype", colname='ecotypeid2', ondelete='CASCADE', onupdate='CASCADE')
+	distance = Field(Float)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='ecotype_pairwise_geographic_dist', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('ecotypeid1', 'ecotypeid2'))
 
 class StockDB(ElixirDB):
 	__doc__ = __doc__
