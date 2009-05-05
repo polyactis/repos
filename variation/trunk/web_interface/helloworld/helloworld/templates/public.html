@@ -1,0 +1,19 @@
+<%inherit file="/base.html"/>\
+<%def name="title()">Greetings</%def>
+
+<h1>Greetings</h1>
+
+<p><b>${c.greeting}</b> ${c.name}!</p>
+
+<p>
+<a href=${h.url_for(controller='Accession', id=None)}>Accession</a>
+</p>
+
+<p>
+<a href=${h.url_for(controller='DisplayResults', id=None)} >GWAS for all Phenotypes</a>
+</p>
+
+
+<p>
+<a href=https://dl324b-1.cmb.usc.edu/projects/hapmap/newticket target ="showframe">Feature Request/Bug Report</a>
+</p>
