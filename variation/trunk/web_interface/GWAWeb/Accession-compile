@@ -4,5 +4,5 @@ HOMEDIR=~;
 /usr/lib/jvm/ia32-java-6-sun/bin/java  -Xmx256M -cp "$APPDIR/src:$APPDIR/bin:$HOMEDIR/script/gwt-linux-1.5.3/gwt-user.jar:$HOMEDIR/script/gwt-linux-1.5.3/gwt-dev-linux.jar:$HOMEDIR/script/gwt-visualization-1.0.0/gwt-visualization.jar:$HOMEDIR/script/gwt-maps-1.0.2/gwt-maps.jar:$HOMEDIR/script/gwt-linux-1.5.3/tuple.jar" com.google.gwt.dev.GWTCompiler -out "$APPDIR/www" "$@" edu.nordborglab.Accession;
 
 # 2009-4-15 link the directory into Accession/ because haploGroup is an action of controller Accession in pylons.
-cd $APPDIR/www/edu.nordborglab.Accession;
-ln -s ../edu.nordborglab.HaploGroup ./haploGroup;
+#cd $APPDIR/www/edu.nordborglab.Accession;
+#ln -s ../edu.nordborglab.HaploGroup ./haploGroup;

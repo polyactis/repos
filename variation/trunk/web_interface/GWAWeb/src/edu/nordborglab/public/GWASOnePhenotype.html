@@ -13,10 +13,9 @@
 
 
 <%def name="head()">
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" type="text/css" href="${h.url_for('/style/style.css')}" />
-	<script type="text/javascript" language="javascript" src="edu.nordborglab.GWASOnePhenotype.nocache.js"></script>
-	<!--  <script type="text/javascript" language="javascript" src="/Phenotype/edu.nordborglab.OnePhenotype.nocache.js"></script> -->
+	<script type="text/javascript" language="javascript" src="/GWASOnePhenotype/edu.nordborglab.GWASOnePhenotype.nocache.js"></script>
 </%def>
 
 <%def name="body()">
@@ -24,7 +23,6 @@
 		google.load("visualization", "1", {'packages' : ["table", "motionchart", "columnchart", "scatterchart"] });
 		var call_method_id = ${c.call_method_id};
 		var phenotype_method_id = ${c.phenotype_method_id};
-		//var analysis_method_ls = ${c.analysis_method_ls};
 		var getAnalysisMethodLsURL = "${c.getAnalysisMethodLsURL}";
 		var phenotypeSummaryURL = "${c.phenotypeSummaryURL}";
 
