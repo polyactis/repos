@@ -261,6 +261,8 @@ class GeneListRankTest(object):
 	
 	def getGeneID2MostSignificantHit(self, rm, snps_context_wrapper, results_directory=None, min_MAF=0.1):
 		"""
+		2009-5-4
+			specify the comment as 'touch' or 'away'
 		2008-09-16
 			if genome_wide_result is None, return None
 		2008-08-13
@@ -285,7 +287,11 @@ class GeneListRankTest(object):
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
 			for snps_context in snps_context_matrix:
 				snps_id, disp_pos, gene_id = snps_context
-				passingdata = PassingData(chr=data_obj.chromosome, pos=data_obj.position, score=score, disp_pos=disp_pos, snps_id=snps_id, comment=None)
+				if snps_context_wrapper.snps_id2left_or_right2gene_id_ls[snps_id].has_key('touch') and gene_id in snps_context_wrapper.snps_id2left_or_right2gene_id_ls[snps_id]['touch']:
+					comment = 'touch'
+				else:
+					comment = 'away'
+				passingdata = PassingData(chr=data_obj.chromosome, pos=data_obj.position, score=score, disp_pos=disp_pos, snps_id=snps_id, comment=comment)
 				if gene_id not in gene_id2hit:
 					gene_id2hit[gene_id] = passingdata
 				elif score>gene_id2hit[gene_id].score:	#score is -log()
