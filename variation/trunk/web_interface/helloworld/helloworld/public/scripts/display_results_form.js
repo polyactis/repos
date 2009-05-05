@@ -31,7 +31,7 @@ function generate_handler(chr){
 			var start_pos = position-50000;
 			var stop_pos = position+50000;
 			var track_id = displayResultsSpace.field_value_ls.join("_");
-			window.open(displayResultsSpace.GBrowseURLJS.format(start_pos, stop_pos, this.chr)+track_id+"-"+track_id+"_SNP");
+			//window.open(displayResultsSpace.GBrowseURLJS.format(start_pos, stop_pos, this.chr)+track_id+"-"+track_id+"_SNP");
 			window.open("/SNP/?chromosome="+this.chr+"&position="+position+"&call_method_id="+YAHOO.util.Dom.get("call_method_id").value+"&phenotype_method_id="+YAHOO.util.Dom.get("phenotype_method_id").value+"&analysis_method_id="+YAHOO.util.Dom.get("analysis_method_id").value+"&score="+score);
 			//chr2chart[this.chr].setSelection([{row:null, column:null}]);
 		}
@@ -42,9 +42,12 @@ function generate_handler(chr){
 //	used later to addListener()
 var no_of_chrs = 5;
 chr2handler = {};
+colors = ["blue", "green", "red", "cyan", "purple"];
+chr2color = {};
 for (var i=0; i<no_of_chrs; i++) {
 	var chr = i+1;
 	chr2handler[chr] = generate_handler(chr);
+	chr2color[chr] = colors[i];
 	}
 
 //2009-1-29 establish the click event handler to each chromosome region. The selectHandler for google visualization can't distinguish which visualization gets clicked.  	
@@ -57,6 +60,10 @@ function drawGWChart(o)
 	chr2data = {};
 	var no_of_chrs = 5;
 	var server_data = YAHOO.lang.JSON.parse(o.responseText);
+	var server_chr2data = server_data["chr2data"];
+	var max_value = server_data["max_value"];
+	var chr2length = server_data["chr2length"];
+	var max_length = server_data["max_length"];
 	//var server_data = o.responseText;
 	var titleY = '-log Pvalue';
 	for (var i=0; i<no_of_chrs; i++) {
@@ -66,14 +73,13 @@ function drawGWChart(o)
 		//{
 		removeChildNodes(chr2div[chr]);
 		chr2chart[chr] = new google.visualization.ScatterChart(chr2div[chr]);
-		chr2data[chr] = new google.visualization.DataTable( eval("("+server_data[chr]+")"), 0.5);
-		
-		chr2chart[chr].draw(chr2data[chr], {width: 1000, height: 200, titleX: 'Chr'+chr, titleY: titleY, legend: 'none', pointSize: 3});
+		chr2data[chr] = new google.visualization.DataTable( eval("("+server_chr2data[chr]+")"), 0.5);
+		//width = 1000*chr2length[chr]/max_length
+		width = 1000
+		chr2chart[chr].draw(chr2data[chr], {width: width, height: 200, titleX: 'Chr'+chr, titleY: titleY, 
+			legend: 'none', pointSize: 3, colors:[chr2color[chr],], max: max_value});
 		chr2div[chr].style.display = 'block';
 		google.visualization.events.addListener(chr2chart[chr], 'select', chr2handler[chr]);	//2009-1-29 use the clickHandler to each chr division
-		//chr2data[chr] = new google.visualization.DataTable();
-		//chr2data[chr].addColumn('number', 'Position');
-		//chr2data[chr].addColumn('number', '-log Pvalue');
 	}
 	//<!--
 	//var server_data = YAHOO.lang.JSON.parse(o.responseText);
@@ -146,6 +152,7 @@ function showCallInfoData(o)
 	var strain_motion_chart = new google.visualization.MotionChart(strain_motion_chart_div);
 	var options = {};
 	options['state'] = '{"time":"notime","iconType":"BUBBLE","xZoomedDataMin":null,"yZoomedDataMax":null,"xZoomedIn":false,"iconKeySettings":[],"showTrails":true,"xAxisOption":"2","colorOption":"4","yAxisOption":"3","playDuration":15,"xZoomedDataMax":null,"orderedByX":false,"duration":{"multiplier":1,"timeUnit":"none"},"xLambda":1,"orderedByY":false,"sizeOption":"_UNISIZE","yZoomedDataMin":null,"nonSelectedAlpha":0.4,"stateVersion":3,"dimensions":{"iconDimensions":["dim0"]},"yLambda":1,"yZoomedIn":false};';
+	//options['state'] = "{'colorOption':4,'sizeOption':'_UNISIZE'};";
 	options['width'] = 1000;
 	options['height'] = 700;
 	strain_motion_chart.draw(motionView, options);
