@@ -7,6 +7,7 @@ log = logging.getLogger(__name__)
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import helloworld.model as model
 from variation.src.DrawSNPRegion import DrawSNPRegion
+from HelpOtherControllers import HelpothercontrollersController as hc
 
 class SnpregionplotController(BaseController):
 
@@ -59,7 +60,7 @@ class SnpregionplotController(BaseController):
 			id = request.params.get('id', 1)
 		extra_condition = 's.plot_type_id=%s'%id
 		
-		c.phenotype_info  = h.getPhenotypeInfo(SNPRegionPlot.table.name, extra_condition)
+		c.phenotype_info  = hc.getPhenotypeInfo(SNPRegionPlot.table.name, extra_condition)
 		c.snp_info = self.getSNPInfo(plot_type_id=id)
 		
 		data_matrix = numpy.zeros([len(c.snp_info.snp_ls), len(c.phenotype_info.phenotype_method_id_ls)], numpy.int)
@@ -93,7 +94,7 @@ class SnpregionplotController(BaseController):
 		gene_desc_names = ['gene_id', 'gene_symbol', 'type_of_gene', 'chr', 'start', 'stop', 'protein_label', 'protein_comment', 'protein_text']
 		for row in rows:
 			gene_id2index[row.gene_id] = len(gene_ls)
-			matrix_of_gene_descriptions = h.returnGeneDescLs(model.gene_annotation, gene_id_ls=[row.gene_id])
+			matrix_of_gene_descriptions = hc.returnGeneDescLs(model.gene_annotation, gene_id_ls=[row.gene_id])
 			if len(matrix_of_gene_descriptions)>0:
 				gene_desc_ls = matrix_of_gene_descriptions[0]
 				gene = PassingData(gene_id=row.gene_id, gene_symbol=gene_desc_ls[1], type_of_gene=gene_desc_ls[2], chr=gene_desc_ls[3],\
@@ -121,7 +122,7 @@ class SnpregionplotController(BaseController):
 			id = request.params.get('id', 1)
 		extra_condition = 's.plot_type_id=%s'%id
 		
-		c.phenotype_info  = h.getPhenotypeInfo(SNPRegionPlot.table.name, extra_condition)
+		c.phenotype_info  = hc.getPhenotypeInfo(SNPRegionPlot.table.name, extra_condition)
 		c.gene_info = self.getGeneInfo(plot_type_id=id)
 		
 		data_matrix = numpy.zeros([len(c.gene_info.gene_ls), len(c.phenotype_info.phenotype_method_id_ls)], numpy.int)
@@ -212,18 +213,13 @@ class SnpregionplotController(BaseController):
 		if c.snp_region_plot is None and len(c.snp_region_plot_ls)>0:
 			c.snp_region_plot = c.snp_region_plot_ls[0]
 		
-		"""
-		if 'gene_annotation' not in session:
-			session['gene_annotation'] = h.dealWithGeneAnnotation()
-			session.save()
-		"""
 		#plot_file_path = os.path.join(config['app_conf']['plots_store'], 'snp_region_plot_%s.png'%c.snp_region_plot.id)
 		#if not os.path.isfile(plot_file_path):
 		#	self.savePlot(c.snp_region_plot, plot_file_path)
 		
 		gene_annotation = model.gene_annotation
 		gene_id_ls = [plot2gene.gene_id for plot2gene in c.snp_region_plot.plot2gene_ls]
-		c.matrix_of_gene_descriptions = h.returnGeneDescLs(gene_annotation, gene_id_ls)
+		c.matrix_of_gene_descriptions = hc.returnGeneDescLs(gene_annotation, gene_id_ls)
 		#print abc
 		#raise Exception('Just testing the interactive debugger!')
 		#c.matrix_of_gene_descriptions = []

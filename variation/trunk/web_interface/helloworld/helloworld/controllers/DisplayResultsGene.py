@@ -5,12 +5,13 @@ from helloworld.lib.base import *
 log = logging.getLogger(__name__)
 
 from formencode import htmlfill
-
+import simplejson
 from DisplayTopSNPTestRM import DisplaytopsnptestrmController
 SnpsContext = model.Stock_250kDB.SnpsContext
 SNPAnnotation = model.Stock_250kDB.SNPAnnotation
 ScoreRankHistogramType = model.Stock_250kDB.ScoreRankHistogramType
 ResultsMethod = model.Stock_250kDB.ResultsMethod
+from HelpOtherControllers import HelpothercontrollersController as hc
 
 class DisplayresultsgeneController(BaseController):
 	"""
@@ -164,7 +165,7 @@ class DisplayresultsgeneController(BaseController):
 		extra_tables = ' %s c, %s y'%(extra_table_name, "results_gene2type")
 		extra_condition = 'c.results_id=s.id and s.call_method_id=%s and y.score_rank_histogram_type_id=%s and y.results_gene_id=c.id'%\
 				(call_method_id, type_id)
-		phenotype_info  = h.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
+		phenotype_info  = hc.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
 											extra_tables=extra_tables)
 		phenotype_method_ls = []
 		for i in range(len(phenotype_info.phenotype_method_id_ls)):
@@ -208,7 +209,7 @@ class DisplayresultsgeneController(BaseController):
 		extra_tables = ' %s c, %s y '%(extra_table_name, "results_gene2type")
 		extra_condition = 'c.results_id=s.id and s.call_method_id=%s and s.phenotype_method_id=%s and y.score_rank_histogram_type_id=%s and y.results_gene_id=c.id'%\
 			(call_method_id, phenotype_method_id, type_id)
-		list_info = h.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
+		list_info = hc.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
 		
 		analysis_method_ls = []
 		
@@ -247,7 +248,7 @@ class DisplayresultsgeneController(BaseController):
 		#extra_tables = ' %s c '%model.Stock_250kDB.ResultsMethod.table.name
 		#extra_condition = 's.results_id=c.id and s.type_id=%s and c.call_method_id=%s and c.phenotype_method_id=%s and c.analysis_method_id=%s'%\
 		#	(type_id, call_method_id, phenotype_method_id, analysis_method_id)
-		list_info = h.getListTypeInfo(affiliated_table_name=None, extra_condition=None, extra_tables=None)
+		list_info = hc.getListTypeInfo(affiliated_table_name=None, extra_condition=None, extra_tables=None)
 		
 		ls = [[0, u'No candidate gene list. (All SNPs)']]
 		for i in range(len(list_info.list_type_id_ls)):
@@ -256,29 +257,33 @@ class DisplayresultsgeneController(BaseController):
 			ls.append([id, label])
 		return ls
 	
-	@jsonify
-	def getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethodJson(self):
+	#@jsonify
+	@classmethod
+	def getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethodJson(cls):
 		"""
 		2009-3-4
 			called in the javascript-capable form
 		"""
 		type_id = request.params.get('type_id')
-		type = ScoreRankHistogramType.get(type_id)
-		call_method_id = type.call_method_id
 		phenotype_method_id = request.params.get('phenotype_method_id')
 		analysis_method_id = request.params.get('analysis_method_id')
-		rm = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
-			filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
-		results_id = rm.id
+		if type_id and phenotype_method_id and analysis_method_id:
+			type = ScoreRankHistogramType.get(type_id)
+			call_method_id = type.call_method_id
+			rm = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
+				filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
+			results_id = rm.id
+		else:
+			results_id = -1
 		result = {
 				'results_id': results_id,
 				'options': [
-						dict(id=value, value=id) for id, value in self.getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod()
+						dict(id=value, value=id) for id, value in cls.getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod()
 						]
 				}
 		#result['options'].insert(0, {'id': u'No candidate gene list. (All SNPs)', 'value': 0})
 		result['options'].insert(0, {'id': u'Please Choose ...', 'value': -1})
-		return result
+		return simplejson.dumps(result)
 	
 	def snp_gene_association_id_desc_ls(self):
 		"""

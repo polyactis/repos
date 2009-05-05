@@ -7,6 +7,8 @@ import StringIO
 from pymodule import PassingData, getListOutOfStr
 from formencode import htmlfill
 from pylons.decorators import jsonify	#2008-12-30
+from HelpOtherControllers import HelpothercontrollersController as hc
+
 
 class DisplaytopsnptestrmController(BaseController):
 	"""
@@ -59,7 +61,7 @@ class DisplaytopsnptestrmController(BaseController):
 			extra_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
 		extra_tables = ' %s c '%extra_table_name
 		extra_condition = 'c.results_id=s.id and c.type_id=%s'%type_id
-		list_info  = h.getCallMethodInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
+		list_info  = hc.getCallMethodInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
 											extra_tables=extra_tables)
 		call_method_ls = []
 		for i in range(len(list_info.id_ls)):
@@ -97,7 +99,7 @@ class DisplaytopsnptestrmController(BaseController):
 			extra_table_name = model.Stock_250kDB.CandidateGeneTopSNPTestRM.table.name
 		extra_tables = ' %s c '%extra_table_name
 		extra_condition = 'c.results_id=s.id and c.type_id=%s and s.call_method_id=%s'%(type_id, call_method_id)
-		phenotype_info  = h.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
+		phenotype_info  = hc.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition,
 											extra_tables=extra_tables)
 		phenotype_method_ls = []
 		for i in range(len(phenotype_info.phenotype_method_id_ls)):
@@ -138,7 +140,7 @@ class DisplaytopsnptestrmController(BaseController):
 		extra_tables = ' %s c '%extra_table_name
 		extra_condition = 'c.results_id=s.id and c.type_id=%s and s.call_method_id=%s and s.phenotype_method_id=%s'%\
 			(type_id, call_method_id, phenotype_method_id)
-		list_info = h.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
+		list_info = hc.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
 		
 		analysis_method_ls = []
 		
@@ -179,7 +181,7 @@ class DisplaytopsnptestrmController(BaseController):
 		extra_tables = ' %s c '%model.Stock_250kDB.ResultsMethod.table.name
 		extra_condition = 's.results_id=c.id and s.type_id=%s and c.call_method_id=%s and c.phenotype_method_id=%s and c.analysis_method_id=%s'%\
 			(type_id, call_method_id, phenotype_method_id, analysis_method_id)
-		list_info = h.getListTypeInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
+		list_info = hc.getListTypeInfo(affiliated_table_name, extra_condition=extra_condition, extra_tables=extra_tables)
 		
 		ls = []
 		
@@ -257,11 +259,11 @@ class DisplaytopsnptestrmController(BaseController):
 		#extra_tables = ' %s c '%(CandidateGeneTopSNPTestRM.table.name)
 		extra_condition = 'p.id in (%s)'%(','.join(phenotype_id_ls))
 		
-		c.phenotype_info  = h.getPhenotypeInfo(extra_condition=extra_condition, extra_tables=None)
+		c.phenotype_info  = hc.getPhenotypeInfo(extra_condition=extra_condition, extra_tables=None)
 		#extra_condition = 's.type_id =%s'%id
 		extra_condition = 'p.id in (%s)'%(','.join(list_type_id_ls))
 		
-		c.list_info = h.getListTypeInfo(extra_condition=extra_condition)
+		c.list_info = hc.getListTypeInfo(extra_condition=extra_condition)
 		
 		data_matrix = []
 		no_of_rows = len(c.list_info.list_type_id_ls)

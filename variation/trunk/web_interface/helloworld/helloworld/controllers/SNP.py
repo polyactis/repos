@@ -11,6 +11,9 @@ log = logging.getLogger(__name__)
 import gviz_api	#2009-2-1 google visualization python api to export data into json-related formats
 import numpy, datetime
 from variation.src.common import getEcotypeInfo
+from pymodule import number2nt
+from HelpOtherControllers import HelpothercontrollersController as hc
+
 
 SnpsContext = model.Stock_250kDB.SnpsContext
 SNPAnnotation = model.Stock_250kDB.SNPAnnotation
@@ -38,7 +41,17 @@ class SnpController(BaseController):
 		#   return render('/template.mako')
 		# or, Return a response
 		self.readInRequestParams(request, c)
-		return render('/snp.html')
+		
+		start_pos = c.position-40000
+		stop_pos = c.position+40000
+		track_id = '%s_%s_%s'%(c.call_method_id, c.phenotype_method_id, c.analysis_method_id)
+		c.gbrowseLink = h.GBrowseURL%(start_pos, stop_pos, c.chromosome)+track_id+"-"+track_id+"_SNP"
+		
+		phenotype_method = model.Stock_250kDB.PhenotypeMethod.get(c.phenotype_method_id)
+		c.pageTitle = "SNP chromosome %s position %s Phenotype %s %s"%\
+			(c.chromosome, c.position, c.phenotype_method_id, phenotype_method.short_name)
+		#return render('/snp.html')
+		return render('/SNP.html')
 	
 	def readInRequestParams(self, request, param_obj):
 		"""
@@ -98,7 +111,7 @@ class SnpController(BaseController):
 				snp_annotation_text += ':gene %s'%snp_annotation.gene_id
 				gene = Gene.get(snp_annotation.gene_id)
 				#gene_touched = '%s %s'%(gene.gene_id, gene.gene_symbol)
-				gene_touched = '<a href='+h.NCBIGeneDBURL%gene.gene_id+'>%s %s</a>'%\
+				gene_touched = '<a href='+h.NCBIGeneDBURL%gene.gene_id+'  target="_blank">%s %s</a>'%\
 					(gene.gene_id, gene.gene_symbol)
 			if snp_annotation.comment:
 				snp_annotation_text += ':%s'%snp_annotation.comment
@@ -144,10 +157,10 @@ class SnpController(BaseController):
 							('genotype_var_perc', ('number', 'variance explained'))]
 		
 		description = dict(column_name_type_ls)
-				
+		
 		snp = Snps.query.filter_by(chromosome=c.chromosome).filter_by(position=c.position).filter(Snps.end_position==None).first()
 		
-		rows = Results.query.filter_by(snps_id=snp.id).all()
+		rows = Results.query.filter_by(snps_id=snp.id).filter(Results.result.has(call_method_id=c.call_method_id)).all()
 		return_ls =[]
 		start_pos = c.position-40000
 		stop_pos = c.position+40000
@@ -157,7 +170,11 @@ class SnpController(BaseController):
 			
 			analysis = '%s %s'%(analysis_method.id, analysis_method.short_name)
 			track_id = '%s_%s_%s'%(row.result.call_method.id, phenotype_method.id, analysis_method.id)
-			gbrowseLink = "<a href=%s>%s</a>"%(h.GBrowseURL%(start_pos, stop_pos, c.chromosome)+track_id+"-"+track_id+"_SNP", row.result.id)
+			SNPURL = h.url_for(controller='SNP', action=None, phenotype_method_id=phenotype_method.id, \
+									call_method_id=row.result.call_method.id, analysis_method_id=analysis_method.id,\
+									chromosome=c.chromosome, position=c.position, score=row.score)
+			#h.GBrowseURL%(start_pos, stop_pos, c.chromosome)+track_id+"-"+track_id+"_SNP"
+			gbrowseLink = "<a href=%s target='_blank'>%s</a>"%(SNPURL, row.result.id)
 			
 			return_ls.append(dict(results_id=row.results_id, phenotype_method_id=phenotype_method.id, \
 								phenotype_short_name=phenotype_method.short_name,\
@@ -193,16 +210,14 @@ class SnpController(BaseController):
 			pheno_data = OutputPhenotype.getPhenotypeData(model.db.metadata.bind, phenotype_avg_table=model.Stock_250kDB.PhenotypeAvg.table.name,\
 														phenotype_method_table=model.Stock_250kDB.PhenotypeMethod.table.name)
 			model.pheno_data = pheno_data
-		if c.call_method_id not in h.call_method_id2dataset:
-			h.call_method_id2dataset[c.call_method_id] = h.getSNPDataGivenCallMethodID(c.call_method_id)
 		
-		snpData = h.call_method_id2dataset[c.call_method_id]
+		snpData = hc.getSNPDataGivenCallMethodID(c.call_method_id)
 		
 		column_name_type_ls = [("label", ("string","ID Name Phenotype")), ("date", ("date", "Date")), \
 							("lon",("number", "Longitude")), ("lat",("number", "Latitude")), \
 							("ecotypeid", ("number", "Ecotype ID")), ("name", ("string", "Native Name")), \
 							("phenotype", ("number", "Phenotype")), \
-							("allele", ("number", "Allele")), ("country", ("string", "Country")),\
+							("allele", ("string", "Allele")), ("country", ("string", "Country")),\
 							("pc1", ("number","PC1")), ("pc2", ("number", "PC2")), ("pc3", ("number","PC3")), \
 							("pc4", ("number", "PC4")), ("pc5", ("number","PC5")), ("pc6", ("number", "PC6"))]
 		
@@ -220,9 +235,9 @@ class SnpController(BaseController):
 			if pheno_row_index is not None and pheno_col_index is not None:
 				phenotype_value = pheno_data.data_matrix[pheno_row_index][pheno_col_index]
 				if phenotype_value == 'NA':
-					phenotype_value = -0.01
+					phenotype_value = None
 			else:
-				phenotype_value = -0.01	#numpy.nan can't be recognized by ToJSon()
+				phenotype_value = None	#numpy.nan can't be recognized by ToJSon()
 			label = '%s ID:%s Phenotype:%s.'%(row.nativename, row.ecotype_id, phenotype_value)
 			
 			snpdata_row_index = snpData.row_id2row_index.get(str(row.ecotype_id))
@@ -231,6 +246,7 @@ class SnpController(BaseController):
 				allele = -2
 			else:
 				allele = snpData.data_matrix[snpdata_row_index][snpdata_col_index]
+			allele = number2nt[allele]
 			
 			return_ls.append(dict(date=datetime.date(2009,2,3), ecotypeid=row.ecotype_id, label=label, name=row.nativename, \
 								lat=row.latitude, lon=row.longitude,\

@@ -6,7 +6,7 @@ from pymodule import PassingData
 
 log = logging.getLogger(__name__)
 import helloworld.model as model
-
+from HelpOtherControllers import HelpothercontrollersController as hc
 
 class ScorerankhistogramController(BaseController):
 
@@ -36,8 +36,8 @@ class ScorerankhistogramController(BaseController):
 		
 		extra_condition = 's.hist_type_id=%s'%hist_type_id
 		
-		c.phenotype_info  = h.getPhenotypeInfo(ScoreRankHistogram.table.name, extra_condition)
-		c.list_info = h.getListTypeInfo(ScoreRankHistogram.table.name, extra_condition)
+		c.phenotype_info  = hc.getPhenotypeInfo(ScoreRankHistogram.table.name, extra_condition)
+		c.list_info = hc.getListTypeInfo(ScoreRankHistogram.table.name, extra_condition)
 		
 		c.hist_type = ScoreRankHistogramType.get(hist_type_id)
 		rows = query.filter_by(hist_type_id=hist_type_id).all()

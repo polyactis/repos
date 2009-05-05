@@ -152,8 +152,9 @@ class AccessionController(BaseController):
 						column_value = 'no'
 				elif column_name=='haplo_group_id':
 					column_value = getattr(row, column_name, default_value)
+					#haplo_group_name = model.Stock.HaploGroup.get(column_value).short_name
 					if column_value:
-						column_value = '<a href=%s>%s</a>'%(h.url_for(controller="Accession", action='haploGroup', id=column_value), column_value)
+						column_value = "<a href=%s target='_blank'>%s</a>"%(h.url_for(controller="Accession", action='haploGroup', id=column_value), column_value)
 				else:
 					column_value = getattr(row, column_name, default_value)
 				entry[column_name] = column_value

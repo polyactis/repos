@@ -3,17 +3,21 @@ import logging
 from pylons import request, response, session, tmpl_context as c
 from pylons.controllers.util import abort, redirect_to
 
-from helloworld.lib.base import BaseController, render
+from helloworld.lib.base import BaseController, render, config, h, model
 #from helloworld import model
 
 log = logging.getLogger(__name__)
 
 from pymodule import PassingData
+from variation.src.GeneListRankTest import GeneListRankTest
 from formencode import htmlfill
 from pylons.decorators import jsonify	#2008-12-30
-from helloworld.lib.base import *
+#from helloworld.lib.base import *
 import gviz_api	#2009-2-1 google visualization python api to export data into json-related formats
 import numpy, datetime
+import simplejson, sys
+
+from HelpOtherControllers import HelpothercontrollersController as hc
 
 class DisplayresultsController(BaseController):
 
@@ -21,7 +25,131 @@ class DisplayresultsController(BaseController):
 		# Return a rendered template
 		#   return render('/template.mako')
 		# or, Return a response
-		return 'Hello World'
+		c.call_method_id = config['app_conf']['published_call_method_id']
+		c.getPhenotypeCategoryLsURL = h.url_for(controller="DisplayResults", action="getPhenotypeCategoryLs")
+		c.getPhenotypeTableDataURL = h.url_for(controller="DisplayResults", action="getPhenotypeTableData")
+		c.getGWAURL = h.url_for(controller="DisplayResults", action="showGWA")
+		
+		c.displayResultsGeneURL = h.url_for(controller="DisplayResultsGene", action='showTopCandidateGenesFromOneResultOneGeneList', \
+										id=None, call_method_id=c.call_method_id, type_id=config['app_conf']['snp_gene_association_type_id'], \
+										list_type_id=0, max_rank=100)
+		
+		return render("GWASPhenotypes.html")
+	
+	@jsonify
+	def getPhenotypeCategoryLs(self):
+		"""
+		2009-4-21
+			get categories overarching all phenotypes
+		"""
+		phenotypeCategoryLs = []
+		existNullCategoryID = False
+		call_method_id = request.params.get('call_method_id', int(config['app_conf']['published_call_method_id']))
+		rows = model.db.metadata.bind.execute("select distinct p.biology_category_id from %s p, %s r where r.call_method_id=%s and r.phenotype_method_id=p.id order by biology_category_id"%\
+											(model.Stock_250kDB.PhenotypeMethod.table.name, model.Stock_250kDB.ResultsMethod.table.name, call_method_id))
+		for row in rows:
+			if row.biology_category_id is not None:
+				biologyCategory = model.Stock_250kDB.BiologyCategory.get(row.biology_category_id)
+				phenotypeCategoryLs.append([str(biologyCategory.id), biologyCategory.short_name])
+			else:
+				existNullCategoryID = True
+		if existNullCategoryID:
+			phenotypeCategoryLs.append(["0", 'Others'])
+		return  phenotypeCategoryLs
+	
+	def getPhenotypeTableData(self):
+		"""
+		2009-4-21
+			return a google data table containing information of all phenotypes belonging to a category 
+		"""
+		call_method_id = request.params.get('call_method_id', int(config['app_conf']['published_call_method_id']))
+		biology_category_id = request.params.get('biology_category_id', 1)
+		if biology_category_id==0 or biology_category_id=='0':
+			biology_category_id=None
+		#construct the full data and turn it into json
+		column_name_type_ls = [("id", ("number", "Phenotype ID")), ("short_name", ("string", "Phenotype Name")), \
+							("association_results", ("string","Association Results")), \
+							("method_description", ("string","Description")), \
+							("data_type", ("string","Data Type")), \
+							("transformation_description", ("string","Transformation"))]
+		rows = model.Stock_250kDB.PhenotypeMethod.query.filter(model.Stock_250kDB.PhenotypeMethod.biology_category_id==biology_category_id)
+		
+		return_ls = []
+		for row in rows:
+			entry = dict()
+			for column_name_type in column_name_type_ls:
+				column_name = column_name_type[0]
+				column_type = column_name_type[1][0]
+				
+				if column_type=='string':
+					default_value = ''
+				elif column_type =='number':
+					default_value = -1
+				elif column_type=='date':
+					default_value = datetime.date(2050, 1, 1)
+				else:
+					default_value = None
+				
+				if column_name == 'association_results':
+					results = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).filter_by(phenotype_method_id=row.id)
+					analysis_method_short_name_ls = []
+					for result in results:
+						analysis_method_short_name_ls.append(result.analysis_method.short_name)
+					if analysis_method_short_name_ls:
+						column_value = ','.join(analysis_method_short_name_ls)
+					else:
+						column_value = ""
+				else:
+					column_value = getattr(row, column_name, default_value)
+					if column_value is None:
+						column_value = default_value
+				entry[column_name] = column_value
+			return_ls.append(entry)
+		
+		description = dict(column_name_type_ls)
+		data_table = gviz_api.DataTable(description)
+		data_table.LoadData(return_ls)
+		column_ls = [row[0] for row in column_name_type_ls]
+		json_result = data_table.ToJSon(columns_order=column_ls)	#ToJSonResponse only works with google.visualization.Query
+		response.headers['Content-Type'] = 'application/json'
+		return json_result
+	
+	def showGWA(self):
+		"""
+		2009-4-23
+		"""
+		
+		c.phenotype_method_id = int(request.params.get('phenotype_method_id', 1))
+		c.call_method_id = int(request.params.get('call_method_id', config['app_conf']['published_call_method_id']))
+		c.phenotypeSummaryURL = h.url_for(controller="Phenotype", action=None, phenotype_method_id=c.phenotype_method_id, call_method_id=c.call_method_id)
+		c.GWABaseURL = h.url_for(controller='DisplayResults', action='fetchOne', phenotype_method_id=c.phenotype_method_id, call_method_id=c.call_method_id)
+		c.SNPBaseURL = h.url_for(controller='SNP', action=None, phenotype_method_id=c.phenotype_method_id, call_method_id=c.call_method_id)
+		c.getAnalysisMethodLsURL = h.url_for(controller='DisplayResults', action='getAnalysisMethodLsJson', phenotype_method_id=c.phenotype_method_id, call_method_id=c.call_method_id)
+		"""
+		# 2009-4-25 no way to pass this 2D (int, string) array to the template! 
+		analysis_method_ls = self.getAnalysisMethodLs(c.call_method_id, c.phenotype_method_id)
+		c.analysis_method_ls = []
+		str_func = lambda x: '%s'%x
+		for analysis_method_entry in analysis_method_ls:
+			analysis_method_entry = map(str_func, analysis_method_entry)
+			c.analysis_method_ls.append('[' + ','.join(analysis_method_entry) + ']')
+			#c.analysis_method_ls.append(analysis_method_entry)
+		#c.analysis_method_ls = simplejson.dumps(c.analysis_method_ls)
+		c.analysis_method_ls = '[' + ','.join(c.analysis_method_ls) + ']'
+		"""
+		pm = model.Stock_250kDB.PhenotypeMethod.get(c.phenotype_method_id)
+		c.phenotype_method_short_name = pm.short_name
+		c.phenotype_method_description = pm.method_description
+		
+		c.callInfoURL = h.url_for(controller='DisplayResults', action='fetchCallInfoData', id=None,\
+							phenotype_method_id=c.phenotype_method_id, call_method_id=c.call_method_id)
+		c.phenotypeHistImageURL = h.url_for(controller='DisplayResults', action='getPhenotypeHistImage', id=None, \
+										phenotype_method_id=c.phenotype_method_id, call_method_id=c.call_method_id)
+		c.callPhenotypeQQImageURL = h.url_for(controller='DisplayResults', action='getCallPhenotypeQQImage', id=None,\
+											phenotype_method_id=c.phenotype_method_id, call_method_id=c.call_method_id)
+		c.phenotypeHistogramDataURL = h.url_for(controller='Phenotype', action='getPhenotypeHistogramData', id=c.phenotype_method_id)
+		
+		return render('/GWASOnePhenotype.html')
 	
 	@staticmethod
 	def getCallMethodLs():
@@ -29,13 +157,25 @@ class DisplayresultsController(BaseController):
 		2009-1-30
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
-		list_info  = h.getCallMethodInfo(affiliated_table_name=affiliated_table_name)
+		list_info  = hc.getCallMethodInfo(affiliated_table_name=affiliated_table_name)
 		call_method_ls = []
 		for i in range(len(list_info.id_ls)):
 			id = list_info.id_ls[i]
 			label = list_info.label_ls[i]
 			call_method_ls.append([id, label])
 		return call_method_ls
+	
+	#@jsonify
+	def getCallMethodLsJson(cls):
+		result = {
+				'options': [
+						dict(id=value, value=id) for id, value in cls.getCallMethodLs()
+						]
+				}
+		#result['options'].append({'id': u'[At the end]', 'value': u''})
+		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0})
+		return simplejson.dumps(result)
+	getCallMethodLsJson = classmethod(getCallMethodLsJson)
 	
 	@staticmethod
 	def getPhenotypeMethodLs(call_method_id):
@@ -44,7 +184,7 @@ class DisplayresultsController(BaseController):
 		"""
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
 		extra_condition = 's.call_method_id=%s'%(call_method_id)
-		phenotype_info  = h.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition)
+		phenotype_info  = hc.getPhenotypeInfo(affiliated_table_name=affiliated_table_name, extra_condition=extra_condition)
 		phenotype_method_ls = []
 		for i in range(len(phenotype_info.phenotype_method_id_ls)):
 			phenotype_method_id = phenotype_info.phenotype_method_id_ls[i]
@@ -71,14 +211,15 @@ class DisplayresultsController(BaseController):
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name	#alias is 's'
 		extra_condition = 's.call_method_id=%s and s.phenotype_method_id=%s'%\
 			(call_method_id, phenotype_method_id)
-		list_info = h.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition)
+		list_info = hc.getAnalysisMethodInfo(affiliated_table_name, extra_condition=extra_condition)
 		
 		analysis_method_ls = []
 		
 		for i in range(len(list_info.id_ls)):
 			id = list_info.id_ls[i]
 			label = list_info.label_ls[i]
-			analysis_method_ls.append([id, label])
+			description = list_info.description_ls[i]
+			analysis_method_ls.append([id, label, description])
 		return analysis_method_ls
 	
 	@jsonify
@@ -87,10 +228,10 @@ class DisplayresultsController(BaseController):
 		phenotype_method_id = request.params.getone('phenotype_method_id')
 		result = {
 				'options': [
-						dict(id=value, value=id) for id, value in self.getAnalysisMethodLs(call_method_id, phenotype_method_id)
+						dict(id=value, value=id, description=description) for id, value, description in self.getAnalysisMethodLs(call_method_id, phenotype_method_id)
 						]
 				}
-		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0})
+		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0, 'description': ""})
 		return result
 	
 	def form(self, id=None):
@@ -106,31 +247,28 @@ class DisplayresultsController(BaseController):
 		html = render('/display_results_form.html')
 		return htmlfill.render(html, defaults)
 	
-	@jsonify
-	def fetchOne(self, id=None):
+	@classmethod
+	def getOneResultJsonData(cls, rm, min_MAF, no_of_top_snps):
 		"""
-		2009-1-30
+		2009-4-24
+			refactored out of fetchOne()
+			called upon only if its return is not in db.
 		"""
-		if id is None:
-			id = request.params.get('id', None)
-		if id is None:
-			id = request.params.get('results_id', None)
+		log.info("Getting json_data from result %s ... \n"%rm.id)
+		param_data = PassingData(min_MAF=min_MAF)
+		genome_wide_result = GeneListRankTest.getResultMethodContent(rm, min_MAF=min_MAF, pdata=param_data)
 		
-		call_method_id = request.params.getone('call_method_id')
-		phenotype_method_id = request.params.getone('phenotype_method_id')
-		analysis_method_id = request.params.getone('analysis_method_id')
-		rm = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
-			filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
-		result_id = rm.id
-		
-		param_data = PassingData(min_MAF=0.1)
-		
-		genome_wide_result = h.GeneListRankTest.getResultMethodContent(rm, min_MAF=0.1, pdata=param_data)
+		max_value = genome_wide_result.max_value
+		chr2length = {}
+		max_length = 0
+		for chr, min_max_pos in genome_wide_result.chr2min_max_pos.iteritems():
+			chr2length[chr] = min_max_pos[1]-min_max_pos[0]
+			max_length = max(max_length, chr2length[chr])
 		
 		return_ls = []
 		description = {"position": ("number", "Position"),"value": ("number", "-log Pvalue")}
 		chr2data = {}
-		for i in range(10000):
+		for i in range(no_of_top_snps):
 			data_obj = genome_wide_result.get_data_obj_at_given_rank(i+1)
 			if data_obj.chromosome not in chr2data:
 				chr2data[data_obj.chromosome] = []
@@ -146,12 +284,58 @@ class DisplayresultsController(BaseController):
 		for i in range(10000):
 			data_obj = genome_wide_result.get_data_obj_at_given_rank(i+1)
 			return_ls.append(dict(chromosome=data_obj.chromosome, position=data_obj.position, value=data_obj.value))
-		
-		result = {
-				'gwr': return_ls
-				}
 		"""
-		return json_result
+		result = {
+				'chr2data': json_result,
+				'chr2length': chr2length,
+				'max_value': max_value,
+				'max_length': max_length,
+				}
+		log.info("Done.\n")
+		return simplejson.dumps(result)
+	
+	#@jsonify
+	def fetchOne(self, id=None):
+		"""
+		2009-1-30
+			return a dictionary with key as chromosome, value as google visualization data table representing association results.
+		"""
+		if id is None:
+			id = request.params.get('id', None)
+		if id is None:
+			id = request.params.get('results_id', None)
+		
+		if id:
+			rm = model.Stock_250kDB.ResultsMethod.get(id)
+		else:
+			call_method_id = request.params.getone('call_method_id')
+			phenotype_method_id = request.params.getone('phenotype_method_id')
+			analysis_method_id = request.params.getone('analysis_method_id')
+			rm = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
+				filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
+		results_id = rm.id
+		
+		response.headers['Content-Type'] = 'application/json'
+		
+		min_MAF = 0
+		no_of_top_snps = 10000
+		rm_json = model.Stock_250kDB.ResultsMethodJson.query.filter_by(results_id=results_id).\
+				filter_by(min_MAF=min_MAF).filter_by(no_of_top_snps=no_of_top_snps).first()
+		if rm_json:
+			return rm_json.json_data.__str__()
+		else:
+			json_data = self.getOneResultJsonData(rm, min_MAF, no_of_top_snps)
+			try:
+				rm_json = model.Stock_250kDB.ResultsMethodJson(results_id=rm.id, min_MAF=min_MAF, no_of_top_snps=no_of_top_snps)
+				rm_json.json_data = json_data
+				model.db.session.save(rm_json)
+				model.db.session.flush()	#db is in no transaction. automatically commit. 
+			except:
+				loginfo = "DB Saving Error: json_data of result %s, min_MAF %s, no_of_top_snps %s\n"%(results_id, min_MAF, no_of_top_snps)
+				loginfo += sys.exc_info()
+				loginfo += traceback.print_exc()
+				log.error(loginfo)
+			return json_data
 	
 	def getCallMethodEigenValue(self):
 		"""
@@ -202,9 +386,9 @@ class DisplayresultsController(BaseController):
 			if pheno_row_index is not None and pheno_col_index is not None:
 				phenotype_value = pheno_data.data_matrix[pheno_row_index][pheno_col_index]
 				if phenotype_value == 'NA':
-					phenotype_value = -0.01
+					phenotype_value = None
 			else:
-				phenotype_value = -0.01	#numpy.nan can't be recognized by ToJSon()
+				phenotype_value = None	#numpy.nan can't be recognized by ToJSon()
 			label = '%s ID:%s Phenotype:%s.'%(row.nativename, row.ecotype_id, phenotype_value)
 			#label = 'ID:%s. Name=%s. Phenotype=%s.'%(row.ecotype_id, row.nativename, phenotype_value)
 			return_ls.append(dict(ecotypeid=row.ecotype_id, name=row.nativename, lat=row.latitude, lon=row.longitude,\

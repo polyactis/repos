@@ -3,6 +3,7 @@ import logging
 from helloworld.lib.base import *
 
 log = logging.getLogger(__name__)
+from HelpOtherControllers import HelpothercontrollersController as hc
 
 class MafvsscoreplotController(BaseController):
 
@@ -29,8 +30,8 @@ class MafvsscoreplotController(BaseController):
 		affiliated_table_name = model.Stock_250kDB.ResultsMethod.table.name
 		extra_condition = 's.call_method_id=%s and s.id=m.results_method_id'%id
 		extra_tables = '%s m'%model.Stock_250kDB.MAFVsScorePlot.table.name
-		c.phenotype_info  = h.getPhenotypeInfo(affiliated_table_name, extra_condition, extra_tables)
-		c.analysis_info = h.getAnalysisMethodInfo(affiliated_table_name, extra_condition, extra_tables)
+		c.phenotype_info  = hc.getPhenotypeInfo(affiliated_table_name, extra_condition, extra_tables)
+		c.analysis_info = hc.getAnalysisMethodInfo(affiliated_table_name, extra_condition, extra_tables)
 		
 		rows = MAFVsScorePlot.query.filter(MAFVsScorePlot.results_method.has(call_method_id=id))
 		data_matrix = numpy.zeros([len(c.phenotype_info.phenotype_method_id_ls), len(c.analysis_info.id_ls)], numpy.int)
