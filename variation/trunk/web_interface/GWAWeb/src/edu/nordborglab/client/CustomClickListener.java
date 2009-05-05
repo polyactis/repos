@@ -1,3 +1,6 @@
+/*
+ * 2009-4-26 This custom click listener adds Event as an argument to the onClick() besides the Widget which sends the event. 
+ */
 package edu.nordborglab.client;
 import com.google.gwt.user.client.Event;
 

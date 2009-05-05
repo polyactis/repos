@@ -1,6 +1,5 @@
 package edu.nordborglab.client;
 
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
@@ -11,9 +10,10 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.LoadListener;
 import com.google.gwt.user.client.ui.ChangeListener;
+
+
 
 public class HaplotypeSingleView extends Sink {
 	public ListBox callMethodListBox;
@@ -30,30 +30,34 @@ public class HaplotypeSingleView extends Sink {
 	public Image image;
 	private DisclosurePanel formPanel;
 	private DisclosurePanel imagePanel;
-	private VerticalPanel vPanel;
+	private CustomVerticalPanel vPanel;
 	
 	private DisplayJSONObject jsonErrorDialog;
 	private AccessionConstants constants;
+	
+	private String callMethodLsURL;
+	private String geneListLsURL;
+	private String callMethodOnChangeURL;
+	private String haplotypeImgURL;
 	private static final String SUBMIT_BUTTON_DEFAULT_TEXT = "Submit";
 	private static final String SUBMIT_BUTTON_WAITING_TEXT = "Waiting...";
 	
-	public HaplotypeSingleView(AccessionConstants constants, DisplayJSONObject jsonErrorDialog){
+	public HaplotypeSingleView(AccessionConstants constants, DisplayJSONObject jsonErrorDialog, String callMethodLsURL, 
+			String geneListLsURL, String callMethodOnChangeURL, String haplotypeImgURL){
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
 		
-		vPanel = new VerticalPanel();
+		this.callMethodLsURL = callMethodLsURL;
+		this.geneListLsURL = geneListLsURL;
+		this.callMethodOnChangeURL = callMethodOnChangeURL;
+		this.haplotypeImgURL = haplotypeImgURL;
+		
+		vPanel = new CustomVerticalPanel(constants, jsonErrorDialog, constants.HaplotypeSingleViewHelpID());
 		formVPanel = new VerticalPanel();
 		
 		callMethodListBox = new ListBox();
 		callMethodListBox.getElement().getId();
-		/*
-		callMethodListBox.addChangeListener(new ChangeListener() {
-			public void onChange(Widget sender) {
-				//refreshMap(map, phenotypeSelectBox.getSelectedIndex(), displayOptionSelectBox.getSelectedIndex());
-				//multiBox.ensureDebugId("cwListBox-multiBox");
-			}
-		});
-		*/
+		
 		HorizontalPanel hpanel1 = new HorizontalPanel(); 
 		hpanel1.add(new HTML(constants.callMethodLabel()));
 		hpanel1.add(callMethodListBox);
@@ -105,16 +109,32 @@ public class HaplotypeSingleView extends Sink {
 		formPanel.setOpen(true);
 		
 		image = new Image();
+		
+		imagePanel = new DisclosurePanel("Image");
+		imagePanel.setAnimationEnabled(true);
+		imagePanel.setContent(image);
+		imagePanel.setOpen(true);
+		
+		
 		image.addLoadListener(new LoadListener() {
 			public void onError(Widget sender) {
-				submitButton.setText("Error occurred while loading.");
+				imagePanel.getHeaderTextAccessor().setText("Error occurred while loading image.");
 			}
 
 			public void onLoad(Widget sender) {
+				int height = image.getHeight();
+				int width = image.getWidth();
+				Double newHeight = 1000.0/width*height;
+				Integer newHeightInt = newHeight.intValue();
+				image.setSize("1000px", newHeightInt.toString()+"px");
+				resetSubmitButtonCaption();
+				submitButton.setEnabled(true);
+				//image.setTitle("Loading ...");
 				// submitButton.setText(SUBMIT_BUTTON_WAITING_TEXT);
 			}
 		});
-		image.setSize("1000px", "800px");
+		
+		//image.setSize("1000px", "800px");
 		image.setVisible(false);
 		/* When the user clicks this button, we want to clip the image.
 		submitButton.addClickListener(new ClickListener() {
@@ -124,14 +144,32 @@ public class HaplotypeSingleView extends Sink {
 		});
 		*/
 		
-		imagePanel = new DisclosurePanel();
-		imagePanel.setAnimationEnabled(true);
-		imagePanel.setContent(image);
-		imagePanel.setOpen(true);
-		
 		vPanel.add(formPanel);
 		vPanel.add(imagePanel);
 		initWidget(vPanel);
+		
+		Common.fillSelectBox(callMethodLsURL, callMethodListBox, jsonErrorDialog);
+		Common.fillSelectBox(geneListLsURL, geneListTypeListBox, jsonErrorDialog);
+		callMethodListBox.addChangeListener(new CallMethodListBoxChangeListener(callMethodOnChangeURL));
+		
+	}
+	
+	
+	private class CallMethodListBoxChangeListener implements ChangeListener
+	{
+		String _url;
+		CallMethodListBoxChangeListener(String baseURL)
+		{
+			_url = baseURL + "?" + "call_method_id="; 
+		}
+		public void onChange(Widget sender) {
+			ListBox senderListBox = (ListBox) sender;
+			String callMethodID = senderListBox.getValue(senderListBox.getSelectedIndex());
+			_url = _url + callMethodID;
+			Common.fillSelectBox(_url, phenotypeMethodListBox, jsonErrorDialog);
+			//refreshMap(map, phenotypeSelectBox.getSelectedIndex(), displayOptionSelectBox.getSelectedIndex());
+			//multiBox.ensureDebugId("cwListBox-multiBox");
+		}
 	}
 	
 	@Override
@@ -163,15 +201,17 @@ public class HaplotypeSingleView extends Sink {
 		return name;
 	}
 	
+
 	public void resetSubmitButtonCaption() {
 		submitButton.setText(SUBMIT_BUTTON_DEFAULT_TEXT);
+		submitButton.setEnabled(true);
 	}
 	
 	public void copyListBox(ListBox oldListBox, ListBox newListBox)
 	{
 		for (int i =0; i<oldListBox.getItemCount(); i++)
 		{
-			this.callMethodListBox.addItem(oldListBox.getItemText(i), oldListBox.getValue(i));
+			newListBox.addItem(oldListBox.getItemText(i), oldListBox.getValue(i));
 		}
 		if (oldListBox.getSelectedIndex()>0)
 			newListBox.setSelectedIndex(oldListBox.getSelectedIndex());
@@ -188,6 +228,82 @@ public class HaplotypeSingleView extends Sink {
 		this.stopTxtBox.setText(haplotypeSingleView.stopTxtBox.getText());
 	}
 	public void setSubmitButtonInProgress() {
-		submitButton.setText(SUBMIT_BUTTON_WAITING_TEXT);
+		submitButton.setText(constants.LoadingText());
+		submitButton.setEnabled(false);
+	}
+	
+	public String getURLFromSelectBox(String _url, String name, ListBox selectBox)
+	{
+		String selectedValue = selectBox.getValue(selectBox.getSelectedIndex());
+		if ((!name.equals("list_type_id") && selectedValue.equals("0")) || selectedValue.equals("-1"))	// list_type_id is allowed to be 0.
+		{
+			jsonErrorDialog.displayError("Form Error", name + ", "+ selectedValue + ", is invalid.");
+			return "";
+			
+		}
+		else
+		{
+			if (_url.isEmpty())
+			{
+				_url += name+"="+selectedValue;
+			}
+			else
+				_url += "&"+name+"="+selectedValue;
+			return _url;
+		}
+	}
+	
+	public String constructFetchImageArguments()
+	{
+		String _url = "";
+		
+		String newArgument;
+		newArgument  =getURLFromSelectBox(_url, "call_method_id", callMethodListBox); 
+		if (newArgument.isEmpty())
+			return "";
+		else
+			_url = newArgument;
+		newArgument = getURLFromSelectBox(_url, "phenotype_method_id", phenotypeMethodListBox); 
+		if (newArgument.isEmpty())
+			return "";
+		else
+			_url = newArgument;
+		
+		newArgument =getURLFromSelectBox(_url, "list_type_id", geneListTypeListBox); 
+		if (newArgument.isEmpty())
+			return "";
+		else
+			_url = newArgument;
+		
+		if (chrTxtBox.getText().isEmpty())
+		{
+			jsonErrorDialog.displayError("Form Error", "chromosome is not given.");
+			return "";
+		}
+		else
+			_url += "&" + "chromosome=" + chrTxtBox.getText();
+		
+		if (startTxtBox.getText().isEmpty())
+		{
+			jsonErrorDialog.displayError("Form Error", "start position is not given.");
+			return "";
+		}
+		else
+			_url += "&" + "start=" + startTxtBox.getText();
+		
+		if (stopTxtBox.getText().isEmpty())
+		{
+			jsonErrorDialog.displayError("Form Error", "stop position is not given.");
+			return "";
+		}
+		else
+			_url += "&" + "stop=" + stopTxtBox.getText();
+		
+		return _url;
+			
+	}
+	public void resizeImage()
+	{
+		image.setSize("1000px", "800px");
 	}
 }

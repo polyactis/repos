@@ -5,6 +5,11 @@
 	  <inherits name='com.google.gwt.http.HTTP'/>
       <inherits name='com.google.gwt.json.JSON'/>
       <inherits name="com.google.gwt.i18n.I18N"/>
+      <inherits name="com.google.gwt.visualization.Visualization" />
+      
+      <!-- <inherits name="com.google.gwt.sample.showcase.Showcase" />  -->
+      <source path="client"/>
+      <source path="module"/>
       
       <!-- Inherit the default GWT style sheet.  You can change       -->
       <!-- the theme of your GWT application by uncommenting          -->

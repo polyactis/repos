@@ -56,7 +56,7 @@ public class AccessionByName extends Sink implements ClickListener{
 	private Button suggestButton = new Button();
 	//suggestBox.ensureDebugId("cwSuggestBox");
 	private HorizontalPanel suggestPanel = new HorizontalPanel();
-	private VerticalPanel panel = new VerticalPanel();
+	private VerticalPanel panel;
 	
 	//private String dataUrl = "http://spreadsheets.google.com/tq?key=prll1aQH05yQqp_DKPP9TNg&pub=1";
 	//private Query query = Query.create(dataUrl);
@@ -104,6 +104,7 @@ public class AccessionByName extends Sink implements ClickListener{
 		oracle.setConstants(constants);
 		this.jsonErrorDialog = jsonErrorDialog;
 		
+		panel = new CustomVerticalPanel(constants, jsonErrorDialog, constants.AccessionByNameHelpID());
 		
 		//Label lbl = new Label(constants.cwAccessionByNameLabel());
 		//suggestBox.addChangeListener(new SuggestBoxChangeListener());

@@ -35,7 +35,7 @@ import com.google.gwt.visualization.client.Query.Callback;
 
 
 public class Accession250k extends Sink{
-	private VerticalPanel vpanel = new VerticalPanel();
+	private VerticalPanel vpanel;
 	
 	private DisplayJSONObject jsonErrorDialog;
 	private MapTableTree contentTree;	
@@ -56,6 +56,8 @@ public class Accession250k extends Sink{
 		//super(constants);
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
+		
+		vpanel = new CustomVerticalPanel(constants, jsonErrorDialog, constants.Accession250kHelpID());
 		
 		find250kAccessionsURL = this.getFetchURL();
 		

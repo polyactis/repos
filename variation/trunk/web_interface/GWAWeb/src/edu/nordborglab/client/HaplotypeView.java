@@ -12,9 +12,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.ClickListener;
 
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.HistoryListener;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -29,7 +27,12 @@ public class HaplotypeView implements EntryPoint, ClickListener, HistoryListener
 	public AccessionConstants constants;
 	private RootPanel rootPanel;
 	private int curSinkIndex=-1;
-
+	
+	private String callMethodLsURL;
+	private String geneListLsURL;
+	private String callMethodOnChangeURL;
+	private String haplotypeImgURL;
+	
 	public void onModuleLoad() {
 		jsonErrorDialog = new DisplayJSONObject("Error Dialog");
 		constants = (AccessionConstants) GWT.create(AccessionConstants.class);
@@ -44,36 +47,52 @@ public class HaplotypeView implements EntryPoint, ClickListener, HistoryListener
 		if (initToken.length() > 0) {
 			onHistoryChanged(initToken);
 		}
-
-		HaplotypeSingleView haplotypeSingleView = new HaplotypeSingleView(constants, jsonErrorDialog);
+		callMethodLsURL = getCallMethodLsURL();
+		geneListLsURL = getGeneListLsURL();
+		callMethodOnChangeURL = getCallMethodOnChangeURL();
+		haplotypeImgURL = getHaplotypeImgURL();
+		
+		HaplotypeSingleView haplotypeSingleView = new HaplotypeSingleView(constants, jsonErrorDialog, callMethodLsURL,
+				geneListLsURL, callMethodOnChangeURL, haplotypeImgURL);
 		haplotypeSingleView.submitButton.addClickListener(this);
 		rootPanel.add(haplotypeSingleView);
 
 	}
-	public native String getHaplotypeImgURL()/*-{
-		return $wnd.haplotypeImgURL;
-	}-*/;
-
+	public native String getCallMethodLsURL()/*-{ return $wnd.callMethodLsURL; }-*/;
+	public native String getGeneListLsURL()/*-{ return $wnd.geneListLsURL; }-*/;
+	public native String getCallMethodOnChangeURL()/*-{ return $wnd.callMethodOnChangeURL; }-*/;
+	public native String getHaplotypeImgURL()/*-{ return $wnd.haplotypeImgURL; }-*/;
+	
+	
 	public void onClick(Widget sender) {
 		Sink oldSink = (Sink)rootPanel.getWidget(0);
-		sinkList.addSink(oldSink);
-		rootPanel.remove(0);
-
-		// create a new one
-		HaplotypeSingleView haplotypeSingleView = new HaplotypeSingleView(constants, jsonErrorDialog);
-		// pass old parameters to old one ??
-		haplotypeSingleView.copySetting((HaplotypeSingleView)oldSink);
-		haplotypeSingleView.submitButton.addClickListener(this);
-		curSinkIndex = sinkList.addSink(haplotypeSingleView);
-		HaplotypeSingleView curSink = (HaplotypeSingleView) sinkList.getSelectedSink(curSinkIndex);
-		curSink.setSubmitButtonInProgress();
-		curSink.image.setUrl("http://www.google.com/images/logo.gif");
-		curSink.image.setVisible(true);
-		
-		rootPanel.add(curSink);
-		History.newItem(sinkList.getSinkName(curSinkIndex));
-		curSink.resetSubmitButtonCaption();
-		//img.setVisibleRect(70, 0, 47, 110);
+		HaplotypeSingleView oldHaplotypeSingleView = (HaplotypeSingleView) oldSink;
+		String urlArguments = oldHaplotypeSingleView.constructFetchImageArguments();
+		if (!urlArguments.isEmpty())	// remove the current and replace it with new one upon good urlArguments.
+		{
+			oldHaplotypeSingleView.submitButton.removeClickListener(this);	//remove the click listener to avoid double clicking
+			sinkList.addSink(oldSink);
+			rootPanel.remove(0);
+			// create a new one
+			HaplotypeSingleView haplotypeSingleView = new HaplotypeSingleView(constants, jsonErrorDialog, callMethodLsURL,
+					geneListLsURL, callMethodOnChangeURL, haplotypeImgURL);
+			// pass old parameters to old one ??
+			haplotypeSingleView.copySetting((HaplotypeSingleView)oldSink);
+			haplotypeSingleView.submitButton.addClickListener(this);
+			haplotypeSingleView.submitButton.setEnabled(false);
+			curSinkIndex = sinkList.addSink(haplotypeSingleView);
+			HaplotypeSingleView curSink = (HaplotypeSingleView) sinkList.getSelectedSink(curSinkIndex);
+			curSink.setSubmitButtonInProgress();
+	
+			String url = haplotypeImgURL + "?" + urlArguments;
+			curSink.image.setUrl(url);		
+			curSink.image.setVisible(true);
+	
+			rootPanel.add(curSink);
+			History.newItem(sinkList.getSinkName(curSinkIndex));
+			//curSink.resetSubmitButtonCaption();
+			//img.setVisibleRect(70, 0, 47, 110);
+		}
 	}
 
 	public void onHistoryChanged(String token) {
@@ -104,7 +123,9 @@ public class HaplotypeView implements EntryPoint, ClickListener, HistoryListener
 			return;
 		}
 		curSinkIndex = selectedSink;
-		rootPanel.add(sinkList.getSelectedSink(curSinkIndex));
+		HaplotypeSingleView curSink = (HaplotypeSingleView) sinkList.getSelectedSink(curSinkIndex);
+		curSink.submitButton.addClickListener(this);
+		rootPanel.add((Sink) curSink);
 
 		// If affectHistory is set, create a new item on the history stack. This
 		// will ultimately result in onHistoryChanged() being called. It will call
@@ -115,7 +136,8 @@ public class HaplotypeView implements EntryPoint, ClickListener, HistoryListener
 		}
 		//curSink.onShow();
 	}
-
+	
+	/*
 	private void showInfo() {
 		if (sinkList.getNumberOfSinks()>0)
 		{
@@ -130,4 +152,5 @@ public class HaplotypeView implements EntryPoint, ClickListener, HistoryListener
 			show(0, false);
 		}
 	}
+	*/
 }

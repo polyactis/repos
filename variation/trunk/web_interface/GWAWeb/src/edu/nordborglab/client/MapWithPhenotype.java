@@ -6,7 +6,6 @@
  */
 package edu.nordborglab.client;
 
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Widget;
@@ -101,8 +100,8 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 	private SelectHandler selectHandler;
 	
 	//
-	private double latitude_step = 0.0025;	// step size around central point
-	private double longitude_step = 0.005;
+	private double latitude_step = 0.001;	// step size around central point
+	private double longitude_step = 0.002;
 	// 8 angles to circle around one point
 	private Double[][] angleCoefficients = {{1.0,0.0}, {0.7071,0.7071}, {0.0,1.0}, {-0.7071,0.7071}, {-1.0,0.0}, {-0.7071,-0.7071}, {0.0,-1.0}, {0.7071,-0.7071} };
 	// dictionary records how many times one point has occurred
@@ -120,7 +119,9 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		//setText(DIALOG_DEFAULT_TEXT);
 
 		// setSize("800px", "600px");
-
+		
+		/*
+		 * 2009-5-3 commented out, wait for later improvement
 		fillPhenotypeSelectBox(phenotypeSelectBox);
 		phenotypeSelectBox.addChangeListener(new ChangeListener() {
 			public void onChange(Widget sender) {
@@ -141,10 +142,10 @@ public class MapWithPhenotype extends AbstractVisualization<MapWithPhenotype.Cus
 		});
 		topHPanel.add(phenotypeSelectBox);
 		topHPanel.add(displayOptionSelectBox);
+		*/
 		
 		map = new MapWidget(mapCenter, 1);
 		map.setSize(mapWidth, mapHeight);
-
 		// Add some controls for the zoom level
 		map.addControl(new LargeMapControl());
 		map.addControl(new MapTypeControl());

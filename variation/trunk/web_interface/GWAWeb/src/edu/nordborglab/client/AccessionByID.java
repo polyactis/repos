@@ -39,7 +39,7 @@ public class AccessionByID extends Sink implements ClickListener{
 	private TextBox idBox = new TextBox();
 	private Button submitButton = new Button();
 	private HorizontalPanel submitPanel = new HorizontalPanel();
-	private VerticalPanel vpanel = new VerticalPanel();
+	private VerticalPanel vpanel;
 	
 	private DisplayJSONObject jsonErrorDialog;
 	public MapTableTree contentTree;	
@@ -83,6 +83,7 @@ public class AccessionByID extends Sink implements ClickListener{
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
 		
+		vpanel = new CustomVerticalPanel(constants, jsonErrorDialog, constants.AccessionByIDHelpID());
 		
 		//Label lbl = new Label(constants.cwAccessionByNameLabel());
 		//suggestBox.addChangeListener(new SuggestBoxChangeListener());

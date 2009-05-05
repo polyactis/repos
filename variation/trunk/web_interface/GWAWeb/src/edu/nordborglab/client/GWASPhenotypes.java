@@ -61,6 +61,7 @@ public class GWASPhenotypes implements EntryPoint {
 	private String fetchPhenotypeCategoryLsURL;
 	private String fetchPhenotypeTableDataURL;
 	private String fetchGWAURL;
+	private String displayResultsGeneURL;
 	private DecoratedPopupPanel popupLink = new DecoratedPopupPanel();
 	
 	public void onModuleLoad() {
@@ -80,6 +81,7 @@ public class GWASPhenotypes implements EntryPoint {
 		fetchPhenotypeCategoryLsURL = getPhenotypeCategoryLsURL();
 		fetchPhenotypeTableDataURL = getPhenotypeTableDataURL();
 		fetchGWAURL = getGWAURL();
+		displayResultsGeneURL = getDisplayResultsGeneURL();
 		fillInPhenotypeCategories();
 		
 	}
@@ -95,10 +97,10 @@ public class GWASPhenotypes implements EntryPoint {
 		return $wnd.getPhenotypeTableDataURL;
 	}-*/;
 	
-	public native String getGWAURL()/*-{
-		return $wnd.getGWAURL;
-	}-*/;
+	public native String getGWAURL()/*-{ return $wnd.getGWAURL; }-*/;
 	
+	public native String getDisplayResultsGeneURL()/*-{ return $wnd.displayResultsGeneURL; }-*/;
+		
 	
 	private class JSONResponseTextHandler implements RequestCallback {
 		public void onError(Request request, Throwable exception) {
@@ -131,7 +133,12 @@ public class GWASPhenotypes implements EntryPoint {
 	
 	public void fillInPhenotypeCategories()
 	{
-		Window.setTitle(TITLE_WAITING_TEXT);
+		/*
+		 * each category is gonna be a tab.
+		 * fetch all categories from server (which further fetches from db)
+		 * 		add a tab for each category
+		 */
+		setIntoWaitState();
 		//DOM.getElementById("title").setInnerText(TITLE_WAITING_TEXT);
 		String url = URL.encode(fetchPhenotypeCategoryLsURL);
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
@@ -146,14 +153,20 @@ public class GWASPhenotypes implements EntryPoint {
 	public void addOnePhenotypeCategory(String phenotypeCategoryID, String phenotypeCategoryName)
 	{
 		PhenotypeTable pTable = new PhenotypeTable(constants, jsonErrorDialog, popupLink, phenotypeCategoryID, phenotypeCategoryName, 
-				fetchPhenotypeTableDataURL, callMethodID, fetchGWAURL);
+				fetchPhenotypeTableDataURL, callMethodID, fetchGWAURL, displayResultsGeneURL);
 		tPanel.add(pTable, phenotypeCategoryName);
 		
 	}
 	
+	public void setIntoWaitState()
+	{
+		Window.setTitle(TITLE_WAITING_TEXT);
+		//statusReport.setVisible(true);
+	}
 	public void resetTitle()
 	{
 		Window.setTitle(TITLE_DEFAULT_TEXT);
-		//DOM.getElementById("title").setInnerText(TITLE_DEFAULT_TEXT);
+		//statusReport.setVisible(false);
 	}
+	
 }

@@ -39,7 +39,7 @@ public class HaploGroup implements EntryPoint {
 		jsonErrorDialog = new DisplayJSONObject("Error Dialog");
 		constants = (AccessionConstants) GWT.create(AccessionConstants.class);
 		
-		VerticalPanel vPanel = new VerticalPanel();
+		VerticalPanel vPanel = new CustomVerticalPanel(constants, jsonErrorDialog, constants.HaploGroupHelpID());
 		vPanel.setWidth("100%");
 		//vPanel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
 		

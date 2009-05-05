@@ -2,12 +2,15 @@ package edu.nordborglab.client;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
@@ -19,7 +22,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.json.client.JSONException;
+
+
 
 import com.google.gwt.visualization.client.AbstractDataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
@@ -50,7 +54,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
 
-public class PhenotypeTable extends VerticalPanel implements CustomClickListener{
+public class PhenotypeTable extends CustomVerticalPanel implements CustomClickListener{
 
 	private AccessionConstants constants;
 	private DisplayJSONObject jsonErrorDialog;
@@ -59,6 +63,7 @@ public class PhenotypeTable extends VerticalPanel implements CustomClickListener
 	private String fetchPhenotypeTableDataURL;
 	private int callMethodID;
 	private String fetchGWAURL;
+	private String displayResultsGeneURL;
 
 	private HTML statusReport;
 	private CustomVisualizationTable accessionTable;
@@ -71,8 +76,9 @@ public class PhenotypeTable extends VerticalPanel implements CustomClickListener
 	private int association_results_idx = -1;
 	
 	public PhenotypeTable(AccessionConstants constants, DisplayJSONObject jsonErrorDialog, DecoratedPopupPanel popupLink, String phenotypeCategoryID, 
-			String phenotypeCategoryName, String fetchPhenotypeTableDataURL, int callMethodID, String fetchGWAURL)
+			String phenotypeCategoryName, String fetchPhenotypeTableDataURL, int callMethodID, String fetchGWAURL, String displayResultsGeneURL)
 	{
+		super(constants, jsonErrorDialog, constants.PhenotypeTableHelpID());
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
 		this.phenotypeCategoryID = phenotypeCategoryID;
@@ -80,6 +86,7 @@ public class PhenotypeTable extends VerticalPanel implements CustomClickListener
 		this.fetchPhenotypeTableDataURL = fetchPhenotypeTableDataURL;
 		this.callMethodID = callMethodID;
 		this.fetchGWAURL = fetchGWAURL;
+		this.displayResultsGeneURL = displayResultsGeneURL;
 
 		this.popupLink = popupLink;
 
@@ -160,26 +167,60 @@ public class PhenotypeTable extends VerticalPanel implements CustomClickListener
 			popupLink.clear();
 			popupLink.hide();
 			Selection s = selectionLs.get(i);
-			VerticalPanel vpanel = new VerticalPanel();
 			String association_results = dataTable.getFormattedValue(s.getRow(), association_results_idx);
 			if (!association_results.isEmpty())
 			{
+				VerticalPanel vpanel = new VerticalPanel();
+				FlexTable layout = new FlexTable();
 				final String phenotype_name = dataTable.getFormattedValue(s.getRow(), phenotype_name_idx);
 				String phenotype_id = dataTable.getFormattedValue(s.getRow(), phenotype_id_idx);
 				final String _fetchGWAURL = fetchGWAURL + "?call_method_id="+callMethodID+"&phenotype_method_id=" + phenotype_id;
-				
 				HTML report = new HTML("Click below to open in new window.");
+				//vpanel.add(report);
+				layout.setWidget(0, 0, report);
+				
 				HTML gwaLink = new HTML("<a>GWA plot for phenotype: " + phenotype_id + " " + phenotype_name + "</a>");
 				gwaLink.addClickListener(new ClickListener() {
 					public void onClick(Widget sender) {
 						Window.open(_fetchGWAURL, phenotype_name, "");
 					}
 				});
-				//vpanel.add(report);
-				//Hyperlink hLink = new Hyperlink("GWA plot for phenotype: "+ phenotype_name, _fetchGWAURL);
-				vpanel.add(report);
-				vpanel.add(new HTML("<p></p>"));
-				vpanel.add(gwaLink);
+				//vpanel.add(new HTML("<p></p>"));
+				layout.setWidget(1, 0, gwaLink);
+				/*
+				if (association_results.contains("KW"))
+				{
+					final String kw_displayResultsGeneURL = displayResultsGeneURL + "?call_method_id="+callMethodID+"&phenotype_method_id=" + phenotype_id+"&analysis_method_id=1";
+					HTML kw_resultsGeneLink = new HTML("<a>Genes associated with top 100 SNPs by KW for " + phenotype_id + " " + phenotype_name + "</a>");
+					kw_resultsGeneLink.addClickListener(new ClickListener() {
+						public void onClick(Widget sender) {
+							Window.open(kw_displayResultsGeneURL, phenotype_name, "");
+						}
+					});
+					layout.setWidget(2, 0, kw_resultsGeneLink);
+				}
+				if (association_results.contains("Emma"))
+				{
+					final String emma_displayResultsGeneURL = displayResultsGeneURL + "?call_method_id="+callMethodID+"&phenotype_method_id=" + phenotype_id+"&analysis_method_id=7";
+					HTML emma_resultsGeneLink = new HTML("<a>Genes associated with top 100 SNPs by Emma for " + phenotype_id + " " + phenotype_name + "</a>");
+					emma_resultsGeneLink.addClickListener(new ClickListener() {
+						public void onClick(Widget sender) {
+							Window.open(emma_displayResultsGeneURL, phenotype_name, "");
+						}
+					});
+					layout.setWidget(3, 0, emma_resultsGeneLink);
+				}
+				*/
+				
+				vpanel.add(layout);
+				Button closeButton = new Button("close",
+						new ClickListener() {
+					public void onClick(Widget sender) {
+						popupLink.hide();
+					}
+				});
+				vpanel.add(closeButton);
+				vpanel.setCellHorizontalAlignment(closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
 				popupLink.add(vpanel);
 				int left = evt.getClientX() + Window.getScrollLeft();
 				int top = evt.getClientY() + Window.getScrollTop();

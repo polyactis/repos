@@ -7,6 +7,24 @@ package edu.nordborglab.client;
 public interface AccessionConstants extends com.google.gwt.i18n.client.Constants {
   
   /**
+   * Translated "Accession250k".
+   * 
+   * @return translated "Accession250k"
+   */
+  @DefaultStringValue("Accession250k")
+  @Key("Accession250kHelpID")
+  String Accession250kHelpID();
+
+  /**
+   * Translated "AccessionByID".
+   * 
+   * @return translated "AccessionByID"
+   */
+  @DefaultStringValue("AccessionByID")
+  @Key("AccessionByIDHelpID")
+  String AccessionByIDHelpID();
+
+  /**
    * Translated "/Accession/findAccessionsByID?id=".
    * 
    * @return translated "/Accession/findAccessionsByID?id="
@@ -14,6 +32,15 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   @DefaultStringValue("/Accession/findAccessionsByID?id=")
   @Key("AccessionByIDURL")
   String AccessionByIDURL();
+
+  /**
+   * Translated "AccessionByName".
+   * 
+   * @return translated "AccessionByName"
+   */
+  @DefaultStringValue("AccessionByName")
+  @Key("AccessionByNameHelpID")
+  String AccessionByNameHelpID();
 
   /**
    * Translated "/Accession/findAccessionsByName?name=".
@@ -43,6 +70,42 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String ClassName();
 
   /**
+   * Translated "EcotypeAlleleMotionChart".
+   * 
+   * @return translated "EcotypeAlleleMotionChart"
+   */
+  @DefaultStringValue("EcotypeAlleleMotionChart")
+  @Key("EcotypeAlleleMotionChartHelpID")
+  String EcotypeAlleleMotionChartHelpID();
+
+  /**
+   * Translated "EcotypeAlleleTable".
+   * 
+   * @return translated "EcotypeAlleleTable"
+   */
+  @DefaultStringValue("EcotypeAlleleTable")
+  @Key("EcotypeAlleleTableHelpID")
+  String EcotypeAlleleTableHelpID();
+
+  /**
+   * Translated "GBrowse".
+   * 
+   * @return translated "GBrowse"
+   */
+  @DefaultStringValue("GBrowse")
+  @Key("GBrowseHelpID")
+  String GBrowseHelpID();
+
+  /**
+   * Translated "GWASOneResult".
+   * 
+   * @return translated "GWASOneResult"
+   */
+  @DefaultStringValue("GWASOneResult")
+  @Key("GWASOneResultHelpID")
+  String GWASOneResultHelpID();
+
+  /**
    * Translated "/Phenotype/getPhenotypeIcon".
    * 
    * @return translated "/Phenotype/getPhenotypeIcon"
@@ -61,38 +124,83 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String GetPhenotypeValueURL();
 
   /**
-   * Translated "diaplay all".
+   * Translated "HaploGroup".
    * 
-   * @return translated "diaplay all"
+   * @return translated "HaploGroup"
    */
-  @DefaultStringValue("diaplay all")
+  @DefaultStringValue("HaploGroup")
+  @Key("HaploGroupHelpID")
+  String HaploGroupHelpID();
+
+  /**
+   * Translated "HaplotypeSingleView".
+   * 
+   * @return translated "HaplotypeSingleView"
+   */
+  @DefaultStringValue("HaplotypeSingleView")
+  @Key("HaplotypeSingleViewHelpID")
+  String HaplotypeSingleViewHelpID();
+
+  /**
+   * Translated "/WebHelp/fetch".
+   * 
+   * @return translated "/WebHelp/fetch"
+   */
+  @DefaultStringValue("/WebHelp/fetch")
+  @Key("HelpDialogFetchURL")
+  String HelpDialogFetchURL();
+
+  /**
+   * Translated "/WebHelp/saveOrUpdate".
+   * 
+   * @return translated "/WebHelp/saveOrUpdate"
+   */
+  @DefaultStringValue("/WebHelp/saveOrUpdate")
+  @Key("HelpDialogSaveURL")
+  String HelpDialogSaveURL();
+
+  /**
+   * Translated "Loading...  ".
+   * 
+   * @return translated "Loading...  "
+   */
+  @DefaultStringValue("Loading...  ")
+  @Key("LoadingText")
+  String LoadingText();
+
+  /**
+   * Translated "display all".
+   * 
+   * @return translated "display all"
+   */
+  @DefaultStringValue("display all")
   @Key("MapWithPhenotypeDisplayOption1")
   String MapWithPhenotypeDisplayOption1();
 
   /**
-   * Translated "diaplay only accessions with phenotype".
+   * Translated "display only accessions with phenotype".
    * 
-   * @return translated "diaplay only accessions with phenotype"
+   * @return translated "display only accessions with phenotype"
    */
-  @DefaultStringValue("diaplay only accessions with phenotype")
+  @DefaultStringValue("display only accessions with phenotype")
   @Key("MapWithPhenotypeDisplayOption2")
   String MapWithPhenotypeDisplayOption2();
 
   /**
-   * Translated "diaplay only accessions without phenotype".
+   * Translated "display only accessions without phenotype".
    * 
-   * @return translated "diaplay only accessions without phenotype"
+   * @return translated "display only accessions without phenotype"
    */
-  @DefaultStringValue("diaplay only accessions without phenotype")
+  @DefaultStringValue("display only accessions without phenotype")
   @Key("MapWithPhenotypeDisplayOption3")
   String MapWithPhenotypeDisplayOption3();
 
   /**
-   * Translated "diaplay all, diaplay only accessions with phenotype, diaplay only accessions without phenotype".
+   * Translated "display all, display only accessions with phenotype, display only accessions without phenotype".
    * 
-   * @return translated "diaplay all, diaplay only accessions with phenotype, diaplay only accessions without phenotype"
+   * @return translated "display all, display only accessions with phenotype, display only accessions without phenotype"
    */
-  @DefaultStringValue("diaplay all, diaplay only accessions with phenotype, diaplay only accessions without phenotype")
+  @DefaultStringValue("display all, display only accessions with phenotype, display only accessions without phenotype")
   @Key("MapWithPhenotypeDisplayOptions")
   String MapWithPhenotypeDisplayOptions();
 
@@ -104,6 +212,42 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   @DefaultStringValue("/Phenotype/getPhenotypeMethodLs")
   @Key("MapWithPhenotypeGetPhenotypeMethodLsURL")
   String MapWithPhenotypeGetPhenotypeMethodLsURL();
+
+  /**
+   * Translated "OnePhenotype".
+   * 
+   * @return translated "OnePhenotype"
+   */
+  @DefaultStringValue("OnePhenotype")
+  @Key("OnePhenotypeHelpID")
+  String OnePhenotypeHelpID();
+
+  /**
+   * Translated "PhenotypeTable".
+   * 
+   * @return translated "PhenotypeTable"
+   */
+  @DefaultStringValue("PhenotypeTable")
+  @Key("PhenotypeTableHelpID")
+  String PhenotypeTableHelpID();
+
+  /**
+   * Translated "SNPSummaryPanel".
+   * 
+   * @return translated "SNPSummaryPanel"
+   */
+  @DefaultStringValue("SNPSummaryPanel")
+  @Key("SNPSummaryPanelHelpID")
+  String SNPSummaryPanelHelpID();
+
+  /**
+   * Translated "SignificantHitsInAllPhenotype".
+   * 
+   * @return translated "SignificantHitsInAllPhenotype"
+   */
+  @DefaultStringValue("SignificantHitsInAllPhenotype")
+  @Key("SignificantHitsInAllPhenotypeHelpID")
+  String SignificantHitsInAllPhenotypeHelpID();
 
   /**
    * Translated "call method id:".
@@ -205,6 +349,24 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String geneListTypeLabel();
 
   /**
+   * Translated "Accession-Phenotype Explorer".
+   * 
+   * @return translated "Accession-Phenotype Explorer"
+   */
+  @DefaultStringValue("Accession-Phenotype Explorer")
+  @Key("motionChartDisclosurePanelLabel")
+  String motionChartDisclosurePanelLabel();
+
+  /**
+   * Translated "Histogram".
+   * 
+   * @return translated "Histogram"
+   */
+  @DefaultStringValue("Histogram")
+  @Key("phenotypeHistPanelLabel")
+  String phenotypeHistPanelLabel();
+
+  /**
    * Translated "phenotype method id: ".
    * 
    * @return translated "phenotype method id: "
@@ -214,11 +376,29 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String phenotypeMethodLabel();
 
   /**
-   * Translated "Sort the SNP matrix by which Principal Component:  ".
+   * Translated "Static Histograms & QQ Plots".
    * 
-   * @return translated "Sort the SNP matrix by which Principal Component:  "
+   * @return translated "Static Histograms & QQ Plots"
    */
-  @DefaultStringValue("Sort the SNP matrix by which Principal Component:  ")
+  @DefaultStringValue("Static Histograms & QQ Plots")
+  @Key("staticHistQQPlotPanelLabel")
+  String staticHistQQPlotPanelLabel();
+
+  /**
+   * Translated "click to see full-scale in popup".
+   * 
+   * @return translated "click to see full-scale in popup"
+   */
+  @DefaultStringValue("click to see full-scale in popup")
+  @Key("staticImageToolTip")
+  String staticImageToolTip();
+
+  /**
+   * Translated "Sort the SNP matrix by which Principal Component:".
+   * 
+   * @return translated "Sort the SNP matrix by which Principal Component:"
+   */
+  @DefaultStringValue("Sort the SNP matrix by which Principal Component:")
   @Key("whichPCLabel")
   String whichPCLabel();
 }

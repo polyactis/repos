@@ -15,13 +15,15 @@ import com.google.gwt.visualization.client.AbstractDataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
 import com.google.gwt.visualization.client.visualizations.Table.Options.Policy;
 
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.visualization.client.AbstractVisualization;
 import com.google.gwt.visualization.client.Selectable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.AbstractVisualization.VisualizationFactory;
 import com.google.gwt.visualization.client.events.SelectHandler;
 import com.google.gwt.visualization.client.events.SelectHandler.SelectEvent;
+
+import com.google.gwt.core.client.JsArray;
+
 
 public class MapTableTree extends VerticalPanel{
 	private MapWithPhenotype mapWidget;
@@ -31,14 +33,17 @@ public class MapTableTree extends VerticalPanel{
 	private AccessionConstants constants;
 	private DisplayJSONObject jsonErrorDialog;
 
+	private WrapVisualizationTable accessionTable;
+	
+	/*
 	private TextBox entriesPerPageBox;
 	private Table accessionTable = new Table();
 	private VerticalPanel vpanel = new VerticalPanel();
-	
-	private AbstractDataTable dataTable;
 	private Button pageRefreshButton;
-	private DisclosurePanel mapPanel;
 	private DisclosurePanel tablePanel;
+	*/
+	private AbstractDataTable dataTable;
+	private DisclosurePanel mapPanel;
 	
 	class TableSelectionHandler extends SelectHandler {
 		private final Selectable viz;
@@ -65,6 +70,8 @@ public class MapTableTree extends VerticalPanel{
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
 		
+		accessionTable = new WrapVisualizationTable();
+		
 		mapWidget = new MapWithPhenotype(constants, jsonErrorDialog);
 		mapWidget.addSelectHandler(new TableSelectionHandler(mapWidget, accessionTable));
 		mapPanel = new DisclosurePanel("Map");
@@ -78,33 +85,9 @@ public class MapTableTree extends VerticalPanel{
 		//treeItem.setStyleName("JSON-JSONResponseObject");
 		//treeItem.setState(true);
 
-
-		entriesPerPageBox = new TextBox();
-		entriesPerPageBox.setText("20");
 		
-		pageRefreshButton = new Button("refresh");
-		pageRefreshButton.setVisible(false);	//invisible upon initilization cuz accessionTable is still empty.
-		pageRefreshButton.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
-				fillInTable(dataTable);
-			}
-		});
 		
-		HorizontalPanel hpanel = new HorizontalPanel();
-		hpanel.add(entriesPerPageBox);
-		hpanel.add(new HTML("entries per page."));
-		hpanel.add(pageRefreshButton);
-		hpanel.setSpacing(5);
-		//hpanel.setVisible(false);
-		
-		vpanel.add(accessionTable);
 		accessionTable.addSelectHandler(new TableSelectionHandler(accessionTable, mapWidget));
-		vpanel.add(hpanel);
-		
-		tablePanel = new DisclosurePanel("Table");
-		tablePanel.setAnimationEnabled(true);
-		tablePanel.setContent(vpanel);
-		tablePanel.setOpen(true);
 		
 		/*
 		TreeItem treeItemTable = this.addItem("Table");
@@ -115,21 +98,7 @@ public class MapTableTree extends VerticalPanel{
 		//this.setVisible(true);
 		//this.setFocus(false);
 		this.add(mapPanel);
-		this.add(tablePanel);
-	}
-	
-	public void fillInTable(AbstractDataTable dataTable)
-	{
-		if (dataTable!=null)
-		{
-			Table.Options options = Table.Options.create();
-			options.setShowRowNumber(true);
-			options.setAllowHtml(true);
-			options.setPage(Policy.ENABLE);
-			int page_size = Integer.parseInt(entriesPerPageBox.getText());
-			options.setPageSize(page_size);
-			accessionTable.draw(dataTable, options);
-		}
+		this.add(accessionTable);
 	}
 	
 	public void populateData(AbstractDataTable dataTable)
@@ -137,8 +106,7 @@ public class MapTableTree extends VerticalPanel{
 		this.dataTable = dataTable;
 		//accessionReport.setHTML("Found <b>" + dataTable.getNumberOfRows() + "</b> Accessions.");
 		mapPanel.getHeaderTextAccessor().setText("Found " + dataTable.getNumberOfRows() + " Accessions.");
-		fillInTable(dataTable);
-		pageRefreshButton.setVisible(true);
+		accessionTable.fillInTable(dataTable);
 		mapWidget.addMarkers(dataTable);
 	}
 	
@@ -149,12 +117,12 @@ public class MapTableTree extends VerticalPanel{
 	
 	public void setTablePanelHeaderText(String caption)
 	{
-		tablePanel.getHeaderTextAccessor().setText(caption);
+		accessionTable.setTablePanelHeaderText(caption);
 	}
 	
 	public void resetTablePanelHeaderText()
 	{
-		tablePanel.getHeaderTextAccessor().setText("Table");
+		accessionTable.resetTablePanelHeaderText();
 	}
 	public void resetSize()
 	{
