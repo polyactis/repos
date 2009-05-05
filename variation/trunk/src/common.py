@@ -234,16 +234,26 @@ def get_accession_id2name(curs, accession_table='at.accession'):
 
 def map_perlegen_ecotype_name2accession_id(curs, accession_table='at.accession', perlegen_table='chip.snp_combined_may_9_06_no_van'):
 	"""
+	2009-4-10
+		curs could be cursor of MySQLdb connection or ElixirDB.metadata.bind
 	2008-02-07
 		in perlegen table, ecotype is a name. all but one('sha') matches accession.name due to case-insensitive match in mysql.
 		In fact, perlegen_table.ecotype is all lower-case. accession.name is capitalized on the first-letter.
 	"""
 	sys.stderr.write("Getting perlegen_ecotype_name2accession_id ...")
 	perlegen_ecotype_name2accession_id = {}
-	curs.execute("select distinct a.id, s.ecotype from (select distinct ecotype from %s) as s , %s a where s.ecotype=a.name"%(perlegen_table, accession_table))
-	rows = curs.fetchall()
+	rows = curs.execute("select distinct a.id, s.ecotype from (select distinct ecotype from %s) as s , %s a where s.ecotype=a.name"%(perlegen_table, accession_table))
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2008-10-07 curs could be elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
+	
 	for row in rows:
-		accession_id, ecotype_name = row
+		if is_elixirdb:
+			accession_id = row.id
+			ecotype_name = row.ecotype
+		else:
+			accession_id, ecotype_name = row
 		perlegen_ecotype_name2accession_id[ecotype_name] = accession_id
 	perlegen_ecotype_name2accession_id['sha'] = 89	#this exception
 	sys.stderr.write("Done.\n")
@@ -264,7 +274,7 @@ def map_accession_id2ecotype_id(curs, accession2ecotype_table='at.ecotype2access
 	sys.stderr.write("Done.\n")
 	return accession_id2ecotype_id
 
-def get_ecotypeid2nativename(curs, ecotype_table='ecotype'):
+def get_ecotypeid2nativename(curs, ecotype_table='stock.ecotype'):
 	"""
 	2008-10-07 curs could be elixirdb.metadata.bind
 	2008-04-04
@@ -313,8 +323,9 @@ def getEcotypeInfo(db, country_order_type=1):
 	rows = db.metadata.bind.execute("select e.id as ecotype_id, e.nativename, e.latitude, e.longitude, c.abbr as country, c.latitude as country_latitude,\
 		c.longitude as country_longitude \
 		from stock.%s e, stock.%s s, stock.%s a, stock.%s c where e.siteid=s.id and s.addressid=a.id and \
-		a.countryid=c.id order by %s "%(StockDB.Ecotype.table.name, \
-		StockDB.Site.table.name, StockDB.Address.table.name, StockDB.Country.table.name, order_seq_sentence))
+		a.countryid=c.id order by %s "%(getattr(StockDB.Ecotype.table, 'name', 'ecotype'), \
+		getattr(StockDB.Site.table, 'name', 'site'), getattr(StockDB.Address.table, 'name', 'address'), \
+		getattr(StockDB.Country.table, 'name', 'country'), order_seq_sentence))
 	ecotype_id2ecotype_obj = {}
 	country2order = {}
 	for row in rows:
