@@ -188,9 +188,17 @@ class CallMethod(Entity):
 	using_table_options(mysql_engine='InnoDB')
 	
 class PhenotypeMethod(Entity):
+	"""
+	2009-5-11
+		add no_of_accessions, growth_condition, phenotype_scoring, citations
+	"""
 	short_name = Field(String(20), unique=True)
 	only_first_96 = Field(Boolean, default=0)
 	biology_category = ManyToOne("BiologyCategory", colname='biology_category_id', ondelete='CASCADE', onupdate='CASCADE')
+	no_of_accessions = Field(Integer);
+	growth_condition = Field(String(8000))
+	phenotype_scoring = Field(String(8000))
+	citations = Field(String(8000))
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
 	comment = Field(String(8000))
