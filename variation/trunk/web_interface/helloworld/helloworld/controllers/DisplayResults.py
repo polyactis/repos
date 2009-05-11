@@ -59,6 +59,8 @@ class DisplayresultsController(BaseController):
 	
 	def getPhenotypeTableData(self):
 		"""
+		2009-5-11
+			add no_of_accessions, growth_condition, phenotype_scoring, citations in the output table
 		2009-4-21
 			return a google data table containing information of all phenotypes belonging to a category 
 		"""
@@ -69,6 +71,10 @@ class DisplayresultsController(BaseController):
 		#construct the full data and turn it into json
 		column_name_type_ls = [("id", ("number", "Phenotype ID")), ("short_name", ("string", "Phenotype Name")), \
 							("association_results", ("string","Association Results")), \
+							("no_of_accessions", ("number","#Accessions")), \
+							("growth_condition", ("string","Growth Condition")), \
+							("phenotype_scoring", ("string","Phenotype Scoring")), \
+							("citations", ("string","Citations")), \
 							("method_description", ("string","Description")), \
 							("data_type", ("string","Data Type")), \
 							("transformation_description", ("string","Transformation"))]
