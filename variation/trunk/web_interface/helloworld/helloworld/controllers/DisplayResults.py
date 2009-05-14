@@ -15,7 +15,7 @@ from pylons.decorators import jsonify	#2008-12-30
 #from helloworld.lib.base import *
 import gviz_api	#2009-2-1 google visualization python api to export data into json-related formats
 import numpy, datetime
-import simplejson, sys
+import simplejson, sys, traceback
 
 from HelpOtherControllers import HelpothercontrollersController as hc
 
@@ -59,6 +59,8 @@ class DisplayresultsController(BaseController):
 	
 	def getPhenotypeTableData(self):
 		"""
+		2009-5-13
+			remove column transformation_description, citations
 		2009-5-11
 			add no_of_accessions, growth_condition, phenotype_scoring, citations in the output table
 		2009-4-21
@@ -74,10 +76,8 @@ class DisplayresultsController(BaseController):
 							("no_of_accessions", ("number","#Accessions")), \
 							("growth_condition", ("string","Growth Condition")), \
 							("phenotype_scoring", ("string","Phenotype Scoring")), \
-							("citations", ("string","Citations")), \
-							("method_description", ("string","Description")), \
-							("data_type", ("string","Data Type")), \
-							("transformation_description", ("string","Transformation"))]
+							("method_description", ("string","Source")), \
+							("data_type", ("string","Data Type"))]
 		rows = model.Stock_250kDB.PhenotypeMethod.query.filter(model.Stock_250kDB.PhenotypeMethod.biology_category_id==biology_category_id)
 		
 		return_ls = []
@@ -303,6 +303,11 @@ class DisplayresultsController(BaseController):
 	#@jsonify
 	def fetchOne(self, id=None):
 		"""
+		2009-5-13
+			apply min_MAF cutoff according to column min_maf in table analysis_method
+			
+			difference in float precision between db and python: 0.1 (db) => 0.100000001 (python)
+				use filter(ResultsMethodJson.min_MAF<=min_MAF+0.0001).filter(ResultsMethodJson.min_MAF>=min_MAF-0.0001) to solve it
 		2009-1-30
 			return a dictionary with key as chromosome, value as google visualization data table representing association results.
 		"""
@@ -311,35 +316,42 @@ class DisplayresultsController(BaseController):
 		if id is None:
 			id = request.params.get('results_id', None)
 		
+		ResultsMethod = model.Stock_250kDB.ResultsMethod
 		if id:
-			rm = model.Stock_250kDB.ResultsMethod.get(id)
+			rm = ResultsMethod.get(id)
 		else:
 			call_method_id = request.params.getone('call_method_id')
 			phenotype_method_id = request.params.getone('phenotype_method_id')
 			analysis_method_id = request.params.getone('analysis_method_id')
-			rm = model.Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
+			rm = ResultsMethod.query.filter_by(call_method_id=call_method_id).\
 				filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).first()
 		results_id = rm.id
 		
 		response.headers['Content-Type'] = 'application/json'
 		
-		min_MAF = 0
+		if rm.analysis_method.min_maf is not None:
+			min_MAF = rm.analysis_method.min_maf
+		else:
+			min_MAF = 0
+		
 		no_of_top_snps = 10000
-		rm_json = model.Stock_250kDB.ResultsMethodJson.query.filter_by(results_id=results_id).\
-				filter_by(min_MAF=min_MAF).filter_by(no_of_top_snps=no_of_top_snps).first()
+		ResultsMethodJson = model.Stock_250kDB.ResultsMethodJson
+		rm_json = ResultsMethodJson.query.filter_by(results_id=results_id).\
+				filter(ResultsMethodJson.min_MAF<=min_MAF+0.0001).filter(ResultsMethodJson.min_MAF>=min_MAF-0.0001).\
+				filter_by(no_of_top_snps=no_of_top_snps).first()
 		if rm_json:
 			return rm_json.json_data.__str__()
 		else:
 			json_data = self.getOneResultJsonData(rm, min_MAF, no_of_top_snps)
 			try:
-				rm_json = model.Stock_250kDB.ResultsMethodJson(results_id=rm.id, min_MAF=min_MAF, no_of_top_snps=no_of_top_snps)
+				rm_json = ResultsMethodJson(results_id=rm.id, min_MAF=min_MAF, no_of_top_snps=no_of_top_snps)
 				rm_json.json_data = json_data
 				model.db.session.save(rm_json)
 				model.db.session.flush()	#db is in no transaction. automatically commit. 
 			except:
 				loginfo = "DB Saving Error: json_data of result %s, min_MAF %s, no_of_top_snps %s\n"%(results_id, min_MAF, no_of_top_snps)
-				loginfo += sys.exc_info()
-				loginfo += traceback.print_exc()
+				loginfo += repr(sys.exc_info())
+				loginfo += repr(traceback.print_exc())
 				log.error(loginfo)
 			return json_data
 	
