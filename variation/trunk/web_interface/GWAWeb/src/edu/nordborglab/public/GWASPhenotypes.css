@@ -10,3 +10,8 @@
 #pc-template-img {
   margin-top: 20px;
 }
+
+/** 2009-5-14 make the number-type columns in the table aligned in the center */
+.google-visualization-table-td-right {
+	text-align: center;
+}
