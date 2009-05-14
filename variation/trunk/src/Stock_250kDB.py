@@ -213,11 +213,14 @@ class PhenotypeMethod(Entity):
 
 class AnalysisMethod(Entity):
 	"""
+	2009-5-14
+		add min_MAF
 	2008-09-16
 		add smaller_score_more_significant
 	"""
 	short_name = Field(String(120))
 	method_description = Field(String(8000))
+	min_maf = Field(Float)
 	smaller_score_more_significant = Field(Integer)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
