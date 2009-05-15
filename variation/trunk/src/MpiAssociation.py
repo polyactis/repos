@@ -39,6 +39,8 @@ from Scientific import MPI
 
 class MpiAssociation(Association, MPIwrapper):
 	__doc__ = __doc__
+	# 2009-5-15 add debug here because self.debug set in __init__() is not visible in classmethod thru cls.debug
+	debug = 0
 	option_default_dict = Association.option_default_dict.copy()
 	def __init__(self, **keywords):
 		"""
