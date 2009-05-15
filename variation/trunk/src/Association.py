@@ -270,6 +270,8 @@ class Association(Kruskal_Wallis):
 	def linear_model(cls, genotype_ls, phenotype_ls, min_data_point=3, snp_index=None, kinship_matrix=None, eig_L=None, \
 					run_type=1):
 		"""
+		2009-5-15
+			report full error information if cls.debug is set.
 		2009-2-11
 			simply report the snp_index when numpy.linalg.linalg.LinAlgError is caught
 		2008-12-04
@@ -345,11 +347,14 @@ class Association(Kruskal_Wallis):
 				sys.stderr.write('\t%s.\n'%repr(sys.exc_info()))
 				pdata = None
 			except:
-				sys.stderr.write("Except while running pure_linear_model on snp_index=%s with non_NA_genotype_ls=%s, \
+				if cls.debug:	# 2009-5-15
+					sys.stderr.write("Except while running pure_linear_model on snp_index=%s with non_NA_genotype_ls=%s, \
 					non_NA_phenotype_ls=%s, non_NA_phenotype2count=%s.\n"%(snp_index, repr(non_NA_genotype_ls), \
-																		repr(non_NA_phenotype_ls), repr(non_NA_phenotype2count)))
-				traceback.print_exc()
-				sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+																			repr(non_NA_phenotype_ls), repr(non_NA_phenotype2count)))
+					traceback.print_exc()
+					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+				else:	#2009-4-5 simpilify output if not debug
+					sys.stderr.write("Except while running pure_linear_model on snp_index=%s.\n"(snp_index))
 				pdata = None
 		else:
 			pdata = None
@@ -433,6 +438,7 @@ class Association(Kruskal_Wallis):
 		2009-2-9
 			make it classmethod
 		2008-11-11
+			only for binary data_matrix. identity_vector[k]=1 only when data_matrix[i,k]=data_matrix[j,k]
 		"""
 		no_of_rows, no_of_cols = data_matrix.shape
 		kinship_matrix = numpy.identity(no_of_rows, numpy.float)
@@ -461,6 +467,13 @@ class Association(Kruskal_Wallis):
 		
 		one_marker_rs = rpy.r.emma_REMLE(non_NA_phenotype_ls, genotype_matrix, kinship_matrix, eig_L=eig_L, cal_pvalue=rpy.r.TRUE)
 		coeff_list=[beta[0] for beta in one_marker_rs['beta']]
+		
+		"""# 2009-3-24 temporary, get random_effect+residual
+		coeff_ar = numpy.array(coeff_list)
+		random_effect_and_residual_ls = list(numpy.array(non_NA_phenotype_ls)-numpy.inner(genotype_matrix, coeff_ar))
+		coeff_list.extend(random_effect_and_residual_ls)
+		"""
+		
 		coeff_p_value_list=[None]*len(coeff_list)
 		pdata = PassingData(pvalue=one_marker_rs['pvalue'], var_perc=one_marker_rs['genotype_var_perc'][0][0], \
 						coeff_list=coeff_list, coeff_p_value_list=coeff_p_value_list)
