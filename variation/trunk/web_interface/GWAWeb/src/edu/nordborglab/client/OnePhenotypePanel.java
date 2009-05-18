@@ -177,6 +177,10 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 	
 	public int[] findColIndex(AbstractDataTable dataTable)
 	{
+		/*
+		 * 2009-5-18
+		 * 	add region_idx & country_idx into the list of indices returned
+		 */
 		int label_idx = 2;	//will find it according to the column id automatically later, which doesn't work in GWT shell.
 		int date_idx = 0;
 		int lon_idx = 4;
@@ -185,6 +189,8 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 		int name_idx = 5;
 		int pc1_idx = 6;
 		int pc2_idx = 7;
+		int region_idx = 9;
+		int country_idx = 10;
 		int no_of_cols = dataTable.getNumberOfColumns();
 		for (int i =0; i<no_of_cols; i++)
 		{
@@ -205,8 +211,12 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 				pc1_idx=i;
 			else if (col_id.equals("pc2"))
 				pc2_idx=i;
+			else if (col_id.equals("region"))
+				region_idx=i;
+			else if (col_id.equals("country"))
+				country_idx=i;
 		}
-		int [] columnIndices = {label_idx, date_idx, lon_idx, lat_idx, phenotype_idx, name_idx, pc1_idx, pc2_idx};
+		int [] columnIndices = {label_idx, date_idx, lon_idx, lat_idx, phenotype_idx, name_idx, pc1_idx, pc2_idx, region_idx, country_idx};
 		return columnIndices;
 	}
 	
