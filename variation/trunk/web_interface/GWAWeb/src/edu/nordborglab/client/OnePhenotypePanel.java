@@ -175,12 +175,13 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 		}
 	}
 	
+	/**
+	 * 
+	 * 2009-5-18
+	 * 	add region_idx & country_idx into the list of indices returned
+	 */
 	public int[] findColIndex(AbstractDataTable dataTable)
 	{
-		/*
-		 * 2009-5-18
-		 * 	add region_idx & country_idx into the list of indices returned
-		 */
 		int label_idx = 2;	//will find it according to the column id automatically later, which doesn't work in GWT shell.
 		int date_idx = 0;
 		int lon_idx = 4;
@@ -251,11 +252,11 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 		}
 	}
 	
+	/**
+	 * fill in the phenotype histogram (column chart), 4 static images, motion chart
+	 */
 	public void fillIn()
 	{
-		/*
-		 * fill in the phenotype histogram (column chart), 4 static images, motion chart
-		 */
 		String url = URL.encode(phenotypeHistogramDataURL);
 		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		try {
