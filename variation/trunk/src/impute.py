@@ -65,12 +65,18 @@ def transform_oligo_prob_out2std_call_format(input_dir, output_dir, snpid_fname,
 			i += 1
 		del reader, writer
 		sys.stderr.write("\n")
-
+"""
 input_dir = os.path.expanduser('~/script/oligo/other_output/')
 output_dir = os.path.expanduser('~/script/oligo/call_output/')
 snpid_fname = os.path.expanduser('~/script/oligo/snp-IDs.txt')
 snpallele_fname = os.path.expanduser('~/script/oligo/snp-alleles.txt')
+
+input_dir = os.path.expanduser('/tmp/oligo_output/')
+output_dir = os.path.expanduser('/tmp/oligo_call_output/')
+snpid_fname = os.path.expanduser('~/script/variation/Rong_codes/snp-IDs.txt')
+snpallele_fname = os.path.expanduser('~/script/variation/Rong_codes/snp-alleles.txt')
 transform_oligo_prob_out2std_call_format(input_dir, output_dir, snpid_fname, snpallele_fname)
+"""
 
 sys.path.insert(0, os.path.join(os.path.expanduser('/home/crocea/script')))
 
@@ -138,10 +144,11 @@ def selectCallFileBasedOnQC(input_dir, output_dir, array_id2QC, max_mismatch_rat
 		else:
 			sys.stderr.write(" mismatch_rate=%s. No copy.\n"%(mismatch_rate))
 
+"""
 input_dir = os.path.expanduser('~/script/oligo/call_output/')
 output_dir = os.path.expanduser('~/script/oligo/call_output_max_mismatch_rate_less_0.15/')
 selectCallFileBasedOnQC(input_dir, output_dir, array_id2QC, max_mismatch_rate=0.15)
-
+"""
 
 def get_chr2no_of_snps(input_fname):
 	"""
@@ -242,13 +249,13 @@ def transformStdCalls2NPUTEInput(input_dir, output_dir, column_record_filename, 
 	del reader_ls
 	del outf_ls
 
-
+"""
 input_dir = os.path.expanduser('~/script/oligo/call_output_max_mismatch_rate_less_0.15/')
 output_dir = os.path.expanduser('~/script/oligo/call_output_max_mismatch_rate_less_0.15_NPUTE_min_prob_0.85/')
 column_record_filename = os.path.expanduser('~/script/oligo/call_output_max_mismatch_rate_less_0.15_NPUTE_min_prob_0.85.columns')
 min_probability = 0.85
 transformStdCalls2NPUTEInput(input_dir, output_dir, column_record_filename, min_probability)
-
+"""
 
 def transformStdCalls2fastPHASEInput(input_dir, output_dir, min_probability=-1):
 	"""
@@ -317,10 +324,12 @@ def transformStdCalls2fastPHASEInput(input_dir, output_dir, min_probability=-1):
 	del outf_ls
 	sys.stderr.write("\n")
 
+"""
 input_dir = os.path.expanduser('~/script/oligo/call_output_max_mismatch_rate_less_0.15/')
 output_dir = os.path.expanduser('~/script/oligo/call_output_max_mismatch_rate_less_0.15_fastPHASE_min_prob_0.85/')
 min_probability = 0.85
 transformStdCalls2fastPHASEInput(input_dir, output_dir, min_probability)
+"""
 
 def transformfastPhaseOutput2stdCallFormat(input_dir, output_dir, snpid_fname, snpallele_fname):
 	"""
@@ -428,9 +437,11 @@ def get_min_prob2call_mismatch_rate_ls(input_dir, QC_method_id=1):
 		sys.stderr.write(".\n")
 	return min_prob2NA_mismatch_rate_ls
 
+"""
 input_dir = os.path.expanduser('~/script/oligo/QC/')
 input_dir = '/mnt/nfs/NPUTE_data/'
 min_prob2NA_mismatch_rate_ls = get_min_prob2call_mismatch_rate_ls(input_dir)
+"""
 
 def plot_min_prob2NA_mismatch_rate_ls(min_prob2NA_mismatch_rate_ls, output_fname, show_min_prob=1):
 	import pylab
@@ -454,10 +465,11 @@ def plot_min_prob2NA_mismatch_rate_ls(min_prob2NA_mismatch_rate_ls, output_fname
 	pylab.savefig('%s.png'%output_fname, dpi=80)
 	pylab.savefig('%s.svg'%output_fname, dpi=80)
 
-
+"""
 output_fname = os.path.expanduser('~/script/oligo/QC/call_rate_vs_mismatch_rate')
 output_fname = os.path.expanduser('/tmp/call_rate_vs_mismatch_rate')
 qc_method_id_
 for i in [1,2,3,8]:
 	output_fname = '/tmp/min_prob_vs_mismatch_rate_qc_%s'
 	plot_min_prob2NA_mismatch_rate_ls(min_prob2NA_mismatch_rate_ls, output_fname)
+"""
