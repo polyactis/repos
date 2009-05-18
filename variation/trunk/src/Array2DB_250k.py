@@ -21,6 +21,14 @@ Description:
 	  2nd column is ecotypeid. 3rd column is optional.
 	  If 3rd column is available, it is treated as paternal ecotypeid and 2nd column becomes maternal ecotypeid.
 	  If only one column, the whole line is skipped.
+	
+	2009-5-16 If the mapping_file is not given, first use ecotypeid_in_fname_p to search for the ecotype id embedded in the filename.
+					like 6039 in "Q270-A-atSNPtilx520433-01-1 (Hovdala-2_6039).CEL"
+			if not found, use nativename_in_fname_p to search for the nativename like:
+					TDr-22 in P403-A-atSNPtilx520433-01-1 (TDr-22).CEL
+				and then use nativename2ecotypeid_ls to find out whether a unique ecotypeid could be mapped.
+	When copying array file into db-affiliated directory, files existing in the same directory with the same name would be overwritten
+		without warning.
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -33,7 +41,7 @@ else:   #32bit
 
 import csv, stat, getopt
 import traceback, gc, subprocess, re
-from common import get_ecotypeid2tg_ecotypeid
+from common import get_ecotypeid2tg_ecotypeid, getNativename2EcotypeIDLs
 
 class ArrayInfo(object):
 	def __init__(self, **keywords):
@@ -137,8 +145,15 @@ class ArrayInfo(object):
 	get_md5sum = classmethod(get_md5sum)
 	
 	ecotypeid_in_fname_p = re.compile(r'_(\d+)\).CEL')
-	def assignNewIdToThisArray(self, array_filename, output_dir, ecotypeid2tg_ecotypeid=None):
+	nativename_in_fname_p = re.compile(r'\((.*)\).CEL')
+	def assignNewIdToThisArray(self, array_filename, output_dir, ecotypeid2tg_ecotypeid=None, nativename2ecotypeid_ls=None):
 		"""
+		2009-5-16
+			add argument nativename2ecotypeid_ls:
+				after ecotypeid_in_fname_p.search() fails, use nativename_in_fname_p to search nativename like:
+					TDr-22 in P403-A-atSNPtilx520433-01-1 (TDr-22).CEL
+				
+				and use nativename2ecotypeid_ls to find out whether a unique ecotypeid could be mapped. 
 		2009-4-5
 			add argument ecotypeid2tg_ecotypeid to link ecotypeid to tg_ecotypeid
 			if array's ecotypeid is not given in the map (array_file_basename2ecotypeid_tuple),
@@ -178,8 +193,18 @@ class ArrayInfo(object):
 					ecotypeid = int(ecotypeid_in_fname_p_search_result.group(1))
 					maternal_ecotype_id = paternal_ecotype_id = ecotypeid
 				else:
-					sys.stderr.write("%s neither in mapping_file nor coded in array filename. No ecotype id assigned.\n"%array_file_basename)
-					maternal_ecotype_id = paternal_ecotype_id = 'NULL'
+					#2009-5-16
+					nativename_in_fname_p_search_result = self.nativename_in_fname_p.search(array_file_basename)
+					ecotypeid = None
+					if nativename_in_fname_p_search_result and nativename2ecotypeid_ls:
+						nativename = nativename_in_fname_p_search_result.group(1)
+						ecotypeid_ls = nativename2ecotypeid_ls.get(nativename)
+						if ecotypeid_ls is not None and len(ecotypeid_ls)==1:
+							ecotypeid = ecotypeid_ls[0]
+							maternal_ecotype_id = paternal_ecotype_id = ecotypeid
+					if ecotypeid is None:
+						sys.stderr.write("%s neither in mapping_file nor coded in array filename. No ecotype id assigned.\n"%array_file_basename)
+						maternal_ecotype_id = paternal_ecotype_id = 'NULL'
 			if ecotypeid2tg_ecotypeid:
 				if maternal_ecotype_id!='NULL':
 					maternal_ecotype_id = ecotypeid2tg_ecotypeid.get(maternal_ecotype_id, maternal_ecotype_id)
@@ -479,10 +504,12 @@ class Array2DB_250k(object):
 		arrayInfo = ArrayInfo(curs=curs, array_info_table=self.array_info_table, user=self.user, \
 							experimenter=self.experimenter, mapping_file=self.mapping_file)
 		ecotypeid2tg_ecotypeid = get_ecotypeid2tg_ecotypeid(curs, debug=self.debug)
+		nativename2ecotypeid_ls = getNativename2EcotypeIDLs(curs)
 		input_fname_ls = self.get_all_files_in_input_dir(self.input_dir)
 		for filename in input_fname_ls:
 			sys.stderr.write("Assigning new id to %s ... "%filename)
-			return_value = arrayInfo.assignNewIdToThisArray(filename, self.output_dir, ecotypeid2tg_ecotypeid=ecotypeid2tg_ecotypeid)
+			return_value = arrayInfo.assignNewIdToThisArray(filename, self.output_dir, ecotypeid2tg_ecotypeid=ecotypeid2tg_ecotypeid,\
+														nativename2ecotypeid_ls=nativename2ecotypeid_ls)
 			if return_value==-1:
 				sys.stderr.write("Failed.\n")
 			else:
