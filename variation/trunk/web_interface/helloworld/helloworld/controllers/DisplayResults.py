@@ -366,6 +366,8 @@ class DisplayresultsController(BaseController):
 	
 	def getCallInfoData(self, call_method_id, phenotype_method_id):
 		"""
+		2009-5-17
+			add region & country in the returning data structure
 		2009-2-2
 			get ecotype id, name, latitude, longitude, pc1, pc2, phenotype for all call_infos in one call_method_id
 		"""
@@ -386,7 +388,8 @@ class DisplayresultsController(BaseController):
 		#3rd finally construct the full data and turn it into json
 		column_name_type_ls = [("date", ("date", "Date")), ("ecotypeid", ("number", "Ecotype ID")), ("label", ("string","ID Name Phenotype")), \
 							("lat",("number", "Latitude")), ("lon",("number", "Longitude")), ("name", ("string", "Native Name")), \
-							("pc1", ("number","PC1")), ("pc2", ("number", "PC2")), ("phenotype", ("number", "Phenotype"))]
+							("pc1", ("number","PC1")), ("pc2", ("number", "PC2")), ("phenotype", ("number", "Phenotype")),\
+							("region", ("string", "Region")), ("country", ("string", "Country"))]
 		
 		description = dict(column_name_type_ls)
 		rows = model.db.metadata.bind.execute("select * from view_call where call_method_id=%s"%(call_method_id))
@@ -410,7 +413,8 @@ class DisplayresultsController(BaseController):
 			label = '%s ID:%s Phenotype:%s.'%(row.nativename, row.ecotype_id, phenotype_value)
 			#label = 'ID:%s. Name=%s. Phenotype=%s.'%(row.ecotype_id, row.nativename, phenotype_value)
 			return_ls.append(dict(ecotypeid=row.ecotype_id, name=row.nativename, lat=row.latitude, lon=row.longitude,\
-								pc1=pc1, pc2=pc2, phenotype=phenotype_value, label=label, date=datetime.date(2009,2,3)))
+								pc1=pc1, pc2=pc2, phenotype=phenotype_value, label=label, date=datetime.date(2009,2,3), \
+								region=row.region, country=row.country))
 		
 		data_table = gviz_api.DataTable(description)
 		data_table.LoadData(return_ls)
@@ -437,6 +441,7 @@ class DisplayresultsController(BaseController):
 		call_info_jsdata = CallPhenotypeMethod2call_info_jsdata.get(key_tup)
 		if call_info_jsdata is None:
 			call_info_jsdata = self.getCallInfoData(call_method_id, phenotype_method_id)
+			CallPhenotypeMethod2call_info_jsdata[key_tup] = call_info_jsdata
 		return call_info_jsdata
 	
 	def getPhenotypeHistImage(self, id=None, img_type='hist_thumb'):
