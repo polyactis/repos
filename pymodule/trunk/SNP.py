@@ -94,6 +94,8 @@ nt_number_matching_matrix = [[1, 1,1,1,1,1, 1,1,1,1,1],
 
 def get_nt_number2diff_matrix_index(number2nt):
 	"""
+	2009-5-18
+		only the integer-type keys in number2nt, which contains num.nan in it now. 
 	2008-05-19
 		moved from variation.src.common
 	2008-01-01 copied from CmpAccession2Ecotype.py
@@ -105,7 +107,8 @@ def get_nt_number2diff_matrix_index(number2nt):
 	nt_number2diff_matrix_index = {}
 	number_nt_ls = []
 	for number, nt in number2nt.iteritems():
-		number_nt_ls.append([number,nt])
+		if type(number)==int:	#2009-5-18 number2nt contains num.nan
+			number_nt_ls.append([number,nt])
 	number_nt_ls.sort()
 	for i in range(len(number_nt_ls)):
 		nt_number2diff_matrix_index[number_nt_ls[i][0]] = i
