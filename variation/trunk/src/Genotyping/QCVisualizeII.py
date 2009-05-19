@@ -30,7 +30,7 @@ from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as Navig
 from variation.src.QualityControl import QualityControl
 from variation.src import Cmp250kVs2010, Cmp250kVs149SNP, Cmp149SNPVs2010, CmpTina2010VsMy2010In250kSNPs
 
-from pymodule import yh_gnome
+from pymodule import yh_gnome, number2nt
 #from pymodule.gnome import fill_treeview, create_columns, foreach_cb
 
 class QCVisualizeII:
@@ -207,6 +207,8 @@ class QCVisualizeII:
 	
 	def on_button_input_run_clicked(self, widget, event=None, data=None):
 		"""
+		2009-5-18
+			add one more column: row category from dataset1
 		2008-02-06
 			fix a bug. self.class_chosen could be 0
 		"""
@@ -228,22 +230,45 @@ class QCVisualizeII:
 				del self.qc_class_ins	#release memory (maybe it works by 'del')
 				self.qc_class_ins = None
 			if self.class_chosen == 2:
-				self.qc_class_ins = self.qc_class_dict[self.class_chosen](self.curs, self.input_fname1, self.input_fname2, self.latex_output_fname, self.ecotype2accession_table, self.diff_details_table, self.qc_cross_match_table)
+				self.qc_class_ins = self.qc_class_dict[self.class_chosen](self.curs, self.input_fname1, self.input_fname2, \
+																		self.latex_output_fname, self.ecotype2accession_table, \
+																		self.diff_details_table, self.qc_cross_match_table)
 			elif self.class_chosen==0:
 				self.qc_class_ins = self.qc_class_dict[self.class_chosen](curs=self.curs, input_fname1=self.input_fname1, input_fname2=self.input_fname2)
 			else:
 				self.qc_class_ins = self.qc_class_dict[self.class_chosen](self.curs, self.input_fname1, self.input_fname2)
 			self.qc_class_ins.load_dstruc()
 			
-			yh_gnome.create_columns(self.treeview_strains1, ['Index', self.qc_class_ins.header1[0], self.qc_class_ins.header2[0], self.qc_class_ins.header2[1]])
+			if self.qc_class_ins.header1[0]:
+				dataset1_row_id = self.qc_class_ins.header1[0]
+			else:
+				dataset1_row_id = 'dataset1 row id'
+			if self.qc_class_ins.header1[1]:
+				dataset1_row_category = self.qc_class_ins.header1[1]
+			else:
+				dataset1_row_category = 'dataset1 row category'
+			if self.qc_class_ins.header2[0]:
+				dataset2_row_id = self.qc_class_ins.header2[0]
+			else:
+				dataset2_row_id = 'dataset2 row id'
+			if self.qc_class_ins.header2[1]:
+				dataset2_row_category = self.qc_class_ins.header2[1]
+			else:
+				dataset2_row_category = 'dataset2 row category'
+			
+			yh_gnome.create_columns(self.treeview_strains1, ['Index', dataset1_row_id, dataset1_row_category, dataset2_row_id, dataset2_row_category])
 			self.strain_index2row_id1 = {}
-			self.liststore_strains1 = gtk.ListStore(int, str, str, str)
-			strain_acc_list1_2d = [[0, 'ALL', '', '']]
+			self.liststore_strains1 = gtk.ListStore(int, str, str, str, str)
+			strain_acc_list1_2d = [[0, 'ALL', '', '', '']]
 			self.strain_index2row_id1[0] = 'ALL'
 			
 			row_id22category = {}	#row_id2 's category offers some info on row_id2
 			for row_id2, row_index2 in self.qc_class_ins.row_id2row_index2.iteritems():
 				row_id22category[row_id2] = self.qc_class_ins.category_list2[row_index2]
+			
+			row_id12category = {}
+			for row_id1, row_index1 in self.qc_class_ins.row_id2row_index1.iteritems():
+				row_id12category[row_id1] = self.qc_class_ins.category_list1[row_index1]
 			
 			strain_index = len(self.strain_index2row_id1) #starting from 1
 			for row_id1, row_id2 in self.qc_class_ins.row_id12row_id2.iteritems():
@@ -251,7 +276,12 @@ class QCVisualizeII:
 					row_id2_category = row_id22category[row_id2]
 				else:
 					row_id2_category = ''
-				strain_acc_list1_2d.append([strain_index, repr(row_id1), repr(row_id2), row_id2_category])
+				if row_id1 in row_id12category:
+					row_id1_category = row_id12category[row_id1]
+				else:
+					row_id1_category = ''
+				
+				strain_acc_list1_2d.append([strain_index, repr(row_id1), repr(row_id1_category), repr(row_id2), row_id2_category])
 				self.strain_index2row_id1[strain_index] = row_id1
 				strain_index += 1
 			
@@ -273,6 +303,8 @@ class QCVisualizeII:
 	
 	def on_button_diff_matrix_clicked(self, widget, data=None):
 		"""
+		2009-5-19
+			add row/column labels (the nucleotide symbol) around the diff matrix canvas 
 		2008-01-21
 			figure out the cell-width and cell-height, by adding/deleting a text widget
 			set the canvas size, scroll region
@@ -289,7 +321,14 @@ class QCVisualizeII:
 		row_id1 = self.strain_index2row_id1[strain_index]
 		if row_id1 == 'ALL':
 			row_id1 = -1
-		diff_matrix, diff_details_ls, self.diff_code_pair2diff_details_ls = self.qc_class_ins.get_diff_matrix(self.qc_class_ins.data_matrix1, self.qc_class_ins.data_matrix2, self.qc_class_ins.nt_number2diff_matrix_index, self.qc_class_ins.col_id2col_index1, self.qc_class_ins.col_id2col_index2, self.qc_class_ins.col_id12col_id2, self.qc_class_ins.row_id2row_index1, self.qc_class_ins.row_id2row_index2, self.qc_class_ins.row_id12row_id2, row_id=row_id1, need_diff_code_pair_dict=1)
+		diff_matrix, diff_details_ls, diff_code_pair2diff_details_ls = self.qc_class_ins.get_diff_matrix(self.qc_class_ins.data_matrix1, \
+																self.qc_class_ins.data_matrix2, self.qc_class_ins.nt_number2diff_matrix_index, \
+																self.qc_class_ins.col_id2col_index1, self.qc_class_ins.col_id2col_index2, \
+																self.qc_class_ins.col_id12col_id2, self.qc_class_ins.row_id2row_index1, \
+																self.qc_class_ins.row_id2row_index2, self.qc_class_ins.row_id12row_id2, \
+																row_id=row_id1, need_diff_code_pair_dict=1)
+		self.diff_code_pair2diff_details_ls = diff_code_pair2diff_details_ls[0]
+		
 		if diff_matrix!=None:
 			for w in self.canvas_diff_matrix.get_data('children_ls'):	#clean up the previous mess
 				w.destroy()
@@ -298,17 +337,43 @@ class QCVisualizeII:
 			no_of_rows, no_of_cols = diff_matrix.shape
 			cell_unit_height = self.canvas_diff_matrix.props.height_request/float(no_of_rows)
 			cell_unit_width = self.canvas_diff_matrix.props.width_request/float(no_of_cols)
+			# 2009-5-18 add column labels
+			for j in range(no_of_cols):
+				col_nt = number2nt.get(j-2)
+				if col_nt is None:
+					col_nt = "None"
+				w = canvas_root.add(gnomecanvas.CanvasText,text=col_nt, y=0*cell_unit_height, x=(j+1)*cell_unit_width, \
+								fill_color='black', anchor=gtk.ANCHOR_W)
+				#in canvas, x is horizontal/column, y is vertical/row.
+				self.canvas_diff_matrix.get_data('children_ls').append(w)
+			
 			for i in range(no_of_rows):
+				# 2009-5-18 add row labels
+				row_nt = number2nt.get(i-2)
+				if row_nt is None:
+					row_nt = "None"
+				
+				w = canvas_root.add(gnomecanvas.CanvasText,text=row_nt, y=(i+1)*cell_unit_height, x=0*cell_unit_width, fill_color='black', \
+								anchor=gtk.ANCHOR_W)
+				#in canvas, x is horizontal/column, y is vertical/row.
+				self.canvas_diff_matrix.get_data('children_ls').append(w)
 				for j in range(no_of_cols):
-					w = canvas_root.add(gnomecanvas.CanvasText,text=repr(diff_matrix[i][j]), y=i*cell_unit_height, x=j*cell_unit_width, fill_color='black', anchor=gtk.ANCHOR_W)
+					col_nt = number2nt.get(j-2)
+					w = canvas_root.add(gnomecanvas.CanvasText,text=repr(diff_matrix[i][j]), y=(i+1)*cell_unit_height, x=(j+1)*cell_unit_width,\
+									fill_color='black', anchor=gtk.ANCHOR_W)
 					#in canvas, x is horizontal/column, y is vertical/row.
-					w.set_data('name', (i,j))
+					w.set_data('name', '%s vs %s'%(row_nt, col_nt))
+					w.set_data('diff_code_pair', (i-2,j-2))
 					self.canvas_diff_matrix.get_data('children_ls').append(w)
 					w.connect("event", self.canvas_diff_matrix_item_event)
 		else:
 			self.app_input_appbar.push("Error: %s doesn't have corresponding comparison.")
 	
 	def canvas_diff_matrix_item_event(self, widget, event=None):
+		"""
+		2009-5-19
+			when an entry in the canvas of diff matrix is selected, fill up the treeview_diff_details with details (which accession, which SNP etc.)
+		"""
 		if event.type == gtk.gdk.BUTTON_PRESS:
 			if event.button == 1:
 				previous_selected_item = self.canvas_diff_matrix.get_data('item_selected')
@@ -316,8 +381,23 @@ class QCVisualizeII:
 					previous_selected_item.set(fill_color='black')	#change the previous selected widget color back to black
 				widget.set(fill_color='red')	#change the current selected widget color to red
 				self.canvas_diff_matrix.set_data('item_selected', widget)	#remember the current selected widget
-				diff_code_pair = widget.get_data('name')
-			 	self.app1_appbar1.push(repr(diff_code_pair))
+				widget_name = widget.get_data('name')
+			 	self.app1_appbar1.push(widget_name)
+			 	
+			 	yh_gnome.create_columns(self.treeview_diff_details, ["row-id1", "col-id1", "nt1", "row-id2", "col-id2", "nt2"])
+				liststore_diff_details = gtk.ListStore(str, str, str, str, str, str)
+				
+				diff_code_pair = widget.get_data('diff_code_pair')
+				diff_details_ls = self.diff_code_pair2diff_details_ls.get(diff_code_pair)
+				if diff_details_ls is None:
+					diff_details_ls = []
+				
+				list_2d = []
+				for row in diff_details_ls:
+					list_2d.append(row)
+				
+				yh_gnome.fill_treeview(self.treeview_diff_details, liststore_diff_details, list_2d, reorderable=True)
+				
 				return True
 		elif event.type == gtk.gdk.ENTER_NOTIFY:
 			# Make the outline heavy
