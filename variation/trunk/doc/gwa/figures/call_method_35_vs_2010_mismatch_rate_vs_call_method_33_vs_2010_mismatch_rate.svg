@@ -1,0 +1,1224 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="930pt"
+   height="518pt"
+   viewBox="0 0 930 518"
+   version="1.1"
+   id="svg1"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:docname="call_method_35_vs_2010_mismatch_rate_vs_call_method_33_vs_2010_mismatch_rate.svg">
+  <metadata
+     id="metadata7905">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     inkscape:window-height="926"
+     inkscape:window-width="1323"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="false"
+     inkscape:zoom="0.98"
+     inkscape:cx="563.39286"
+     inkscape:cy="323.75"
+     inkscape:window-x="345"
+     inkscape:window-y="207"
+     inkscape:current-layer="matplotlib.axis1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid7917" />
+  </sodipodi:namedview>
+  <g
+     id="figure1">
+    <polygon
+       style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0"
+       points="0.0,518.4 0.0,0.0 930.6,0.0 930.6,518.4"
+       id="polygon7314" />
+    <g
+       id="axes1">
+      <polygon
+         style="fill: #ffffff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0"
+         points="116.325,466.56 116.325,51.84 837.54,51.84 837.54,466.56"
+         id="polygon7317" />
+      <defs
+         id="defs7319">
+        <clipPath
+           id="491023673880104469">
+          <rect
+             x="116.325"
+             y="51.84"
+             width="721.215"
+             height="414.72"
+             style="stroke: gray; fill: none;"
+             id="rect7322" />
+        </clipPath>
+      </defs>
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="287.541134484,351.22957056 285.975134484,352.12957056 285.975134484,353.92957056 287.541134484,354.82957056 289.107134484,353.92957056 289.107134484,352.12957056"
+         id="polygon7324" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="370.671981459,307.34385408 369.105981459,308.24385408 369.105981459,310.04385408 370.671981459,310.94385408 372.237981459,310.04385408 372.237981459,308.24385408"
+         id="polygon7326" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="340.3048182,344.428199424 338.7388182,345.328199424 338.7388182,347.128199424 340.3048182,348.028199424 341.8708182,347.128199424 341.8708182,345.328199424"
+         id="polygon7328" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="263.895036917,377.116992 262.329036917,378.016992 262.329036917,379.816992 263.895036917,380.716992 265.461036917,379.816992 265.461036917,378.016992"
+         id="polygon7330" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="330.972323146,336.759998976 329.406323146,337.659998976 329.406323146,339.459998976 330.972323146,340.359998976 332.538323146,339.459998976 332.538323146,337.659998976"
+         id="polygon7332" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="315.043316231,331.38807552 313.477316231,332.28807552 313.477316231,334.08807552 315.043316231,334.98807552 316.60931623,334.08807552 316.60931623,332.28807552"
+         id="polygon7334" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="261.837933402,371.196550656 260.271933402,372.096550656 260.271933402,373.896550656 261.837933402,374.796550656 263.403933402,373.896550656 263.403933402,372.096550656"
+         id="polygon7336" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="724.387496828,137.99879424 722.821496828,138.89879424 722.821496828,140.69879424 724.387496828,141.59879424 725.953496828,140.69879424 725.953496828,138.89879424"
+         id="polygon7338" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="621.123734793,188.871187968 619.557734793,189.771187968 619.557734793,191.571187968 621.123734793,192.471187968 622.689734793,191.571187968 622.689734793,189.771187968"
+         id="polygon7340" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="496.602016391,223.605821952 495.036016391,224.505821952 495.036016391,226.305821952 496.602016391,227.205821952 498.168016391,226.305821952 498.168016391,224.505821952"
+         id="polygon7342" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="454.658856547,259.959992832 453.092856547,260.859992832 453.092856547,262.659992832 454.658856547,263.559992832 456.224856547,262.659992832 456.224856547,260.859992832"
+         id="polygon7344" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="239.820717943,389.943765504 238.254717943,390.843765504 238.254717943,392.643765504 239.820717943,393.543765504 241.386717943,392.643765504 241.386717943,390.843765504"
+         id="polygon7346" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="247.169520155,372.665783808 245.603520155,373.565783808 245.603520155,375.365783808 247.169520155,376.265783808 248.735520155,375.365783808 248.735520155,373.565783808"
+         id="polygon7348" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="458.403260585,270.300307968 456.837260585,271.200307968 456.837260585,273.000307968 458.403260585,273.900307968 459.969260584,273.000307968 459.969260584,271.200307968"
+         id="polygon7350" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="433.130678949,268.818651648 431.564678949,269.718651648 431.564678949,271.518651648 433.130678949,272.418651648 434.696678949,271.518651648 434.696678949,269.718651648"
+         id="polygon7352" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="237.424535197,370.719189504 235.858535197,371.619189504 235.858535197,373.419189504 237.424535197,374.319189504 238.990535197,373.419189504 238.990535197,371.619189504"
+         id="polygon7354" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="365.110133652,333.757868544 363.544133652,334.657868544 363.544133652,336.457868544 365.110133652,337.357868544 366.676133652,336.457868544 366.676133652,334.657868544"
+         id="polygon7356" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="293.839243638,374.53342464 292.273243638,375.43342464 292.273243638,377.23342464 293.839243638,378.13342464 295.405243638,377.23342464 295.405243638,375.43342464"
+         id="polygon7358" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="326.898720522,344.89873152 325.332720522,345.79873152 325.332720522,347.59873152 326.898720522,348.49873152 328.464720522,347.59873152 328.464720522,345.79873152"
+         id="polygon7360" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="283.749914578,360.55081728 282.183914578,361.45081728 282.183914578,363.25081728 283.749914578,364.15081728 285.315914578,363.25081728 285.315914578,361.45081728"
+         id="polygon7362" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="394.14278772,304.056442368 392.57678772,304.956442368 392.57678772,306.756442368 394.14278772,307.656442368 395.70878772,306.756442368 395.70878772,304.956442368"
+         id="polygon7364" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="259.650722702,392.07861504 258.084722702,392.97861504 258.084722702,394.77861504 259.650722702,395.67861504 261.216722702,394.77861504 261.216722702,392.97861504"
+         id="polygon7366" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="686.166707903,161.091021312 684.600707903,161.991021312 684.600707903,163.791021312 686.166707903,164.691021312 687.732707903,163.791021312 687.732707903,161.991021312"
+         id="polygon7368" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="330.972323146,349.644644352 329.406323146,350.544644352 329.406323146,352.344644352 330.972323146,353.244644352 332.538323146,352.344644352 332.538323146,350.544644352"
+         id="polygon7370" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="333.394974483,342.15245568 331.828974483,343.05245568 331.828974483,344.85245568 333.394974483,345.75245568 334.960974483,344.85245568 334.960974483,343.05245568"
+         id="polygon7372" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="412.125346166,291.752059392 410.559346166,292.652059392 410.559346166,294.452059392 412.125346166,295.352059392 413.691346166,294.452059392 413.691346166,292.652059392"
+         id="polygon7374" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="340.059578055,346.099060224 338.493578055,346.999060224 338.493578055,348.799060224 340.059578055,349.699060224 341.625578055,348.799060224 341.625578055,346.999060224"
+         id="polygon7376" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="458.257701367,256.19422464 456.691701367,257.09422464 456.691701367,258.89422464 458.257701367,259.79422464 459.823701367,258.89422464 459.823701367,257.09422464"
+         id="polygon7378" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="236.34968324,378.380763648 234.78368324,379.280763648 234.78368324,381.080763648 236.34968324,381.980763648 237.91568324,381.080763648 237.91568324,379.280763648"
+         id="polygon7380" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="332.94434132,354.505250304 331.37834132,355.405250304 331.37834132,357.205250304 332.94434132,358.105250304 334.51034132,357.205250304 334.51034132,355.405250304"
+         id="polygon7382" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="192.941328244,425.709153792 191.375328244,426.609153792 191.375328244,428.409153792 192.941328244,429.309153792 194.507328245,428.409153792 194.507328245,426.609153792"
+         id="polygon7384" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="246.885278506,391.932412416 245.319278506,392.832412416 245.319278506,394.632412416 246.885278506,395.532412416 248.451278506,394.632412416 248.451278506,392.832412416"
+         id="polygon7386" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="313.306522328,339.953158656 311.740522328,340.853158656 311.740522328,342.653158656 313.306522328,343.553158656 314.872522328,342.653158656 314.872522328,340.853158656"
+         id="polygon7388" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="336.207613816,334.221755904 334.641613816,335.121755904 334.641613816,336.921755904 336.207613816,337.821755904 337.773613816,336.921755904 337.773613816,335.121755904"
+         id="polygon7390" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="319.981349123,335.245211136 318.415349123,336.145211136 318.415349123,337.945211136 319.981349123,338.845211136 321.547349123,337.945211136 321.547349123,336.145211136"
+         id="polygon7392" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="315.18943439,325.224313344 313.62343439,326.124313344 313.62343439,327.924313344 315.18943439,328.824313344 316.75543439,327.924313344 316.75543439,326.124313344"
+         id="polygon7394" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="605.521221909,200.312372736 603.955221909,201.212372736 603.955221909,203.012372736 605.521221909,203.912372736 607.087221909,203.012372736 607.087221909,201.212372736"
+         id="polygon7396" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="382.849390217,303.07578624 381.283390217,303.97578624 381.283390217,305.77578624 382.849390217,306.67578624 384.415390217,305.77578624 384.415390217,303.97578624"
+         id="polygon7398" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="824.426977052,86.467004928 822.860977052,87.367004928 822.860977052,89.167004928 824.426977052,90.067004928 825.992977052,89.167004928 825.992977052,87.367004928"
+         id="polygon7400" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="385.435072205,323.595892224 383.869072205,324.495892224 383.869072205,326.295892224 385.435072205,327.195892224 387.001072205,326.295892224 387.001072205,324.495892224"
+         id="polygon7402" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="304.842739757,330.415981056 303.276739757,331.315981056 303.276739757,333.115981056 304.842739757,334.015981056 306.408739756,333.115981056 306.408739756,331.315981056"
+         id="polygon7404" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="299.589175302,343.777752576 298.023175302,344.677752576 298.023175302,346.477752576 299.589175302,347.377752576 301.155175302,346.477752576 301.155175302,344.677752576"
+         id="polygon7406" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="248.318961971,365.091651072 246.752961971,365.991651072 246.752961971,367.791651072 248.318961971,368.691651072 249.884961971,367.791651072 249.884961971,365.991651072"
+         id="polygon7408" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="289.822319498,376.275515904 288.256319498,377.175515904 288.256319498,378.975515904 289.822319498,379.875515904 291.388319498,378.975515904 291.388319498,377.175515904"
+         id="polygon7410" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="325.070296254,334.129245696 323.504296254,335.029245696 323.504296254,336.829245696 325.070296254,337.729245696 326.636296254,336.829245696 326.636296254,335.029245696"
+         id="polygon7412" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="270.65060373,386.492484096 269.08460373,387.392484096 269.08460373,389.192484096 270.65060373,390.092484096 272.21660373,389.192484096 272.21660373,387.392484096"
+         id="polygon7414" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="460.15366742,253.602565632 458.58766742,254.502565632 458.58766742,256.302565632 460.15366742,257.202565632 461.71966742,256.302565632 461.71966742,254.502565632"
+         id="polygon7416" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="282.562497187,360.62440704 280.996497187,361.52440704 280.996497187,363.32440704 282.562497187,364.22440704 284.128497187,363.32440704 284.128497187,361.52440704"
+         id="polygon7418" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="208.316707086,418.348488499 206.750707086,419.248488499 206.750707086,421.048488499 208.316707086,421.948488499 209.882707086,421.048488499 209.882707086,419.248488499"
+         id="polygon7420" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="289.822319498,369.819606528 288.256319498,370.719606528 288.256319498,372.519606528 289.822319498,373.419606528 291.388319498,372.519606528 291.388319498,370.719606528"
+         id="polygon7422" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="324.167930076,346.014116352 322.601930076,346.914116352 322.601930076,348.714116352 324.167930076,349.614116352 325.733930076,348.714116352 325.733930076,346.914116352"
+         id="polygon7424" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="300.442625072,358.980945408 298.876625072,359.880945408 298.876625072,361.680945408 300.442625072,362.580945408 302.008625072,361.680945408 302.008625072,359.880945408"
+         id="polygon7426" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="649.848988998,145.59116544 648.282988998,146.49116544 648.282988998,148.29116544 649.848988998,149.19116544 651.414988998,148.29116544 651.414988998,146.49116544"
+         id="polygon7428" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="333.231763528,342.693775872 331.665763528,343.593775872 331.665763528,345.393775872 333.231763528,346.293775872 334.797763528,345.393775872 334.797763528,343.593775872"
+         id="polygon7430" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="449.480478756,272.897837568 447.914478756,273.797837568 447.914478756,275.597837568 449.480478756,276.497837568 451.046478756,275.597837568 451.046478756,273.797837568"
+         id="polygon7432" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="307.824080293,353.723862528 306.258080293,354.623862528 306.258080293,356.423862528 307.824080293,357.323862528 309.390080293,356.423862528 309.390080293,354.623862528"
+         id="polygon7434" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="375.853135927,329.130865152 374.287135928,330.030865152 374.287135928,331.830865152 375.853135927,332.730865152 377.419135927,331.830865152 377.419135927,330.030865152"
+         id="polygon7436" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="287.917139924,364.8756096 286.351139924,365.7756096 286.351139924,367.5756096 287.917139924,368.4756096 289.483139924,367.5756096 289.483139924,365.7756096"
+         id="polygon7438" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="261.518363036,377.563497984 259.952363036,378.463497984 259.952363036,380.263497984 261.518363036,381.163497984 263.084363036,380.263497984 263.084363036,378.463497984"
+         id="polygon7440" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="386.587573775,308.224958976 385.021573775,309.124958976 385.021573775,310.924958976 386.587573775,311.824958976 388.153573775,310.924958976 388.153573775,309.124958976"
+         id="polygon7442" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="304.421315802,330.611526144 302.855315802,331.511526144 302.855315802,333.311526144 304.421315802,334.211526144 305.987315802,333.311526144 305.987315802,331.511526144"
+         id="polygon7444" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="288.928012898,351.147239424 287.362012898,352.047239424 287.362012898,353.847239424 288.928012898,354.747239424 290.494012898,353.847239424 290.494012898,352.047239424"
+         id="polygon7446" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="340.059578055,331.964610048 338.493578055,332.864610048 338.493578055,334.664610048 340.059578055,335.564610048 341.625578055,334.664610048 341.625578055,332.864610048"
+         id="polygon7448" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="437.817548718,289.088441856 436.251548718,289.988441856 436.251548718,291.788441856 437.817548718,292.688441856 439.383548718,291.788441856 439.383548718,289.988441856"
+         id="polygon7450" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="446.458641998,296.844083712 444.892641998,297.744083712 444.892641998,299.544083712 446.458641998,300.444083712 448.024641997,299.544083712 448.024641997,297.744083712"
+         id="polygon7452" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="313.306522328,352.691329536 311.740522328,353.591329536 311.740522328,355.391329536 313.306522328,356.291329536 314.872522328,355.391329536 314.872522328,353.591329536"
+         id="polygon7454" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="405.863883748,306.091418112 404.297883748,306.991418112 404.297883748,308.791418112 405.863883748,309.691418112 407.429883748,308.791418112 407.429883748,306.991418112"
+         id="polygon7456" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="735.579130894,59.88734208 734.013130894,60.78734208 734.013130894,62.58734208 735.579130894,63.48734208 737.145130894,62.58734208 737.145130894,60.78734208"
+         id="polygon7458" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="761.338406441,125.4782592 759.772406441,126.3782592 759.772406441,128.1782592 761.338406441,129.0782592 762.904406441,128.1782592 762.904406441,126.3782592"
+         id="polygon7460" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="230.441298838,393.151606272 228.875298838,394.051606272 228.875298838,395.851606272 230.441298838,396.751606272 232.007298838,395.851606272 232.007298838,394.051606272"
+         id="polygon7462" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="326.469218959,338.705293824 324.903218959,339.605293824 324.903218959,341.405293824 326.469218959,342.305293824 328.035218959,341.405293824 328.035218959,339.605293824"
+         id="polygon7464" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="183.80394709,423.890820403 182.23794709,424.790820403 182.23794709,426.590820403 183.80394709,427.490820403 185.36994709,426.590820403 185.36994709,424.790820403"
+         id="polygon7466" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="280.237498361,347.226610176 278.671498361,348.126610176 278.671498361,349.926610176 280.237498361,350.826610176 281.803498361,349.926610176 281.803498361,348.126610176"
+         id="polygon7468" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="245.297637274,392.657577984 243.731637274,393.557577984 243.731637274,395.357577984 245.297637274,396.257577984 246.863637274,395.357577984 246.863637274,393.557577984"
+         id="polygon7470" />
+      <polygon
+         style="fill: #0000ff; opacity: 1.0"
+         clip-path="url(#491023673880104469)"
+         points="584.64642904,198.288907776 583.08042904,199.188907776 583.08042904,200.988907776 584.64642904,201.888907776 586.21242904,200.988907776 586.21242904,199.188907776"
+         id="polygon7472" />
+      <g
+         id="matplotlib.axis1">
+        <g
+           id="xtick1">
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(99.934375,479.46625)scale(0.12)"
+             id="g7476">
+            <use
+               xlink:href="#c_0"
+               id="use7478" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7480" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7482" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(159.033203125)"
+               id="use7484" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7486" />
+          </g>
+        </g>
+        <g
+           id="xtick2">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M206.476875,466.56L206.476875,462.56"
+             id="path7489" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M206.476875,55.84L206.476875,51.84"
+             id="path7491" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(190.21125,479.46625)scale(0.12)"
+             id="g7493">
+            <use
+               xlink:href="#c_0"
+               id="use7495" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7497" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7499" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(159.033203125)"
+               id="use7501" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7503" />
+          </g>
+        </g>
+        <g
+           id="xtick3">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M296.62875,466.56L296.62875,462.56"
+             id="path7506" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M296.62875,55.84L296.62875,51.84"
+             id="path7508" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(280.238125,479.46625)scale(0.12)"
+             id="g7510">
+            <use
+               xlink:href="#c_0"
+               id="use7512" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7514" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7516" />
+            <use
+               xlink:href="#c_3"
+               transform="translate(159.033203125)"
+               id="use7518" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7520" />
+          </g>
+        </g>
+        <g
+           id="xtick4">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M386.780625,466.56L386.780625,462.56"
+             id="path7523" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M386.780625,55.84L386.780625,51.84"
+             id="path7525" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(370.515,479.46625)scale(0.12)"
+             id="g7527">
+            <use
+               xlink:href="#c_0"
+               id="use7529" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7531" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7533" />
+            <use
+               xlink:href="#c_3"
+               transform="translate(159.033203125)"
+               id="use7535" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7537" />
+          </g>
+        </g>
+        <g
+           id="xtick5">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M476.9325,466.56L476.9325,462.56"
+             id="path7540" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M476.9325,55.84L476.9325,51.84"
+             id="path7542" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(460.541875,479.46625)scale(0.12)"
+             id="g7544">
+            <use
+               xlink:href="#c_0"
+               id="use7546" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7548" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7550" />
+            <use
+               xlink:href="#c_4"
+               transform="translate(159.033203125)"
+               id="use7552" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7554" />
+          </g>
+        </g>
+        <g
+           id="xtick6">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M567.084375,466.56L567.084375,462.56"
+             id="path7557" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M567.084375,55.84L567.084375,51.84"
+             id="path7559" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(550.81875,479.46625)scale(0.12)"
+             id="g7561">
+            <use
+               xlink:href="#c_0"
+               id="use7563" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7565" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7567" />
+            <use
+               xlink:href="#c_4"
+               transform="translate(159.033203125)"
+               id="use7569" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7571" />
+          </g>
+        </g>
+        <g
+           id="xtick7">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M657.23625,466.56L657.23625,462.56"
+             id="path7574" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M657.23625,55.84L657.23625,51.84"
+             id="path7576" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(640.845625,479.46625)scale(0.12)"
+             id="g7578">
+            <use
+               xlink:href="#c_0"
+               id="use7580" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7582" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7584" />
+            <use
+               xlink:href="#c_5"
+               transform="translate(159.033203125)"
+               id="use7586" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7588" />
+          </g>
+        </g>
+        <g
+           id="xtick8">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M747.388125,466.56L747.388125,462.56"
+             id="path7591" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M747.388125,55.84L747.388125,51.84"
+             id="path7593" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(731.1225,479.46625)scale(0.12)"
+             id="g7595">
+            <use
+               xlink:href="#c_0"
+               id="use7597" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7599" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7601" />
+            <use
+               xlink:href="#c_5"
+               transform="translate(159.033203125)"
+               id="use7603" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7605" />
+          </g>
+        </g>
+        <g
+           id="xtick9">
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(821.149375,479.46625)scale(0.12)"
+             id="g7608">
+            <use
+               xlink:href="#c_0"
+               id="use7610" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7612" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7614" />
+            <use
+               xlink:href="#c_6"
+               transform="translate(159.033203125)"
+               id="use7616" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7618" />
+          </g>
+        </g>
+        <text
+           xml:space="preserve"
+           style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="343.80389"
+           y="507.38776"
+           id="text7909"><tspan
+             sodipodi:role="line"
+             id="tspan7911"
+             x="343.80389"
+             y="507.38776"
+             style="font-size:16px">X. Error Estimate Before Imputation</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="-385.48294"
+           y="63.563053"
+           id="text7913"
+           transform="matrix(0,-1,1,0,0,0)"><tspan
+             sodipodi:role="line"
+             id="tspan7915"
+             x="-385.48294"
+             y="63.563053">Y. Error Estimate After Imputation</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:16;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="445.71429"
+           y="136.77551"
+           id="text8430"><tspan
+             sodipodi:role="line"
+             id="tspan8432"
+             x="445.71429"
+             y="136.77551"
+             style="font-size:16">X = Y</tspan></text>
+        <path
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+           d="M 492.2449,141.67347 L 569.79592,232.28571"
+           id="path8434" />
+      </g>
+      <g
+         id="matplotlib.axis2">
+        <g
+           id="ytick1">
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.54375,470.9271875)scale(0.12)"
+             id="g7672">
+            <use
+               xlink:href="#c_0"
+               id="use7674" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7676" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7678" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(159.033203125)"
+               id="use7680" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7682" />
+          </g>
+        </g>
+        <g
+           id="ytick2">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,420.48L120.325,420.48"
+             id="path7685" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,420.48L837.54,420.48"
+             id="path7687" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.79375,424.8471875)scale(0.12)"
+             id="g7689">
+            <use
+               xlink:href="#c_0"
+               id="use7691" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7693" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7695" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(159.033203125)"
+               id="use7697" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7699" />
+          </g>
+        </g>
+        <g
+           id="ytick3">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,374.4L120.325,374.4"
+             id="path7702" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,374.4L837.54,374.4"
+             id="path7704" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.54375,378.7671875)scale(0.12)"
+             id="g7706">
+            <use
+               xlink:href="#c_0"
+               id="use7708" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7710" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7712" />
+            <use
+               xlink:href="#c_3"
+               transform="translate(159.033203125)"
+               id="use7714" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7716" />
+          </g>
+        </g>
+        <g
+           id="ytick4">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,328.32L120.325,328.32"
+             id="path7719" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,328.32L837.54,328.32"
+             id="path7721" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.79375,332.6871875)scale(0.12)"
+             id="g7723">
+            <use
+               xlink:href="#c_0"
+               id="use7725" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7727" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7729" />
+            <use
+               xlink:href="#c_3"
+               transform="translate(159.033203125)"
+               id="use7731" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7733" />
+          </g>
+        </g>
+        <g
+           id="ytick5">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,282.24L120.325,282.24"
+             id="path7736" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,282.24L837.54,282.24"
+             id="path7738" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.54375,286.6071875)scale(0.12)"
+             id="g7740">
+            <use
+               xlink:href="#c_0"
+               id="use7742" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7744" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7746" />
+            <use
+               xlink:href="#c_4"
+               transform="translate(159.033203125)"
+               id="use7748" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7750" />
+          </g>
+        </g>
+        <g
+           id="ytick6">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,236.16L120.325,236.16"
+             id="path7753" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,236.16L837.54,236.16"
+             id="path7755" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.79375,240.5271875)scale(0.12)"
+             id="g7757">
+            <use
+               xlink:href="#c_0"
+               id="use7759" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7761" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7763" />
+            <use
+               xlink:href="#c_4"
+               transform="translate(159.033203125)"
+               id="use7765" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7767" />
+          </g>
+        </g>
+        <g
+           id="ytick7">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,190.08L120.325,190.08"
+             id="path7770" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,190.08L837.54,190.08"
+             id="path7772" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.54375,194.4471875)scale(0.12)"
+             id="g7774">
+            <use
+               xlink:href="#c_0"
+               id="use7776" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7778" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7780" />
+            <use
+               xlink:href="#c_5"
+               transform="translate(159.033203125)"
+               id="use7782" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7784" />
+          </g>
+        </g>
+        <g
+           id="ytick8">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,144.0L120.325,144.0"
+             id="path7787" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,144.0L837.54,144.0"
+             id="path7789" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.79375,148.3671875)scale(0.12)"
+             id="g7791">
+            <use
+               xlink:href="#c_0"
+               id="use7793" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7795" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7797" />
+            <use
+               xlink:href="#c_5"
+               transform="translate(159.033203125)"
+               id="use7799" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7801" />
+          </g>
+        </g>
+        <g
+           id="ytick9">
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M116.325,97.92L120.325,97.92"
+             id="path7804" />
+          <path
+             style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"
+             d="M833.54,97.92L837.54,97.92"
+             id="path7806" />
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.54375,102.2871875)scale(0.12)"
+             id="g7808">
+            <use
+               xlink:href="#c_0"
+               id="use7810" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7812" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7814" />
+            <use
+               xlink:href="#c_6"
+               transform="translate(159.033203125)"
+               id="use7816" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(222.65625)"
+               id="use7818" />
+          </g>
+        </g>
+        <g
+           id="ytick10">
+          <g
+             style="fill: #000000; opacity: 1.0"
+             transform="translate(79.79375,56.2071875)scale(0.12)"
+             id="g7821">
+            <use
+               xlink:href="#c_0"
+               id="use7823" />
+            <use
+               xlink:href="#c_1"
+               transform="translate(63.623046875)"
+               id="use7825" />
+            <use
+               xlink:href="#c_0"
+               transform="translate(95.41015625)"
+               id="use7827" />
+            <use
+               xlink:href="#c_6"
+               transform="translate(159.033203125)"
+               id="use7829" />
+            <use
+               xlink:href="#c_2"
+               transform="translate(222.65625)"
+               id="use7831" />
+          </g>
+        </g>
+      </g>
+      <path
+         style="fill: none; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0"
+         d="M116.325,466.56L837.54,466.56L837.54,51.84L116.325,51.84L116.325,466.56"
+         id="path7881" />
+    </g>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:1.00239999999999996;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       d="M 120.00111,463.59889 L 831.99889,101.99667"
+       id="path7919" />
+  </g>
+  <defs
+     id="fontpaths">
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path8448"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 323.75 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1162.5 : 323.75 : 1"
+       inkscape:persp3d-origin="581.25 : 215.83333 : 1"
+       id="perspective7907" />
+    <path
+       id="c_7"
+       d="" />
+    <path
+       id="c_f"
+       d="M18.3125 -70.21875l0.0 15.53125l18.5 0.0l0.0 6.984375l-18.5 0.0l0.0 29.6875q0.0 6.6875 1.828125 8.59375q1.828125 1.90625 7.453125 1.90625l9.21875 0.0l0.0 7.515625l-9.21875 0.0q-10.40625 0.0 -14.359375 -3.875q-3.953125 -3.890625 -3.953125 -14.140625l0.0 -29.6875l-6.59375 0.0l0.0 -6.984375l6.59375 0.0l0.0 -15.53125z" />
+    <path
+       id="c_5"
+       d="M40.578125 -39.3125q7.078125 1.515625 11.046875 6.3125q3.984375 4.78125 3.984375 11.8125q0.0 10.78125 -7.421875 16.703125q-7.421875 5.90625 -21.09375 5.90625q-4.578125 0.0 -9.4375 -0.90625q-4.859375 -0.90625 -10.03125 -2.71875l0.0 -9.515625q4.09375 2.390625 8.96875 3.609375q4.890625 1.21875 10.21875 1.21875q9.265625 0.0 14.125 -3.65625q4.859375 -3.65625 4.859375 -10.640625q0.0 -6.453125 -4.515625 -10.078125q-4.515625 -3.640625 -12.5625 -3.640625l-8.5 0.0l0.0 -8.109375l8.890625 0.0q7.265625 0.0 11.125 -2.90625q3.859375 -2.90625 3.859375 -8.375q0.0 -5.609375 -3.984375 -8.609375q-3.96875 -3.015625 -11.390625 -3.015625q-4.0625 0.0 -8.703125 0.890625q-4.640625 0.875 -10.203125 2.71875l0.0 -8.78125q5.625 -1.5625 10.53125 -2.34375q4.90625 -0.78125 9.25 -0.78125q11.234375 0.0 17.765625 5.109375q6.546875 5.09375 6.546875 13.78125q0.0 6.0625 -3.46875 10.234375q-3.46875 4.171875 -9.859375 5.78125" />
+    <path
+       id="c_e"
+       d="M44.28125 -53.078125l0.0 8.5q-3.796875 -1.953125 -7.90625 -2.921875q-4.09375 -0.984375 -8.5 -0.984375q-6.6875 0.0 -10.03125 2.046875q-3.34375 2.046875 -3.34375 6.15625q0.0 3.125 2.390625 4.90625q2.390625 1.78125 9.625 3.390625l3.078125 0.6875q9.5625 2.046875 13.59375 5.78125q4.03125 3.734375 4.03125 10.421875q0.0 7.625 -6.03125 12.078125q-6.03125 4.4375 -16.578125 4.4375q-4.390625 0.0 -9.15625 -0.859375q-4.765625 -0.859375 -10.03125 -2.5625l0.0 -9.28125q4.984375 2.59375 9.8125 3.890625q4.828125 1.28125 9.578125 1.28125q6.34375 0.0 9.75 -2.171875q3.421875 -2.171875 3.421875 -6.125q0.0 -3.65625 -2.46875 -5.609375q-2.453125 -1.953125 -10.8125 -3.765625l-3.125 -0.734375q-8.34375 -1.75 -12.0625 -5.390625q-3.703125 -3.640625 -3.703125 -9.984375q0.0 -7.71875 5.46875 -11.90625q5.46875 -4.203125 15.53125 -4.203125q4.96875 0.0 9.359375 0.734375q4.40625 0.71875 8.109375 2.1875" />
+    <path
+       id="c_13"
+       d="M10.984375 -1.515625l0.0 -8.984375q3.71875 1.765625 7.515625 2.6875q3.8125 0.921875 7.484375 0.921875q9.765625 0.0 14.90625 -6.5625q5.15625 -6.5625 5.890625 -19.953125q-2.828125 4.203125 -7.1875 6.453125q-4.34375 2.25 -9.609375 2.25q-10.9375 0.0 -17.3125 -6.609375q-6.375 -6.625 -6.375 -18.109375q0.0 -11.21875 6.640625 -18.0q6.640625 -6.796875 17.671875 -6.796875q12.65625 0.0 19.3125 9.703125q6.671875 9.6875 6.671875 28.140625q0.0 17.234375 -8.1875 27.515625q-8.171875 10.28125 -21.984375 10.28125q-3.71875 0.0 -7.53125 -0.734375q-3.796875 -0.734375 -7.90625 -2.203125M30.609375 -32.421875q6.640625 0.0 10.515625 -4.53125q3.890625 -4.546875 3.890625 -12.46875q0.0 -7.859375 -3.890625 -12.421875q-3.875 -4.5625 -10.515625 -4.5625q-6.640625 0.0 -10.515625 4.5625q-3.875 4.5625 -3.875 12.421875q0.0 7.921875 3.875 12.46875q3.875 4.53125 10.515625 4.53125" />
+    <path
+       id="c_11"
+       d="M41.109375 -46.296875q-1.515625 -0.875 -3.296875 -1.28125q-1.78125 -0.421875 -3.921875 -0.421875q-7.625 0.0 -11.703125 4.953125q-4.078125 4.953125 -4.078125 14.234375l0.0 28.8125l-9.03125 0.0l0.0 -54.6875l9.03125 0.0l0.0 8.5q2.84375 -4.984375 7.375 -7.390625q4.546875 -2.421875 11.046875 -2.421875q0.921875 0.0 2.046875 0.125q1.125 0.109375 2.484375 0.359375z" />
+    <path
+       id="c_4"
+       d="M19.1875 -8.296875l34.421875 0.0l0.0 8.296875l-46.28125 0.0l0.0 -8.296875q5.609375 -5.8125 15.296875 -15.59375q9.703125 -9.796875 12.1875 -12.640625q4.734375 -5.3125 6.609375 -9.0q1.890625 -3.6875 1.890625 -7.25q0.0 -5.8125 -4.078125 -9.46875q-4.078125 -3.671875 -10.625 -3.671875q-4.640625 0.0 -9.796875 1.609375q-5.140625 1.609375 -11.0 4.890625l0.0 -9.96875q5.953125 -2.390625 11.125 -3.609375q5.1875 -1.21875 9.484375 -1.21875q11.328125 0.0 18.0625 5.671875q6.734375 5.65625 6.734375 15.125q0.0 4.5 -1.6875 8.53125q-1.671875 4.015625 -6.125 9.484375q-1.21875 1.421875 -7.765625 8.1875q-6.53125 6.765625 -18.453125 18.921875" />
+    <path
+       id="c_1"
+       d="M10.6875 -12.40625l10.3125 0.0l0.0 12.40625l-10.3125 0.0z" />
+    <path
+       id="c_6"
+       d="M37.796875 -64.3125l-24.90625 38.921875l24.90625 0.0zM35.203125 -72.90625l12.40625 0.0l0.0 47.515625l10.40625 0.0l0.0 8.203125l-10.40625 0.0l0.0 17.1875l-9.8125 0.0l0.0 -17.1875l-32.90625 0.0l0.0 -9.515625z" />
+    <path
+       id="c_2"
+       d="M10.796875 -72.90625l38.71875 0.0l0.0 8.3125l-29.6875 0.0l0.0 17.859375q2.140625 -0.734375 4.28125 -1.09375q2.15625 -0.359375 4.3125 -0.359375q12.203125 0.0 19.328125 6.6875q7.140625 6.6875 7.140625 18.109375q0.0 11.765625 -7.328125 18.296875q-7.328125 6.515625 -20.65625 6.515625q-4.59375 0.0 -9.359375 -0.78125q-4.75 -0.78125 -9.828125 -2.34375l0.0 -9.921875q4.390625 2.390625 9.078125 3.5625q4.6875 1.171875 9.90625 1.171875q8.453125 0.0 13.375 -4.4375q4.9375 -4.4375 4.9375 -12.0625q0.0 -7.609375 -4.9375 -12.046875q-4.921875 -4.453125 -13.375 -4.453125q-3.953125 0.0 -7.890625 0.875q-3.921875 0.875 -8.015625 2.734375z" />
+    <path
+       id="c_d"
+       d="M9.421875 -54.6875l8.984375 0.0l0.0 54.6875l-8.984375 0.0zM9.421875 -75.984375l8.984375 0.0l0.0 11.390625l-8.984375 0.0z" />
+    <path
+       id="c_8"
+       d="M48.78125 -52.59375l0.0 8.40625q-3.8125 -2.109375 -7.640625 -3.15625q-3.828125 -1.046875 -7.734375 -1.046875q-8.75 0.0 -13.59375 5.546875q-4.828125 5.53125 -4.828125 15.546875q0.0 10.015625 4.828125 15.5625q4.84375 5.53125 13.59375 5.53125q3.90625 0.0 7.734375 -1.046875q3.828125 -1.046875 7.640625 -3.15625l0.0 8.3125q-3.765625 1.75 -7.796875 2.625q-4.015625 0.890625 -8.5625 0.890625q-12.359375 0.0 -19.640625 -7.765625q-7.265625 -7.765625 -7.265625 -20.953125q0.0 -13.375 7.34375 -21.03125q7.359375 -7.671875 20.15625 -7.671875q4.140625 0.0 8.09375 0.859375q3.953125 0.84375 7.671875 2.546875" />
+    <path
+       id="c_b"
+       d="M50.984375 16.609375l0.0 6.96875l-51.96875 0.0l0.0 -6.96875z" />
+    <path
+       id="c_c"
+       d="M52.0 -44.1875q3.375 -6.0625 8.0625 -8.9375q4.6875 -2.875 11.03125 -2.875q8.546875 0.0 13.1875 5.984375q4.640625 5.96875 4.640625 17.0l0.0 33.015625l-9.03125 0.0l0.0 -32.71875q0.0 -7.859375 -2.796875 -11.65625q-2.78125 -3.8125 -8.484375 -3.8125q-6.984375 0.0 -11.046875 4.640625q-4.046875 4.625 -4.046875 12.640625l0.0 30.90625l-9.03125 0.0l0.0 -32.71875q0.0 -7.90625 -2.78125 -11.6875q-2.78125 -3.78125 -8.59375 -3.78125q-6.890625 0.0 -10.953125 4.65625q-4.046875 4.65625 -4.046875 12.625l0.0 30.90625l-9.03125 0.0l0.0 -54.6875l9.03125 0.0l0.0 8.5q3.078125 -5.03125 7.375 -7.421875q4.296875 -2.390625 10.203125 -2.390625q5.96875 0.0 10.140625 3.03125q4.171875 3.015625 6.171875 8.78125" />
+    <path
+       id="c_a"
+       d="M9.421875 -75.984375l8.984375 0.0l0.0 75.984375l-8.984375 0.0z" />
+    <path
+       id="c_12"
+       d="M56.203125 -29.59375l0.0 4.390625l-41.3125 0.0q0.59375 9.28125 5.59375 14.140625q5.0 4.859375 13.9375 4.859375q5.171875 0.0 10.03125 -1.265625q4.859375 -1.265625 9.65625 -3.8125l0.0 8.5q-4.84375 2.046875 -9.921875 3.125q-5.078125 1.078125 -10.296875 1.078125q-13.09375 0.0 -20.734375 -7.609375q-7.640625 -7.625 -7.640625 -20.625q0.0 -13.421875 7.25 -21.296875q7.25 -7.890625 19.5625 -7.890625q11.03125 0.0 17.453125 7.109375q6.421875 7.09375 6.421875 19.296875M47.21875 -32.234375q-0.09375 -7.359375 -4.125 -11.75q-4.03125 -4.40625 -10.671875 -4.40625q-7.515625 0.0 -12.03125 4.25q-4.515625 4.25 -5.203125 11.96875z" />
+    <path
+       id="c_9"
+       d="M34.28125 -27.484375q-10.890625 0.0 -15.09375 2.484375q-4.203125 2.484375 -4.203125 8.5q0.0 4.78125 3.15625 7.59375q3.15625 2.796875 8.5625 2.796875q7.484375 0.0 12.0 -5.296875q4.515625 -5.296875 4.515625 -14.078125l0.0 -2.0zM52.203125 -31.203125l0.0 31.203125l-8.984375 0.0l0.0 -8.296875q-3.078125 4.96875 -7.671875 7.34375q-4.59375 2.375 -11.234375 2.375q-8.390625 0.0 -13.359375 -4.71875q-4.953125 -4.71875 -4.953125 -12.625q0.0 -9.21875 6.171875 -13.90625q6.1875 -4.6875 18.4375 -4.6875l12.609375 0.0l0.0 -0.890625q0.0 -6.203125 -4.078125 -9.59375q-4.078125 -3.390625 -11.453125 -3.390625q-4.6875 0.0 -9.140625 1.125q-4.4375 1.125 -8.53125 3.375l0.0 -8.3125q4.921875 -1.90625 9.5625 -2.84375q4.640625 -0.953125 9.03125 -0.953125q11.875 0.0 17.734375 6.15625q5.859375 6.140625 5.859375 18.640625" />
+    <path
+       id="c_10"
+       d="M54.890625 -33.015625l0.0 33.015625l-8.984375 0.0l0.0 -32.71875q0.0 -7.765625 -3.03125 -11.609375q-3.03125 -3.859375 -9.078125 -3.859375q-7.28125 0.0 -11.484375 4.640625q-4.203125 4.625 -4.203125 12.640625l0.0 30.90625l-9.03125 0.0l0.0 -75.984375l9.03125 0.0l0.0 29.796875q3.234375 -4.9375 7.59375 -7.375q4.375 -2.4375 10.09375 -2.4375q9.421875 0.0 14.25 5.828125q4.84375 5.828125 4.84375 17.15625" />
+    <path
+       id="c_3"
+       d="M12.40625 -8.296875l16.109375 0.0l0.0 -55.625l-17.53125 3.515625l0.0 -8.984375l17.4375 -3.515625l9.859375 0.0l0.0 64.609375l16.109375 0.0l0.0 8.296875l-41.984375 0.0z" />
+    <path
+       id="c_0"
+       d="M31.78125 -66.40625q-7.609375 0.0 -11.453125 7.5q-3.828125 7.484375 -3.828125 22.53125q0.0 14.984375 3.828125 22.484375q3.84375 7.5 11.453125 7.5q7.671875 0.0 11.5 -7.5q3.84375 -7.5 3.84375 -22.484375q0.0 -15.046875 -3.84375 -22.53125q-3.828125 -7.5 -11.5 -7.5M31.78125 -74.21875q12.265625 0.0 18.734375 9.703125q6.46875 9.6875 6.46875 28.140625q0.0 18.40625 -6.46875 28.109375q-6.46875 9.6875 -18.734375 9.6875q-12.25 0.0 -18.71875 -9.6875q-6.46875 -9.703125 -6.46875 -28.109375q0.0 -18.453125 6.46875 -28.140625q6.46875 -9.703125 18.71875 -9.703125" />
+  </defs>
+</svg>

@@ -9,7 +9,7 @@
 
 %opening
 \title{GWA Sections}
-\author{Rong Jiang, Yu Huang}
+\author{Yu Huang}
 
 \begin{document}
 
@@ -21,89 +21,6 @@
 
 \tableofcontents
 
-\section{Pipeline of SNP Genotyping}
-The genotype calls are the foundation for all the following work. The accuracy of genotype calls
-has a fundamental impact on all the analyses, results and conclusions reached. We took great care to ensure we get the best calls possible.
-
-The whole genotyping pipeline starts from a custom oligo\cite{Carvalho2007}, section~\ref{oligo_calling} and then trimming the dataset in several filtering steps to remove arrays and SNPs deemed of bad quality. above a certain mismatch rate against two different  datasets.
-
-The reason we did not solely rely on oligo is because oligo occassionally assigns high probability to the calls of certain arrays while QC against previous data shows very high mismatch rate. After excluding the possibility of accession ID mis-labeling, we find out it's the intensity distribution, which are quite different from that of the arrays used in the parameter-training of oligo.
-
-We have four \textit{Arabidopsis thaliana} datasets from previous projects, all of which are  leveraged in the QC step to achieve high quality data.
-
-The \textbf{2010} dataset, \cite{Nordborg2005}, is done by de-novo Sanger-sequencing technology at 1500s fragments randomly picked throughout the whole genome in 96 globally-sampled accessions to study population structure. Each fragment is about 700bp long.
-
-The \textbf{384} dataset is done by mass-spectrometry at 384 random loci genome-wide in a 96-sample different from the \textbf{2010} dataset.
-
-The \textbf{Perlegen} dataset, \cite{Clark2007a}, is done by a whole-genome tiling array with four different probes for each position in 20 accessions picked from the 96-sample in \textbf{2010} dataset, from which all the SNP positions in the current project are chosen.
-
-
-The \textbf{149SNP} dataset, \cite{...}, done by a mass-spectrometry technology licensed by Sequenom at 149 loci picked out of the polymorphic loci in \textbf{2010} dataset whose minor allele frequency is near 0.5. This dataset covers over 6000 global accessions.
-
-The \textbf{2010} dataset is presumably of highest quality, followed by \textbf{Perlegen} dataset, then \textbf{384}, \textbf{149SNP}. The former two are considerably of better quality than the latter two. Due to its genome-wide coverage, the \textbf{Perlegen} dataset is used in SNP filtering while a dataset merging the other three, \textbf{2010}, \textbf{384}, \textbf{149SNP} (in the order of precedence one dataset is taken over the other when calls for the same accession and same SNP differ in two datasets.) datasets, referred to as \textbf{2010_384_149}, is used in whole-array filtering.
-
-After the array&SNP filtering steps, we added a step of replacing calls with the \textbf{Perlegen} ones at the overlapping accessions and SNPs to improve quality of ~20 accessions.
-
-In the end, we applied NPUTE \cite{} to impute the remaining missing calls.
-
-the parameters of oligo come from the training of a few arrays. The intensity distribution varies among arrays.
-We can not totally trust the probability assigned to each base call by oligo due to its 
-
-\begin{enumerate}
- \item oligo genotype calling (parameter learning using 31 arrays with correspondent perlegen calls), section~\ref{oligo_calling}
- \item filter strains according to mismatch rate from a comparison with the \textbf{2010_384_149} dataset
- \item filter snps according to mismatch from a comparison with the \textbf{Perlegen} dataset
- \item filter snps according to NA rate to make sure NPUTE does not impute missing SNPs based on too few calls.
- \item merge the data with \textbf{Perlegen} dataset. as far as the \textbf{Perlegen} dataset has non-NA value,  substitute call at the corresponding strain/snp with this non-NA value.
- \item remove monomorphic snps
- \item (QC before imputation)
- \item imputation by NPUTE
- \item (QC after imputation)
-\end{enumerate}
-\begin{table}
-\caption{Parameters Tested. Exhaustive Combinations of all parameters below}
-\begin{tabular}{|r|r|r|r|r|r|r|r|r|}
-\hline
-max array mismatch rate & 0.02 & 0.04 & 0.06 & 0.08 & 0.10 & 0.12 \\
-no constraint for array NA rate & & & & & \\
-
-max SNP NA rate & 0.05 & 0.1 & 0.15 & 0.2 & 0.25 & 0.3 \\
-
-max SNP mismatch rate & 0.05 & 0.10 & 0.15 & 0.20 & 0.25 & 0.35 & 0.45 & 0.55 \\
-
-NPUTE window size & 30 \\
-\hline
-\end{tabular}
-\end{table}
-
-\subsection{oligo SNP Genotyping (Base-calling)}
-\label{oligo_calling}
-SNP genotyping was performed with a custom version of the Affymetrix 250K SNP-tiling array (AtSNPtile1).  In brief, each custom SNP-tiling array contains probe sets for 248,584 pre-selected SNPs, where each probe set consists of four probes, i.e., combinations of two alleles and two strands (sense and anti-sense). Samples were processed at the microarray core facilities at the University of Chicago and Children Hospital of Los Angeles affiliated with the University of Southern California.
-
-CEL files provide the intensities of the various probes on each array and genotypes were called with a modified R package, Oligo \cite{Carvalho2007}.  The Oligo package was designed to call genotypes with the affymetrix Human Mapping array sets.  The calling algorithm summaries each strand across samples and SNPs with an aim to estimate the cluster centers/spread for each SNP using a training data set.  Our modifications are as follows: (1) we modified the readcel.R file in the package such that it could read in the intensities for the custom probe sets (i.e., four perfect match probes for each SNP); (2) we only consider calling homozygotes since the \textit{Arabidopsis thaliana} samples are almost homozygous everywhere in the genome due to its selfing nature; (3) we used the Perlegen data, \cite{Clark2007a}, as the training set, i.e., 20 accessions in 31 arrays (with duplicates). With “leave-one-out” approach, we estimated the cluster parameters and applied logistic regression on predicted calls to output a confidence measure (again, only between the two homozygous clusters).
-
-\subsection{How to get the best parameter setting}
-\begin{itemize}
- \item Draw Figure and prepare qhull input.
- \item 3D Convex Hull algorithm to get the boundary points of the parameter surface.
- \item Pick the parameter setting with best coverage and accuracy
-\end{itemize}
-
-\subsection{Best setting}
-\begin{verbatim}
-min_oligo_call_probability=0.85,
-max_array_mismatch_rate=0.10,
-max_snp_mismatch_rate=0.1,
-max_snp_NA_rate=0.25,
-npute_window_size=30.0,
-after_imputation.
-\end{verbatim}
-
-
-\subsection{Error Estimates}
-Comparison against a previous 2010 dataset \cite{Nordborg2005} reveals an error rate of 3\%.
-
-We also have duplicates for a couple of arrays, from which we could estimate the reproducibility of our genotyping platform.
 
 \section{Over-representation of Priori Candidate Gene List}
 For several phenotypes, we were able to collect a priori candidate gene list from literature/TAIR website. These candidate gene lists allow us to check whether the results by different methods make biological sense apart from statistical inspection. We also use some GeneOntology categories that meet certain criteria, (like each category has to cover 100 genes, etc), as another kind of candidate gene lists.
@@ -166,9 +83,6 @@ Gene FLC is well captured in Figure~\ref{f8}. The region contains the \textbf{se
 \end{figure}
 
 
-
-\section{Acknowledgement}
-We thank B. Carvalho for his advice on how to modify the Oligo package.
 
 
 \bibliography{gwa}
