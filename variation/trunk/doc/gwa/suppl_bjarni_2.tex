@@ -1,0 +1,181 @@
+\documentclass[10pt]{article}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ...
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{subfigure}
+\usepackage{verbatim}
+%\usepackage{python}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Genome-wide association mapping in \textit{Arabidopsis thaliana}: Supplementary.}
+\author{Various authors}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\begin{comment}
+\begin{python}
+for i in range(0,10):
+    print "bla\\\\"
+
+\end{python}
+\end{comment}
+
+
+\subsection*{Association mapping methods}
+
+
+Three types of association mapping methods were applied to the datasets, two non-parametric and one parametric.  The non-parametric models used were a Wilcoxon rank-sum test for ordered categorical and quantitative phenotypes, and Fisher's exact test for binary phenotypes.  As several phenotypes are confounded by population structure, a parametric mixed model was also used.
+
+
+\subsubsection*{Mixed model (Emma)}
+
+Emma (Efficient mixed-model association) \cite{kang08} is a linear mixed model which accounts for population structure by adding a genetic random effect with a fixed covariance structure.  The model is as follows:
+\[
+    Y = \beta X + \mathbf{u}+\mathbf{\epsilon} \; .
+\]
+Here $Y$ denotes the phenotype, $X$ the genotype, $\beta$ the fixed phenotypic effects, $\mathbf{\epsilon}\sim N_n(0,\sigma_{e}^2I_n)$, and
+$\mathbf{u}\sim N_n(0,\sigma_{g}^2K)$ random effects, where $\sigma_{g}^2K$ is the variation due to genotype and $K$ is the kinship matrix.  The
+kinship matrix $K$ accounts for genome-wide correlation structure between the individuals and is estimated only once. The parameters of
+the model $\beta$, $\sigma_{g}^2$, and $\sigma_{e}^2$ are estimated using REML (restricted maximum likelihood) for each marker (SNP). A general $t$-statistic testing the null hypothesis $\beta=0$ is calculated to get the pvalue. The percentage of phenotypic variation explained by each SNP is calculated as  $\frac{\sum_{i}(x_i\hat{\beta}-\bar{x_i\hat{\beta}})^2}{\sum_{i}(y_i-\bar{y})^2}$.
+
+\paragraph*{Minor allele frequency dependence}
+
+For several phenotypes Emma demonstrated enrichment in low p-values among rare allele SNPs, see figure \ref{fig:emma_maf}.  This trend is not explained by the overall minor allele frequency (MAF) distribution of the SNPs and are most likely spurious, and following \cite{kang08} we therefore discard all results with $\textrm{MAF} <0.1$ for Emma.  Even when the model assumptions hold, rare allele SNPs will seldom have significant p-values, so the risk of discarding interesting SNPs is small.    Such rare allele SNPs with significant Emma p-values arise due to either a poor model choice or poor fit to a reasonable model.  Under the model assumptions the residuals of the model $(Y-\hat{\beta} X)\sim N_n(0,Var(\mathbf{u}+\mathbf{\epsilon}))$, and for some SNPs these assumptions of constant variance (i.e.~not dependent on the genotype) or normal distribution are violated.  In the $t$-test, if the variance estimate is small, and relatively unrelated accessions are phenotype outliers and share the same rare allele a SNP, then it will be significant.  This explains why some phenotypes are more prone to this problem than others.  Interestingly, the ML estimates for the variances $\hat{\sigma_{g}}$ and $\hat{\sigma_{e}}$ vary a great deal between SNPs and phenotypes, and for some phenotypes they display severe MAF dependencies.  The ratio $\hat{\delta} = \frac{\hat{\sigma_{g}}}{\hat{\sigma_{e}}}$ which is numerically estimated in Emma, appears to reach the search space boundary repeatedly for several phenotypes.  Despite these signs of problems with the model fit, the p-value distribution of the mixed model is invariably uniform.
+
+\begin{figure}
+  \centering
+  EMMA p-values for 23 flowering time phenotypes\\
+  \includegraphics[width = 0.8\linewidth]{suppl/bjarni/Emma_MAF}\\[0.2in]
+  Wilcoxon rank-sum test p-values for 23 flowering time phenotypes\\
+  \includegraphics[width = 0.8\linewidth]{suppl/bjarni/KW_MAF}
+  \caption{Emma and Wilcoxon rank-sum test p-values for the flowering times phenotypes.  There is a clear enrichment in low p-values for rare allele SNPs, indicating that p-values of rare alleles are potentially biased.}
+  \label{fig:emma_maf}
+\end{figure}
+
+\paragraph*{Kinship matrix estimation}
+
+The kinship matrix was calculated using a simple identity by state matrix, which has been shown to correct efficiently for population structure
+\cite{kang08,zhao07}.  A UPGMA clustering of the genotypes  (see Supplementary Figure \ref{fig:250K_tree}), using the 250K data kinship matrix as a distance matrix, consistently clustered Col-0 as an outlier (together with H55 which closely related to the Col-0 accession).  However if the genotypes are clustered based on the 2010 sequencing data then Col-0 clusters together with central European accessions.  It is unclear whether this discrepancy is due to a SNPs selection bias, which will then be reflected in the kinship matrix.  Emma was therefore tested using four different kinship matrices estimates using the four following data sets:
+\begin{enumerate}
+\item The full 250K data set.
+\item The 250K data set, using only the SNPs that overlap with the 2010 sequence data, amounting to approximately 1600 SNPs.
+\item The 2010 data and 250K data for overlapping loci where 2010 data is missing, since there were several accessions which were not in the 2010 sequence data.
+\item The 2010 data at loci that overlap with the 250K data, and 250K data where 2010 data is missing.
+ \end{enumerate}
+The full 250K data set resulted in the most uniform p-value distribution for most confounded phenotypes and was therefore used to estimate the final kinship matrix.  A plausible explanation for this is that the 250K data is biased towards SNPs with intermediate allele frequencies, which exaggerates the difference between the accessions and reduces correlation constraints in the model.
+
+\begin{figure}%[t]
+  \centering
+  \includegraphics[width = 1.2\linewidth, angle=-90]{suppl/bjarni/250K_192_tree}
+  \caption{A UPGMA cluster of the genotypes in the 250K data, based on their kinship matrix.  Note that Col-0 is an outlier (the green branch together with H55), indicating that there is potential bias in the data. }
+  \label{fig:250K_tree}
+\end{figure}
+
+
+\paragraph*{Transformation of quantitative phenotypes}
+
+The mixed model (Emma) did in general a good job of reducing the bias in the p-value distribution (compared to Wilcoxon rank-sum test or the Fisher's exact test), resulting in a uniform looking distribution.  The actual phenotypic distribution of the data had remarkable little influence on the overall distribution of the Emma p-values, as even binary phenotypes had uniform-looking distribution for the Emma p-values.  For some phenotypes, different transformations of the phenotype values, however, resulted in different significant p-values.  This observation underscores the importance of choosing an appropriate transformation of the phenotype values.  Since the mixed-model is fit independently for each SNP, it is unfeasible to check the distribution of the residuals for all the SNPs.  As hinted earlier, looking at the shape of the resulting p-value distribution is not very useful either since it consistently looks uniform.  Instead, the choice of transformation was simply based on the distribution of the (transformed) phenotype values as well as MAF dependency of the p-values.  Three types of transformations were considered, 
+
+\begin{enumerate} 
+
+\item No transformation.  
+
+\item Log transformation.  For phenotypes which contained non-positive values ($\le 0$) a constant $c$ was added to the phenotype values before log-transforming, where $c=\frac{SD}{10}-m$, and $m$ denotes the smallest phenotypic value.  
+
+\item Ranks. The phentoype values were ranked and the ranks used for the analysis.  This transformation has the advantage that the resulting distribution in essentially independent of the original phenotypic distribution.  
+
+\end{enumerate}
+
+%For all but one quantitative phenotypes either no transformation or a log-transformation was applied. 
+%Only for one phenotype was the rank transformation used, because it showed particularly high correlation between 
+%MAF SNPs and and small p-values (\texttt{JIC0W\_GH\_Leaf}).
+
+% \begin{comment}
+% distribution This indicates that Emma might be over-fitting, rather than
+
+% basing the choice of phenotypic transformation on the
+
+% To improve the fit of the quantitative phenotypes to the mixed model we compared the model-fit of the raw phenotypes and log-transformed
+% phenotypes.  Based on Kolmogorov-Smirnov statistics they were transformed if it improved the fit.  If the Kolmogorov-Smirnov (KS) statistic
+% change was marginal ($s <0.01$) then the transformation decision was based on the approximate area between the log quantile curve and the
+% expected log p-value line: $\sum_{i=1}^{1000}(log_{10}(Q_{\frac{i}{1000}})-log_{10}(\frac{i}{1000}))$.  This statistic measures the fitness in
+% the low p-value tails.   Six phenotypes required a constant to be added so that they could be log-transformed since they either contained zero
+% or negative values.  For 5 these phenotypes $0.5$ was added to the measured value prior to the log transformation.   For one of these phenotypes
+% (\texttt{Seeddorm}) $5$ was added to the measured value, since the range of observed values was much higher for this phenotype than the others.
+% The QQ-plots as well as the associated KS statistics used is displayed in supplementary document 3.
+% \end{comment}
+
+
+
+\paragraph*{Assessment of robustness}
+The observation that different choices of transformations of the phenotypic values for Emma resulted in different significant p-values indicated that the mixed model was not very robust.  To investigate this a leave-one-out test (jackknife) was conducted as follows: For each phenotype each measured accession was removed and analysis rerun, the standard deviation of the estimated $\log($p-values$)$ was then reported for each SNP and each phenotype\footnote{A leave-one-out approach was used instead of  bootstrapping because a bootstrap sample results in greater deviation (on average) and requires more samples.}.  Since Emma is computationally intensive, a random subset of the SNPs ($1\%$ of all the SNPs) was chosen to speed up the estimation of the robustness. The results of the tests are summarized for all the phenotypes in figure \ref{fig:rob_test}.  The smaller the p-value in Emma is the less reliable it appears to be.  It should be noted that as with rare allele Emma p-value bias, some phenotypes appeared less robust than others.
+
+\begin{figure}
+  \centering
+  \includegraphics[width = 0.6\linewidth]{suppl/bjarni/Overall_robustness}
+  \caption{The standard deviation for the $\log$(p-values$)$ for all the phenotypes, plotted against the observed p-value. The lines denote binned averages, using 20 bins and requiring at least 5 observations in each.  Emma displays troubling trend, where the standard deviation is both greater and increases linearly with the negative log p-values.  }
+  \label{fig:rob_test}
+\end{figure}
+
+
+%\paragraph*{Implementation on the cluster}
+
+%To apply these genome wide association methods to our large set of phenotypes we used the HPCC cluster at USC.  
+%This enabled us to reduce the total running time from approximately 500 days to 5 days, a 100 fold reduction.
+
+\subsubsection*{Quantifying Population structure}
+
+The phenotypes displayed varying population structure confounding, which could be noticed in the distribution of Wilcoxon and Fisher's exact test p-values being biased towards small
+p-values.  For flowering times and related phenotypes this bias was particularly severe.   Four different statistics were used to measure this population structure effect for
+phenotypes with different distributions:
+\begin{enumerate}
+\item \emph{Kolmogorov-Smirnov statistic}, $D=\max_p \{|F_{obs}(p)-F_{exp}(p)|\} $, where $p$ denotes the p-values, and $F_{obs}$ the observed distribution function, and $F_{exp}$ the expected distribution function.
+\item \emph{Median p-value bias}, defined as $M=E(\textrm{median}(\textrm{p}))-\textrm{median}(\textrm{p})$.
+\item \emph{Area between the expected and observed distribution functions}, i.e. $A = \int_{0}^{1}|F_{obs}(p)-F_{exp}(p)|dp$.
+\item \emph{The mean logarithmic ratio}, $S=\int_{0}^{1}\frac{\log(F_{obs}(p))}{\log(F_{exp}(p))}dp$.
+\end{enumerate}
+Since some of the phenotypes are binary or essentially ordered categorical, the p-value distribution was discontinuous and non-uniform (Wilcoxon rank-sum test and Fisher's exact test).  The expected p-value distribution was therefore estimated using a permutation test, where the individuals were permuted 1000 times for Wilcoxon and 100 times for Fisher's exact test\footnote{A smaller number of permutations was used for the Fisher's exact test since it is computationally more intensive.}, and a random $1\%$ of the p-values used to estimate the distribution function.  The integrals and the expectations were estimated using the estimated distribution function, and permutation p-values of the observed statistics were estimated for all the statistics and phenotypes.  The permutation test lessens the effect of the observed phenotypic values on the statistics, and enables comparison between different phenotypes (and methods).  The Q-Q plots in supplementary figures 11-118 were also plotted using the estimated p-value distributions.
+
+As shown in figures \ref{fig:confounding} and \ref{fig:confounding_binary}, the mixed model approach greatly improves the fit of the p-value distribution (compared with the expected\footnote{For Emma the uniform $[0,1]$ distribution was used as the expected distribution of p-values.}) when compared to the Wilcoxon test and the Fisher's exact test.  This is even the case for the binary phenotypes, where mixed model assumptions of normally distributed residuals almost certainly fail (see figures \ref{fig:confounding_binary}).  The corresponding permutation p-values for the observed statistics are shown in figure \ref{fig:confounding_pvals}.  Most phenotypes show significant overrepresentation of small p-values, where the flowering times and related phenotypes stand out with a highly significant overrepresentation of small p-values.  For a couple of phenotypes the observed p-value distribution in Emma was did not result in great improvement.  This behavior can be explained by accession naming discrepancies between the phenotype and genotype data.
+
+\begin{figure}%[t]
+  \centering
+  \includegraphics[width = \linewidth]{suppl/bjarni/confounding_quantitative}
+  \caption{Confounding for quantitative phenotypes. The blue and the green bars denote the statistics applied to the Wilcoxon rank sum test results.  The yellow and red bars denote the statistics applied to the Emma results.}
+  \label{fig:confounding}
+\end{figure}
+
+\begin{figure}%[t]
+  \centering
+  \includegraphics[width = \linewidth]{suppl/bjarni/confounding_binary}
+  \caption{Confounding in binary phenotypes. The blue and the green bars denote the statistics applied to the Wilcoxon rank sum test results.  The yellow and red bars denote the statistics applied to the Emma results.}\label{fig:confounding_binary}
+\end{figure}
+
+\begin{figure}%[t]
+  \centering
+  \includegraphics[width = \linewidth]{suppl/bjarni/confounding_pvalues}
+  \caption{Negative log p-values, estimated using a permutation test, for all the four statistics.  The flowering time phenotypes are found to be heavily confounded by population structure, with high significance.  The dotted horizontal line denotes the $95\%$ significance level.}
+  \label{fig:confounding_pvals}
+\end{figure}
+
+
+
+%\subsubsection*{How structured is the dataset?}
+%
+%When looking at flowering time (FT 10C, FT 16C and FT 22C), the first 95 accessions display greater confounding than the additional 104 accessions.  
+%When the data set is split up by latitude, the population structure confounding in flowering time reduces greatly.  
+%In conclusion the full dataset (199 accessions) is highly structured and results in severe confounding for many of the phenotypes tried.
+
+%[NEED FIGURES]. 
+
+
+\bibliographystyle{plain}   % (uses file "plain.bst")
+\bibliography{suppl_bjarni_2}      % expects file "myrefs.bib"
+
+
+\end{document}
