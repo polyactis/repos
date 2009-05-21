@@ -91,6 +91,7 @@ class DataMatrixGuiXYProbe(gtk.Window):
 		self.entry_x_column = xml.get_widget('entry_x_column')
 		self.entry_y_column = xml.get_widget('entry_y_column')
 		self.entry_hist_column = xml.get_widget('entry_hist_column')
+		self.entry_no_of_bins = xml.get_widget('entry_no_of_bins')	#2009-5-20
 		self.entry_plot_title = xml.get_widget('entry_plot_title')
 		self.entry_plot_title.set_text(self.plot_title)
 		
@@ -290,6 +291,8 @@ class DataMatrixGuiXYProbe(gtk.Window):
 	
 	def on_button_histogram_clicked(self, widget, data=None):
 		"""
+		2009-5-20
+			get the number of bins from entry_no_of_bins 
 		2009-3-13
 			draw histogram of specific hist_column
 		2008-02-06
@@ -305,7 +308,8 @@ class DataMatrixGuiXYProbe(gtk.Window):
 		for i in range(len(self.liststore)):
 			hist_ls.append(self.liststore[i][hist_column])
 		self.ax.set_title("Histogram of %s %s"%(self.plot_title, self.column_header[hist_column]))
-		self.ax.hist(hist_ls, 20)
+		no_of_bins = int(self.entry_no_of_bins.get_text())
+		self.ax.hist(hist_ls, no_of_bins)
 		self.canvas.draw()
 	
 	def update_no_of_selected(self, treeview, app1_appbar1):
@@ -320,12 +324,16 @@ class DataMatrixGuiXYProbe(gtk.Window):
 	
 	def readInDataToPlot(self, input_fname):
 		"""
+		2009-5-20
+			add the column index into the column header for easy picking
 		2009-3-13
 			wrap the float conversion part into try...except to report what goes wrong
 		2009-3-13
 		"""
 		reader = csv.reader(open(input_fname), delimiter=figureOutDelimiter(input_fname))
 		self.column_header=reader.next()
+		for i in range(len(self.column_header)):
+			self.column_header[i] = '%s %s'%(i, self.column_header[i])
 		no_of_cols = len(self.column_header)
 		self.column_types = [str]*2 + [float]*(no_of_cols-2)
 		self.column_editable_flag_ls = [True, True] + [False]*(no_of_cols-2)
