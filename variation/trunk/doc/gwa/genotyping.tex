@@ -22,11 +22,11 @@
 \tableofcontents
 
 \section{Genotyping}
-The genotype calls are the foundation for all the following work. The accuracy of genotype calls has a fundamental impact on all the analyses, results and conclusions reached. We took great care to ensure we get the best calls possible.
+The genotype calls are the foundation for all the following work. The accuracy of genotype calls has a fundamental impact on all the analyses, results and conclusions reached. The final version reflects the best that we can do within our capacity and resourses.
 
-The whole genotyping pipeline consists of running a modified Oligo package~\cite{Carvalho2007}, detailed in section~\ref{Oligo_calling}, filtering the dataset in several steps to remove arrays and SNPs deemed of bad quality, imputation, etc.
+The whole genotyping pipeline consists of running a modified Oligo package~\cite{Carvalho2007}, detailed in section~\ref{Oligo_calling}, filtering the dataset in several steps to remove arrays and SNPs deemed of bad quality, imputation and etc.
 
-We did not solely rely on Oligo because of the limited 20-accession dataset~\cite{Clark2007a} used in training Oligo. Oligo occassionally assigns high probability to the calls in certain arrays while QC with previous datasets shows very high mismatch rates. After excluding the possibility of accession ID mis-labeling, we find out it's their peculiar intensity distribution, which is quite different from the arrays used in training.
+We did not solely rely on Oligo because of the limited 20-accession dataset~\cite{Clark2007a} used in training Oligo. Oligo occassionally assigns high confidence to the calls in certain arrays that are found to be of very high mismatch rates through QC. After excluding the possibility of accession ID mis-labeling, we find out it's their peculiar intensity distribution, which is quite different from the arrays used in the training.
 
 \subsection{Platform}
 The SNP genotyping was performed with the Affymetrix 250K SNP-tiling array (AtSNPtile1). One SNP-tiling array contains probe sets for 248,584 pre-selected SNPs and each SNP is represented by a probe set of four probes, i.e., combinations of two alleles and two strands (sense and anti-sense). Samples were processed at the microarray core facilities at the University of Chicago and Children Hospital of Los Angeles affiliated with the University of Southern California.
@@ -69,14 +69,24 @@ Any SNP whose missing rate is above 25\% is discarded. This filter is applied be
 Due to the high-quality and whole-genome coverage of the \textbf{Perlegen} dataset, for the lines from the genotype data above which have corresponding \textbf{Perlegen} lines, we decided to subsitute their calls with corresponding non-missing \textbf{Perlegen} calls.
 
 \subsubsection{Remove Monomorphic SNPs}
-This is a step to make sure that NPUTE~\cite{RobertsEtAl2007} will not impute SNPs that are monomorphic and also they are not interesting in the ensuing association studes.
+This is a step to make sure that NPUTE~\cite{RobertsEtAl2007} will not impute SNPs that are monomorphic and also they are not interesting in the association mapping.
 %  \item remove monomorphic snps
 %  \item (QC before imputation)
 \subsubsection{Impute All Remaing Missing Calls}
-NPUTE~\cite{RobertsEtAl2007}, a sliding-window nearest-neighbor searching algorithm, is chosen based on accuracy and performance. Its accuracy is comparable to fastPHASE~\cite{ScheetStephens2006} while being considerably faster. One disadvantage is that it does not assign probability to the imputed calls. We address that by removing SNPs with too much missing data. The only parameter of this algorithm, window size which is defined as the number of SNPs within the sliding window, has almost no effect on the quality of the imputed calls once it is over 10. We tried 10, 20, 30 till 90 and settled upon 30.
+NPUTE~\cite{RobertsEtAl2007}, a sliding-window nearest-neighbor searching algorithm, is chosen based on accuracy and performance. Its accuracy is comparable to fastPHASE~\cite{ScheetStephens2006} while being considerably faster. One disadvantage is that it does not assign probability to the imputed calls. We address that by removing SNPs with too many missing calls in an earlier step. The only parameter of this algorithm, window size which is defined as the number of SNPs within the sliding window, has almost no effect on the quality of the imputed calls once it is over 10. We tried 10, 20, 30 till 90 and settled upon 30.
+
+\subsubsection{Remove Redundant Arrays and Untrusted Lines}
+Redundant arrays are the ones that use the DNA from the same line. In the beginning, we did a couple of repeats to test reproducibility both within and between the core facilities. This step removed them all except the one with lowest mismatch rate compared against the \textbf{2010-384-149} dataset. We also removed 3 lines (Uod-2, Blh-1, Santa Clara) which we suspect are contaminants either because the genotype data do not agree among the individual \textbf{2010}, \textbf{384} and \textbf{149} datasets or our collaborators notify us that the phenotype does not match what is reported in literature.
+
+
+\subsubsection{Insert SNPs/Deletions from FRI and CLF Region in the \textbf{2010} Dataset}
+Both FRI and CLF are known to be involved in flowering time and the regions around them were fully sequenced as recorded in the \textbf{2010} dataset. For FRI, we incorporated the two known functional deletions and another newly discovered deletion in the 3'UTR region into the 250k data. For CLF, which is less known about its functional sites, all the SNPs around it were incorporated into the 250k data. Since the \textbf{2010} dataset only covers about half the lines in 250k data, we applied NPUTE~\cite{RobertsEtAl2007} to impute the alleles at these sites for the rest of the lines.
 
 \subsubsection{Substitute Calls with Corresponding Ones in the \textbf{2010-384-149} Dataset}
 Because the \textbf{2010-384-149} dataset is of better quality than the 250k calls, despite its limited genome coverage (at most 1500 or so loci for the \textbf{2010} lines), we substituted the 250k calls with their non-missing counterparts from the \textbf{2010-384-149} dataset. This step has limited improvement on the final association result due to the small coverage of the \textbf{2010-384-149} dataset
+
+\subsubsection{Remove Monomorphic SNPs Again}
+This step makes sure that the association mapping in the next step do not use any monomorphic SNP.
 
 \subsection{Error Estimates}
 
