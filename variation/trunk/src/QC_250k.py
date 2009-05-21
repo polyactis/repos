@@ -95,14 +95,17 @@ class QC_250k(TwoSNPData):
 		"""
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		self.QCMethod_class = Stock_250kDB.QCMethod
 		
 		#QC_method_id2cmp_data_filename = {1:"/home/crocea/script/variation/data/2010/data_2010_x_250k_y0001.tsv",\
 		#		2:'/home/crocea/script/variation/data/perlegen/data_perlegen_ecotype_id_x_250k_y0101.tsv',\
 		#		3:'/home/crocea/script/variation/stock20080403/data_y00001101.tsv'}
 		#if self.cmp_data_filename == None:
 		#	self.cmp_data_filename = QC_method_id2cmp_data_filename[self.QC_method_id]
-
-	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, max_call_info_mismatch_rate=1, debug=0, min_no_of_non_NA_pairs=40, **keywords):
+	
+	@classmethod
+	def get_call_info_id2fname(cls, db, QC_method_id, call_method_id, filter_calls_QCed=1, \
+							max_call_info_mismatch_rate=1, debug=0, min_no_of_non_NA_pairs=40, **keywords):
 		"""
 		2009-01-22
 			fix a bug which doesn't keep call_QC_with_max_no_of_non_NA_pairs for each call_info when max_call_info_mismatch_rate==1,
@@ -133,6 +136,8 @@ class QC_250k(TwoSNPData):
 		#2008-09-16 get input_dir
 		input_dir = keywords.get('input_dir') or None
 		take_unique_ecotype = keywords.get('take_unique_ecotype') or False
+		#2009-4-13 add min_call_info_mismatch_rate
+		min_call_info_mismatch_rate  = keywords.get('min_call_info_mismatch_rate')
 		
 		call_info_ls = Stock_250kDB.CallInfo.query.filter_by(method_id=call_method_id).all()
 		
@@ -156,6 +161,9 @@ class QC_250k(TwoSNPData):
 				call_QC_with_max_no_of_non_NA_pairs = call_info.call_qc_ls[0]
 				for call_QC in call_info.call_qc_ls:
 					if call_QC.no_of_non_NA_pairs>=min_no_of_non_NA_pairs and call_QC.mismatch_rate>max_call_info_mismatch_rate:	#if enough pairs and mismatch_rate too high, ignore
+						ignore_this=1
+						break
+					if min_call_info_mismatch_rate and call_QC.mismatch_rate<min_call_info_mismatch_rate:
 						ignore_this=1
 						break
 					if call_QC.no_of_non_NA_pairs>call_QC_with_max_no_of_non_NA_pairs.no_of_non_NA_pairs:
@@ -203,8 +211,7 @@ class QC_250k(TwoSNPData):
 		sys.stderr.write("%s call files. Done.\n"%(len(call_info_id2fname)))
 		return call_data
 	
-	get_call_info_id2fname = classmethod(get_call_info_id2fname)
-	
+	@classmethod
 	def get_array_id2fname(cls, curs, input_dir, array_info_table='array_info'):
 		"""
 		2008-05-18
@@ -238,8 +245,8 @@ class QC_250k(TwoSNPData):
 		sys.stderr.write("%s call files. Done.\n"%(len(array_id2fname)))
 		return array_id2fname
 	
-	get_array_id2fname = classmethod(get_array_id2fname)
 	
+	@classmethod
 	def read_call_matrix(cls, call_info_id2fname, min_probability=-1, snps_name_set=None):
 		"""
 		2008-05-20
@@ -296,8 +303,7 @@ class QC_250k(TwoSNPData):
 		sys.stderr.write("Done.\n")
 		return pdata
 	
-	read_call_matrix = classmethod(read_call_matrix)
-	
+	@classmethod
 	def submit_to_call_QC(cls, session, row_id2NA_mismatch_rate, QC_method_id, user, min_probability, row_id12row_id2, call_method_id, readme):
 		"""
 		2008-05-21
@@ -332,8 +338,7 @@ class QC_250k(TwoSNPData):
 			"""
 		sys.stderr.write("Done.\n")
 	
-	submit_to_call_QC = classmethod(submit_to_call_QC)
-	
+	@classmethod
 	def cal_independent_NA_rate(cls, db, min_probability, readme):
 		"""
 		2008-07-13
@@ -379,7 +384,7 @@ class QC_250k(TwoSNPData):
 		sys.stderr.write("Done.\n")
 	
 	#output_row_id2NA_mismatch_rate = classmethod(TwoSNPData.output_row_id2NA_mismatch_rate)
-	
+	@classmethod
 	def get_snps_name2snps_id(cls, db):
 		"""
 		2008-08-17
@@ -398,8 +403,8 @@ class QC_250k(TwoSNPData):
 		sys.stderr.write("Done.\n")
 		return snps_name2snps_id
 	
-	get_snps_name2snps_id = classmethod(get_snps_name2snps_id)
-	
+	"""
+	# 2009-5-20 this information moved into table qc_method in db stock_250k. now gets it dynamically in namesake function
 	QC_method_id2snps_table = {1:'at.locus',\
 									2:'',\
 									3:'stock.snps',\
@@ -408,7 +413,21 @@ class QC_250k(TwoSNPData):
 									6:'',\
 									7:'stock.snps',\
 									8:'dbsnp.snps'}
-	
+	"""
+	@property
+	def QC_method_id2snps_table(self):
+		"""
+		2009-5-20
+			namesake function for the above structure, which is not got from db.
+		"""
+		rows = self.QCMethod_class.query.all()
+		dc = {}
+		for row in rows:
+			if row.snps_table:
+				dc[row.id] = row.snps_table
+			else:
+				dc[row.id] = ''
+		return dc
 	
 	def qcDataMatrixVSsnpData(self, pdata, snps_name2snps_id, snpData2, curs, session, readme):
 		"""
@@ -418,7 +437,8 @@ class QC_250k(TwoSNPData):
 		#swap the ecotype_id_ls and call_info_id_ls when passing them to SNPData. now strain_acc_list=ecotype_id_ls
 		snpData1 = SNPData(header=pdata.header, strain_acc_list=pdata.ecotype_id_ls, category_list=pdata.call_info_id_ls, data_matrix=pdata.data_matrix, \
 						min_probability=self.min_probability, call_method_id=self.call_method_id, col_id2id=snps_name2snps_id,\
-						max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, snps_table='stock_250k.snps')	#snps_table is set to the stock_250k snps_table
+						max_call_info_mismatch_rate=self.max_call_info_mismatch_rate, snps_table='stock_250k.snps')
+						#snps_table is set to the stock_250k snps_table
 		
 		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, curs=curs, \
 							QC_method_id=self.QC_method_id, user=self.user, row_matching_by_which_value=0, debug=self.debug)
@@ -436,6 +456,7 @@ class QC_250k(TwoSNPData):
 		passingdata.row_id12row_id2 = twoSNPData.row_id12row_id2
 		return passingdata
 	
+	@classmethod
 	def findOutCmpDataFilename(cls, cmp_data_filename, QC_method_id, QCMethod_class):
 		"""
 		2008-08-28
@@ -461,8 +482,6 @@ class QC_250k(TwoSNPData):
 		else:
 			return cmp_data_filename
 	
-	findOutCmpDataFilename = classmethod(findOutCmpDataFilename)
-	
 	def run(self):
 		"""
 		2008-04-25
@@ -478,7 +497,8 @@ class QC_250k(TwoSNPData):
 		session.begin()
 		#transaction = session.create_transaction()
 		
-		self.cmp_data_filename = self.findOutCmpDataFilename(self.cmp_data_filename, self.QC_method_id, Stock_250kDB.QCMethod)
+		self.cmp_data_filename = self.findOutCmpDataFilename(self.cmp_data_filename, self.QC_method_id, self.QCMethod_class)
+		qm = self.QCMethod_class.query.get(self.QC_method_id)	#2009-5-20
 		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
@@ -498,10 +518,11 @@ class QC_250k(TwoSNPData):
 			row_id2NA_mismatch_rate = None
 		else:
 			#from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-			header, strain_acc_list, category_list, data_matrix = read_data(self.cmp_data_filename)
+			header, strain_acc_list, category_list, data_matrix = read_data(self.cmp_data_filename, ignore_het=qm.ignore_het)
 			strain_acc_list = map(int, strain_acc_list)	#it's ecotypeid, cast it to integer to be compatible to the later ecotype_id_ls from db
 			snpData2 = SNPData(header=header, strain_acc_list=strain_acc_list, \
-							data_matrix=data_matrix, snps_table=QC_method_id2snps_table.get(self.QC_method_id))	#category_list is not used.
+							data_matrix=data_matrix, snps_table=QC_method_id2snps_table.get(self.QC_method_id),\
+							ignore_het=qm.ignore_het)	#category_list is not used. 05/20/09 ignore_het is useless cuz data_matrix is provided.
 			"""
 			if self.input_dir and os.path.isdir(self.input_dir):
 				#04/22/08 Watch: call_info_id2fname here is fake, it's actually keyed by (array_id, ecotypeid)
@@ -539,7 +560,7 @@ class QC_250k(TwoSNPData):
 						print "No", counter
 						tmp_dict = {}
 						tmp_dict[call_info_id] = value
-						pdata = self.read_call_matrix(tmp_dict, self.min_probability)
+						pdata = self.read_call_matrix(tmp_dict, self.min_probability)	#05/20/09 no need for qm.ignore_het because 250k is all homo
 						passingdata = self.qcDataMatrixVSsnpData(pdata, snps_name2snps_id, snpData2, curs, session, readme)
 						row_id2NA_mismatch_rate.update(passingdata.row_id2NA_mismatch_rate)
 						row_id12row_id2.update(passingdata.row_id12row_id2)
@@ -548,14 +569,14 @@ class QC_250k(TwoSNPData):
 						if self.debug and counter==10:
 							break
 				else:
-					pdata = self.read_call_matrix(call_info_id2fname, self.min_probability)
+					pdata = self.read_call_matrix(call_info_id2fname, self.min_probability)	#05/20/09 no need for qm.ignore_het because 250k is all homo
 					passingdata = self.qcDataMatrixVSsnpData(pdata, snps_name2snps_id, snpData2, curs, session, readme)
 					row_id2NA_mismatch_rate = passingdata.row_id2NA_mismatch_rate
 					row_id12row_id2 = passingdata.row_id12row_id2
 					del pdata
 			else:
 				#input file is SNP by strain format. double header (1st two lines)
-				header, snps_name_ls, category_list, data_matrix = read_data(self.input_dir, double_header=1)
+				header, snps_name_ls, category_list, data_matrix = read_data(self.input_dir, double_header=1, ignore_het=qm.ignore_het)
 				pdata = PassingData()
 				pdata.ecotype_id_ls = header[0][2:]
 				pdata.call_info_id_ls = header[1][2:]
