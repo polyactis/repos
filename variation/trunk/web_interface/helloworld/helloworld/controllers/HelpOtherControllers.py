@@ -225,6 +225,8 @@ class HelpothercontrollersController(BaseController):
 	@classmethod
 	def getAnalysisMethodInfo(cls, affiliated_table_name, extra_condition=None, extra_tables=None):
 		"""
+		2009-5-20
+			label no longer includes db id
 		2009-4-26
 			add description_ls in return
 		2008-10-19
@@ -247,7 +249,7 @@ class HelpothercontrollersController(BaseController):
 		for row in rows:
 			id2index[row.id] = len(id_ls)
 			id_ls.append(row.id)
-			label_ls.append('%s %s'%(row.id, row.short_name))
+			label_ls.append('%s'%(row.short_name))
 			description_ls.append(row.method_description)
 		list_info = PassingData()
 		list_info.id2index = id2index
