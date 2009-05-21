@@ -61,6 +61,36 @@ nt2number = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces
 	'K':10
 	}
 
+# 2009-5-19 map nucleotide to number while ignoring heterozygous calls
+nt2number_without_het = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
+	'-': -1,	#deletion
+	'N': 0,
+	'NA': 0,
+	None: 0,
+	'A': 1,
+	'C': 2,
+	'G': 3,
+	'T': 4,
+	'AC':0,
+	'CA':0,
+	'M':0,
+	'AG':0,
+	'GA':0,
+	'R':0,
+	'AT':0,
+	'TA':0,
+	'W':0,
+	'CG':0,
+	'GC':0,
+	'S':0,
+	'CT':0,
+	'TC':0,
+	'Y':0,
+	'GT':0,
+	'TG':0,
+	'K':0
+	}
+
 number2nt = {-2: '|',	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
 	-1: '-',
 	0: 'NA',
@@ -340,8 +370,10 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 	del writer
 	sys.stderr.write("%s NA rows. Done.\n"%no_of_all_NA_rows)
 
-def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int):
+def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int, ignore_het=0):
 	"""
+	2009-5-20
+		add argument ignore_het, which upon toggled, instructs the function to use nt2number_without_het to map nucleotides to number.
 	2009-3-21
 		add '-' into vocabulary of p_char and append '$' requiring the entry ends with any characters in that vocabulary
 	2009-2-18
@@ -375,6 +407,15 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	"""
 	import csv
 	sys.stderr.write("Reading data from %s ..."%input_fname)
+	if ignore_het:
+		nt2number_mapper = nt2number_without_het
+	else:
+		nt2number_mapper = nt2number
+	def ignore_het_func(x):
+		if x>4:
+			return 0
+		else:
+			return x
 	if delimiter is None:
 		delimiter = figureOutDelimiter(input_fname)
 	reader = csv.reader(open(input_fname), delimiter=delimiter)
@@ -396,15 +437,18 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 			no_of_snps = len(data_row)
 			p_char_used = 0	#whether p_char is used to successfully dict_map the data_row
 			if p_char.search(data_row[0]) and turn_into_integer:
-				data_row = dict_map(nt2number, data_row)
+				data_row = dict_map(nt2number_mapper, data_row)
 				p_char_used = 1
 				if no_of_snps!=len(data_row):
-					sys.stderr.write('\n dict_map() via nt2number only maps %s out of %s entries from this row, %s, to integer. Back to original data.\n'%(len(data_row), no_of_snps, repr(row[:5])))
+					sys.stderr.write('\n dict_map() via nt2number_mapper only maps %s out of %s entries from this row, %s, to integer. Back to original data.\n'%\
+									(len(data_row), no_of_snps, repr(row[:5])))
 					data_row = row[2:]	#back to original data_row
 					p_char_used = 0
 			
 			if turn_into_integer and not p_char_used:	#if p_char_used ==1, it's already integer.
 				data_row = map(matrix_data_type, data_row)
+				if ignore_het:	#2009-5-20 for data that is already in number format, use this function to remove hets
+					data_row = map(ignore_het_func, data_row)
 			data_matrix.append(data_row)
 		except:
 			sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
@@ -428,6 +472,9 @@ class SNPData(object):
 			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, delimiter=delimiter)
 			snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
 							data_matrix=data_matrix)
+	2009-5-20
+		add argument ignore_het which is passed to read_data() when data_matrix is not given to ignore heterozygous calls.
+		It'll only be functional when data_matrix is not given upon SNPData initialization.
 	2008-05-19
 		either directly specify row_id_ls, col_id_ls, data_matrix
 			(if strain_acc_list and category_list is given rather than row_id_ls and col_id_ls, row_id_ls and col_id_ls will be formed from them).
@@ -455,19 +502,25 @@ class SNPData(object):
 							('call_method_id', 0, int): -1,\
 							('col_id2id', 0, ):None,\
 							('max_call_info_mismatch_rate', 0, float): 1,\
-							('snps_table', 0, ):None,\
-							('matrix_data_type', 0, ):int,\
+							('snps_table', 0, ): None,\
+							('matrix_data_type', 0, ): int,\
+							('ignore_het', 0, int): [0, '', 0, 'Ignore the heterozygous genotypes'],\
 							('debug', 0, int): [0, '', 0, 'turn on the debug flag']}
 	def __init__(self, **keywords):
 		from __init__ import ProcessOptions
-		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, \
+														class_to_have_attr=self, howto_deal_with_required_none=2)
 		#read it from file
 		if self.isDataMatrixEmpty(self.data_matrix) and isinstance(self.input_fname,str) and os.path.isfile(self.input_fname):
-			self.header, self.strain_acc_list, self.category_list, self.data_matrix = read_data(self.input_fname, self.input_alphabet, self.turn_into_integer, self.double_header, matrix_data_type=self.matrix_data_type)
+			self.header, self.strain_acc_list, self.category_list, self.data_matrix = read_data(self.input_fname, self.input_alphabet, \
+																							self.turn_into_integer, self.double_header, \
+																							matrix_data_type=self.matrix_data_type,\
+																							ignore_het=self.ignore_het)
 			if self.ignore_2nd_column:
 				self.category_list = None
 		self.processRowIDColID()
 	
+	@classmethod
 	def isDataMatrixEmpty(cls, data_matrix):
 		"""
 		2008-08-21
@@ -483,8 +536,6 @@ class SNPData(object):
 			return True
 		else:
 			return False
-	
-	isDataMatrixEmpty = classmethod(isDataMatrixEmpty)
 	
 	def processRowIDColID(self):
 		"""
@@ -579,6 +630,7 @@ class SNPData(object):
 				self.category_list = category_list
 		write_data_matrix(self.data_matrix, output_fname, self.header, self.strain_acc_list, self.category_list, **keywords)
 	
+	@classmethod
 	def removeRowsByMismatchRate(cls, snpData, row_id2NA_mismatch_rate, max_mismatch_rate=1):
 		"""
 		2008-05-19
@@ -612,8 +664,7 @@ class SNPData(object):
 		sys.stderr.write("%s rows filtered by mismatch. Done.\n"%(newSnpData.no_of_rows_filtered_by_mismatch))
 		return newSnpData
 	
-	removeRowsByMismatchRate = classmethod(removeRowsByMismatchRate)
-	
+	@classmethod
 	def removeRowsByNARate(cls, snpData, max_NA_rate=1):
 		"""
 		2008-05-19
@@ -646,8 +697,32 @@ class SNPData(object):
 		newSnpData.no_of_rows_filtered_by_na = len(rows_with_too_many_NAs_set)
 		sys.stderr.write("%s rows filtered by NA. Done.\n"%(newSnpData.no_of_rows_filtered_by_na))
 		return newSnpData
-	removeRowsByNARate = classmethod(removeRowsByNARate)
 	
+	@classmethod
+	def keepRowsByRowID(cls, snpData, row_id_ls):
+		"""
+		2009-05-19
+			keep certains rows in snpData given row_id_ls
+		"""
+		sys.stderr.write("Keeping rows given row_id_ls ...")
+		no_of_rows = len(row_id_ls)
+		row_id_wanted_set = set(row_id_ls)
+		
+		no_of_cols = len(snpData.col_id_ls)
+		newSnpData = SNPData(col_id_ls=copy.deepcopy(snpData.col_id_ls), row_id_ls=[])
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		row_index = 0
+		for i in range(len(snpData.row_id_ls)):
+			row_id = snpData.row_id_ls[i]
+			if row_id in row_id_wanted_set:
+				newSnpData.row_id_ls.append(row_id)
+				newSnpData.data_matrix[row_index] = snpData.data_matrix[i]
+				row_index += 1
+		newSnpData.no_of_rows_filtered_by_mismatch = len(snpData.row_id_ls)-no_of_rows
+		sys.stderr.write("%s rows discarded. Done.\n"%(newSnpData.no_of_rows_filtered_by_mismatch))
+		return newSnpData
+	
+	@classmethod
 	def removeColsByMismatchRate(cls, snpData, col_id2NA_mismatch_rate, max_mismatch_rate=1):
 		"""
 		2008-05-19
@@ -681,8 +756,8 @@ class SNPData(object):
 		sys.stderr.write("%s columns filtered by mismatch. Done.\n"%(newSnpData.no_of_cols_filtered_by_mismatch))
 		return newSnpData
 	
-	removeColsByMismatchRate = classmethod(removeColsByMismatchRate)
 	
+	@classmethod
 	def removeColsByNARate(cls, snpData, max_NA_rate=1):
 		"""
 		2008-05-19
@@ -715,8 +790,8 @@ class SNPData(object):
 		newSnpData.no_of_cols_filtered_by_na = len(cols_with_too_many_NAs_set)
 		sys.stderr.write("%s columns filtered by NA. Done.\n"%(newSnpData.no_of_cols_filtered_by_na))
 		return newSnpData
-	removeColsByNARate = classmethod(removeColsByNARate)
-
+	
+	@classmethod
 	def removeMonomorphicCols(cls, snpData):
 		"""
 		2008-05-19
@@ -745,8 +820,8 @@ class SNPData(object):
 		newSnpData.no_of_monomorphic_cols = no_of_cols-len(newSnpData.col_id_ls)
 		sys.stderr.write("%s monomorphic columns. Done.\n"%(newSnpData.no_of_monomorphic_cols))
 		return newSnpData
-	removeMonomorphicCols = classmethod(removeMonomorphicCols)
 	
+	@classmethod
 	def convertHetero2NA(cls, snpData):
 		"""
 		2008-06-02
@@ -768,8 +843,8 @@ class SNPData(object):
 					no_of_hets += 1
 		sys.stderr.write("%s heterozygous calls. Done.\n"%no_of_hets)
 		return newSnpData
-	convertHetero2NA = classmethod(convertHetero2NA)
 	
+	@classmethod
 	def removeSNPsWithMoreThan2Alleles(cls, snpData):
 		"""
 		2008-08-05
@@ -798,7 +873,6 @@ class SNPData(object):
 		newSnpData.no_of_cols_removed = no_of_cols-len(newSnpData.col_id_ls)
 		sys.stderr.write("%s columns removed. Done.\n"%(newSnpData.no_of_cols_removed))
 		return newSnpData
-	removeSNPsWithMoreThan2Alleles = classmethod(removeSNPsWithMoreThan2Alleles)
 	
 	def fill_in_snp_allele2index(self, diploid_allele, allele2index):
 		"""
