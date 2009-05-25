@@ -239,6 +239,8 @@ class PhenotypeController(BaseController):
 	phenotype_method_id_set = set(phenotype_method_id_list)
 	def getMultiPhenotypeData(self):
 		"""
+		2009-5-24
+			add 'region' as a column into the data
 		2009-5-3
 		"""
 		call_method_id = request.params.get('call_method_id', None)
@@ -254,7 +256,7 @@ class PhenotypeController(BaseController):
 		column_name_type_ls = [("label", ("string","ID Name Phenotype")), ("date", ("date", "Date")), \
 							("lon",("number", "Longitude")), ("lat",("number", "Latitude")), \
 							("ecotypeid", ("number", "Ecotype ID")), ("name", ("string", "Native Name")), \
-							("country", ("string", "Country")),\
+							("country", ("string", "Country")), ("region", ("string", "Region")),\
 							("pc1", ("number","PC1")), ("pc2", ("number", "PC2")), ("pc3", ("number","PC3")), \
 							("pc4", ("number", "PC4")), ("pc5", ("number","PC5")), ("pc6", ("number", "PC6"))]
 		
@@ -283,7 +285,7 @@ class PhenotypeController(BaseController):
 								lat=row.latitude, lon=row.longitude,\
 								pc1=pc_value_ls[0], pc2=pc_value_ls[1], pc3=pc_value_ls[2], pc4=pc_value_ls[3], \
 								pc5=pc_value_ls[4], pc6=pc_value_ls[5], \
-								country=row.country)
+								country=row.country, region=row.region)
 			# construct a tuple with (phenotype_name, phenotype_value) as entry, incorporated into data in the end
 			phenotype_name_value_tup_ls = []	#
 			for i in range(no_of_non_phenotype_cols, len(column_name_type_ls)):
