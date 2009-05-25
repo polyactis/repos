@@ -59,6 +59,8 @@ class DisplayresultsController(BaseController):
 	
 	def getPhenotypeTableData(self):
 		"""
+		2009-5-24
+			add column transformation_description back
 		2009-5-13
 			remove column transformation_description, citations
 		2009-5-11
@@ -71,13 +73,15 @@ class DisplayresultsController(BaseController):
 		if biology_category_id==0 or biology_category_id=='0':
 			biology_category_id=None
 		#construct the full data and turn it into json
-		column_name_type_ls = [("id", ("number", "Phenotype ID")), ("short_name", ("string", "Phenotype Name")), \
+		column_name_type_ls = [("id", ("number", "Phenotype ID")), \
+							("short_name", ("string", "Phenotype Name")), \
 							("association_results", ("string","Association Results")), \
 							("no_of_accessions", ("number","#Accessions")), \
 							("growth_condition", ("string","Growth Condition")), \
 							("phenotype_scoring", ("string","Phenotype Scoring")), \
 							("method_description", ("string","Source")), \
-							("data_type", ("string","Data Type"))]
+							("data_type", ("string", "Data Type")),\
+							("transformation_description", ("string", "Transformation"))]
 		rows = model.Stock_250kDB.PhenotypeMethod.query.filter(model.Stock_250kDB.PhenotypeMethod.biology_category_id==biology_category_id)
 		
 		return_ls = []
