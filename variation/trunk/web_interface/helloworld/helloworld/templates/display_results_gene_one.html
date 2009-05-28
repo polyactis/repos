@@ -7,17 +7,23 @@
 SNP-Gene Assocation setting is: <b>${c.snp_gene_association_id2desc[c.type.id]}</b>.
 </li>
 
-<li>
-Dataset is call method: <b>${c.result.call_method.id} ${c.result.call_method.short_name}</b>.
-</li>
-
-<li>
-Phenotype is <b>${c.result.phenotype_method.id} ${c.result.phenotype_method.short_name}</b>.
-</li>
-
-<li>
-Association method is <b>${c.result.analysis_method.id} ${c.result.analysis_method.short_name}</b>.
-</li>
+% if c.result is None:
+	<li>
+	No Result.
+	</li>
+% else:
+	<li>
+	Dataset is call method: <b>${c.result.call_method.id} ${c.result.call_method.short_name}</b>.
+	</li>
+	
+	<li>
+	Phenotype is <b>${c.result.phenotype_method.id} ${c.result.phenotype_method.short_name}</b>.
+	</li>
+	
+	<li>
+	Association method is <b>${c.result.analysis_method.id} ${c.result.analysis_method.short_name}</b>.
+	</li>
+% endif
 
 <li>
 % if c.list_type is None:
@@ -39,7 +45,10 @@ Negative for upstream. Positive for downstream. If a SNP is further downstream o
 <%
 field_ls = ['gene_id', 'rank', 'score'] + c.gene_desc_names + ['SNP ID', 'SNP chr', 'SNP pos', \
 	'disp_pos', 'left_or_right', 'disp_pos_comment', 'SNP annotation', 'results_id', 'plots']
-track_id = '%s_%s_%s'%(c.result.call_method.id, c.result.phenotype_method.id, c.result.analysis_method.id)
+if c.result is not None:
+	track_id = '%s_%s_%s'%(c.result.call_method.id, c.result.phenotype_method.id, c.result.analysis_method.id)
+else:
+	track_id = ''
 %>
 
 % if len(c.row_ls)>0:
