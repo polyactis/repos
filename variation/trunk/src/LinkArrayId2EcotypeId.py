@@ -226,13 +226,15 @@ class LinkArrayId2EcotypeId(object):
 		else:
 			return choice_id2ecotypeid[choice_id]
 	
-	def update_array_info_table(self, curs, array_info_table, array_id2ecotype_id_pair):
+	def update_array_info_table(self, curs, array_info_table, array_id2ecotype_id_pair, ecotypeid2tg_ecotypeid_table='stock.ecotypeid2tg_ecotypeid'):
 		"""
+		2008-07-13
+			use ecotypeid2tg_ecotypeid_table to link them to target ecotypeid
 		2008-03-11
 		"""
 		sys.stderr.write("Updating %s entries in %s ... "%(len(array_id2ecotype_id_pair), array_info_table))
 		for array_id, ecotype_id_pair in array_id2ecotype_id_pair.iteritems():
-			curs.execute("update %s set maternal_ecotype_id=%s, paternal_ecotype_id=%s where id=%s"%(array_info_table, ecotype_id_pair[0], ecotype_id_pair[1], array_id))
+			curs.execute("update %s a, %s e1, %s e2 set a.maternal_ecotype_id=e1.tg_ecotypeid, a.paternal_ecotype_id=e2.tg_ecotypeid where a.id=%s and e1.ecotypeid=%s and e2.ecotypeid=%s"%(array_info_table, ecotypeid2tg_ecotypeid_table, array_id, ecotype_id_pair[0], ecotype_id_pair[1]))
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
