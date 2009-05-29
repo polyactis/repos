@@ -297,6 +297,29 @@ def get_ecotypeid2nativename(curs, ecotype_table='stock.ecotype'):
 	sys.stderr.write("Done.\n")
 	return ecotypeid2nativename
 
+def getNativename2EcotypeIDLs(curs, ecotype_table='stock.ecotype'):
+	"""
+	2009-5-16 reverse version of get_ecotypeid2nativename()
+	"""
+	sys.stderr.write("Getting nativename2ecotypeid_ls ...")
+	dc = {}
+	rows = curs.execute("select id, nativename from %s"%(ecotype_table))
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2008-10-07 curs could be elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
+	for row in rows:
+		if is_elixirdb:
+			ecotypeid = row.id
+			nativename = row.nativename
+		else:
+			ecotypeid, nativename = row
+		if nativename not in dc:
+			dc[nativename] = []
+		dc[nativename].append(ecotypeid)
+	sys.stderr.write("Done.\n")
+	return dc
+
 def getEcotypeInfo(db, country_order_type=1):
 	"""
 	2008-10-08
