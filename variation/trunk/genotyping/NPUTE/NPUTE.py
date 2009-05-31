@@ -19,7 +19,10 @@ Description:
 	If mode_type=1, sizes from single_window_size +  window_file + window_size_range would all be tested.
 	
 	Input file format:
-		SNP by individual Matrix. "?" is NA.
+		SNP by individual Matrix. "?" is NA. Each SNP can't have more than 2 alleles. Each row is a haplotype, so no heterozygous call.
+		
+	Output format is a transposition of the input file format type 1.
+		use FileFormatExchange.turnNPUTEOutputIntoYuFormat() from variation/src/misc.py to transform.
 
 2008-04-30 yh start modifying
 """
@@ -57,7 +60,7 @@ class NPUTE(object):
 							('window_size_range', 0, ): ['', 'p', 1, 'specify a window range to test, like 5:15', ],\
 							('input_fname', 1, ): ['', 'i', 1, 'Input file. A plain genotype matrix.'],\
 							('output_fname', 0, ): ['', 'o', 1, 'Output File, if not given, take the input_fname and other parameters to form one.'],\
-							('input_file_format', 1, int): [1, 'f', 1, 'which file format. 1= DB_250k2data.py output. 2=original NPUTE input. 3=Output250KSNPs.py output wtih array Id'],\
+							('input_file_format', 1, int): [1, 'f', 1, 'which file format. 1= DB_250k2data.py output, Yu format. only 0 is regarded as NA. 2=original NPUTE input. 3=Output250KSNPs.py output with array ID. Bjarni format'],\
 							('lower_case_for_imputation', 1, int): [0, 'l', 0, ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
