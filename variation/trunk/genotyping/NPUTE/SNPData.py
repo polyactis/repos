@@ -35,7 +35,7 @@ class SNPData(object):
 							('input_NA_char', 1, ): ['0', ],\
 							('input_file_format', 1, int): [1, 'f', 1, 'which file format. 1= DB_250k2data.py output. \
 								2=original NPUTE input. 3=Output250KSNPs.py output wtih array Id.\
-								4=only for MpiQCCall.py'],\
+								4=API for MpiQCCall.py to call'],\
 							('lower_case_for_imputation', 1, int): [0, ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
