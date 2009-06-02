@@ -239,6 +239,8 @@ class PhenotypeController(BaseController):
 	phenotype_method_id_set = set(phenotype_method_id_list)
 	def getMultiPhenotypeData(self):
 		"""
+		2009-5-28
+			present all phenotype data. no filter by phenotype_method_id_list
 		2009-5-24
 			add 'region' as a column into the data
 		2009-5-3
@@ -262,7 +264,8 @@ class PhenotypeController(BaseController):
 		
 		no_of_non_phenotype_cols = len(column_name_type_ls)
 		phenotype_id_included = []
-		for phenotype_id  in self.phenotype_method_id_list:
+		#for phenotype_id  in self.phenotype_method_id_list:
+		for phenotype_id in phenoData.col_id2col_index:
 			i = phenoData.col_id2col_index.get(phenotype_id)
 			if i is not None:
 				phenotype_name = phenoData.col_label_ls[i]
