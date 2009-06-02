@@ -1,0 +1,3 @@
+#!/bin/sh
+APPDIR=`dirname $0`;
+java  -Xmx256M -cp "$APPDIR/src:$APPDIR/bin:/usr/local/home_ubuntu/crocea/script/gwt/gwt-user.jar:/usr/local/home_ubuntu/crocea/script/gwt/gwt-dev-linux.jar:/home/crocea/script/gwt-maps/gwt-maps.jar:/home/crocea/script/gwt-visualization/gwt-visualization.jar" com.google.gwt.dev.GWTShell -out "$APPDIR/www" "$@" edu.nordborglab.SearchGWAS/SearchGWAS.html;
