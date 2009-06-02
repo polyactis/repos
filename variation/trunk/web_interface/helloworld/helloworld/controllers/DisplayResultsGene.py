@@ -5,19 +5,25 @@ from helloworld.lib.base import *
 log = logging.getLogger(__name__)
 
 from formencode import htmlfill
-import simplejson
+import simplejson, re
 from DisplayTopSNPTestRM import DisplaytopsnptestrmController
+Results = model.Stock_250kDB.Results
+ResultsMethod = model.Stock_250kDB.ResultsMethod
+ResultsGene = model.Stock_250kDB.ResultsGene
+ScoreRankHistogramType = model.Stock_250kDB.ScoreRankHistogramType
 SnpsContext = model.Stock_250kDB.SnpsContext
 SNPAnnotation = model.Stock_250kDB.SNPAnnotation
-ScoreRankHistogramType = model.Stock_250kDB.ScoreRankHistogramType
-ResultsMethod = model.Stock_250kDB.ResultsMethod
+Snps = model.Stock_250kDB.Snps
 from HelpOtherControllers import HelpothercontrollersController as hc
+import gviz_api	#2009-2-1 google visualization python api to export data into json-related formats
+import numpy, datetime, urllib
 
 class DisplayresultsgeneController(BaseController):
 	"""
 	2008-10-30
 		controller in charge of displaying ResultsGene
 	"""
+	
 	def snp_gene_association_types(self):
 		"""
 		2009-3-4
@@ -65,6 +71,8 @@ class DisplayresultsgeneController(BaseController):
 	def showTopCandidateGenesFromOneResultOneGeneList(self, id=None, type_id=None, list_type_id=0, \
 			max_rank=200):
 		"""
+		2009-5-26
+			handle the situation when query to table ResultsMethod returns None based on call method, phenotype, analysis.
 		2009-3-4
 			max_rank default is 200.
 			pass snp_gene_association_id2desc to template through c
@@ -77,30 +85,40 @@ class DisplayresultsgeneController(BaseController):
 		2008-10-29
 		"""
 		results_id = request.params.get('id', id)
+		type_id = request.params.get('type_id', type_id)
+		list_type_id = int(request.params.get('list_type_id', list_type_id))
+		max_rank = request.params.get('max_rank', max_rank)
+		if max_rank is not None:
+			max_rank = int(max_rank)
+		c.max_rank = max_rank
+		c.type = ScoreRankHistogramType.get(type_id)
+		c.list_type = model.Stock_250kDB.GeneListType.get(list_type_id)
+		
+		c.snp_gene_association_id2desc = self.snp_gene_association_id2desc
+		c.row_ls = []
+		c.counter = 0
+		c.gene_desc_names = ['gene_symbol', 'description', 'type_of_gene', 'dbxrefs']
+				
 		if not results_id:
 			call_method_id = request.params.get('call_method_id', None)
 			phenotype_method_id = request.params.get('phenotype_method_id', None)
 			analysis_method_id = request.params.get('analysis_method_id', None)
 			rm = ResultsMethod.query.filter_by(call_method_id=call_method_id).filter_by(phenotype_method_id=phenotype_method_id).\
 					filter_by(analysis_method_id=analysis_method_id).first()
+			if rm is None:
+				c.result = None
+				return render('/display_results_gene_one.html')
 			results_id = rm.id
-		type_id = request.params.get('type_id', type_id)
-		list_type_id = int(request.params.get('list_type_id', list_type_id))
-		max_rank = request.params.get('max_rank', max_rank)
+
 		if results_id is None:
 			results_id = request.params.get('results_id', None)
 		if results_id is None:
 			return 'Nothing'
-		if max_rank is not None:
-			max_rank = int(max_rank)
 		
-		ResultsGene = model.Stock_250kDB.ResultsGene
-		ScoreRankHistogramType = model.Stock_250kDB.ScoreRankHistogramType
-		c.result = model.Stock_250kDB.ResultsMethod.get(results_id)
-		c.type = ScoreRankHistogramType.get(type_id)
-		c.list_type = model.Stock_250kDB.GeneListType.get(list_type_id)
+		c.result = ResultsMethod.get(results_id)
+
 		
-		c.snp_gene_association_id2desc = self.snp_gene_association_id2desc
+		
 		
 		from variation.src.GeneListRankTest import GeneListRankTest
 		if list_type_id>0:	#2009-2-22
@@ -110,9 +128,7 @@ class DisplayresultsgeneController(BaseController):
 		rows = ResultsGene.query.filter_by(results_id=results_id).\
 			filter(ResultsGene.types.any(id=type_id)).\
 			filter(ResultsGene.rank<=max_rank).order_by(ResultsGene.rank).order_by(ResultsGene.snps_id)
-		c.row_ls = []
-		c.counter = 0
-		c.gene_desc_names = ['gene_symbol', 'description', 'type_of_gene', 'dbxrefs']
+		
 		Gene = model.GenomeDB.Gene
 		for row in rows:
 			if row.gene_id in candidate_gene_set or list_type_id==0:	#2009-2-22
@@ -146,7 +162,6 @@ class DisplayresultsgeneController(BaseController):
 				row.snp_region_plot_id_ls = [str(s.id) for s in snp_region_plot_ls]
 				c.row_ls.append(row)
 				c.counter += 1
-		c.max_rank = max_rank
 		return render('/display_results_gene_one.html')
 	
 	@staticmethod
@@ -311,6 +326,22 @@ class DisplayresultsgeneController(BaseController):
 		return snp_gene_association_id_desc_ls
 	snp_gene_association_id_desc_ls = property(snp_gene_association_id_desc_ls)
 	
+	def snp_gene_association_Json(self):
+		"""
+		2009-6-2
+			a json wrap up around snp_gene_association_id_desc_ls()
+		"""
+		result = {
+				'options': [
+						dict(id=value, value=id) for id, value in self.snp_gene_association_id_desc_ls
+						]
+				}
+		#result['options'].append({'id': u'[At the end]', 'value': u''})
+		result['options'].insert(0, {'id': u'Please Choose ...', 'value': 0})
+		response.headers['Content-Type'] = 'application/json'
+		return simplejson.dumps(result)
+	
+	
 	def snp_gene_association_id2desc(self):
 		"""
 		2009-3-4
@@ -332,6 +363,245 @@ class DisplayresultsgeneController(BaseController):
 		defaults = {'type_id': id}
 		c.types = self.snp_gene_association_id_desc_ls
 		c.gene_list_ls = self.getGeneListTypeLsGivenTypeAndPhenotypeMethodAndAnalysisMethod()
-		c.max_rank=500
+		c.max_rank=50
 		html = render('/display_results_gene_form.html')
 		return htmlfill.render(html, defaults)
+	
+	def findGeneNameLike(self, namelike):
+		"""
+		2009-4-3
+			find all accessions with name beginned with 'namelike'
+		"""
+		tax_id = int(config['app_conf']['tax_id'])
+		Gene_symbol2id = model.GenomeDB.Gene_symbol2id
+		rows = Gene_symbol2id.query.filter_by(tax_id=tax_id).filter(Gene_symbol2id.table.c.gene_symbol.op('regexp')('^%s'%namelike))
+		name_set = set()
+		for row in rows:
+			name_set.add(row.gene_symbol)
+		return list(name_set)
+	
+	def geneNameAutoComplete(self):
+		"""
+		2009-5-26
+			autoComplete given a part of a gene name
+		"""
+		namelike = request.params.get('namelike')
+		name_ls = self.findGeneNameLike(namelike)
+		name_ls.sort()
+		if len(name_ls)>100:
+			name_ls = name_ls[:100]
+		response.headers['Content-Type'] = 'application/json'
+		return simplejson.dumps(dict(result=name_ls))
+	
+	def geneForm(self, id=None):
+		"""
+		2009-5-26
+			form to allow search GWAS results by gene name
+		"""
+		if config['app_conf']['site_public']=='false' or config['app_conf']['site_public']==False:
+			c.site_public = 0
+		else:
+			c.site_public = 1
+		c.snp_gene_association_type_id = int(config['app_conf']['snp_gene_association_type_id']);
+		c.snpGeneAssociationTypeURL = h.url_for(controller="DisplayResultsGene", action="snp_gene_association_Json");
+		c.geneNameAutoCompleteURL = h.url_for(controller="DisplayResultsGene", action="geneNameAutoComplete");
+		c.searchURL = h.url_for(controller="DisplayResultsGene", action="searchByGeneName");
+		return render('/SearchGWAS.html')
+	
+	def findGeneIDByName(self, id=None, geneName=None):
+		"""
+		2009-5-26
+			based on geneName, find the corresponding gene ID
+		"""
+		tax_id = int(config['app_conf']['tax_id'])
+		Gene_symbol2id = model.GenomeDB.Gene_symbol2id
+		rows = Gene_symbol2id.query.filter_by(tax_id=tax_id).filter_by(gene_symbol=geneName)
+		gene_id_set = set()
+		gene_id_symbol_set = set()
+		for row in rows:
+			if row.symbol_type=='symbol':
+				gene_id_symbol_set.add(row.gene_id)
+			gene_id_set.add(row.gene_id)
+		if len(gene_id_set)>1:
+			if len(gene_id_symbol_set)==1:
+				return list(gene_id_symbol_set)[0]
+			elif len(gene_id_symbol_set)==0:
+				return list(gene_id_set)[0]
+			elif len(gene_id_symbol_set)>1:
+				return list(gene_id_symbol_set)[0]
+		elif len(gene_id_set)==1:
+			return list(gene_id_set)[0]
+		elif len(gene_id_set)==0:
+			return None
+	
+	def getGeneInformation(self, gene_id):
+		"""
+		2009-5-27
+			return google data table in json structure of information of a gene
+		"""
+		column_name_type_ls = [("gene_symbol", ("string", "Symbol")), ("description", ("string", "Description")), \
+							("type_of_gene", ("string", "Type Of Gene")), \
+							("dbxrefs", ("string", "DB Cross References")), \
+							("gene_id", ("string","Gene ID"))]
+		description = dict(column_name_type_ls)
+		Gene = model.GenomeDB.Gene
+		gene = Gene.get(gene_id)
+		
+		entry = {}
+		if gene is not None:
+			for column_name_type in column_name_type_ls:
+				column_name = column_name_type[0]
+				column_type = column_name_type[1][0]
+				
+				if column_type=='string':
+					default_value = ''
+				elif column_type =='number':
+					default_value = -1
+				elif column_type=='date':
+					default_value = datetime.date(2050, 1, 1)
+				else:
+					default_value = None
+				
+				if column_name=='gene_id':
+					column_value = getattr(gene, column_name, default_value)
+					if column_value:
+						column_value = "<a href=%s target='_blank'>%s</a>"%(h.NCBIGeneDBURL%gene_id, column_value)
+				else:
+					column_value = getattr(gene, column_name, default_value)
+				entry[column_name] = column_value
+		return_ls = [entry]
+		data_table = gviz_api.DataTable(description)
+		data_table.LoadData(return_ls)
+		column_ls = [row[0] for row in column_name_type_ls]
+		json_result = data_table.ToJSon(columns_order=column_ls)	#ToJSonResponse only works with google.visualization.Query
+		response.headers['Content-Type'] = 'application/json'
+		return json_result
+	
+	def getAssociationsGivenGene(self, gene_id, typeID, minScore, maxRank):
+		"""
+		2009-5-27
+			return all associations related to a gene in table results_gene
+		"""
+		#construct the full data and turn it into json
+		column_name_type_ls = [("results_id", ("number", "Result Id")), ("phenotype_method_id", ("string", "Phenotype ID")), \
+							("phenotype_short_name", ("string", "Phenotype Name")), \
+							("analysis", ("string", "Association Method")), \
+							("snps_id", ("string","SNP ID")), ("chromosome", ("string","Chr")), \
+							("position", ("string","Position")), ("left_or_right", ("string","Left/Right")), \
+							("disp_pos", ("string","Distance")), ("disp_pos_comment", ("string","Distance comment")), \
+							("snp_annotation", ("string","SNP Annotation")), \
+							("score", ("number","Score")), \
+							("rank", ("number","Rank")), ('beta', ('number', 'Beta')),\
+							("maf", ("number","MAF")), ("mac", ("number","MAC")),\
+							('genotype_var_perc', ('number', 'variance explained'))]
+		description = dict(column_name_type_ls)
+		
+		query = ResultsGene.query.filter_by(gene_id=gene_id).filter(ResultsGene.types.any(id=typeID))
+		if maxRank:
+			query = query.filter(ResultsGene.rank<=maxRank)
+		if minScore:
+			query = query.filter(ResultsGene.score>=minScore)
+		query = query.order_by(ResultsGene.rank).order_by(ResultsGene.snps_id)
+		
+		return_ls = []
+		counter = 0
+		for row in query:
+			entry = dict()
+			snps_context = None
+			snp_based_association_result = None
+			for column_name_type in column_name_type_ls:
+				column_name = column_name_type[0]
+				column_type = column_name_type[1][0]
+				
+				if column_type=='string':
+					default_value = ''
+				elif column_type =='number':
+					default_value = -1
+				elif column_type=='date':
+					default_value = datetime.date(2050, 1, 1)
+				else:
+					default_value = None
+				
+				if column_name == 'phenotype_method_id':
+					column_value = "<a href=%s target='_blank'>%s</a>"%\
+						(h.url_for(controller="DisplayResults", action="showGWA", phenotype_method_id=row.result.phenotype_method_id, call_method_id=row.result.call_method_id),\
+						row.result.phenotype_method_id)
+				elif column_name == 'phenotype_short_name':
+					column_value = row.result.phenotype_method.short_name
+				elif column_name == 'analysis':
+					column_value = row.result.analysis_method.short_name
+				elif column_name == 'left_or_right':
+					if snps_context is None:
+						snps_context = SnpsContext.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).first()
+					column_value = getattr(snps_context, column_name, default_value)
+				elif column_name == 'disp_pos_comment':
+					if snps_context is None:
+						snps_context = SnpsContext.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).first()
+					column_value = getattr(snps_context, column_name, default_value)
+				elif column_name == 'chromosome':
+					column_value = row.snp.chromosome
+				elif column_name == 'position':
+					column_value = row.snp.position
+				elif column_name in ['beta', "maf", "mac", 'genotype_var_perc']:
+					if snp_based_association_result is None:
+						snp_based_association_result = Results.query.filter_by(snps_id=row.snps_id).filter_by(results_id=row.results_id).first() 
+					column_value = getattr(snp_based_association_result, column_name, default_value)
+				elif column_name == 'snp_annotation':
+					snp_annotation_text_ls = []
+					snp_annotation_ls = SNPAnnotation.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).all()
+					for snp_annotation in snp_annotation_ls:
+						snp_annotation_text = snp_annotation.snp_annotation_type.short_name
+						if snp_annotation.comment:
+							snp_annotation_text += ':%s'%snp_annotation.comment
+						if len(snp_annotation_text_ls)>0:
+							if snp_annotation_text!=snp_annotation_text_ls[-1]:
+								snp_annotation_text_ls.append(snp_annotation_text)
+						else:
+							snp_annotation_text_ls.append(snp_annotation_text)
+					column_value = ';'.join(snp_annotation_text_ls)
+				elif column_name == 'snps_id':
+					SNPURL = h.url_for(controller='SNP', action=None, phenotype_method_id=row.result.phenotype_method.id, \
+									call_method_id=row.result.call_method.id, analysis_method_id=row.result.analysis_method.id,\
+									chromosome=row.snp.chromosome, position=row.snp.position, score=row.score)
+					column_value = "<a href=%s target='_blank'>%s</a>"%(SNPURL, row.snps_id)
+				else:
+					column_value = getattr(row, column_name, default_value)
+				
+				entry[column_name] = column_value
+				counter += 1
+			return_ls.append(entry)
+		
+		data_table = gviz_api.DataTable(description)
+		data_table.LoadData(return_ls)
+		column_ls = [row[0] for row in column_name_type_ls]
+		json_result = data_table.ToJSon(columns_order=column_ls)	#ToJSonResponse only works with google.visualization.Query
+		response.headers['Content-Type'] = 'application/json'
+		return json_result
+	
+	all_number_p = re.compile(r'^\d+$')
+	def searchByGeneName(self, id=None):
+		"""
+		2009-5-26
+			get association results based on gene name
+		"""
+		typeID = request.params.get('typeID')
+		if typeID:
+			typeID = int(typeID)
+		minScore = request.params.get("minScore")
+		if minScore:
+			minScore = float(minScore)
+		maxRank = request.params.get("maxRank")
+		if maxRank:
+			maxRank = float(maxRank)
+		geneName = request.params.get('geneName')
+		geneName = urllib.unquote(geneName)	#Replace %xx escapes by their single-character equivalent.
+		if self.all_number_p.match(geneName):
+			gene_id = int(geneName)
+		else:
+			gene_id = self.findGeneIDByName(geneName=geneName)
+		
+		mode = request.params.get('mode')
+		if mode=="1":
+			return self.getGeneInformation(gene_id)
+		else:
+			return self.getAssociationsGivenGene(gene_id, typeID, minScore, maxRank)
