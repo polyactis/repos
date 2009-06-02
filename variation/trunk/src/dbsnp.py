@@ -22,14 +22,14 @@ from elixir import OneToMany, ManyToOne, ManyToMany
 from elixir import setup_all, session, metadata, entities
 from elixir.options import using_table_options_handler	#using_table_options() can only work inside Entity-inherited class.
 from sqlalchemy import UniqueConstraint
-from sqlalchemy.schema import ThreadLocalMetaData
+from sqlalchemy.schema import ThreadLocalMetaData, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import datetime
 from pymodule.db import ElixirDB
 
-__session__ = scoped_session(sessionmaker(autoflush=True, transactional=False))
-__metadata__ = ThreadLocalMetaData()
+__session__ = scoped_session(sessionmaker(autoflush=False, transactional=False))
+__metadata__ = MetaData()
 
 class README(Entity):
 	#2008-08-07
@@ -39,7 +39,7 @@ class README(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='readme')
+	using_options(tablename='readme',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class SNPset(Entity):
@@ -49,7 +49,7 @@ class SNPset(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='snpset')
+	using_options(tablename='snpset',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class SNPs(Entity):
@@ -66,16 +66,20 @@ class SNPs(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='snps')
+	using_options(tablename='snps',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class SNPs2SNPset(Entity):
 	snp = ManyToOne('SNPs', colname='snps_id', ondelete='CASCADE', onupdate='CASCADE')
 	snpset = ManyToOne('SNPset', colname='snpset_id', ondelete='CASCADE', onupdate='CASCADE')
-	using_options(tablename='snps2snpset')
+	using_options(tablename='snps2snpset',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class CallMethod(Entity):
+	"""
+	2009-5-19
+		add ManyToMany relationship towards Accession
+	"""
 	short_name = Field(String(100), nullable=False, unique=True)
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
@@ -84,7 +88,8 @@ class CallMethod(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='call_method')
+	accession_ls = ManyToMany("Accession", tablename='accession2call_method', ondelete='CASCADE', onupdate='CASCADE')
+	using_options(tablename='call_method',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class Calls(Entity):
@@ -92,10 +97,14 @@ class Calls(Entity):
 	snp = ManyToOne('SNPs', colname='snps_id', ondelete='CASCADE', onupdate='CASCADE')
 	genotype = Field(String(2))
 	call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
-	using_options(tablename='calls')
+	using_options(tablename='calls',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class Accession(Entity):
+	"""
+	2009-5-19
+		add ManyToMany relationship towards CallMethod
+	"""
 	name = Field(String(100), nullable=False, unique=True)
 	ecotype_id = Field(Integer)
 	duplicate = Field(Integer)
@@ -104,7 +113,8 @@ class Accession(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='accession')
+	call_method_ls = ManyToMany("CallMethod", tablename='accession2call_method', ondelete='CASCADE', onupdate='CASCADE')
+	using_options(tablename='accession',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 	
 class AtEcotype2Accession(TableClass):
@@ -138,7 +148,7 @@ class SNPsABAlleleMapping(Entity):
 	updated_by = Field(String(128))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
-	using_options(tablename='snps_ab_allele_mapping')
+	using_options(tablename='snps_ab_allele_mapping',  metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class DBSNP_sqlalchemy(Database):
@@ -193,33 +203,20 @@ class DBSNP_sqlalchemy(Database):
 
 class DBSNP(ElixirDB):
 	__doc__ = __doc__
-	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
-							('hostname', 1, ):['localhost', 'z', 1, 'hostname of the db server', ],\
-							('database', 1, ):['dbsnp', 'd', 1, '',],\
-							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
-							('username', 1, ):[None, 'u', 1, 'database username',],\
-							('password', 1, ):[None, 'p', 1, 'database password', ],\
-							('port', 0, ):[None, 'o', 1, 'database port number'],\
-							('commit',0, int): [0, 'c', 0, 'commit db transaction'],\
-							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
-							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+	option_default_dict = ElixirDB.option_default_dict.copy()
+	option_default_dict[('drivername', 1,)][0] = 'mysql'
+	option_default_dict[('database', 1,)][0] = 'dbsnp'
 	def __init__(self, **keywords):
 		"""
+		2009-4-10
+			simplified further by moving db-common lines to ElixirDB
 		2008-08-11
 		"""
-		from pymodule import ProcessOptions
+		from pymodule.ProcessOptions import ProcessOptions
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		self.setup_engine(metadata=__metadata__, session=__session__, entities=entities)
 		
-		if getattr(self, 'schema', None):	#for postgres
-			for entity in entities:
-				using_table_options_handler(entity, schema=self.schema)
 		
-		__metadata__.bind = self._url
-		self.metadata = __metadata__
-		self.session = __session__
-		#__session__.bind = self._url
-		setup_all(create_tables=True)	#create_tables=True causes setup_all to call elixir.create_all(), which in turn calls metadata.create_all()
-
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
 	main_class = DBSNP
