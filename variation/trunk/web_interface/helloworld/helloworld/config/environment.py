@@ -59,7 +59,7 @@ def load_environment(global_conf, app_conf):
 	#model.setup()
 	
 	model.db = model.Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user, password=db_passwd, \
-							hostname=hostname, database=dbname, schema=schema)
+							hostname=hostname, database=dbname, schema=schema, pool_recycle=pool_recycle)
 	model.db.setup(create_tables=False)
 
 	model.genome_db = model.GenomeDB.GenomeDatabase(drivername=drivername, username=db_user, password=db_passwd, \
