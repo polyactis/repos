@@ -52,20 +52,28 @@ class README(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class Phenotype(Entity):
+	"""
+	2009-6-2
+		point phenotype_method to the correct class name: PhenotypeMethod, rather than Phenotype
+	"""
 	ecotype_id = Field(Integer, nullable=False)
 	value = Field(Float)
 	replicate = Field(Integer)
-	phenotype_method = ManyToOne('Phenotype', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
+	phenotype_method = ManyToOne('PhenotypeMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
 	using_options(tablename='phenotype', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
 
 class PhenotypeAvg(Entity):
+	"""
+	2009-6-2
+		point phenotype_method to the correct class name: PhenotypeMethod, rather than Phenotype
+	"""
 	ecotype_id = Field(Integer, nullable=False)
 	value = Field(Float)
 	stdev = Field(Float)	
 	sample_size = Field(Integer)
 	ready_for_publication = Field(Integer, default=0)
-	phenotype_method = ManyToOne('Phenotype', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
+	phenotype_method = ManyToOne('PhenotypeMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
 	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	transformed_value = Field(Float)
 	using_options(tablename='phenotype_avg', metadata=__metadata__, session=__session__)
@@ -410,9 +418,15 @@ class SnpsQC(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class QCMethod(Entity):
+	"""
+	2009-5-20
+		add column snps_table, ignore_het
+	"""
 	short_name = Field(String(30), unique=True)
 	data1_type = Field(String(30), nullable=False)
 	data2_type = Field(String(30), nullable=False)
+	snps_table = Field(String(1000))	#db table holds information about all SNPs of data2_type
+	ignore_het = Field(Integer)	# whether this QC ignores heterozygous in both data1_type and data2_type
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
 	comment = Field(String(8000))
