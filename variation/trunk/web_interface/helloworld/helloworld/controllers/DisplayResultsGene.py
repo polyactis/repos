@@ -382,14 +382,19 @@ class DisplayresultsgeneController(BaseController):
 	
 	def geneNameAutoComplete(self):
 		"""
+		2009-6-2
+			parameter namelike has to be of >1 characters long 
 		2009-5-26
 			autoComplete given a part of a gene name
 		"""
 		namelike = request.params.get('namelike')
-		name_ls = self.findGeneNameLike(namelike)
-		name_ls.sort()
-		if len(name_ls)>100:
-			name_ls = name_ls[:100]
+		if len(namelike)<2:
+			name_ls = []
+		else:
+			name_ls = self.findGeneNameLike(namelike)
+			name_ls.sort()
+			if len(name_ls)>100:
+				name_ls = name_ls[:100]
 		response.headers['Content-Type'] = 'application/json'
 		return simplejson.dumps(dict(result=name_ls))
 	
