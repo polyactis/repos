@@ -32,33 +32,48 @@ nt2complement = {'A':'T', 'T':'A', 'C':'G', 'G':'C'}
 from sets import Set
 NA_set = Set([0, 'NA', 'N', -2, '|'])
 
+# 2009-6-5 add lower-case letter to the dictionary
 nt2number = {'|': -2,	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
 	'-': -1,	#deletion
 	'N': 0,
 	'NA': 0,
+	'n': 0,
+	'na': 0,
+	'X': 0,
+	'x': 0,
 	None: 0,
 	'A': 1,
+	'a': 1,
 	'C': 2,
+	'c': 2,
 	'G': 3,
+	'g': 3,
 	'T': 4,
-	'AC':5,
-	'CA':5,
-	'M':5,
-	'AG':6,
-	'GA':6,
-	'R':6,
-	'AT':7,
-	'TA':7,
-	'W':7,
-	'CG':8,
-	'GC':8,
-	'S':8,
-	'CT':9,
-	'TC':9,
-	'Y':9,
-	'GT':10,
-	'TG':10,
-	'K':10
+	't': 4,
+	'AC': 5,
+	'CA': 5,
+	'M': 5,
+	'm': 5,
+	'AG': 6,
+	'GA': 6,
+	'R': 6,
+	'r': 6,
+	'AT': 7,
+	'TA': 7,
+	'W': 7,
+	'w': 7,
+	'CG': 8,
+	'GC': 8,
+	'S': 8,
+	's': 8,
+	'CT': 9,
+	'TC': 9,
+	'Y': 9,
+	'y': 9,
+	'GT': 10,
+	'TG': 10,
+	'K': 10,
+	'k': 10
 	}
 
 # 2009-5-19 map nucleotide to number while ignoring heterozygous calls
@@ -107,6 +122,24 @@ number2nt = {-2: '|',	#2008-01-07 not even tried. 'N'/'NA' is tried but produces
 	10:'GT'
 	}
 
+#2009-6-5 dictionary used in output FASTA format which doesn't recognize two-letter heterozygous representation
+number2single_char_nt = {-2: '|',	#2008-01-07 not even tried. 'N'/'NA' is tried but produces inconclusive result.
+	-1: '-',
+	0: 'N',
+	num.nan: 'N',	#2008-12-03	data_matrix might contain num.nan as NA
+	1:'A',
+	2:'C',
+	3:'G',
+	4:'T',
+	5:'M',
+	6:'R',
+	7:'W',
+	8:'S',
+	9:'Y',
+	10:'K'
+	}
+	
+	
 number2color = {-1:(0,0,0), 0:(255,255,255), 1:(0,0,255), 2:(0,255,0), 3:(255,0,0), 4:(122,0,122), 5:(122,122,0), 6:(122,255,255), 7:(122,122,122), 8:(255,122,0), 9:(255,255,122), 10:(122,122,255) }
 
 #2007-04-16 entry[i,j] means whether nucleotide i and j matches. 0(NA) matches everything. singleton(1-4) matches itself and the doublet containing it. doublet(5-10) matches only itself.
@@ -482,6 +515,7 @@ class SNPData(object):
 	2008-05-18 moved from variation.src.QC_250k
 		add more arguments, input_fname, turn_into_array, ignore_2nd_column
 	"""
+	report = 0
 	option_default_dict = {('row_id_ls', 0, ): None,\
 							('col_id_ls', 0, ): None,\
 							('header', 0, ): None,\
@@ -702,7 +736,7 @@ class SNPData(object):
 	def keepRowsByRowID(cls, snpData, row_id_ls):
 		"""
 		2009-05-19
-			keep certains rows in snpData given row_id_ls
+			keep certain rows in snpData given row_id_ls
 		"""
 		sys.stderr.write("Keeping rows given row_id_ls ...")
 		no_of_rows = len(row_id_ls)
@@ -792,6 +826,60 @@ class SNPData(object):
 		return newSnpData
 	
 	@classmethod
+	def removeColsByMAF(cls, snpData, min_MAF=1):
+		"""
+		2008-05-29
+			remove SNPs whose MAF is lower than min_MAF
+		"""
+		sys.stderr.write("Removing cols whose MAF <%s ..."%(min_MAF))
+		
+		no_of_rows = len(snpData.data_matrix)
+		no_of_cols = len(snpData.data_matrix[0])
+		allele2index_ls = []
+		allele2count_ls = []
+		allele_index2allele_ls = []
+		col_id_to_be_kept_ls = []
+		no_of_SNPs_with_more_than_2_alleles = 0
+		for j in range(no_of_cols):
+			col_id = snpData.col_id_ls[j]
+			allele2index_ls.append({})
+			allele2count_ls.append({})
+			allele_index2allele_ls.append({})
+			allele_index2allele = allele_index2allele_ls[j]
+			for i in range(no_of_rows):
+				allele = snpData.data_matrix[i][j]
+				if allele==0 or allele==-2:
+					allele_index = num.nan	#numpy.nan is better than -2
+				elif allele not in allele2index_ls[j]:
+					allele_index = len(allele2index_ls[j])
+					allele2index_ls[j][allele] = allele_index
+					allele2count_ls[j][allele] = 1
+					allele_index2allele[allele_index] = allele
+				else:
+					allele_index = allele2index_ls[j][allele]
+					allele2count_ls[j][allele] += 1
+				#if cls.report and allele_index>1:
+				#	sys.stderr.write("%s (more than 2) alleles at SNP %s (id=%s).\n"%((allele_index+1), j, snpData.col_id_ls[j]))
+			if len(allele2count_ls[j])>2:
+				no_of_SNPs_with_more_than_2_alleles += 1
+				if cls.report:
+					sys.stderr.write("more than 2 alleles at SNP %s (id=%s).\n"%(j, snpData.col_id_ls[j]))
+			MAF = min(allele2count_ls[j].values())/float(sum(allele2count_ls[j].values()))
+			"""
+			print MAF
+			print j
+			print snpData.col_id_ls[j]
+			print allele2count_ls[j]
+			"""
+			if MAF>=min_MAF:
+				col_id_to_be_kept_ls.append(col_id)
+		
+		newSnpData = cls.keepColsByColID(snpData, col_id_to_be_kept_ls)
+		newSnpData.no_of_cols_removed = no_of_cols - len(col_id_to_be_kept_ls)
+		sys.stderr.write("%s columns filtered by min_MAF and %s SNPs with >2 alleles. Done.\n"%(newSnpData.no_of_cols_removed, no_of_SNPs_with_more_than_2_alleles))
+		return newSnpData
+	
+	@classmethod
 	def removeMonomorphicCols(cls, snpData):
 		"""
 		2008-05-19
@@ -822,8 +910,35 @@ class SNPData(object):
 		return newSnpData
 	
 	@classmethod
+	def keepColsByColID(cls, snpData, col_id_ls):
+		"""
+		2009-05-29
+			keep certain columns in snpData given col_id_ls
+		"""
+		sys.stderr.write("Keeping columns given col_id_ls ...")
+		no_of_cols = len(col_id_ls)
+		col_id_wanted_set = set(col_id_ls)
+		
+		no_of_rows = len(snpData.row_id_ls)
+		newSnpData = SNPData(row_id_ls=copy.deepcopy(snpData.row_id_ls), col_id_ls=[])
+		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		col_index = 0
+		for j in range(len(snpData.col_id_ls)):
+			col_id = snpData.col_id_ls[j]
+			if col_id in col_id_wanted_set:
+				newSnpData.col_id_ls.append(col_id)
+				newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:, j]
+				col_index += 1
+		newSnpData.no_of_cols_removed = len(snpData.col_id_ls)-no_of_cols
+		sys.stderr.write("%s columns discarded. Done.\n"%(newSnpData.no_of_cols_removed))
+		return newSnpData
+	
+	
+	@classmethod
 	def convertHetero2NA(cls, snpData):
 		"""
+		2009-5-29
+			bug: previously, no_of_hets includes NA calls. now it doesn't
 		2008-06-02
 			Convert all heterozygous calls and untouched in the file into NA.
 			deletion is not converted
@@ -839,7 +954,7 @@ class SNPData(object):
 					newSnpData.data_matrix[i][j] = snpData.data_matrix[i][j]
 				elif snpData.data_matrix[i][j]==-1:	#but not -2 (untouched), -1=deletion
 					newSnpData.data_matrix[i][j] = snpData.data_matrix[i][j]
-				else:
+				elif snpData.data_matrix[i][j]>4:	#-2 and 0 all converted to 0 by default
 					no_of_hets += 1
 		sys.stderr.write("%s heterozygous calls. Done.\n"%no_of_hets)
 		return newSnpData
@@ -1034,6 +1149,8 @@ class SNPData(object):
 					sys.stderr.write("%s (more than 2) alleles at SNP %s (id=%s).\n"%((allele_index+1), j, self.col_id_ls[j]))
 			#2008-12-02	check if binary-allele codes are in major, minor order
 			if in_major_minor_order and len(allele2index_ls[j])==2:	#only two-allele SNPs
+				# allele index 0 would be major allele
+				# allele index 1 would be minor allele
 				allele1 = allele_index2allele[0]
 				allele2 = allele_index2allele[1]
 				if allele2count_ls[j][allele1]<allele2count_ls[j][allele2]:	#minor allele got assigned the smaller number, reverse it
