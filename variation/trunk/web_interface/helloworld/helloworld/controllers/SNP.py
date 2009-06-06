@@ -82,6 +82,8 @@ class SnpController(BaseController):
 		
 	def getSNPSummaryInfo(self, id=None):
 		"""
+		2009-6-5
+			cast c.chromosome, c.position into integers. actually no need for that, pylons/elixir would cast automatically.
 		2009-3-2
 			information for the SNP summary table
 		"""
@@ -96,7 +98,7 @@ class SnpController(BaseController):
 		
 		c.gene_desc_names = ['gene_symbol', 'description', 'type_of_gene', 'dbxrefs']
 		
-		snp = Snps.query.filter_by(chromosome=c.chromosome).filter_by(position=c.position).filter(Snps.end_position==None).first()
+		snp = Snps.query.filter_by(chromosome=int(c.chromosome)).filter_by(position=int(c.position)).filter(Snps.end_position==None).first()
 		#raise
 		#snps_context = SnpsContext.query.filter_by(snps_id=snp.snps_id).filter_by(gene_id=snp.gene_id).first()
 		#row.left_or_right = getattr(snps_context, 'left_or_right', '')
@@ -141,6 +143,8 @@ class SnpController(BaseController):
 	
 	def getSignificantHits(self, id=None):
 		"""
+		2009-6-5
+			cast c.chromosome, c.position into integers. actually no need for that, pylons/elixir would cast automatically. 
 		2009-4-7
 			enlarge the GBrowse region from 20kb to 80kb
 		2009-3-2
@@ -158,7 +162,7 @@ class SnpController(BaseController):
 		
 		description = dict(column_name_type_ls)
 		
-		snp = Snps.query.filter_by(chromosome=c.chromosome).filter_by(position=c.position).filter(Snps.end_position==None).first()
+		snp = Snps.query.filter_by(chromosome=int(c.chromosome)).filter_by(position=int(c.position)).filter(Snps.end_position==None).first()
 		
 		rows = Results.query.filter_by(snps_id=snp.id).filter(Results.result.has(call_method_id=c.call_method_id)).all()
 		return_ls =[]
