@@ -104,6 +104,7 @@ class QualityControl(object):
 		sys.stderr.write("Done.\n")
 		return snpid2col_index1, snpid2col_index2, col_id12col_id2
 	
+	@classmethod
 	def get_row_matching_dstruc(cls, strain_acc_list1, category_list1, strain_acc_list2):
 		"""
 		2008-01-01
@@ -134,16 +135,16 @@ class QualityControl(object):
 		sys.stderr.write("Done.\n")
 		return strain_acc2row_index1, strain_acc2row_index2, row_id12row_id2
 	
-	get_row_matching_dstruc = classmethod(get_row_matching_dstruc)
 	
+	@classmethod
 	def get_NA_rate_for_one_row(cls, data_matrix, row_index):
 		"""
 		2008-05-12
 		"""
 		return QualityControl.get_NA_rate_for_one_slice(data_matrix, row_index)
 	
-	get_NA_rate_for_one_row = classmethod(get_NA_rate_for_one_row)
 	
+	@classmethod
 	def cmp_one_row(cls, data_matrix1, data_matrix2, row_index1, row_index2, col_id2col_index1, col_id2col_index2, col_id12col_id2, \
 				mapping_for_data_matrix1=None):
 		"""
@@ -177,11 +178,12 @@ class QualityControl(object):
 			mismatch_rate = -1
 		return NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs
 	
-	cmp_one_row = classmethod(cmp_one_row)
-	
+	@classmethod
 	def cmp_row_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, \
 					row_id2row_index2, row_id12row_id2):
 		"""
+		2009-06-10
+			calculate some runtime stats
 		2008-05-12
 			function split up
 		2007-12-18
@@ -194,30 +196,48 @@ class QualityControl(object):
 		"""
 		sys.stderr.write("Comparing row-wise for mismatches ...\n")
 		row_id2NA_mismatch_rate = {}
+		counter = 0
+		counter_no_valid_pairs = 0
+		counter_no_relative_valid_pairs = 0
+		counter_no_valid_non_NA_pairs = 0
 		for row_id1, row_id2 in row_id12row_id2.iteritems():
+			counter += 1
 			row_index1 = row_id2row_index1[row_id1]
 			row_index2 = row_id2row_index2[row_id2]
 			NA_rate, no_of_NAs, no_of_totals = QualityControl.get_NA_rate_for_one_row(data_matrix1, row_index1)
-			if NA_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
-				sys.stderr.write("\t no valid no_of_totals=0 between %s and %s.\n"%(row_id1, row_id2))
-			
+			if NA_rate==-1:
+				counter_no_valid_pairs += 1
+				"""
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid no_of_totals=0 between %s and %s.\n"%(row_id1, row_id2))
+				"""
 			relative_NA_rate, mismatch_rate, relative_no_of_NAs, relative_no_of_totals, no_of_mismatches, no_of_non_NA_pairs = \
 				QualityControl.cmp_one_row(data_matrix1, data_matrix2, row_index1, row_index2, col_id2col_index1, col_id2col_index2, col_id12col_id2)
-			if relative_NA_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
-				sys.stderr.write("\t no valid relative_no_of_totals=0 between %s and %s.\n"%(row_id1, row_id2))
-			if mismatch_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
-				sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
-			
+			if relative_NA_rate==-1:
+				counter_no_relative_valid_pairs += 1
+				"""
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid relative_no_of_totals=0 between %s and %s.\n"%(row_id1, row_id2))
+				"""
+			if mismatch_rate==-1:
+				counter_no_valid_non_NA_pairs += 1
+				"""
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
+				"""
 			row_id2NA_mismatch_rate[row_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs, \
 											relative_NA_rate, relative_no_of_NAs, relative_no_of_totals]
-		sys.stderr.write("Done.\n")
+		
+		sys.stderr.write("%s cmps in total. %s with no valid pairs. %s with no relative valid pairs. %s with no non-NA pairs. Done.\n"%\
+						(counter, counter_no_valid_pairs, counter_no_relative_valid_pairs, counter_no_valid_non_NA_pairs))
 		return row_id2NA_mismatch_rate
 	
-	cmp_row_wise = classmethod(cmp_row_wise)
 	
 	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, \
 						row_id2row_index2, row_id12row_id2):
 		"""
+		2009-06-10
+			record how many pairs with no_of_non_NA_pairs>0
 		2008-08-28
 			report no valid pairs only when self.debug=1
 		2007-12-21
@@ -227,6 +247,7 @@ class QualityControl(object):
 		sys.stderr.write("Calculating pairwise distance ...")
 		row_id2pairwise_dist = {}
 		counter = 0
+		counter_with_valid_non_NA_pairs = 0
 		for row_id1, row_index1 in row_id2row_index1.iteritems():
 			pairwise_dist = []
 			for row_id2, row_index2 in row_id2row_index2.iteritems():
@@ -242,11 +263,13 @@ class QualityControl(object):
 				if no_of_non_NA_pairs>0:
 					mismatch_rate = no_of_mismatches/float(no_of_non_NA_pairs)
 					pairwise_dist.append([mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs])
-				elif self.debug:
-					sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
+					counter_with_valid_non_NA_pairs += 1
+				#elif self.debug:
+				#	sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
+				counter += 1
 			pairwise_dist.sort()
 			row_id2pairwise_dist[row_id1] = pairwise_dist
-		sys.stderr.write("Done.\n")
+		sys.stderr.write("%s/%s have no_of_non_NA_pairs>0 Done.\n"%(counter_with_valid_non_NA_pairs, counter))
 		return row_id2pairwise_dist
 	
 	def trim_row_id2pairwise_dist(self, row_id2pairwise_dist, min_no_of_non_NA_pairs=10):
@@ -264,6 +287,7 @@ class QualityControl(object):
 			new_row_id2pairwise_dist[row_id] = new_pairwise_dist_ls
 		return new_row_id2pairwise_dist
 	
+	@classmethod
 	def get_NA_rate_for_one_slice(cls, data_matrix, slice_index, by_col=0):
 		"""
 		2008-05-12
@@ -290,8 +314,8 @@ class QualityControl(object):
 			NA_rate = -1
 		return NA_rate, no_of_NAs, no_of_totals
 	
-	get_NA_rate_for_one_slice = classmethod(get_NA_rate_for_one_slice)
 	
+	@classmethod
 	def get_NA_rate_for_one_col(cls, data_matrix, col_index):
 		"""
 		2008-05-06
@@ -299,8 +323,8 @@ class QualityControl(object):
 		"""
 		return QualityControl.get_NA_rate_for_one_slice(data_matrix, col_index, by_col=1)
 	
-	get_NA_rate_for_one_col = classmethod(get_NA_rate_for_one_col)
 	
+	@classmethod
 	def cmp_one_col(cls, data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2, \
 				mapping_for_data_matrix1=None):
 		"""
@@ -339,12 +363,13 @@ class QualityControl(object):
 		else:
 			mismatch_rate = -1
 		return NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs
-	
-	cmp_one_col = classmethod(cmp_one_col)
-	
+		
+	@classmethod
 	def cmp_col_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, \
 					row_id2row_index2, row_id12row_id2):
 		"""
+		2009-06-10
+			calculate some runtime stats
 		2008-05-12
 			return independent/relative NA_rate
 		2007-12-18
@@ -357,25 +382,41 @@ class QualityControl(object):
 		sys.stderr.write("Comparing col-wise for mismatches ...\n")
 		col_id2NA_mismatch_rate = {}
 		no_of_rows1 = len(data_matrix1)
+		counter = 0
+		counter_no_valid_pairs = 0
+		counter_no_relative_valid_pairs = 0
+		counter_no_valid_non_NA_pairs = 0
 		for col_id1, col_id2 in col_id12col_id2.iteritems():
+			counter += 0
 			col_index1 = col_id2col_index1[col_id1]
 			col_index2 = col_id2col_index2[col_id2]
 			NA_rate, no_of_NAs, no_of_totals = QualityControl.get_NA_rate_for_one_col(data_matrix1, col_index1)
-			if NA_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
-				sys.stderr.write("\t no valid no_of_totals=0 between %s and %s.\n"%(col_id1, col_id2))
-			
+			if NA_rate==-1:
+				counter_no_valid_pairs += 1
+				"""
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid no_of_totals=0 between %s and %s.\n"%(col_id1, col_id2))
+				"""
 			relative_NA_rate, mismatch_rate, relative_no_of_NAs, relative_no_of_totals, no_of_mismatches, no_of_non_NA_pairs = \
 				QualityControl.cmp_one_col(data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2)
-			if relative_NA_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
-				sys.stderr.write("\t no valid relative_no_of_totals=0 between %s and %s.\n"%(col_id1, col_id2))
-			if mismatch_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
-				sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(col_id1, col_id2))
+			if relative_NA_rate==-1:
+				counter_no_relative_valid_pairs += 1
+				"""
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid relative_no_of_totals=0 between %s and %s.\n"%(col_id1, col_id2))
+				"""
+			if mismatch_rate==-1:
+				counter_no_valid_non_NA_pairs += 1
+				"""
+				if hasattr(cls, 'debug') and getattr(cls,'debug'):
+					sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(col_id1, col_id2))
+				"""
 			col_id2NA_mismatch_rate[col_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs,  \
 											relative_NA_rate, relative_no_of_NAs, relative_no_of_totals]
-		sys.stderr.write("Done.\n")
+		sys.stderr.write("%s cmps in total. %s with no valid pairs. %s with no relative valid pairs. %s with no non-NA pairs. Done.\n"%\
+						(counter, counter_no_valid_pairs, counter_no_relative_valid_pairs, counter_no_valid_non_NA_pairs))
 		return col_id2NA_mismatch_rate
 	
-	cmp_col_wise = classmethod(cmp_col_wise)
 	
 	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, \
 					col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1, need_diff_code_pair_dict=0):
@@ -812,8 +853,12 @@ class QualityControl(object):
 			submit row_id2pairwise_dist
 		"""
 		sys.stderr.write('Submitting row_id2pairwise_dist ...')
+		counter = 0
+		real_counter = 0
+		no_of_entries_in_db = 0
 		for row_id, pairwise_dist_ls in row_id2pairwise_dist.iteritems():
 			for pairwise_dist in pairwise_dist_ls:
+				counter += 1
 				mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs = pairwise_dist
 				if max_mismatch_rate is not None and max_mismatch_rate>0.0 and mismatch_rate>max_mismatch_rate:
 					continue
@@ -827,6 +872,7 @@ class QualityControl(object):
 						(qc_cross_match_table, ecotype_id, duplicate, accession_id, qc_method_id))
 					rows = curs.fetchall()
 					if len(rows)>0:
+						no_of_entries_in_db += 1
 						continue
 					
 					sql_string = "insert into %s(ecotype_id, call_info_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, \
@@ -839,10 +885,11 @@ class QualityControl(object):
 							(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, qc_method_id)
 				try:
 					curs.execute(sql_string)
+					real_counter += 1
 				except:
 					sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
 					traceback.print_exc()
-		sys.stderr.write("Done.\n")
+		sys.stderr.write("%s/%s already in db. %s/%s inserted into db. Done.\n"%(no_of_entries_in_db, counter, real_counter, counter))
 
 
 class TwoSNPData(QualityControl):
@@ -1328,6 +1375,7 @@ class TwoSNPData(QualityControl):
 			self.submit_row_id2pairwise_dist(self.curs, self.qc_cross_match_table, self.row_id2pairwise_dist, self.QC_method_id, \
 											self.max_mismatch_rate, self.min_no_of_non_NA_pairs)
 	
+	@classmethod
 	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname, file_1st_open=1):
 		"""
 		2008-10-11
@@ -1369,9 +1417,8 @@ class TwoSNPData(QualityControl):
 				writer.writerow(row_id_ls + NA_mismatch_ls)
 		del writer
 		sys.stderr.write("Done.\n")
-	
-	output_row_id2NA_mismatch_rate = classmethod(output_row_id2NA_mismatch_rate)
-	
+		
+	@classmethod
 	def output_col_id2NA_mismatch_rate_InGWRFormat(cls, col_id2NA_mismatch_rate, output_fname, file_1st_open=1):
 		"""
 		2008-10-11
@@ -1397,9 +1444,7 @@ class TwoSNPData(QualityControl):
 		del writer
 		sys.stderr.write("Done.\n")
 		
-	
-	output_col_id2NA_mismatch_rate_InGWRFormat = classmethod(output_col_id2NA_mismatch_rate_InGWRFormat)
-	
+		
 class MergeTwoSNPData(object):
 	__doc__ = __doc__
 	option_default_dict = {('input_fname1',1, ): [None, 'i', 1, 'to form SNPData1'],\
