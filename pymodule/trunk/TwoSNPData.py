@@ -144,7 +144,8 @@ class QualityControl(object):
 	
 	get_NA_rate_for_one_row = classmethod(get_NA_rate_for_one_row)
 	
-	def cmp_one_row(cls, data_matrix1, data_matrix2, row_index1, row_index2, col_id2col_index1, col_id2col_index2, col_id12col_id2, mapping_for_data_matrix1=None):
+	def cmp_one_row(cls, data_matrix1, data_matrix2, row_index1, row_index2, col_id2col_index1, col_id2col_index2, col_id12col_id2, \
+				mapping_for_data_matrix1=None):
 		"""
 		2008-05-12
 			use NA_set
@@ -178,7 +179,8 @@ class QualityControl(object):
 	
 	cmp_one_row = classmethod(cmp_one_row)
 	
-	def cmp_row_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
+	def cmp_row_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, \
+					row_id2row_index2, row_id12row_id2):
 		"""
 		2008-05-12
 			function split up
@@ -206,13 +208,15 @@ class QualityControl(object):
 			if mismatch_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
 				sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
 			
-			row_id2NA_mismatch_rate[row_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs, relative_NA_rate, relative_no_of_NAs, relative_no_of_totals]
+			row_id2NA_mismatch_rate[row_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs, \
+											relative_NA_rate, relative_no_of_NAs, relative_no_of_totals]
 		sys.stderr.write("Done.\n")
 		return row_id2NA_mismatch_rate
 	
 	cmp_row_wise = classmethod(cmp_row_wise)
 	
-	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
+	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, \
+						row_id2row_index2, row_id12row_id2):
 		"""
 		2008-08-28
 			report no valid pairs only when self.debug=1
@@ -297,7 +301,8 @@ class QualityControl(object):
 	
 	get_NA_rate_for_one_col = classmethod(get_NA_rate_for_one_col)
 	
-	def cmp_one_col(cls, data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2, mapping_for_data_matrix1=None):
+	def cmp_one_col(cls, data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2, \
+				mapping_for_data_matrix1=None):
 		"""
 		2008-05-12
 			use NA_set
@@ -337,7 +342,8 @@ class QualityControl(object):
 	
 	cmp_one_col = classmethod(cmp_one_col)
 	
-	def cmp_col_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2):
+	def cmp_col_wise(cls, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, \
+					row_id2row_index2, row_id12row_id2):
 		"""
 		2008-05-12
 			return independent/relative NA_rate
@@ -358,18 +364,21 @@ class QualityControl(object):
 			if NA_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
 				sys.stderr.write("\t no valid no_of_totals=0 between %s and %s.\n"%(col_id1, col_id2))
 			
-			relative_NA_rate, mismatch_rate, relative_no_of_NAs, relative_no_of_totals, no_of_mismatches, no_of_non_NA_pairs = QualityControl.cmp_one_col(data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2)
+			relative_NA_rate, mismatch_rate, relative_no_of_NAs, relative_no_of_totals, no_of_mismatches, no_of_non_NA_pairs = \
+				QualityControl.cmp_one_col(data_matrix1, data_matrix2, col_index1, col_index2, row_id2row_index1, row_id2row_index2, row_id12row_id2)
 			if relative_NA_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
 				sys.stderr.write("\t no valid relative_no_of_totals=0 between %s and %s.\n"%(col_id1, col_id2))
 			if mismatch_rate==-1 and hasattr(cls, 'debug') and getattr(cls,'debug'):
 				sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(col_id1, col_id2))
-			col_id2NA_mismatch_rate[col_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs,  relative_NA_rate, relative_no_of_NAs, relative_no_of_totals]
+			col_id2NA_mismatch_rate[col_id1] = [NA_rate, mismatch_rate, no_of_NAs, no_of_totals, no_of_mismatches, no_of_non_NA_pairs,  \
+											relative_NA_rate, relative_no_of_NAs, relative_no_of_totals]
 		sys.stderr.write("Done.\n")
 		return col_id2NA_mismatch_rate
 	
 	cmp_col_wise = classmethod(cmp_col_wise)
 	
-	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1, need_diff_code_pair_dict=0):
+	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, \
+					col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1, need_diff_code_pair_dict=0):
 		"""
 		2008-01-24 add flag need_diff_code_pair_dict to output diff_code_pair2diff_details_ls
 		2008-01-01 derived from cmp_two_matricies() of CmpAccession2Ecotype.py
@@ -471,7 +480,10 @@ class QualityControl(object):
 		2008-01-11
 			add strain-wise and snp-wise diff output
 		"""
-		self.diff_matrix, self.diff_details_ls, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		self.diff_matrix, self.diff_details_ls, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, \
+																				self.nt_number2diff_matrix_index, self.col_id2col_index1, \
+																				self.col_id2col_index2, self.col_id12col_id2, \
+																				self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 		print self.diff_matrix
 		i = 0
 		if self.latex_output_fname:
@@ -480,7 +492,8 @@ class QualityControl(object):
 			from pymodule.latex import outputMatrixInLatexTable, escape_characters
 			wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(self.diff_matrix)
 			table_label = 'table_dm%s'%i
-			outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, '%s vs %s'%(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)), table_label))
+			outf.write(outputMatrixInLatexTable(wrapped_diff_matrix, '%s vs %s'%\
+											(os.path.basename(self.input_fname1), os.path.basename(self.input_fname2)), table_label))
 			i += 1
 			table_no = i
 			
@@ -497,7 +510,14 @@ class QualityControl(object):
 			row_id1_ls.sort()
 			for row_id1 in row_id1_ls:
 				row_id2 = self.row_id12row_id2[row_id1]
-				diff_matrix_for_one_row, diff_details_ls_for_one_row, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, row_id=row_id1)
+				diff_matrix_for_one_row, diff_details_ls_for_one_row, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, \
+																									self.nt_number2diff_matrix_index, \
+																									self.col_id2col_index1, \
+																									self.col_id2col_index2, \
+																									self.col_id12col_id2, \
+																									self.row_id2row_index1, \
+																									self.row_id2row_index2, self.row_id12row_id2,\
+																									 row_id=row_id1)
 				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix_for_one_row)
 				table_no += 1
 				table_label = 'table_dm%s'%table_no
@@ -529,7 +549,11 @@ class QualityControl(object):
 			col_id1_ls.sort()
 			for col_id1 in col_id1_ls:
 				col_id2 = self.col_id12col_id2[col_id1]
-				diff_matrix_for_one_col, diff_details_ls_for_one_col, extra_data = self.get_diff_matrix(self.data_matrix1, self.data_matrix2, self.nt_number2diff_matrix_index, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2, col_id=col_id1)
+				diff_matrix_for_one_col, diff_details_ls_for_one_col, extra_data = self.get_diff_matrix(self.data_matrix1, \
+																									self.data_matrix2, self.nt_number2diff_matrix_index, \
+																									self.col_id2col_index1, self.col_id2col_index2, \
+																									self.col_id12col_id2, self.row_id2row_index1, \
+																									self.row_id2row_index2, self.row_id12row_id2, col_id=col_id1)
 				wrapped_diff_matrix = self.wrap_diff_matrix_with_row_col_names(diff_matrix_for_one_col)
 				table_no += 1
 				table_label = 'table_dm%s'%table_no
@@ -671,11 +695,15 @@ class QualityControl(object):
 		"""
 		2007-12-20
 		"""
-		self.row_id2NA_mismatch_rate = self.cmp_row_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 )
-		self.row_id2info = self.get_row_id2info(self.row_id2NA_mismatch_rate.keys(), self.curs, calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype')
+		self.row_id2NA_mismatch_rate = self.cmp_row_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, \
+														self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 )
+		self.row_id2info = self.get_row_id2info(self.row_id2NA_mismatch_rate.keys(), self.curs, \
+											calls_250k_duplicate_comment_table='calls_250k_duplicate_comment', ecotype_table='ecotype')
 		from QCVisualize import QCVisualize
 		import gtk
-		QCVisualize_ins = QCVisualize(self.row_id2NA_mismatch_rate, title, id2info=self.row_id2info, id2index=self.row_id2row_index1, id_is_strain=1, header=self.header1, strain_acc_list=self.strain_acc_list1, category_list=self.category_list1, data_matrix=self.data_matrix1)
+		QCVisualize_ins = QCVisualize(self.row_id2NA_mismatch_rate, title, id2info=self.row_id2info, id2index=self.row_id2row_index1, \
+									id_is_strain=1, header=self.header1, strain_acc_list=self.strain_acc_list1, category_list=self.category_list1, \
+									data_matrix=self.data_matrix1)
 		QCVisualize_ins.show_all()
 		gtk.main()
 	
@@ -683,10 +711,13 @@ class QualityControl(object):
 		"""
 		2007-12-20
 		"""
-		self.col_id2NA_mismatch_rate = self.cmp_col_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		self.col_id2NA_mismatch_rate = self.cmp_col_wise(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, \
+														self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 		from QCVisualize import QCVisualize
 		import gtk
-		QCVisualize_ins = QCVisualize(self.col_id2NA_mismatch_rate, title, id2info={}, id2index=self.col_id2col_index1, id_is_strain=0, header=self.header1, strain_acc_list=self.strain_acc_list1, category_list=self.category_list1, data_matrix=self.data_matrix1)
+		QCVisualize_ins = QCVisualize(self.col_id2NA_mismatch_rate, title, id2info={}, id2index=self.col_id2col_index1, id_is_strain=0, \
+									header=self.header1, strain_acc_list=self.strain_acc_list1, category_list=self.category_list1, \
+									data_matrix=self.data_matrix1)
 		QCVisualize_ins.show_all()
 		gtk.main()
 	
@@ -695,7 +726,8 @@ class QualityControl(object):
 		2008-01-11
 			add the part to submit the result to db
 		"""
-		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.data_matrix1, self.data_matrix2, self.col_id2col_index1, self.col_id2col_index2, \
+														self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 		if self.qc_cross_match_table:
 			self.create_qc_cross_match_table(self.curs, self.qc_cross_match_table)
 			self.submit_row_id2pairwise_dist(self.curs, self.qc_cross_match_table, self.row_id2pairwise_dist)
@@ -726,14 +758,18 @@ class QualityControl(object):
 			row_id1, col_id1, number1, row_id2, col_id2, number2 = row
 			if type(row_id1)==tuple:
 				ecotype_id, duplicate = row_id1
-				sql_string = "insert into %s(ecotype_id, duplicate, col_id1, call1, accession_id, col_id2, call2) values(%s, %s, '%s', %s, %s, '%s', %s)"%(diff_details_table, ecotype_id, duplicate, col_id1, number1, row_id2, col_id2, number2)
+				sql_string = "insert into %s(ecotype_id, duplicate, col_id1, call1, accession_id, col_id2, call2) values(%s, %s, '%s', %s, %s, '%s', %s)"%\
+				(diff_details_table, ecotype_id, duplicate, col_id1, number1, row_id2, col_id2, number2)
 			else:
-				sql_string = "insert into %s(ecotype_id, col_id1, call1, accession_id, col_id2, call2) values(%s, '%s', %s, %s, '%s', %s)"%(diff_details_table, row_id1, col_id1, number1, row_id2, col_id2, number2)
+				sql_string = "insert into %s(ecotype_id, col_id1, call1, accession_id, col_id2, call2) values(%s, '%s', %s, %s, '%s', %s)"%\
+				(diff_details_table, row_id1, col_id1, number1, row_id2, col_id2, number2)
 			curs.execute(sql_string)
 		sys.stderr.write("Done.\n")
 	
 	def create_qc_cross_match_table(self, curs, qc_cross_match_table):
 		"""
+		2009-6-9
+			add more columns (qc_method_id, created_by, updated_by, date_created, date_updated)
 		2008-07-01
 			rename some fields in the cross_match_table
 				duplicate => call_info_id
@@ -749,11 +785,22 @@ class QualityControl(object):
 			vs_ecotype_id	integer,\
 			mismatch_rate	float,\
 			no_of_mismatches	integer,\
-			no_of_non_NA_pairs	integer)engine=INNODB"%qc_cross_match_table)
+			no_of_non_NA_pairs	integer,\
+			qc_method_id	integer,\
+			created_by varchar(200) default NULL,\
+			updated_by varchar(200) default NULL,\
+			date_created timestamp NOT NULL default CURRENT_TIMESTAMP,\
+			date_updated timestamp NOT NULL default '0000-00-00 00:00:00')engine=INNODB"%qc_cross_match_table)
 		sys.stderr.write("Done.\n")
 	
-	def submit_row_id2pairwise_dist(self, curs, qc_cross_match_table, row_id2pairwise_dist):
+	def submit_row_id2pairwise_dist(self, curs, qc_cross_match_table, row_id2pairwise_dist, qc_method_id=0, max_mismatch_rate=0.25,\
+								min_no_of_non_NA_pairs=5):
 		"""
+		2009-6-9
+			add argument qc_method_id, max_mismatch_rate, min_no_of_non_NA_pairs
+			
+			max_mismatch_rate & min_no_of_non_NA_pairs are used to filter entries whose mismatch_rate is above that
+			
 		2009-4-24
 			if type(row_id)==tuple:
 				check if the entry is already in db before insertion
@@ -768,21 +815,28 @@ class QualityControl(object):
 		for row_id, pairwise_dist_ls in row_id2pairwise_dist.iteritems():
 			for pairwise_dist in pairwise_dist_ls:
 				mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs = pairwise_dist
+				if max_mismatch_rate is not None and max_mismatch_rate>0.0 and mismatch_rate>max_mismatch_rate:
+					continue
+				if min_no_of_non_NA_pairs is not None and no_of_non_NA_pairs<min_no_of_non_NA_pairs:
+					continue
 				accession_id = row_id2
 				if type(row_id)==tuple:
 					ecotype_id, duplicate = row_id
 					#2009-4-24 check if it's already in db.
-					curs.execute("select id from %s where ecotype_id=%s and call_info_id=%s and vs_ecotype_id=%s"%\
-						(qc_cross_match_table, ecotype_id, duplicate, accession_id))
+					curs.execute("select id from %s where ecotype_id=%s and call_info_id=%s and vs_ecotype_id=%s and qc_method_id=%s"%\
+						(qc_cross_match_table, ecotype_id, duplicate, accession_id, qc_method_id))
 					rows = curs.fetchall()
 					if len(rows)>0:
 						continue
 					
-					sql_string = "insert into %s(ecotype_id, call_info_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s, %s)"%\
-						(qc_cross_match_table, ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
+					sql_string = "insert into %s(ecotype_id, call_info_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, \
+						qc_method_id) values(%s, %s, %s, %s, %s, %s, %s)"%\
+						(qc_cross_match_table, ecotype_id, duplicate, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, qc_method_id)
 				else:
 					ecotype_id = row_id
-					sql_string = "insert into %s(ecotype_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs) values(%s, %s, %s, %s, %s)"%(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs)
+					sql_string = "insert into %s(ecotype_id, vs_ecotype_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, qc_method_id) \
+							values(%s, %s, %s, %s, %s, %s)"%\
+							(qc_cross_match_table, ecotype_id, accession_id, mismatch_rate, no_of_mismatches, no_of_non_NA_pairs, qc_method_id)
 				try:
 					curs.execute(sql_string)
 				except:
@@ -793,6 +847,10 @@ class QualityControl(object):
 
 class TwoSNPData(QualityControl):
 	"""
+	2009-6-9
+		add argument
+			max_mismatch_rate: only cross-matching results with mismatch_rate<=max_mismatch_rate are to be stored into db
+			min_no_of_non_NA_pairs:  only cross-matching results with no_of_non_NA_pairs above it are to be stored into db
 	2008-05-08
 		moved from variation.src.QC_250k
 	QC between SNPData1 and SNPData2. The final NA_rate, mismatch_rate is in terms of row_id in SNPData1.
@@ -807,10 +865,13 @@ class TwoSNPData(QualityControl):
 							('columns_to_be_selected', 0, ):'s1.name, s2.snpid',\
 							('row_matching_by_which_value', 0, ): None,\
 							('col_matching_by_which_value', 0, ): None,\
+							('max_mismatch_rate', 0, float): 0.0,\
+							('min_no_of_non_NA_pairs', 0, int): 5,\
 							('debug', 0, ): 0}
 	def __init__(self, **keywords):
 		from __init__ import ProcessOptions
-		self.ad = ProcessOptions.process_function_arguments(keywords, self.argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, howto_deal_with_required_none=2)
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, \
+														howto_deal_with_required_none=2)
 		if self.QC_method_id!=3 and self.QC_method_id!=7:	#149SNP uses snpid
 			self.columns_to_be_selected = 's1.name, s2.name'
 		
@@ -912,8 +973,10 @@ class TwoSNPData(QualityControl):
 					header2, self.curs, self.SNPData1.snps_table, self.SNPData2.snps_table, columns_to_be_selected=self.columns_to_be_selected)
 		else:	#use the default from QualityControl
 		"""
-		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.col_id_ls, self.SNPData2.col_id_ls)
-		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.row_id_ls, self.SNPData2.row_id_ls)
+		self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2 = self.get_col_matching_dstruc(self.SNPData1.col_id_ls, \
+																										self.SNPData2.col_id_ls)
+		self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2 = self.get_row_matching_dstruc(self.SNPData1.row_id_ls, \
+																										self.SNPData2.row_id_ls)
 		
 		self.SNPData1.row_id2row_index = self.row_id2row_index1
 		self.SNPData1.col_id2col_index = self.col_id2col_index1
@@ -927,10 +990,12 @@ class TwoSNPData(QualityControl):
 		"""
 		row_index1 = self.SNPData1.row_id2row_index[row_id1]
 		row_index2 = self.SNPData2.row_id2row_index[row_id2]
-		return QualityControl.cmp_one_row(self.SNPData1.data_matrix, self.SNPData2.data_matrix, row_index1, row_index2, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2)
+		return QualityControl.cmp_one_row(self.SNPData1.data_matrix, self.SNPData2.data_matrix, row_index1, row_index2, self.col_id2col_index1, \
+										self.col_id2col_index2, self.col_id12col_id2)
 	
 	def cmp_row_wise(self):
-		return QualityControl.cmp_row_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		return QualityControl.cmp_row_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, \
+										self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
 	
 	def cmp_col_wise(self, row_id=None, row_id12row_id2=None):
 		"""
@@ -949,7 +1014,8 @@ class TwoSNPData(QualityControl):
 		
 		if row_id12row_id2 is None:
 			row_id12row_id2 = self.row_id12row_id2
-		return QualityControl.cmp_col_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, row_id2row_index1, self.row_id2row_index2, row_id12row_id2)
+		return QualityControl.cmp_col_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, \
+										self.col_id12col_id2, row_id2row_index1, self.row_id2row_index2, row_id12row_id2)
 	
 	def save_col_wise(self, session, readme):
 		"""
@@ -961,7 +1027,8 @@ class TwoSNPData(QualityControl):
 			col_id2 = self.col_id12col_id2.get(col_id1)
 			if col_id2:
 				snpsqc = SNPsQC(QC_method_id=self.QC_method_id, min_probability=self.SNPData1.min_probability,\
-							call_method_id=self.SNPData1.call_method_id, created_by=self.user, max_call_info_mismatch_rate=self.SNPData1.max_call_info_mismatch_rate)
+							call_method_id=self.SNPData1.call_method_id, created_by=self.user, \
+							max_call_info_mismatch_rate=self.SNPData1.max_call_info_mismatch_rate)
 				if type(self.SNPData1.col_id2id)==dict:
 					snpsqc.snps_id = self.SNPData1.col_id2id[col_id1]
 				snpsqc.tg_snps_name=col_id2
@@ -969,7 +1036,9 @@ class TwoSNPData(QualityControl):
 				col_index2 = self.col_id2col_index2[col_id2]
 				snpsqc.relative_NA_rate, snpsqc.mismatch_rate, snpsqc.relative_no_of_NAs, snpsqc.relative_no_of_totals, \
 					snpsqc.no_of_mismatches, snpsqc.no_of_non_NA_pairs = self.cmp_one_col(self.SNPData1.data_matrix, \
-																						self.SNPData2.data_matrix, col_index1, col_index2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+																						self.SNPData2.data_matrix, col_index1, col_index2, \
+																						self.row_id2row_index1, self.row_id2row_index2, \
+																						self.row_id12row_id2)
 				if snpsqc.relative_NA_rate==-1:
 					snpsqc.relative_NA_rate = None
 				if snpsqc.mismatch_rate == -1:
@@ -1066,7 +1135,8 @@ class TwoSNPData(QualityControl):
 				which_snpData_based_on_col, old_col_index = old_col_index_tuple
 				if which_snpData!=which_snpData_based_on_col:	#this is region which both SNPData1 and SNPData2 don't have data
 					if self.debug:
-						sys.stderr.write("Error: which_snpData differs based on row and col structures, %s vs %s.\n"%(which_snpData, which_snpData_based_on_col))
+						sys.stderr.write("Error: which_snpData differs based on row and col structures, %s vs %s.\n"%\
+										(which_snpData, which_snpData_based_on_col))
 				else:
 					newSnpData.data_matrix[i][j] = snpData_ls[which_snpData].data_matrix[old_row_index][old_col_index]
 	
@@ -1104,7 +1174,8 @@ class TwoSNPData(QualityControl):
 				which_snpData_based_on_col, old_col_index = old_col_index_tuple
 				if which_snpData!=which_snpData_based_on_col:	#this is region which both SNPData1 and SNPData2 don't have data
 					if self.debug:
-						sys.stderr.write("Error: which_snpData differs based on row and col structures, %s vs %s.\n"%(which_snpData, which_snpData_based_on_col))
+						sys.stderr.write("Error: which_snpData differs based on row and col structures, %s vs %s.\n"%\
+										(which_snpData, which_snpData_based_on_col))
 				else:
 					newSnpData.data_matrix[i][j] = snpData_ls[which_snpData].data_matrix[old_row_index][old_col_index]
 	
@@ -1192,7 +1263,8 @@ class TwoSNPData(QualityControl):
 		if priority==1 or priority==2:
 			self.mergeUsingDataAccordingToPriority(snpData_ls, newSnpData, new_row_id2old_row_index, new_col_id2old_col_index, priority=priority)
 		else:
-			self.mergeUsingDataFromOnlyOneSNPData(snpData_ls, newSnpData, new_row_id2old_row_index, new_col_id2old_col_index, which_snpData_index=priority-3)
+			self.mergeUsingDataFromOnlyOneSNPData(snpData_ls, newSnpData, new_row_id2old_row_index, new_col_id2old_col_index, \
+												which_snpData_index=priority-3)
 		
 		sys.stderr.write("Done.\n")
 		return newSnpData
@@ -1242,14 +1314,19 @@ class TwoSNPData(QualityControl):
 	
 	def cal_row_id2pairwise_dist(self):
 		"""
+		2009-6-9
+			pass self.QC_method_id & self.max_mismatch_rate, self.min_no_of_non_NA_pairs to submit_row_id2pairwise_dist()
 		2008-07-01
 			cross-match the two data matricies
 		"""
-		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, self.row_id12row_id2)
+		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, \
+														self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, \
+														self.row_id12row_id2)
 		if getattr(self, 'qc_cross_match_table', None):
 			if getattr(self, 'new_QC_cross_match_table', None):
 				self.create_qc_cross_match_table(self.curs, self.qc_cross_match_table)
-			self.submit_row_id2pairwise_dist(self.curs, self.qc_cross_match_table, self.row_id2pairwise_dist)
+			self.submit_row_id2pairwise_dist(self.curs, self.qc_cross_match_table, self.row_id2pairwise_dist, self.QC_method_id, \
+											self.max_mismatch_rate, self.min_no_of_non_NA_pairs)
 	
 	def output_row_id2NA_mismatch_rate(cls, row_id2NA_mismatch_rate, output_fname, file_1st_open=1):
 		"""
