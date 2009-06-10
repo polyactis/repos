@@ -32,7 +32,7 @@ import sys, os, math
 #if bit_number>40:       #64bit
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
-import getopt, csv, math
+import getopt, csv, math, traceback
 import Numeric, cPickle
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
@@ -47,7 +47,7 @@ import snpsdata
 
 num = importNumericArray()
 
-class MpiQCCall(object):
+class MpiQCCall(MPIwrapper):
 	__doc__ = __doc__
 	option_default_dict = {('input_fname', 1, ): ['', 'i', 1, '250k call file'],\
 							('callProbFile', 0, ): ['', 't', 1, '250k probability file'],\
@@ -373,17 +373,20 @@ class MpiQCCall(object):
 	
 	def create_init_data(self):
 		"""
+		2009-6-5
+			add argument ignore_het=1 to snpData_2010_149_384 & snpData_perlegen
 		2008-05-12
 			initial data loading on node 0
 		"""
 		init_data = PassingData()
 		init_data.snpData_250k = SNPData(input_fname=self.input_fname, turn_into_array=1)
-		init_data.snpData_2010_149_384 = SNPData(input_fname=self.fname_2010_149_384, turn_into_array=1, ignore_2nd_column=1)
-		init_data.snpData_perlegen = SNPData(input_fname=self.fname_perlegen, turn_into_array=1, ignore_2nd_column=1)
+		init_data.snpData_2010_149_384 = SNPData(input_fname=self.fname_2010_149_384, turn_into_array=1, ignore_2nd_column=1, ignore_het=1)
+		init_data.snpData_perlegen = SNPData(input_fname=self.fname_perlegen, turn_into_array=1, ignore_2nd_column=1, ignore_het=1)
 		param_d = self.generate_parameters(self.parameter_names)
 		init_data.param_d = param_d
 		return init_data
 	
+	@classmethod
 	def generate_avg_variable_names(cls, avg_var_name_ls=['NA_rate', 'mismatch_rate', 'relative_NA_rate']):
 		"""
 		2008-05-13 generalize here so that get_qccall_results() from misc.py could use
@@ -398,9 +401,7 @@ class MpiQCCall(object):
 			partial_header_avg.append('std_%s'%avg_var_name)
 		partial_header_avg.append('sample_size')
 		return avg_var_name_pair_ls, partial_header_avg
-	
-	generate_avg_variable_names = classmethod(generate_avg_variable_names)
-	
+		
 	#2008-05-13 put them here so that get_qccall_results() from misc.py could use
 	#common_var_name_ls is for both output and getting variable values from passingdata
 	common_var_name_ls = ['min_call_probability', 'max_call_mismatch_rate', 'no_of_accessions_filtered_by_mismatch', \
@@ -408,6 +409,66 @@ class MpiQCCall(object):
 							'max_snp_mismatch_rate', 'no_of_snps_filtered_by_mismatch',\
 							'max_snp_NA_rate', 'no_of_snps_filtered_by_na', 'no_of_monomorphic_snps_removed','npute_window_size']
 	avg_var_name_ls = ['NA_rate', 'mismatch_rate', 'relative_NA_rate']	#solely serves avg_var_name_pair_ls
+	
+	def divideAndSendSNPData(self, snpData, free_computing_nodes, assembleSignal='assemble', block_size=400):
+		"""
+		2009-6-9
+			snpData.data_matrix is too big, so divide and send it
+		"""
+		if self.report:
+			sys.stderr.write("Dividing and sending SNPData ... \n")
+		data_matrix = snpData.data_matrix
+		snpData.data_matrix = None
+		for node in free_computing_nodes:
+			data_pickle = cPickle.dumps(snpData, -1)
+			self.communicator.send(data_pickle, node, 0)
+			del data_pickle
+		no_of_blocks = int(math.ceil(len(data_matrix)/float(block_size)))
+		for i in range(no_of_blocks):
+			start_row_index = i*block_size
+			end_row_index = (i+1)*block_size
+			data = data_matrix[start_row_index:end_row_index,:]
+			for node in free_computing_nodes:	#send it to the computing_node
+				sys.stderr.write("passing block %s to node %s ..."%(i , node))
+				data_pickle = cPickle.dumps(data, -1)
+				self.communicator.send(data_pickle, node, 0)
+				del data_pickle
+				sys.stderr.write(" Done.\n")
+			del data
+		#send the assemble signal
+		for node in free_computing_nodes:
+			data_pickle = cPickle.dumps(assembleSignal, -1)
+			self.communicator.send(data_pickle, node, 0)
+			del data_pickle
+		if self.report:
+			sys.stderr.write(" Done.\n")
+	
+	def receiveAndAssembleSNPData(self, assembleSignal='assemble'):
+		"""
+		2009-6-9
+			counterpart of divideAndSendSNPData()
+		"""
+		if self.report:
+			sys.stderr.write("Receiving and assembling SNPData ... \n")
+		data, source, tag = self.communicator.receiveString(0, 0)
+		snpData = cPickle.loads(data)
+		del data
+		
+		keep_receiving = 1
+		data_block_ls = []
+		while keep_receiving:
+			data, source, tag = self.communicator.receiveString(0, 0)
+			received_data = cPickle.loads(data)
+			del data
+			if received_data==assembleSignal:	#signal to end
+				break
+			else:
+				data_block_ls.append(received_data)
+		snpData.data_matrix = num.concatenate(data_block_ls)	#concatenate all blocks into one matrix rowwise
+		del data_block_ls
+		if self.report:
+			sys.stderr.write("Done with data matrix shape=%s.\n"%repr(snpData.data_matrix.shape))
+		return snpData
 	
 	def run(self):
 		"""
@@ -428,21 +489,25 @@ class MpiQCCall(object):
 		self.communicator = MPI.world.duplicate()
 		node_rank = self.communicator.rank
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
-		data_to_pickle_name_ls = ['snpData_250k', 'snpData_2010_149_384', 'snpData_perlegen', 'param_d']
+		data_to_pickle_name_ls = ['snpData_2010_149_384', 'snpData_perlegen', 'param_d']
+		assembleSignal = 'assemble'
 		if node_rank == 0:
 			init_data = self.create_init_data()
 			param_d = init_data.param_d
-			for node in free_computing_nodes:	#send it to the computing_node
-				sys.stderr.write("passing initial data to nodes from %s to %s ..."%(node_rank, node))
-				for data_to_pickle_name in data_to_pickle_name_ls:
+			self.divideAndSendSNPData(init_data.snpData_250k, free_computing_nodes, assembleSignal=assembleSignal, block_size=400)
+			for data_to_pickle_name in data_to_pickle_name_ls:
+				sys.stderr.write("passing %s ... \n"%(data_to_pickle_name))
+				for node in free_computing_nodes:	#send it to the computing_node
+					sys.stderr.write("passing initial data to nodes from %s to %s ..."%(node_rank, node))
 					data_pickle = cPickle.dumps(getattr(init_data, data_to_pickle_name), -1)
 					self.communicator.send(data_pickle, node, 0)
 					del data_pickle
-				sys.stderr.write(" Done.\n")
+					sys.stderr.write(" Done.\n")
+				sys.stderr.write("Done.\n")
 			del init_data
-			sys.stderr.write("Done.\n")
 		elif node_rank in free_computing_nodes:
 			init_data = PassingData()
+			init_data.snpData_250k = self.receiveAndAssembleSNPData(assembleSignal=assembleSignal)
 			for data_to_pickle_name in data_to_pickle_name_ls:
 				data, source, tag = self.communicator.receiveString(0, 0)
 				setattr(init_data, data_to_pickle_name, cPickle.loads(data))
@@ -450,16 +515,15 @@ class MpiQCCall(object):
 		else:
 			pass
 		
-		mw = MPIwrapper(self.communicator, debug=self.debug, report=self.report)
-		mw.synchronize()
+		self.synchronize()
 		
 		if node_rank == 0:
 			param_d.index = 0
 			parameter_list = [param_d]
-			mw.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler)
+			self.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler)
 		elif node_rank in free_computing_nodes:
 			computing_parameter_obj = PassingData(init_data=init_data, output_dir=self.output_dir)
-			mw.computing_node(computing_parameter_obj, self.computing_node_handler)
+			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			outf = open('%s.csv'%self.output_fname, 'w')
 			writer = csv.writer(outf)
@@ -478,12 +542,12 @@ class MpiQCCall(object):
 			writer_avg.writerow(header_avg)
 			
 			parameter_list = [writer, writer_avg, common_var_name_ls, avg_var_name_pair_ls, partial_header_avg, outf, outf_avg]
-			mw.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
+			self.output_node(free_computing_nodes, parameter_list, self.output_node_handler)
 			del writer, writer_avg
 			outf.close()
 			outf_avg.close()
 		
-		mw.synchronize()	#to avoid some node early exits
+		self.synchronize()	#to avoid some node early exits
 		
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
