@@ -5,7 +5,7 @@ Examples:
 	
 Description:
 	program to pull one results_method from db, pick a certain number of top SNPs and put them into db.
-	
+	It checks table Results to see whether it already contains anything from a particular result.
 """
 
 import sys, os, math
@@ -66,6 +66,12 @@ class ResultsMethod2Results(object):
 		query = Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=self.call_method_id).filter(Stock_250kDB.ResultsMethod.analysis_method_id.in_(self.analysis_method_id_ls))
 		param_data = PassingData(min_MAC=0)
 		for rm in query:
+			# 2009-5-1 check whether it's already in db.
+			db_entries = Stock_250kDB.Results.query.filter_by(results_id=rm.id).first()
+			if db_entries:
+				sys.stderr.write("%s already in db. Ignore.\n"%rm.id)
+				continue
+			
 			genome_wide_result = GeneListRankTest.getResultMethodContent(rm, results_directory=self.results_directory, min_MAF=0., \
 																	pdata=param_data)
 			if genome_wide_result:
