@@ -1357,6 +1357,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2009-6-10
+		set additional columns (rest_of_row) as attributes of data_obj with column name as the attribute name
 	2009-2-18
 		handle filtering by min_MAC (column_5th)
 		column 6 and 7 are allowed to be empty placeholder. (previously it causes type cast error if it's empty)
@@ -1405,9 +1407,14 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	delimiter = figureOutDelimiter(input_fname)
 	reader = csv.reader(open(input_fname), delimiter=delimiter)
 	no_of_lines = 0
+	from utils import getColName2IndexFromHeader
+	col_name2index = {}
+	header = []
 	for row in reader:
 		#check if 1st line is header or not
 		if no_of_lines ==0 and pa_has_characters.search(row[1]):
+			header = row
+			col_name2index = getColName2IndexFromHeader(header)
 			continue
 		chr = int(row[0])
 		start_pos = int(row[1])
@@ -1473,6 +1480,11 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			if rest_of_row:
 				data_obj.extra_col_ls = rest_of_row
 				data_obj.comment = ','.join(rest_of_row)
+				if header:
+					for i in range(len(rest_of_row)):
+						col_name = header[i+6]
+						setattr(data_obj, col_name, rest_of_row[i])
+			
 			data_obj.genome_wide_result_id = genome_wide_result_id
 			gwr.add_one_data_obj(data_obj, chr_pos2index)
 		
