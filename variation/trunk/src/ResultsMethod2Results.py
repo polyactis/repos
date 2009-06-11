@@ -51,6 +51,8 @@ class ResultsMethod2Results(object):
 		
 	def run(self):
 		"""
+		2009-6-10
+			set Results.beta = getattr(data_obj, 'beta1', None)
 		"""
 		if self.debug:
 			import pdb
@@ -63,7 +65,8 @@ class ResultsMethod2Results(object):
 		
 		snp_info = DrawSNPRegion.getSNPInfo(db)
 		
-		query = Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=self.call_method_id).filter(Stock_250kDB.ResultsMethod.analysis_method_id.in_(self.analysis_method_id_ls))
+		query = Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=self.call_method_id).\
+			filter(Stock_250kDB.ResultsMethod.analysis_method_id.in_(self.analysis_method_id_ls))
 		param_data = PassingData(min_MAC=0)
 		for rm in query:
 			# 2009-5-1 check whether it's already in db.
@@ -83,7 +86,7 @@ class ResultsMethod2Results(object):
 							result_obj = cPickle.dumps(data_obj.extra_col_ls)
 						else:
 							result_obj = None
-						Stock_250kDB.Results(snps_id=snps_id, results_id=rm.id, score=data_obj.value, rank=i+1, beta=None,\
+						Stock_250kDB.Results(snps_id=snps_id, results_id=rm.id, score=data_obj.value, rank=i+1, beta=getattr(data_obj, 'beta1', None),\
 											maf=data_obj.maf, mac=data_obj.mac, genotype_var_perc=data_obj.genotype_var_perc,\
 											object=result_obj)
 			if self.commit:
