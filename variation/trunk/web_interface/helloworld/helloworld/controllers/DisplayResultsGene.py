@@ -17,6 +17,7 @@ Snps = model.Stock_250kDB.Snps
 from HelpOtherControllers import HelpothercontrollersController as hc
 import gviz_api	#2009-2-1 google visualization python api to export data into json-related formats
 import numpy, datetime, urllib
+from sqlalchemy import asc
 
 class DisplayresultsgeneController(BaseController):
 	"""
@@ -369,12 +370,15 @@ class DisplayresultsgeneController(BaseController):
 	
 	def findGeneNameLike(self, namelike):
 		"""
+		2009-6-12
+			limit the query return to <= 100 entries, ordered by gene symbol
 		2009-4-3
 			find all accessions with name beginned with 'namelike'
 		"""
 		tax_id = int(config['app_conf']['tax_id'])
 		Gene_symbol2id = model.GenomeDB.Gene_symbol2id
-		rows = Gene_symbol2id.query.filter_by(tax_id=tax_id).filter(Gene_symbol2id.table.c.gene_symbol.op('regexp')('^%s'%namelike))
+		rows = Gene_symbol2id.query.filter_by(tax_id=tax_id).filter(Gene_symbol2id.table.c.gene_symbol.op('regexp')('^%s'%namelike)).\
+			order_by(asc(Gene_symbol2id.gene_symbol)).limit(100)
 		name_set = set()
 		for row in rows:
 			name_set.add(row.gene_symbol)
@@ -441,17 +445,22 @@ class DisplayresultsgeneController(BaseController):
 	
 	def getGeneInformation(self, gene_id):
 		"""
+		2009-6-12
+			add 'chromosome', "strand", "start", "stop" to the returned information
 		2009-5-27
 			return google data table in json structure of information of a gene
 		"""
 		column_name_type_ls = [("gene_symbol", ("string", "Symbol")), ("description", ("string", "Description")), \
 							("type_of_gene", ("string", "Type Of Gene")), \
 							("dbxrefs", ("string", "DB Cross References")), \
-							("gene_id", ("string","Gene ID"))]
+							("gene_id", ("string","Gene ID")), ("chromosome", ("string","chromosome")),\
+							("strand", ("string","Strand")),\
+							("start", ("number","Start")),("stop", ("number","Stop"))]
 		description = dict(column_name_type_ls)
 		Gene = model.GenomeDB.Gene
 		gene = Gene.get(gene_id)
-		
+		EntrezgeneMapping = model.GenomeDB.EntrezgeneMapping
+		em = EntrezgeneMapping.get(gene_id)
 		entry = {}
 		if gene is not None:
 			for column_name_type in column_name_type_ls:
@@ -466,13 +475,17 @@ class DisplayresultsgeneController(BaseController):
 					default_value = datetime.date(2050, 1, 1)
 				else:
 					default_value = None
+				if column_name in ['chromosome', "strand", "start", "stop"]:
+					obj = em
+				else:
+					obj = gene
 				
 				if column_name=='gene_id':
-					column_value = getattr(gene, column_name, default_value)
+					column_value = getattr(obj, column_name, default_value)
 					if column_value:
 						column_value = "<a href=%s target='_blank'>%s</a>"%(h.NCBIGeneDBURL%gene_id, column_value)
 				else:
-					column_value = getattr(gene, column_name, default_value)
+					column_value = getattr(obj, column_name, default_value)
 				entry[column_name] = column_value
 		return_ls = [entry]
 		data_table = gviz_api.DataTable(description)
