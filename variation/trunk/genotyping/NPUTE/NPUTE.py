@@ -34,7 +34,7 @@ import getopt
 import time
 from SNPData import *
 from CircularQueue import *
-
+from pymodule import read_data
 #Option Names
 MODE_TYPE = '-m'
 SING_WIN = '-w'
@@ -106,8 +106,7 @@ class NPUTE(object):
 			import pdb
 			pdb.set_trace()
 		if self.input_file_format==1:
-			from variation.src.FilterStrainSNPMatrix import FilterStrainSNPMatrix
-			header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix.read_data(self.input_fname, turn_into_integer=0)
+			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, turn_into_integer=0)
 			snps_name_ls = header[2:]
 			self.outputHeader(self.output_fname, strain_acc_list, category_list)
 			chr2no_of_snps = self.get_chr2no_of_snps(snps_name_ls)
