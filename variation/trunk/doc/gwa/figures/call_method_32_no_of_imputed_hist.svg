@@ -1,0 +1,205 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="765pt" height="555pt" viewBox="0 0 765 555"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<g id="figure1">
+<polygon style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0"  points = "0.0,555.3 0.0,0.0 765.0,0.0 765.0,555.3"/>
+<g id="axes1">
+<polygon style="fill: #ffffff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0"  points = "95.625,499.77 95.625,55.53 688.5,55.53 688.5,499.77"/>
+<defs>
+    <clipPath id="1138198573405418067">
+    <rect x="95.625" y="55.53" width="592.875" height="444.24"
+    style="stroke: gray; fill: none;"/>
+    </clipPath>
+</defs>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "123.806325,499.77 123.806325,489.898 148.410933938,489.898 148.410933938,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "151.144779375,499.77 151.144779375,499.77 175.749388312,499.77 175.749388312,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "178.48323375,499.77 178.48323375,499.77 203.087842688,499.77 203.087842688,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "205.821688125,499.77 205.821688125,440.538 230.426297063,440.538 230.426297063,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "233.1601425,499.77 233.1601425,183.866 257.764751437,183.866 257.764751437,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "260.498596875,499.77 260.498596875,55.53 285.103205813,55.53 285.103205813,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "287.83705125,499.77 287.83705125,173.994 312.441660187,173.994 312.441660187,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "315.175505625,499.77 315.175505625,322.074 339.780114562,322.074 339.780114562,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "342.51396,499.77 342.51396,410.922 367.118568938,410.922 367.118568938,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "369.852414375,499.77 369.852414375,410.922 394.457023313,410.922 394.457023313,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "397.19086875,499.77 397.19086875,401.05 421.795477688,401.05 421.795477688,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "424.529323125,499.77 424.529323125,381.306 449.133932063,381.306 449.133932063,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "451.8677775,499.77 451.8677775,470.154 476.472386437,470.154 476.472386437,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "479.206231875,499.77 479.206231875,430.666 503.810840813,430.666 503.810840813,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "506.54468625,499.77 506.54468625,440.538 531.149295187,440.538 531.149295187,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "533.883140625,499.77 533.883140625,450.41 558.487749562,450.41 558.487749562,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "561.221595,499.77 561.221595,499.77 585.826203938,499.77 585.826203938,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "588.560049375,499.77 588.560049375,499.77 613.164658312,499.77 613.164658312,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "615.89850375,499.77 615.89850375,489.898 640.503112687,489.898 640.503112687,499.77"/>
+<polygon style="fill: #0000ff; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0" clip-path="url(#1138198573405418067)" points = "643.236958125,499.77 643.236958125,480.026 667.841567062,480.026 667.841567062,499.77"/>
+<g id="matplotlib.axis1">
+<g id="xtick1">
+<g style="fill: #000000; opacity: 1.0" transform="translate(77.3828125,512.67625)scale(0.12)">
+<use xlink:href="#c_0"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+<use xlink:href="#c_1" transform="translate(127.24609375)"/>
+<use xlink:href="#c_1" transform="translate(190.869140625)"/>
+<use xlink:href="#c_1" transform="translate(254.4921875)"/>
+</g>
+</g>
+<g id="xtick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M194.4375,499.77L194.4375,495.77"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M194.4375,59.53L194.4375,55.53"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(176.1953125,512.67625)scale(0.12)">
+<use xlink:href="#c_0"/>
+<use xlink:href="#c_0" transform="translate(63.623046875)"/>
+<use xlink:href="#c_1" transform="translate(127.24609375)"/>
+<use xlink:href="#c_1" transform="translate(190.869140625)"/>
+<use xlink:href="#c_1" transform="translate(254.4921875)"/>
+</g>
+</g>
+<g id="xtick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M293.25,499.77L293.25,495.77"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M293.25,59.53L293.25,55.53"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(274.96875,512.67625)scale(0.12)">
+<use xlink:href="#c_2"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+<use xlink:href="#c_1" transform="translate(127.24609375)"/>
+<use xlink:href="#c_1" transform="translate(190.869140625)"/>
+<use xlink:href="#c_1" transform="translate(254.4921875)"/>
+</g>
+</g>
+<g id="xtick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M392.0625,499.77L392.0625,495.77"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M392.0625,59.53L392.0625,55.53"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(373.78125,512.67625)scale(0.12)">
+<use xlink:href="#c_2"/>
+<use xlink:href="#c_0" transform="translate(63.623046875)"/>
+<use xlink:href="#c_1" transform="translate(127.24609375)"/>
+<use xlink:href="#c_1" transform="translate(190.869140625)"/>
+<use xlink:href="#c_1" transform="translate(254.4921875)"/>
+</g>
+</g>
+<g id="xtick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M490.875,499.77L490.875,495.77"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M490.875,59.53L490.875,55.53"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(472.6640625,512.67625)scale(0.12)">
+<use xlink:href="#c_3"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+<use xlink:href="#c_1" transform="translate(127.24609375)"/>
+<use xlink:href="#c_1" transform="translate(190.869140625)"/>
+<use xlink:href="#c_1" transform="translate(254.4921875)"/>
+</g>
+</g>
+<g id="xtick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M589.6875,499.77L589.6875,495.77"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M589.6875,59.53L589.6875,55.53"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(571.4765625,512.67625)scale(0.12)">
+<use xlink:href="#c_3"/>
+<use xlink:href="#c_0" transform="translate(63.623046875)"/>
+<use xlink:href="#c_1" transform="translate(127.24609375)"/>
+<use xlink:href="#c_1" transform="translate(190.869140625)"/>
+<use xlink:href="#c_1" transform="translate(254.4921875)"/>
+</g>
+</g>
+<g id="xtick7">
+<g style="fill: #000000; opacity: 1.0" transform="translate(670.203125,512.67625)scale(0.12)">
+<use xlink:href="#c_4"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+<use xlink:href="#c_1" transform="translate(127.24609375)"/>
+<use xlink:href="#c_1" transform="translate(190.869140625)"/>
+<use xlink:href="#c_1" transform="translate(254.4921875)"/>
+</g>
+</g>
+</g>
+<g id="matplotlib.axis2">
+<g id="ytick1">
+<g style="fill: #000000; opacity: 1.0" transform="translate(85.578125,504.1371875)scale(0.12)">
+<use xlink:href="#c_1"/>
+</g>
+</g>
+<g id="ytick2">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,450.41L99.625,450.41"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,450.41L688.5,450.41"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(85.953125,454.6990625)scale(0.12)">
+<use xlink:href="#c_0"/>
+</g>
+</g>
+<g id="ytick3">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,401.05L99.625,401.05"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,401.05L688.5,401.05"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(78.453125,405.4171875)scale(0.12)">
+<use xlink:href="#c_5"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+</g>
+</g>
+<g id="ytick4">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,351.69L99.625,351.69"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,351.69L688.5,351.69"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(78.703125,355.9790625)scale(0.12)">
+<use xlink:href="#c_5"/>
+<use xlink:href="#c_0" transform="translate(63.623046875)"/>
+</g>
+</g>
+<g id="ytick5">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,302.33L99.625,302.33"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,302.33L688.5,302.33"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(78.015625,306.6971875)scale(0.12)">
+<use xlink:href="#c_6"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+</g>
+</g>
+<g id="ytick6">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,252.97L99.625,252.97"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,252.97L688.5,252.97"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(78.265625,257.3371875)scale(0.12)">
+<use xlink:href="#c_6"/>
+<use xlink:href="#c_0" transform="translate(63.623046875)"/>
+</g>
+</g>
+<g id="ytick7">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,203.61L99.625,203.61"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,203.61L688.5,203.61"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(78.0625,207.9771875)scale(0.12)">
+<use xlink:href="#c_7"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+</g>
+</g>
+<g id="ytick8">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,154.25L99.625,154.25"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,154.25L688.5,154.25"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(78.3125,158.6171875)scale(0.12)">
+<use xlink:href="#c_7"/>
+<use xlink:href="#c_0" transform="translate(63.623046875)"/>
+</g>
+</g>
+<g id="ytick9">
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M95.625,104.89L99.625,104.89"/>
+<path style="fill: none; stroke: #000000; stroke-width: 0.5; stroke-linejoin: miter; stroke-linecap: butt;  opacity: 1.0"  d="M684.5,104.89L688.5,104.89"/>
+<g style="fill: #000000; opacity: 1.0" transform="translate(77.734375,109.2571875)scale(0.12)">
+<use xlink:href="#c_8"/>
+<use xlink:href="#c_1" transform="translate(63.623046875)"/>
+</g>
+</g>
+<g id="ytick10">
+<g style="fill: #000000; opacity: 1.0" transform="translate(77.984375,59.8190625)scale(0.12)">
+<use xlink:href="#c_8"/>
+<use xlink:href="#c_0" transform="translate(63.623046875)"/>
+</g>
+</g>
+</g>
+<path style="fill: none; stroke: #000000; stroke-width: 1.0; stroke-linejoin: miter; stroke-linecap: square;  opacity: 1.0"  d="M95.625,499.77L688.5,499.77L688.5,55.53L95.625,55.53L95.625,499.77"/>
+</g>
+</g>
+<defs id="fontpaths">
+<path id="c_6" d="M19.1875 -8.296875l34.421875 0.0l0.0 8.296875l-46.28125 0.0l0.0 -8.296875q5.609375 -5.8125 15.296875 -15.59375q9.703125 -9.796875 12.1875 -12.640625q4.734375 -5.3125 6.609375 -9.0q1.890625 -3.6875 1.890625 -7.25q0.0 -5.8125 -4.078125 -9.46875q-4.078125 -3.671875 -10.625 -3.671875q-4.640625 0.0 -9.796875 1.609375q-5.140625 1.609375 -11.0 4.890625l0.0 -9.96875q5.953125 -2.390625 11.125 -3.609375q5.1875 -1.21875 9.484375 -1.21875q11.328125 0.0 18.0625 5.671875q6.734375 5.65625 6.734375 15.125q0.0 4.5 -1.6875 8.53125q-1.671875 4.015625 -6.125 9.484375q-1.21875 1.421875 -7.765625 8.1875q-6.53125 6.765625 -18.453125 18.921875"/>
+<path id="c_7" d="M40.578125 -39.3125q7.078125 1.515625 11.046875 6.3125q3.984375 4.78125 3.984375 11.8125q0.0 10.78125 -7.421875 16.703125q-7.421875 5.90625 -21.09375 5.90625q-4.578125 0.0 -9.4375 -0.90625q-4.859375 -0.90625 -10.03125 -2.71875l0.0 -9.515625q4.09375 2.390625 8.96875 3.609375q4.890625 1.21875 10.21875 1.21875q9.265625 0.0 14.125 -3.65625q4.859375 -3.65625 4.859375 -10.640625q0.0 -6.453125 -4.515625 -10.078125q-4.515625 -3.640625 -12.5625 -3.640625l-8.5 0.0l0.0 -8.109375l8.890625 0.0q7.265625 0.0 11.125 -2.90625q3.859375 -2.90625 3.859375 -8.375q0.0 -5.609375 -3.984375 -8.609375q-3.96875 -3.015625 -11.390625 -3.015625q-4.0625 0.0 -8.703125 0.890625q-4.640625 0.875 -10.203125 2.71875l0.0 -8.78125q5.625 -1.5625 10.53125 -2.34375q4.90625 -0.78125 9.25 -0.78125q11.234375 0.0 17.765625 5.109375q6.546875 5.09375 6.546875 13.78125q0.0 6.0625 -3.46875 10.234375q-3.46875 4.171875 -9.859375 5.78125"/>
+<path id="c_8" d="M37.796875 -64.3125l-24.90625 38.921875l24.90625 0.0zM35.203125 -72.90625l12.40625 0.0l0.0 47.515625l10.40625 0.0l0.0 8.203125l-10.40625 0.0l0.0 17.1875l-9.8125 0.0l0.0 -17.1875l-32.90625 0.0l0.0 -9.515625z"/>
+<path id="c_0" d="M10.796875 -72.90625l38.71875 0.0l0.0 8.3125l-29.6875 0.0l0.0 17.859375q2.140625 -0.734375 4.28125 -1.09375q2.15625 -0.359375 4.3125 -0.359375q12.203125 0.0 19.328125 6.6875q7.140625 6.6875 7.140625 18.109375q0.0 11.765625 -7.328125 18.296875q-7.328125 6.515625 -20.65625 6.515625q-4.59375 0.0 -9.359375 -0.78125q-4.75 -0.78125 -9.828125 -2.34375l0.0 -9.921875q4.390625 2.390625 9.078125 3.5625q4.6875 1.171875 9.90625 1.171875q8.453125 0.0 13.375 -4.4375q4.9375 -4.4375 4.9375 -12.0625q0.0 -7.609375 -4.9375 -12.046875q-4.921875 -4.453125 -13.375 -4.453125q-3.953125 0.0 -7.890625 0.875q-3.921875 0.875 -8.015625 2.734375z"/>
+<path id="c_2" d="M33.015625 -40.375q-6.640625 0.0 -10.53125 4.546875q-3.875 4.53125 -3.875 12.4375q0.0 7.859375 3.875 12.4375q3.890625 4.5625 10.53125 4.5625q6.640625 0.0 10.515625 -4.5625q3.875 -4.578125 3.875 -12.4375q0.0 -7.90625 -3.875 -12.4375q-3.875 -4.546875 -10.515625 -4.546875M52.59375 -71.296875l0.0 8.984375q-3.71875 -1.75 -7.5 -2.671875q-3.78125 -0.9375 -7.5 -0.9375q-9.765625 0.0 -14.921875 6.59375q-5.140625 6.59375 -5.875 19.921875q2.875 -4.25 7.21875 -6.515625q4.359375 -2.265625 9.578125 -2.265625q10.984375 0.0 17.359375 6.671875q6.375 6.65625 6.375 18.125q0.0 11.234375 -6.640625 18.03125q-6.640625 6.78125 -17.671875 6.78125q-12.65625 0.0 -19.34375 -9.6875q-6.6875 -9.703125 -6.6875 -28.109375q0.0 -17.28125 8.203125 -27.5625q8.203125 -10.28125 22.015625 -10.28125q3.71875 0.0 7.5 0.734375q3.78125 0.734375 7.890625 2.1875"/>
+<path id="c_3" d="M8.203125 -72.90625l46.875 0.0l0.0 4.203125l-26.46875 68.703125l-10.296875 0.0l24.90625 -64.59375l-35.015625 0.0z"/>
+<path id="c_4" d="M31.78125 -34.625q-7.03125 0.0 -11.0625 3.765625q-4.015625 3.765625 -4.015625 10.34375q0.0 6.59375 4.015625 10.359375q4.03125 3.765625 11.0625 3.765625q7.03125 0.0 11.078125 -3.78125q4.0625 -3.796875 4.0625 -10.34375q0.0 -6.578125 -4.03125 -10.34375q-4.015625 -3.765625 -11.109375 -3.765625M21.921875 -38.8125q-6.34375 -1.5625 -9.890625 -5.90625q-3.53125 -4.359375 -3.53125 -10.609375q0.0 -8.734375 6.21875 -13.8125q6.234375 -5.078125 17.0625 -5.078125q10.890625 0.0 17.09375 5.078125q6.203125 5.078125 6.203125 13.8125q0.0 6.25 -3.546875 10.609375q-3.53125 4.34375 -9.828125 5.90625q7.125 1.65625 11.09375 6.5q3.984375 4.828125 3.984375 11.796875q0.0 10.609375 -6.46875 16.28125q-6.46875 5.65625 -18.53125 5.65625q-12.046875 0.0 -18.53125 -5.65625q-6.46875 -5.671875 -6.46875 -16.28125q0.0 -6.96875 4.0 -11.796875q4.015625 -4.84375 11.140625 -6.5M18.3125 -54.390625q0.0 5.65625 3.53125 8.828125q3.546875 3.171875 9.9375 3.171875q6.359375 0.0 9.9375 -3.171875q3.59375 -3.171875 3.59375 -8.828125q0.0 -5.671875 -3.59375 -8.84375q-3.578125 -3.171875 -9.9375 -3.171875q-6.390625 0.0 -9.9375 3.171875q-3.53125 3.171875 -3.53125 8.84375"/>
+<path id="c_5" d="M12.40625 -8.296875l16.109375 0.0l0.0 -55.625l-17.53125 3.515625l0.0 -8.984375l17.4375 -3.515625l9.859375 0.0l0.0 64.609375l16.109375 0.0l0.0 8.296875l-41.984375 0.0z"/>
+<path id="c_1" d="M31.78125 -66.40625q-7.609375 0.0 -11.453125 7.5q-3.828125 7.484375 -3.828125 22.53125q0.0 14.984375 3.828125 22.484375q3.84375 7.5 11.453125 7.5q7.671875 0.0 11.5 -7.5q3.84375 -7.5 3.84375 -22.484375q0.0 -15.046875 -3.84375 -22.53125q-3.828125 -7.5 -11.5 -7.5M31.78125 -74.21875q12.265625 0.0 18.734375 9.703125q6.46875 9.6875 6.46875 28.140625q0.0 18.40625 -6.46875 28.109375q-6.46875 9.6875 -18.734375 9.6875q-12.25 0.0 -18.71875 -9.6875q-6.46875 -9.703125 -6.46875 -28.109375q0.0 -18.453125 6.46875 -28.140625q6.46875 -9.703125 18.71875 -9.703125"/>
+</defs>
+</svg>
