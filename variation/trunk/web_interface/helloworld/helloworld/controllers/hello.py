@@ -10,6 +10,8 @@ class HelloController(BaseController):
 
 	def index(self):
 		"""
+		2009-6-16
+			assign values to c.greeting, c.name
 		2009-5-4
 			choose the homepage depending on the config['app_conf']['site_public'] flag
 		"""
@@ -19,6 +21,10 @@ class HelloController(BaseController):
 		#return 'Hello World'
 		#response.headers['Content-Type'] = 'text/plain'
 		#return 'Hello from the index() action!'
+		
+		c.greeting = request.params.get('greeting', 'Welcome')
+		c.name = request.params.get('name', 'Visitor')
+		
 		site_public = config['app_conf']['site_public']
 		if site_public=='true' or site_public=='True':
 			return render('/public.html')
@@ -26,9 +32,13 @@ class HelloController(BaseController):
 	
 	def public(self):
 		"""
+		2009-6-16
+			assign values to c.greeting, c.name
 		2009-5-4
 			display the public page
 		"""
+		c.greeting = request.params.get('greeting', 'Welcome')
+		c.name = request.params.get('name', 'Visitor')
 		return render('/public.html')
 
 	def serverinfo(self):
