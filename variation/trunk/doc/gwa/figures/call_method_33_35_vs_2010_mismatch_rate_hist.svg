@@ -46,11 +46,11 @@
      id="base"
      showgrid="false"
      inkscape:zoom="0.78"
-     inkscape:cx="637.21494"
-     inkscape:cy="799.04223"
-     inkscape:window-x="514"
-     inkscape:window-y="290"
-     inkscape:current-layer="axes1"
+     inkscape:cx="614.77904"
+     inkscape:cy="491.34992"
+     inkscape:window-x="520"
+     inkscape:window-y="306"
+     inkscape:current-layer="figure1"
      showguides="true"
      inkscape:snap-guide="false" />
   <g
@@ -661,7 +661,7 @@
          id="matplotlib.axis2">
         <g
            id="ytick1"
-           transform="matrix(1.6745851,0,0,1.6745851,-85.288028,-317.79558)">
+           transform="matrix(1.6745851,0,0,1.6745851,-84.701731,-317.79558)">
           <g
              style="opacity:1;fill:#000000"
              transform="matrix(0.12,0,0,0.12,106.27813,470.92719)"
@@ -685,7 +685,7 @@
            style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter" />
         <g
            id="g5793"
-           transform="matrix(0.2044986,0,0,0.2044986,92.909712,387.78491)"
+           transform="matrix(0.2044986,0,0,0.2044986,93.496009,387.78491)"
            style="fill:#000000">
           <use
              height="518"
@@ -705,7 +705,7 @@
            style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter" />
         <g
            id="g5802"
-           transform="matrix(0.2009501,0,0,0.2009501,79.898694,304.92409)"
+           transform="matrix(0.2009501,0,0,0.2009501,80.484991,304.92409)"
            style="fill:#000000">
           <use
              height="518"
@@ -733,7 +733,7 @@
            style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter" />
         <g
            id="g5813"
-           transform="matrix(0.2044986,0,0,0.2044986,79.898888,221.89691)"
+           transform="matrix(0.2044986,0,0,0.2044986,80.485185,221.89691)"
            style="fill:#000000">
           <use
              height="518"
@@ -760,28 +760,8 @@
            d="M 833.54,134.784 L 837.54,134.784"
            style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter" />
         <g
-           id="g5824"
-           transform="matrix(0.2009502,0,0,0.2009502,85.322411,139.03609)"
-           style="fill:#000000">
-          <use
-             height="518"
-             width="930"
-             y="0"
-             x="0"
-             id="use5826"
-             xlink:href="#c_4" />
-          <use
-             height="518"
-             width="930"
-             y="0"
-             x="0"
-             id="use5828"
-             transform="translate(36.632634,0)"
-             xlink:href="#c_0" />
-        </g>
-        <g
            id="ytick6"
-           transform="matrix(1.6745851,0,0,1.6745851,-85.406941,-38.031635)">
+           transform="matrix(1.6745851,0,0,1.6745851,-84.820644,-38.031635)">
           <g
              style="opacity:1;fill:#000000"
              transform="matrix(0.12,0,0,0.12,98.965625,56.207188)"
@@ -803,6 +783,16 @@
                height="518" />
           </g>
         </g>
+        <text
+           xml:space="preserve"
+           style="font-size:20.0965786px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="80.473679"
+           y="139.47952"
+           id="text30067"><tspan
+             sodipodi:role="line"
+             id="tspan30069"
+             x="80.473679"
+             y="139.47952">20</tspan></text>
       </g>
       <path
          style="opacity:1;fill:none;stroke:#000000;stroke-width:1.00119507;stroke-linecap:square;stroke-linejoin:miter"
@@ -1363,7 +1353,7 @@
            id="g24623">
           <g
              id="g24625"
-             transform="matrix(1.6745851,0,0,1.6745851,-87.07572,-317.79559)">
+             transform="matrix(1.6745851,0,0,1.6745851,-86.699666,-317.79559)">
             <g
                id="g6512"
                transform="matrix(0.12,0,0,0.12,106.27813,470.92719)"
@@ -1387,7 +1377,7 @@
              id="path6519" />
           <g
              style="fill:#000000"
-             transform="matrix(0.2044986,0,0,0.2044986,91.122019,387.78491)"
+             transform="matrix(0.2044986,0,0,0.2044986,91.498069,387.78491)"
              id="g6521">
             <use
                xlink:href="#c_2"
@@ -1407,7 +1397,7 @@
              id="path6528" />
           <g
              style="fill:#000000"
-             transform="matrix(0.2009502,0,0,0.2009502,78.11099,304.92409)"
+             transform="matrix(0.2009502,0,0,0.2009502,78.487039,304.92409)"
              id="g6530">
             <use
                xlink:href="#c_3"
@@ -1435,7 +1425,7 @@
              id="path6539" />
           <g
              style="fill:#000000"
-             transform="matrix(0.2044986,0,0,0.2044986,78.111196,221.89691)"
+             transform="matrix(0.2044986,0,0,0.2044986,78.487245,221.89691)"
              id="g6541">
             <use
                xlink:href="#c_3"
@@ -1463,27 +1453,7 @@
              id="path6550" />
           <g
              style="fill:#000000"
-             transform="matrix(0.2009502,0,0,0.2009502,84.51099,139.03609)"
-             id="g6552">
-            <use
-               xlink:href="#c_4"
-               id="use6554"
-               x="0"
-               y="0"
-               width="930"
-               height="518" />
-            <use
-               xlink:href="#c_0"
-               transform="translate(31.774359,0)"
-               id="use6556"
-               x="0"
-               y="0"
-               width="930"
-               height="518" />
-          </g>
-          <g
-             style="fill:#000000"
-             transform="matrix(0.2009502,0,0,0.2009502,78.531729,56.092087)"
+             transform="matrix(0.2009502,0,0,0.2009502,78.907779,56.092087)"
              id="g6559">
             <use
                xlink:href="#c_4"
@@ -1501,6 +1471,16 @@
                width="930"
                height="518" />
           </g>
+          <text
+             xml:space="preserve"
+             style="font-size:20.0965786px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+             x="78.475739"
+             y="138.93687"
+             id="text30063"><tspan
+               sodipodi:role="line"
+               id="tspan30065"
+               x="78.475739"
+               y="138.93687">20</tspan></text>
         </g>
         <path
            id="path6565"
@@ -1551,6 +1531,10 @@
          id="tspan24884"
          x="12.444448"
          y="287.92062">b</tspan></text>
+    <path
+       id="path30084"
+       d="M 117.89359,334.73333 L 122.02436,334.73333"
+       style="fill:none;stroke:#000000;stroke-width:0.50810748;stroke-linecap:butt;stroke-linejoin:miter" />
   </g>
   <defs
      id="fontpaths">
