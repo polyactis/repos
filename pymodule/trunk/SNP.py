@@ -259,6 +259,8 @@ def transposeSNPData(snpData, report=0):
 
 def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, report=0, mask_untouched_deleltion_as_NA=1):
 	"""
+	2009-6-17
+		stop masking deletion as NA
 	2008-05-19
 		the transformation assumes snpData is in the orientation of SNP(row_id_ls) X Strain (col_id_ls). if not, toggle need_transposeSNPData=1.
 	2008-05-18
@@ -299,7 +301,7 @@ def SNPData2RawSnpsData_ls(snpData, use_number2nt=1, need_transposeSNPData=0, re
 	
 	if mask_untouched_deleltion_as_NA:
 		number2nt[-2] = 'NA'	#mask -2 (untouched) as 'NA'
-		number2nt[-1] = 'NA'	#mask -1 (deletion) as 'NA'
+		#number2nt[-1] = 'NA'	#mask -1 (deletion) as 'NA'
 	number2nt_dict_map = lambda x: number2nt[x]
 	rawSnpsData_ls = []
 	
