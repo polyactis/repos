@@ -9,6 +9,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 import sys, getopt, csv
+import Stock_250kDB
 
 class Calls2DB_250k_old:
 	"""
@@ -207,7 +208,7 @@ class Calls2DB_250k(object):
 	Examples:
 		Calls2DB_250k.py -i /tmp/simplecalls -m 1 -c
 		
-		Calls2DB_250k.py -i /Network/Data/250k/finalData_051808/250K_method_5_after_imputation_noRedundant_051908.csv -m 6 -u yh -y 2 -c
+		Calls2DB_250k.py -i /Network/Data/250k/finalData_051808/250K_method_5_after_imputation_noRedundant_051908.csv -m 6 -u yh -y 2 -c -l 262_unique
 	
 	Description:
 		Turn calling algorithm's results into db and associated filesystem directory.
@@ -220,19 +221,21 @@ class Calls2DB_250k(object):
 			1_657_C_T	C
 	
 	"""
-	option_default_dict = {('z', 'hostname', 1, 'hostname of the db server', 1, ): 'papaya.usc.edu',\
-							('d', 'dbname', 1, '', 1, ): 'stock_250k',\
-							('u', 'user', 1, 'database username', 1, ):None,\
-							('p', 'passwd', 1, 'database password', 1, ):None,\
-							('i', 'input_dir', 1, "directory containing output files of any calling algorithm. it could aslso be a file, assuming it's in bjarni's format with arrayId.", 1, ): None,\
-							('m', 'method_id',1, 'the id of the calling method. It must be in table call_method beforehand.', 1, ): None,\
-							('o', 'output_dir',1, 'file system storage for the call files. call_info_table would point each entry to this.', 1, ):'/Network/Data/250k/db/calls/' ,\
-							('a', 'call_method_table', 1, 'table storing the calling methods', 1, ): 'call_method',\
-							('t', 'call_info_table', 1, 'table to store final call file entries', 1, ): 'call_info',\
-							('y', 'input_type', 1, 'The input type. 1: directory. 2: SNP X strain format (bjarni, 1st row is array id. 2nd row is ecotype id, not used though.). 3: Strain X SNP format (Yu)', 1, int): 1,\
-							('c', 'commit', 0, 'commit db transaction', 0, int):0,\
-							('b', 'debug', 0, 'toggle debug mode', 0, int):0,\
-							('r', 'report', 0, 'toggle report, more verbose stdout/stderr.', 0, int):0}
+	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
+							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
+							('dbname', 1, ): ['stock_250k', 'd', 1, 'database name', ],\
+							('user', 1, ): [None, 'u', 1, 'database username', ],\
+							('passwd', 1, ): [None, 'p', 1, 'database password', ],\
+							('input_dir', 1, ): [None, 'i', 1, "directory containing output files of any calling algorithm. it could aslso be a file, assuming it's in bjarni's format with arrayId."],\
+							('method_id', 1, int): [None, 'm', 1, 'the id of the calling method. If not in db, new call method is to be created with id=method_id, short_name=(user supplied).'],\
+							('call_method_short_name', 0, ): ['', 'l', 1, 'call method shortname, given to create a new call method if method_id is not in db.'],\
+							('output_dir', 1, ):['/Network/Data/250k/db/calls/', 'o', 1, 'file system storage for the call files. call_info_table would point each entry to this.'],\
+							('call_method_table', 1, ): ['call_method', 'a', 1, 'table storing the calling methods'],\
+							('call_info_table', 1, ): ['call_info', 't', 1, 'table to store final call file entries'],\
+							('input_type', 1, int): [1, 'y', 1, 'The input type. 1: directory. 2: SNP X strain format (bjarni, 1st row is array id. 2nd row is ecotype id, not used though.). 3: Strain X SNP format (Yu)'],\
+							('commit', 0, int): [0, 'c', 0, 'commit db transaction'],\
+							('debug', 0, int): [0, 'b', 0, 'toggle debug mode'],\
+							('report', 0, int): [0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	"""
 	2008-04-40
 		option_default_dict is a dictionary for option handling, including argument_default_dict info
@@ -244,9 +247,10 @@ class Calls2DB_250k(object):
 		2008-04-08
 		"""
 		from pymodule import process_function_arguments, turn_option_default_dict2argument_default_dict
-		argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
+		from pymodule import ProcessOptions
+		#argument_default_dict = turn_option_default_dict2argument_default_dict(self.option_default_dict)
 		#argument dictionary
-		self.ad = process_function_arguments(keywords, argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
+		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		self.cur_max_call_id = None
 		
 		call2db_func_dict = {1: self.submit_call_dir2db,\
@@ -442,22 +446,37 @@ class Calls2DB_250k(object):
 			elif input_dir is file:
 				-submit_call_file2db()
 		"""
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		
+		#database connection and etc
+		db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.user,
+				   password=self.passwd, hostname=self.hostname, database=self.dbname)
+		db.setup(create_tables=False)
+		session = db.session
+		session.begin()
 		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		if not self.check_method_id_exists(curs, self.call_method_table, self.method_id):
-			sys.stderr.write("Error: method_id=%s not in %s. The method has to be put into db beforehand.\n"%\
+			sys.stderr.write("Error: method_id=%s not in %s. A new entry to be created.\n"%\
 							(self.method_id, self.call_method_table))
-			sys.exit(2)
+			cm = Stock_250kDB.CallMethod(short_name=self.call_method_short_name, id=self.method_id)
+			session.save(cm)
+			session.flush()
+			session.commit()
+			
+			self.method_id = cm.id
+			
 		if self.commit:
 			self.submit_call2db(curs, self.input_dir, self.call_info_table, self.output_dir, self.method_id, self.user)
 			curs.execute("commit")
 	
 if __name__ == '__main__':
-	from pymodule import process_options, generate_program_doc
+	from pymodule import ProcessOptions
 	main_class = Calls2DB_250k
-	opts_dict = process_options(sys.argv, main_class.option_default_dict, error_doc=generate_program_doc(sys.argv[0], main_class.option_default_dict)+main_class.__doc__)
-	
-	instance = main_class(**opts_dict)
+	po = ProcessOptions(sys.argv, main_class.option_default_dict, error_doc=main_class.__doc__)
+	instance = main_class(**po.long_option2value)
 	instance.run()
