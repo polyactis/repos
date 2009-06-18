@@ -182,6 +182,8 @@ class Kruskal_Wallis:
 	
 	def output_kw_results(self, kw_results, SNP_header, output_fname, log_pvalue=0):
 		"""
+		2009-6-17
+			last two columns now boast MAF, MAC instead of the counts of two alleles
 		2008-05-27
 			log10
 		2008-05-21
@@ -202,7 +204,9 @@ class Kruskal_Wallis:
 					pvalue = -math.log10(pvalue)
 				else:
 					pvalue = 'NA'
-			writer.writerow([SNP_pos_ls[0], SNP_pos_ls[1], pvalue] + pdata.count_ls)
+			MAC = min(pdata.count_ls)
+			MAF = float(MAC)/sum(pdata.count_ls)
+			writer.writerow([SNP_pos_ls[0], SNP_pos_ls[1], pvalue, MAF, MAC])
 		del writer
 		sys.stderr.write("Done.\n")
 	
