@@ -417,15 +417,17 @@ class QualityControl(object):
 						(counter, counter_no_valid_pairs, counter_no_relative_valid_pairs, counter_no_valid_non_NA_pairs))
 		return col_id2NA_mismatch_rate
 	
-	
-	def get_diff_matrix(self, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, \
+	@classmethod
+	def get_diff_matrix(cls, data_matrix1, data_matrix2, nt_number2diff_matrix_index, col_id2col_index1, col_id2col_index2, \
 					col_id12col_id2, row_id2row_index1, row_id2row_index2, row_id12row_id2, row_id=-1, col_id=-1, need_diff_code_pair_dict=0):
 		"""
+		2009-6-12
+			become classmethod
 		2008-01-24 add flag need_diff_code_pair_dict to output diff_code_pair2diff_details_ls
 		2008-01-01 derived from cmp_two_matricies() of CmpAccession2Ecotype.py
 		"""
 		import numpy
-		if self.report or self.debug:
+		if (hasattr(cls, 'report') and getattr(cls,'report')) or (hasattr(cls, 'debug') and getattr(cls,'debug')):
 			sys.stderr.write("Comparing two matricies ...")
 		diff_matrix = numpy.zeros([len(nt_number2diff_matrix_index), len(nt_number2diff_matrix_index)], numpy.integer)
 		if row_id!=-1:
@@ -464,7 +466,7 @@ class QualityControl(object):
 					diff_code_pair2diff_details_ls[diff_code_pair].append([row_id1, col_id1, nt1, row_id2, col_id2, nt2])
 				if nt1!=nt2:
 					diff_details_ls.append([row_id1, col_id1, nt1, row_id2, col_id2, nt2])
-		if self.report or self.debug:
+		if (hasattr(cls, 'report') and getattr(cls,'report')) or (hasattr(cls, 'debug') and getattr(cls,'debug')):
 			sys.stderr.write("Done.\n")
 		extra_data = [diff_code_pair2diff_details_ls]
 		return diff_matrix, diff_details_ls, extra_data
@@ -1064,6 +1066,18 @@ class TwoSNPData(QualityControl):
 		return QualityControl.cmp_col_wise(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, self.col_id2col_index2, \
 										self.col_id12col_id2, row_id2row_index1, self.row_id2row_index2, row_id12row_id2)
 	
+	def get_diff_matrix(self, row_id=-1, col_id=-1, need_diff_code_pair_dict=0):
+		"""
+		2009-6-12
+			a wrap up of the namesake verbose method from super class
+		"""
+		self.nt_number2diff_matrix_index = get_nt_number2diff_matrix_index(number2nt)
+		return QualityControl.get_diff_matrix(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.nt_number2diff_matrix_index, \
+									self.col_id2col_index1, self.col_id2col_index2, \
+									self.col_id12col_id2, self.row_id2row_index1, \
+									self.row_id2row_index2, self.row_id12row_id2, \
+									row_id=row_id, col_id=col_id, need_diff_code_pair_dict=need_diff_code_pair_dict)
+		
 	def save_col_wise(self, session, readme):
 		"""
 		2008-05-12
