@@ -10,7 +10,7 @@ Examples:
 	
 	#debug and run thru on a single node and output the matrix to output_fname.
 	python ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -y 0.85 -p ~/panfs/NPUTE_data/input/perlgen.csv \
-	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -o ~/panfs/NPUTE_data/QC_output/250K_m3_85_vs_2010_149_384_v2_QC_x0.12_a1_v0.55_w0.3_n30 \
+	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -u ~/panfs/NPUTE_data/matrix_output \
 	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -b
 	
 	#parallel run on hpc-cmb and output data (both before & after imputation into output_dir)
@@ -23,6 +23,8 @@ Examples:
 	
 Description:
 	a parallel program to do QC on genotype calls before/after imputation under various parameter settings.
+	
+	Heterozygous calls in QC datasets are ignored since 250k dataset doesn't include hets.
 	
 	In debug mode (-b), it takes the first parameter setting and run thru on a single node and output the matrix to
 		output_fname. The output_fname is not regarded as a prefix for two stat filenames.
@@ -53,8 +55,9 @@ class MpiQCCall(MPIwrapper):
 							('callProbFile', 0, ): ['', 't', 1, '250k probability file'],\
 							('fname_2010_149_384', 1, ): ['', 'f', 1, ''],\
 							('fname_perlegen', 1, ): ['', 'p', 1, ''],\
-							('output_fname', 1, ): [None, 'o', 1, 'final stat output filename prefix. two files would be generated. 1st file is strain/snp detailed data. 2nd file is average strain/snp data. If running in debug mode, this will be the direcotry to store the matrix before and after imputation.', ],\
-							('output_dir', 0, ): [None, 'u', 1, 'if given, output matrix before and after imputation into a directory'],\
+							('output_fname', 0, ): [None, 'o', 1, 'final stat output filename prefix. two files would be generated. 1st file is strain/snp detailed data. \
+									2nd file is average strain/snp data.'],\
+							('output_dir', 1, ): [None, 'u', 1, 'if given, output matrix before and after imputation into a directory'],\
 							('min_call_probability', 1, float): [None, 'y', 1, 'the minimum probability used in the input_fname for a call to be non-NA.', ],\
 							('max_call_mismatch_rate_ls', 1, ): ["0.05,0.1,0.15,0.20,0.25,0.3", 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays.'],\
 							('max_call_NA_rate_ls', 1, ): ["0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8", 'a', 1, 'maximum NA rate of an array call_info entry. used to exclude bad arrays.'],\
@@ -478,12 +481,12 @@ class MpiQCCall(MPIwrapper):
 			'max_snp_mismatch_rate_ls', 'max_snp_NA_rate_ls', 'npute_window_size_ls']
 		if self.debug:	#serial debug
 			import pdb
-			pdb.set_trace()
+			#pdb.set_trace()
 			init_data = self.create_init_data()
 			min_call_probability, max_call_mismatch_rate, max_call_NA_rate, max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size = init_data.param_d.parameters[0][:6]
 			result = self.doFilter(init_data.snpData_250k, init_data.snpData_2010_149_384, init_data.snpData_perlegen, \
 							min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
-							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, self.output_fname)
+							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, self.output_dir)
 			sys.exit(2)
 		
 		self.communicator = MPI.world.duplicate()
