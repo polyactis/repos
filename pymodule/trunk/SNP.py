@@ -1359,6 +1359,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2009-6-17
+		convert 2nd column (start_pos) to float, then to integer
 	2009-6-10
 		set additional columns (rest_of_row) as attributes of data_obj with column name as the attribute name
 	2009-2-18
@@ -1419,7 +1421,7 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 			col_name2index = getColName2IndexFromHeader(header)
 			continue
 		chr = int(row[0])
-		start_pos = int(row[1])
+		start_pos = int(float(row[1]))
 		column_4th = None	#it's MAF probably
 		column_5th = None	#it's MAC probably
 		column_6 = None	#it's genotype_var_perc probably
