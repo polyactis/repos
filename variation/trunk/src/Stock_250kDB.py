@@ -163,6 +163,8 @@ class SnpsContext(Entity):
 
 class CallMethod(Entity):
 	"""
+	2009-6-17
+		add column parent_id
 	2009-3-12
 		add column filename
 	2009-2-22
@@ -173,6 +175,7 @@ class CallMethod(Entity):
 		add various columns to denote QC parameters
 	"""
 	short_name = Field(String(20))
+	parent_id = Field(Integer)
 	min_oligo_call_prob = Field(Float)
 	max_array_mismatch_rate = Field(Float)
 	max_array_NA_rate = Field(Float)
@@ -1169,6 +1172,26 @@ class WebHelp(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='web_help', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
+
+class QCCrossMatch(Entity):
+	"""
+	2009-6-9
+		table recording the cross-matching results, used to identify mis-labeling, contaminant, etc.
+	"""
+	ecotype_id = Field(Integer)
+	call_info = ManyToOne("CallInfo", colname='call_info_id', ondelete='CASCADE', onupdate='CASCADE')
+	vs_ecotype_id = Field(Integer)
+	mismatch_rate = Field(Float)
+	no_of_mismatches = Field(Integer)
+	no_of_non_NA_pairs = Field(Integer)
+	qc_method = ManyToOne("QCMethod", colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='qc_cross_match', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('ecotype_id', 'call_info_id', 'vs_ecotype_id', 'qc_method_id'))
 
 class Stock_250kDB(ElixirDB):
 	__doc__ = __doc__
