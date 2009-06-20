@@ -1,7 +1,13 @@
+/**
+ * a widget wrapping around a custom visualization table with panel allowing user to choose #rows per page
+
+ * 		the custom visualization table passes both widget and event to a click listener
+ */
 package edu.nordborglab.client;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
@@ -12,6 +18,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.AbstractDataTable;
+import com.google.gwt.visualization.client.AbstractVisualization;
 import com.google.gwt.visualization.client.Selectable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.events.SelectHandler;
@@ -19,7 +26,7 @@ import com.google.gwt.visualization.client.visualizations.Table;
 import com.google.gwt.visualization.client.visualizations.Table.Options;
 
 
-public class WrapVisualizationTable extends Composite implements Selectable{
+public class WrapVisualizationTable extends AbstractVisualization<Table.Options> implements Selectable{
 	private DisclosurePanel tablePanel;
 	private Button pageRefreshButton;
 	private TextBox entriesPerPageBox;
@@ -34,6 +41,7 @@ public class WrapVisualizationTable extends Composite implements Selectable{
 	public WrapVisualizationTable() {
 		
 		entriesPerPageBox = new TextBox();
+		entriesPerPageBox.setWidth("50px");
 		entriesPerPageBox.setText("20");
 		
 		pageRefreshButton = new Button("refresh");
@@ -63,10 +71,19 @@ public class WrapVisualizationTable extends Composite implements Selectable{
 		initWidget(tablePanel);
 	}
 	
+	/**
+	 * public interface to fill the table with data, also the callback function when the refresh button is clicked
+	 * 2009-6-19 if this.dataTable is null, pass dataTable to it.
+	 * 
+	 * @param dataTable
+	 */
 	public void fillInTable(AbstractDataTable dataTable)
 	{
 		if (dataTable!=null)
 		{
+			if (this.dataTable==null)
+				this.dataTable = dataTable;
+			
 			Table.Options options = Table.Options.create();
 			options.setShowRowNumber(true);
 			options.setAllowHtml(true);
@@ -84,9 +101,26 @@ public class WrapVisualizationTable extends Composite implements Selectable{
 		this.visualizationTable.draw(this.dataTable);
 	}
 	
+	/**
+	 * public interface to fill the table with data
+	 * 
+	 * @param dataTable
+	 */
+	
 	public void draw(AbstractDataTable data, Options options){
-		this.dataTable = data;
-		this.visualizationTable.draw(this.dataTable, options);
+		if (data!=null)
+		{
+			dataTable = data;
+			options.setShowRowNumber(true);
+			options.setAllowHtml(true);
+			options.setPage(Options.Policy.ENABLE);
+			int page_size = Integer.parseInt(entriesPerPageBox.getText());
+			options.setPageSize(page_size);
+			visualizationTable.draw(dataTable, options);
+			pageRefreshButton.setVisible(true);
+			DEFAULT_TABLE_PANEL_TITLE = dataTable.getNumberOfRows() + " Row(s) in Total";
+			resetTablePanelHeaderText();
+		}
 	}
 	
 	public final void addSelectHandler(SelectHandler handler)
