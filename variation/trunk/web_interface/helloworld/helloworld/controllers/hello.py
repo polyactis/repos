@@ -40,7 +40,9 @@ class HelloController(BaseController):
 		c.greeting = request.params.get('greeting', 'Welcome')
 		c.name = request.params.get('name', 'Visitor')
 		return render('/public.html')
-
+	
+	"""
+	# 2009-6-22 comment it out
 	def serverinfo(self):
 		import cgi
 		import pprint
@@ -49,7 +51,8 @@ class HelloController(BaseController):
 		session['name'] = 'mighty'
 		session.save()
 		return render('/serverinfo.mako')
-
+	"""
+	
 	def app_globals_test(self):
 		if g.message == 'Hello':
 			content = g.message
@@ -60,13 +63,16 @@ class HelloController(BaseController):
 			#return g.message
 		g.visits += 1
 		return "You are visitor number %s." % g.visits
-
+	
+	"""
+	# 2009-6-22 comment it out
 	def environ(self):
 		result = '<html><body><h1>Environ</h1>'
 		for key, value in request.environ.items():
 			result += '%s: %r <br />'%(key, value)
 		result += '</body></html>'
 		return result
-
+	"""
+	
 	def navigation(self):
 		return render('/navigation.html')
