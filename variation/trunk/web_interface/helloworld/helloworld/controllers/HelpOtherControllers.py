@@ -1,6 +1,6 @@
 import logging
 
-from pylons import request, response, session, tmpl_context as c
+from pylons import request, response, session, tmpl_context as c, config
 from pylons.controllers.util import abort, redirect_to
 
 from helloworld.lib.base import BaseController, render, h
@@ -34,8 +34,13 @@ class HelpothercontrollersController(BaseController):
 	
 	@classmethod
 	def returnGeneDescLs(cls, gene_annotation, gene_id_ls=[]):
-		DrawSNPRegion_ins = DrawSNPRegion(db_user=model.db_user, db_passwd=model.db_passwd, hostname=model.hostname, database=model.dbname,\
-								input_fname='/tmp/dumb', output_dir='/tmp', debug=0)
+		"""
+		2009-6-22
+			fix a bug. db_user and other variables are now accessible from config['app_conf'], not model.xxx
+		"""
+		DrawSNPRegion_ins = DrawSNPRegion(db_user=config['app_conf']['db_user'], db_passwd=config['app_conf']['db_passwd'], hostname=config['app_conf']['hostname'],\
+										database=config['app_conf']['dbname'],\
+										input_fname='/tmp/dumb', output_dir='/tmp', debug=0)
 		
 		matrix_of_gene_descriptions = []
 		for gene_id in gene_id_ls:
