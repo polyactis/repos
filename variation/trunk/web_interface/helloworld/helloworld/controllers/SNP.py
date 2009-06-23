@@ -246,6 +246,8 @@ class SnpController(BaseController):
 					phenotype_value = None
 			else:
 				phenotype_value = None	#numpy.nan can't be recognized by ToJSon()
+			if (pm.data_type=='binary' or pm.data_type=='ordered_categorical') and phenotype_value is not None:
+				phenotype_value += 1
 			label = '%s ID:%s Phenotype:%s.'%(row.nativename, row.ecotype_id, phenotype_value)
 			
 			snpdata_row_index = snpData.row_id2row_index.get(str(row.ecotype_id))
@@ -255,8 +257,6 @@ class SnpController(BaseController):
 			else:
 				allele = snpData.data_matrix[snpdata_row_index][snpdata_col_index]
 			allele = number2nt[allele]
-			if (pm.data_type=='binary' or pm.data_type=='ordered_categorical') and phenotype_value is not None:
-				phenotype_value += 1
 			return_ls.append(dict(date=datetime.date(2009,2,3), ecotypeid=row.ecotype_id, label=label, name=row.nativename, \
 								lat=row.latitude, lon=row.longitude,\
 								pc1=pc_value_ls[0], pc2=pc_value_ls[1], pc3=pc_value_ls[2], pc4=pc_value_ls[3], \
