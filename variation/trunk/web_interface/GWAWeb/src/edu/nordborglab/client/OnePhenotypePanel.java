@@ -64,15 +64,40 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 		phenotypeMethodShortName = getphenotypeMethodShortName();
 		phenotypeMethodDescription = getphenotypeMethodDescription();
 
+		// 2009-6-23 convert the encoded back to normal form because they do represent special html tags.
+		phenotypeMethodShortName = phenotypeMethodShortName.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
+		//phenotypeMethodShortName = phenotypeMethodShortName.replaceAll("&gt;", ">");
+		//phenotypeMethodShortName = phenotypeMethodShortName.replaceAll("&amp;", "&");
+		
 		Window.setTitle(phenotypeMethodID + " " + phenotypeMethodShortName);
 		infoTree = new Tree();
 		infoTree.setVisible(true);
 		TreeItem treeItem = infoTree.addItem(new HTML("<b>Phenotype ID:</b> "+phenotypeMethodID));
 		treeItem.setState(true);
-		TreeItem nameTreeItem = infoTree.addItem(new HTML("<b>Name:</b>" + phenotypeMethodShortName));
+
+		HTML nameLabel = new HTML("<b>Name:</b> " + phenotypeMethodShortName);
+		
+		/**
+		 * 2009-6-23 no need for this anymore. phenotypeMethodShortName.replaceAll() handles this better.
+		 
+		HorizontalPanel hNamePanel = new HorizontalPanel();
+		HTML nameHTML;
+		if (phenotypeMethodShortName.startsWith("&lt") && phenotypeMethodShortName.endsWith("&gt;"))
+		{
+			int nameLen = phenotypeMethodShortName.length();
+			//Window.alert("italic name");
+			phenotypeMethodShortName = phenotypeMethodShortName.substring(9, nameLen-10);
+			nameHTML = new HTML("<i>"+phenotypeMethodShortName+"</i>");
+		}
+		else
+			nameHTML = new HTML(phenotypeMethodShortName);
+		hNamePanel.add(nameLabel);
+		hNamePanel.add(nameHTML);
+		*/
+		TreeItem nameTreeItem = infoTree.addItem(nameLabel);
 		//nameTreeItem.addItem(phenotypeMethodShortName);
 		nameTreeItem.setState(true);
-		TreeItem descTreeItem = infoTree.addItem(new HTML("<b>Description:</b>"));
+		TreeItem descTreeItem = infoTree.addItem(new HTML("<b>Source:</b> "));
 		descTreeItem.addItem(phenotypeMethodDescription);
 		descTreeItem.setState(true);
 		
