@@ -195,6 +195,9 @@ class SnpController(BaseController):
 	
 	def getEcotypeAllelePhenotype(self, id=None):
 		"""
+		2009-6-22
+			if phenotype_method.data_type is binary or ordered_categorical, add 1 to phenotype_value
+				to make accessions with zero-phenotype-value visible in the "Ecotype Allele Phenotype BarChart"
 		2009-3-5
 			return json data of ecotype, allele, phenotype for the javascript in templates/snp.html
 		"""
@@ -216,6 +219,7 @@ class SnpController(BaseController):
 			model.pheno_data = pheno_data
 		
 		snpData = hc.getSNPDataGivenCallMethodID(c.call_method_id)
+		pm = PhenotypeMethod.get(c.phenotype_method_id)
 		
 		column_name_type_ls = [("label", ("string","ID Name Phenotype")), ("date", ("date", "Date")), \
 							("lon",("number", "Longitude")), ("lat",("number", "Latitude")), \
@@ -251,7 +255,8 @@ class SnpController(BaseController):
 			else:
 				allele = snpData.data_matrix[snpdata_row_index][snpdata_col_index]
 			allele = number2nt[allele]
-			
+			if (pm.data_type=='binary' or pm.data_type=='ordered_categorical') and phenotype_value is not None:
+				phenotype_value += 1
 			return_ls.append(dict(date=datetime.date(2009,2,3), ecotypeid=row.ecotype_id, label=label, name=row.nativename, \
 								lat=row.latitude, lon=row.longitude,\
 								pc1=pc_value_ls[0], pc2=pc_value_ls[1], pc3=pc_value_ls[2], pc4=pc_value_ls[3], \
