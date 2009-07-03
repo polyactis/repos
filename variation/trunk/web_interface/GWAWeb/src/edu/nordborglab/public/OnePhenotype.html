@@ -19,8 +19,8 @@
 <%def name="body()">
 	<script type="text/javascript">
 		google.load("visualization", "1", {'packages' : ["table", "motionchart", "columnchart"] });
-		var call_method_id = ${c.call_method_id};
-		var phenotype_method_id = ${c.phenotype_method_id};
+		var call_method_id = "${c.call_method_id}";
+		var phenotype_method_id = "${c.phenotype_method_id}";
 		var phenotype_method_short_name = "${c.phenotype_method_short_name}";
 		//phenotype_method_short_name = phenotype_method_short_name.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 		
