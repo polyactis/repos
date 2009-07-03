@@ -22,6 +22,10 @@ from HelpOtherControllers import HelpothercontrollersController as hc
 class DisplayresultsController(BaseController):
 
 	def index(self):
+		"""
+		2009-7-2
+			update c.displayResultsGeneURL to h.url_for(controller="DisplayResultsGene", action='showResultsGeneForOnePhenotype')
+		"""
 		# Return a rendered template
 		#   return render('/template.mako')
 		# or, Return a response
@@ -30,9 +34,7 @@ class DisplayresultsController(BaseController):
 		c.getPhenotypeTableDataURL = h.url_for(controller="DisplayResults", action="getPhenotypeTableData")
 		c.getGWAURL = h.url_for(controller="DisplayResults", action="showGWA")
 		
-		c.displayResultsGeneURL = h.url_for(controller="DisplayResultsGene", action='showTopCandidateGenesFromOneResultOneGeneList', \
-										id=None, call_method_id=c.call_method_id, type_id=config['app_conf']['snp_gene_association_type_id'], \
-										list_type_id=0, max_rank=100)
+		c.displayResultsGeneURL = h.url_for(controller="DisplayResultsGene", action='showResultsGeneForOnePhenotype')
 		
 		return render("GWASPhenotypes.html")
 	
