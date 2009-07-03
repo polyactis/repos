@@ -500,25 +500,15 @@ class DisplayresultsgeneController(BaseController):
 		elif len(gene_id_set)==0:
 			return None
 	
-	def getGeneInformation(self, gene_id):
+	def fillGVizDataEntryForOneGene(self, entry, gene_id, column_name_type_ls):
 		"""
-		2009-6-12
-			add 'chromosome', "strand", "start", "stop" to the returned information
-		2009-5-27
-			return google data table in json structure of information of a gene
+		2009-7-2
+			subroutine to get info based on column_name_type_ls related to a gene
+			argument entry is a given dictionary. This function fills it up.
+			usually the entry would be added to a list, which is turned into a gviz_api.data_table. 
 		"""
-		column_name_type_ls = [("gene_symbol", ("string", "Symbol")), ("description", ("string", "Description")), \
-							("type_of_gene", ("string", "Type Of Gene")), \
-							("dbxrefs", ("string", "DB Cross References")), \
-							("gene_id", ("string","Gene ID")), ("chromosome", ("string","chromosome")),\
-							("strand", ("string","Strand")),\
-							("start", ("number","Start")),("stop", ("number","Stop"))]
-		description = dict(column_name_type_ls)
-		Gene = model.GenomeDB.Gene
 		gene = Gene.get(gene_id)
-		EntrezgeneMapping = model.GenomeDB.EntrezgeneMapping
 		em = EntrezgeneMapping.get(gene_id)
-		entry = {}
 		if gene is not None:
 			for column_name_type in column_name_type_ls:
 				column_name = column_name_type[0]
@@ -544,6 +534,25 @@ class DisplayresultsgeneController(BaseController):
 				else:
 					column_value = getattr(obj, column_name, default_value)
 				entry[column_name] = column_value
+	
+	def getGeneInformation(self, gene_id):
+		"""
+		2009-7-2
+			call fillGVizDataEntryForOneGene() to fill in gene infomation
+		2009-6-12
+			add 'chromosome', "strand", "start", "stop" to the returned information
+		2009-5-27
+			return google data table in json structure of information of a gene
+		"""
+		column_name_type_ls = [("gene_symbol", ("string", "Symbol")), ("description", ("string", "Description")), \
+							("type_of_gene", ("string", "Type Of Gene")), \
+							("dbxrefs", ("string", "DB Cross References")), \
+							("gene_id", ("string","Gene ID")), ("chromosome", ("string","chromosome")),\
+							("strand", ("string","Strand")),\
+							("start", ("number","Start")),("stop", ("number","Stop"))]
+		description = dict(column_name_type_ls)
+		entry = {}
+		self.fillGVizDataEntryForOneGene(entry, gene_id, column_name_type_ls)
 		return_ls = [entry]
 		data_table = gviz_api.DataTable(description)
 		data_table.LoadData(return_ls)
@@ -556,7 +565,12 @@ class DisplayresultsgeneController(BaseController):
 		"""
 		2009-7-2
 			add argument results_id, candidate_gene_set
-			make several into keyword-based ones
+			make several arguments into keyword-based ones
+			if candidate_gene_set is None, no filtering based on that. otherwise, yes.
+			if gene_id is given (used in geneForm()), get SNP & phenotype association information (no gene info) related to that gene.
+				getGeneInformation() takes care of it.
+			if gene_id is None (used in showResultsGeneForOnePhenotype()), get both gene & SNP association information but not phenotype info.
+			 
 		2009-5-27
 			return all associations related to a gene in table results_gene
 		"""
@@ -573,10 +587,11 @@ class DisplayresultsgeneController(BaseController):
 							("maf", ("number","MAF")), ("mac", ("number","MAC")),\
 							('genotype_var_perc', ('number', 'variance explained'))]
 		
-		if gene_id is not None:
+		if gene_id is not None:	#get associations just for one gene. no need for information related to that gene but need phenotype info.
+			gene_column_name_type_ls = []
 			column_name_type_ls = column_name_type_ls1 + column_name_type_ls2
 			results_gene_related_columns = column_name_type_ls
-		else:
+		else:	#get associations for all qualified genes. need information of genes but not the phenotype info.
 			gene_column_name_type_ls = [("gene_symbol", ("string", "Symbol")), ("description", ("string", "Description")), \
 								("type_of_gene", ("string", "Type Of Gene")), \
 								("dbxrefs", ("string", "DB Cross References")), \
@@ -609,33 +624,7 @@ class DisplayresultsgeneController(BaseController):
 			if candidate_gene_set is not None and row.gene_id not in candidate_gene_set:	#empty set means no filtering
 				continue
 			if column_name_type_ls!=results_gene_related_columns:
-				gene = Gene.get(row.gene_id)
-				em = EntrezgeneMapping.get(row.gene_id)
-				if gene is not None:
-					for column_name_type in column_name_type_ls:
-						column_name = column_name_type[0]
-						column_type = column_name_type[1][0]
-						
-						if column_type=='string':
-							default_value = ''
-						elif column_type =='number':
-							default_value = -1
-						elif column_type=='date':
-							default_value = datetime.date(2050, 1, 1)
-						else:
-							default_value = None
-						if column_name in ['chromosome', "strand", "start", "stop"]:
-							obj = em
-						else:
-							obj = gene
-						
-						if column_name=='gene_id':
-							column_value = getattr(obj, column_name, default_value)
-							if column_value:
-								column_value = "<a href=%s target='_blank'>%s</a>"%(h.NCBIGeneDBURL%gene_id, column_value)
-						else:
-							column_value = getattr(obj, column_name, default_value)
-						entry[column_name] = column_value
+				self.fillGVizDataEntryForOneGene(entry, row.gene_id, gene_column_name_type_ls)
 			
 			for column_name_type in results_gene_related_columns:
 				column_name = column_name_type[0]
@@ -787,20 +776,18 @@ class DisplayresultsgeneController(BaseController):
 	def fetchGeneList(self, id=None):
 		"""
 		2009-7-2
+			fixed and functional
+		2009-7-2
 			return a google visualization data table of genes based on gene list
 		"""
 		list_type_id = int(request.params.get('list_type_id', id))
-		column_name_type_ls = [("results_id", ("number", "Result Id")), ("phenotype_method_id", ("string", "Phenotype ID")), \
-							("phenotype_short_name", ("string", "Phenotype Name")), \
-							("analysis", ("string", "Association Method")), \
-							("snps_id", ("string","SNP ID")), ("chromosome", ("string","Chr")), \
-							("position", ("string","Position")), ("left_or_right", ("string","Left/Right")), \
-							("disp_pos", ("string","Distance")), ("disp_pos_comment", ("string","Distance comment")), \
-							("snp_annotation", ("string","SNP Annotation")), \
-							("score", ("number","Score")), \
-							("rank", ("number","Rank")), ('beta', ('number', 'Beta')),\
-							("maf", ("number","MAF")), ("mac", ("number","MAC")),\
-							('genotype_var_perc', ('number', 'variance explained'))]
+		
+		column_name_type_ls = [("gene_symbol", ("string", "Symbol")), ("description", ("string", "Description")), \
+							("type_of_gene", ("string", "Type Of Gene")), \
+							("dbxrefs", ("string", "DB Cross References")), \
+							("gene_id", ("string","Gene ID")), ("chromosome", ("string","chromosome")),\
+							("strand", ("string","Strand")),\
+							("start", ("number","Start")),("stop", ("number","Stop"))]
 		description = dict(column_name_type_ls)
 		
 		from variation.src.GeneListRankTest import GeneListRankTest
@@ -809,79 +796,12 @@ class DisplayresultsgeneController(BaseController):
 		else:
 			candidate_gene_set = set()
 		
-		query = GeneList.query.filter_by(list_type_id=list_type_id)
-		if maxRank:
-			query = query.filter(ResultsGene.rank<=maxRank)
-		if minScore:
-			query = query.filter(ResultsGene.score>=minScore)
-		query = query.order_by(ResultsGene.rank).order_by(ResultsGene.snps_id)
-		
 		return_ls = []
-		counter = 0
-		for row in query:
+		counter = 0		
+		for gene_id in candidate_gene_set:
 			entry = dict()
-			snps_context = None
-			snp_based_association_result = None
-			for column_name_type in column_name_type_ls:
-				column_name = column_name_type[0]
-				column_type = column_name_type[1][0]
-				
-				if column_type=='string':
-					default_value = ''
-				elif column_type =='number':
-					default_value = -1
-				elif column_type=='date':
-					default_value = datetime.date(2050, 1, 1)
-				else:
-					default_value = None
-				
-				if column_name == 'phenotype_method_id':
-					column_value = "<a href=%s target='_blank'>%s</a>"%\
-						(h.url_for(controller="DisplayResults", action="showGWA", phenotype_method_id=row.result.phenotype_method_id, call_method_id=row.result.call_method_id),\
-						row.result.phenotype_method_id)
-				elif column_name == 'phenotype_short_name':
-					column_value = row.result.phenotype_method.short_name
-				elif column_name == 'analysis':
-					column_value = row.result.analysis_method.short_name
-				elif column_name == 'left_or_right':
-					if snps_context is None:
-						snps_context = SnpsContext.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).first()
-					column_value = getattr(snps_context, column_name, default_value)
-				elif column_name == 'disp_pos_comment':
-					if snps_context is None:
-						snps_context = SnpsContext.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).first()
-					column_value = getattr(snps_context, column_name, default_value)
-				elif column_name == 'chromosome':
-					column_value = row.snp.chromosome
-				elif column_name == 'position':
-					column_value = row.snp.position
-				elif column_name in ['beta', "maf", "mac", 'genotype_var_perc']:
-					if snp_based_association_result is None:
-						snp_based_association_result = Results.query.filter_by(snps_id=row.snps_id).filter_by(results_id=row.results_id).first() 
-					column_value = getattr(snp_based_association_result, column_name, default_value)
-				elif column_name == 'snp_annotation':
-					snp_annotation_text_ls = []
-					snp_annotation_ls = SNPAnnotation.query.filter_by(snps_id=row.snps_id).filter_by(gene_id=row.gene_id).all()
-					for snp_annotation in snp_annotation_ls:
-						snp_annotation_text = snp_annotation.snp_annotation_type.short_name
-						if snp_annotation.comment:
-							snp_annotation_text += ':%s'%snp_annotation.comment
-						if len(snp_annotation_text_ls)>0:
-							if snp_annotation_text!=snp_annotation_text_ls[-1]:
-								snp_annotation_text_ls.append(snp_annotation_text)
-						else:
-							snp_annotation_text_ls.append(snp_annotation_text)
-					column_value = ';'.join(snp_annotation_text_ls)
-				elif column_name == 'snps_id':
-					SNPURL = h.url_for(controller='SNP', action=None, phenotype_method_id=row.result.phenotype_method.id, \
-									call_method_id=row.result.call_method.id, analysis_method_id=row.result.analysis_method.id,\
-									chromosome=row.snp.chromosome, position=row.snp.position, score=row.score)
-					column_value = "<a href=%s target='_blank'>%s</a>"%(SNPURL, row.snps_id)
-				else:
-					column_value = getattr(row, column_name, default_value)
-				
-				entry[column_name] = column_value
-				counter += 1
+			self.fillGVizDataEntryForOneGene(entry, gene_id, column_name_type_ls)
+			counter += 1
 			return_ls.append(entry)
 		
 		data_table = gviz_api.DataTable(description)
