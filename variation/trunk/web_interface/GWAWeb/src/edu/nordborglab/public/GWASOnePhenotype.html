@@ -21,8 +21,8 @@
 <%def name="body()">
 	<script type="text/javascript">
 		google.load("visualization", "1", {'packages' : ["table", "motionchart", "columnchart", "scatterchart"] });
-		var call_method_id = ${c.call_method_id};
-		var phenotype_method_id = ${c.phenotype_method_id};
+		var call_method_id = "${c.call_method_id}";
+		var phenotype_method_id = "${c.phenotype_method_id}";
 		var getAnalysisMethodLsURL = "${c.getAnalysisMethodLsURL}";
 		var phenotypeSummaryURL = "${c.phenotypeSummaryURL}";
 
