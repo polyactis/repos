@@ -12,8 +12,11 @@ Examples:
 Description:
 	2009-5-28
 		Put phenotype data into table phenotype_avg, phenotype_method.
-		Input format is two column (either delimiter), accession name and phenotype value. If accession name cannot be uniquely or not at all
-			linked to an ecotype id. Program would stop and ask user.
+		Input format is two column (either delimiter), accession name and phenotype value, starting from 1st line (default)
+			or 1st line could be header.
+			If accession name is comprised of all numbers, it's assumed to be ecotype id. 
+			If accession name (upper case) cannot be uniquely linked to an ecotype id by using nativename2tg_ecotypeid_set (key is uppercase)
+				& ecotype_id_set_250k_in_pipeline, program would stop and ask user.
 
 """
 import sys, os, math
@@ -26,12 +29,12 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import time, csv, getopt
-import warnings, traceback
+import warnings, traceback, re
 
-from Stock_250kDB import Stock_250kDB, PhenotypeAvg, PhenotypeMethod
+from Stock_250kDB import Stock_250kDB, PhenotypeAvg, PhenotypeMethod, ArrayInfo
 from pymodule import figureOutDelimiter
 from pymodule.utils import getGeneIDSetGivenAccVer
-from common import getNativename2TgEcotypeIDSet
+from common import getNativename2TgEcotypeIDSet, get_ecotype_id_set_250k_in_pipeline
 
 class PutPhenotypeIntoDB(object):
 	__doc__ = __doc__
@@ -59,9 +62,13 @@ class PutPhenotypeIntoDB(object):
 		if self.phenotype_id==-1 and self.phenotype_name is None:
 			sys.stderr.write("Error: None of phenotype_id and phenotype_name is specified.\n")
 			sys.exit(3)
-		
-	def putPhenotypeIntoDB(self, input_fname, phenotype_id, phenotype_name, nativename2tg_ecotypeid_set, db, skip_1st_line=False):
+	
+	allNumberPattern = re.compile(r'^\d+$')
+	def putPhenotypeIntoDB(self, input_fname, phenotype_id, phenotype_name, nativename2tg_ecotypeid_set, db, skip_1st_line=False,
+						ecotype_id_set_250k_in_pipeline=None):
 		"""
+		2009-7-22
+			use ecotype_id_set_250k_in_pipeline to solve the ecotypeid redundancy problem (more than one ecotype ids for one accession name) 
 		2009-5-28
 		"""
 		import csv, sys, os
@@ -89,22 +96,34 @@ class PutPhenotypeIntoDB(object):
 			if not row:	#skip empty lines
 				continue
 			original_name = row[0].strip()	#2008-12-11 remove spaces/tabs in the beginning/end
-			if original_name in nativename2tg_ecotypeid_set:
+			original_name = original_name.upper() #2009-7-23 turn into uppercase since nativename2tg_ecotypeid_set has its key all upper-cased.
+			if self.allNumberPattern.match(original_name):	#2009-7-23 the original_name is all number. assume it's ecotypeid.
+				ecotype_id = original_name
+			elif original_name in nativename2tg_ecotypeid_set:
 				tg_ecotypeid_set = nativename2tg_ecotypeid_set.get(original_name)
 				if len(tg_ecotypeid_set)>1:
-					while 1:
-						ecotype_id = raw_input("Pick one ecotype id from "+repr(list(tg_ecotypeid_set)) + " for %s: "%original_name)
-						yes_or_no = raw_input("Sure about ecotype id %s?(Y/n)"%ecotype_id)
-						if yes_or_no =='n' or yes_or_no=='N' or yes_or_no == 'No' or yes_or_no =='no':
-							pass
+					if ecotype_id_set_250k_in_pipeline is not None:	#2009-7-22 solve the redundancy problem
+						candidate_ecotyepid_ls = []
+						for ecotype_id in tg_ecotypeid_set:
+							if ecotype_id in ecotype_id_set_250k_in_pipeline:
+								candidate_ecotyepid_ls.append(ecotype_id)
+						if len(candidate_ecotyepid_ls)==1:
+							ecotype_id = candidate_ecotyepid_ls[0]
 						else:
-							break
+							ecotype_id = None
+					if ecotype_id is None:	#2009-7-22 only do this if the procedure above fails 
+						while 1:
+							ecotype_id = raw_input("No %s. Pick one ecotype id from "%counter +repr(list(tg_ecotypeid_set)) + " for %s: "%original_name)
+							yes_or_no = raw_input("Sure about ecotype id %s?(Y/n)"%ecotype_id)
+							if yes_or_no =='n' or yes_or_no=='N' or yes_or_no == 'No' or yes_or_no =='no':
+								pass
+							else:
+								break
 						
 				else:
 					ecotype_id = list(tg_ecotypeid_set)[0]
 			else:
-				
-				choice_instructions = "Enter ecotypeid for accession %s: "%original_name
+				choice_instructions = "No %s. Enter ecotypeid for accession %s: "%(counter, original_name)
 				while 1:
 					ecotype_id = raw_input(choice_instructions)
 					yes_or_no = raw_input("Sure about ecotype id %s?(y/N)"%ecotype_id)
@@ -133,11 +152,13 @@ class PutPhenotypeIntoDB(object):
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		db.setup(create_tables=False)
 		
-		nativename2tg_ecotypeid_set = getNativename2TgEcotypeIDSet(db.metadata.bind)
+		nativename2tg_ecotypeid_set = getNativename2TgEcotypeIDSet(db.metadata.bind, turnUpperCase=True)
+		ecotype_id_set_250k_in_pipeline = get_ecotype_id_set_250k_in_pipeline(ArrayInfo)
 		
 		session = db.session
 		session.begin()
-		self.putPhenotypeIntoDB(self.input_fname, self.phenotype_id, self.phenotype_name, nativename2tg_ecotypeid_set, db, self.skip_1st_line)
+		self.putPhenotypeIntoDB(self.input_fname, self.phenotype_id, self.phenotype_name, nativename2tg_ecotypeid_set, db, \
+							self.skip_1st_line, ecotype_id_set_250k_in_pipeline)
 		if self.commit:
 			session.commit()
 
