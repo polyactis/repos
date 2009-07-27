@@ -79,6 +79,7 @@ class AccessionController(BaseController):
 		condition = "ecotypeid=%s"%(ecotype_id)
 		return self.findAccessions(condition)
 	
+	@classmethod
 	def findAccessions(cls, condition=None, extra_tables=None):
 		"""
 		2009-4-19
@@ -166,7 +167,6 @@ class AccessionController(BaseController):
 		json_result = data_table.ToJSon(columns_order=column_ls)	#ToJSonResponse only works with google.visualization.Query
 		response.headers['Content-Type'] = 'application/json'
 		return json_result
-	findAccessions = classmethod(findAccessions)
 	
 	def findAccessionsNameLike(self, namelike):
 		"""
@@ -240,14 +240,15 @@ class AccessionController(BaseController):
 	2009-4-10
 		sets of ecotype ids for each individual dataset
 	"""
+	@classmethod
 	def ecotype_id_set_perlegen(cls, accession2ecotype_table='accession2tg_ecotypeid'):
 		ecotype_id_set_perlegen = set()
 		for ecotype_name, accession_id in model.ecotype_name2accession_id.iteritems():
 			row = model.at_db.metadata.bind.execute("select * from %s where accession_id=%s"%(accession2ecotype_table, accession_id)).fetchone()
 			ecotype_id_set_perlegen.add(row.ecotype_id)
 		return ecotype_id_set_perlegen
-	ecotype_id_set_perlegen = classmethod(ecotype_id_set_perlegen)
 	
+	@classmethod
 	def ecotype_id_set_384(cls):
 		ecotype_id_set_384 = set()
 		#rows = model.dbsnp.Accession.query()
@@ -255,26 +256,25 @@ class AccessionController(BaseController):
 		for row in rows:
 			ecotype_id_set_384.add(row.ecotype_id)
 		return ecotype_id_set_384
-	ecotype_id_set_384 = classmethod(ecotype_id_set_384)
 	
+	@classmethod
 	def ecotype_id_set_2010(cls, accession2ecotype_table='accession2tg_ecotypeid'):
 		ecotype_id_set_2010 = set()
 		for row in model.at_db.metadata.bind.execute("select * from %s"%accession2ecotype_table):
 			ecotype_id_set_2010.add(row.ecotype_id)
 		return ecotype_id_set_2010
-	ecotype_id_set_2010 = classmethod(ecotype_id_set_2010)
 	
+	@classmethod
 	def ecotype_id_set_250k(cls):
 		ecotype_id_set_250k = set()		#from good_call_method_id
 		for row in model.Stock_250kDB.CallInfo.query.filter_by(method_id=int(config['app_conf']['good_call_method_id'])):
 			ecotype_id_set_250k.add(row.array.maternal_ecotype_id)
 		return ecotype_id_set_250k
-	ecotype_id_set_250k = classmethod(ecotype_id_set_250k)
 	
+	@classmethod
 	def ecotype_id_set_250k_in_pipeline(cls):
 		ecotype_id_set_250k_in_pipeline = set()
 		for row in model.Stock_250kDB.ArrayInfo.query():
 			if row.maternal_ecotype_id==row.paternal_ecotype_id:	#no crosses.
 				ecotype_id_set_250k_in_pipeline.add(row.maternal_ecotype_id)
 		return ecotype_id_set_250k_in_pipeline
-	ecotype_id_set_250k_in_pipeline = classmethod(ecotype_id_set_250k_in_pipeline)
