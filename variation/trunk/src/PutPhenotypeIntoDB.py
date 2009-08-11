@@ -2,20 +2,28 @@
 """
 
 Examples:
-	PutPhenotypeIntoDB.py -i /Network/Data/250k/anthocyanin.csv -A 4 -u yh -c
+	PutPhenotypeIntoDB.py -i /Network/Data/250k/anthocyanin.csv -u yh -c
 	
-	PutPhenotypeIntoDB.py -i /Network/Data/250k/hyaloperonaspora2.csv -s Hyaloperonaspora2 -u yh -c
+	PutPhenotypeIntoDB.py -i /Network/Data/250k/hyaloperonaspora2.csv -u yh -c
 	
 	#2009-5-29 put raw lesioning phenotype into db.
-	PutPhenotypeIntoDB.py -i ./acc2lesioning.csv -s LES_raw -u yh  -t -c
+	PutPhenotypeIntoDB.py -i ./acc2lesioning.csv -u yh -c
+	
+	#2009-7-31 put replicates of one phenotype into db
+	~/script/variation/src/PutPhenotypeIntoDB.py -i /tmp/batch4_swedishlines_FT_LN.txt -u yh -y 2 -c
+	
+	#2009-7-31 put average values of multiple phenotypes into db
+	~/script/variation/src/PutPhenotypeIntoDB.py -i /tmp/batch_3_phenotypes.txt -u yh -y 1 -c -r
 	
 Description:
-	2009-5-28
+	2009-7-31
 		Put phenotype data into table phenotype_avg, phenotype_method.
-		Input format is two column (either delimiter), accession name and phenotype value, starting from 1st line (default)
-			or 1st line could be header.
-			If accession name is comprised of all numbers, it's assumed to be ecotype id. 
-			If accession name (upper case) cannot be uniquely linked to an ecotype id by using nativename2tg_ecotypeid_set (key is uppercase)
+		Input file is matrix format with either tab or coma.:
+			First line is the phenotype name for each column (except 1st two cols), which matches the short_name in db.
+			First two columns are used to identify the accession. accession ID and name (not used).
+			
+			If accession ID is comprised of all numbers, it's assumed to be ecotype id.
+			Otherwise, if it (turned into upper case) cannot be uniquely linked to an ecotype id by using nativename2tg_ecotypeid_set (key is uppercase)
 				& ecotype_id_set_250k_in_pipeline, program would stop and ask user.
 
 """
@@ -31,10 +39,11 @@ else:   #32bit
 import time, csv, getopt
 import warnings, traceback, re
 
-from Stock_250kDB import Stock_250kDB, PhenotypeAvg, PhenotypeMethod, ArrayInfo
-from pymodule import figureOutDelimiter
+from Stock_250kDB import Stock_250kDB, PhenotypeAvg, PhenotypeMethod, ArrayInfo, Phenotype
+from pymodule import figureOutDelimiter, SNPData, read_data
 from pymodule.utils import getGeneIDSetGivenAccVer
-from common import getNativename2TgEcotypeIDSet, get_ecotype_id_set_250k_in_pipeline
+from common import getNativename2TgEcotypeIDSet, get_ecotype_id_set_250k_in_pipeline, get_ecotypeid2tg_ecotypeid
+import numpy
 
 class PutPhenotypeIntoDB(object):
 	__doc__ = __doc__
@@ -45,9 +54,7 @@ class PutPhenotypeIntoDB(object):
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
 							("input_fname", 1, ): [None, 'i', 1, ''],\
-							("phenotype_id", 0, int): [-1, 'A', 1, 'ID of phenotype method.'],\
-							("phenotype_name", 0, ): [None, 's', 1, 'phenotype_method short name. if given, phenotype_id would be ignored.'],\
-							('skip_1st_line', 0, int):[0, 't', 0, 'skip the first line in the input file'],\
+							("run_type", 1, int): [1, 'y', 1, '1: submit to phenotype_avg (handle multiple phenotypes), 2: submit to phenotype (only one phenotype, columns are replicates.)'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -58,44 +65,25 @@ class PutPhenotypeIntoDB(object):
 		"""
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
-	
+		
+		"""
 		if self.phenotype_id==-1 and self.phenotype_name is None:
 			sys.stderr.write("Error: None of phenotype_id and phenotype_name is specified.\n")
 			sys.exit(3)
-	
+		"""
+		
 	allNumberPattern = re.compile(r'^\d+$')
-	def putPhenotypeIntoDB(self, input_fname, phenotype_id, phenotype_name, nativename2tg_ecotypeid_set, db, skip_1st_line=False,
-						ecotype_id_set_250k_in_pipeline=None):
+	def straightenEcotypeID(self, accID_ls, nativename2tg_ecotypeid_set, ecotypeid2tg_ecotypeid, ecotype_id_set_250k_in_pipeline=None):
 		"""
-		2009-7-22
-			use ecotype_id_set_250k_in_pipeline to solve the ecotypeid redundancy problem (more than one ecotype ids for one accession name) 
-		2009-5-28
+		2009-7-30
+			find all correct ecotype IDs for entries in accID_ls
 		"""
-		import csv, sys, os
-		session = db.session
-		if phenotype_name:	#if the short name is given, forget about phenotype_id
-			pm = PhenotypeMethod.query.filter_by(short_name=phenotype_name).first()	#try search the db first.
-			if not pm:
-				pm = PhenotypeMethod(short_name=phenotype_name)
-				session.save(pm)
-				session.flush()
-		else:	#use the list_type_id to get it
-			pm = PhenotypeMethod.get(phenotype_id)
-		session.save_or_update(pm)
-		
-		
-		delimiter=figureOutDelimiter(input_fname)
-		
-		reader = csv.reader(open(input_fname), delimiter=delimiter)
-		if skip_1st_line:
-			reader.next()	#skips the 1st line
+		sys.stderr.write("Straightening ecotype id out ...")
 		counter = 0
-		success_counter = 0
-		for row in reader:
+		ecotype_id_ls = []
+		for original_name in accID_ls:
 			counter += 1
-			if not row:	#skip empty lines
-				continue
-			original_name = row[0].strip()	#2008-12-11 remove spaces/tabs in the beginning/end
+			original_name = original_name.strip()
 			original_name = original_name.upper() #2009-7-23 turn into uppercase since nativename2tg_ecotypeid_set has its key all upper-cased.
 			if self.allNumberPattern.match(original_name):	#2009-7-23 the original_name is all number. assume it's ecotypeid.
 				ecotype_id = original_name
@@ -132,15 +120,87 @@ class PutPhenotypeIntoDB(object):
 					else:
 						break
 			ecotype_id = int(ecotype_id)
-			phenotype_value = float(row[1])
-			pa = PhenotypeAvg(ecotype_id=ecotype_id, value=phenotype_value)
-			pa.phenotype_method = pm
-			session.save(pa)
-			success_counter += 1
-		del reader
-		sys.stderr.write("%s/%s linked successfully.\n"%(success_counter, counter))
-		
+			tg_ecotypeid = ecotypeid2tg_ecotypeid[ecotype_id]
+			ecotype_id_ls.append(tg_ecotypeid)
+		sys.stderr.write("Done.\n")
+		return ecotype_id_ls
+	
+	def findPhenotypeMethodGivenName(self, phenotype_name, db):
+		"""
+		2009-7-30
+			find/create the db phenotype entry given phenotype_name
+		"""
+		session = db.session
+		if phenotype_name:	#if the short name is given, forget about phenotype_id
+			pm = PhenotypeMethod.query.filter_by(short_name=phenotype_name).first()	#try search the db first.
+			if not pm:
+				pm = PhenotypeMethod(short_name=phenotype_name)
+				session.save(pm)
+				session.flush()
+			if self.report:
+				sys.stderr.write("phenotype ID for %s is %s."%(phenotype_name, pm.id))
+		return pm
+	
+	def putPhenotypeIntoDB(self, db, phenData, ecotype_id_ls):
+		"""
+		2009-7-30
+			overhauled to deal with multiple phenotypes from phenData to table phenotype_avg
+		2009-7-22
+			use ecotype_id_set_250k_in_pipeline to solve the ecotypeid redundancy problem (more than one ecotype ids for one accession name) 
+		2009-5-28
+		"""
+		session = db.session
+		no_of_rows, no_of_cols = phenData.data_matrix.shape
+		if no_of_rows!=len(ecotype_id_ls):
+			sys.stderr.write("Error: No of rows in phenotype matrix (%s) != no of ecotypes from 1st column (%s).\n"%(no_of_rows, len(ecotype_id_ls)))
+			sys.exit(3)
 
+		for j in range(len(phenData.col_id_ls)):
+			phenotype_name = phenData.col_id_ls[j]
+			pm = self.findPhenotypeMethodGivenName(phenotype_name, db)
+			sys.stderr.write("Submitting phenotype %s ..."%phenotype_name)
+			counter = 0
+			success_counter = 0
+			for i in range(len(phenData.row_id_ls)):
+				ecotype_id = ecotype_id_ls[i]
+				phenotype_value = phenData.data_matrix[i][j]
+				counter += 1
+				if numpy.isnan(phenotype_value):
+					continue
+				pa = PhenotypeAvg(ecotype_id=ecotype_id, value=phenotype_value)
+				pa.phenotype_method = pm
+				session.save(pa)
+				success_counter += 1
+			sys.stderr.write("%s/%s put into db.\n"%(success_counter, counter))
+	
+	def putReplicatePhenotypeIntoDB(self, db, phenData, ecotype_id_ls):
+		"""
+		2009-7-30
+			similar to putPhenotypeIntoDB() but submit data to phenotype
+		"""
+		session = db.session
+		no_of_rows, no_of_cols = phenData.data_matrix.shape
+		if no_of_rows!=len(ecotype_id_ls):
+			sys.stderr.write("Error: No of rows in phenotype matrix (%s) != no of ecotypes from 1st column (%s).\n"%(no_of_rows, len(ecotype_id_ls)))
+			sys.exit(3)
+
+		for i in range(len(phenData.row_id_ls)):
+			replicate_counter = 0
+			counter = 0
+			for j in range(len(phenData.col_id_ls)):
+				phenotype_name = phenData.col_id_ls[j]
+				pm = self.findPhenotypeMethodGivenName(phenotype_name, db)
+				ecotype_id = ecotype_id_ls[i]
+				phenotype_value = phenData.data_matrix[i][j]
+				counter += 1
+				if numpy.isnan(phenotype_value):
+					continue
+				replicate_counter += 1
+				pa = Phenotype(ecotype_id=ecotype_id, value=phenotype_value, replicate=replicate_counter)
+				pa.phenotype_method = pm
+				session.save(pa)
+			sys.stderr.write("%s/%s put into db.\n"%(replicate_counter, counter))
+	
 	def run(self):
 		"""
 		2009-5-28
@@ -154,11 +214,24 @@ class PutPhenotypeIntoDB(object):
 		
 		nativename2tg_ecotypeid_set = getNativename2TgEcotypeIDSet(db.metadata.bind, turnUpperCase=True)
 		ecotype_id_set_250k_in_pipeline = get_ecotype_id_set_250k_in_pipeline(ArrayInfo)
+		ecotypeid2tg_ecotypeid = get_ecotypeid2tg_ecotypeid(db.metadata.bind)
+				
+		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(self.input_fname, turn_into_integer=0)
+		from Association import Association
+		data_matrix_phen = Association.get_phenotype_matrix_in_data_matrix_order(strain_acc_list_phen, strain_acc_list_phen, data_matrix_phen)
+		phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, data_matrix=data_matrix_phen)
+		
+		ecotype_id_ls = self.straightenEcotypeID(phenData.row_id_ls, nativename2tg_ecotypeid_set, ecotypeid2tg_ecotypeid, \
+												ecotype_id_set_250k_in_pipeline)
 		
 		session = db.session
 		session.begin()
-		self.putPhenotypeIntoDB(self.input_fname, self.phenotype_id, self.phenotype_name, nativename2tg_ecotypeid_set, db, \
-							self.skip_1st_line, ecotype_id_set_250k_in_pipeline)
+		if self.run_type==1:
+			self.putPhenotypeIntoDB(db, phenData, ecotype_id_ls)
+		elif self.run_type==2:
+			self.putReplicatePhenotypeIntoDB(db, phenData, ecotype_id_ls)
+		else:
+			sys.stderr.write("Unsupported run type: %s.\n"%(self.run_type))
 		if self.commit:
 			session.commit()
 
