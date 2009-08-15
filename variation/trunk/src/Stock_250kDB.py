@@ -53,6 +53,9 @@ class README(Entity):
 
 class Phenotype(Entity):
 	"""
+	2009-8-12
+		add created_by, updated_by, date_created, date_updated
+		add unique constraint ('ecotype_id', 'method_id', 'replicate')
 	2009-6-2
 		point phenotype_method to the correct class name: PhenotypeMethod, rather than Phenotype
 	"""
@@ -60,11 +63,19 @@ class Phenotype(Entity):
 	value = Field(Float)
 	replicate = Field(Integer)
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
 	using_options(tablename='phenotype', metadata=__metadata__, session=__session__)
+	using_table_options(UniqueConstraint('ecotype_id', 'method_id', 'replicate'))
 	using_table_options(mysql_engine='InnoDB')
 
 class PhenotypeAvg(Entity):
 	"""
+	2009-7-30
+		add created_by, updated_by, date_created, date_updated
+		add unique constraint (ecotype_id, method_id)
 	2009-6-2
 		point phenotype_method to the correct class name: PhenotypeMethod, rather than Phenotype
 	"""
@@ -76,7 +87,12 @@ class PhenotypeAvg(Entity):
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
 	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	transformed_value = Field(Float)
+	created_by = Field(String(128))
+	updated_by = Field(String(128))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
 	using_options(tablename='phenotype_avg', metadata=__metadata__, session=__session__)
+	using_table_options(UniqueConstraint('ecotype_id', 'method_id'))
 	using_table_options(mysql_engine='InnoDB')
 
 class BiologyCategory(Entity):
