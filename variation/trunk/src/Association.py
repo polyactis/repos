@@ -354,7 +354,7 @@ class Association(Kruskal_Wallis):
 					traceback.print_exc()
 					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 				else:	#2009-4-5 simpilify output if not debug
-					sys.stderr.write("Except while running pure_linear_model on snp_index=%s.\n"(snp_index))
+					sys.stderr.write("Except while running pure_linear_model on snp_index=%s.\n"%(snp_index))
 				pdata = None
 		else:
 			pdata = None
