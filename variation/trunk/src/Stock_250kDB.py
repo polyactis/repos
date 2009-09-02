@@ -73,6 +73,8 @@ class Phenotype(Entity):
 
 class PhenotypeAvg(Entity):
 	"""
+	2009-8-18
+		rename stdev to stddev
 	2009-7-30
 		add created_by, updated_by, date_created, date_updated
 		add unique constraint (ecotype_id, method_id)
@@ -81,7 +83,7 @@ class PhenotypeAvg(Entity):
 	"""
 	ecotype_id = Field(Integer, nullable=False)
 	value = Field(Float)
-	stdev = Field(Float)	
+	stddev = Field(Float)
 	sample_size = Field(Integer)
 	ready_for_publication = Field(Integer, default=0)
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
@@ -216,6 +218,9 @@ class CallMethod(Entity):
 	
 class PhenotypeMethod(Entity):
 	"""
+	2009-9-1
+		add min_value, stddev to facilitate transformations that utilize these two values
+		 
 	2009-5-11
 		add no_of_accessions, growth_condition, phenotype_scoring, citations
 	"""
@@ -228,6 +233,8 @@ class PhenotypeMethod(Entity):
 	citations = Field(String(8000))
 	method_description = Field(String(8000))
 	data_description = Field(String(8000))
+	min_value = Field(Float)
+	stddev = Field(Float)
 	comment = Field(String(8000))
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
