@@ -297,9 +297,12 @@ def get_ecotypeid2nativename(curs, ecotype_table='stock.ecotype'):
 	sys.stderr.write("Done.\n")
 	return ecotypeid2nativename
 
-def getNativename2EcotypeIDLs(curs, ecotype_table='stock.ecotype'):
+def getNativename2EcotypeIDLs(curs, ecotype_table='stock.ecotype', turnUpperCase=False):
 	"""
-	2009-5-16 reverse version of get_ecotypeid2nativename()
+	2009-7-23
+		add argument turnUpperCase: whether to turn nativename into uppercase
+	2009-5-16
+		reverse version of get_ecotypeid2nativename()
 	"""
 	sys.stderr.write("Getting nativename2ecotypeid_ls ...")
 	dc = {}
@@ -314,9 +317,39 @@ def getNativename2EcotypeIDLs(curs, ecotype_table='stock.ecotype'):
 			nativename = row.nativename
 		else:
 			ecotypeid, nativename = row
+		if turnUpperCase:
+			nativename = nativename.upper()
 		if nativename not in dc:
 			dc[nativename] = []
 		dc[nativename].append(ecotypeid)
+	sys.stderr.write("Done.\n")
+	return dc
+
+def getNativename2TgEcotypeIDSet(curs, table='stock.ecotypeid2tg_ecotypeid', turnUpperCase=False):
+	"""
+	2009-7-23
+		add argument turnUpperCase: whether to turn nativename into uppercase
+	2009-5-28
+		this function =  getNativename2EcotypeIDLs() + get_ecotypeid2tg_ecotypeid()
+	"""
+	sys.stderr.write("Getting nativename2tg_ecotypeid_ls ...")
+	dc = {}
+	rows = curs.execute("select tg_ecotypeid, nativename from %s"%(table))
+	is_elixirdb = 1
+	if hasattr(curs, 'fetchall'):	#2008-10-07 curs could be elixirdb.metadata.bind
+		rows = curs.fetchall()
+		is_elixirdb = 0
+	for row in rows:
+		if is_elixirdb:
+			ecotypeid = row.tg_ecotypeid
+			nativename = row.nativename
+		else:
+			ecotypeid, nativename = row
+		if turnUpperCase:
+			nativename = nativename.upper()
+		if nativename not in dc:
+			dc[nativename] = set()
+		dc[nativename].add(ecotypeid)
 	sys.stderr.write("Done.\n")
 	return dc
 
@@ -428,3 +461,14 @@ def get_ecotypeid2tg_ecotypeid(curs, table='stock.ecotypeid2tg_ecotypeid', debug
 	if debug:
 		sys.stderr.write("Done.\n")
 	return ecotypeid2tg_ecotypeid
+
+def get_ecotype_id_set_250k_in_pipeline(ArrayInfo):
+	"""
+	2009-7-22
+		function copied from helloworld/controllers/Accession.py with ArrayInfo as argument.
+	"""
+	ecotype_id_set_250k_in_pipeline = set()
+	for row in ArrayInfo.query():
+		if row.maternal_ecotype_id==row.paternal_ecotype_id:	#no crosses.
+			ecotype_id_set_250k_in_pipeline.add(row.maternal_ecotype_id)
+	return ecotype_id_set_250k_in_pipeline
