@@ -1,0 +1,3 @@
+#!/bin/sh
+APPDIR=`dirname $0`;
+java  -Xmx256M -cp "$APPDIR/src:$APPDIR/bin:/usr/local/home_ubuntu/crocea/script/gwt-linux-1.5.3/gwt-user.jar:/usr/local/home_ubuntu/crocea/script/gwt-linux-1.5.3/gwt-dev-linux.jar:../../../gwt-maps-1.0.2/gwt-maps.jar:../../../gwt-visualization-1.0.0/gwt-visualization.jar" com.google.gwt.dev.GWTShell -out "$APPDIR/www" "$@" edu.nordborglab.PhenotypeTrend/PhenotypeTrend.html;
