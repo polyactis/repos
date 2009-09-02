@@ -136,8 +136,11 @@ class OutputPhenotype(object):
 		return ecotype_id2index, ecotype_id_ls, ecotype_name_ls
 	get_ecotype_id2info = classmethod(get_ecotype_id2info)
 	
-	def get_matrix(cls, curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data=0):
+	def get_matrix(cls, curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data=0, \
+				phenotype_method_table='phenotype_method'):
 		"""
+		2009-9-2
+			add phenotype_method_table to get stddev, min_value to do certain transformation involving these two variables
 		2009-2-2
 			curs could be either MySQLdb cursor or elixirdb.metadata.bind.
 			average phenotype values among replicates in the same phenotype method
@@ -156,7 +159,8 @@ class OutputPhenotype(object):
 		for i in range(len(ecotype_id2index)):
 			data_matrix[i] = ['NA']*len(phenotype_info.phenotype_method_id2index)
 		#data_matrix[:] = numpy.nan
-		rows = curs.execute("select ecotype_id, method_id, avg(value) as value from %s group by ecotype_id, method_id"%phenotype_avg_table)
+		rows = curs.execute("select pa.ecotype_id, pa.method_id, pa.value, pm.min_value, pm.stddev from %s pa, %s pm where pm.id=pa.method_id"%\
+						(phenotype_avg_table, phenotype_method_table))
 		is_elixirdb = 1
 		if hasattr(curs, 'fetchall'):	#2009-2-2 this curs is not elixirdb.metadata.bind
 			rows = curs.fetchall()
@@ -167,8 +171,10 @@ class OutputPhenotype(object):
 				ecotype_id = row.ecotype_id
 				phenotype_method_id = row.method_id
 				value = row.value
+				min_value = row.min_value
+				stddev = row.stddev
 			else:
-				ecotype_id, phenotype_method_id, value = row
+				ecotype_id, phenotype_method_id, value, min_value, stddev = row
 			if value==None:	#some db entries have nothing there. convert None to 'NA'
 				value = 'NA'
 			elif not get_raw_data:	#2008-11-10
@@ -176,7 +182,20 @@ class OutputPhenotype(object):
 				if not transformation_description:
 					pass
 				elif transformation_description.find('Log(x)')!=-1:
-					value = math.log10(value)
+					try:
+						value = math.log10(value)
+					except:
+						sys.stderr.write("Ecotype ID %s, phenotype_method_id %s, value %s.\n"%(ecotype_id, phenotype_method_id, value))
+						sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()[0]))
+						traceback.print_exc()
+						print sys.exc_info()
+						#raise sys.exc_info()[0]
+						sys.exit(2)
+				elif transformation_description=="Log(SD/10+x-minVal)":	#2009-9-1 new transformation
+					if min_value is not None and stddev is not None:
+						value = math.log10(stddev/10. + value-min_value)
+					else:
+						value = value
 				elif transformation_description=='Log(5+x)':
 					value = math.log10(5+value)
 				elif transformation_description=='Log(0.5+x)':
