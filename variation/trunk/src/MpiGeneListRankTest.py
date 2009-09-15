@@ -221,8 +221,14 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		table_obj_ls = cPickle.loads(data)
 		self.sub_output(output_param_obj, table_obj_ls, output_param_obj.TestResultClass)
 	
+	#2009-9-14 report the progress of how many were saved
+	saved_test_result_count = 0
+	unsaved_test_result_count = 0
+	
 	def sub_output(self, output_param_obj, table_obj_ls, TableClass):
 		"""
+		2009-9-14
+			report how many test results were saved , how many unsaved (e.g. db duplicates)
 		2008-11-04
 		
 			split out of output_node_handler() so that MpiTopSNPTest's output_node_handler can call this.
@@ -262,6 +268,7 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 			if commit:
 				try:
 					output_param_obj.session.flush()
+					self.saved_test_result_count += 1
 				except:
 					#2008-10-30 remove it from memory. otherwise, next flush() will try on this old object again.
 					output_param_obj.session.expunge(result)
@@ -272,6 +279,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 						sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
 					traceback.print_exc()
 					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+					self.unsaved_test_result_count += 1
+		sys.stderr.write("%s(%s test-results saved, %s unsaved).\n"%(self.saved_test_result_count+self.unsaved_test_result_count, self.saved_test_result_count, self.unsaved_test_result_count))  
 	
 	def run(self):
 		"""
