@@ -32,6 +32,9 @@ Examples:
 	#2009-1-28 output one FRI deletion by setting version=4 and offset=8
 	Output2010InCertainSNPs.py -o data/2010/data_2010_ecotype_id_y0002_version4_offset_8.tsv -r -y0002 -v 4 -f 8
 	
+	#2009-2-12 output version 3 2010 data in its own SNP set (no need to specify -n, snp_locus_table) with no offset limit
+	Output2010InCertainSNPs.py -o /tmp/data_2010_ecotype_id_y0002.tsv -r -y0002 -f -1
+	
 Description:
 	program to output 2010/Perlegen data from db at with columns/SNPs from either 250k or 149SNP
 	
@@ -85,7 +88,7 @@ class Output2010InCertainSNPs(object):
 							('alignment_table', 1, ): ['at.alignment', 'a', ],\
 							('sequence_table',1,): ['at.sequence', 's', 1, 'raw sequence table. not used anymore.'],\
 							('snp_locus_table',1,): ['snps', 'n', ],\
-							('offset',0, int): [0, 'f', 1, 'offset of SNPs relative to a reference genome position that are to be included, positive only for insertions'],\
+							('offset',0, int): [0, 'f', 1, 'offset of SNPs relative to a reference genome position that are to be included, positive only for insertions. negative means no offset restriction.'],\
 							('version',0, int): [3, 'v', 1, 'version of SNPs that are to be included. 3 is published/good-quality. 1 & 2 are early versions. 4 is the version with FRI deletions.'],\
 							('output_fname',1,): ['', 'o', ],\
 							('processing_bits',1,): ['0000', 'y', ],\
@@ -253,6 +256,9 @@ class Output2010InCertainSNPs(object):
 	
 	def setup_SNP_dstruc2(self, curs, snp_locus_table, cross_linking_table=None, offset=0):
 		"""
+		2009-2-12
+			add 'offset' into SNP representation as (chromosome, position, offset)
+			will be a problem if snp_locus_table doesn't have field offset
 		2009-2-6
 			add offset
 		2008-05-12
@@ -269,15 +275,19 @@ class Output2010InCertainSNPs(object):
 			rows = curs.fetchall()
 			for row in rows:
 				chromosome, position = row
-				SNPpos_set.add((chromosome, position))
+				SNPpos_set.add((chromosome, position, 0))
 		snp_acc_ls = []
 		SNPpos2col_index = {}
-		curs.execute("select distinct chromosome, position from %s where offset=%s order by chromosome, position"%(snp_locus_table, offset))
+		if offset >=0:
+			curs.execute("select distinct chromosome, position, %s from %s where offset=%s order by chromosome, position"%(offset, snp_locus_table, offset))
+		else:
+			curs.execute("select distinct chromosome, position, offset from %s order by chromosome, position, offset"%(snp_locus_table))
+			
 		rows = curs.fetchall()
 		for row in rows:
-			chromosome, position = row
-			key_tuple = (chromosome, position)
-			snp_acc = '%s_%s'%(chromosome, position)	#to standardize between different SNP dataset
+			chromosome, position, offset = row
+			key_tuple = (chromosome, position, offset)
+			snp_acc = '%s_%s_%s'%(chromosome, position, offset)	#to standardize between different SNP dataset
 			if not SNPpos_set or key_tuple in SNPpos_set:
 				snp_acc_ls.append(snp_acc)
 				SNPpos2col_index[key_tuple] = len(SNPpos2col_index)
@@ -300,10 +310,17 @@ class Output2010InCertainSNPs(object):
 		sys.stderr.write("Getting row data structure and data ...\n")
 		row_id2dstruc = {}
 		if data_type==0:
-			#offset=0 and version=3
-			sql_string_func = lambda key_tuple: "select g.accession, al.base from %s g, %s al, %s l, %s an where g.allele=al.id \
-				and l.id=al.locus and l.alignment=an.id and l.offset=%s and an.version=%s and l.chromosome=%s and l.position=%s"%\
-				(genotype_table, allele_table, locus_table, alignment_table, offset, version, key_tuple[0], key_tuple[1])
+			#offset=0 and version=3 is the official published version
+			
+			common_sql_string = "select g.accession, al.base from %s g, %s al, %s l, %s an where g.allele=al.id and l.id=al.locus and l.alignment=an.id and an.version=%s"%\
+				(genotype_table, allele_table, locus_table, alignment_table, version)
+			if offset>=0:
+				sql_string_func = lambda key_tuple: "%s and l.offset=%s and l.chromosome=%s and l.position=%s"%\
+					(common_sql_string, offset, key_tuple[0], key_tuple[1])
+			else:	#no offset limit, offset determined by the key_tuple
+				sql_string_func = lambda key_tuple: "%s and l.offset=%s and l.chromosome=%s and l.position=%s"%\
+					(common_sql_string, key_tuple[2], key_tuple[0], key_tuple[1])
+			
 			"""
 			#offset=0
 			sql_string_func = lambda key_tuple: "select g.accession, al.base from %s g, %s al, %s l, %s an where g.allele=al.id \
@@ -376,6 +393,7 @@ class Output2010InCertainSNPs(object):
 		accession_X_snp_matrix, accession_X_snp_matrix_touched, snp_index2alignment_id = self.get_accession_X_snp_matrix(curs, accession_id2row_index, SNPpos2col_index, self.sequence_table, self.alignment_table, alignment_id2positions_to_be_checked_ls)
 		"""
 		if self.processing_bits[3]==0:
+			#2009-2-12 will be a problem if snp_locus_table doesn't have field offset
 			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table, offset=self.offset)
 		elif self.processing_bits[3]==1:
 			SNPpos2col_index, snp_acc_ls = self.setup_SNP_dstruc2(curs, self.snp_locus_table, \
@@ -409,6 +427,7 @@ class Output2010InCertainSNPs(object):
 		if self.processing_bits[0]==0:
 			from variation.src.common import map_accession_id2ecotype_id
 			accession_id2ecotype_id = map_accession_id2ecotype_id(curs, accession2ecotype_table=self.accession2ecotype_table)
+			accession_id2ecotype_id[99] = 6909	#accession 99 is the reference genome, which col-0 (ecotype_id=6909)
 			ecotype_id_ls = []
 			rows_to_be_tossed_out=Set()
 			for i in range(len(accession_id_ls)):
