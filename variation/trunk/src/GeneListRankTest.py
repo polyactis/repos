@@ -987,8 +987,10 @@ class GeneListRankTest(object):
 			sys.stderr.write("Done.\n")
 		return candidate_gene_rank_sum_test_result
 	
-	def dealWithSnpsContextWrapper(cls, snps_context_picklef, min_distance, get_closest):
+	def dealWithSnpsContextWrapper(cls, snps_context_picklef, min_distance=10000, get_closest=0):
 		"""
+		2009-9-15
+			assign default values to min_distance & get_closest
 		2008-09-08
 			split out of run()
 			
