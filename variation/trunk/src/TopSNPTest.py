@@ -236,8 +236,10 @@ class TopSNPTest(GeneListRankTest):
 		return return_data
 	
 	def TestResultClassInDB(self, TestResultClass, results_id, list_type_id,starting_rank, type_id, min_distance, \
-						no_of_top_snps, min_score=None):
+						no_of_top_snps, min_score=None, min_MAF=None, get_closest=0):
 		"""
+		2009-9-17
+			add argument min_MAF and get_closest to have the same API as the namesake functions in GeneListRankTest.py
 		2008-10-30
 			split out from runHGTest()
 			check if a result is in db or not
@@ -255,8 +257,10 @@ class TopSNPTest(GeneListRankTest):
 		return db_results
 	
 	def returnResultFromDB(self, TestResultClass, results_id, list_type_id,starting_rank, type_id, min_distance, \
-						no_of_top_snps, min_score=None):
+						no_of_top_snps, min_score=None, min_MAF=None, get_closest=0):
 		"""
+		2009-9-17
+			add argument min_MAF and get_closest to have the same API as the namesake functions in GeneListRankTest.py
 		2008-11-05
 			internal caching of results fetched from db to reduce the burden on db
 		2008-10-30
@@ -280,7 +284,7 @@ class TopSNPTest(GeneListRankTest):
 			result = db_results.first()
 		elif db_results.count()>1:
 			result = db_results.first()
-			sys.stderr.write("More than 1 result matched with results_id=%s, list_type_id=%s, starting_rank=%s,\
+			sys.stderr.write("More than 1 test result matched with results_id=%s, list_type_id=%s, starting_rank=%s,\
 							type_id=%s, min_distance=%s, no_of_top_snps=%s, min_score=%s. First (id=%s) taken.\n"%\
 							(results_id, list_type_id, starting_rank,
 							type_id, min_distance, no_of_top_snps, min_score, result.id))
