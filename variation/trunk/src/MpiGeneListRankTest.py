@@ -8,6 +8,10 @@ Examples:
 	#test parallel run on desktop
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiGeneListRankTest.py -u yh -m 20000 -g -p passw**d -s 100 -b -c
 	
+	#Run max-rank gw-looping test on all published results against list 206(ACD6). -G1 abolishes the 10-gene requirement for candidate lists.
+	mpiexec ~/script/variation/src/MpiGeneListRankTest.py -u yh -p ... -t ~/panfs/db/results/type_1/ -j 32 -q4
+	-s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -y 8 -A 1-35,39-48,57-82,158-159,161-179,182-186,272-274,277-283 -l 206 -a 1,7 -c -G1
+	
 Description:
 	MPI version GeneListRankTest.py. No need to specify list_type_id and results_method_id_ls. Automatically calculates
 	for all combinations of results_method_id and list_type_id, skipping the ones that have been done.
@@ -37,6 +41,7 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	option_default_dict.update({('call_method_id', 0, int):[0, 'j', 1, 'Restrict results based on this call_method. Default is no such restriction.']})
 	option_default_dict.update({('analysis_method_id_ls', 0, ):[None, '', 1, 'Restrict results based on this analysis_method. Default is no such restriction.']})
 	option_default_dict.update({("list_type_id_ls", 0, ): [None, 'l', 1, 'comma/dash-separated list of gene list type ids. ids not present in db will be filtered out. Each id has to encompass>=10 genes.']})
+	option_default_dict.update({("phenotype_method_id_ls", 0, ): ['1-7,39-61,80-82', 'A', 1, 'Restrict results based on this set of phenotype_method ids.']})
 	option_default_dict.update({('alter_hostname', 1, ):['banyan.usc.edu', '', 1, 'host for non-output nodes to connect, since they only query and not save objects. this host can be a slave.']})
 	option_default_dict.pop(("list_type_id", 1, int))
 	option_default_dict.pop(("results_id_ls", 1, ))
@@ -45,7 +50,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		GeneListRankTest.__init__(self, **keywords)
 		self.list_type_id_ls = getListOutOfStr(self.list_type_id_ls, data_type=int)
 		self.analysis_method_id_ls = getListOutOfStr(self.analysis_method_id_ls, data_type=int)
-		
+		self.phenotype_method_id_ls = getListOutOfStr(self.phenotype_method_id_ls, data_type=int)
+	
 	def generate_params(cls, param_obj, min_no_of_genes=10):
 		"""
 		2009-1-11
@@ -178,6 +184,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	
 	def computing_node_handler(self, communicator, data, param_obj):
 		"""
+		2009-9-16
+			parameter test_type is renamed to test_type_id
 		2008-08-20
 			wrap all parameters into pd and pass it to run_wilcox_test
 		2008-07-17
@@ -190,7 +198,7 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		pd = PassingData(snps_context_wrapper=param_obj.snps_context_wrapper,\
 							results_directory=param_obj.results_directory,\
 							min_MAF=param_obj.min_MAF, get_closest=self.get_closest, min_distance=self.min_distance, \
-							min_sample_size=self.min_sample_size, test_type=self.test_type, \
+							min_sample_size=self.min_sample_size, test_type_id=self.test_type_id, \
 							results_type=self.results_type, no_of_permutations=self.no_of_permutations,\
 							no_of_min_breaks=self.no_of_min_breaks)
 		for results_method_id, list_type_id in data:
@@ -227,6 +235,9 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	
 	def sub_output(self, output_param_obj, table_obj_ls, TableClass):
 		"""
+		2009-9-17
+			add code to support test results (CandidateGeneRankSumTestResultMethod) from GeneListRankTest.py
+			before it supports CandidateGeneTopSNPTestRM & CandidateGeneTopSNPTestRG
 		2009-9-14
 			report how many test results were saved , how many unsaved (e.g. db duplicates)
 		2008-11-04
@@ -235,15 +246,24 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 		"""
 		commit = output_param_obj.commit
 		for table_obj in table_obj_ls:
-			result = self.returnResultFromDB(TableClass, table_obj.results_id, table_obj.list_type_id, table_obj.starting_rank,
-											table_obj.type_id, table_obj.min_distance, table_obj.no_of_top_snps, table_obj.min_score)
+			starting_rank = getattr(table_obj, 'starting_rank', None)
+			type_id = getattr(table_obj, 'type_id', getattr(table_obj, 'test_type_id', None))
+			min_distance = getattr(table_obj, 'min_distance', None)
+			no_of_top_snps = getattr(table_obj, 'no_of_top_snps', None)
+			min_score = getattr(table_obj, 'min_score', None)
+			min_MAF = getattr(table_obj, 'min_MAF', None)
+			get_closest = getattr(table_obj, 'get_closest', None)
+			result = self.returnResultFromDB(TableClass, table_obj.results_id, table_obj.list_type_id, \
+											starting_rank, type_id, \
+											min_distance, no_of_top_snps, min_score,\
+											min_MAF=min_MAF, get_closest=get_closest)
 			if result:
 				if self.debug:
-					sys.stderr.write("TestResultClass with results_id=%s, list_type_id=%s, starting_rank=%s,\
-							type_id=%s, min_distance=%s, no_of_top_snps=%s, min_score=%s) already in db with id=%s. skip.\n"%\
-							(table_obj.results_id, table_obj.list_type_id, table_obj.starting_rank,
-							table_obj.type_id, table_obj.min_distance, table_obj.no_of_top_snps, \
-							table_obj.min_score, result.id))
+					sys.stderr.write("TestResultClass with results_id=%s, list_type_id=%s, starting_rank=%s, type_id=%s, \
+						min_distance=%s, no_of_top_snps=%s, min_score=%s, min_MAF=%s, get_closest=%s) already in db with id=%s. skip.\n"%\
+							(table_obj.results_id, table_obj.list_type_id, starting_rank,
+							type_id, min_distance, no_of_top_snps, \
+							min_score, min_MAF, get_closest, result.id))
 				continue
 			
 			row = []
@@ -314,7 +334,7 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 								list_type_id_ls=self.list_type_id_ls,
 								results_type=self.results_type,\
 								phenotype_method_id_ls=getattr(self, 'phenotype_method_id_ls', None))
-			params_ls = self.generate_params(param_obj)
+			params_ls = self.generate_params(param_obj, self.min_no_of_genes)
 			if self.debug:
 				params_ls = params_ls[:100]
 			
