@@ -362,6 +362,8 @@ class CandidateGeneRankSumTestResult(Entity):
 
 class CandidateGeneRankSumTestResultMethod(Entity):
 	"""
+	2009-9-16
+		link test_type to CandidateGeneTopSNPTestRMType
 	2008-10-09
 		similar CandidateGeneRankSumTestResult linked to results_method
 
@@ -376,7 +378,8 @@ class CandidateGeneRankSumTestResultMethod(Entity):
 	max_pvalue_per_gene = Field(Integer)
 	candidate_sample_size = Field(Integer)
 	non_candidate_sample_size = Field(Integer)
-	test_type = Field(Integer)
+	#test_type = Field(Integer)
+	test_type = ManyToOne('CandidateGeneTopSNPTestRMType', colname='test_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	comment = Field(Text)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
@@ -384,7 +387,29 @@ class CandidateGeneRankSumTestResultMethod(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='candidate_gene_rank_sum_test_rm', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'min_distance', 'get_closest', 'min_MAF', 'test_type'))
+	using_table_options(UniqueConstraint('results_id', 'list_type_id', 'min_distance', 'get_closest', 'min_MAF', 'test_type_id'))
+
+class CandidateGeneRankSumTestResultMethodType(Entity):
+	"""
+	2009-9-16
+		reference for the test_type_id field of CandidateGeneRankSumTestResultMethod
+	"""
+	gw_looping_type = Field(Integer)	#whether chromosomes shall be shuffled or not before SNPs are looped
+	allow_two_sample_overlapping = Field(Integer)
+	results_type = Field(Integer)
+	test_type = ManyToOne('AnalysisMethod', colname='test_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	null_distribution_type = ManyToOne('NullDistributionType', colname='null_distribution_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	how_to_handle_rank = Field(String(200))
+	comment = Field(Text)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='candidate_gene_rst_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('gw_looping_type', \
+										'allow_two_sample_overlapping', 'results_type', 'test_type_id',\
+										'null_distribution_type_id', 'how_to_handle_rank'))
 
 
 class ResultsByGene(Entity):
