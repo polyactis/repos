@@ -9,9 +9,15 @@ Examples:
 	#apart from doing rank test, pickle the snps_context_wrapper into a file.
 	GeneListRankTest.py -e 389 -l 1 -u yh -c -s /tmp/snps_context
 	
-	#
+	#gw-looping rank-sum test
 	GeneListRankTest.py -e 389 -l1 -u yh -j1 -y2 -s ./mnt2/panfs/250k/snps_context_g0_m20000  -p yh324 -b
+	
+	#run max-rank gw-looping test (test_type_id=8) to get the probability to observe the max rank of list 206 
+	./script/variation/src/GeneListRankTest.py -e 3471,3723 -l 206 -u yh -y8 -s .../snps_context_g0_m20000 -m 20000 -c -u yh
+	
 Description:
+	2009-9-17
+		test_type_id now corresponds to id in table CandidateGeneRankSumTestResultMethodType (1-6 mean same thing as before. with more entries).
 	2008-10-11
 		test_type=4,5,6 is same as test_type=1,2,3 but allow one SNP to be assigned to both candidate and non-candidate gene group
 	
@@ -124,7 +130,7 @@ class GeneListRankTest(object):
 							("output_fname", 0, ): [None, 'o', 1, 'To store rank test results into this file as a backup version of db'],\
 							("snps_context_picklef", 0, ): [None, 's', 1, 'given the option, if the file does not exist yet, to store a pickled snps_context_wrapper into it, min_distance and flag get_closest will be attached to the filename. If the file exists, load snps_context_wrapper out of it.'],\
 							("results_type", 1, int): [1, 'w', 1, 'which type of results. 1; ResultsMethod, 2: ResultsByGene'],\
-							("test_type_id", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping.'],\
+							("test_type_id", 1, int): [1, 'y', 1, 'which type of rank sum test. 1: r.wilcox.test() 2: loop-permutation. 3: loop-permutation with chromosome order kept. 4,5,6 are their counterparts which allow_two_sample_overlapping. now corresponds to id in table CandidateGeneRankSumTestResultMethodType.'],\
 							("no_of_permutations", 1, int): [20000, 'N', 1, 'no of permutations to carry out'],\
 							("no_of_min_breaks", 1, int): [10, 'B', 1, 'minimum no of times that rank_sum_stat_perm>=rank_sum_stat to break away. if 0, no breaking'],\
 							('null_distribution_type_id', 0, int):[1, 'C', 1, 'Type of null distribution. 1=original, 2=permutation, 3=random gene list. in db table null_distribution_type'],\
