@@ -159,8 +159,10 @@ class TopSNPTest(GeneListRankTest):
 			self.list_type_id2candidate_gene_list_info[list_type_id].no_of_snps_unassociated=non_candidate_sample_size			
 		return self.list_type_id2candidate_gene_list_info[list_type_id].no_of_snps_associated
 	
-	def get_looped_chr_pos_ls(self, candidate_gene_snp_index_ls, no_of_snps, total_chr_pos_ar, shift=None):
+	def get_looped_chr_pos_ls(self, gene_snp_index_ls, no_of_snps, total_chr_pos_ar, shift=None):
 		"""
+		function to get the after-shift (chr,pos)s for a subset of SNPs, specified by gene_snp_index_ls, a list of indices
+		in reference to total_chr_pos_ar 
 		2008-10-30
 			add option shift
 		2008-10-22
@@ -168,8 +170,8 @@ class TopSNPTest(GeneListRankTest):
 		"""
 		if shift is None:
 			shift = random.randint(1, no_of_snps)
-		candidate_gene_snp_index_ls_perm = (candidate_gene_snp_index_ls+shift)%no_of_snps	#modulo to recycle
-		looped_chr_pos_ar = total_chr_pos_ar[candidate_gene_snp_index_ls_perm]
+		gene_snp_index_ls_perm = (gene_snp_index_ls+shift)%no_of_snps	#modulo to recycle
+		looped_chr_pos_ar = total_chr_pos_ar[gene_snp_index_ls_perm]
 		return looped_chr_pos_ar
 		
 	def get_enrichment_pvalue_by_gw_looping(self, candidate_sample_size, top_snp_index_ls, candidate_gene_set, \
@@ -476,10 +478,12 @@ class TopSNPTest(GeneListRankTest):
 							continue
 						
 						if pd.null_distribution_type_id==2:
+							#indices of the top SNPs above a certain cutoff 
 							top_snp_index_ls = numpy.hstack((permData.candidate_gene_snp_index_ls, permData.non_candidate_gene_snp_index_ls))
-											
+							#get corresponding (chr,pos)s of the top SNPs after they are shifted. 
 							looped_chr_pos_ls = self.get_looped_chr_pos_ls(top_snp_index_ls, permData.no_of_total_snps, permData.total_chr_pos_ar, \
 																	shift=shift)
+							#after shifting (permutation), how many are close to candidate genes
 							looped_candidate_gene_snp_index_ls = self.get_candidate_gene_snp_index_ls(candidate_gene_set, \
 																						looped_chr_pos_ls, \
 																						pd.snps_context_wrapper)
