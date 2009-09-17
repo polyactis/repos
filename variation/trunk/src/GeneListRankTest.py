@@ -135,6 +135,7 @@ class GeneListRankTest(object):
 							("no_of_min_breaks", 1, int): [10, 'B', 1, 'minimum no of times that rank_sum_stat_perm>=rank_sum_stat to break away. if 0, no breaking'],\
 							('null_distribution_type_id', 0, int):[1, 'C', 1, 'Type of null distribution. 1=original, 2=permutation, 3=random gene list. in db table null_distribution_type'],\
 							("allow_two_sample_overlapping", 1, int): [0, '', 0, 'whether to allow one SNP to be assigned to both candidate and non-candidate gene group'],\
+							('min_no_of_genes', 1, int):[10, 'G', 1, 'minimum no of genes one candidate gene list should harbor. effective only in MPI version'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation. this commit happens after every db operation, not wait till the end.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
@@ -899,8 +900,57 @@ class GeneListRankTest(object):
 	dealWithCandidateGeneList = classmethod(dealWithCandidateGeneList)
 	list_type_id2candidate_gene_list_info = {}
 	
+	def TestResultClassInDB(self, TestResultClass, results_id, list_type_id, starting_rank, type_id, min_distance, \
+						no_of_top_snps=None, min_score=None, min_MAF=None, get_closest=0):
+		"""
+		2009-9-17
+			split out of run_wilcox_test().
+			same API as namesake function in TopSNPTest.py
+			check if a result is in db or not
+		"""
+		db_results = TestResultClass.query.filter_by(results_id=results_id).\
+			filter_by(list_type_id=list_type_id).filter_by(min_distance=min_distance).\
+			filter_by(min_MAF=min_MAF).filter_by(get_closest=get_closest).filter_by(test_type_id=type_id)
+		return db_results
+	
+	def returnResultFromDB(self, TestResultClass, results_id, list_type_id, starting_rank=None, \
+						type_id=None, min_distance=None, \
+						no_of_top_snps=None, min_score=None, min_MAF=None, get_closest=0):
+		"""
+		2009-9-17
+			internal caching of results fetched from db to reduce the burden on db
+			same API as namesake function in TopSNPTest.py
+		"""
+		result = None
+		result_key = (results_id, list_type_id, min_distance, get_closest, min_MAF, type_id)
+		
+		if not hasattr(self, 'result_key2result'):
+			self.result_key2result = {}
+		
+		if result_key in self.result_key2result:	#just return this immediately
+			return self.result_key2result[result_key]
+		
+		db_results = self.TestResultClassInDB(TestResultClass, results_id, list_type_id, starting_rank, \
+											type_id, min_distance,\
+											no_of_top_snps, min_score, min_MAF, get_closest)
+		
+		if db_results.count()==1:	#done before
+			result = db_results.first()
+		elif db_results.count()>1:
+			result = db_results.first()
+			sys.stderr.write("More than 1 test result matched with results_id=%s, list_type_id=%s, min_distance=%s,\
+							get_closest=%s, min_MAF=%s, type_id=%s. First (id=%s) taken.\n"%\
+							(results_id, list_type_id, min_distance,
+							get_closest, min_MAF, type_id, result.id))
+		
+		if result:	#only cache the ones that are already in db
+			self.result_key2result[result_key] = result
+		return result
+	
 	def run_wilcox_test(self, pd):
 		"""
+		2009-9-17
+			use returnResultFromDB() to check if result is in db or not
 		2009-9-17
 			fetch the CandidateGeneRankSumTestResultMethodType entry based on pd.test_type_id and decide other params (allow_two_sample_overlapping, etc.)
 		2008-10-15
@@ -940,18 +990,16 @@ class GeneListRankTest(object):
 		if not rm:
 			sys.stderr.write("No results method available for results_id=%s.\n"%pd.results_id)
 			return None
-		db_results = TestResultClass.query.filter_by(results_id=pd.results_id).\
-			filter_by(list_type_id=pd.list_type_id).filter_by(min_distance=pd.min_distance).\
-			filter_by(min_MAF=pd.min_MAF).filter_by(get_closest=pd.get_closest).filter_by(test_type_id=pd.test_type_id)
-		#2009-9-16 now there's a table keeping track of this
-		testType = CandidateGeneRankSumTestResultMethodType.get(pd.test_type_id)
+		db_result = self.returnResultFromDB(TestResultClass, pd.results_id, pd.list_type_id, type_id=pd.test_type_id, \
+										min_distance=min_distance, min_MAF=min_MAF, get_closest=get_closest)
 		
-		if db_results.count()>0:	#done before
-			db_result = db_results.first()
+		if db_result:	#done before
 			sys.stderr.write("It's done already. id=%s, results_id=%s, list_type_id=%s, pvalue=%s, statistic=%s.\n"%\
 							(db_result.id, db_result.results_id, db_result.list_type_id, db_result.pvalue, db_result.statistic))
 			return None
 		try:
+			#2009-9-16 now there's a table keeping track of this
+			testType = CandidateGeneRankSumTestResultMethodType.get(pd.test_type_id)
 			import rpy
 			candidate_gene_list = self.dealWithCandidateGeneList(pd.list_type_id)	#internal cache
 			if testType is not None:
