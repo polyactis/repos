@@ -363,7 +363,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 								phenotype_method_id_ls=getattr(self, 'phenotype_method_id_ls', None),\
 								list_type_id_ls=self.list_type_id_ls, \
 								results_type=self.results_type)
-			params_ls = self.generate_params(param_obj)
+			params_ls = self.generate_params(param_obj, self.min_no_of_genes)
 			cutoff_ls = self.generate_cutoff_ls(self.no_of_top_snps, self.min_score, self.rank_gap, self.stop_rank)
 			params_ls = self.addCutoffToParamsLs(cutoff_ls, params_ls)
 			
