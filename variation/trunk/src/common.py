@@ -355,6 +355,8 @@ def getNativename2TgEcotypeIDSet(curs, table='stock.ecotypeid2tg_ecotypeid', tur
 
 def getEcotypeInfo(db, country_order_type=1):
 	"""
+	2009-09-2
+		add region into ecotype_obj
 	2008-10-08
 		use ecotype_id2ecotype_obj to summarize
 			ecotypeid2pos
@@ -376,7 +378,8 @@ def getEcotypeInfo(db, country_order_type=1):
 		order_seq_sentence = 'c.latitude, c.longitude'
 	else:
 		order_seq_sentence = 'c.longitude, c.latitude'
-	rows = db.metadata.bind.execute("select e.id as ecotype_id, e.nativename, e.latitude, e.longitude, c.abbr as country, c.latitude as country_latitude,\
+	rows = db.metadata.bind.execute("select e.id as ecotype_id, e.nativename, e.latitude, e.longitude, a.region, \
+		c.abbr as country, c.latitude as country_latitude, \
 		c.longitude as country_longitude \
 		from stock.%s e, stock.%s s, stock.%s a, stock.%s c where e.siteid=s.id and s.addressid=a.id and \
 		a.countryid=c.id order by %s "%(getattr(StockDB.Ecotype.table, 'name', 'ecotype'), \
