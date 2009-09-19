@@ -1879,8 +1879,8 @@ class LD:
 		distance_ls = [math.exp(row[1]) for row in snp_acc2LD_data[snp_acc][1]]
 		pylab.plot(distance_ls, r2_ls, 'r.')
 		pylab.show()
-
-"""
+	
+	"""
 from variation.src.misc import LD
 input_fname = os.path.expanduser('~/script/variation/stock20070919/data_d110_c0_5.tsv')
 snp_locus_table = 'snps'
@@ -1958,7 +1958,272 @@ for snp_acc in snp_acc2LD_linear_fitting:
 	LD_ins.check_one_snp_acc_LD_decay(snp_acc2LD_data, snp_acc2LD_linear_fitting, snp_acc)
 	print snp_acc2LD_linear_fitting[snp_acc]
 	raw_input(":")
+	"""
+	
+	def plotLDHist(input_fname, output_fname_prefix, which_LD_statistic=1, min_r2=0.95, discard_perc=0.999, no_of_bins=50, \
+				   pairType=0, normed=False, debug=False):
+		"""
+		2009-4-5
+			add argument discard_perc which controls the percentage of pairs discarded randomly to reduce computational load
+			add argument no_of_bins
+			pairType=0, all
+			pairType=1, intra-chromosomal
+			pairType=2, inter-chromosomal
+		02/20/09
+			histogram of LD under cutoff by min_r2
+		"""
+		import csv, random
+		from pymodule import getColName2IndexFromHeader, PassingData
+		from variation.src.DrawSNPRegion import DrawSNPRegion, LD_statistic
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		xylim_data = PassingData(xlim = [-1,-1], ylim=[-1,-1])
+		LD_ls = []
+		counter = 0
+		real_counter = 0
+		for row in reader:
+			counter += 1
+			snp1 = row[col_name2index['snp1']].split('_')
+			snp1 = tuple(map(int, snp1))
+			snp2 = row[col_name2index['snp2']].split('_')
+			snp2 = tuple(map(int, snp2))
+			if pairType==1 and snp1[0]!=snp2[0]:	#intra-chromosomal, but the two snps are from different chromosomes
+				continue
+			if pairType==2 and snp1[0]==snp2[0]:	#inter-chromosomal, but the two snps are from the same chromosome
+				continue
+			if discard_perc==0:
+				u = 1
+			else:	#sample a uniform unless discard_perc is not 0
+				u = random.random()
+			if u<discard_perc:
+				continue
+			
+			allele1_freq = float(row[col_name2index['allele1_freq']])
+			allele2_freq = float(row[col_name2index['allele2_freq']])
+			#if allele1_freq>=min_MAF and allele2_freq>=min_MAF:	#meet the minimum minor-allele-frequency
+			LD_stat = float(row[col_name2index[LD_statistic.get_name(which_LD_statistic)]])
+			LD_stat = abs(LD_stat)
+			if LD_stat>=min_r2:
+				LD_ls.append(LD_stat)
+				real_counter+=1
+			if debug and counter==50000:
+				break
+			if real_counter%5000==0:
+				sys.stderr.write("%s%s\t\t%s"%('\x08'*40, real_counter, counter))
+		del reader
+		
+		import pylab
+		pylab.clf()
+		pylab.title('Histogram of %s'%LD_statistic.get_name(which_LD_statistic))
+		pylab.ylabel('frequency')
+		pylab.hist(LD_ls, no_of_bins, alpha=0.5, normed=normed)
+		pylab.savefig('%s_%s_min_r2_%s_discard_perc_%s_hist.png'%\
+					  (output_fname_prefix, LD_statistic.get_name(which_LD_statistic), min_r2, discard_perc), dpi=300)
+	
+	"""
+input_fname = os.path.expanduser('~/panfs/250k/dataset/call_method_29_LD_D_prime_m0.8.tsv')
+output_fname_prefix = os.path.expanduser('%s'%os.path.splitext(input_fname)[0])
+plotLDHist(input_fname, output_fname_prefix, min_r2=0.95)
+
+input_fname = os.path.expanduser('~/panfs/250k/dataset/call_method_29_LD_D_prime_m0_p.997.tsv')
+output_fname_prefix = os.path.expanduser('%s_intra_chr'%os.path.splitext(input_fname)[0])
+plotLDHist(input_fname, output_fname_prefix, which_LD_statistic=1, min_r2=0, discard_perc=0.994, no_of_bins=200, pairType=1, normed=True)
+output_fname_prefix = os.path.expanduser('%s_inter_chr'%os.path.splitext(input_fname)[0])
+plotLDHist(input_fname, output_fname_prefix, which_LD_statistic=1, min_r2=0, discard_perc=0.994, no_of_bins=200, pairType=2, normed=True)
+
+	"""
+	
+	def filterLD(input_fname, output_fname, which_LD_statistic=1, min_r2=0.95, debug=False):
+		"""
+		2009-3-6
+			select entries from input_fname that are above min_r2 into output_fname
+		"""
+		import csv
+		from pymodule import getColName2IndexFromHeader
+		from variation.src.DrawSNPRegion import DrawSNPRegion, LD_statistic
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		counter = 0
+		real_counter= 0
+		LD_ls = []
+		counter = 0
+		real_counter = 0
+		for row in reader:
+			snp1 = row[col_name2index['snp1']].split('_')
+			snp1 = tuple(map(int, snp1))
+			snp2 = row[col_name2index['snp2']].split('_')
+			snp2 = tuple(map(int, snp2))
+			allele1_freq = float(row[col_name2index['allele1_freq']])
+			allele2_freq = float(row[col_name2index['allele2_freq']])
+			#if allele1_freq>=min_MAF and allele2_freq>=min_MAF:	#meet the minimum minor-allele-frequency
+			LD_stat = float(row[col_name2index[LD_statistic.get_name(which_LD_statistic)]])
+			LD_stat = abs(LD_stat)
+			if LD_stat>=min_r2:
+				#LD_ls.append(LD_stat)
+				writer.writerow(row)
+				real_counter+=1
+			counter += 1
+			if debug and counter==50000:
+				break
+			if real_counter%2000==0:
+				sys.stderr.write("%s%s\t\t%s"%('\x08'*40, real_counter, counter))
+		del reader, writer
+		
+	"""
+input_fname = os.path.expanduser('~/panfs/250k/call_method_29_LD_D_prime_m0.8.tsv')
+min_r2=0.85
+output_fname = '%s_min_r2_%s.tsv'%(os.path.expanduser('%s'%os.path.splitext(input_fname)[0]), min_r2)
+filterLD(input_fname, output_fname, min_r2=min_r2)
+	
+	"""
+	
+	def getSNPPairDistWithLDAboveMin(input_fname, which_LD_statistic=1, min_r2=0.95, debug=False):
+		"""
+		2009-3-6
+			
+		"""
+		import csv
+		from pymodule import getColName2IndexFromHeader
+		from variation.src.DrawSNPRegion import DrawSNPRegion, LD_statistic
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		counter = 0
+		real_counter= 0
+		LD_ls = []
+		counter = 0
+		real_counter = 0
+		inter_chr_pair_ls = []
+		snp_pair_dist_ls = []
+		for row in reader:
+			snp1 = row[col_name2index['snp1']].split('_')
+			snp1 = tuple(map(int, snp1))
+			snp2 = row[col_name2index['snp2']].split('_')
+			snp2 = tuple(map(int, snp2))
+			allele1_freq = float(row[col_name2index['allele1_freq']])
+			allele2_freq = float(row[col_name2index['allele2_freq']])
+			#if allele1_freq>=min_MAF and allele2_freq>=min_MAF:	#meet the minimum minor-allele-frequency
+			LD_stat = float(row[col_name2index[LD_statistic.get_name(which_LD_statistic)]])
+			LD_stat = abs(LD_stat)
+			if LD_stat>=min_r2:
+				#LD_ls.append(LD_stat)
+				real_counter+=1
+				if snp1[0]!=snp2[0]:
+					inter_chr_pair_ls.append((snp1, snp2))
+				else:
+					snp_pair_dist = abs(snp1[1]-snp2[1])
+					snp_pair_dist_ls.append(snp_pair_dist)
+			
+			counter += 1
+			if debug and counter==50000:
+				break
+			if real_counter%2000==0:
+				sys.stderr.write("%s%s\t\t%s"%('\x08'*40, real_counter, counter))
+		del reader
+		return inter_chr_pair_ls, snp_pair_dist_ls
+	
+	"""
+input_fname = os.path.expanduser('~/panfs/250k/call_method_29_LD_D_prime_m0.8_min_r2_0.85.tsv')
+min_r2 = 0.95
+inter_chr_pair_ls, snp_pair_dist_ls = getSNPPairDistWithLDAboveMin(input_fname, min_r2=min_r2)
+	"""
+	class Counter(object):
+		"""
+		2009-4-8
+			a class for calSNPPairStats()
+		"""
+		def __init__(self):
+			self.distance_ls = []
+			self.lowest_freq_ls = []
+			self.no_of_intrachr_pairs = 0
+			self.no_of_interchr_pairs = 0
+
+	def calSNPPairStats(input_fname, output_fname_prefix, discard_perc=0.999, no_of_bins=50, \
+					normed=False, debug=False):
+		"""
+		2009-4-8
+			given the data which records the frequency of each allelic combination from two SNPs
+				count how many SNP pairs with 4 combos, how many with 3, how many with 2.
+					and among each category, how many are inter-chromosomal, how many are intra.
+						for the intra pairs, draw histogram of distance
+					also among each category, draw histogram of the frequency of the least-frequent combo
+		"""
+		import csv, random
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		counter_dc_idx = 9
+		from pymodule import getColName2IndexFromHeader, PassingData
+		from variation.src.DrawSNPRegion import DrawSNPRegion, LD_statistic
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		counter = 0
+		real_counter= 0
+		
+		no_of_combos2counter = {}
+		for row in reader:
+			counter_dict = eval(row[counter_dc_idx])
+			no_of_combos = len(counter_dict)
+			if no_of_combos not in no_of_combos2counter:
+				no_of_combos2counter[no_of_combos] = Counter()
+			
+			counter += 1
+			snp1 = row[col_name2index['snp1_id']].split('_')
+			snp1 = tuple(map(int, snp1))
+			snp2 = row[col_name2index['snp2_id']].split('_')
+			snp2 = tuple(map(int, snp2))
+			
+			if discard_perc==0:
+				u = 1
+			else:	#sample a uniform unless discard_perc is not 0
+				u = random.random()
+			
+			if snp1[0]!=snp2[0]:	#intra-chromosomal, but the two snps are from different chromosomes
+				no_of_combos2counter[no_of_combos].no_of_interchr_pairs += 1
+				
+			if snp1[0]==snp2[0]:	#inter-chromosomal, but the two snps are from the same chromosome
+				no_of_combos2counter[no_of_combos].no_of_intrachr_pairs += 1
+				if u>=discard_perc:
+					snp_pair_dist = abs(snp1[1]-snp2[1])
+					no_of_combos2counter[no_of_combos].distance_ls.append(snp_pair_dist)
+			
+			if u>=discard_perc:
+				lowest_no_between_two_snps = min(counter_dict.values())
+				no_of_total_accessions = sum(counter_dict.values())
+				lowest_freq = lowest_no_between_two_snps/float(no_of_total_accessions)
+				no_of_combos2counter[no_of_combos].lowest_freq_ls.append(lowest_freq)
+				real_counter+=1
+			if debug and counter==50000:
+				break
+			if real_counter%5000==0:
+				sys.stderr.write("%s%s\t\t%s"%('\x08'*40, real_counter, counter))
+		del reader
+		sys.stderr.write("%s%s\t\t%s\n"%('\x08'*40, real_counter, counter))
+		
+		import pylab
+		for no_of_combos, counter_obj in no_of_combos2counter.iteritems():
+			no_of_total_pairs = counter_obj.no_of_interchr_pairs + counter_obj.no_of_intrachr_pairs
+			perc = counter_obj.no_of_interchr_pairs/float(no_of_total_pairs)
+			print '%s/%s=%.5f inter-chromosomal SNP pairs for pairs with %s combos'%(counter_obj.no_of_interchr_pairs, no_of_total_pairs, perc, no_of_combos)
+			pylab.clf()
+			pylab.title('Histogram of Intra-chromosal Dist For SNPPairs with %s combos'%no_of_combos)
+			pylab.ylabel('frequency')
+			pylab.hist(counter_obj.distance_ls, no_of_bins, alpha=0.5, normed=normed)
+			pylab.savefig('%s_%s_combos_discard_perc_%s_dist_hist.png'%\
+					  (output_fname_prefix, no_of_combos, discard_perc), dpi=300)
+			pylab.clf()
+			pylab.title('Histogram of Frequency of Least-freq Combo For SNPPairs with %s combos'%no_of_combos)
+			pylab.ylabel('frequency')
+			pylab.hist(counter_obj.lowest_freq_ls, no_of_bins, alpha=0.5, normed=normed)
+			pylab.savefig('%s_%s_combos_discard_perc_%s_lowest_freq_hist.png'%\
+					  (output_fname_prefix, no_of_combos, discard_perc), dpi=300)
 """
+input_fname = os.path.expanduser('~/panfs/250k/InterSNPCount/SNPpair_7_FT_22C.tsv')
+output_fname_prefix = os.path.expanduser('%s'%os.path.splitext(input_fname)[0])
+calSNPPairStats(input_fname, output_fname_prefix, discard_perc=0.4, no_of_bins=200, normed=True, debug=True)
+
+"""
+			
 
 class Trio(object):
 	"""
@@ -2305,10 +2570,12 @@ class Data2010(object):
 	
 	"""
 	
-	"""
-	2008-07-31
-	"""
+	@classmethod
 	def getFRIAlignment(cls, output_fname, alignment_id=1843):
+		"""
+		2008-07-31
+			output alignment in a format for DrawSNPMatrix.py to draw SNP matrix plot
+		"""
 		from variation.src.AtDB import AtDB, Sequence, Alignment
 		db = AtDB(hostname='localhost')
 		rows = Sequence.query.filter_by(alignment=alignment_id).order_by(Sequence.accession).all()
@@ -2345,13 +2612,193 @@ class Data2010(object):
 				one_row.append(base)
 			writer.writerow(one_row)
 		del writer
-	getFRIAlignment = classmethod(getFRIAlignment)
 	
 	"""
 	getFRIAlignment('/tmp/alignment_1843.fasta')
 	"""
-
+	
 class GWA(object):
+	
+	
+	"""
+	2009-4-29
+		check the distance between top genes and its most significant nearby SNP
+		top genes are partitioned into two categories, candidate and non-candidate 
+	"""
+	def cmpGeneSNPDistance(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, output_fname_prefix, \
+						min_score=3.5, no_of_top_lines=None):
+		
+		sys.stderr.write("Comparing %s %s %s ...\n"%(call_method_id, phenotype_method_id, analysis_method_id))
+		from GeneListRankTest import GeneListRankTest 
+		candidate_gene_list = GeneListRankTest.dealWithCandidateGeneList(list_type_id)
+		candidate_gene_set = set(candidate_gene_list)
+		
+		rm = Stock_250kDB.ResultsByGene.results_method
+		rbg = Stock_250kDB.ResultsByGene.query.filter(rm.has(call_method_id=call_method_id)).\
+				filter(rm.has(phenotype_method_id=phenotype_method_id)).filter(rm.has(analysis_method_id=analysis_method_id)).\
+				filter_by(min_distance=40000).filter_by(get_closest=0).first()
+		
+		result_fname = getattr(rbg, 'filename', None)
+		if result_fname is None or not os.path.isfile(result_fname):
+			sys.stderr.write("%s doesn't exist.\n"%result_fname)
+			return None
+		import csv
+		from pymodule import getColName2IndexFromHeader
+		reader = csv.reader(open(result_fname), delimiter='\t')
+		col_name2index = getColName2IndexFromHeader(reader.next())
+		candidate_gene_snp_dist_ls = []
+		non_candidate_gene_snp_dist_ls = []
+		counter = 0
+		no_of_candidate_genes = 0
+		no_of_touches = 0
+		for row in reader:
+			gene_id = int(row[col_name2index['gene_id']])
+			score = float(row[col_name2index['score']])
+			disp_pos = int(row[col_name2index['disp_pos']])
+			snps_id = int(row[col_name2index['snps_id']])
+			snps_context = Stock_250kDB.SnpsContext.query.filter_by(snps_id=snps_id).filter_by(gene_id=gene_id).first()
+			if snps_context.disp_pos_comment=='touch':	#touch, distance shall be zero
+				disp_pos = 0
+				no_of_touches += 1
+			if no_of_top_lines is None and score<min_score:
+				break
+			elif counter>no_of_top_lines:
+				break
+			if gene_id in candidate_gene_set:
+				candidate_gene_snp_dist_ls.append(abs(disp_pos))
+				no_of_candidate_genes += 1
+			else:
+				non_candidate_gene_snp_dist_ls.append(abs(disp_pos))
+			counter += 1
+			if counter%5000==0:
+				sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, no_of_touches))
+		sys.stderr.write("%s\t%s\t%s\n"%('\x08'*40, counter, no_of_touches))
+		
+		import pylab
+		pylab.clf()
+		n1 = pylab.hist(candidate_gene_snp_dist_ls, min(max(10, no_of_candidate_genes/10),20), alpha=0.4, normed=1)
+		n2 = pylab.hist(non_candidate_gene_snp_dist_ls, 20, alpha=0.4, normed=1, facecolor='r')
+		pylab.title("Histogram of SNP-gene dist Top %s %s"%(no_of_top_lines, rbg.short_name))
+		pylab.legend([n1[2][0], n2[2][0]], ['%s candidate genes'%no_of_candidate_genes, '%s non-candidate genes'%(counter-no_of_candidate_genes)])
+		pylab.xlabel("gene-SNP distance")
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		sys.stderr.write("Done.\n")
+		
+		
+	"""
+call_method_id = 32
+phenotype_method_id = 1
+analysis_method_id = 7
+list_type_id = 145
+no_of_top_lines = 10000
+output_fname_prefix = '/tmp/SNP_gene_dist_call_method_id_%s_phenotype_%s_analysis_%s_list_type_%s_Top%s'%\
+			(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, no_of_top_lines)
+cmpGeneSNPDistance(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, output_fname_prefix, no_of_top_lines=no_of_top_lines)
+for phenotype_method_id in range(1,8):
+	for analysis_method_id in [1,7]:
+		output_fname_prefix = '/tmp/SNP_gene_dist_call_method_id_%s_phenotype_%s_analysis_%s_list_type_%s_Top%s'%\
+			(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, no_of_top_lines)
+		cmpGeneSNPDistance(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, output_fname_prefix, no_of_top_lines=no_of_top_lines)		
+	"""
+	
+	"""
+	2009-4-29
+		check the number of SNPs per gene and see whether it's different between candidate and non-candidate 
+			top genes are partitioned into two categories, candidate and non-candidate 
+	"""
+	def checkNoOfSNPsPerGene(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, snps_context_wrapper, output_fname_prefix, \
+						min_score=3.5, no_of_top_lines=None):
+		sys.stderr.write("Checking %s %s %s ...\n"%(call_method_id, phenotype_method_id, analysis_method_id))
+		from GeneListRankTest import GeneListRankTest 
+		candidate_gene_list = GeneListRankTest.dealWithCandidateGeneList(list_type_id)
+		candidate_gene_set = set(candidate_gene_list)
+		
+		rm = Stock_250kDB.ResultsMethod.query.filter_by(call_method_id=call_method_id).\
+			filter_by(phenotype_method_id=phenotype_method_id).filter_by(analysis_method_id=analysis_method_id).\
+			filter_by(results_method_type_id=1).first()
+		
+		result_fname = getattr(rm, 'filename', None)
+		if result_fname is None or not os.path.isfile(result_fname):
+			sys.stderr.write("%s doesn't exist.\n"%result_fname)
+			return None
+		import csv
+		from pymodule import PassingData
+		genome_wide_result = GeneListRankTest.getResultMethodContent(rm, min_MAF=0.0)
+		
+		candidate_gene_snp_dist_ls = []
+		non_candidate_gene_snp_dist_ls = []
+		counter = 0
+		no_of_candidate_genes = 0
+		no_of_non_candidate_genes = 0
+		if genome_wide_result is None:
+			return None
+		candidate_gene_id2no_of_snps = {}
+		non_candidate_gene_id2no_of_snps = {}
+		counter = 0
+		for data_obj in genome_wide_result.data_obj_ls:
+			score = data_obj.value
+			snps_context_matrix = snps_context_wrapper.returnGeneLs(data_obj.chromosome, data_obj.position)
+			if score<min_score:
+				continue
+			for snps_context in snps_context_matrix:
+				snps_id, disp_pos, gene_id = snps_context
+				if gene_id in candidate_gene_set:
+					dc = candidate_gene_id2no_of_snps
+					no_of_candidate_genes += 1
+				else:
+					dc = non_candidate_gene_id2no_of_snps
+					no_of_non_candidate_genes += 1	
+				if gene_id not in dc:
+					dc[gene_id] = 0
+				dc[gene_id] += 1
+			counter += 1
+			if counter%5000==0:
+				sys.stderr.write("%s\t%s\t%s\t%s"%('\x08'*40, counter, no_of_candidate_genes, no_of_non_candidate_genes))
+		sys.stderr.write("%s\t%s\t%s\t%s\n"%('\x08'*40, counter, no_of_candidate_genes, no_of_non_candidate_genes))
+		import pylab
+		pylab.clf()
+		
+		#recalculate two counters below because previous calculations are not unique gene
+		no_of_candidate_genes = len(candidate_gene_id2no_of_snps)
+		no_of_non_candidate_genes = len(non_candidate_gene_id2no_of_snps)
+		n1 = pylab.hist(candidate_gene_id2no_of_snps.values(), min(max(10, no_of_candidate_genes/20),20), alpha=0.4, normed=1)
+		n2 = pylab.hist(non_candidate_gene_id2no_of_snps.values(), 20, alpha=0.4, normed=1, facecolor='r')
+		pylab.title("Histogram of #SNPs per gene (score>=%s) %s"%(min_score, rm.short_name))
+		pylab.legend([n1[2][0], n2[2][0]], ['%s candidate genes'%no_of_candidate_genes, '%s non-candidate genes'%(no_of_non_candidate_genes)])
+		pylab.xlabel("Number of SNPs per gene")
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		sys.stderr.write("Done.\n")
+	
+	
+	"""
+call_method_id = 32
+phenotype_method_id = 1
+analysis_method_id = 7
+list_type_id = 145
+min_score = 3
+output_fname_prefix = '/tmp/no_of_SNPs_per_gene_call_method_id_%s_phenotype_%s_analysis_%s_list_type_%s_min_score_%s'%\
+			(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, min_score)
+
+from GeneListRankTest import GeneListRankTest, SnpsContextWrapper
+min_distance = 40000
+get_closest = 0
+snps_context_picklef = '/Network/Data/250k/tmp-yh/snps_context/snps_context_g0_m40000'
+snps_context_wrapper = GeneListRankTest.dealWithSnpsContextWrapper(snps_context_picklef, min_distance, get_closest)
+
+checkNoOfSNPsPerGene(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, snps_context_wrapper, output_fname_prefix, min_score=min_score)
+for phenotype_method_id in range(1,8):
+	for analysis_method_id in [1,7]:
+		if analysis_method_id==1:
+			min_score = 5
+		else:
+			min_score = 3
+		output_fname_prefix = '/tmp/no_of_SNPs_per_gene_call_method_id_%s_phenotype_%s_analysis_%s_list_type_%s_min_score_%s'%\
+			(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, min_score)
+		checkNoOfSNPsPerGene(call_method_id, phenotype_method_id, analysis_method_id, list_type_id, snps_context_wrapper, output_fname_prefix, min_score=min_score)
+	"""
+	
 	def simulatePvalue(curs, snps_table, output_fname):
 		"""
 		2008-01-30
@@ -2434,10 +2881,11 @@ class GWA(object):
 		
 		AnalyzeTRANSFACHits_ins.cal_q_value_list(pvalue_ls, estimated_pi0, top_p_value_cutoff, output_fname_prefix)
 		
-	
-	results_id = 2318
-	output_fname_prefix = '/tmp/2318_FDR'
-	estimateFDRofGWA(results_id, output_fname_prefix)
+	"""
+results_id = 2318
+output_fname_prefix = '/tmp/2318_FDR'
+estimateFDRofGWA(results_id, output_fname_prefix)
+	"""
 	
 	"""
 	2008-01-04 upgrade it to output a specified beta or its pvalue
@@ -2562,7 +3010,6 @@ class GWA(object):
 	"""
 	2008-06-27 read in pvalues from a file
 	"""
-	pvalue_fname = '/Network/Data/250k/db/results/type_1/394_results.tsv'
 	def plot_maf_vs_pvalue(maf_vector, input_fname, do_log10_transformation=True):
 		from GenomeBrowser import GenomeBrowser
 		genome_wide_result = GenomeBrowser.getGenomeWideResultFromFile(input_fname, do_log10_transformation=do_log10_transformation)
@@ -2573,13 +3020,653 @@ class GWA(object):
 		pylab.show()
 	
 	"""
+pvalue_fname = '/Network/Data/250k/db/results/type_1/394_results.tsv'
+plot_maf_vs_pvalue(maf_vector, pvalue_fname)
+for i in range(389, 758):
+	pvalue_fname = '/Network/Data/250k/db/results/type_1/%s_results.tsv'%i
 	plot_maf_vs_pvalue(maf_vector, pvalue_fname)
-	for i in range(389, 758):
-		pvalue_fname = '/Network/Data/250k/db/results/type_1/%s_results.tsv'%i
-		plot_maf_vs_pvalue(maf_vector, pvalue_fname)
 	"""
+	
+	
+	@classmethod
+	def plotCmpEnrichmentOfTwoAnalysisMethods(cls, db, output_fname_prefix):
+		"""
+		2009-4-17
+			plot the enrichment ratios in each cell of the 2X2 partition between two analysis methods across all phenotypes
+		"""
+		import matplotlib
+		import pylab, numpy
+		pylab.clf()
+		#Stock_250kDB.CmpEnrichmentOfTwoAnalysisMethods
+		rows = db.metadata.bind.execute("select c.*, r.phenotype_method_id, r.call_method_id from %s c, %s r, %s p where c.results_id1=r.id and \
+								p.id=r.phenotype_method_id and p.biology_category_id=1 order by r.phenotype_method_id, c.r1_min_score"%\
+								(Stock_250kDB.CmpEnrichmentOfTwoAnalysisMethods.table.name, Stock_250kDB.ResultsMethod.table.name,\
+								Stock_250kDB.PhenotypeMethod.table.name))
+		axe_height = 0.2
+		ax1 = pylab.axes([0.1, 0.1, 0.8, axe_height], frameon=False)
+		axe_gap = 0.02
+		ax2 = pylab.axes([0.1, 0.1+axe_height+axe_gap, 0.8, axe_height], frameon=False, sharey=ax1)
+		ax3 = pylab.axes([0.1, 0.1+axe_height*2+axe_gap*2, 0.8, axe_height], frameon=False, sharey=ax1)
+		ax4 = pylab.axes([0.1, 0.1+axe_height*3+axe_gap*3, 0.8, axe_height], frameon=False, sharey=ax1)
+		non_significant_enrich_ratio_ls = []
+		emma_enrich_ratio_ls = []
+		kw_enrich_ratio_ls = []
+		double_enrich_ratio_ls = []
+		xlabel_ls = []
+		for row in rows:
+			if row.enrichment_ratio is None:
+				enrichment_ratio = 0
+			else:
+				enrichment_ratio = row.enrichment_ratio
+			if row.r1_max_score is None and row.r2_max_score is None:
+				pm = Stock_250kDB.PhenotypeMethod.get(row.phenotype_method_id)
+				xlabel_ls.append(pm.short_name)
+				double_enrich_ratio_ls.append(enrichment_ratio)
+			elif row.r1_max_score is None and row.r2_max_score is not None:
+				emma_enrich_ratio_ls.append(enrichment_ratio)
+			elif row.r1_max_score is not None and row.r2_max_score is None:
+				kw_enrich_ratio_ls.append(enrichment_ratio)
+			else:
+				non_significant_enrich_ratio_ls.append(enrichment_ratio)
+		N = len(xlabel_ls)
+		ind = numpy.arange(N)    # the x locations for the groups
+		width = 0.35       # the width of the bars: can also be len(x) sequenc
+		p1 = ax1.bar(ind, double_enrich_ratio_ls, width)
+		ax1.set_ylabel('double')
+		p2 = ax2.bar(ind, emma_enrich_ratio_ls, width)
+		ax2.set_ylabel('Emma')
+		p3 = ax3.bar(ind, kw_enrich_ratio_ls, width)
+		ax3.set_ylabel('KW')
+		p4 = ax4.bar(ind, non_significant_enrich_ratio_ls, width)
+		
+		ax1.set_xticks(ind+width/2.,  xlabel_ls)
+		ax1.set_ylim([0,5])
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+		pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
 
+	"""
+output_fname_prefix = '/tmp/enrich_ratio'
+plotCmpEnrichmentOfTwoAnalysisMethods(db_250k, output_fname_prefix)
+	"""
+	
+	@classmethod
+	def generateCommonSQLClause(cls, biology_category_id=1, threshold_type_id=12, type_id=56):
+		"""
+		2009-5-2
+			used by plot3DCmpEnrichmentOfTwoAnalysisMethods() + cmpRankAtThresholdOfTwoAnalysisMethods()
+		"""
+		common_sql_sentence = "from %s c, %s r, %s p where c.results_id1=r.id and c.type_id=%s and \
+							p.id=r.phenotype_method_id and p.biology_category_id=%s and c.threshold_type_id=%s order by \
+							r.phenotype_method_id, c.results_id1, c.results_id2, c.r1_min_score"%\
+							(Stock_250kDB.CmpEnrichmentOfTwoAnalysisMethods.table.name, Stock_250kDB.ResultsMethod.table.name,\
+							Stock_250kDB.PhenotypeMethod.table.name, type_id, biology_category_id, threshold_type_id)
+		return common_sql_sentence
+	
+	@classmethod
+	def plot3DCmpEnrichmentOfTwoAnalysisMethods(cls, db, biology_category_id=1, threshold_type_id=12, type_id=56, \
+											min_non_candidate_sample_size=20):
+		"""
+		2009-4-17
+			3D-version plot of plotCmpEnrichmentOfTwoAnalysisMethods 
+		"""
+		import matplotlib
+		import pylab, numpy
+		pylab.clf()
+		
+		#Stock_250kDB.CmpEnrichmentOfTwoAnalysisMethods
+		common_sql_sentence = cls.generateCommonSQLClause(biology_category_id, threshold_type_id, type_id)
+		
+		rows = db.metadata.bind.execute("select distinct r.phenotype_method_id %s"%common_sql_sentence)
+		no_of_phenotypes = rows.rowcount*2
+		
+		rows = db.metadata.bind.execute("select c.*, r.phenotype_method_id, r.call_method_id %s"%common_sql_sentence)
 
+		x, y = numpy.mgrid[0:2*no_of_phenotypes:1, 0:4:1]	#added a gap of 1 column between two phenotypes. one phenotype occupies two rows & two columns.
+		
+		#remove the gap in x & y
+		needed_index_ls = []
+		for i in range(0, no_of_phenotypes):
+			needed_index_ls.append(2*i)
+			#needed_index_ls.append(3*i+1)
+			#y[3*i+1][1]=2
+		x = x[needed_index_ls]
+		y = y[needed_index_ls]
+		enrichment_matrix = numpy.ones(x.shape, numpy.float)
+		
+		non_significant_enrich_ratio_ls = []
+		emma_enrich_ratio_ls = []
+		kw_enrich_ratio_ls = []
+		double_enrich_ratio_ls = []
+		xlabel_ls = []
+		i = 0	#
+		old_results_id_tuple = None
+		for row in rows:
+			results_id_tuple = (row.results_id1, row.results_id2)
+			if old_results_id_tuple == None:
+				old_results_id_tuple = results_id_tuple
+				pm = Stock_250kDB.PhenotypeMethod.get(row.phenotype_method_id)
+				xlabel_ls.append(pm.short_name)
+			elif old_results_id_tuple!=results_id_tuple:
+				i += 1
+				old_results_id_tuple = results_id_tuple
+				pm = Stock_250kDB.PhenotypeMethod.get(row.phenotype_method_id)
+				xlabel_ls.append(pm.short_name)
+			
+			if row.enrichment_ratio is None or row.non_candidate_sample_size<=min_non_candidate_sample_size:
+				enrichment_ratio = 1
+			else:
+				enrichment_ratio = row.enrichment_ratio
+				
+			if row.r1_max_score is None and row.r2_max_score is None:
+				enrichment_matrix[i, 3] = enrichment_ratio
+			elif row.r1_max_score is None and row.r2_max_score is not None:
+				enrichment_matrix[i, 2] = enrichment_ratio
+				#emma_enrich_ratio_ls.append(enrichment_ratio)
+			elif row.r1_max_score is not None and row.r2_max_score is None:
+				enrichment_matrix[i, 1] = enrichment_ratio
+				#kw_enrich_ratio_ls.append(enrichment_ratio)
+			else:
+				enrichment_matrix[i, 0] = enrichment_ratio
+				#non_significant_enrich_ratio_ls.append(enrichment_ratio)
+		
+		from enthought.mayavi import mlab
+		mlab.clf()
+		bar = mlab.barchart(x, y , enrichment_matrix, lateral_scale=0.8, opacity=1.)
+		#mlab.ylabel("KW")
+		#mlab.xlabel("Emma")
+		#mlab.zlabel("Enrichment Ratio")
+		from pymodule.DrawMatrix import get_font 
+		font = get_font()
+		
+		for i in range(len(xlabel_ls)):
+			label = xlabel_ls[i]
+			char_width, char_height = font.getsize(label)	#W is the the biggest(widest)
+			
+			mlab.text(2*i, 0, label, z=0, width=char_width/1500.)	#min(0.0075*len(label), 0.04))
+		
+		s = numpy.ones(x.shape, numpy.int)
+		surf = mlab.surf(x, y, s, opacity=0.6, extent=[-1, 2*no_of_phenotypes, -1, 4, 1.0, 1.0])
+		
+	
+	"""
+	biology_category_id = 1
+	threshold_type_id = 1
+	type_id = 57
+	min_non_candidate_sample_size = 10
+	output_fname_prefix = '/tmp/enrich_ratio_biology_category_id_%s_threshold_type_id_%s_type_id_%s'%(biology_category_id, threshold_type_id, type_id)
+	#GWA.cmpRankAtThresholdOfTwoAnalysisMethods(db_250k, output_fname_prefix, biology_category_id, threshold_type_id, type_id)
+	GWA.plot3DCmpEnrichmentOfTwoAnalysisMethods(db_250k, biology_category_id, threshold_type_id, type_id, min_non_candidate_sample_size)
+	"""
+	
+	
+	@classmethod
+	def cmpRankAtThresholdOfTwoAnalysisMethods(cls, db, output_fname_prefix, biology_category_id=1, threshold_type_id=12, type_id=56):
+		"""
+		2009-5-1
+		GWA based on two analysis methods are selected at different cutoffs to do enrichment.
+			this function looks at the pvalue rank at that cutoff (=number of SNPs above that cutoff) in different phenotypes.
+			to see how different two analysis methods differ in terms of that.
+			
+			an output table of all values allows further invesitgation of whether the number of SNPs above that cutoff
+			has any correlation with enrichment ratio or other correlations.
+		"""
+		sys.stderr.write("Comparing ...")
+		import matplotlib
+		import pylab, numpy
+		pylab.clf()
+		
+		#Stock_250kDB.CmpEnrichmentOfTwoAnalysisMethods
+		common_sql_sentence = cls.generateCommonSQLClause(biology_category_id, threshold_type_id, type_id)
+		
+		rows = db.metadata.bind.execute("select distinct r.phenotype_method_id %s"%common_sql_sentence)
+		no_of_phenotypes = rows.rowcount
+		
+		rows = db.metadata.bind.execute("select c.*, r.phenotype_method_id, r.call_method_id %s"%common_sql_sentence)
+		
+		x, y = numpy.mgrid[0:3*no_of_phenotypes:1, 0:2:1]	#added a gap of 1 column between two phenotypes. one phenotype occupies two rows & two columns.
+		
+		non_significant_enrich_ratio_ls = []
+		emma_enrich_ratio_ls = []
+		kw_enrich_ratio_ls = []
+		double_enrich_ratio_ls = []
+		
+		non_significant_sample_size_ls = []
+		emma_sample_size_ls = []
+		kw_sample_size_ls = []
+		double_sample_size_ls = []
+		xlabel_ls = []
+		i = 0	#
+		old_results_id_tuple = None
+		r1_threshold = None
+		r2_threshold = None
+		for row in rows:
+			results_id_tuple = (row.results_id1, row.results_id2)
+			if old_results_id_tuple == None:
+				old_results_id_tuple = results_id_tuple
+			elif old_results_id_tuple!=results_id_tuple:
+				i += 1
+				old_results_id_tuple = results_id_tuple
+			if row.candidate_sample_size is None:
+				candidate_sample_size = 0
+			else:
+				candidate_sample_size = row.candidate_sample_size
+				
+			if row.non_candidate_sample_size is None:
+				non_candidate_sample_size = 0
+			else:
+				non_candidate_sample_size = row.non_candidate_sample_size
+			if row.enrichment_ratio is None:
+				enrichment_ratio = 1
+			else:
+				enrichment_ratio = row.enrichment_ratio
+			
+			#if enrichment_ratio==0:
+			#	enrichment_ratio==0.01
+			sample_size = candidate_sample_size+non_candidate_sample_size
+			if row.r1_max_score is None and row.r2_max_score is None:
+				pm = Stock_250kDB.PhenotypeMethod.get(row.phenotype_method_id)
+				xlabel_ls.append(pm.short_name)
+				double_sample_size_ls.append(sample_size)
+				double_enrich_ratio_ls.append(enrichment_ratio)
+			elif row.r1_max_score is None and row.r2_max_score is not None:
+				emma_sample_size_ls.append(sample_size)
+				emma_enrich_ratio_ls.append(enrichment_ratio)
+			elif row.r1_max_score is not None and row.r2_max_score is None:
+				kw_sample_size_ls.append(sample_size)
+				kw_enrich_ratio_ls.append(enrichment_ratio)
+			else:
+				r1_threshold = row.r1_max_score
+				r2_threshold = row.r2_max_score
+				non_significant_sample_size_ls.append(sample_size)
+				non_significant_enrich_ratio_ls.append(enrichment_ratio)
+				#enrichment_matrix[2*i, 0] = enrichment_ratio
+		import numpy
+		double_sample_size_ls = numpy.array(double_sample_size_ls, numpy.float)
+		emma_sample_size_ls = numpy.array(emma_sample_size_ls, numpy.float)
+		kw_sample_size_ls = numpy.array(kw_sample_size_ls, numpy.float)
+		real_emma_sample_size_ls = emma_sample_size_ls + double_sample_size_ls
+		real_kw_sample_size_ls = kw_sample_size_ls + double_sample_size_ls
+		real_emma_div_kw_sample_size_ls = real_emma_sample_size_ls/real_kw_sample_size_ls
+		emma_div_kw_sample_size_ls = emma_sample_size_ls/kw_sample_size_ls
+		emma_div_kw_enrichment_ratio_ls = numpy.array(emma_enrich_ratio_ls)/numpy.array(kw_enrich_ratio_ls)
+		
+		#output a table for xy plot investigation
+		import csv
+		writer = csv.writer(open('%s.tsv'%output_fname_prefix, 'w'), delimiter='\t')
+		header = ['phenotype_name', 'phenotype_name', \
+				'double_sample_size', 'emma_only_sample_size', 'kw_only_sample_size', \
+				'emma_div_kw_sample_size', \
+				'real_emma_sample_size', 'real_kw_sample_size', 'real_emma_div_kw_sample_size', \
+				'double_enrich_ratio', 'emma_enrich_ratio', 'kw_enrich_ratio', 'emma_div_kw_enrichment_ratio']
+		writer.writerow(header)
+		for i in range(len(xlabel_ls)):
+			row = [xlabel_ls[i], xlabel_ls[i], double_sample_size_ls[i], emma_sample_size_ls[i], kw_sample_size_ls[i], emma_div_kw_sample_size_ls[i],\
+				real_emma_sample_size_ls[i], real_kw_sample_size_ls[i], real_emma_div_kw_sample_size_ls[i], 
+				double_enrich_ratio_ls[i],\
+				emma_enrich_ratio_ls[i], kw_enrich_ratio_ls[i], emma_div_kw_enrichment_ratio_ls[i]]
+			writer.writerow(row)
+		del writer
+		import pylab
+		pylab.clf()
+		n1 = pylab.hist(kw_sample_size_ls, 10, alpha=0.4)
+		n2 = pylab.hist(emma_sample_size_ls, 10, alpha=0.4, facecolor='r')
+		pylab.legend([n1[2][0], n2[2][0]], ['#SNPs above %s in KW'%r2_threshold, '#SNPs above %s in Emma'%r1_threshold])
+		pylab.xlabel("#SNPs above a threshold")
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+		#pylab.savefig('%s.svg'%output_fname_prefix, dpi=300)
+		sys.stderr.write("Done.\n")
+	
+	"""
+biology_category_id = 1
+output_fname_prefix = '/tmp/NoOfSNPsAboveThreshold_Flowering'
+GWA.cmpRankAtThresholdOfTwoAnalysisMethods(db_250k, output_fname_prefix, biology_category_id=biology_category_id)
+	"""
+	
+	def drawRandomEffectAndResidual(association_output, chromosome=None, position=None):
+		"""
+		2009-3-24
+			association_output is special output by Association.py with y-xb trailling in each row
+			get (u+\epsilon) = y-xb, in order to check its distribution
+		"""
+		import csv, pylab
+		reader = csv.reader(open(association_output), delimiter='\t')
+		for row in reader:
+			chr = int(row[0])
+			pos = int(row[1])
+			if chromosome is not None and position is not None and (chr!=chromosome or pos!=position):
+				continue
+			random_effect_residual_ls = row[8:]
+			random_effect_residual_ls = map(float, random_effect_residual_ls)
+			pylab.clf()
+			pylab.title('SNP %s %s mean=%s'%(row[0], row[1], pylab.mean(random_effect_residual_ls)))
+			pylab.hist(random_effect_residual_ls, 20)
+			pylab.show()
+			to_continue = raw_input("Conitnue? (Y/n)")
+			if to_continue=='n' or to_continue=='N':
+				break
+			_chromosome = raw_input("SNP chromosome: (%s)"%(chromosome))
+			if _chromosome:
+				chromosome = int(_chromosome)
+			_position = raw_input("SNP position: (%s)"%(position))
+			if _position:
+				position = int(_position)
+		del reader
+
+	"""
+association_output = os.path.expanduser('~/panfs/250k/association_results/call_method_29_y3_pheno_41_JIC4W.tsv')
+drawRandomEffectAndResidual(association_output)
+	"""
+	
+	@classmethod
+	def contrastPvalueFromTwoGWA(cls, input_fname1, input_fname2, output_fname_prefix, list_type_id=132):
+		"""
+		2009-7-8
+			contrast pvalue from two methods. each dot is a SNP. x-axis is one method. y-axis is the other.
+			output the figure to output_fname_prefix
+			
+			- for input_fname1,  do_log10_transformation=False
+			- for input_fname2,  do_log10_transformation=False
+		"""
+		
+		from pymodule import PassingData
+		from pymodule.SNP import getGenomeWideResultFromFile
+		import Stock_250kDB
+		from PlotCmpTwoAnalysisMethods import PlotCmpTwoAnalysisMethods
+		from GeneListRankTest import GeneListRankTest, SnpsContextWrapper
+		
+		param_data = PassingData(need_the_value=1, construct_chr_pos2index=True)
+		gwar1 = getGenomeWideResultFromFile(input_fname1, do_log10_transformation=False, pdata=param_data)
+		gwar2 = getGenomeWideResultFromFile(input_fname2, do_log10_transformation=False, pdata=param_data)
+		
+		genome_wide_result_ls = [gwar1, gwar2]
+		
+		#snps_context_wrapper is not to be used,
+		snps_context_picklef = '/Network/Data/250k/tmp-yh/snps_context/snps_context_g0_m5000'
+		snps_context_wrapper = PlotCmpTwoAnalysisMethods.dealWithSnpsContextWrapper(snps_context_picklef, min_distance=5000, get_closest=0)
+		candidate_gene_set = PlotCmpTwoAnalysisMethods.dealWithCandidateGeneList(list_type_id, return_set=True)
+		pvalue_matching_data = PlotCmpTwoAnalysisMethods.matchPvaluesFromTwoResults(genome_wide_result_ls, snps_context_wrapper, \
+																				candidate_gene_set)
+		import pylab
+		pylab.clf()
+		"""
+		pylab.subplots_adjust(left=0.08, right=0.92,bottom = 0.05)
+		#calculate the number of rows needed according to how many score_rank_data, always two-column
+		no_of_rows = 1
+		no_of_cols = 1
+		rm1, rm2 = rm_ls
+		ax_scatter_pvalue = pylab.subplot(no_of_rows, no_of_cols, 1, frameon=False)
+		"""
+		ax = pylab.axes([0.1, 0.1, 0.8,0.8], frameon=False)
+		rm1 = Stock_250kDB.ResultsMethod.get(3847)
+		rm2 = Stock_250kDB.ResultsMethod.get(3847)
+		rm_ls = [rm1, rm2]
+		PlotCmpTwoAnalysisMethods.plot_scatter(ax, pvalue_matching_data, rm_ls, data_type=2)
+		pylab.savefig('%s.png'%output_fname_prefix, dpi=300)
+		
+	"""
+from GeneListRankTest import GeneListRankTest, SnpsContextWrapper	#otherwise,  snps_context_wrapper = cPickle.load(picklef) won't work
+input_fname1 = '/Network/Data/250k/db/results/type_1/3847_results.tsv' #RF_Emwa1_32
+input_fname2 = '/Network/Data/250k/tmp-atarone/Adnane new analyses/One node 20K trees/RF_nT20K_10_Emwa1.imp'
+output_fname_prefix = '/tmp/RF_10k_vs_20k'
+GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, list_type_id=132)
+	"""
+	
+	@classmethod
+	def cofactorLM(cls, genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, cofactors=[],\
+					report=1, run_type=1):
+		"""
+		2009-8-26
+			run_type 1: pure linear model by python
+			run_type 2: EMMA
+			run_type 3: pure linear model by R (Field test shows run_type 3 is same as 1.)
+			
+			start_snp and end_snp are on the same chromosome
+		"""
+		sys.stderr.write("Running association (pure linear model or EMMA) with cofactor ... \n")
+		from Association import Association
+		
+		chromosome, start_pos = start_snp.split('_')[:2]
+		start_pos = int(start_pos)
+		stop_pos = int(stop_snp.split('_')[1])
+		
+				
+		eigen_vector_fname = ''
+		
+		test_type = 3 #Emma
+		initData = Association.readInData(phenotype_fname, genotype_fname, eigen_vector_fname, phenotype_method_id_ls, test_type=test_type)
+		
+		which_phenotype_index_ls = initData.which_phenotype_ls
+		environment_matrix = None
+		data_matrix = initData.snpData.data_matrix
+		min_data_point = 3
+		
+		#create an index list of cofactor SNPs
+		cofactors_indices = []
+		cofactors_set = set(cofactors)
+		for i in range(len(initData.snpData.col_id_ls)):
+			col_id = initData.snpData.col_id_ls[i]
+			if col_id in cofactors_set:
+				cofactors_indices.append(i)
+		
+		import numpy, rpy
+		rpy.r.source(os.path.expanduser('~/script/variation/src/gwa/emma/R/emma.R'))
+		for which_phenotype in which_phenotype_index_ls:
+			phenotype_name = initData.phenData.col_id_ls[which_phenotype]
+			phenotype_name = phenotype_name.replace('/', '_')	#'/' will be recognized as directory in output_fname
+			output_fname='%s_pheno_%s.tsv'%(os.path.splitext(output_fname_prefix)[0], phenotype_name)	#make up a new name corresponding to this phenotype
+			
+			#create non NA phenotype
+			phenotype_ls = initData.phenData.data_matrix[:, which_phenotype]
+			non_phenotype_NA_row_index_ls = []
+			non_NA_phenotype_ls = []
+			for i in range(len(phenotype_ls)):
+				if not numpy.isnan(phenotype_ls[i]):
+					non_phenotype_NA_row_index_ls.append(i)
+					non_NA_phenotype_ls.append(phenotype_ls[i])
+			
+			non_NA_phenotype_ar = numpy.array(non_NA_phenotype_ls)
+			new_data_matrix = data_matrix[non_phenotype_NA_row_index_ls,:]
+			if run_type==2:
+				kinship_matrix = Association.get_kinship_matrix(new_data_matrix)
+				eig_L = rpy.r.emma_eigen_L(None, kinship_matrix)	#to avoid repeating the computation of eig_L inside emma.REMLE
+			else:
+				kinship_matrix = None
+				eig_L = None
+
+			no_of_rows, no_of_cols = new_data_matrix.shape
+			results = []
+			counter = 0
+			real_counter = 0
+			
+			#create the cofactor matrix based on new SNP data matrix
+			if len(cofactors_indices)>0:
+				cofactor_data_matrix = new_data_matrix[:, cofactors_indices]
+			else:
+				cofactor_data_matrix = None
+			
+			#do association
+			for j in range(no_of_cols):
+				col_id = initData.snpData.col_id_ls[j]
+				if col_id not in cofactors_set:	#same SNP appearing twice would cause singular design matrix
+					chr, pos = col_id.split('_')[:2]
+					pos = int(pos)
+					if chr==chromosome and pos>=start_pos and pos<=stop_pos:
+						genotype_matrix = new_data_matrix[:,j]
+						if cofactor_data_matrix is not None:
+							genotype_matrix = genotype_matrix.reshape([len(genotype_matrix), 1])
+							genotype_matrix = numpy.hstack((genotype_matrix, cofactor_data_matrix))
+						pdata = Association.linear_model(genotype_matrix, non_NA_phenotype_ls, min_data_point, snp_index=j, \
+												kinship_matrix=kinship_matrix, eig_L=eig_L, run_type=run_type)
+						if pdata is not None:
+							results.append(pdata)
+							real_counter += 1
+				counter += 1
+				if report and counter%2000==0:
+					sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, real_counter))
+			if report:
+				sys.stderr.write("%s\t%s\t%s\n"%('\x08'*40, counter, real_counter))
+			
+			#output
+			Association.output_lm_results(results, initData.snpData.col_id_ls, output_fname)
+		
+		sys.stderr.write("Done.\n")
+	
+	"""
+	genotype_fname = '/Network/Data/250k/tmp-yh/250k_data/call_method_17_test.tsv'
+	phenotype_fname = '/Network/Data/250k/tmp-yh/phenotype.tsv'
+	phenotype_method_id_ls = [43]
+	output_fname_prefix = '/tmp/cofactorLM.tsv'
+	start_snp = '1_2005921'
+	stop_snp = '1_20054408'
+	cofactors = ['1_3832974']
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, cofactors=cofactors)
+	
+	genotype_fname = '/Network/Data/250k/db/dataset/call_method_32.tsv'
+	phenotype_fname = '/Network/Data/250k/tmp-yh/phenotype.tsv'
+	phenotype_fname = '/tmp/phenotype_43_FLC.tsv'
+	phenotype_method_id_ls = [43]
+	start_snp = '4_1'
+	stop_snp = '4_1750000'
+					
+	run_type = 2
+	cofactors = ['4_268809']
+	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s_Cofactor_%s.tsv'%(run_type, start_snp, stop_snp, cofactors[0])
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+					cofactors=cofactors, run_type=run_type)
+	
+	cofactors = ['4_269962']
+	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s_Cofactor_%s.tsv'%(run_type, start_snp, stop_snp, cofactors[0])
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+					cofactors=cofactors, run_type=run_type)
+	
+	cofactors = ['4_268809', '4_269962']
+	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s_Cofactor_%s_%s.tsv'%(run_type, start_snp, stop_snp, cofactors[0], cofactors[1])
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+					cofactors=cofactors, run_type=run_type)
+	
+	
+	run_type = 1
+	cofactors = ['4_268809']
+	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s_Cofactor_%s.tsv'%(run_type, start_snp, stop_snp, cofactors[0])
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+					cofactors=cofactors, run_type=run_type)
+	
+	cofactors = ['4_269962']
+	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s_Cofactor_%s.tsv'%(run_type, start_snp, stop_snp, cofactors[0])
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+					cofactors=cofactors, run_type=run_type)
+	
+	cofactors = ['4_268809', '4_269962']
+	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s_Cofactor_%s_%s.tsv'%(run_type, start_snp, stop_snp, cofactors[0], cofactors[1])
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+					cofactors=cofactors, run_type=run_type)
+	
+	run_type =3
+	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s.tsv'%(run_type, start_snp, stop_snp)
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+					cofactors=[], run_type=run_type)
+	"""
+	
+	@classmethod
+	def phenotypePCA(cls, db, phenotype_fname, output_fname_prefix):
+		"""
+		2009-9-1
+			Run PCA on the phenotype matrix either ecotype-wise or phenotype-wise.
+			
+			output the data in a matrix fashion that the web MotionChartAppMCPanel app would recognize 
+		"""
+		from pymodule import read_data, SNPData
+		import numpy, csv
+		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(phenotype_fname, turn_into_integer=2, matrix_data_type=float)
+		data_matrix_phen = numpy.array(data_matrix_phen)
+		phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, category_list=category_list_phen, \
+						data_matrix=data_matrix_phen)
+		
+		
+		min_data_point = 4
+		sys.stderr.write("Removing ecotypes with too few phenotype points (<%s) ..."%min_data_point)
+		import pca_module
+		rows_to_be_kept = []
+		row_labels = []
+		for i in range(len(phenData.row_id_ls)):
+			row_id = phenData.row_id_ls[i]
+			
+			no_of_valid_points = sum(numpy.isfinite(phenData.data_matrix[i,:]))
+			if no_of_valid_points>=min_data_point:
+				rows_to_be_kept.append(row_id)
+				row_labels.append('%s %s'%(row_id[1], row_id[0]))
+		filteredPhenData = SNPData.keepRowsByRowID(phenData, rows_to_be_kept)
+			#order in rows_to_be_kept is kept because it's in the same order as phenData.row_id_ls
+		phenData = filteredPhenData
+		sys.stderr.write("Done.\n")
+		
+		phenData_trans = SNPData(row_id_ls=phenData.col_id_ls, col_id_ls=phenData.row_id_ls, \
+								data_matrix=numpy.transpose(phenData.data_matrix))
+		
+		sys.stderr.write("Carrying out phenotype-wise PCA ...")
+		# phenotype-wise PCA
+		import Stock_250kDB 
+		phenotypePCA_fname = '%s_phenotype.tsv'%output_fname_prefix
+		phenotypePCA_writer = csv.writer(open(phenotypePCA_fname, 'w'), delimiter='\t')
+		
+		import pca_module
+		from pymodule.PCA import PCA
+		#T, P, explained_var = pca_module.PCA_svd(phenData_trans.data_matrix, standardize=True)
+		T, P, explained_var = PCA.eig(phenData_trans.data_matrix, normalize=False)	#normalize=True causes missing value in the covariance matrix
+		# get the category information for each phenotype
+		header = ['phenotype_label', 'category|string', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6']
+		phenotypePCA_writer.writerow(header)
+		for i in range(len(phenData_trans.row_id_ls)):
+			row_id = phenData_trans.row_id_ls[i]
+			row_id_tuple = row_id.split('_')
+			phenotype_method_id=int(row_id_tuple[0])
+			pm = Stock_250kDB.PhenotypeMethod.get(phenotype_method_id)
+			if pm.biology_category:
+				category = pm.biology_category.short_name
+			else:
+				category = 'other'
+			data_row = [row_id, category] + list(T[i,0:6])
+			phenotypePCA_writer.writerow(data_row)
+		del phenotypePCA_writer
+		sys.stderr.write("Done.\n")
+		
+		sys.stderr.write("Carrying out ecotype-wise PCA ... \n")
+		# ecotype-wise PCA
+		
+		# run PCA
+		#T, P, explained_var = pca_module.PCA_svd(phenData.data_matrix, standardize=True)	#SVD doesn't converge
+		T, P, explained_var = PCA.eig(phenData.data_matrix, normalize=False)	#normalize=True gives rise to missing value in the covariance matrix
+		from common import getEcotypeInfo
+		ecotype_info = getEcotypeInfo(db)
+		
+		# output
+		ecotypePCA_fname = '%s_ecotype.tsv'%output_fname_prefix
+		ecotypePCA_writer = csv.writer(open(ecotypePCA_fname, 'w'), delimiter='\t')
+		header = ['ecotype_label', 'region|string', 'country|string', 'lat', 'lon', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6']
+		ecotypePCA_writer.writerow(header)
+		for i in range(len(row_labels)):
+			row_label = row_labels[i]
+			ecotype_id = int(rows_to_be_kept[i][0])
+			ecotype_obj = ecotype_info.ecotype_id2ecotype_obj.get(ecotype_id)
+			if ecotype_obj is not None:
+				region = ecotype_obj.region
+				country = ecotype_obj.country
+				lat = ecotype_obj.latitude
+				lon = ecotype_obj.longitude
+			else:
+				region, country, lat, long = None, None, None, None
+			data_row = [row_label, region, country, lat, lon] + list(T[i,0:6])
+			ecotypePCA_writer.writerow(data_row)
+		del ecotypePCA_writer
+		sys.stderr.write("Done.\n")
+	
+	"""
+	phenotype_fname = os.path.expanduser('~/mnt/panfs/250k/phenotype20090902.tsv')
+	output_fname_prefix = '/tmp/phenotypePCA'
+	GWA.phenotypePCA(db_250k, phenotype_fname, output_fname_prefix)
+	"""
+	
+	
 class FileFormatExchange(object):
 	"""
 	2008-03-18
@@ -2658,10 +3745,12 @@ class FileFormatExchange(object):
 	"""
 	
 	
-	"""
-	2008-08-04 investigate whether throwing off some rows help to increase significance
-	"""
+
+	@classmethod
 	def removeRowsBasedOnSNPAllele(input_fname, output_fname, SNP_label, allele='-'):
+		"""
+		2008-08-04 investigate whether throwing off some rows help to increase significance
+		"""
 		from pymodule import read_data, write_data_matrix, nt2number
 		header, strain_acc_list, category_list, data_matrix = read_data(input_fname, turn_into_integer=1)
 		snp_acc_ls = header[2:]
@@ -2679,37 +3768,38 @@ class FileFormatExchange(object):
 		write_data_matrix(data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=rows_to_be_tossed_out)
 	
 	"""
-	input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.tsv')
-	output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_2.tsv')
-	SNP_label = '4_268809_0'
-	removeRowsBasedOnSNPAllele(input_fname, output_fname, SNP_label, allele='-')
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_2.tsv')
+SNP_label = '4_268809_0'
+FileFormatExchange.removeRowsBasedOnSNPAllele(input_fname, output_fname, SNP_label, allele='-')
 	"""
 	
-	
-	"""
-	2008-08-05
-		NPUTE can't work with SNPs with >2 alleles
-	"""
-	def removeSNPsWithMoreThan2Alleles(input_fname, output_fname):
+	@classmethod
+	def removeSNPsWithMoreThan2Alleles(cls, input_fname, output_fname):
+		"""
+		2008-08-05
+			NPUTE can't work with SNPs with >2 alleles
+		"""
 		from pymodule import SNPData
 		snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1)
 		newSNPData = snpData.removeSNPsWithMoreThan2Alleles(snpData)
 		newSNPData.tofile(output_fname)
 	
 	"""
-	input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.tsv')
-	output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_only_2_alleles.tsv')
-	removeSNPsWithMoreThan2Alleles(input_fname, output_fname)
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix_only_2_alleles.tsv')
+FileFormatExchange.removeSNPsWithMoreThan2Alleles(input_fname, output_fname)
 	"""
 	
 	
-	"""
-	2008-08-05
-		NPUTE output format is SNPXStrain by and large.
-			1st and 2nd column are same as input's 1st row. 1st row is input's 1st column. 2nd row is input's 2nd column.
-		
-	"""
-	def turnNPUTEOutputIntoYuFormat(input_fname, output_fname):
+	@classmethod
+	def turnNPUTEOutputIntoYuFormat(cls, input_fname, output_fname):
+		"""
+		2008-08-05
+			NPUTE output format is SNPXStrain by and large.
+				1st and 2nd column are same as input's 1st row. 1st row is input's 1st column. 2nd row is input's 2nd column.
+			
+		"""
 		from pymodule import SNPData
 		snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1, double_header=1, ignore_2nd_column=1)
 		snpData.col_id_ls = snpData.header[0][2:]	#take the first header
@@ -2720,15 +3810,21 @@ class FileFormatExchange(object):
 		newSNPData.category_list = snpData.header[1][2:]
 		newSNPData.tofile(output_fname)
 	"""
-	input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.NPUTE.tsv')
-	output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.NPUTE.yh.tsv')
-	turnNPUTEOutputIntoYuFormat(input_fname, output_fname)
+input_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.NPUTE.tsv')
+output_fname = os.path.expanduser('~/script/variation/doc/FRI/alignment_1843_matrix.NPUTE.yh.tsv')
+FileFormatExchange.turnNPUTEOutputIntoYuFormat(input_fname, output_fname)
+
+input_fname = os.path.expanduser('~/script/variation/data/ACD6/snp_matrix.84_1530.impute.tsv')
+output_fname = os.path.expanduser('~/script/variation/data/ACD6/snp_matrix.84_1530.impute.Yu.format.tsv')
+FileFormatExchange.turnNPUTEOutputIntoYuFormat(input_fname, output_fname)
 	"""
 	
-	"""
-	2008-12-15 output a chromosome region of the SNP matrix
-	"""
-	def outputSNPmatrixGivenRegion(snpData, output_fname, chr, start_pos, stop_pos):
+
+	@classmethod
+	def outputSNPmatrixGivenRegion(cls, snpData, output_fname, chr, start_pos, stop_pos):
+		"""
+		2008-12-15 output a chromosome region of the SNP matrix
+		"""
 		sys.stderr.write("Outputting a selected region of SNP matrix ...")
 		from pymodule import read_data, write_data_matrix, nt2number
 		#header, strain_acc_list, category_list, data_matrix = read_data(input_fname, turn_into_integer=1)
@@ -2744,16 +3840,17 @@ class FileFormatExchange(object):
 		
 		write_data_matrix(snpData.data_matrix, output_fname, snpData.header, snpData.strain_acc_list, snpData.category_list, cols_to_be_tossed_out=cols_to_be_tossed_out)
 	
-	input_fname= '/Network/Data/250k/tmp-yh/call_method_17.tsv'
-	from pymodule import SNPData
-	snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1)
-	chr=4
-	start_pos=100000
-	stop_pos=700000
-	output_fname = '/Network/Data/250k/tmp-yh/250k_data/call_method_17_chr%s_%s_%s.tsv'%(chr, start_pos, stop_pos)
-	outputSNPmatrixGivenRegion(snpData, output_fname, chr, start_pos, stop_pos)
-	
-	
+	"""
+input_fname= '/Network/Data/250k/tmp-yh/call_method_17.tsv'
+from pymodule import SNPData
+snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1)
+chr=4
+start_pos=100000
+stop_pos=700000
+output_fname = '/Network/Data/250k/tmp-yh/250k_data/call_method_17_chr%s_%s_%s.tsv'%(chr, start_pos, stop_pos)
+FileFormatExchange.outputSNPmatrixGivenRegion(snpData, output_fname, chr, start_pos, stop_pos)
+	"""
+
 	def reduce250kOnlyToCertainSNPs(cls, snp_id_ls):
 		#2008-10-07 form a smaller 250k test dataset for PlotGroupOfSNPs.py, snp_id_ls is the top 200 snps from (KW,LD)
 		
@@ -2769,12 +3866,15 @@ class FileFormatExchange(object):
 				col_index_to_be_tossed_set.add(col_index)
 		write_data_matrix(snpData.data_matrix, output_fname, snpData.header, snpData.strain_acc_list, snpData.category_list, 
 						rows_to_be_tossed_out=None, cols_to_be_tossed_out=col_index_to_be_tossed_set)
-	reduce250kOnlyToCertainSNPs = classmethod(reduce250kOnlyToCertainSNPs)
+	"""
+FileFormatExchange.reduce250kOnlyToCertainSNPs = classmethod(reduce250kOnlyToCertainSNPs)
+	"""
 	
 	"""
 	2007-03-28
 	"""
-	def strip_2010_strain_info(input_fname, output_fname):
+	@classmethod
+	def strip_2010_strain_info(cls, input_fname, output_fname):
 		import csv
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		#skip the 1st two sentences
@@ -2788,7 +3888,7 @@ class FileFormatExchange(object):
 		del reader, writer
 	
 	"""
-	strip_2010_strain_info('./script/variation/data/2010/2010_strain_info.csv', './script/variation/data/2010/2010_strain_info_stripped.csv')
+FileFormatExchange.strip_2010_strain_info('./script/variation/data/2010/2010_strain_info.csv', './script/variation/data/2010/2010_strain_info_stripped.csv')
 	"""
 	
 	"""
@@ -2839,12 +3939,62 @@ class FileFormatExchange(object):
 	reformat_data_for_chris(curs, '../data/justin_data_filtered.csv', '../data/justin_data_filtered_for_chris.csv', 'snp_locus')
 	"""
 
+
+	@classmethod
+	def removeRowsBasedOnPhenotypeValue(input_fname, phenotype_fname, phenotype_method_id, output_fname, min_pheno_value=None, max_pheno_value=None):
+		"""
+		2009-4-13 investigate whether throwing off some rows help to increase significance.
+			similar purpose to removeRowsBasedOnSNPAllele()
+			throw away accessions whose phenotypes are not in the phenotype range specified
+		"""
+		from pymodule import read_data, write_data_matrix, SNPData
+		header, strain_acc_list, category_list, data_matrix = read_data(input_fname, turn_into_integer=1)
+		
+		snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
+						data_matrix=data_matrix)
+		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(phenotype_fname, turn_into_integer=0)
+		from variation.src.Association import Association
+		data_matrix_phen = Association.get_phenotype_matrix_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen)
+		phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)
+		
+		from variation.src.PlotGroupOfSNPs import PlotGroupOfSNPs
+		which_phenotype_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, set([phenotype_method_id]))
+		which_phenotype = which_phenotype_ls[0]
+		
+		import numpy
+		rows_to_be_tossed_out = set()
+		for i in range(len(phenData.data_matrix)):
+			phenotype_value = phenData.data_matrix[i][which_phenotype]
+			if numpy.isnan(phenotype_value):
+				rows_to_be_tossed_out.add(i)
+				continue
+			
+			if min_pheno_value is not None and phenotype_value<min_pheno_value:
+				rows_to_be_tossed_out.add(i)
+				continue
+			if max_pheno_value is not None and phenotype_value>max_pheno_value:
+				rows_to_be_tossed_out.add(i)
+				continue
+		
+		write_data_matrix(data_matrix, output_fname, header, strain_acc_list, category_list, rows_to_be_tossed_out=rows_to_be_tossed_out)
+		
+	"""
+input_fname='/Network/Data/250k/tmp-yh/250k_data/call_method_17_test.tsv'
+input_fname='/Network/Data/250k/tmp-yh/250k_data/call_method_29.tsv'
+phenotype_fname='/Network/Data/250k/tmp-yh/phenotype_no_transform.tsv'
+phenotype_method_id=44
+min_pheno_value = 0.45
+output_fname = '/tmp/call_method_29_pheno_id_%s_above_%s.tsv'%(phenotype_method_id, min_pheno_value)
+FileFormatExchange.removeRowsBasedOnPhenotypeValue(input_fname, phenotype_fname, phenotype_method_id, output_fname, min_pheno_value)
+	"""
+	
 class Data250k(object):
 	"""
 	2008-08-16
 		check if the array_ids and ecotype_ids in call files generated by bjarni match the ones in db
 	"""
-	def checkBjarniFile(input_fname, curs):
+	@classmethod
+	def checkBjarniFile(cls, input_fname, curs):
 		import csv
 		reader = csv.reader(open(input_fname))
 		array_id_ls = reader.next()[2:]
@@ -2898,11 +4048,12 @@ class Data250k(object):
 							data_matrix=data_matrix)
 		newSNPData.tofile(output_fname)
 	
-	
-	input_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919_3_FRI_del_no_array_id.tsv')
-	data_with_array_id_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919.tsv')
-	output_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919_3_FRI_del.tsv')
-	recoverArrayID2ndCol(input_fname, data_with_array_id_fname, output_fname)
+	"""
+input_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919_3_FRI_del_no_array_id.tsv')
+data_with_array_id_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919.tsv')
+output_fname = os.path.expanduser('~/panfs/NPUTE_data/input/250k_l3_y.85_uniq_ecotype_20080919_3_FRI_del.tsv')
+recoverArrayID2ndCol(input_fname, data_with_array_id_fname, output_fname)
+	"""
 	
 	def chooseFirst96(input_fname, db, output_fname):
 		"""
@@ -2920,11 +4071,117 @@ class Data250k(object):
 		rows_to_be_tossed_out = set(range(len(snp_data.row_id_ls))) - rows_to_be_preserved
 		snp_data.tofile(output_fname, rows_to_be_tossed_out=rows_to_be_tossed_out)
 	
+	"""
+input_fname = os.path.expanduser('~/panfs/250k/call_method_29.tsv')
+output_fname = os.path.expanduser('~/panfs/250k/call_method_29_only96.tsv')
+chooseFirst96(input_fname, db_250k, output_fname)
+	"""
 	
-	input_fname = os.path.expanduser('~/panfs/250k/call_method_29.tsv')
-	output_fname = os.path.expanduser('~/panfs/250k/call_method_29_only96.tsv')
-	chooseFirst96(input_fname, db_250k, output_fname)
+	def filterGWAToRetainSegregatingSNPs(db_250k, call_method_id, phenotype_method_id, analysis_method_id, snpData, \
+										 ecotype_id1, ecotype_id2, output_fname):
+		"""
+		2009-3-12
+			read in a GWA result, and its affiliated genotype matrix
+			and retain SNPs in GWA result that are segregating between ecotypes
+		"""
+		gwar = db_250k.getGWA(call_method_id, phenotype_method_id, analysis_method_id)
+		row_index1 = snpData.row_id2row_index[str(ecotype_id1)]
+		row_index2 = snpData.row_id2row_index[str(ecotype_id2)]
+		
+		import csv
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		writer.writerow(['chromosome', 'position', 'pvalue'])
+		for data_obj in gwar.data_obj_ls:
+			snp_id = '%s_%s'%(data_obj.chromosome, data_obj.position)
+			col_index = snpData.col_id2col_index[snp_id]
+			allele1 = snpData.data_matrix[row_index1][col_index]
+			allele2 = snpData.data_matrix[row_index2][col_index]
+			if allele1!=allele2:
+				writer.writerow([data_obj.chromosome, data_obj.position, data_obj.value])
+		del writer
 
+	"""
+call_method_id = 29
+phenotype_method_id=1
+analysis_method_id=7
+ecotype_id1=6917	'Fab-2'
+ecotype_id2=6904	'Br-0'
+output_fname = '/tmp/gwa_call_%s_phenotype_%s_analysis_%s_segregating_in_%s_%s.tsv'%(call_method_id, phenotype_method_id, analysis_method_id, ecotype_id1, ecotype_id2)
+snpData = db_250k.getSNPMatrix(call_method_id)
+filterGWAToRetainSegregatingSNPs(db_250k, call_method_id, phenotype_method_id, analysis_method_id, snpData, ecotype_id1, ecotype_id2, output_fname)
+	"""
+	
+	@classmethod
+	def choose192OutOf250k(cls, input_fname, fname_with_192_ids, output_fname):
+		"""
+		2009-3-27
+			retain 250k data that are only from "192 accessions" (actually 199), later the new output_fname would be used for db import.
+			fname_with_192_ids is "192_accessions_031009.csv" emailed from bjarni. coma delimited, 1st column is ecotype id.
+		"""
+		from pymodule import SNPData
+		import csv
+		reader = csv.reader(open(fname_with_192_ids), delimiter=',')
+		reader.next()	#toss the header
+		ecotype_set_192 = set()
+		for row in reader:
+			ecotype_set_192.add(row[0])
+		del reader
+		
+		snp_data = SNPData(input_fname=input_fname, turn_into_array=1)	#2nd column array id is also needed
+		
+		rows_to_be_tossed_out = set()
+		for row_id in snp_data.row_id_ls:
+			ecotype_id = row_id[0]	#1st column is ecotype_id, 2nd is array id
+			if ecotype_id not in ecotype_set_192:
+				rows_to_be_tossed_out.add(snp_data.row_id2row_index[row_id])
+		snp_data.tofile(output_fname, rows_to_be_tossed_out=rows_to_be_tossed_out)
+
+
+	"""
+input_fname = '/Network/Data/250k/db/dataset/call_method_29.tsv'
+fname_with_192_ids = '/tmp/192_accessions_031009.csv'
+output_fname = '/tmp/call_method_29_with_192_accession.tsv'
+Data250k.choose192OutOf250k(input_fname, fname_with_192_ids, output_fname)
+	"""
+	
+	@classmethod
+	def filterCallMethod1ToHaveSameArraysAsCallMethod2(cls, call_method_id1, call_method_id2, output_fname):
+		"""
+		2009-5-19
+			 generate a new snp dataset based on call_method_id1 but without the arrays that are not in call_method_id2
+		"""
+		import Stock_250kDB
+		call_method1 = Stock_250kDB.CallMethod.get(call_method_id1)
+		call_method2 = Stock_250kDB.CallMethod.get(call_method_id2)
+		from pymodule import SNPData
+		snpData1 = SNPData(input_fname=call_method1.filename, turn_into_array=1)
+		
+		sys.stderr.write("Selecting overlapping arrays ...")
+		array_id_in_call_method2_set = set()
+		for call_info in call_method2.call_info_ls:
+			array_id_in_call_method2_set.add(call_info.array_id)
+		
+		#print array_id_in_call_method2_set
+		
+		row_id_wanted_ls = []
+		for row_id in snpData1.row_id_ls:
+			array_id = int(row_id[1])
+			if array_id in array_id_in_call_method2_set:
+				row_id_wanted_ls.append(row_id)
+		#print row_id_wanted_ls
+		sys.stderr.write("Done.\n")
+		
+		newSNPData = SNPData.keepRowsByRowID(snpData1, row_id_wanted_ls)
+		newSNPData.tofile(output_fname)
+		del newSNPData
+		del snpData1
+	
+	"""
+call_method_id1 = 34
+call_method_id2 = 33
+output_fname = '/tmp/call_method_%s_arrays_from_%s.tsv'%(call_method_id1, call_method_id2)
+Data250k.filterCallMethod1ToHaveSameArraysAsCallMethod2(call_method_id1, call_method_id2, output_fname)
+	"""
 	
 class BooleanInteraction(object):
 	
@@ -2950,7 +4207,8 @@ class BooleanInteraction(object):
 			new_snp_allele2index[snp_allele_ls[snp_index]] = -i-1
 		return new_snp_allele2index
 	
-	def booleanMergeSNPs(input_fname, output_fname, SNP_label1, SNP_label2, operator_type=1):	#1 is and, 2 is or
+	@classmethod
+	def booleanMergeSNPs(cls, input_fname, output_fname, SNP_label1, SNP_label2, operator_type=1):	#1 is and, 2 is or
 		"""
 		2008-08-05
 			alleles not in the top 2 are taken as NA. major allele is coded as 0. minor allele is coded as 1.
@@ -3024,29 +4282,15 @@ class BooleanInteraction(object):
 	booleanMergeSNPs(input_fname, output_fname, SNP_label1, SNP_label3, operator_type=2)
 	"""
 	
-	"""
-	2009-1-25
-		input_fname is output of MpiIntraGeneSNPPairAsso.py or MpiInterGeneSNPPairAsso.py or MpiInterSNPPairAsso.py
-		
-		separate one snp-pairwise association results into single-SNP GWA files according to the snp1_id.
-	"""
 	
-	def outputRow(writer, row):
-		snp1_id, gene1_id, snp2_id, gene2_id, bool_type, pvalue, count1, count2 = row[:8]
-		chr, pos = snp2_id.split('_')
-		count1 = int(count1)
-		count2 = int(count2)
-		mac = min(count1, count2)
-		maf = float(mac)/(count1+count2)
-		row = [chr, pos, pvalue, maf, mac, bool_type]
-		writer.writerow(row)
-	
-	def outputBooleanPairIntoGWAFormat(input_fname, output_dir, pos_index=1, need_beta=True, min_value_cutoff=None, do_log10_transformation=False):
+	@classmethod
+	def handleMostSignificantOperatorPerSNPPair(cls, input_fname, function_handler, param_obj):
+		"""
+		2009-2-19
+			a general function which calls function_handler to do a bit processing for the most significant operator of each SNP pair.
+				(results from the same SNP pair are always cluttered together.)
+		"""
 		import csv
-		if not os.path.isdir(output_dir):
-			os.makedirs(output_dir)
-		snp_id2writer = {}	#each SNP1_ID would have a separate file for results from all SNPs that tested with that SNP
-		header = ['chromosome', 'position', 'score', 'MAF', 'MAC', 'genotype_var_perc', 'beta0']
 		reader = csv.reader(open(input_fname), delimiter='\t')
 		reader.next()
 		prev_snp2_id = None
@@ -3054,14 +4298,13 @@ class BooleanInteraction(object):
 		min_pvalue = None
 		row_with_min_pvalue = None
 		i = 0
-		input_fname_basename = os.path.splitext(os.path.basename(input_fname))[0]
+		#input_fname_basename = os.path.splitext(os.path.basename(input_fname))[0]	#function calls this general function should supply this
+		#param_obj.input_fname_basename = input_fname_basename
+		counter = 0
+		real_counter = 0
 		for row in reader:
 			snp1_id, gene1_id, snp2_id, gene2_id, bool_type, pvalue, count1, count2 = row[:8]
-			if snp1_id not in snp_id2writer:
-				output_fname = os.path.join(output_dir, '%s_vs_%s.tsv'%(input_fname_basename, snp1_id))
-				writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-				writer.writerow(header)
-				snp_id2writer[snp1_id] = writer
+			counter += 1
 			pvalue = float(pvalue)
 			if prev_snp2_id is None:	#first snp2
 				prev_snp1_id = snp1_id
@@ -3076,21 +4319,307 @@ class BooleanInteraction(object):
 			else:	#new pairs
 				i = 0
 				prev_snp1_id = row_with_min_pvalue[0]
-				writer = snp_id2writer[prev_snp1_id]
-				outputRow(writer, row_with_min_pvalue)
-				
+				function_handler(row_with_min_pvalue, param_obj)
+				real_counter += 1
 				prev_snp1_id = snp1_id
 				prev_snp2_id = snp2_id
 				min_pvalue = pvalue
 				row_with_min_pvalue = row
-			#if i==4 or not bool_type:	#if bool_type is nothing, means it's not boolean selection. it's linear model. don't wait until 5 kinds of operations for the same SNP-pair all show up.
-				
+				if real_counter%50000==0:
+					sys.stderr.write("%s%s\t\t%s"%('\x08'*40, real_counter, counter))
+	
+	"""
+	2009-1-25
+		input_fname is output of MpiIntraGeneSNPPairAsso.py or MpiInterGeneSNPPairAsso.py or MpiInterSNPPairAsso.py
+		
+		separate one snp-pairwise association results into single-SNP GWA files according to the snp1_id.
+	"""
+	@classmethod
+	def outputRow(cls, row, param_obj):
+		snp_id2writer = getattr(param_obj, "snp_id2writer")
+		output_dir = getattr(param_obj, "output_dir")
+		input_fname_basename = getattr(param_obj, "input_fname_basename")
+		header = getattr(param_obj, "header")
+		
+		snp1_id, gene1_id, snp2_id, gene2_id, bool_type, pvalue, count1, count2 = row[:8]
+		if snp1_id not in snp_id2writer:
+			output_fname = os.path.join(output_dir, '%s_vs_%s.tsv'%(input_fname_basename, snp1_id))
+			writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+			writer.writerow(header)
+			snp_id2writer[snp1_id] = writer
+		writer = snp_id2writer[snp1_id]
+		chr, pos = snp2_id.split('_')
+		count1 = int(count1)
+		count2 = int(count2)
+		mac = min(count1, count2)
+		maf = float(mac)/(count1+count2)
+		row = [chr, pos, pvalue, maf, mac, bool_type]
+		writer.writerow(row)
+	
+	@classmethod
+	def outputBooleanPairIntoGWAFormat(cls, input_fname, output_dir, pos_index=1, need_beta=True, min_value_cutoff=None, do_log10_transformation=False):
+		"""
+		2009-1-25
+			call outputRow()
+		"""
+		import csv
+		if not os.path.isdir(output_dir):
+			os.makedirs(output_dir)
+		snp_id2writer = {}	#each SNP1_ID would have a separate file for results from all SNPs that tested with that SNP
+		
+		input_fname_basename = os.path.splitext(os.path.basename(input_fname))[0]
+		from pymodule import PassingData
+		param_obj = PassingData(output_dir=output_dir, input_fname_basename=input_fname_basename, snp_id2writer=snp_id2writer,\
+							header=header)
+		cls.handleMostSignificantOperatorPerSNPPair(input_fname, cls.outputRow, param_obj)
 		del snp_id2writer
 	
+	
+	"""
 	input_fname = os.path.expanduser('~/panfs/250k/boolean_gene_vs_snp_DOG1/SNPpair_41_JIC4W.tsv')
 	output_dir = os.path.expanduser('~/250k/boolean_gene_vs_snp_DOG1_in_gwr/')
 	outputBooleanPairIntoGWAFormat(input_fname, output_dir)
-
+	"""
+	
+	@classmethod
+	def getPvaluePerOperator(cls, input_fname, no_of_lines_to_skip=0):
+		"""
+		2009-2-19
+			take boolean KW output as input_fname
+			return pvalue list for each operator, no_of_lines_to_skip is the average number of lines to skip after each line to control intake.
+		"""
+		import csv, sys, traceback, random
+		operator2pvalue_ls = {}
+		reader = csv.reader(open(input_fname), delimiter='\t')
+		reader.next()
+		prev_snp2_id = None
+		prev_snp1_id = None
+		min_pvalue = None
+		row_with_min_pvalue = None
+		
+		random_no_pool = []
+		if no_of_lines_to_skip>0:
+			pop_pool = range(0,no_of_lines_to_skip*2)
+			for i in range(100):
+				random_no_pool.append(random.sample(pop_pool, 1)[0])
+		
+		counter = 0
+		real_counter = 0
+		for row in reader:
+			snp1_id, gene1_id, snp2_id, gene2_id, bool_type, pvalue, count1, count2 = row[:8]
+			bool_type = int(bool_type)
+			pvalue = float(pvalue)
+			counter += 1
+			real_counter += 1
+			if bool_type not in operator2pvalue_ls:
+				operator2pvalue_ls[bool_type] = []
+			operator2pvalue_ls[bool_type].append(pvalue)
+			if real_counter%50000==0:
+				sys.stderr.write("%s%s\t\t%s"%('\x08'*40, real_counter, counter))
+			if no_of_lines_to_skip>0:
+				random_no = random_no_pool[counter%len(random_no_pool)]
+				for i in range(random_no):
+					try:
+						reader.next()
+						counter += 1
+					except:
+						traceback.print_exc()
+						sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+						break
+		del reader
+		return operator2pvalue_ls
+	
+	@classmethod
+	def stuffPvalueIntoDict(cls, row, param_obj):
+		"""
+		2009-2-19
+			called by getPvaluePerOperatorOnlyTopInSNPPair()
+		"""
+		operator2pvalue_ls = getattr(param_obj, "operator2pvalue_ls")
+		snp1_id, gene1_id, snp2_id, gene2_id, bool_type, pvalue, count1, count2 = row[:8]
+		bool_type = int(bool_type)
+		if bool_type not in operator2pvalue_ls:
+			operator2pvalue_ls[bool_type] = []
+		pvalue = float(pvalue)
+		operator2pvalue_ls[bool_type].append(pvalue)
+	
+	@classmethod
+	def getPvaluePerOperatorOnlyTopInSNPPair(cls, input_fname, no_of_lines_to_skip=0):
+		"""
+		2009-2-19
+			take boolean KW output as input_fname
+			return pvalue list for each operator, no_of_lines_to_skip is the average number of lines to skip after each line to control intake.
+			
+			call stuffPvalueIntoDict()
+		"""
+		import csv, sys, traceback, random
+		operator2pvalue_ls = {}
+		input_fname_basename = os.path.splitext(os.path.basename(input_fname))[0]
+		from pymodule import PassingData
+		param_obj = PassingData(operator2pvalue_ls=operator2pvalue_ls, input_fname_basename=input_fname_basename)
+		cls.handleMostSignificantOperatorPerSNPPair(input_fname, cls.stuffPvalueIntoDict, param_obj)
+		return operator2pvalue_ls
+	
+	"""
+	input_fname = os.path.expanduser('~/panfs/250k/IntraGeneSNPPair_BooleanKW_m10k_call29/SNPpair_7_FT_22C.tsv')
+	output_fname_prefix = os.path.expanduser('%s_top_bool_type_pvalue_hist'%os.path.splitext(input_fname)[0])
+	operator_top2pvalue_ls = BooleanInteraction.getPvaluePerOperatorOnlyTopInSNPPair(input_fname, no_of_lines_to_skip=0)
+	BooleanInteraction.drawPvalueHist(operator_top2pvalue_ls, output_fname_prefix, minus_log_pvalue=True)
+	"""
+	
+	@classmethod
+	def drawPvalueHist(cls, operator2pvalue_ls, output_fname_prefix, minus_log_pvalue=False):
+		"""
+		2009-2-19
+			draw histogram distribution for each each operator's pvalue list
+		"""
+		import pylab
+		pylab.clf()
+		from variation.src.PlotGenePairAssoResult import PlotGenePairAssoResult
+		#bool_type2marker_and_name
+		import random
+		hist_handler_ls = []
+		legend_ls = []
+		bool_type_ls = operator2pvalue_ls.keys()
+		bool_type_ls.sort()
+		color_ls = ['r', 'g', 'c', 'b', 'y', 'k']
+		log_func = lambda x: -math.log(x)
+		for i in range(len(bool_type_ls)):
+			pylab.clf()
+			bool_type = bool_type_ls[i]
+			pvalue_ls = operator2pvalue_ls[bool_type]
+			
+			pvalue_ls = random.sample(pvalue_ls, 10000)
+			
+			if minus_log_pvalue:
+				xlabel = '-logPvalue'
+				pvalue_ls = map(log_func, pvalue_ls)
+			else:
+				xlabel = 'pvalue'
+			n1 = pylab.hist(pvalue_ls, 50, alpha=0.3, normed=1, facecolor=color_ls[i])
+			hist_handler_ls.append(n1[2][0])
+			marker, bool_type_name = PlotGenePairAssoResult.bool_type2marker_and_name[bool_type][:2]
+			legend_ls.append(bool_type_name)
+			#pylab.legend(hist_handler_ls, legend_ls)
+			pylab.ylabel('frequency')
+			
+			pylab.title(bool_type_name)
+			pylab.savefig('%s_%s_%s.png'%(output_fname_prefix, bool_type, bool_type_name), dpi=300)
+	
+	"""
+	input_fname = os.path.expanduser('~/panfs/250k/IntraGeneSNPPair_BooleanKW_m10k_call29/SNPpair_7_FT_22C.tsv')
+	output_fname_prefix = os.path.expanduser('%s_bool_type_pvalue_hist'%os.path.splitext(input_fname)[0])
+	operator2pvalue_ls = BooleanInteraction.getPvaluePerOperator(input_fname, no_of_lines_to_skip=0)
+	BooleanInteraction.drawPvalueHist(operator2pvalue_ls, output_fname_prefix, minus_log_pvalue=True)
+	"""
+	
+	@classmethod
+	def countBoolTypeTopForEachSNPPair(cls, row, param_obj):
+		"""
+		2009-2-19
+		"""
+		import math, sys, traceback
+		operator_int_pvalue2count = getattr(param_obj, "operator_int_pvalue2count")
+		int_pvalue2count = getattr(param_obj, "int_pvalue2count")
+		snp1_id, gene1_id, snp2_id, gene2_id, bool_type, pvalue, count1, count2 = row[:8]
+		bool_type = int(bool_type)
+		try:
+			minus_log_pvalue = -math.log(float(pvalue))
+		except:
+			traceback.print_exc()
+			sys.stderr.write('%s. minus_log_pvalue=50.\n'%repr(sys.exc_info()))
+			minus_log_pvalue = 50
+		int_pvalue = int(minus_log_pvalue)
+		if int_pvalue not in int_pvalue2count:
+			int_pvalue2count[int_pvalue] = 0
+		int_pvalue2count[int_pvalue] += 1
+		
+		operator_int_pvalue = (bool_type, int_pvalue)
+		if operator_int_pvalue not in operator_int_pvalue2count:
+			operator_int_pvalue2count[operator_int_pvalue] = 0
+		operator_int_pvalue2count[operator_int_pvalue] += 1
+	
+	@classmethod
+	def plot_operator_int_pvalue2count(cls, operator_int_pvalue2count, int_pvalue2count, output_fname_prefix, \
+									bool_type_ls=[1,2,4,6,7], int_pvalue_step=2):
+		"""
+		2009-2-19
+		"""
+		#from variation.src.PlotGenePairAssoResult import PlotGenePairAssoResult
+		#PlotGenePairAssoResult.bool_type2marker_and_name[bool_type]
+		int_pvalue_ls = int_pvalue2count.keys()
+		int_pvalue_ls.sort()
+		
+		#group int_pvalue into groups according to int_pvalue_step
+		row_id_ls = []
+		for i in range(len(int_pvalue_ls)):
+			int_pvalue = int_pvalue_ls[i]
+			row_id = int_pvalue/int_pvalue_step
+			if len(row_id_ls)==0:
+				row_id_ls.append(row_id)
+			else:
+				if row_id!=row_id_ls[-1]:	#only add when it's new
+					row_id_ls.append(row_id)
+		
+		col_id_ls = bool_type_ls
+		import numpy
+		#col_id_ls = numpy.array(col_id_ls)
+		no_of_rows = len(row_id_ls)
+		no_of_cols = len(col_id_ls)
+		data_matrix = numpy.zeros([no_of_rows, no_of_cols], numpy.int)
+		from pymodule import SNPData
+		countData = SNPData(row_id_ls=row_id_ls, col_id_ls=col_id_ls, data_matrix=data_matrix)
+		
+		for int_pvalue in int_pvalue_ls:
+			row_id = int_pvalue/int_pvalue_step
+			row_index = countData.row_id2row_index[row_id]
+			for bool_type in col_id_ls:
+				operator_int_pvalue = (bool_type, int_pvalue)
+				if operator_int_pvalue in operator_int_pvalue2count:
+					count = operator_int_pvalue2count[operator_int_pvalue]
+				else:
+					count = 0
+				col_index = countData.col_id2col_index[bool_type]
+				countData.data_matrix[row_index][col_index] += count
+		
+		perc_matrix = numpy.zeros([no_of_rows, no_of_cols], numpy.float)
+		percData = SNPData(row_id_ls=row_id_ls, col_id_ls=col_id_ls, data_matrix=perc_matrix)
+		row_sum_array = numpy.sum(countData.data_matrix, 1, numpy.float)
+		for j in range(no_of_cols):
+			percData.data_matrix[:,j] = numpy.sum(countData.data_matrix[:,range(j+1)], 1)/row_sum_array	#cumulative percentage
+		
+		import pylab
+		pylab.clf()
+		pylab.grid(True, alpha=0.3)
+		from variation.src.PlotGenePairAssoResult import PlotGenePairAssoResult
+		color_ls = ['r', 'g', 'c', 'b', 'y', 'k']
+		plot_ls = []
+		legend_ls = []
+		row_id_ls = numpy.array(row_id_ls)
+		for j in range(no_of_cols):
+			bool_type = percData.col_id_ls[j]
+			marker, bool_type_name = PlotGenePairAssoResult.bool_type2marker_and_name[bool_type][:2]
+			x_ls = percData.data_matrix[:,j]
+			y_ls = row_id_ls*int_pvalue_step
+			a = pylab.plot(x_ls, y_ls, '.-', color=color_ls[j])
+			plot_ls.append(a)
+			legend_ls.append(bool_type_name)
+		
+		pylab.legend(plot_ls, legend_ls)
+		pylab.ylabel('-logPvalue')
+		pylab.xlabel('percentage')
+		pylab.title('Percentage of each bool type at certain log pvalue range')
+		pylab.savefig('%s_perc_bool_by_log_pvalue.png'%(output_fname_prefix), dpi=300)
+			
+	
+	"""
+operator_int_pvalue2count = {}
+int_pvalue2count = {}
+from pymodule import PassingData
+param_obj = PassingData(operator_int_pvalue2count=operator_int_pvalue2count, int_pvalue2count=int_pvalue2count)
+BooleanInteraction.handleMostSignificantOperatorPerSNPPair(input_fname, BooleanInteraction.countBoolTypeTopForEachSNPPair, param_obj)
+BooleanInteraction.plot_operator_int_pvalue2count(operator_int_pvalue2count, int_pvalue2count, output_fname_prefix)
+	"""
 
 
 class FRIDeletion(object):
@@ -3098,7 +4627,8 @@ class FRIDeletion(object):
 		in processing FRI deletion data from Shindo2005. check plone doc, /research/variation/log-2008-07.
 	2008-08-05
 	"""
-	def outputShindo2005(input_fname, output_fname, which_type_of_id_to_output=1):
+	@classmethod
+	def outputShindo2005(cls, input_fname, output_fname, which_type_of_id_to_output=1):
 		"""
 		2008-08-06
 			in output. if which_type_of_id_to_output==1, output in ecotypeid; else output in accession_id
@@ -3264,28 +4794,28 @@ class Data149_Haplotype(object):
 		from pymodule import write_data_matrix
 		write_data_matrix(data_matrix, output_fname, ['','']+label_ls, label_ls, label_ls)
 			
-	
-	file_country = os.path.expanduser('~/script/variation/data/149SNP/haps.countries.tsv')
-	file2 = os.path.expanduser('~/script/variation/data/149SNP/consensus_seqs.HG(0.005.S).tsv')
-	output_fname = os.path.expanduser('~/script/variation/data/149SNP/haps_in_149.tsv')
-	processAlexHaplotypeFile(file_country, file2, output_fname)
-	
-	file_country = os.path.expanduser('~/panfs/149CrossMatch/haps.countries.tsv')
-	cross_match_outfile = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_cross_match.tsv')
-	output_fname = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_cross_match_matrix.tsv')
-	max_mismatch_rate=1
-	getMatrixOutofCrossMatchResult(curs, cross_match_outfile, file_country, output_fname, max_mismatch_rate=1)
-	
-	#2008-09-12
-	file_country = os.path.expanduser('~/script/variation/data/149SNP/haps.countries.x11.tsv')
-	output_fname = os.path.expanduser('~/script/variation/data/149SNP/haps_in_149_no_4_bad_plates.tsv')
-	processAlexHaplotypeFile(file_country, file2, output_fname)
-	
-	file_country = os.path.expanduser('~/banyan_home/script/variation/data/149SNP/haps.countries.x11.tsv')
-	cross_match_outfile = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_no_4_bad_plates_cross_match.tsv')
-	output_fname = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_no_4_bad_plates_cross_match_matrix_a0.3.tsv')
-	getMatrixOutofCrossMatchResult(curs, cross_match_outfile, file_country, output_fname, max_mismatch_rate=0.3)
-	
+	"""
+file_country = os.path.expanduser('~/script/variation/data/149SNP/haps.countries.tsv')
+file2 = os.path.expanduser('~/script/variation/data/149SNP/consensus_seqs.HG(0.005.S).tsv')
+output_fname = os.path.expanduser('~/script/variation/data/149SNP/haps_in_149.tsv')
+processAlexHaplotypeFile(file_country, file2, output_fname)
+
+file_country = os.path.expanduser('~/panfs/149CrossMatch/haps.countries.tsv')
+cross_match_outfile = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_cross_match.tsv')
+output_fname = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_cross_match_matrix.tsv')
+max_mismatch_rate=1
+getMatrixOutofCrossMatchResult(curs, cross_match_outfile, file_country, output_fname, max_mismatch_rate=1)
+
+#2008-09-12
+file_country = os.path.expanduser('~/script/variation/data/149SNP/haps.countries.x11.tsv')
+output_fname = os.path.expanduser('~/script/variation/data/149SNP/haps_in_149_no_4_bad_plates.tsv')
+processAlexHaplotypeFile(file_country, file2, output_fname)
+
+file_country = os.path.expanduser('~/banyan_home/script/variation/data/149SNP/haps.countries.x11.tsv')
+cross_match_outfile = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_no_4_bad_plates_cross_match.tsv')
+output_fname = os.path.expanduser('~/panfs/149CrossMatch/alex_hap_no_4_bad_plates_cross_match_matrix_a0.3.tsv')
+getMatrixOutofCrossMatchResult(curs, cross_match_outfile, file_country, output_fname, max_mismatch_rate=0.3)
+	"""
 	
 	"""
 	2008-09-11
@@ -3330,10 +4860,11 @@ class Data149_Haplotype(object):
 			header = ['', ''] + block_snp_id_ls_ls[i]
 			write_data_matrix(d_matrix, output_fname, header, strain_acc_list, category_list)
 		sys.stderr.write("Done.\n")
-	
-	input_fname = os.path.expanduser('~/panfs/149CrossMatch/stock_149SNP_y0000110101.tsv')
-	output_fname_prefix = os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock')
-	partition149SNPDataInto4Blocks(input_fname, db_149, output_fname_prefix)
+	"""
+input_fname = os.path.expanduser('~/panfs/149CrossMatch/stock_149SNP_y0000110101.tsv')
+output_fname_prefix = os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock')
+partition149SNPDataInto4Blocks(input_fname, db_149, output_fname_prefix)
+	"""
 	
 	def getDistanceMatrixOutofCrossMatchFile(input_fname, max_no_of_strains, strainid2index, strainid_ls, min_no_of_non_NA_pairs=10):
 		import os, sys,csv
@@ -3400,14 +4931,15 @@ class Data149_Haplotype(object):
 					writer.writerow([strainid_ls[i], strainid_ls[j], mismatch_var]+mismatch_ls)
 		del writer
 	
-	
-	block_fname_ls = []
-	for i in range(4):
-		block_fname_ls.append(os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock_%s_cross_match.tsv'%(i)))
-	
-	output_fname = os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock_high_var.tsv')
-	findStrainShowMsmatchRateVariationIn4Blocks(block_fname_ls, output_fname, max_no_of_strains=7000, min_no_of_non_NA_pairs=10, min_var=0.03)
+	"""
+block_fname_ls = []
+for i in range(4):
+	block_fname_ls.append(os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock_%s_cross_match.tsv'%(i)))
 
+output_fname = os.path.expanduser('~/panfs/149CrossMatch/149SNPSequenomBlock_high_var.tsv')
+findStrainShowMsmatchRateVariationIn4Blocks(block_fname_ls, output_fname, max_no_of_strains=7000, min_no_of_non_NA_pairs=10, min_var=0.03)
+	"""
+	
 class CmpDifferentData(object):
 	"""
 	2009-2-17 like QC
@@ -3418,7 +4950,8 @@ class CmpDifferentData(object):
 		window average of SNP mismatch rates.
 		input_fname is output of TwoSNPData.output_col_id2NA_mismatch_rate_InGWRFormat() (invoked in Qc.py)
 	"""
-	def average_SNP_mismatch_rate_within_window(input_fname, output_fname, window_size=100000):
+	@classmethod
+	def average_SNP_mismatch_rate_within_window(cls, input_fname, output_fname, window_size=100000):
 		"""
 		"""
 		from pymodule import figureOutDelimiter
@@ -3487,10 +5020,11 @@ class CmpDifferentData(object):
 
 
 class DB250k(object):
-	"""
-	2008-11-25 dump all flowering time genes from table ft_gene into file. (for MpiInterGeneSNPPairAsso.py)
-	"""
-	def dumpFTGene2File(db, output_fname, list_type_id=28):
+	@classmethod
+	def dumpFTGene2File(cls, db, output_fname, list_type_id=28):
+		"""
+		2008-11-25 dump all flowering time genes from table ft_gene into file. (for MpiInterGeneSNPPairAsso.py)
+		"""
 		#rows = db.metadata.bind.execute("select distinct f.gene_id, g.gene_symbol from genome.gene g, ft_gene f where f.gene_id=g.gene_id")
 		rows = db.metadata.bind.execute("select distinct l.gene_id, g.gene_symbol from genome.gene g, candidate_gene_list l where l.gene_id=g.gene_id and l.list_type_id=%s order by gene_symbol"%(list_type_id))
 		import csv
@@ -3499,10 +5033,13 @@ class DB250k(object):
 			writer.writerow([row.gene_id, row.gene_symbol])
 		del writer
 	
-	output_fname = '/tmp/ft_gene.tsv'
-	dumpFTGene2File(db_250k, output_fname)
+	"""
+output_fname = '/tmp/ft_gene.tsv'
+dumpFTGene2File(db_250k, output_fname)
+	"""
 	
-	def outputSNPCandidateGeneAssociation(snps_context_picklef, list_type_id, output_fname):
+	@classmethod
+	def outputSNPCandidateGeneAssociation(cls, snps_context_picklef, list_type_id, output_fname):
 		"""
 		2008-11-13
 		output SNP-gene association (from a file containing the pickled snps_context_wrapper) into a file
@@ -3535,11 +5072,13 @@ class DB250k(object):
 					writer.writerow([gene_id, snps_id, chr, pos, disp_pos, left_or_right, disp_pos_comment])
 		del writer
 	
+	"""
+snps_context_picklef = './mnt2/panfs/250k/snps_context_g0_m500'
+list_type_id = 28
+output_fname = '/tmp/snps_context_g0_m500_list28.tsv'
+outputSNPCandidateGeneAssociation(snps_context_picklef, list_type_id, output_fname)
+	"""
 	
-	snps_context_picklef = './mnt2/panfs/250k/snps_context_g0_m500'
-	list_type_id = 28
-	output_fname = '/tmp/snps_context_g0_m500_list28.tsv'
-	outputSNPCandidateGeneAssociation(snps_context_picklef, list_type_id, output_fname)
 	
 	"""
 	2008-04-11
@@ -3553,7 +5092,8 @@ class DB250k(object):
 		turns out to be useless because the header in each intensity matrix file has array_id embedded.
 		have to output each array into intensity matrix.
 	"""
-	def output_intensity_fname(curs, new_array_info_table, old_array_info_table, output_fname):
+	@classmethod
+	def output_intensity_fname(cls, curs, new_array_info_table, old_array_info_table, output_fname):
 		"""
 		"""
 		import csv
@@ -3579,7 +5119,8 @@ class DB250k(object):
 	2008-05-31
 		output results from stock_250k.results, totally db based, not reading results.filename
 	"""
-	def outputResults(db, results_method_id, output_fname):
+	@classmethod
+	def outputResults(cls, db, results_method_id, output_fname):
 		import csv
 		import sqlalchemy as sql
 		
@@ -3618,7 +5159,8 @@ class DB250k(object):
 	"""
 	2008-07-21
 	"""
-	def drawScoreHistogram(curs, results_method_id, list_type_id=1, do_log10_transformation=True, min_or_max_func='min'):
+	@classmethod
+	def drawScoreHistogram(cls, curs, results_method_id, list_type_id=1, do_log10_transformation=True, min_or_max_func='min'):
 		from Stock_250kDB import ResultsMethod, GeneList, ResultsByGene, CandidateGeneRankSumTestResult
 		rm = ResultsMethod.get(results_method_id)
 		db_rows = GeneList.query.filter_by(list_type_id=list_type_id)
@@ -3653,18 +5195,503 @@ class DB250k(object):
 	"""
 	score_ls1, score_ls2 = drawScoreHistogram(curs, 23, 1)
 	"""
+	
+	@classmethod
+	def plotArrayMismatchVsMedianIntensity(cls, db, array_id_ls, take_log=False):
+		"""
+		2009-3-11		
+			plot array mismatch rate vs median intensity of all probes
+			
+			array_id_ls is comma or dash-separated list of array ids
+		"""
+		import math
+		if array_id_ls:
+			from pymodule import getListOutOfStr
+			array_id_ls = getListOutOfStr(array_id_ls, data_type=str)
+		else:
+			array_id_ls = range(500)
+			array_id_ls = map(str, array_id_ls)
+		rows = db.metadata.bind.execute("select mismatch_rate, median_intensity from stock_250k.view_qc where array_id in (%s)"%(','.join(array_id_ls)))
+		y_ls = []
+		x_ls = []
+		for row in rows:
+			if take_log:
+				median_intensity = math.log10(row.median_intensity)
+			else:
+				median_intensity = row.median_intensity
+			x_ls.append(median_intensity)
+			y_ls.append(row.mismatch_rate)
+		
+		import pylab
+		pylab.plot(x_ls, y_ls, '.', alpha=0.5)
+		pylab.title('mismatch rate vs median_intensity of arrays')
+		pylab.xlabel('median_intensity')
+		pylab.ylabel('mismatch rate')
+		pylab.show()
+	
+	"""
+plotArrayMismatchVsMedianIntensity(db_250k, '616-1045')
+	"""
+	
+	@classmethod
+	def saveArrayQCIntoTableFile(cls, db, array_id_ls, output_fname, take_log=False):
+		"""
+		2009-3-13		
+			output array QC information in a matrix format which pymodule/DataMatrixGuiXYProbe.py can recognize and do clickable scatterplots 
+		"""
+		import math
+		if array_id_ls:
+			from pymodule import getListOutOfStr
+			array_id_ls = getListOutOfStr(array_id_ls, data_type=str)
+		else:
+			array_id_ls = range(500)
+			array_id_ls = map(str, array_id_ls)
+		rows = db.metadata.bind.execute("select * from stock_250k.view_qc where array_id in (%s)"%(','.join(array_id_ls)))
+		import csv
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		header = ['nativename', 'original_array_name', 'ecotype_id', 'array_id', 'mismatch_rate', 'median_intensity', \
+					'QC_NA_rate', 'no_of_mismatches', 'no_of_non_NA_pairs', 'qc_method_id', 'call_info_id', 'array_original_filename']
+		writer.writerow(header)
+		for row in rows:
+			if take_log:
+				median_intensity = math.log10(row.median_intensity)
+			else:
+				median_intensity = row.median_intensity
+			original_array_name = os.path.basename(row.array_original_filename)
+			output_row = []
+			for col_name in header:
+				if col_name=='original_array_name':
+					output_row.append(original_array_name)
+				elif col_name=='median_intensity':
+					output_row.append(median_intensity)
+				else:
+					output_row.append(getattr(row, col_name))
+			writer.writerow(output_row)
+		del writer
+		
+	"""
+output_fname = '/tmp/CHLA_2009_01_QC.tsv'
+saveArrayQCIntoTableFile(db_250k, '616-1045', output_fname)
+	"""
 
+	"""
+	2009-4-13 function to check all 250k calls to see which is bad , which is good.
+		for bad ones, further check cross_match results to see if mis-labelling happens
+		
+		check view_qc
+		check qc_cross_match_table to see if any cross-labeling
+			no_of_non_NA_pairs>=40
+			mismatch_rate<2%
+		
+		quality meaning:
+			0: bad
+			1: good
+			2: mis-labelled
+			
+	"""
+	@classmethod
+	def reportBadArrays(cls, db, call_method_id, qc_method_id, output_fname, max_mismatch_rate=0.1, min_no_of_non_NA_pairs=40, \
+					max_mislabel_mismatch_rate=0.02,\
+					view_qc_table='view_qc', qc_cross_match_table='qc_cross_match'):
+		from variation.src.common import get_ecotypeid2nativename
+		ecotypeid2nativename = get_ecotypeid2nativename(db.metadata.bind, ecotype_table='stock.ecotype')
+		sys.stderr.write("Reporting 250k arrays ... \n")
+		rows = db.metadata.bind.execute("select * from %s where qc_method_id=%s and call_method_id=%s order by nativename"%\
+									(view_qc_table, qc_method_id, call_method_id))
+		
+		import csv
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		header_row = ['ecotype_id', 'nativename', 'array_original_filename', 'array_created', 'quality', 'true ecotype_id', 'true nativename']
+		writer.writerow(header_row)
+		results = []
+		counter = 0
+		no_of_bad_ones = 0
+		no_of_mis_labelled_ones = 0
+		
+		good_ecotype_id_set = set()
+		bad_ecotype_id_set = set()
+		true_ecotype_id_set = set()
+		
+		for row in rows:
+			quality = 0
+			counter += 1
+			true_ecotype_id_ls = []
+			true_nativename_ls = []
+			if row.no_of_non_NA_pairs>=min_no_of_non_NA_pairs and row.mismatch_rate<=max_mismatch_rate:
+				quality = 1
+			else:
+				no_of_bad_ones += 1
+				cross_match_rows = db.metadata.bind.execute("select * from %s where call_info_id=%s and no_of_non_NA_pairs>=%s order by mismatch_rate"%\
+										(qc_cross_match_table, row.call_info_id, min_no_of_non_NA_pairs))
+				for cross_match_row in cross_match_rows:
+					if cross_match_row.mismatch_rate<=max_mislabel_mismatch_rate:
+						if cross_match_row.vs_ecotype_id in ecotypeid2nativename:	#make sure ecotypeid is still alive
+							true_ecotype_id_ls.append(cross_match_row.vs_ecotype_id)
+							true_nativename_ls.append(ecotypeid2nativename[cross_match_row.vs_ecotype_id])
+				if len(true_ecotype_id_ls)>0:
+					quality = 2
+					no_of_mis_labelled_ones += 1
+			if quality==1:
+				good_ecotype_id_set.add(row.ecotype_id)
+			elif quality==0 or quality==2:
+				bad_ecotype_id_set.add(row.ecotype_id)
+			
+			if quality==2:
+				true_ecotype_id_set.update(set(true_ecotype_id_ls))
+			
+			true_ecotype_id_ls = map(str, true_ecotype_id_ls)	#in order to use ','.join()
+			output_row = [row.ecotype_id, row.nativename, row.array_original_filename, row.array_created, quality, \
+						','.join(true_ecotype_id_ls), ','.join(true_nativename_ls)]
+			writer.writerow(output_row)
+			if counter%100==0:
+				sys.stderr.write("%s\t%s\t%s\t%s"%('\x08'*80, no_of_mis_labelled_ones, no_of_bad_ones, counter))
+		del writer
+		
+		rescued_bad_ecotype_id_set = set()
+		for ecotype_id in bad_ecotype_id_set:
+			if ecotype_id in good_ecotype_id_set or ecotype_id in true_ecotype_id_set:
+				rescued_bad_ecotype_id_set.add(ecotype_id)
+		
+		# assign quality 2 to entries in true_ecotype_id_set if the ecotype_id is not in good_ecotype_id_set
+		true_ecotype_id_quality_ls = []
+		for ecotype_id in true_ecotype_id_set:
+			if ecotype_id not in good_ecotype_id_set:
+				true_ecotype_id_quality_ls.append([ecotype_id, 2])
+		# remove the rescued bad ones from bad_ecotype_id_set
+		bad_ecotype_id_set.difference_update(rescued_bad_ecotype_id_set)
+		
+		output_fname = '%s_simple%s'%(os.path.splitext(output_fname)[0], os.path.splitext(output_fname)[1])
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		header_row = ['ecotype_id', 'nativename', 'quality']
+		writer.writerow(header_row)
+		for ecotype_id in good_ecotype_id_set:
+			writer.writerow([ecotype_id, ecotypeid2nativename[ecotype_id], 1])
+		for ecotype_id, quality in true_ecotype_id_quality_ls:
+			writer.writerow([ecotype_id, ecotypeid2nativename[ecotype_id], quality])
+		
+		for ecotype_id in bad_ecotype_id_set:
+			writer.writerow([ecotype_id, ecotypeid2nativename[ecotype_id], 0])
+		del writer
+		sys.stderr.write("%s mis-labelled out of %s bad ones, out of %s in total. Done.\n"%(no_of_mis_labelled_ones, no_of_bad_ones, counter))
+		
+	"""
+call_method_id = 3
+qc_method_id = 9
+output_fname = '/tmp/250k_good_bad_cross_label_arrays.tsv'
+reportBadArrays(db_250k, call_method_id, qc_method_id, output_fname)
+	"""
+	
+	@classmethod
+	def outputProbeIntensityOfOneSNPAcrossArrays(cls, db_250k, intensity_matrix_fname, snpData, snp_id, output_fname):
+		"""
+		2009-5-19
+			intensity_matrix_fname is output of affy/CelQuantileNorm/gtype_cel_to_pq (plone doc: log/microarray)
+				format is SNP X array. 1st row is name for the array and allele, with array_id embedded, like 67_raw_data_A.
+					one array occupies two columns, allele A and allele B.
+					1st column is snp_id (chr_pos like  1_657).
+			
+		"""
+		sys.stderr.write("Outputting probe intensity of one SNP ... ")
+		
+		array_id2ecotype_id_name_ls = {}
+		rows = db_250k.metadata.bind.execute("select * from view_array")
+		for row in rows:
+			array_id2ecotype_id_name_ls[row.array_id] = [row.maternal_ecotype_id, row.maternal_nativename]
+		
+		import csv
+		reader = csv.reader(open(intensity_matrix_fname), delimiter='\t')
+		header = reader.next()
+		array_id_allele_label_ls = header[1:]
+		nativename_ls = []
+		ecotype_id_ls = []
+		array_id_ls = []
+		
+		for i in range(0, len(array_id_allele_label_ls), 2):	# every other column
+			label = array_id_allele_label_ls[i]
+			array_id = int(label.split('_')[0])
+			array_id_ls.append(array_id)
+			ecotype_id_nativename_ls = array_id2ecotype_id_name_ls.get(array_id)
+			if ecotype_id_nativename_ls is not None:
+				ecotype_id, nativename = ecotype_id_nativename_ls
+			else:
+				ecotype_id = 0
+				nativename = 'None'
+			ecotype_id_ls.append(ecotype_id)
+			nativename_ls.append(nativename)
+		
+		writer = csv.writer(open(output_fname,'w'), delimiter='\t')
+		writer.writerow(['nativename', 'ecotype_id', 'array_id', 'alleleA-intensity', 'alleleB-intensity', 'call'])
+		for row in reader:
+			if row[0]==snp_id:
+				intensity_ls = row[1:]
+				for i in range(0, len(intensity_ls), 2):
+					alleleA_intensity = intensity_ls[i]
+					alleleB_intensity = intensity_ls[i+1]
+					array_index = i/2
+					ecotype_id = ecotype_id_ls[array_index]
+					snp_row_index = snpData.row_id2row_index['%s'%ecotype_id]
+					snp_col_index = snpData.col_id2col_index[snp_id]
+					snp_allele = snpData.data_matrix[snp_row_index][snp_col_index]
+					output_row = [nativename_ls[array_index], ecotype_id_ls[array_index], array_id_ls[array_index], alleleA_intensity, \
+								alleleB_intensity, snp_allele]
+					writer.writerow(output_row)
+				break
+		del writer, reader
+		sys.stderr.write("Done.\n")
+		
+	"""
+intensity_matrix_fname = os.path.expanduser('~/script/affy/250k_test/call_method_32_arrays.QN.tsv')
+snp_id = '2_13265102'
+output_fname = '/tmp/%s_intensity_matrix.tsv'%snp_id
 
+from pymodule import SNPData
+snp_fname = '/Network/Data/250k/db/dataset/call_method_32.tsv' 
+snpData = SNPData(input_fname=snp_fname, turn_into_array=1, ignore_2nd_column=1)
+DB250k.outputProbeIntensityOfOneSNPAcrossArrays(db_250k, intensity_matrix_fname, snpData, snp_id, output_fname)
+	"""
+	
+	@classmethod
+	def cleanUpTablePhenotype(cls, db, make_replicate_continuous=False):
+		"""
+		2009-8-25
+			add an option (make_replicate_continuous) to make the replicate variable continuous, like 1,2,5,7 => 1,2,3,4.
+			The unique key in phenotype table must be removed before applying this option. 
+		2009-8-12
+			increase replicate from one of the identical entries based on (method_id, ecotype_id, replicate)
+		"""
+		sys.stderr.write("cleaning up table phenotype ...\n")
+		db.session.begin()
+		
+		sys.stderr.write("Getting data from db ...")
+		import Stock_250kDB
+		
+		method_id_ecotype_id2db_id_ls = {}
+		method_id_ecotype_id_replicate2count = {}
+		method_id_ecotype_id2max_replicate = {}	#2009-8-25 added to find out (method_id, ecotype_id)s that have the discontinuous replicate numbers
+		
+		rows = Stock_250kDB.Phenotype.query()
+		for row in rows:
+			method_id_ecotype_id = (row.method_id, row.ecotype_id)
+			method_id_ecotype_id_replicate = (row.method_id, row.ecotype_id, row.replicate)
+			if method_id_ecotype_id not in method_id_ecotype_id2db_id_ls:
+				method_id_ecotype_id2db_id_ls[method_id_ecotype_id] = []
+			method_id_ecotype_id2db_id_ls[method_id_ecotype_id].append(row.id)
+			
+			if method_id_ecotype_id_replicate not in method_id_ecotype_id_replicate2count:
+				method_id_ecotype_id_replicate2count[method_id_ecotype_id_replicate] = 0
+			method_id_ecotype_id_replicate2count[method_id_ecotype_id_replicate] += 1
+			
+			#2009-8-25
+			if method_id_ecotype_id not in method_id_ecotype_id2max_replicate:
+				method_id_ecotype_id2max_replicate[method_id_ecotype_id] = 0
+			if row.replicate>method_id_ecotype_id2max_replicate[method_id_ecotype_id]:
+				method_id_ecotype_id2max_replicate[method_id_ecotype_id] = row.replicate
+		sys.stderr.write("Done.\n")
+		
+		method_id_ecotype_id_need_fix_set = set()
+		for method_id_ecotype_id_replicate, count in method_id_ecotype_id_replicate2count.iteritems():
+			if count>1:
+				method_id_ecotype_id = (method_id_ecotype_id_replicate[0], method_id_ecotype_id_replicate[1])
+				method_id_ecotype_id_need_fix_set.add(method_id_ecotype_id)
+		
+		#2009-8-25
+		if make_replicate_continuous:
+			for method_id_ecotype_id, max_replicate in method_id_ecotype_id2max_replicate.iteritems():
+				if max_replicate>len(method_id_ecotype_id2db_id_ls[method_id_ecotype_id]):
+					method_id_ecotype_id_need_fix_set.add(method_id_ecotype_id)
+		
+		sys.stderr.write("%s (method_id, ecotype_id) pairs to be fixed.\n"%len(method_id_ecotype_id_need_fix_set))
+		
+		#re-assign the replicate value in the order of db ids
+		for method_id_ecotype_id in method_id_ecotype_id_need_fix_set:
+			db_id_ls = method_id_ecotype_id2db_id_ls.get(method_id_ecotype_id)
+			if db_id_ls is None:
+				continue
+			
+			db_id_ls.sort()
+			for i in range(len(db_id_ls)):
+				db_id = db_id_ls[i]
+				db_entry = Stock_250kDB.Phenotype.get(db_id)
+				db_entry.replicate = i +1
+				db.session.save_or_update(db_entry)
+				db.session.flush()
+		db.session.commit()
+		sys.stderr.write("Done.\n")
+	
+	"""	
+DB250k.cleanUpTablePhenotype(db_250k)
+
+DB250k.cleanUpTablePhenotype(db_250k, make_replicate_continuous=True)
+	"""
+	
+	@classmethod
+	def updatePhenotypeAvgEntry(cls, db, db_entry, individual_value_ls):
+		"""
+		2009-8-13
+			
+		"""
+		import numpy
+		db_entry.value = numpy.average(individual_value_ls)
+		db_entry.sample_size = len(individual_value_ls)
+		if db_entry.sample_size>1:
+			db_entry.stddev = numpy.std(individual_value_ls) 
+		db.session.save_or_update(db_entry)
+		
+	
+	@classmethod
+	def cleanUpTablePhenotypeAvg(cls, db):
+		"""
+		2009-8-12
+			enforce the unique constraint, (method_id, ecotype_id) 
+			
+		"""
+		sys.stderr.write("Cleaning up table phenotype_avg ... \n")
+		db.session.begin()
+		
+		sys.stderr.write("Getting data from db ...")
+		import Stock_250kDB
+		
+		method_id_ecotype_id2db_id_ls = {}
+		
+		rows = Stock_250kDB.PhenotypeAvg.query()
+		for row in rows:
+			method_id_ecotype_id = (row.method_id, row.ecotype_id)
+			if method_id_ecotype_id not in method_id_ecotype_id2db_id_ls:
+				method_id_ecotype_id2db_id_ls[method_id_ecotype_id] = []
+			method_id_ecotype_id2db_id_ls[method_id_ecotype_id].append(row.id)
+		
+		sys.stderr.write("Done.\n")
+		import numpy
+		no_of_replicate_entries = 0
+		no_of_replicate_entries_but_no_individual_data = 0
+		no_of_replicate_entries_with_individual_data = 0
+		for method_id_ecotype_id, db_id_ls in method_id_ecotype_id2db_id_ls.iteritems():
+			if len(db_id_ls)>1:
+				no_of_replicate_entries  += 1
+				method_id, ecotype_id = method_id_ecotype_id
+				rows = Stock_250kDB.Phenotype.query.filter_by(method_id=method_id).filter_by(ecotype_id=ecotype_id)
+				db_id_ls.sort()
+				if rows.count()>0:
+					no_of_replicate_entries_with_individual_data += 1
+					for i in range(len(db_id_ls)-1):	#delete all but the last one
+						db_id = db_id_ls[i] 
+						db_entry = Stock_250kDB.PhenotypeAvg.get(db_id)
+						
+						db.session.delete(db_entry)
+					#update the last PhenotypeAvg entry
+					db_entry = Stock_250kDB.PhenotypeAvg.get(db_id_ls[-1])
+					individual_value_ls = [row.value for row in rows]
+					cls.updatePhenotypeAvgEntry(db, db_entry, individual_value_ls)
+				else:
+					no_of_replicate_entries_but_no_individual_data += 1
+					individual_value_ls = []
+					for i in range(len(db_id_ls)-1):	#insert into Stock_250kDB.Phenotype and delete all but the last one from Stock_250kDB.PhenotypeAvg
+						db_id = db_id_ls[i] 
+						db_entry = Stock_250kDB.PhenotypeAvg.get(db_id)
+						individual_value_ls.append(db_entry.value)
+						phenotype_entry = Stock_250kDB.Phenotype(method_id=db_entry.method_id, ecotype_id=db_entry.ecotype_id, \
+																value=db_entry.value, replicate=i+1)
+						db.session.save(phenotype_entry)
+						db.session.delete(db_entry)
+					#insert the last phenotype_avg into Stock_250kDB.Phenotype and update it in  phenotype_avg
+					db_entry = Stock_250kDB.PhenotypeAvg.get(db_id_ls[-1])
+					individual_value_ls.append(db_entry.value)
+					phenotype_entry = Stock_250kDB.Phenotype(method_id=db_entry.method_id, ecotype_id=db_entry.ecotype_id, \
+																value=db_entry.value, replicate=len(db_id_ls))
+					db.session.save(phenotype_entry)
+					cls.updatePhenotypeAvgEntry(db, db_entry, individual_value_ls)
+					#insert data from db_id_ls into Stock_250kDB.Phenotype
+		db.session.commit()
+		sys.stderr.write("%s total replicate entries. %s has individual data. %s has no individual data. Done.\n"%\
+						(no_of_replicate_entries, no_of_replicate_entries_with_individual_data, no_of_replicate_entries_but_no_individual_data))
+		
+	"""
+DB250k.cleanUpTablePhenotypeAvg(db)
+	"""
+	
+	@classmethod
+	def updatePhenotypeAvgBasedOnPhenotype(cls, db, phenotype_condition=None):
+		"""
+		2009-8-25
+			After values in table phenotype are updated, corresponding ones in table phenotype_avg shall be updated too.
+		"""
+		sys.stderr.write("Updating phenotype_avg entries based on the ones in table phenotype ...\n")
+		db.session.begin()
+		
+		method_id_ecotype_id2individual_value_ls = {}
+		rows = db.metadata.bind.execute("select method_id, ecotype_id, value from phenotype %s"%phenotype_condition)
+		replicate_count = 0
+		for row in rows:
+			method_id_ecotype_id = (row.method_id, row.ecotype_id)
+			if method_id_ecotype_id not in method_id_ecotype_id2individual_value_ls:
+				method_id_ecotype_id2individual_value_ls[method_id_ecotype_id] = []
+			method_id_ecotype_id2individual_value_ls[method_id_ecotype_id].append(row.value)
+			replicate_count += 1
+		
+		sys.stderr.write("need to update %s phenotype_avg entries.\n"%(len(method_id_ecotype_id2individual_value_ls)))
+		
+		avg_count = 0
+		new_avg_count = 0
+		multi_avg_count = 0
+		import Stock_250kDB
+		for method_id_ecotype_id, individual_value_ls in method_id_ecotype_id2individual_value_ls.iteritems():
+			
+			method_id, ecotype_id = method_id_ecotype_id
+			#rows = db.metadata.bind.execute("select ecotype_id, avg(value) as avg_value, stddev(value) as stddev, count(value) as sample_size, \
+			#	method_id from phenotype where \
+			#	method_id=%s and ecotype_id=%s group by method_id, ecotype_id"%(method_id, ecotype_id))
+			rows = Stock_250kDB.PhenotypeAvg.query.filter_by(method_id=method_id).filter_by(ecotype_id=ecotype_id)
+			if rows.count()==1:
+				phenotype_avg_entry = rows.one()
+			elif rows.count()==0:
+				phenotype_avg_entry = Stock_250kDB.PhenotypeAvg(method_id=method_id, ecotype_id=ecotype_id)
+				new_avg_count += 1
+			else:
+				multi_avg_count += 1
+				sys.stderr.write("Error: method_id=%s, ecotype_id=%s has multiple phenotype_avg entries.\n"%(method_id, ecotype_id))
+				phenotype_avg_entry = rows.first()
+				sys.exit(3)
+			DB250k.updatePhenotypeAvgEntry(db, phenotype_avg_entry, individual_value_ls)
+			#phenotype_avg_entry.value = row.avg_value
+			#phenotype_avg_entry.stddev = row.stddev
+			#phenotype_avg_entry.sample_size = row.sample_size
+			#db.session.save_or_update(phenotype_avg_entry)
+			avg_count += 1
+		db.session.commit()
+		sys.stderr.write("%s(%s new, %s multi) average values from %s replicates were updated. Done.\n"%\
+						(avg_count, new_avg_count, multi_avg_count, replicate_count))
+	
+	"""
+DB250k.updatePhenotypeAvgBasedOnPhenotype(db_250k, phenotype_condition='where date_created>"2009-08-23" order by method_id, ecotype_id')
+
+#update all phenotype_avg entries that have inidividual values in table phenotype 
+DB250k.updatePhenotypeAvgBasedOnPhenotype(db_250k);
+	"""	
+	
 class CNV(object):
-	"""
-	2008-12-12 draw histogram of CNV amplitudes probe by probe. input file is the amplitude output of RunGADA.py.
-	"""
-	def drawCNVAmpHist(cls, snpData, output_dir, max_counter=None):
+	@classmethod
+	def drawCNVAmpHist(cls, snpData, output_dir, max_counter=None, start_pos=None, stop_pos=None, chromosome_chosen=None):
+		"""
+		2009-2-20
+			add arguments start_pos, stop_pos
+		2008-12-12 draw histogram of CNV amplitudes probe by probe. input file is the amplitude output of RunGADA.py.
+		"""
 		if not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
 		import pylab
 		counter = 0
 		for col_id in snpData.col_id_ls:
+			col_id_split = col_id.split('_')
+			col_id_split = map(int, col_id_split)
+			chromosome, position = col_id_split
+			
+			#filter according to chromosome
+			if chromosome_chosen is not None and chromosome!=chromosome_chosen:
+				continue
+			#filter according to position
+			if start_pos is not None and stop_pos is not None and (position<start_pos-12 or position>stop_pos+12):
+				continue
+			
 			col_index = snpData.col_id2col_index[col_id]
 			sys.stderr.write("%s\t%s"%('\x08'*20, counter))
 			output_fname = os.path.join(output_dir, '%s_amp_hist.png'%col_id)
@@ -3679,19 +5706,20 @@ class CNV(object):
 			counter += 1
 			if max_counter and counter>max_counter:
 				break
-	drawCNVAmpHist = classmethod(drawCNVAmpHist)
-	
-	input_fname = '/Network/Data/250k/tmp-yh/CNV/call_method_17_CNV_array_intensity_chr4_line_no_888148_1107622_norm_GADA_out_amp.tsv'
-	from pymodule import SNPData
-	snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1, matrix_data_type=float)
-	output_dir = '/Network/Data/250k/tmp-yh/CNV/amp_hist/'
-	drawCNVAmpHist(snpData, output_dir, max_counter=1000)
+	"""
+input_fname = '/Network/Data/250k/tmp-yh/CNV/call_method_17_CNV_array_intensity_chr4_line_no_888148_1107622_norm_GADA_out_amp.tsv'
+from pymodule import SNPData
+snpData = SNPData(input_fname=input_fname, turn_into_integer=1, turn_into_array=1, ignore_2nd_column=1, matrix_data_type=float)
+output_dir = '/Network/Data/250k/tmp-yh/CNV/amp_hist/'
+CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
+	"""
 
 class AnalyzeSNPData(object):
-	"""
-	2007-03-20
-	"""
-	def DrawStrainSNP_NA_PercHist(data_matrix_fname, output_fname, need_savefig=0):
+	@classmethod
+	def DrawStrainSNP_NA_PercHist(cls, data_matrix_fname, output_fname, need_savefig=0):
+		"""
+		2007-03-20
+		"""
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
@@ -3726,8 +5754,8 @@ class AnalyzeSNPData(object):
 	"""
 	DrawStrainSNP_NA_PercHist('./script/variation/data/justin_data_y.csv', './script/variation/data/justin_data_y', 1)
 	"""
-	
-	def DrawStrain_Heterozygotes_PercHist(data_matrix_fname, output_fname, need_savefig=0):
+	@classmethod
+	def DrawStrain_Heterozygotes_PercHist(cls, data_matrix_fname, output_fname, need_savefig=0):
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
@@ -3754,10 +5782,11 @@ class AnalyzeSNPData(object):
 	"""
 	
 	"""
-	2007-03-21
 	2007-09-24 increase the #bins of histogram to 40
+	2007-03-21 draw histogram of pairwise accession genetic distance
 	"""
-	def DrawDistanceHistogram(data_matrix_fname, output_fname, need_savefig=0):
+	@classmethod
+	def DrawDistanceHistogram(cls, data_matrix_fname, output_fname, need_savefig=0):
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(data_matrix_fname)
@@ -3802,7 +5831,8 @@ class AnalyzeSNPData(object):
 	2007-09-17
 		check allele frequency
 	"""
-	def cal_maf_vector(input_fname):
+	@classmethod
+	def cal_maf_vector(cls, input_fname):
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
@@ -3830,7 +5860,8 @@ class AnalyzeSNPData(object):
 	2007-09-23
 		calculate the percentage of NAs in a data_matrix
 	"""
-	def calculate_NA_perc(input_fname):
+	@classmethod
+	def calculate_NA_perc(cls, input_fname):
 		from FilterStrainSNPMatrix import FilterStrainSNPMatrix
 		FilterStrainSNPMatrix_instance = FilterStrainSNPMatrix()
 		header, strain_acc_list, category_list, data_matrix = FilterStrainSNPMatrix_instance.read_data(input_fname)
@@ -3851,7 +5882,8 @@ class AnalyzeSNPData(object):
 	
 	#2008-2-16
 	#check the frequency of all allele-combinations between two SNPs
-	def get_allele_combo2freq(snp_data, snp_id1, snp_id2):
+	@classmethod
+	def get_allele_combo2freq(cls, snp_data, snp_id1, snp_id2):
 		snp_index1 = snp_data.col_id2col_index[snp_id1]
 		snp_index2 = snp_data.col_id2col_index[snp_id2]
 		no_of_rows, no_of_cols = snp_data.data_matrix.shape
@@ -3862,10 +5894,415 @@ class AnalyzeSNPData(object):
 				allele_combo2freq[allele_combo] = 0
 			allele_combo2freq[allele_combo] += 1
 		return allele_combo2freq
-	from pymodule import SNPData
-	snp_data = SNPData(input_fname='panfs/250k/call_method_29_binary.tsv', turn_into_array=1)
-	get_allele_combo2freq(snp_data, '1_18234094', '5_18607474')
-
+	"""
+from pymodule import SNPData
+snp_data = SNPData(input_fname='panfs/250k/call_method_29_binary.tsv', turn_into_array=1)
+get_allele_combo2freq(snp_data, '1_18234094', '5_18607474')
+	"""
+	
+	@classmethod
+	def reverseComplementFastaInput(cls, input_fname, output_fname):
+		"""
+		2009-3-25
+			read in sequences from input_fname (in fasta format), reverse complement each sequence and output them 
+		"""
+		inf = open(input_fname)
+		of = open(output_fname, 'w')
+		from Bio import SeqIO
+		for seq_record in SeqIO.parse(inf, "fasta") :
+			seq_rc = seq_record.seq.reverse_complement()
+			of.write('>%s\n'%seq_record.id)
+			of.write('%s\n'%seq_rc.tostring())
+	
+	
+	"""
+input_fname = os.path.expanduser('~/script/variation/doc/FLC/CarolineDeanFLC.seq')
+output_fname = os.path.expanduser('~/script/variation/doc/FLC/CarolineDeanFLC_rc.seq')
+AnalyzeSNPData.reverseComplementFastaInput(input_fname, output_fname)
+	"""
+	
+	
+	"""
+	2009-3-20
+		output fasta format in DrawSNPMatrix.py input format.
+		also partition the input into blocks each with number of columns <= maxNumberColsPerBlock.
+		too many columns render some parts of the image generated by DrawSNPMatrix.py unviewable.
+	"""
+	@classmethod
+	def fasta2DrawSNPMatrixFormat(cls ,input_fname, output_fname, maxNumberColsPerBlock=2000):
+		import csv, math
+		blockIndex2writer = {}
+		inf = open(input_fname)
+		from Bio import SeqIO
+		isHeaderOutputted = False
+		header_row = []
+		for seq_record in SeqIO.parse(inf, "fasta") :
+			one_row = []
+			no_of_blocks = int(math.ceil(len(seq_record.seq)/float(maxNumberColsPerBlock)))
+			for i in range(len(seq_record.seq)):
+				nt = seq_record.seq[i]
+				if not isHeaderOutputted:
+					header_row.append(i+1)
+				one_row.append(nt)
+			
+			#output header
+			if not isHeaderOutputted:
+				for i in range(no_of_blocks):
+					start_index = i*maxNumberColsPerBlock
+					stop_index = (i+1)*maxNumberColsPerBlock
+					row_for_this_block = header_row[start_index:stop_index]
+					if i not in blockIndex2writer:
+						output_fname_ls = os.path.splitext(output_fname)
+						block_output_fname = '%s_%s_%s%s'%(output_fname_ls[0], start_index, stop_index, output_fname_ls[1])
+						writer = csv.writer(open(block_output_fname, 'w'), delimiter='\t')
+						blockIndex2writer[i] = writer
+					blockIndex2writer[i].writerow(['name',1]+row_for_this_block)
+				isHeaderOutputted = True
+			
+			#output data
+			for i in range(no_of_blocks):
+				start_index = i*maxNumberColsPerBlock
+				stop_index = (i+1)*maxNumberColsPerBlock
+				row_for_this_block = one_row[start_index:stop_index]
+				blockIndex2writer[i].writerow([seq_record.id, 1] + row_for_this_block)
+		
+		del blockIndex2writer, inf
+	
+	"""
+input_fname = os.path.expanduser('~/script/variation/doc/FLC/CarolineDeanFLCAlign.fasta')
+output_fname = os.path.expanduser('~/script/variation/doc/FLC/CarolineDeanFLCAlign.tsv')
+AnalyzeSNPData.fasta2DrawSNPMatrixFormat(input_fname, output_fname)
+	"""
+	
+	@classmethod
+	def getAlignmentMatrixFromFasta(cls, fasta_input_fname, output_fname, chromosome=1, start=1, pickPolymorphicColumns=True):
+		"""
+		2009-5-28
+			add argument pickPolymorphicColumns
+		2009-3-26
+			generate alignment matrix out of a sequence file in fasta format
+				(if ID includes an underscore, the part behind underscore is regarded as real accession id.)
+			chromosome & start are the position of the 1st nucleotide in the alignment
+		"""
+		import os, sys, numpy
+		sys.stderr.write("Getting alignment matrix from %s ..."%(fasta_input_fname))
+		snp_pos_ls = []
+		accession_id_ls = []
+		name_ls = []
+		data_matrix = []
+		inf = open(fasta_input_fname)
+		from Bio import SeqIO
+		from DiscoverSNPFromAlignment import DiscoverSNPFromAlignment
+		from pymodule import dict_map, nt2number, PassingData
+		counter = 0
+		for seq_record in SeqIO.parse(inf, "fasta"):
+			if counter == 0:
+				snp_pos_ls = DiscoverSNPFromAlignment.get_snp_pos_ls(seq_record.seq.tostring().upper(), chromosome, start)
+			record_id_split = seq_record.id.split('_')
+			if len(record_id_split)==2:
+				record_id = record_id_split[1]
+			else:
+				record_id = record_id_split[0]
+			accession_id_ls.append(record_id)
+			name_ls.append(seq_record.id)
+			data_row = dict_map(nt2number, seq_record.seq.tostring().upper())
+			data_matrix.append(data_row)
+			counter += 1
+		data_matrix = numpy.array(data_matrix, numpy.int8)
+		passingdata = PassingData(snp_pos_ls=snp_pos_ls, accession_id_ls=accession_id_ls, name_ls=name_ls, data_matrix=data_matrix)
+		sys.stderr.write(' %s accessions, %s bases. Done.\n'%(len(accession_id_ls), len(snp_pos_ls)))
+		
+		if pickPolymorphicColumns:
+			DiscoverSNPFromAlignment.pickPolymorphicColumns(passingdata)
+		
+		header = ['id', 'name']
+		for snp_pos in passingdata.snp_pos_ls:
+			header.append('%s_%s_%s'%snp_pos)
+		passingdata.header = header
+		return passingdata
+	
+	@classmethod
+	def outputSNPsOutOfFastaAlignMatrixInYuFormat(cls, fasta_input_fname, output_fname, chromosome=1, start=1):
+		"""
+		2009-5-28
+			call getAlignmentMatrixFromFasta(), then write the returned data into file
+		"""
+		passingdata = cls.getAlignmentMatrixFromFasta(fasta_input_fname, output_fname, chromosome, start)
+		from pymodule import write_data_matrix
+		write_data_matrix(passingdata.data_matrix, output_fname, passingdata.header, \
+						passingdata.accession_id_ls, passingdata.name_ls)
+		return passingdata
+	
+	
+	"""
+fasta_input_fname = os.path.expanduser('~/script/variation/doc/FLC/CarolineDeanFLC_rc_with_ref.align.fasta')
+output_fname = os.path.expanduser('~/script/variation/doc/FLC/CarolineDeanFLC_rc_with_ref_snp_matrix.tsv')
+snpData = AnalyzeSNPData.outputSNPsOutOfFastaAlignMatrixInYuFormat(fasta_input_fname, output_fname, chromosome=5, start=3170860)
+	"""
+	
+	@classmethod
+	def filterColumnsOfFasta(cls, fasta_input_fname, output_fname, chromosome=1, start=1, pickPolymorphicColumns=False):
+		"""
+		2009-5-28
+			read the fasta_input_fname (in fasta format, if ID includes an underscore, the part behind underscore is regarded as real accession id.)
+			purpose of this program is to remove columns full of 'N' or '-', which could cause trouble for alignment with other sequences 
+			output in the same fasta format for further data fiddling
+		"""
+		passingdata = cls.getAlignmentMatrixFromFasta(fasta_input_fname, output_fname, chromosome, start, pickPolymorphicColumns=False)
+		sys.stderr.write("Filtering all-NA or all-deletion columns ... ")
+		from pymodule import nt2number, number2nt, dict_map, number2single_char_nt
+		import numpy
+		no_of_accessions = len(passingdata.accession_id_ls)
+		all_del_col = [nt2number['-']]*no_of_accessions
+		all_NA_col = [nt2number['N']]*no_of_accessions
+		non_del_NA_col_indices = []
+		all_NA_counter = 0
+		all_del_counter = 0
+		for j in range(passingdata.data_matrix.shape[1]):
+			all_del_truth_vector = passingdata.data_matrix[:,j]==all_del_col
+			all_NA_truth_vector = passingdata.data_matrix[:,j]==all_NA_col
+			
+			if all_del_truth_vector.all():
+				all_del_counter += 1
+			elif all_NA_truth_vector.all():
+				all_NA_counter += 1
+			else:
+				non_del_NA_col_indices.append(j)
+		
+		
+		outf = open(output_fname, 'w')
+		for i in range(no_of_accessions):
+			sequence_id = passingdata.name_ls[i]
+			outf.write('>%s\n'%sequence_id)
+			nt_ls = dict_map(number2single_char_nt, passingdata.data_matrix[i, non_del_NA_col_indices])
+			outf.write('%s\n'%''.join(nt_ls))
+		del outf
+		sys.stderr.write("%s columns are all NA. %s columns are all del. Done.\n"%(all_NA_counter, all_del_counter))
+	
+	"""
+fasta_input_fname = os.path.expanduser('~/script/variation/data/ACD6/ACD6.non_Kz10.sequenced.fasta')
+output_fname = os.path.expanduser('~/script/variation/data/ACD6/ACD6.non_Kz10.sequenced.del_NA_trimed.fasta')
+AnalyzeSNPData.filterColumnsOfFasta(fasta_input_fname, output_fname, chromosome=4, start=8293290)
+	"""
+	
+	@classmethod
+	def removeInsertionSNPsFromSNPMatrix(cls, input_fname, output_fname):
+		"""
+		2009-5-29
+			The most comprehensive way to represent a SNP is 'chr_pos_offset'.
+			However, some of my programs can only handle 'chr_pos'.
+			This function removes those SNPs embedded in insertion (relative to reference genome).
+			
+		"""
+		sys.stderr.write("Removing SNPs embedded in insertions ")
+		from pymodule import SNPData
+		snpData1 = SNPData(input_fname=input_fname, turn_into_array=1, ignore_2nd_column=1)
+		col_id_to_be_kept_ls = []
+		for col_id in snpData1.col_id_ls:
+			col_id_tuple = col_id.split('_')
+			offset = int(col_id_tuple[2])
+			if offset==0:
+				col_id_to_be_kept_ls.append(col_id)
+		snpData2 = SNPData.keepColsByColID(snpData1, col_id_to_be_kept_ls)
+		snpData2.tofile(output_fname)
+	
+	"""
+input_fname = os.path.expanduser('~/script/variation/data/ACD6/ACD6.non_Kz10.sequenced.del_NA_trimed.with_ref.clustalx.snp_matrix.84_1530.tsv')
+output_fname = os.path.expanduser('~/script/variation/data/ACD6/snp_matrix.84_1530.no_insert.tsv')
+AnalyzeSNPData.removeInsertionSNPsFromSNPMatrix(input_fname, output_fname)
+	"""
+	
+	@classmethod
+	def filterSNPMatrixBeforeImputation(cls, input_fname, output_fname):
+		"""
+		2009-5-29
+			1. convert het to NA
+			2. remove SNPs with >25% missing calls
+			3. remove SNPs with >2 alleles cuz NPUTE doesn't support >2 alleles.
+			4. remove SNPs with MAF<4%
+		"""
+		sys.stderr.write("Removing SNPs in preparation for imputation ...")
+		from pymodule import SNPData
+		snpData1 = SNPData(input_fname=input_fname, turn_into_array=1, ignore_2nd_column=1)
+		snpData2 = SNPData.convertHetero2NA(snpData1)
+		snpData3 = SNPData.removeColsByNARate(snpData2, max_NA_rate=0.25)
+		snpData4 = SNPData.removeSNPsWithMoreThan2Alleles(snpData3)
+		snpData5 = SNPData.removeColsByMAF(snpData4, min_MAF=0.04)
+		snpData5.tofile(output_fname)
+		sys.stderr.write("Done.\n")
+	
+	"""
+input_fname = os.path.expanduser('~/script/variation/data/ACD6/snp_matrix.84_1530.no_insert.tsv')
+output_fname = os.path.expanduser('~/script/variation/data/ACD6/snp_matrix.84_1530.no_insert.no_het.maxNA0.25.noSNPsMoreThan2Alleles.minMAF0.04.tsv')
+AnalyzeSNPData.filterSNPMatrixBeforeImputation(input_fname, output_fname)
+	"""
+	
+	@classmethod
+	def generateDatasetWithImputedCallsOnly(cls, unImputedFname, imputedFname, output_fname):
+		"""
+		2009-5-22
+			generate a dataset which only contains imputed calls and masks everything else as NA (missing) 
+				unImputedFname and imputedFname are of same shape, with same accessions & SNPs.
+				The former contains the data before imputation. The latter contains the one after imputation. 
+		"""
+		sys.stderr.write("Calculating stats of imputed calls in the dataset ... \n")
+		from pymodule import SNPData
+		snpData1 = SNPData(input_fname=unImputedFname, turn_into_array=1)
+		snpData2 = SNPData(input_fname=imputedFname, turn_into_array=1)
+		row_id2stats = {}
+		
+		import numpy, copy
+		newSnpData = SNPData(col_id_ls=copy.deepcopy(snpData1.col_id_ls), row_id_ls=snpData1.row_id_ls)
+		newSnpData.data_matrix = numpy.zeros(snpData1.data_matrix.shape, numpy.int8)
+		row_index = 0
+		for row_id, row_index1 in snpData1.row_id2row_index.iteritems():
+			row_index2 = snpData2.row_id2row_index[row_id]
+			if row_id not in row_id2stats:
+				row_id2stats[row_id] = 0
+			for col_id, col_index1 in snpData1.col_id2col_index.iteritems():
+				col_index2 = snpData2.col_id2col_index[col_id]
+				allele_unimputed = snpData1.data_matrix[row_index1][col_index1]
+				allele_imputed = snpData2.data_matrix[row_index2][col_index2]
+				if (allele_unimputed==0 or allele_unimputed==-2) and allele_imputed!=0 and allele_imputed!=-2:
+					#If before imputation it's NA (missing), keep the imputed call.
+					row_id2stats[row_id] += 1
+					newSnpData.data_matrix[row_index1][col_index1] = allele_imputed
+		newSnpData.tofile(output_fname)
+		sys.stderr.write("Done.\n")
+		return row_id2stats
+	
+	"""
+unImputedFname = '/Network/Data/250k/db/dataset/call_method_35.tsv'
+imputedFname = '/Network/Data/250k/db/dataset/call_method_33.tsv'
+output_fname = '/tmp/call_method_33_imputed_only.tsv'
+row_id2no_of_imputed = AnalyzeSNPData.generateDatasetWithImputedCallsOnly(unImputedFname, imputedFname, output_fname)
+	"""
+	
+	@classmethod
+	def cmpTwoSNPDatasets(cls, inputFname1, inputFname2):
+		"""
+		2009-6-12
+			compare two SNP datasets, report:
+				#rows deleted/added
+				#columns deleted/added
+				#SNPs changed (from which to which)
+		"""
+		sys.stderr.write("Comparing two SNP datasets ... \n")
+		from pymodule import SNPData, TwoSNPData, PassingData
+		snpData1 = SNPData(input_fname=inputFname1, turn_into_array=1)
+		snpData2 = SNPData(input_fname=inputFname2, turn_into_array=1)
+		row_id_deleted = []
+		row_id_added = []
+		col_id_deleted = []
+		col_id_added = []
+		total_row_id_set = set(snpData1.row_id_ls) | set(snpData2.row_id_ls)
+		total_col_id_set = set(snpData1.col_id_ls) | set(snpData2.col_id_ls)
+		for row_id in total_row_id_set:
+			if row_id not in snpData1.row_id2row_index:
+				row_id_added.append(row_id)
+			elif row_id not in snpData2.row_id2row_index:
+				row_id_deleted.append(row_id)
+		for col_id in total_col_id_set:
+			if col_id not in snpData1.col_id2col_index:
+				col_id_added.append(col_id)
+			elif col_id not in snpData2.col_id2col_index:
+				col_id_deleted.append(col_id)
+		
+		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2)
+		diff_data = twoSNPData.get_diff_matrix()
+		diff_matrix = diff_data[0]
+		import numpy
+		sth_index_ls = [1] + range(3, diff_matrix.shape[1])	#"deletion" + 10 calls
+		print sth_index_ls
+		print diff_matrix
+		counter_NA_to_sth = numpy.sum(diff_matrix[[0,2],:][:, sth_index_ls])
+		counter_sth_to_NA = numpy.sum(diff_matrix[sth_index_ls,:][:, [0,2]])
+		sub_diff_matrix = diff_matrix[sth_index_ls,:][:, sth_index_ls]
+		counter_sth_to_sth_diff = numpy.sum(sub_diff_matrix) - numpy.sum(numpy.diagonal(sub_diff_matrix))
+		
+		print "%s rows deleted."%len(row_id_deleted)
+		print "%s rows added."%len(row_id_added)
+		print "%s cols deleted."%len(col_id_deleted)
+		print "%s cols added."%len(col_id_added)
+		print "%s SNPs from NA to sth."%counter_NA_to_sth
+		print "%s SNPs from sth to NA."%counter_sth_to_NA
+		print "%s SNPs from sth to sth different."%counter_sth_to_sth_diff
+		return_data = PassingData(row_id_deleted=row_id_deleted, row_id_added=row_id_added, col_id_deleted=col_id_deleted, col_id_added=col_id_added)
+		return_data.counter_NA_to_sth = counter_NA_to_sth
+		return_data.counter_sth_to_NA = counter_sth_to_NA
+		return_data.counter_sth_to_sth_diff = counter_sth_to_sth_diff
+		sys.stderr.write("Done.\n")
+		return return_data
+	
+	"""
+inputFname1 = '/Network/Data/250k/db/dataset/call_method_35.tsv'
+inputFname2 = '/Network/Data/250k/db/dataset/call_method_33.tsv'
+return_data = AnalyzeSNPData.cmpTwoSNPDatasets(inputFname1, inputFname2)
+	"""
+	
+	@classmethod
+	def cmpOneRowToTheOther(cls, inputFname, row_id1, row_id2):
+		"""
+		2009-6-17
+			compare SNP data of one accession to the other in the same dataset
+		"""
+		sys.stderr.write("Comparing one row to the other ... \n")
+		from pymodule import SNPData, TwoSNPData, PassingData
+		snpData = SNPData(input_fname=inputFname, turn_into_array=1)
+		twoSNPData = TwoSNPData(SNPData1=snpData, SNPData2=snpData)
+		print twoSNPData.cmpOneRow(row_id1, row_id2)
+	
+	"""
+inputFname = '/Network/Data/250k/db/dataset/call_method_29.tsv'
+row_id1 = ('6910', '62')
+row_id2 = ('8290', '181')
+AnalyzeSNPData.cmpOneRowToTheOther(inputFname, row_id1, row_id2)
+	"""
+	
+	@classmethod
+	def linkEcotypeIDFromSuziPhenotype(cls, fname_with_ID, fname_with_phenotype, output_fname):
+		"""
+		2009-7-31
+			she gave me two files
+				one has phenotype data and accession names but with no ecotype ID
+				2nd is a map from accession name to ecotype ID
+		"""
+		sys.stderr.write("Linking accession names to ecotype ID ... ")
+		import csv
+		inf_phenotype = csv.reader(open(fname_with_phenotype, 'r'), delimiter='\t')
+		accession_name_ls = []
+		#skip two lines
+		inf_phenotype.next()
+		inf_phenotype.next()
+		for row in inf_phenotype:
+			accession_name_ls.append(row[0])
+		del inf_phenotype
+		
+		inf_with_ID = csv.reader(open(fname_with_ID), delimiter='\t')
+		inf_with_ID.next()
+		accession_name2ecotype_id = {}
+		for row in inf_with_ID:
+			ecotype_id = row[0]
+			accession_name = row[5]
+			accession_name2ecotype_id[accession_name] = ecotype_id
+		del inf_with_ID
+		print accession_name2ecotype_id
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		for accession_name in accession_name_ls:
+			ecotype_id = accession_name2ecotype_id.get(accession_name)
+			writer.writerow([accession_name, ecotype_id])
+		del writer
+		
+		sys.stderr.write("Done.\n")
+	
+	"""
+fname_with_ID = '/tmp/seed_batch3_out.txt'
+fname_with_phenotype = '/tmp/ft_LN_other phenotypes_10_batch_3_complete_7_29th.txt'
+output_fname = '/tmp/batch_3_name2id.tsv'
+AnalyzeSNPData.linkEcotypeIDFromSuziPhenotype(fname_with_ID, fname_with_phenotype, output_fname)
+	"""
+	
+	
 #2007-03-05 common codes to initiate database connection
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -3881,6 +6318,8 @@ else:   #32bit
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/test/python')))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script/variation/src')))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
+
+import matplotlib; matplotlib.use("Agg")	#to avoid popup and collapse in X11-disabled environment
 
 """
 from codense.common import db_connect, form_schema_tables
@@ -3929,6 +6368,39 @@ db_149.setup(create_tables=False)
 if __name__ == '__main__':
 	ecotype_table = 'ecotype'
 	calls_table = 'calls'
-	strain_snp_pair_set1, inconsistent_dup_strain_snp_pair_set1 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table)
-	strain_snp_pair_set2, inconsistent_dup_strain_snp_pair_set2 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=2)
-	strain_snp_pair_set3, inconsistent_dup_strain_snp_pair_set3 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=3)
+	#strain_snp_pair_set1, inconsistent_dup_strain_snp_pair_set1 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table)
+	#strain_snp_pair_set2, inconsistent_dup_strain_snp_pair_set2 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=2)
+	#strain_snp_pair_set3, inconsistent_dup_strain_snp_pair_set3 = check_inconsistent_duplicate_calls2(curs, ecotype_table, calls_table, strainname_type=3)
+	
+	#### 2009-5-2 code to check enrichment data by 3D plot. run by mayavi2 -x misc.py
+	hostname='papaya.usc.edu'
+	dbname='stock_250k'
+	db_user='yh'
+	db_passwd = 'yh324'
+
+	drivername='mysql'
+	schema = None
+	import Stock_250kDB
+	db_250k = Stock_250kDB.Stock_250kDB(drivername=drivername, username=db_user,
+					password=db_passwd, hostname=hostname, database=dbname, schema=schema)
+	db_250k.setup(create_tables=False)
+	
+	import pdb
+	pdb.set_trace()
+	phenotype_fname = os.path.expanduser('~/mnt/panfs/250k/phenotype20090902_cypress_col_1_9.tsv')	#~/mnt/panfs/250k/phenotype20090902_cypress.tsv')
+	output_fname_prefix = '/tmp/phenotypePCA_cypress_col_1_9'
+	GWA.phenotypePCA(db_250k, phenotype_fname, output_fname_prefix)
+	"""
+	phenotype_fname = os.path.expanduser('~/mnt/panfs/250k/phenotype20090902.tsv')
+	output_fname_prefix = '/tmp/phenotypePCA'
+	GWA.phenotypePCA(db_250k, phenotype_fname, output_fname_prefix)
+	"""
+	
+	genotype_fname = '/Network/Data/250k/db/dataset/call_method_32.tsv'
+	phenotype_fname = '/Network/Data/250k/tmp-yh/phenotype.tsv'
+	phenotype_fname = '/tmp/phenotype_43_FLC.tsv'
+	phenotype_method_id_ls = [43]
+	start_snp = '4_1'
+	stop_snp = '4_1750000'
+	
+	
