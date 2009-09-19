@@ -62,6 +62,8 @@ from sets import Set
 #from DrawEcotypeOnMap import DrawEcotypeOnMap
 
 class Association(Kruskal_Wallis):
+	debug = 0
+	report = 0
 	__doc__ = __doc__
 	option_default_dict = Kruskal_Wallis.option_default_dict.copy()
 	option_default_dict.pop(("which_phenotype", 1, int))
@@ -133,6 +135,7 @@ class Association(Kruskal_Wallis):
 	
 	getPCFromFile = classmethod(getPCFromFile)
 	
+	@classmethod
 	def multi_linear_model(cls, genotype_matrix, phenotype_ls, min_data_point=3, snp_index=None, kinship_matrix=None, eig_L=None, run_type=1):
 		"""
 		
@@ -184,8 +187,7 @@ class Association(Kruskal_Wallis):
 			pdata = None
 		return pdata
 	
-	multi_linear_model = classmethod(multi_linear_model)
-	
+	@classmethod
 	def pure_linear_model(cls, non_NA_genotype_ls, non_NA_phenotype_ls, non_NA_phenotype2count=None):
 		"""
 		2008-11-10
@@ -225,7 +227,53 @@ class Association(Kruskal_Wallis):
 		#var_perc2 = geno_effect_var/numpy.var(non_NA_phenotype_ls)	#this is also same as var_perc.
 		
 		
+		#pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
+		#2008-08-06 try wilcox
+		#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
+		pdata = PassingData(pvalue=pvalue, var_perc=var_perc, coeff_list=coeff_list, coeff_p_value_list=coeff_p_value_list)
+		return pdata
+	
+	@classmethod
+	def pure_linear_model_via_R(cls, non_NA_genotype_ls, non_NA_phenotype_ls, non_NA_phenotype2count=None):
 		"""
+		2009-8-28
+			split out of pure_linear_model(). same functionality as pure_linear_model(), but invoke R to run regression.
+		"""
+		#rpy.r.as_factor.local_mode(rpy.NO_CONVERSION)
+		if not isinstance(non_NA_genotype_ls, numpy.ndarray):
+			genotype_matrix = numpy.array(non_NA_genotype_ls)
+			if len(genotype_matrix.shape)==1:	#transform into 2D array
+				genotype_matrix.resize([len(genotype_matrix), 1])
+		else:
+			genotype_matrix = non_NA_genotype_ls
+		no_of_rows, no_of_cols = genotype_matrix.shape
+		
+		
+		#2008-11-10 do linear regression by numpy
+		genotype_matrix = numpy.hstack((numpy.ones([len(genotype_matrix),1], numpy.int), genotype_matrix))	#the design variable for intercept has to be included.
+		"""
+		genotype_matrix2 = numpy.transpose(genotype_matrix)
+		D = linalg.inv(numpy.inner(genotype_matrix2, genotype_matrix2))	#2nd matrix's shape is opposite to real matrix algebra.
+
+		(p, residuals, rank, s) = linalg.lstsq(genotype_matrix, non_NA_phenotype_ls)	#all 4 returned elements are arrays
+		#coeff_list = [p[0]]	#put the intercept beta there first
+		#coeff_p_value_list = [-1]
+		coeff_list = []
+		coeff_p_value_list = []
+		for i in range(len(p)):
+			coeff_list.append(p[i])
+			F = p[i]*p[i]/((residuals[0]/(no_of_rows-len(p)))*D[i,i])	#page 106 of Seber2003LRA
+				#page 108 of Seber2003LRA. F=r^2(n-2)/(1-r^2). 
+				#T=sqrt(F) is t-stat with n-2 df. it's used in r.glm(). F-test gives slightly bigger p-value than t-test.
+			pvalue = rpy.r.pf(F,1, no_of_rows-len(p), lower_tail=rpy.r.FALSE)
+			coeff_p_value_list.append(pvalue)
+		pvalue = coeff_p_value_list[1]	#this is the pvalue to return, corresponding to the genotype vector
+		genotype_var = numpy.var(genotype_matrix[:,1]) 	#2008-11-10 var=\sum(x_i-\bar{x})^2/(n-1)
+		geno_effect_var = genotype_var*p[1]*p[1]*(no_of_rows-1)
+		var_perc = geno_effect_var/(residuals[0]+geno_effect_var)
+		#var_perc2 = geno_effect_var/numpy.var(non_NA_phenotype_ls)	#this is also same as var_perc.
+		"""
+		
 		#2008-11-10 do linear regression by R
 		genotype_var = numpy.var(genotype_matrix[:,0]) 	#2008-11-10 var=\sum(x_i-\bar{x})^2/(n-1)
 		rpy.set_default_mode(rpy.NO_CONVERSION) #04-07-05
@@ -258,18 +306,19 @@ class Association(Kruskal_Wallis):
 		residuals = summary_stat['deviance']
 		geno_effect_var = genotype_var*coeff_list[1]*coeff_list[1]*(no_of_rows-1)
 		var_perc = geno_effect_var/(residuals+geno_effect_var)
-		"""
 		
-		#pvalue = rpy.r.kruskal_test(x=non_NA_phenotype_ls, g=rpy.r.as_factor(non_NA_genotype_ls))['p.value']
-		#2008-08-06 try wilcox
-		#pvalue = rpy.r.wilcox_test(non_NA_genotype2phenotype_ls[top_2_allele_ls[0]], non_NA_genotype2phenotype_ls[top_2_allele_ls[1]], conf_int=rpy.r.TRUE)['p.value']
 		pdata = PassingData(pvalue=pvalue, var_perc=var_perc, coeff_list=coeff_list, coeff_p_value_list=coeff_p_value_list)
 		return pdata
 	
-	pure_linear_model = classmethod(pure_linear_model)
+	@classmethod
 	def linear_model(cls, genotype_ls, phenotype_ls, min_data_point=3, snp_index=None, kinship_matrix=None, eig_L=None, \
 					run_type=1):
 		"""
+		2009-9-19
+			run_type
+				1: pure_linear_model
+				2: emma
+				3: pure_linear_model via R
 		2009-5-15
 			report full error information if cls.debug is set.
 		2009-2-11
@@ -330,6 +379,8 @@ class Association(Kruskal_Wallis):
 			try:
 				if run_type==1:
 					pdata = cls.pure_linear_model(non_NA_genotype_ls, non_NA_phenotype_ls, non_NA_phenotype2count)
+				elif run_type==3:
+					pdata = cls.pure_linear_model_via_R(non_NA_genotype_ls, non_NA_phenotype_ls, non_NA_phenotype2count)
 				elif run_type==2:
 					if kinship_matrix.shape[0]!=n:	#there is NA and need slicing
 						new_kinship_matrix = kinship_matrix[non_NA_index_ls, non_NA_index_ls]
@@ -354,13 +405,12 @@ class Association(Kruskal_Wallis):
 					traceback.print_exc()
 					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 				else:	#2009-4-5 simpilify output if not debug
-					sys.stderr.write("Except while running pure_linear_model on snp_index=%s.\n"%(snp_index))
+					sys.stderr.write("Except (%s) while running pure_linear_model on snp_index=%s.\n"%(repr(sys.exc_info()), snp_index))
 				pdata = None
 		else:
 			pdata = None
 		return pdata
 	
-	linear_model = classmethod(linear_model)
 	
 	def LM_whole_matrix(self, data_matrix, phenotype_ls, min_data_point=3, **keywords):
 		"""
@@ -453,6 +503,8 @@ class Association(Kruskal_Wallis):
 	
 	def emma(cls, non_NA_genotype_ls, non_NA_phenotype_ls, kinship_matrix, eig_L = None):
 		"""
+		2009-8-26
+			update coeff_p_value_list with pvalues returned from EMMA
 		2008-11-13
 			call emma.REMLE()
 		"""
@@ -466,7 +518,8 @@ class Association(Kruskal_Wallis):
 		genotype_matrix = numpy.hstack((numpy.ones([n ,1], numpy.int), genotype_matrix))	#the design variable for intercept has to be included.
 		
 		one_marker_rs = rpy.r.emma_REMLE(non_NA_phenotype_ls, genotype_matrix, kinship_matrix, eig_L=eig_L, cal_pvalue=rpy.r.TRUE)
-		coeff_list=[beta[0] for beta in one_marker_rs['beta']]
+		coeff_list = [beta[0] for beta in one_marker_rs['beta']]
+		coeff_p_value_list = [pvalue for pvalue in one_marker_rs['pvalues']]
 		
 		"""# 2009-3-24 temporary, get random_effect+residual
 		coeff_ar = numpy.array(coeff_list)
@@ -474,7 +527,6 @@ class Association(Kruskal_Wallis):
 		coeff_list.extend(random_effect_and_residual_ls)
 		"""
 		
-		coeff_p_value_list=[None]*len(coeff_list)
 		pdata = PassingData(pvalue=one_marker_rs['pvalue'], var_perc=one_marker_rs['genotype_var_perc'][0][0], \
 						coeff_list=coeff_list, coeff_p_value_list=coeff_p_value_list)
 		return pdata
@@ -560,7 +612,8 @@ class Association(Kruskal_Wallis):
 		sys.stderr.write("Done.\n")
 		return results
 	
-	def output_emma_results(self, results, SNP_header, output_fname, log_pvalue=0):
+	@classmethod
+	def output_emma_results(cls, results, SNP_header, output_fname, log_pvalue=0):
 		"""
 		2008-11-12
 			this is written when rpy.r.emma_REML_t() is used in Emma_whole_matrix().
@@ -578,6 +631,7 @@ class Association(Kruskal_Wallis):
 			
 			pvalue = results['ps'][i][0]
 			var_perc = results['genotype_var_perc'][i][0]
+			
 			coeff_list = [results['beta0_est'][i][0], results['beta1_est'][i][0]]
 			
 			#pdata = PassingData(snp_index=i, pvalue=pvalue, count_ls=[0.5,20], var_perc=var_perc, coeff_list=coeff_list, coeff_p_value_list=coeff_p_value_list)
@@ -587,16 +641,19 @@ class Association(Kruskal_Wallis):
 			
 			real_counter += 1
 			counter += 1
-			if self.report and counter%2000==0:
+			if cls.report and counter%2000==0:
 				sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, real_counter))
-		if self.report:
+		if cls.report:
 			sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, real_counter))
 		
 		del writer
 		sys.stderr.write("Done.\n")
-		
-	def output_lm_results(self, results, SNP_header, output_fname, log_pvalue=0):
+	
+	@classmethod
+	def output_lm_results(cls, results, SNP_header, output_fname, log_pvalue=0):
 		"""
+		2009-9-19 fix a bug
+			if coeff_pvalue is not None:	#2009-9-19 different from "if coeff_pvalue:", which would skip 0.0
 		2008-11-11
 			adapted from output_kw_results() of Kruskal_Wallis.py
 		2008-05-27
@@ -626,14 +683,15 @@ class Association(Kruskal_Wallis):
 				coeff = pdata.coeff_list[j]
 				coeff_pvalue = pdata.coeff_p_value_list[j]
 				coeff_and_pvalue = '%s'%coeff
-				if coeff_pvalue:
+				if coeff_pvalue is not None:	#2009-9-19 different from "if coeff_pvalue:", which would skip 0.0
 					coeff_and_pvalue += ':%s'%coeff_pvalue
 				coeff_and_pvalue_ls.append(coeff_and_pvalue)
 			writer.writerow([SNP_pos_ls[0], SNP_pos_ls[1], pvalue, MAF, MAC, pdata.var_perc] + coeff_and_pvalue_ls)
 		del writer
 		sys.stderr.write("Done.\n")
 	
-	def readInData(self, phenotype_fname, input_fname, eigen_vector_fname, phenotype_method_id_ls, test_type=1, report=0):
+	@classmethod
+	def readInData(cls, phenotype_fname, input_fname, eigen_vector_fname, phenotype_method_id_ls, test_type=1, report=0):
 		"""
 		2009-3-20
 			refactored out of run(), easy for MpiAssociation.py to call
@@ -646,11 +704,11 @@ class Association(Kruskal_Wallis):
 		newSnpData, allele2index_ls = snpData.convertSNPAllele2Index(report)	#0 (NA) or -2 (untouched) is all converted to -2 as 0 is used to denote allele
 		newSnpData.header = snpData.header
 		
-		data_matrix_phen = self.get_phenotype_matrix_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen)
+		data_matrix_phen = cls.get_phenotype_matrix_in_data_matrix_order(strain_acc_list, strain_acc_list_phen, data_matrix_phen)
 		phenData = SNPData(header=header_phen, strain_acc_list=snpData.strain_acc_list, data_matrix=data_matrix_phen)
 		
 		if eigen_vector_fname:
-			PC_data = self.getPCFromFile(eigen_vector_fname)
+			PC_data = cls.getPCFromFile(eigen_vector_fname)
 			PC_matrix = PC_data.PC_matrix
 		else:
 			if test_type==4:	#eigen_vector_fname not given for this test_type. calcualte PCs.
