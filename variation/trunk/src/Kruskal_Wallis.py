@@ -8,7 +8,7 @@ Description:
 	class to do kruskal wallis test on SNP data.
 	
 	Input genotype file format is Strain X SNP format (Yu's format, Output by DB_250k2data.py Or Output250KSNPs.py + ConvertBjarniSNPFormat2Yu.py).
-	Input phenotype file format is Strain X phenotype format (Output by OutputPhenotype.py). 
+	Input phenotype file format is Strain X phenotype format (Output by OutputPhenotype.py). "NA" or empty is regarded as missing value.
 	
 	It requires a minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test.
 	
@@ -53,7 +53,7 @@ class Kruskal_Wallis:
 	__doc__ = __doc__
 	option_default_dict = {('input_fname', 1, ): ['', 'i', 1, 'input genotype matrix. Strain X SNP format.', ],\
 							('output_fname', 1, ): ['', 'o', 1, 'store the pvalue', ],\
-							('phenotype_fname', 1, ): [None, 'p', 1, 'phenotype file', ],\
+							('phenotype_fname', 1, ): [None, 'p', 1, 'phenotype file, "NA" or empty is regarded as missing value.', ],\
 							('minus_log_pvalue', 0, ): [0, 'e', 0, 'toggle -log(pvalue)', ],\
 							('which_phenotype', 1, int): [0, 'w', 1, 'which phenotype, 0=first phenotype (3rd column in phenotype_fname) and so on.',],\
 							('min_data_point', 1, int): [3, 'm', 1, 'minimum number of ecotypes for either alleles of a single SNP to be eligible for kruskal wallis test'],\
@@ -78,6 +78,8 @@ class Kruskal_Wallis:
 	
 	def get_phenotype_matrix_in_data_matrix_order(self, strain_acc_list, strain_acc_list_phen, data_matrix_phen):
 		"""
+		2009-7-30
+			empty string is also regarded as missing value (=numpy.nan).
 		2008-09-07
 			order the whole phenotype matrix, not just one column.
 			convert the phenotype matrix to numpy.float, NA to numpy.nan
@@ -96,7 +98,7 @@ class Kruskal_Wallis:
 			if strain_acc in strain_acc_phen2index:
 				phen_index = strain_acc_phen2index[strain_acc]
 				for j in range(no_of_cols):
-					if data_matrix_phen[phen_index][j]=='NA':
+					if data_matrix_phen[phen_index][j]=='NA' or data_matrix_phen[phen_index][j]=='':
 						new_data_matrix_phen[i,j] = numpy.nan
 					else:
 						new_data_matrix_phen[i,j] = float(data_matrix_phen[phen_index][j])
