@@ -311,7 +311,13 @@ emma.MLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
 }
 
 emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
-  esp=1e-10, eig.L = NULL, eig.R = NULL, cal.pvalue=FALSE) {
+  esp=1e-10, eig.L = NULL, eig.R = NULL, cal.pvalue=FALSE, cal.mu=FALSE) {
+  # 2009-9-19
+  # y is the phenotype vector. n = no of individuals.
+  # X is the covariate matrix. each row is a strain. each column is a covariate. Identity column for the intercept should also be included.
+  # K is the kinship matrix, defining relationship between all samples. t X t.
+  # Z is the n X t incidence matrix. mapping each phenotype in y to one of t samples. deals with replicates. If not specified, default is identity matrix.	
+
   n <- length(y)	#2008-11-13	no of individuals
   t <- nrow(K)	#2008-11-13 no of individuals
   q <- ncol(X)	#2008-11-13 no of markers. X is individual X marker. tranposed compared to X in emma.REML.t
@@ -408,7 +414,7 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   maxdelta <- exp(optlogdelta[which.max(optLL)])
   maxLL <- max(optLL)
   if ( is.null(Z) ) {
-    maxva <- sum(etas*etas/(eig.R$values+maxdelta))/(n-q) 	#vg   
+    maxva <- sum(etas*etas/(eig.R$values+maxdelta))/(n-q) 	#vg, vg=R/(n-q), R=sum(etas*etas/(eig.R$values+maxdelta)), equation (A10).
   }
   else {
     maxva <- (sum(etas.1*etas.1/(eig.R$values+maxdelta))+etas.2.sq/maxdelta)/(n-q)
@@ -434,7 +440,8 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   phenotype_var = var(y)	#2008-11-11 calculating this every time wastes cpu time. maybe move it to emma.REML.t? a bit complicated to do in emma.REML.t
   genotype_var_perc = x_beta_var/phenotype_var
   
-  #2008-11-13 get the pvalue
+  #2008-11-13 get the pvalues for each beta except the 1st one (=intercept. its pvalue not interesting, set to 0.0). 
+  pvalues = rep(0.0, q)
   if (cal.pvalue)
   {
   	U <- eig.L$vectors * matrix(sqrt(1/(eig.L$values+maxdelta)), t, t, byrow=TRUE)
@@ -442,9 +449,15 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   	#yt <- crossprod(U,y)
   	Xt <- crossprod(U,X)
   	iXX <- solve(crossprod(Xt,Xt))
-  	q1 = 2	#pvalue for the second beta
-  	stat <- beta[q1]/sqrt(iXX[q1,q1]*maxva)		#vg=maxva
-  	pvalue <- 2*pt(abs(stat), df, lower.tail=FALSE)
+  	#q1 = 2	#pvalue for the second beta
+  	#stat <- beta[q1]/sqrt(iXX[q1,q1]*maxva)		#vg=maxva
+  	#pvalue <- 2*pt(abs(stat), df, lower.tail=FALSE)
+	for( i in 2:q )	#2009-8-26 get pvalues for all betas except the 1st one
+	{
+		stat <- beta[i]/sqrt(iXX[i,i]*maxva)		#vg=maxva
+		pvalues[i] <- 2*pt(abs(stat), df, lower.tail=FALSE)
+	}
+	pvalue = pvalues[2]
   }
   else
   {
@@ -452,8 +465,18 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   	pvalue = -1
   }
   
+  #2008-12-07 estimate the \mu, random effect of the mixed model representing the confounding
+  if (cal.mu)
+  {
+  	mu = K %*% (K + diag(maxve, n)) %*% (y - x_beta)
+  }
+  else
+  {
+  	mu = NULL
+  }
+  
   return (list(REML=maxLL,delta=maxdelta,ve=maxve,vg=maxva, beta=beta, x_beta_var=x_beta_var, 
-  	genotype_var_perc=genotype_var_perc, pvalue=pvalue, stat=stat))
+  	genotype_var_perc=genotype_var_perc, pvalue=pvalue, stat=stat, mu=mu, pvalues=pvalues))
 }
 
 emma.ML.LRT <- function(ys, xs, K, Z=NULL, X0 = NULL, ngrids=100, llim=-10, ulim=10, esp=1e-10, ponly = FALSE) {
