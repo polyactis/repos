@@ -41,10 +41,10 @@ cat("variance of X*beta_est at min pvalue:", x_beta_var, " percentage=", x_beta_
 x_beta_est_alt = emmadat$xs[marker_index,]*rs$beta1_est[marker_index]
 cat("variance of X*beta_est (no X0) at min pvalue:", var(x_beta_est_alt), "\n")
 
-
-
 mu = emmadat$K %*% (emmadat$K + diag(rs$ves[marker_index], no_of_individuals)) %*% (emmadat$ys[1,] - x_beta_est)
 #cat("mu: ", mu, "\n")
+#mu2 = emmadat$ys[1,]-x_beta_est
+#cat("mu2: ", mu2, "\n")
 cat("variance of mu: ", var(mu), "\n")
 cat("covariance of (x_beta_est, mu): ", cov(x_beta_est, mu), "\n")
 
