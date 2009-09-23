@@ -140,6 +140,11 @@ class ContaminantType(Entity):
 	using_table_options(mysql_engine='InnoDB')
 	
 class Strain(Entity):
+	"""
+	2009-9-22
+		add 'replicate' into the unique constraint.
+		change type of replicate from boolean to integer
+	"""
 	ecotype = ManyToOne("Ecotype", colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
 	extraction = ManyToOne("Extraction", colname='extractionid', ondelete='CASCADE', onupdate='CASCADE')
 	seqinfo1 = ManyToOne("SeqInfo", colname='seqinfoid1', ondelete='CASCADE', onupdate='CASCADE')
@@ -148,7 +153,7 @@ class Strain(Entity):
 	seqinfo4 = ManyToOne("SeqInfo", colname='seqinfoid4', ondelete='CASCADE', onupdate='CASCADE')
 	plateid = Field(String(25))
 	wellid = Field(String(3))
-	replicate = Field(Boolean)
+	replicate = Field(Integer)
 	contaminant_type = ManyToOne("ContaminantType", colname='contaminant_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	call_qc_ls = OneToMany("CallQC")
 	ecotypeid_strainid2tg_ecotypeid = OneToOne("EcotypeIDStrainID2TGEcotypeID", inverse="strain")
@@ -158,7 +163,7 @@ class Strain(Entity):
 	date_updated = Field(DateTime)
 	using_options(tablename='strain', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
-	using_table_options(UniqueConstraint('ecotypeid', 'plateid', 'wellid'))
+	using_table_options(UniqueConstraint('ecotypeid', 'plateid', 'wellid', 'replicate'))
 	
 class Extraction(Entity):
 	namelabel = Field(String(25))
@@ -229,13 +234,22 @@ class GeographicIntegrity(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class Calls(Entity):
+	"""
+	2009-9-22
+		add the unique constraint: UniqueConstraint('strainid', 'snpid')
+	"""
 	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
 	snp = ManyToOne("SNPs", colname='snpid', ondelete='CASCADE', onupdate='CASCADE')
 	allele = Field(String(5))	#'call' is mysql reserved keyword
 	using_options(tablename='calls', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('strainid', 'snpid'))
 	
 class Calls_BySeq(Entity):
+	"""
+	2009-9-22
+		add the unique constraint: UniqueConstraint('ecotypeid', 'plateid', 'wellid', 'snpid', 'replicate')
+	"""
 	snp = ManyToOne("SNPs", colname='snpid', ondelete='CASCADE', onupdate='CASCADE')
 	ecotype = ManyToOne("Ecotype", colname='ecotypeid', ondelete='CASCADE', onupdate='CASCADE')
 	extraction = ManyToOne("Extraction", colname='extractionid', ondelete='CASCADE', onupdate='CASCADE')
@@ -253,10 +267,11 @@ class Calls_BySeq(Entity):
 	ext1snr = Field(Float)
 	ext2snr = Field(Float)
 	probesnr = Field(Float)
-	replicate = Field(Boolean)
+	replicate = Field(Integer)
 	description = Field(String(40))
 	using_options(tablename='calls_byseq', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('ecotypeid', 'plateid', 'wellid', 'snpid', 'replicate'))
 
 class QCMethod(Entity):
 	"""
@@ -310,6 +325,8 @@ class EcotypeIDStrainID2TGEcotypeID(Entity):
 
 class QCCrossMatch(Entity):
 	"""
+	2009-9-22
+		add unique constraint ('strainid', 'target_id', 'qc_method_id')
 	2008-08-26
 	"""
 	strain = ManyToOne("Strain", colname='strainid', ondelete='CASCADE', onupdate='CASCADE')
@@ -321,6 +338,7 @@ class QCCrossMatch(Entity):
 	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	using_options(tablename='qc_cross_match')
 	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('strainid', 'target_id', 'qc_method_id'))
 
 class HaploGroup(Entity):
 	"""
