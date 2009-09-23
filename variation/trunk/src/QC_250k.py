@@ -80,7 +80,7 @@ class QC_250k(TwoSNPData):
 							('run_type', 1, int): [1, 'e', 1, 'QC on 1=accession-wise or 2=snp-wise'],\
 							('one_by_one', 0, int): [0, 'a', 0, 'whether to do QC of call_info entries one by one or as a whole. only for run_type=1.'],\
 							('max_call_info_mismatch_rate', 0, float,):[-1, 'x', 1, 'maximum mismatch rate of an array call_info entry. used to exclude bad arrays to calculate snp-wise QC.'],\
-							('min_no_of_non_NA_pairs', 1, int): [40, 'f', 1, 'QC on 1=accession-wise or 2=snp-wise'],\
+							('min_no_of_non_NA_pairs', 1, int): [40, 'f', 1, 'minimum number of non-NA SNP-pairs in order to compare two accessions'],\
 							('commit', 0, int):[0, 'c', 0, 'commit db transaction'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
