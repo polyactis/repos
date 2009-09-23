@@ -410,6 +410,14 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	2009-8-19
 		if turn_into_integer==1 and matrix_data_type==int and characters were found in the 1st entry of the data row, use the nucleotide2number map.
 		turn_into_integer is beyond its literal meaning. It's a flag to turn the input into a numerical type (= matrix_data_type).
+		
+		eg:
+		
+		#read a phenotype matrix. turn_into_integer=2 because it's not nucleotides
+		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(input_fname, turn_into_integer=2, \
+			matrix_data_type=float)
+		phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, data_matrix=data_matrix_phen)
+		
 	2009-5-20
 		add argument ignore_het, which upon toggled, instructs the function to use nt2number_without_het to map nucleotides to number.
 	2009-3-21
