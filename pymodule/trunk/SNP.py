@@ -407,6 +407,9 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int, ignore_het=0):
 	"""
+	2009-8-19
+		if turn_into_integer==1 and matrix_data_type==int and characters were found in the 1st entry of the data row, use the nucleotide2number map.
+		turn_into_integer is beyond its literal meaning. It's a flag to turn the input into a numerical type (= matrix_data_type).
 	2009-5-20
 		add argument ignore_het, which upon toggled, instructs the function to use nt2number_without_het to map nucleotides to number.
 	2009-3-21
@@ -470,8 +473,8 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 			category_list.append(row[1])
 			data_row = row[2:]
 			no_of_snps = len(data_row)
-			p_char_used = 0	#whether p_char is used to successfully dict_map the data_row
-			if p_char.search(data_row[0]) and turn_into_integer:
+			p_char_used = 0	#whether p_char is used depends on condition below (nucleotides were transformed into integers).
+			if p_char.search(data_row[0]) and turn_into_integer==1 and matrix_data_type==int:
 				data_row = dict_map(nt2number_mapper, data_row)
 				p_char_used = 1
 				if no_of_snps!=len(data_row):
@@ -481,7 +484,14 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 					p_char_used = 0
 			
 			if turn_into_integer and not p_char_used:	#if p_char_used ==1, it's already integer.
-				data_row = map(matrix_data_type, data_row)
+				new_data_row = []
+				for data_point in data_row:
+					if data_point=='NA' or data_point=='':
+						new_data_row.append(num.nan)
+					else:
+						new_data_row.append(matrix_data_type(data_point))
+				#data_row = map(matrix_data_type, data_row)
+				data_row = new_data_row
 				if ignore_het:	#2009-5-20 for data that is already in number format, use this function to remove hets
 					data_row = map(ignore_het_func, data_row)
 			data_matrix.append(data_row)
