@@ -187,8 +187,8 @@ create table person(
 
 -- 2009-3-30 add column tg_ecotypeid to view stock.ecotype_info
 -- 2008-05-18 view to check other info (where and country) about ecotype
-create or replace view ecotype_info as select e.id as ecotypeid, e.name, e.stockparent,
-	e.nativename, e2t.tg_ecotypeid, e.latitude, e.longitude, e.alias, e.siteid, s.name as site_name, 
+create or replace view ecotype_info as select distinct e.id as ecotypeid, e.name, e.stockparent,
+	e.nativename, e2t.tg_ecotypeid, e.latitude, e.longitude, e.alias, e.siteid, s.name as site_name, a.region, 
 	c.abbr as country, p.firstname, p.surname, e.collectiondate, e.geographic_integrity_id from ecotype e,
 	site s, address a, country c , person p, ecotypeid_strainid2tg_ecotypeid e2t 
 	where p.id=e.collectorid and e.siteid=s.id and s.addressid=a.id and a.countryid=c.id
