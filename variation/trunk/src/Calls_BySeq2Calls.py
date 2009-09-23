@@ -6,6 +6,7 @@ Examples:
 
 Description:
 	program to split table calls_byseq in db stock into table strain and calls.
+	2009-9-22 Tweaked to be able to deal with incremental changes in calls_byseq.
 	
 """
 import sys, os, math
@@ -58,10 +59,28 @@ class Calls_BySeq2Calls(object):
 		elif snpid>=113 and snpid<=149:
 			return 'seqinfoid4'
 	
-	def splitCalls_BySeq(self, session):
+	def get_strain_unique_key2strain(self, session):
 		"""
+		2009-9-22
+			get strain_unique_key2strain from db for usage in splitCalls_BySeq()
+		"""
+		sys.stderr.write("Getting strain_unique_key2strain ... ")
+		strain_unique_key2strain = {}
+		rows = Strain.query()
+		counter = 0
+		for row in rows:
+			strain_unique_key = (row.ecotypeid, row.plateid, row.wellid, row.replicate)
+			strain_unique_key2strain[strain_unique_key] = row
+		sys.stderr.write("%s strains. Done.\n"%(len(strain_unique_key2strain)))
+		return strain_unique_key2strain
+	
+	def splitCalls_BySeq(self, session, strain_unique_key2strain={}):
+		"""
+		2009-9-22
+			add argument strain_unique_key2strain
+			identify a strain by (ecotypeid, plateid, wellid, replicate)
+			check if (strainid, snpid) is already in table Calls
 		2008-09-12
-			identify a strain by (ecotypeid, plateid, wellid)
 			assign 4 seqinfoids if they all exist
 		2008-08-11
 			when checking out Calls_BySeq, order by ecotypeid, plateid
@@ -70,19 +89,18 @@ class Calls_BySeq2Calls(object):
 		sys.stderr.write("Splitting calls_byseq ....\n")
 		offset_index = 0
 		block_size = 5000
-		ecotypeid_plateid_wellid2strain = {}
 		rows = Calls_BySeq.query.order_by(Calls_BySeq.ecotypeid).offset(offset_index).limit(block_size)
 		counter = 0
 		while rows.count()!=0:
 			for row in rows:
 				#search it first
-				strain_unique_key = (row.ecotypeid, row.plateid, row.wellid)
-				if strain_unique_key in ecotypeid_plateid_wellid2strain:
-					strain = ecotypeid_plateid_wellid2strain[strain_unique_key]
+				strain_unique_key = (row.ecotypeid, row.plateid, row.wellid, row.replicate)
+				if strain_unique_key in strain_unique_key2strain:
+					strain = strain_unique_key2strain[strain_unique_key]
 				else:
 					strain = Strain(ecotypeid=row.ecotypeid, plateid=row.plateid, extractionid=row.extractionid, \
 								wellid=row.wellid, replicate=row.replicate)
-					ecotypeid_plateid_wellid2strain[strain_unique_key] = strain	#add this to ecotypeid_plateid_wellid2strain
+					strain_unique_key2strain[strain_unique_key] = strain	#add this to strain_unique_key2strain
 				seqinfoid_name = self.return_seqinfoid_name_given_snpid(row.snpid)
 				seqinfoid = getattr(strain, seqinfoid_name, None)
 				if seqinfoid is None:
@@ -100,7 +118,12 @@ class Calls_BySeq2Calls(object):
 				strain = strain_in_db.first()
 				if not strain:
 				"""
-
+				offset_index += 1
+				if strain.id is not None:
+					calls_in_db = Calls.query.filter_by(strainid=strain.id).filter_by(snpid=row.snpid)
+					if calls_in_db.count()>0:	# in db, skip
+						continue
+				
 				call = row.call1
 				if call:
 					call = call.upper()
@@ -112,19 +135,18 @@ class Calls_BySeq2Calls(object):
 				calls.strain = strain
 				session.save_or_update(calls)
 				counter += 1
-				offset_index += 1
-			sys.stderr.write("%s%s\t%s"%('\x08'*40, offset_index, counter))
-			if self.debug and offset_index > 1000:
-				break
+			sys.stderr.write("%s%s out of %s moved"%('\x08'*60, counter, offset_index))
+			#if self.debug and offset_index > 1000:
+			#	break
 			session.flush()	#flush now and then to avoid possible memory error due to too many objects residing in memory.
 			rows = Calls_BySeq.query.order_by(Calls_BySeq.ecotypeid).offset(offset_index).limit(block_size)
 		"""
 		#no need to explicityly save/flush them, it'll be all handled during 'commit' stage.
 		#save strains in ecotypeid order
-		strain_unique_key_ls = ecotypeid_plateid_wellid2strain.keys()
+		strain_unique_key_ls = strain_unique_key2strain.keys()
 		strain_unique_key_ls.sort()
 		for strain_unique_key in strain_unique_key_ls:
-			session.save(ecotypeid_plateid_wellid2strain[strain_unique_key])
+			session.save(strain_unique_key2strain[strain_unique_key])
 			session.flush()
 		#save calls
 		for calls in calls_ls:
@@ -134,13 +156,20 @@ class Calls_BySeq2Calls(object):
 		
 	def run(self):
 		"""
+		2009-9-22
+			add the debug section
 		"""
+		if self.debug:
+			import pdb
+			pdb.set_trace()
+		
 		db = StockDB(drivername=self.drivername, username=self.db_user,
 				   password=self.db_passwd, hostname=self.hostname, database=self.dbname, schema=self.schema)
 		db.setup()
 		session = db.session
 		session.begin()
-		self.splitCalls_BySeq(session)
+		strain_unique_key2strain = self.get_strain_unique_key2strain(session)
+		self.splitCalls_BySeq(session, strain_unique_key2strain)
 		
 		if self.commit:
 			session.commit()
