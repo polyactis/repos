@@ -10,6 +10,9 @@ Description:
 		becomes target ecotype, precedence is given to ecotypes with data, GPS info, etc.
 	2. find out ecotypes who have all-NA genotypes, are not genotyped or have no GPS data associated.
 	3. create database tables/views to store findings above.
+	
+	2009-9-22 Note: truncate 3 tables (genotyping_all_na_ecotype_table, nativename_stkparent2tg_ecotypeid_table, ecotype_duplicate2tg_ecotypeid_table) 
+		if overhaul is needed.
 """
 
 import sys, os, math
