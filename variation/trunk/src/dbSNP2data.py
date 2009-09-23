@@ -46,7 +46,10 @@ Examples:
 	dbSNP2data.py  -o /tmp/384-illumina_y0000111111.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000111111
 	
 	#output 384-illumina data in csv format. in number. output in strain X SNP format.
-	./src/dbSNP2data.py -o genotyping/384-illumina_y0000110101.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000110101 -r
+	dbSNP2data.py -o genotyping/384-illumina_y0000110101.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000110101 -r
+	
+	#output 149SNP filtered data (by alex) in csv format. in number. output in strain X SNP format.
+	dbSNP2data.py -o genotyping/149SNPFiltered_y0000110101.csv -n snps -s ecotype -i filtered_calls -y 0000110101 -r
 	
 	
 Description:
@@ -224,6 +227,8 @@ class dbSNP2data(object):
 	
 	def get_strain_id2index_m(cls, curs, input_table, strain_info_table, only_include_strains_with_GPS=0, resolve_duplicated_calls=0):
 		"""
+		2009-8-3
+			deal with situation when input_table='filtered_calls'
 		2008-08-11
 			no more code for resolve_duplicated_calls
 			adjust code to the new stock.calls table (after Calls_BySeq2Calls.py)
@@ -257,28 +262,39 @@ class dbSNP2data(object):
 		nativename2strain_id = {}
 		strain_id2acc = {}
 		strain_id2category = {}
+		#2009-8-3 The four fields are acc, category, strain_id, anything. 
 		if input_table=='calls_byseq':
 			common_sql_string = "select distinct d.ecotypeid, d.plateid, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
 		elif input_table=='dbsnp.calls':
 			common_sql_string = "select distinct s.ecotype_id, s.duplicate, s.id, s.id from %s d, %s s"%\
 				(input_table, strain_info_table)
+		elif input_table=='filtered_calls':
+			common_sql_string = "select distinct d.ecotypeid, s.nativename, d.ecotypeid, s.stockparent from %s d, %s s"%\
+				(input_table, strain_info_table)
 		else:
-			common_sql_string = "select distinct n.ecotypeid, d.strainid, d.strainid, s.stockparent from strain n, %s d, %s s"%(input_table, strain_info_table)
+			common_sql_string = "select distinct n.ecotypeid, d.strainid, d.strainid, s.stockparent from strain n, %s d, %s s"%\
+				(input_table, strain_info_table)
 			
 		if input_table=='dbsnp.calls':
 			curs.execute("%s where s.id=d.accession_id order by ecotype_id, duplicate"%(common_sql_string))
+		elif input_table=='filtered_calls':
+			curs.execute("%s where d.ecotypeid=s.id order by ecotypeid"%(common_sql_string))
 		else:
 			if only_include_strains_with_GPS==1:
-				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid"%(common_sql_string))
+				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null \
+					order by ecotypeid"%(common_sql_string))
 			elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
-				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and s.longitude<-60 and s.longitude>-130 order by ecotypeid"%(common_sql_string))
+				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and \
+					s.longitude<-60 and s.longitude>-130 order by ecotypeid"%(common_sql_string))
 			elif only_include_strains_with_GPS==3:
-				curs.execute("%s, batch_ecotype be, batch b where b.batchname='192' and b.id=be.batchid and s.id=be.ecotypeid and d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid"%(common_sql_string))
+				curs.execute("%s, batch_ecotype be, batch b where b.batchname='192' and b.id=be.batchid and s.id=be.ecotypeid and \
+					d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid"%\
+					(common_sql_string))
 			else:
 				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id order by ecotypeid"%(common_sql_string))
 		rows = curs.fetchall()
 		for row in rows:
-			ecotypeid, duplicate, nativename, stockparent = row				
+			ecotypeid, duplicate, nativename, stockparent = row	#acc, category, strain_id, anything = row 
 			if input_table=='calls_byseq':
 				strain_id = (ecotypeid, duplicate)
 			else:
@@ -402,6 +418,8 @@ class dbSNP2data(object):
 	
 	def get_data_matrix_m(cls, curs, strain_id2index, snp_id2index, nt2number, input_table, need_heterozygous_call=0, snps_id2mapping=None):
 		"""
+		2009-8-3
+			deal with input_table=filtered_calls
 		2008-08-11
 			adjust code to the new stock.calls table (after Calls_BySeq2Calls.py)
 		2008-05-05
@@ -431,6 +449,8 @@ class dbSNP2data(object):
 			common_sql_string = "select ecotypeid, duplicate, snpid, snpcall from %s"%(input_table)
 		elif input_table == 'dbsnp.calls':
 			common_sql_string = "select accession_id, snps_id, genotype from %s"%(input_table)
+		elif input_table=='filtered_calls':
+			common_sql_string = "select ecotypeid, snpid, allele from %s"%(input_table)
 		else:
 			sys.stderr.write("Error: SNP call table '%s' not supported.\n"%(input_table))
 			sys.exit(3)
@@ -455,7 +475,7 @@ class dbSNP2data(object):
 					else:	#for dbsnp.calls or new stock.calls table (after Calls_BySeq2Calls.py)
 						strain_id, snp_id, call = row
 						callhet = None
-					if input_table != 'dbsnp.calls' and input_table!='calls':
+					if input_table != 'dbsnp.calls' and input_table!='calls' and input_table!='filtered_calls':
 						strain_id = (strain_id, duplicate)
 					call = call.upper()
 					if callhet:
