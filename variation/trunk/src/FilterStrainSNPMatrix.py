@@ -19,7 +19,7 @@ Examples:
 	FilterStrainSNPMatrix.py -i stock20071008/data.tsv -o stock20071008/data_d110.tsv -d 110
 	
 	#translate integer nucleotide into english letter (no filtering)
-	FilterStrainSNPMatrix.py -n 1.1 -c 1.1 -a 01 -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
+	FilterStrainSNPMatrix.py -d 110 -n 1.1 -c 1.1 -a 01 -i data/justin_data_filtered.csv -o data/justin_data_filtered_for_yan.csv
 	
 	#remove all-NA rows & columns
 	./src/FilterStrainSNPMatrix.py -i data/2010/data_2010_ecotype_id_y0002.tsv -o data/2010/data_2010_ecotype_id_y0002_n1c1d110.tsv -n 1 -c 1 -d 110 -r
