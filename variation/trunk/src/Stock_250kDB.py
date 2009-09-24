@@ -667,7 +667,7 @@ class CandidateGeneTopSNPTestRMType(Entity):
 class CandidateGeneTopSNPTestRM(Entity):
 	"""
 	2008-10-31
-		add pvalue_gw_looping, pvalue_random_gene_list.
+		add pvalue_gw_looping, pvalue_random_gene_list (defunct, check doc at the side of their definitions).
 		null_distribution_type_id in CandidateGeneTopSNPTestRMType doesn't mean much.
 		NULL data under different simulations stored in TopSNPTestRMNullData.
 	2008-10-26
@@ -680,8 +680,9 @@ class CandidateGeneTopSNPTestRM(Entity):
 	result = ManyToOne('ResultsMethod', colname='results_id', ondelete='CASCADE', onupdate='CASCADE')
 	list_type = ManyToOne('GeneListType', colname='list_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	pvalue = Field(Float)
-	pvalue_gw_looping = Field(Float)	#2008-10-30	now CandidateGeneTopSNPTestRMNullData stores NULL data under different NULL distribution. all pvalues are merged into one entry.
-	pvalue_random_gene_list = Field(Float)	#2008-10-30
+	pvalue_gw_looping = Field(Float)	# 2008-10-30	defunct. CandidateGeneTopSNPTestRMNullData stores NULL data under different NULL distribution.
+										# all pvalues are merged into one entry.
+	pvalue_random_gene_list = Field(Float)	# 2008-10-30 defunct.
 	candidate_sample_size = Field(Integer)
 	non_candidate_sample_size = Field(Integer)
 	candidate_gw_size = Field(Integer)
