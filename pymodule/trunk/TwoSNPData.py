@@ -233,9 +233,13 @@ class QualityControl(object):
 		return row_id2NA_mismatch_rate
 	
 	
-	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, row_id2row_index1, \
-						row_id2row_index2, row_id12row_id2):
+	def _cal_pairwise_dist(self, data_matrix1, data_matrix2, col_id2col_index1, col_id2col_index2, col_id12col_id2, \
+						row_id2row_index1, \
+						row_id2row_index2, row_id12row_id2, report=0, debug=0):
 		"""
+		2009-9-24
+			add argument report=0, debug=0
+			Toggling debug would pre-stop the program after 10000 comparisons.
 		2009-06-10
 			record how many pairs with no_of_non_NA_pairs>0
 		2008-08-28
@@ -244,7 +248,7 @@ class QualityControl(object):
 		2008-01-07
 			change the non_NA criteria from !=0 to >0. in 2010 data matrix, there's substantial amount of -2 (not tried).
 		"""
-		sys.stderr.write("Calculating pairwise distance ...")
+		sys.stderr.write("Calculating pairwise distance ...\n")
 		row_id2pairwise_dist = {}
 		counter = 0
 		counter_with_valid_non_NA_pairs = 0
@@ -267,8 +271,13 @@ class QualityControl(object):
 				#elif self.debug:
 				#	sys.stderr.write("\t no valid(non-NA) pairs between %s and %s.\n"%(row_id1, row_id2))
 				counter += 1
+				if report and counter%10000==0:	#2009-9-24
+					sys.stderr.write("%s%s\t%s"%('\x08'*40, counter_with_valid_non_NA_pairs, counter))
 			pairwise_dist.sort()
 			row_id2pairwise_dist[row_id1] = pairwise_dist
+			
+			if debug and counter>10000:	#2009-9-24 in debug mode, exit early to see if the program runs through
+				break
 		sys.stderr.write("%s/%s have no_of_non_NA_pairs>0 Done.\n"%(counter_with_valid_non_NA_pairs, counter))
 		return row_id2pairwise_dist
 	
@@ -921,7 +930,8 @@ class TwoSNPData(QualityControl):
 							('col_matching_by_which_value', 0, ): None,\
 							('max_mismatch_rate', 0, float): 0.0,\
 							('min_no_of_non_NA_pairs', 0, int): 5,\
-							('debug', 0, ): 0}
+							('debug', 0, ): 0,\
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
 		from __init__ import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.argument_default_dict, error_doc=self.__doc__, class_to_have_attr=self, \
@@ -1380,14 +1390,17 @@ class TwoSNPData(QualityControl):
 	
 	def cal_row_id2pairwise_dist(self):
 		"""
+		2009-9-24
+			pass self.report, self.debug to _cal_pairwise_dist()
 		2009-6-9
 			pass self.QC_method_id & self.max_mismatch_rate, self.min_no_of_non_NA_pairs to submit_row_id2pairwise_dist()
 		2008-07-01
 			cross-match the two data matricies
 		"""
 		self.row_id2pairwise_dist = self._cal_pairwise_dist(self.SNPData1.data_matrix, self.SNPData2.data_matrix, self.col_id2col_index1, \
-														self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, self.row_id2row_index2, \
-														self.row_id12row_id2)
+														self.col_id2col_index2, self.col_id12col_id2, self.row_id2row_index1, \
+														self.row_id2row_index2, \
+														self.row_id12row_id2, report=self.report, debug=self.debug)
 		if getattr(self, 'qc_cross_match_table', None):
 			if getattr(self, 'new_QC_cross_match_table', None):
 				self.create_qc_cross_match_table(self.curs, self.qc_cross_match_table)
