@@ -896,10 +896,15 @@ class QualityControl(object):
 
 class TwoSNPData(QualityControl):
 	"""
-	2009-6-9
-		add argument
+	2009-9-24
+		add argument (read the pre-CONDITION. table is limited to the shape described in QualityControl.create_qc_cross_match_table().
 			max_mismatch_rate: only cross-matching results with mismatch_rate<=max_mismatch_rate are to be stored into db
 			min_no_of_non_NA_pairs:  only cross-matching results with no_of_non_NA_pairs above it are to be stored into db
+			
+			One pre-CONDITION is that TwoSNPData.qc_cross_match_table has to be specified. Otherwise, nothing would go into db
+				and these two arguments are USELESS. 
+			Toggle TwoSNPData.new_QC_cross_match_table to True to tell the program to construct the table beforehand.
+			Table definition is in QualityControl.create_qc_cross_match_table().
 	2008-05-08
 		moved from variation.src.QC_250k
 	QC between SNPData1 and SNPData2. The final NA_rate, mismatch_rate is in terms of row_id in SNPData1.
