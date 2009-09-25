@@ -461,7 +461,7 @@ class Calls2DB_250k(object):
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.user, passwd = self.passwd)
 		curs = conn.cursor()
 		if not self.check_method_id_exists(curs, self.call_method_table, self.method_id):
-			sys.stderr.write("Error: method_id=%s not in %s. A new entry to be created.\n"%\
+			sys.stderr.write("Warning: method_id=%s not in %s. A new entry to be created.\n"%\
 							(self.method_id, self.call_method_table))
 			cm = Stock_250kDB.CallMethod(short_name=self.call_method_short_name, id=self.method_id)
 			session.save(cm)
