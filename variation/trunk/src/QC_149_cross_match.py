@@ -2,16 +2,17 @@
 """
 
 Examples:
-	#cross QC between 149 and 149
-	QC_149_cross_match.py -m 4 -c
+	#self-cross-match QC between 149 and report status
+	QC_149_cross_match.py -m 4 -c -r
 	
 	#cross QC between 149 and 384
 	QC_149_cross_match.py -m 3 -c
 	
 Description:
+	2009-9-24 set the debug (-b) would cause the program exit early after >10000 comparisons are done.
 	2008-08-27 A program to do cross match between 149SNP data (from db) and others.
-	At this moment QC_method_id=4 (self-cross-match) is supported.
-
+	At this moment, QC_method_id=4 (self-cross-match) is supported.
+	
 """
 import sys, os, math
 bit_number = math.log(sys.maxint)/math.log(2)
@@ -32,7 +33,9 @@ from QC_149 import QC_149
 class QC_149_cross_match(QC_149):
 	__doc__ = __doc__
 	option_default_dict = QC_149.option_default_dict.copy()
-	option_default_dict.update({('input_fname', 0, ):[None, '', 1, 'Get 149SNP data from this file instead of database.']})
+	option_default_dict.update({('input_fname', 0, ):[None, '', 1, 'Get 149SNP data from this file instead of database.'],\
+							('min_no_of_non_NA_pairs', 1, int): [40, 'f', 1, 'minimum number of non-NA SNP-pairs in order to compare two accessions'],\
+							('max_mismatch_rate', 0, float):[0.25, '', 1, 'cross-matching results with mismatch_rate <=max_mismatch_rate are to be stored into db.' ]})
 	option_default_dict.pop(('input_dir', 0, ))
 	option_default_dict.pop(('max_call_info_mismatch_rate', 0, float,))
 	
@@ -43,8 +46,11 @@ class QC_149_cross_match(QC_149):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def submitToQCCrossMatch(self, session, row_id2pairwise_dist, QC_method_id, readme, commit):
+	def submitToQCCrossMatch(self, session, row_id2pairwise_dist, QC_method_id, readme, commit=0, \
+							max_mismatch_rate=0.25, min_no_of_non_NA_pairs=40):
 		"""
+		2009-9-24
+			add arguments max_mismatch_rate, min_no_of_non_NA_pairs to filter out certain entries
 		2008-08-28
 			if QC_method_id!=4
 				target_id = row_id2
@@ -52,11 +58,19 @@ class QC_149_cross_match(QC_149):
 			assign target_id based on QC_method_id
 		2008-08-26
 		"""
-		sys.stderr.write("Submitting row_id2pairwise_dist to database ...")
+		sys.stderr.write("Submitting row_id2pairwise_dist to database ...\n")
 		counter = 0 
+		real_counter = 0
+		no_of_entries_in_db = 0
 		for row_id, pairwise_dist_ls in row_id2pairwise_dist.iteritems():
 			for pairwise_dist in pairwise_dist_ls:
 				mismatch_rate, row_id2, no_of_mismatches, no_of_non_NA_pairs = pairwise_dist
+				counter += 1
+				if max_mismatch_rate is not None and max_mismatch_rate>0.0 and mismatch_rate>max_mismatch_rate:
+					continue
+				if min_no_of_non_NA_pairs is not None and no_of_non_NA_pairs<min_no_of_non_NA_pairs:
+					continue
+				
 				#the 2nd position in the both row-id tuples is strain id
 				if QC_method_id==4:	#the 2nd position in the row-id2 tuple is strain id
 					target_id = row_id2[1]
@@ -67,13 +81,18 @@ class QC_149_cross_match(QC_149):
 				qc_cross_match.qc_method_id = QC_method_id
 				qc_cross_match.readme = readme
 				session.save(qc_cross_match)
+				real_counter += 1
 				if commit:
 					session.flush()
-				counter += 1
-		sys.stderr.write("%s entries. Done.\n"%counter)
+			sys.stderr.write("%s%s/%s=%s inserted into db"%('\x08'*80, real_counter, counter, float(real_counter)/counter))
+		sys.stderr.write("%s/%s=%s inserted into db. Done.\n"%(real_counter, counter, float(real_counter)/counter))
 	
-	def prepareTwoSNPData(self, db):
+	def prepareTwoSNPData(self, db, max_mismatch_rate=0.25, min_no_of_non_NA_pairs=40, report=0):
 		"""
+		2009-9-23
+			add arguments max_mismatch_rate & min_no_of_non_NA_pairs, and pass them to twoSNPData.
+			However it's useless to control what should be inserted into db because TwoSNPData.qc_cross_match_table is
+			not defined and even if it's defined, the table it'll create doesn't concord to the one in 149SNP db. 
 		2008-09-10
 			if self.input_fname is given, get 149SNP data from it , instead of database
 		2008-8-28
@@ -108,7 +127,8 @@ class QC_149_cross_match(QC_149):
 		
 		
 		twoSNPData = TwoSNPData(SNPData1=snpData1, SNPData2=snpData2, \
-							QC_method_id=self.QC_method_id, user=self.db_user, row_matching_by_which_value=0, debug=self.debug)
+							QC_method_id=self.QC_method_id, user=self.db_user, row_matching_by_which_value=0, debug=self.debug,\
+							max_mismatch_rate=max_mismatch_rate, min_no_of_non_NA_pairs=min_no_of_non_NA_pairs, report=report)
 		return twoSNPData
 	
 	def run(self):
@@ -125,10 +145,11 @@ class QC_149_cross_match(QC_149):
 		readme = formReadmeObj(sys.argv, self.ad, StockDB.README)
 		session.save(readme)
 		
-		twoSNPData = self.prepareTwoSNPData(db)
+		twoSNPData = self.prepareTwoSNPData(db, report=self.report)
 		twoSNPData.cal_row_id2pairwise_dist()
 		
-		self.submitToQCCrossMatch(session, twoSNPData.row_id2pairwise_dist, self.QC_method_id, readme, self.commit)
+		self.submitToQCCrossMatch(session, twoSNPData.row_id2pairwise_dist, self.QC_method_id, readme, self.commit,\
+								max_mismatch_rate=self.max_mismatch_rate, min_no_of_non_NA_pairs=self.min_no_of_non_NA_pairs)
 		
 		"""
 		if self.commit:
