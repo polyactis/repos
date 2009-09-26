@@ -3,13 +3,14 @@
 
 Examples:
 	CNVNormalize.py -i -o
-	CNVNormalize.py -i call_method_17_CNV_array_intensity_chr4_line_no_888148_1107622.tsv -o call_method_17_CNV_array_intensity_chr4_line_no_888148_1107622_norm.tsv
+	CNVNormalize.py -i call_method_17_CNV_array_intensity.tsv -o call_method_17_CNV_array_intensity_norm
 	
 Description:
-	2008-12-05 program to normalize CNV intensity matrix (outputted by DB_250k2Array.py)
+	2009-5-18 program to normalize CNV intensity matrix (outputted by DB_250k2Array.py)
 		1. quantile normalize
 		2. substract column median
 		3. subtract row mean
+		4. split output into different chromosomes. data from one chromosome is in one file.
 """
 
 import sys, os, math
@@ -26,7 +27,7 @@ from pymodule import figureOutDelimiter
 class CNVNormalize(object):
 	__doc__ = __doc__
 	option_default_dict = {('input_fname', 1, ): ['', 'i', 1, 'CNV intensity matrix, probe X arrays. 1st column is probe id. 2nd last col is chr. last col is pos.', ],\
-							('output_fname', 1, ): ['', 'o', 1, 'self-explanatory', ],\
+							('output_fname_prefix', 1, ): ['', 'o', 1, 'intensity of each chromosome will be separated.', ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	
@@ -37,9 +38,11 @@ class CNVNormalize(object):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
-	def get_input(self, input_fname):
+	@classmethod
+	def get_input(cls, input_fname):
 		"""
-		
+		2009-5-18
+			become classmethod
 		"""
 		sys.stderr.write("Getting input from %s ..."%input_fname)
 		reader = csv.reader(open(input_fname), delimiter=figureOutDelimiter(input_fname))
@@ -99,19 +102,30 @@ class CNVNormalize(object):
 			data_matrix[i,:] = data_matrix[i,:]-row_mean_ar[i]
 		sys.stderr.write("Done.\n")
 	
-	def output(self, data_matrix, probe_id_ls, chr_pos_ls, header, output_fname):
+	def output(self, data_matrix, probe_id_ls, chr_pos_ls, header, output_fname_prefix):
+		"""
+		2009-5-18
+			split output into different chromosomes
+		"""
 		sys.stderr.write("Outputting ...")
-		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
-		writer.writerow(header)
 		no_of_rows, no_of_cols = data_matrix.shape
+		old_chr = None
+		old_writer = None
 		for i in range(no_of_rows):
+			new_chr = chr_pos_ls[i][0]
+			if old_chr==None or old_chr!=new_chr:
+				writer = csv.writer(open('%s_chr%s.tsv'%(output_fname_prefix, new_chr), 'w'), delimiter='\t')
+				writer.writerow(header)
+				old_chr = new_chr
+				del old_writer	#close the old file
+				old_writer = writer
 			data_row = [probe_id_ls[i]]
 			for j in range(no_of_cols):
 				data_row.append(data_matrix[i][j])
 			data_row.append(chr_pos_ls[i][0])
 			data_row.append(chr_pos_ls[i][1])
-			writer.writerow(data_row)
-		del writer
+			old_writer.writerow(data_row)
+		del old_writer
 		
 		sys.stderr.write("Done.\n")
 	
@@ -120,7 +134,7 @@ class CNVNormalize(object):
 		self.quantile_normalize(data_matrix)
 		self.subtract_col_mean(data_matrix)
 		self.subtract_row_mean(data_matrix)
-		self.output(data_matrix, probe_id_ls, chr_pos_ls, header, self.output_fname)
+		self.output(data_matrix, probe_id_ls, chr_pos_ls, header, self.output_fname_prefix)
 		
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
