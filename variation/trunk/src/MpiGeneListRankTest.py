@@ -235,6 +235,8 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 	
 	def sub_output(self, output_param_obj, table_obj_ls, TableClass):
 		"""
+		2009-10-2
+			reserve detailed output upon db saving error only when self.report or self.debug is set.
 		2009-9-17
 			add code to support test results (CandidateGeneRankSumTestResultMethod) from GeneListRankTest.py
 			before it supports CandidateGeneTopSNPTestRM & CandidateGeneTopSNPTestRG
@@ -295,9 +297,10 @@ class MpiGeneListRankTest(GeneListRankTest, MPIwrapper):
 					#output_param_obj.session.delete(result)
 					sys.stderr.write("Exception happened for results_method_id=%s, list_type_id=%s.\n"%(getattr(result, 'results_id', None),\
 																									getattr(result, 'list_type_id', None)))
-					for column in table_obj.c.keys():
-						sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
-					traceback.print_exc()
+					if self.report or self.debug:	# 2009-10-2
+						for column in table_obj.c.keys():
+							sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
+						traceback.print_exc()
 					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 					self.unsaved_test_result_count += 1
 		sys.stderr.write("%s(%s test-results saved, %s unsaved).\n"%(self.saved_test_result_count+self.unsaved_test_result_count, self.saved_test_result_count, self.unsaved_test_result_count))  
