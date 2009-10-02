@@ -268,6 +268,10 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		
 		self.saveNullData(output_param_obj, return_data.null_data_ls, output_param_obj.TestResultClass)
 	
+	#2009-9-14 report the progress of how many were saved
+	saved_null_data_count = 0
+	unsaved_null_data_count = 0
+	
 	def saveNullData(self, output_param_obj, table_obj_ls, TestResultClass):
 		"""
 		2008-11-04
@@ -310,6 +314,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 			if commit:
 				try:
 					output_param_obj.session.flush()
+					self.saved_null_data_count += 1
 				except:
 					#2008-10-30 remove it from memory. otherwise, next flush() will try on this old object again.
 					output_param_obj.session.expunge(result)
@@ -322,6 +327,10 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 						sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
 					traceback.print_exc()
 					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
+					self.unsaved_null_data_count += 1
+		sys.stderr.write("%s(%s null data saved, %s unsaved).\n"%(self.saved_null_data_count+self.unsaved_null_data_count, self.saved_null_data_count,\
+																 self.unsaved_null_data_count))  
+	
 	def run(self):
 		"""
 		2008-08-20
