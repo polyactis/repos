@@ -274,8 +274,9 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 	
 	def saveNullData(self, output_param_obj, table_obj_ls, TestResultClass):
 		"""
+		2009-10-2
+			reserve detailed output upon db saving error only when self.report or self.debug is set. 
 		2008-11-04
-		
 			similar to sub_output() but has to handle unsaved table_obj.observed
 		"""
 		commit = output_param_obj.commit
@@ -323,9 +324,10 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 									(getattr(result, 'observed_id', None),\
 									getattr(result, 'run_no', None),\
 									getattr(result, 'null_distribution_type_id', None)))
-					for column in table_obj.c.keys():
-						sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
-					traceback.print_exc()
+					if self.report or self.debug:	# 2009-10-2
+						for column in table_obj.c.keys():
+							sys.stderr.write("\t%s=%s.\n"%(column, getattr(table_obj, column)))
+						traceback.print_exc()
 					sys.stderr.write('%s.\n'%repr(sys.exc_info()))
 					self.unsaved_null_data_count += 1
 		sys.stderr.write("%s(%s null data saved, %s unsaved).\n"%(self.saved_null_data_count+self.unsaved_null_data_count, self.saved_null_data_count,\
