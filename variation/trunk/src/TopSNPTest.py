@@ -532,6 +532,8 @@ class TopSNPTest(GeneListRankTest):
 	
 	def runHGTest(self, pd):
 		"""
+		2009-9-23
+			runHGTest is a misnomer. It runs HyperGeometric test, gw-looping permutation test, random-gene-list permutation test.
 		2008-11-13
 			add code to deal with results_type==3, test_type_id==15, null_distribution_type_id==1.
 		2008-11-12
