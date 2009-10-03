@@ -18,6 +18,10 @@ Examples:
 	-o /Network/Data/250k/tmp-yh/MatchedPvalueData -m 20000 -s /Network/Data/250k/tmp-yh/snps_context/snps_context_g0_m20000
 	-a 1,7 -q 3 -A 700 -B 700 -j 32 -c
 	
+	#null distribution type 2, to get enrichment ratio & permutation pvalues for published flowering phenotypes 
+	PlotCmpTwoAnalysisMethods.py -e 1-7,39-48,57-59,80-82 -l 145 -o /Network/Data/250k/tmp-yh/MatchedPvalueData -m 20000
+	-s /Network/Data/250k/tmp-yh/snps_context/snps_context_g0_m20000 -a 1,7 -q 1 -A 3 -B 5 -j 32 -c -y2
+	
 Description:
 	Program that makes 2 figures in one plot.
 	Figure 1 compares pvalues from two analysis methods. Highlight the SNPs that are close to genes in candidate gene list.
@@ -46,8 +50,8 @@ import pylab
 import StringIO
 from common import get_total_gene_ls
 from CheckCandidateGeneRank import CheckCandidateGeneRank
+from TopSNPTest import TopSNPTest
 from matplotlib.patches import Polygon, CirclePolygon, Ellipse, Wedge
-
 from matplotlib import rcParams
 rcParams['font.size'] = 8
 rcParams['legend.fontsize'] = 8
@@ -57,7 +61,7 @@ rcParams['axes.titlesize'] = 10
 rcParams['xtick.labelsize'] = 8
 rcParams['ytick.labelsize'] = 8
 
-class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
+class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank, TopSNPTest):
 	__doc__ = __doc__
 	option_default_dict = {('drivername', 1,):['mysql', 'v', 1, 'which type of database? mysql or postgres', ],\
 							('hostname', 1, ): ['papaya.usc.edu', 'z', 1, 'hostname of the db server', ],\
@@ -102,8 +106,10 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 	
 	@classmethod
 	def matchPvaluesFromTwoResults(cls, genome_wide_result_ls, snps_context_wrapper, candidate_gene_set, pvalue_int_gap=1.0, \
-								r1_pvalue_cutoff=3, r2_pvalue_cutoff=5, run_type=1):
+								r1_pvalue_cutoff=3, r2_pvalue_cutoff=5, run_type=1, need_snp_index=False, need_chr_pos_ls=True):
 		"""
+		2009-10-2
+			add argument need_snp_index. toggled to True to return some data, necessary for permutation pvalue of enrichment_ratio 
 		2009-7-8
 			become a classmethod
 		2009-5-1
@@ -119,6 +125,8 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		2008-11-19
 		"""
 		sys.stderr.write("Matching pvalues from two results ...")
+		
+		
 		pvalue_ls1_in_candidate = []
 		pvalue_ls2_in_candidate = []
 		logpvalue_ls1_in_candidate = []
@@ -134,10 +142,20 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		chr_pos_ls1 = gwa1.chr_pos2index.keys()
 		chr_pos_ls2 = gwa2.chr_pos2index.keys()
 		chr_pos_set = Set(chr_pos_ls1)&Set(chr_pos_ls2)	#intersection of all SNPs
+		
+		total_chr_pos_ls = list(chr_pos_set)
+		total_chr_pos_ls.sort()
+		no_of_total_snps = len(chr_pos_set)
+		
 		pvalue_int_pair2count_candidate = {}
 		pvalue_int_pair2count_non_candidate = {}
+		pvalue_int_pair2cand_snp_index_ls = {}
+		pvalue_int_pair2non_cand_snp_index_ls = {}
 		
-		for chr, pos in chr_pos_set:
+		for i in range(int(no_of_total_snps)):
+			#for chr, pos in chr_pos_set:
+			chr, pos = total_chr_pos_ls[i]
+			
 			snps_context_matrix = snps_context_wrapper.returnGeneLs(chr, pos)
 			assign_snp_candidate_gene = 0
 			assign_snp_non_candidate_gene = 0
@@ -171,7 +189,10 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 				pvalue_ls2_in_candidate.append(10**(-data_obj2.value))
 				if pvalue_int_pair not in pvalue_int_pair2count_candidate:
 					pvalue_int_pair2count_candidate[pvalue_int_pair] = 0
+					pvalue_int_pair2cand_snp_index_ls[pvalue_int_pair] = []
 				pvalue_int_pair2count_candidate[pvalue_int_pair] += 1
+				if need_snp_index:
+					pvalue_int_pair2cand_snp_index_ls[pvalue_int_pair].append(i)
 			else:
 				logpvalue_ls1_in_non_candidate.append(data_obj1.value)
 				logpvalue_ls2_in_non_candidate.append(data_obj2.value)
@@ -179,7 +200,25 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 				pvalue_ls2_in_non_candidate.append(10**(-data_obj2.value))
 				if pvalue_int_pair not in pvalue_int_pair2count_non_candidate:
 					pvalue_int_pair2count_non_candidate[pvalue_int_pair] = 0
+					pvalue_int_pair2non_cand_snp_index_ls[pvalue_int_pair] = []
 				pvalue_int_pair2count_non_candidate[pvalue_int_pair] += 1
+				if need_snp_index:
+					pvalue_int_pair2non_cand_snp_index_ls[pvalue_int_pair].append(i)
+		
+		if need_snp_index:
+			#turn them into numpy arrays
+			for pvalue_int_pair in pvalue_int_pair2cand_snp_index_ls.keys():
+				snp_index_ls = pvalue_int_pair2cand_snp_index_ls[pvalue_int_pair]
+				pvalue_int_pair2cand_snp_index_ls[pvalue_int_pair] = numpy.array(snp_index_ls, numpy.int)
+			for pvalue_int_pair in pvalue_int_pair2non_cand_snp_index_ls.keys():
+				snp_index_ls = pvalue_int_pair2non_cand_snp_index_ls[pvalue_int_pair]
+				pvalue_int_pair2non_cand_snp_index_ls[pvalue_int_pair] = numpy.array(snp_index_ls, numpy.int)
+		
+		total_chr_pos_ar = None
+		if need_chr_pos_ls:
+			total_chr_pos_ar = numpy.array(total_chr_pos_ls)
+		
+		
 		return_data = PassingData(pvalue_ls1_in_candidate=pvalue_ls1_in_candidate, \
 								pvalue_ls2_in_candidate=pvalue_ls2_in_candidate,\
 								logpvalue_ls1_in_candidate=logpvalue_ls1_in_candidate, \
@@ -190,6 +229,11 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 								logpvalue_ls2_in_non_candidate=logpvalue_ls2_in_non_candidate,\
 								pvalue_int_pair2count_candidate=pvalue_int_pair2count_candidate, \
 								pvalue_int_pair2count_non_candidate=pvalue_int_pair2count_non_candidate,\
+								
+								pvalue_int_pair2cand_snp_index_ls = pvalue_int_pair2cand_snp_index_ls,\
+								pvalue_int_pair2non_cand_snp_index_ls = pvalue_int_pair2non_cand_snp_index_ls,\
+								no_of_total_snps = no_of_total_snps,\
+								total_chr_pos_ar = total_chr_pos_ar,\
 								
 								data_matrix=data_matrix)
 		sys.stderr.write("Done.\n")
@@ -256,7 +300,8 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		sys.stderr.write("Done.\n")
 		return ax
 	
-	def plot_scatter(self, ax, pvalue_matching_data, rm_ls, data_type=1):
+	@classmethod
+	def plot_scatter(cls, ax, pvalue_matching_data, rm_ls, data_type=1):
 		"""
 		2008-12-17
 			refactored out of plot()
@@ -361,8 +406,11 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 		return png_data, svg_data
 	
 	def saveDataIntoDB(self, session, genome_wide_result_ls, hist_type, threshold_type, pvalue_matching_data, list_type_id, \
-					r1_pvalue_cutoff=3, r2_pvalue_cutoff=5):
+					r1_pvalue_cutoff=3, r2_pvalue_cutoff=5, null_distribution_type_id=1, candidate_gene_set=set(), snps_context_wrapper=None):
 		"""
+		2009-10-3
+			If null_distribution_type_id=2, calculate the permutation pvalue before saving into db.
+			If null_distribution_type_id=1, pvalue = None. maybe 2X2 table test (Fisher test) 
 		2009-4-16
 		"""
 		sys.stderr.write("Saving enrichment data into db ...\n")
@@ -392,13 +440,31 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 				enrichment_ratio = (candidate_sample_size*non_candidate_gw_size)/float(non_candidate_sample_size*candidate_gw_size)
 			else:
 				enrichment_ratio = None
-
+			
+			### 2009-10-2
+			if null_distribution_type_id==1:
+				pvalue = None	# need to figure out a way to calculate the pvalue , maybe 2X2 table test (Fisher test) 
+			elif null_distribution_type_id==2:
+				cand_snp_index_ls = pvalue_matching_data.pvalue_int_pair2cand_snp_index_ls.get(pvalue_int_pair, numpy.array([], numpy.int))	# without numpy.array around [], [] would be treated as numpy.float64 by default.
+				non_cand_snp_index_ls = pvalue_matching_data.pvalue_int_pair2non_cand_snp_index_ls.get(pvalue_int_pair, numpy.array([], numpy.int))
+				top_snp_index_ls = numpy.hstack((cand_snp_index_ls, non_cand_snp_index_ls))
+				if len(top_snp_index_ls)==0:
+					pvalue = 1.
+				else:
+					return_data = self.get_enrichment_pvalue_by_gw_looping(candidate_sample_size, top_snp_index_ls, candidate_gene_set, \
+											snps_context_wrapper, \
+											pvalue_matching_data.no_of_total_snps, total_chr_pos_ar=pvalue_matching_data.total_chr_pos_ar, \
+											no_of_permutations=20000, no_of_min_breaks=30)
+					pvalue = return_data.pvalue
+					no_of_tests = return_data.no_of_tests
+					no_of_tests_passed = return_data.no_of_tests_passed
+			
 			entry = Stock_250kDB.CmpEnrichmentOfTwoAnalysisMethods(results_id1=results_id1, results_id2=results_id2, list_type_id=list_type_id,\
 													type=hist_type, r1_min_score=r1_min_score, r1_max_score=r1_max_score,\
 													r2_min_score=r2_min_score, r2_max_score=r2_max_score,\
 													candidate_sample_size=candidate_sample_size, non_candidate_sample_size=non_candidate_sample_size,\
 													candidate_gw_size=candidate_gw_size, non_candidate_gw_size=non_candidate_gw_size,\
-													enrichment_ratio=enrichment_ratio)
+													enrichment_ratio=enrichment_ratio, pvalue=pvalue)
 			entry.threshold_type=threshold_type
 			session.save(entry)
 			#session.flush()
@@ -573,21 +639,25 @@ class PlotCmpTwoAnalysisMethods(CheckCandidateGeneRank):
 			else:
 				r1_pvalue_cutoff, r2_pvalue_cutoff = self.r1_pvalue_cutoff, self.r2_pvalue_cutoff
 			
+			if self.null_distribution_type_id!=1:
+				need_snp_index = True
+			else:
+				need_snp_index = False
 			pvalue_matching_data = self.matchPvaluesFromTwoResults(genome_wide_result_ls, snps_context_wrapper, candidate_gene_set,\
 																pvalue_int_gap=self.pvalue_int_gap, r1_pvalue_cutoff=r1_pvalue_cutoff,\
-																r2_pvalue_cutoff=r2_pvalue_cutoff, run_type=self.run_type)
+																r2_pvalue_cutoff=r2_pvalue_cutoff, run_type=self.run_type, \
+																need_snp_index=need_snp_index)
 			
 			if self.run_type==1 or self.run_type==3:
 				if r1_pvalue_cutoff!=0 or r2_pvalue_cutoff!=0:	#2009-5-2 run only when necessary
 					self.saveDataIntoDB(session, genome_wide_result_ls, hist_type, threshold_type, pvalue_matching_data, self.list_type_id, \
 									r1_pvalue_cutoff, \
-									r2_pvalue_cutoff)
-				"""
+									r2_pvalue_cutoff, null_distribution_type_id=self.null_distribution_type_id, \
+									candidate_gene_set=candidate_gene_set, snps_context_wrapper=snps_context_wrapper)
 				#2009-5-20 comment out temporarily
 				self.plot(phenotype_method, list_type, rm_ls, pvalue_matching_data, output_dir=self.output_dir, commit=self.commit,\
 						pvalue_int_gap=self.pvalue_int_gap, r1_pvalue_cutoff=r1_pvalue_cutoff,\
 						r2_pvalue_cutoff=r2_pvalue_cutoff)
-				"""
 			elif self.run_type==2:
 				self.outputMatchedPvalueData(phenotype_method, rm_ls, list_type, pvalue_matching_data, output_dir=self.output_dir)
 		if self.commit:
