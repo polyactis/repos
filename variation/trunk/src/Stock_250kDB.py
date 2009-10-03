@@ -1117,6 +1117,8 @@ class CallPhenotypeQQPlots(Entity):
 
 class CmpEnrichmentOfTwoAnalysisMethods(Entity):
 	"""
+	2009-10-2
+		add column pvalue, for the enrichment_ratio under certain null distribution based on type_id
 	2009-4-16 to be filled up by PlotCmpTwoAnalysisMethods.py
 	"""
 	result1 = ManyToOne('ResultsMethod', colname='results_id1', ondelete='CASCADE', onupdate='CASCADE')
@@ -1133,6 +1135,7 @@ class CmpEnrichmentOfTwoAnalysisMethods(Entity):
 	candidate_gw_size = Field(Integer)
 	non_candidate_gw_size = Field(Integer)
 	enrichment_ratio = Field(Float)
+	pvalue = Field(Float)	# 2009-10-2 pvalue for the enrichment_ratio under certain null distribution based on type_id
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
