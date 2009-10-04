@@ -7,11 +7,17 @@ Examples:
 	PlotTopSNPCandidateCrossPhenotype.py -m 1000 -q 7 -l 28 -A 1-7,39-61,80-82, -x /Network/Data/250k/tmp-yh/TopSNPCandidate_m1000_q7_FT_C1B1.png -C1 -B 1
 	
 	#emma on all disease phenotypes on list 130 (disease resistance) with output in both picture and table matrix format.
-	m=5000
-	q=7
-	l=130
-	PlotTopSNPCandidateCrossPhenotype.py  -m$m -q $q -l $l -A  9-13,32-38,65-74 -x /Network/Data/250k/tmp-yh/TopSNPCandidateCrossPhenotype/figures/TopSNPCandidate_m$m\_q$q\_disease_phenotype_list$l\.png -o /Network/Data/250k/tmp-yh/TopSNPCandidateCrossPhenotype/Disease_m$m\_q$q\_list$l\_ratio.tsv -C1 -B1
-
+	m=5000; q=7; l=130;
+	PlotTopSNPCandidateCrossPhenotype.py  -m$m -q $q -l $l -A  9-13,32-38,65-74 
+	-x /Network/Data/250k/tmp-yh/TopSNPCandidateCrossPhenotype/figures/TopSNPCandidate_m$m\_q$q\_disease_phenotype_list$l\.png 
+	-o /Network/Data/250k/tmp-yh/TopSNPCandidateCrossPhenotype/Disease_m$m\_q$q\_list$l\_ratio.tsv -C1 -B1
+	
+	#2009-10-4 wilcox (q=1) on all flowering time, call method 32, gw-looping permutation pvalue (C=2), enrichment ratio (B=1)
+	m=20000; q=1; l=145; C=2; B=1; j=32; ~/script/variation/src/PlotTopSNPCandidateCrossPhenotype.py -m$m -e $q -l $l
+	-A 1-7,39-59,80-82 
+	-x /tmp/TopSNPCandidate_m$m\_q$q\_flower_phenotype_j$j\_list$l\_C$C\B$B\.png 
+	-o /tmp/Flower_j$j\_m$m\_q$q\_list$l\_C$C\B$B\.tsv -C$C -B$B -j $j -u yh
+	
 Description:
 	2008-11-11
 		draw 3D bar chart showing candidate_sample_size, candidate-ratio or other variables along the cutoff and phenotype axises.
