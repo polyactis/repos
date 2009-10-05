@@ -354,7 +354,7 @@ for i=1:par.MaxIt
                 Iext = Iext([1 sel'+1 K+2]);
                 %%%% we need to do it all the time now since each sample
                 %%%% can have different alphas.
-                %[h0,h1]=compHs1(double(Iext(2:end-1)),M);  % PWC dep
+                %[h0,h1]=CompHs1(double(Iext(2:end-1)),M);  % PWC dep
                 K=length(Iext)-2;
                 Alpha=Alpha(sel); %m.Alphas will be done in the Mstep
                 m.Data.Iext(1:K+2,n)=Iext;
@@ -362,7 +362,7 @@ for i=1:par.MaxIt
                 Kvec(n)=K;
             end
             if K>0
-                [h0,h1]=compHs1(double(Iext(2:end-1))',M);  % PWC dep
+                [h0,h1]=CompHs1(double(Iext(2:end-1))',M);  % PWC dep
             else %No breakpoints left on this sample...                
                 if par.RefAdjust==1
                     verbose(par.verbose-2,'  Partial M-Step for reference \n');                    
@@ -605,7 +605,7 @@ for n=1:N
     if par.isRemovingOK
         Iext{n}=m.Data.Iext(1:K+2,n);
         if (K>0)
-            [h0,h1]=compHs1(double(m.Data.Iext(2:K+1,n))',M);  % PWC dep
+            [h0,h1]=CompHs1(double(m.Data.Iext(2:K+1,n))',M);  % PWC dep
         end
     else
         Iext{n}=int32(0:M); %or 0:M;
