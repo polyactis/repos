@@ -20,9 +20,6 @@ Examples:
 	
 	#output data for all ecotypeid. however duplicated calls with same ecotypeid are imputed randomly
 	dbSNP2data.py -z localhost -d stock20071008 -i calls -o /tmp/data00001100.tsv -s ecotype -n snps -y 00001100
-
-	#output 250k SNP data (not to resolve duplicated calls, all SNPs. uncomment another sql line to get only SNPs shared with 149SNP)
-	dbSNP2data.py -z localhost -d stock20071008 -i calls_250k -o /tmp/data_250k.tsv -s ecotype -n snps_250k -y 10001101 -r
 	
 	#output 149SNP (table calls_byseq)
 	dbSNP2data.py -z localhost -d stock20071227 -i calls_byseq -o stock20071227/data_y10001101.tsv -s ecotype -n snps -y 10001101 -r
@@ -37,7 +34,13 @@ Examples:
 	dbSNP2data.py -o /tmp/stock_149SNP_y10001111.tsv -y 1 -r
 	
 	#output all 149SNP data in csv format. in number. output in strain X SNP format.
-	./src/dbSNP2data.py -o genotyping/149snp/stock_149SNP_y0000110101.tsv -y 0000110101
+	dbSNP2data.py -o genotyping/149snp/stock_149SNP_y0000110101.tsv -y 0000110101
+	
+	#output all 149SNP data except contaminants in csv format. in number. output in strain X SNP format.
+	dbSNP2data.py -o /tmp/cypress_stock_149SNP_y00001101011.csv -y 00001101011  -z cypress -u yh
+
+	#output 149SNP filtered data (by alex) in csv format. in number. output in strain X SNP format.
+	dbSNP2data.py -o genotyping/149SNPFiltered_y0000110101.csv -n snps -s ecotype -i filtered_calls -y 0000110101 -r
 	
 	#output 384-illumina data
 	dbSNP2data.py -o /tmp/384-illumina_y00001101.tsv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 00001101
@@ -48,12 +51,8 @@ Examples:
 	#output 384-illumina data in csv format. in number. output in strain X SNP format.
 	dbSNP2data.py -o genotyping/384-illumina_y0000110101.csv -n dbsnp.snps -s dbsnp.accession -i dbsnp.calls -y 0000110101 -r
 	
-	#output 149SNP filtered data (by alex) in csv format. in number. output in strain X SNP format.
-	dbSNP2data.py -o genotyping/149SNPFiltered_y0000110101.csv -n snps -s ecotype -i filtered_calls -y 0000110101 -r
-	
-	
 Description:
-	output SNP data from database schema
+	output SNP data from database stock and dbsnp.
 	
 	Turning on each bit in processing_bits (0=off, 1=on):
 	1. 0: everything in strain_info_table, 1: only include strains with GPS info, 2: north american strains only, 3: 2010's 192 strains. only for 149SNP
@@ -66,6 +65,7 @@ Description:
 	8. discard strains with all-NA data
 	9. output matrix type (in terms of row X column). 0=(strain X SNP, default), 1=(SNP X strain)
 	10. delimiter. 0=tab default, 1=comma.
+	11. whether to toss the contaminants (strain.contaminant_type_id is null or not): 0=keep, 1=toss.
 	
 	you can specify the bits up to the one you want to change and omit the rest. i.e.
 	-y 11
@@ -98,7 +98,7 @@ class dbSNP2data(object):
 							('strain_info_table', 1, ): ['ecotype', 's', 1, 'Table with info about each accession/ecotype. could be "strain_info" or "ecotype"'],\
 							('output_fname', 1, ): [None, 'o', 1, 'Output Filename'],\
 							('snp_locus_table', 1, ): ['snps', 'n', 1, 'Table with info about snps. could be "snp_locus" or "snps"'],\
-							('processing_bits', 1, ): ['0000111100', 'y', 1, 'processing bits to control which processing step should be turned on.\
+							('processing_bits', 1, ): ['00001111000', 'y', 1, 'processing bits to control which processing step should be turned on.\
 								default is 10101101. for what each bit stands, see Description.' ],\
 							('db_connection_type', 1, int): [1, 'm', 1, 'which type of database. 1=MySQL. 2=PostgreSQL.',],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -129,8 +129,8 @@ class dbSNP2data(object):
 		ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
 		
-		#below are all default values
-		processing_bits_ls = [0,0,0,0,1,1,1,1, 0, 0]
+		#below are all default values, so that user doesn't have specify every bit in self.processing_bits on the commandline
+		processing_bits_ls = [0,0,0,0, 1,1,1,1, 0, 0, 0]
 		
 		for i in range(len(self.processing_bits)):
 			processing_bits_ls[i] = int(self.processing_bits[i])
@@ -144,7 +144,8 @@ class dbSNP2data(object):
 		self.nt_alphabet,\
 		self.discard_all_NA_strain,\
 		self.output_matrix_type, \
-		self.delimiter_type = processing_bits_ls
+		self.delimiter_type ,\
+		self.toss_contaminants = processing_bits_ls
 		
 		delimiter_dict = {0: '\t', \
 						1: ','}
@@ -225,8 +226,11 @@ class dbSNP2data(object):
 		sys.stderr.write("Done.\n")
 		return strain_id2index, strain_id_list
 	
-	def get_strain_id2index_m(cls, curs, input_table, strain_info_table, only_include_strains_with_GPS=0, resolve_duplicated_calls=0):
+	def get_strain_id2index_m(cls, curs, input_table, strain_info_table, only_include_strains_with_GPS=0, resolve_duplicated_calls=0,\
+							toss_contaminants=0):
 		"""
+		2009-10-5
+			add argument toss_contaminants
 		2009-8-3
 			deal with situation when input_table='filtered_calls'
 		2008-08-11
@@ -263,35 +267,62 @@ class dbSNP2data(object):
 		strain_id2acc = {}
 		strain_id2category = {}
 		#2009-8-3 The four fields are acc, category, strain_id, anything. 
-		if input_table=='calls_byseq':
+		if input_table=='calls_byseq':	# 149SNP db, raw data from calls_byseq
 			common_sql_string = "select distinct d.ecotypeid, d.plateid, s.nativename, s.stockparent from %s d, %s s"%(input_table, strain_info_table)
-		elif input_table=='dbsnp.calls':
+			#strain_info_table is table "ecotype"
+			where_sql_string_ls = []
+		elif input_table=='dbsnp.calls':	# database dbsnp
 			common_sql_string = "select distinct s.ecotype_id, s.duplicate, s.id, s.id from %s d, %s s"%\
-				(input_table, strain_info_table)
-		elif input_table=='filtered_calls':
+				(input_table, strain_info_table)	#strain_info_table is table "accession"
+			where_sql_string_ls = []
+		elif input_table=='filtered_calls':	# 149SNP db, but calls filtered by Alex
 			common_sql_string = "select distinct d.ecotypeid, s.nativename, d.ecotypeid, s.stockparent from %s d, %s s"%\
-				(input_table, strain_info_table)
-		else:
+				(input_table, strain_info_table)	#strain_info_table is table "ecotype"
+			where_sql_string_ls = []
+		else:	# 149SNP db. after Calls_BySeq2Calls.py is run.
 			common_sql_string = "select distinct n.ecotypeid, d.strainid, d.strainid, s.stockparent from strain n, %s d, %s s"%\
-				(input_table, strain_info_table)
-			
-		if input_table=='dbsnp.calls':
-			curs.execute("%s where s.id=d.accession_id order by ecotype_id, duplicate"%(common_sql_string))
-		elif input_table=='filtered_calls':
-			curs.execute("%s where d.ecotypeid=s.id order by ecotypeid"%(common_sql_string))
-		else:
-			if only_include_strains_with_GPS==1:
-				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null \
-					order by ecotypeid"%(common_sql_string))
-			elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
-				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and \
-					s.longitude<-60 and s.longitude>-130 order by ecotypeid"%(common_sql_string))
-			elif only_include_strains_with_GPS==3:
-				curs.execute("%s, batch_ecotype be, batch b where b.batchname='192' and b.id=be.batchid and s.id=be.ecotypeid and \
-					d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid"%\
-					(common_sql_string))
+				(input_table, strain_info_table)	#strain_info_table is table "ecotype"
+			if toss_contaminants:	# 2009-10-5
+				where_sql_string_ls = ["n.contaminant_type_id is null"]
 			else:
-				curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id order by ecotypeid"%(common_sql_string))
+				where_sql_string_ls = []
+		
+		if input_table=='dbsnp.calls':	# database dbsnp
+			where_sql_string_ls.append("s.id=d.accession_id")
+			order_sql_string = "ecotype_id, duplicate"
+			#curs.execute("%s where s.id=d.accession_id order by ecotype_id, duplicate"%(common_sql_string))
+		elif input_table=='filtered_calls':	# 149SNP db, but calls filtered by Alex
+			where_sql_string_ls.append("d.ecotypeid=s.id")
+			order_sql_string = "ecotypeid"
+			#curs.execute("%s where d.ecotypeid=s.id order by ecotypeid"%(common_sql_string))
+		else:
+
+			if only_include_strains_with_GPS==1:
+				where_sql_string_ls.extend(["d.strainid=n.id", "n.ecotypeid=s.id", "s.latitude is not null", "s.longitude is not null"])
+				order_sql_string = "ecotypeid"
+				#curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null \
+				#	order by ecotypeid"%(common_sql_string))
+			elif only_include_strains_with_GPS==2:	#2007-10-01 north american samples
+				where_sql_string_ls.extend(["d.strainid=n.id", "n.ecotypeid=s.id", "s.latitude is not null", "s.longitude is not null", \
+										"s.longitude<-60 and s.longitude>-130"])
+				order_sql_string = "ecotypeid"
+				#curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null and \
+				#	s.longitude<-60 and s.longitude>-130 order by ecotypeid"%(common_sql_string))
+			elif only_include_strains_with_GPS==3:
+				common_sql_string += ", batch_ecotype be, batch b"
+				where_sql_string_ls.extend(["b.batchname='192'", "b.id=be.batchid", "s.id=be.ecotypeid", \
+							"d.strainid=n.id", "n.ecotypeid=s.id", "s.latitude is not null", "s.longitude is not null"])
+				order_sql_string = "ecotypeid"
+				#curs.execute("%s, batch_ecotype be, batch b where b.batchname='192' and b.id=be.batchid and s.id=be.ecotypeid and \
+				#	d.strainid=n.id and n.ecotypeid=s.id and s.latitude is not null and s.longitude is not null  order by ecotypeid"%\
+				#	(common_sql_string))
+			else:
+				where_sql_string_ls.extend(["d.strainid=n.id", "n.ecotypeid=s.id"])
+				order_sql_string = "ecotypeid"
+				#curs.execute("%s where d.strainid=n.id and n.ecotypeid=s.id order by ecotypeid"%(common_sql_string))
+		where_sql_string = " and ".join(where_sql_string_ls)
+		curs.execute("%s where %s order by %s"%(common_sql_string, where_sql_string, order_sql_string))
+		
 		rows = curs.fetchall()
 		for row in rows:
 			ecotypeid, duplicate, nativename, stockparent = row	#acc, category, strain_id, anything = row 
@@ -771,7 +802,9 @@ class dbSNP2data(object):
 			conn = MySQLdb.connect(db=self.dbname,host=self.hostname, user=self.user, passwd = self.passwd)
 			curs = conn.cursor()
 			snp_id2index, snp_id_list, snp_id2info = self.get_snp_id2index_m(curs, self.input_table, self.snp_locus_table)
-			strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category = self.get_strain_id2index_m(curs, self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, self.resolve_duplicated_calls)
+			strain_id2index, strain_id_list, nativename2strain_id, strain_id2acc, strain_id2category = self.get_strain_id2index_m(curs, \
+																self.input_table, self.strain_info_table, self.only_include_strains_with_GPS, \
+																self.resolve_duplicated_calls, toss_contaminants=self.toss_contaminants)
 			
 			#strain_id2acc, strain_id2category = self.get_strain_id_info_m(curs, strain_id_list, self.strain_info_table)
 			#snp_id2info = self.get_snp_id_info_m(curs, snp_id_list, self.snp_locus_table)
