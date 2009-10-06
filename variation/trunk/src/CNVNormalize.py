@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 """
 
-Examples:
-	CNVNormalize.py -i -o
+Examples:	
+	#normalize + split data into different chromosomes 
 	CNVNormalize.py -i call_method_17_CNV_array_intensity.tsv -o call_method_17_CNV_array_intensity_norm
+	
+	#2009-9-26 just split data into different chromosomes (output_fname_prefix=input_fname)
+	CNVNormalize.py -i call_43_first_311/call_method_43_CNV_intensity.tsv -o call_43_first_311/call_method_43_CNV_intensity.tsv -y 2
 	
 Description:
 	2009-5-18 program to normalize CNV intensity matrix (outputted by DB_250k2Array.py)
-		1. quantile normalize
+		1. quantile normalize (replace the distribution of one array with the mean across all arrays, while preserving the rank of each probe)
 		2. substract column median
-		3. subtract row mean
+		3. subtract row mean (median if numpy version is not 1.0.x)
 		4. split output into different chromosomes. data from one chromosome is in one file.
 """
 
@@ -29,7 +32,8 @@ class CNVNormalize(object):
 	option_default_dict = {('input_fname', 1, ): ['', 'i', 1, 'CNV intensity matrix, probe X arrays. 1st column is probe id. 2nd last col is chr. last col is pos.', ],\
 							('output_fname_prefix', 1, ): ['', 'o', 1, 'intensity of each chromosome will be separated.', ],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
-							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
+							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.'],\
+							('run_type', 0, int):[1, 'y', 1, 'Run type 1: Normalize + Split Data by chromosome, 2: split data by chromosome']}
 	
 	def __init__(self, **keywords):
 		"""
@@ -39,8 +43,11 @@ class CNVNormalize(object):
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 	
 	@classmethod
-	def get_input(cls, input_fname):
+	def get_input(cls, input_fname, data_type=numpy.float):
 		"""
+		2009-9-28
+			add argument data_type to specify data type of data_matrix.
+			default is numpy.float. numpy.double is also fine.
 		2009-5-18
 			become classmethod
 		"""
@@ -55,7 +62,7 @@ class CNVNormalize(object):
 		
 		header = reader.next()
 		no_of_cols = len(header)-3
-		data_matrix = numpy.zeros([no_of_rows, no_of_cols], numpy.float)
+		data_matrix = numpy.zeros([no_of_rows, no_of_cols], data_type)
 		probe_id_ls = []
 		chr_pos_ls = []
 		i=0
@@ -88,7 +95,10 @@ class CNVNormalize(object):
 	
 	def subtract_col_mean(self, data_matrix):
 		sys.stderr.write("Subtracting column mean ...")
-		col_mean_ar = numpy.median(data_matrix)	#numpy.median doesn't accept axis. only column-wise, no row-wise
+		if numpy.version.version[:3]=='1.0':	# numpy version 1.0.x, doesn't accept axis. only column-wise, no row-wise
+			col_mean_ar = numpy.median(data_matrix)
+		else:
+			col_mean_ar = numpy.median(data_matrix, axis=0)	# version above 1.0. without axis=0, it's getting median of a flattened matrix.
 		no_of_rows, no_of_cols = data_matrix.shape
 		for j in range(no_of_cols):
 			data_matrix[:,j] = data_matrix[:,j]-col_mean_ar[j]
@@ -96,7 +106,10 @@ class CNVNormalize(object):
 	
 	def subtract_row_mean(self, data_matrix):
 		sys.stderr.write("Subtracting column mean ...")
-		row_mean_ar = numpy.mean(data_matrix, axis=1)
+		if numpy.version.version[:3]=='1.0':
+			row_mean_ar = numpy.mean(data_matrix, axis=1)
+		else:
+			row_mean_ar = numpy.median(data_matrix, axis=1)
 		no_of_rows, no_of_cols = data_matrix.shape
 		for i in range(no_of_rows):
 			data_matrix[i,:] = data_matrix[i,:]-row_mean_ar[i]
@@ -130,10 +143,14 @@ class CNVNormalize(object):
 		sys.stderr.write("Done.\n")
 	
 	def run(self):
+		if self.debug:
+			import pdb
+			pdb.set_trace()
 		data_matrix, probe_id_ls, chr_pos_ls, header = self.get_input(self.input_fname)
-		self.quantile_normalize(data_matrix)
-		self.subtract_col_mean(data_matrix)
-		self.subtract_row_mean(data_matrix)
+		if self.run_type==1:
+			self.quantile_normalize(data_matrix)
+			self.subtract_col_mean(data_matrix)
+			self.subtract_row_mean(data_matrix)
 		self.output(data_matrix, probe_id_ls, chr_pos_ls, header, self.output_fname_prefix)
 		
 if __name__ == '__main__':
