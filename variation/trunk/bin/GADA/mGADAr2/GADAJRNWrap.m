@@ -68,6 +68,8 @@ disp('running  GADA ...');
 [GADA_JRN.Iext, GADA_JRN.Wext, GADA_JRN.par]=fitGadaModel(Ymat2,...
     'aAlpha',aAlpha, 'RefAdjust',1, 'RhoAdjust',1, 'TBackElim',3, 'aAlpha',0.2, 'MinSegLen',0,...
     CommonParameters{:});
+    %% 2009-10-5 parameters set behind would override the eponymous ones set beforehand.
+    %% CommonParameters{:} would override aAlpha, TBackElim, MinSegLen.
 
 %% We don't need Ymat2 more, 
 clear Ymat2;
