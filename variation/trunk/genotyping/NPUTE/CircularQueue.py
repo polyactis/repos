@@ -1,9 +1,12 @@
 try:
+	import numpy as num
 	from numpy import *
 except:
 	try:
+		import numarray as num
 		from numarray import *
 	except:
+		import Numeric as num
 		from Numeric import *
 
 
