@@ -392,6 +392,8 @@ class ProcessOptions(object):
 
 	def process_function_arguments(cls, keywords, argument_default_dict, error_doc='', class_to_have_attr=None, howto_deal_with_required_none=1):
 		"""
+		2009-10-07
+			"is not ''" works for character numpy.array, while "!=''" doesn't in if-condition.
 		2008-10-25 
 			if default_value is None, and no value is given by a user, no casting into type specified.
 		2008-07-09
@@ -419,7 +421,8 @@ class ProcessOptions(object):
 			else:
 				argument_type = None
 			if keywords.has_key(argument):
-				if keywords[argument]!='' and keywords[argument]!=None:	#only when keywords has this argument and it's not nothing. change default_value
+				if keywords[argument] is not '' and keywords[argument] is not None:	# 2009-10-07 "is not ''" works for character numpy.array, while "!=''" doesn't in if-condition.
+					#only when keywords has this argument and it's not nothing. change default_value
 					if argument_type!=None:	#cast to the desired type
 						default_value = argument_type(keywords[argument])
 					else:
