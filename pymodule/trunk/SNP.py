@@ -577,12 +577,14 @@ class SNPData(object):
 	@classmethod
 	def isDataMatrixEmpty(cls, data_matrix):
 		"""
+		2009-10-07
+			if data_matrix is character numpy.array, "==''" won't work while "is ''" works in if-condition.
 		2008-08-21
 			make it a classmethod
 		2008-08-19
 			common function to judge whether data_matrix is empty
 		"""
-		if data_matrix=='':
+		if data_matrix is '':	# 2009-10-07 if data_matrix is character numpy.array, "==''" won't work while "is ''" works.
 			return True
 		elif data_matrix is None:
 			return True
