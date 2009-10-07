@@ -41,6 +41,11 @@ class SNPData(object):
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.']}
 	def __init__(self, **keywords):
 		'''
+		2009-10-6
+			self.snps is the data structure holding all the SNP data. It's a list of encoded (0,1, or ?)strings.
+				each string corresponds to alleles of one SNP across all accessions.
+			self.nucs is a list of tuples, which encode the major/minor alleles of each SNP. allele 0 (major) is the nucleotide at index 0 of the tuple.
+			self.sdps is a set of unique strings from self.snps. 
 		05/09/08
 			change interface, inFile could be a data structure
 		Constructor reads in data file, generates mismatch vectors and upper
@@ -51,13 +56,10 @@ class SNPData(object):
 		start = time.time()
 		#if isinstance(inFile, str) and os.path.isfile(inFile):
 		if self.input_file_format == 2:
-				self.readInData(self.inFile)
+			self.readInData(self.inFile)
 		elif self.input_file_format==1:
-				snps, nucs, self.chosen_snps_name_ls = self.readOneChromosomeData(self.snps_name_ls, self.data_matrix, self.chromosome)
-				self.snps = array(snps)
-				self.sdps = Set(snps)
-				self.nucs = array(nucs)
-				self.numSamps = len(self.snps[0])
+			self.snps, self.sdps, self.nucs, self.chosen_snps_name_ls = self.readOneChromosomeData(self.snps_name_ls, self.data_matrix, self.chromosome)
+			self.numSamps = len(self.snps[0])
 		#elif isinstance(inFile, RawSnpsData):	#05/07/08 it's snpsd data structure
 		elif self.input_file_format==3:
 			snpsd = dataParsers.parseCSVData(self.inFile, withArrayIds=True)
@@ -151,6 +153,9 @@ class SNPData(object):
 	
 	def readOneChromosomeData(self, snps_name_ls, data_matrix, chromosome):
 		"""
+		2009-10-7
+			turn snps, nucs into array before returning
+			add sdps=Set(snps) in the returning list
 		2008-05-19
 			snps_name could be tuple or list
 		05/07/08
@@ -190,8 +195,11 @@ class SNPData(object):
 			nucs += [(passingdata.major, passingdata.minor)]
 		
 		del data_matrix
+		snps = array(snps)
+		sdps = Set(snps)
+		nucs = array(nucs)
 		sys.stderr.write("Done.\n")
-		return snps, nucs, chosen_snps_name_ls
+		return snps, sdps, nucs, chosen_snps_name_ls
 	
 	def readInData(self, inFile):
 		'''
