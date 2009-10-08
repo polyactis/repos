@@ -23,13 +23,15 @@ class DisplayresultsController(BaseController):
 
 	def index(self):
 		"""
+		2009-10-8
+			first try to get the call_method_id from the URL parameters. if it's null, use the published_call_method_id instead.
 		2009-7-2
 			update c.displayResultsGeneURL to h.url_for(controller="DisplayResultsGene", action='showResultsGeneForOnePhenotype')
 		"""
 		# Return a rendered template
 		#   return render('/template.mako')
 		# or, Return a response
-		c.call_method_id = config['app_conf']['published_call_method_id']
+		c.call_method_id = request.params.get('call_method_id', config['app_conf']['published_call_method_id'])
 		c.getPhenotypeCategoryLsURL = h.url_for(controller="DisplayResults", action="getPhenotypeCategoryLs")
 		c.getPhenotypeTableDataURL = h.url_for(controller="DisplayResults", action="getPhenotypeTableData")
 		c.getGWAURL = h.url_for(controller="DisplayResults", action="showGWA")
@@ -61,6 +63,8 @@ class DisplayresultsController(BaseController):
 	
 	def getPhenotypeTableData(self):
 		"""
+		2009-7-30
+			fetch the number of accessions for each phenotype by calling hc.getNoOfAccessionsGivenPhenotypeMethodID(), rather than static value in table phenotype_method 
 		2009-5-24
 			add column transformation_description back
 		2009-5-13
@@ -74,6 +78,7 @@ class DisplayresultsController(BaseController):
 		biology_category_id = request.params.get('biology_category_id', 1)
 		if biology_category_id==0 or biology_category_id=='0':
 			biology_category_id=None
+		
 		#construct the full data and turn it into json
 		column_name_type_ls = [("id", ("number", "Phenotype ID")), \
 							("short_name", ("string", "Phenotype Name")), \
@@ -111,6 +116,8 @@ class DisplayresultsController(BaseController):
 						column_value = ','.join(analysis_method_short_name_ls)
 					else:
 						column_value = ""
+				elif column_name=='no_of_accessions':
+					column_value = hc.getNoOfAccessionsGivenPhenotypeMethodID(row.id)
 				else:
 					column_value = getattr(row, column_name, default_value)
 					if column_value is None:
