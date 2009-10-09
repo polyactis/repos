@@ -140,6 +140,12 @@ class OutputPhenotype(object):
 				phenotype_method_table='phenotype_method'):
 		"""
 		2009-9-2
+			if value>-5e-7 and value<+5e-7:	#beyond float resolution by a python float
+				value = 0
+			
+			without condition above, values like -5.32907e-15 would be taken as -5.32907e, -3.76545e-12 as -3.76545
+			
+		2009-9-2
 			add phenotype_method_table to get stddev, min_value to do certain transformation involving these two variables
 		2009-2-2
 			curs could be either MySQLdb cursor or elixirdb.metadata.bind.
@@ -179,6 +185,9 @@ class OutputPhenotype(object):
 				value = 'NA'
 			elif not get_raw_data:	#2008-11-10
 				transformation_description = phenotype_info.phenotype_method_id2transformation_description.get(phenotype_method_id)
+				if value>-5e-7 and value<+5e-7:	#beyond float resolution by a python float
+					value = 0
+				
 				if not transformation_description:
 					pass
 				elif transformation_description.find('Log(x)')!=-1:
