@@ -14,6 +14,9 @@ Examples:
 	#calculate median_intensity for array 498,499 and store the value into db. '-o' is ju
 	~/script/variation/src/DB_250k2Array.py -a 498,499 -t 3 -c
 	
+	# 2009-10-09 specify a different directory for all the cel files.
+	~/script/variation/src/DB_250k2Array.py -l 48 -t 2 -u yh  -o panfs/250k/CNV/ -f panfs/db/raw_data/
+	
 Description:
 	2008-12-09 This program outputs the intensity of two types of probes on the array in run_type:
 		1. SNP probes. each array (according to array_info_table) corresponds to one intensity matrix in output_dir.
