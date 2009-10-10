@@ -112,6 +112,7 @@ class DB_250k2Array(object):
 							('array_info_table', 1, ):['array_info', 'y'],\
 							('array_id_ls', 0, ): [None, 'a', 1, 'comma or dash-separated array id list, like 61-70,81. Not specifying this means all arrays.'],\
 							('call_method_id', 0, int):[0, 'l', 1, 'Restrict arrays included in this call_method. Default is no such restriction.'],\
+							('array_file_directory', 0, ):[None, 'f', 1, 'The results directory. Default is None. use the one given by db.'],\
 							('run_type', 1, int):[1, 't', 1, '1: output SNP probe intensity, 2: output the intensity of CNV probes, 3: calculate intensity medium of all probes in the array and put into db'],\
 							('commit', 0, int):[0, 'c', 0, 'commit the db operation.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
@@ -183,8 +184,10 @@ class DB_250k2Array(object):
 	get_probes = classmethod(get_probes)
 	
 	def outputArray(self, session, curs, output_dir, array_info_table, snps, probes, array_id_ls, xy_ls, chr_pos_ls, probes_id_ls,\
-				call_method_id=0, run_type=1):
+				call_method_id=0, run_type=1, array_file_directory=None):
 		"""
+		2009-10-9
+			add argument array_file_directory.
 		2009-3-11
 			add run_type=3
 				calculate intensity medium of all probes in the array and store the value in db
@@ -204,21 +207,26 @@ class DB_250k2Array(object):
 		if run_type!=3 and not os.path.isdir(output_dir):
 			os.makedirs(output_dir)
 		if array_id_ls:
-			curs.execute("select id, filename from %s where id in (%s)"%(array_info_table, ','.join(array_id_ls)))
+			curs.execute("select id, filename, maternal_ecotype_id from %s where id in (%s)"%(array_info_table, ','.join(array_id_ls)))
 		elif call_method_id:
-			curs.execute("select v.array_id, a.filename from view_call v, %s a where v.array_id=a.id and v.call_method_id=%s order by array_id"%\
+			curs.execute("select v.array_id, a.filename, a.maternal_ecotype_id from view_call v, %s a where v.array_id=a.id and v.call_method_id=%s order by array_id"%\
 						(array_info_table, call_method_id))
 		else:
-			curs.execute("select id, filename from %s"%(array_info_table))
+			curs.execute("select id, filename, maternal_ecotype_id from %s"%(array_info_table))
 		rows = curs.fetchall()
 		no_of_objects = len(rows)
 		
 		if run_type==2:	#2008-12-09 don't initialize the data_matrix if run_type is not 2 (CNV probe).
 			data_matrix = numpy.zeros([len(probes_id_ls), no_of_objects], numpy.float)
 		array_id_avail_ls = []
+		ecotype_id_ls = []
 		for i in range(no_of_objects):
-			array_id, filename = rows[i]
+			array_id, filename, ecotype_id = rows[i][:3]
 			array_id_avail_ls.append(array_id)
+			ecotype_id_ls.append(ecotype_id)
+			
+			if array_file_directory and os.path.isdir(array_file_directory):
+				filename = os.path.join(array_file_directory, os.path.split(filename)[1])
 			
 			sys.stderr.write("\t%d/%d: Extracting intensity from %s ... \n"%(i+1, no_of_objects, filename))
 			
@@ -320,7 +328,8 @@ class DB_250k2Array(object):
 			probes, xy_ls, chr_pos_ls, probes_id_ls = None, None, None, None
 		
 		self.outputArray(session, curs, self.output_dir, self.array_info_table, snps, probes, self.array_id_ls, xy_ls, \
-						chr_pos_ls, probes_id_ls, call_method_id=self.call_method_id, run_type=self.run_type)
+						chr_pos_ls, probes_id_ls, call_method_id=self.call_method_id, run_type=self.run_type, \
+						array_file_directory=self.array_file_directory)
 		
 		if self.commit:
 			session.flush()
