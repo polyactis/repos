@@ -407,6 +407,8 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int, ignore_het=0):
 	"""
+	2009-10-11
+		scope of try ... except is expanded to include the whole for loop.
 	2009-8-19
 		if turn_into_integer==1 and matrix_data_type==int and characters were found in the 1st entry of the data row, use the nucleotide2number map.
 		turn_into_integer is beyond its literal meaning. It's a flag to turn the input into a numerical type (= matrix_data_type).
@@ -474,9 +476,9 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	import re
 	p_char = re.compile(r'[a-df-zA-DF-Z\-]$')	#no 'e' or 'E', used in scientific number, add '-' and append '$'
 	i = 0
-	for row in reader:
-		i += 1
-		try:
+	try:
+		for row in reader:
+			i += 1
 			strain_acc_list.append(row[0])
 			category_list.append(row[1])
 			data_row = row[2:]
@@ -503,12 +505,13 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 				if ignore_het:	#2009-5-20 for data that is already in number format, use this function to remove hets
 					data_row = map(ignore_het_func, data_row)
 			data_matrix.append(data_row)
-		except:
-			sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
-			import traceback
-			traceback.print_exc()
-			sys.stderr.write("Row no: %s. %s.\n"%(i, repr(row)))
-			raise
+	except:
+		sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
+		import traceback
+		traceback.print_exc()
+		# sys.stderr.write("Row no: %s.\n"%(i))
+		sys.stderr.write("Row no: %s. %s.\n"%(i, repr(row)))
+		raise
 	del reader
 	sys.stderr.write("Done.\n")
 	return header, strain_acc_list, category_list, data_matrix
