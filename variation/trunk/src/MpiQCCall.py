@@ -2,23 +2,23 @@
 """
 
 Examples:
-	#parallel run on hpc-cmb
+	# parallel run on hpc-cmb
 	mpiexec MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250k_method_3.csv -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc.csv
 		
-	#test parallel run on desktop
+	# test parallel run on desktop
 	mpirun -np 5 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.csv -y 0.85 -p /mnt/nfs/NPUTE_data/input/perlgen.csv -f /mnt/nfs/NPUTE_data/input/2010_149_384.csv -o /tmp/param_qc -n 20 -v 0.3 -a 0.4 -w 0.2
 	
-	#debug and run thru on a single node and output the matrix to output_fname.
+	# run on a single node and output the matrix to output_fname.
 	python ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -y 0.85 -p ~/panfs/NPUTE_data/input/perlgen.csv \
 	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -u ~/panfs/NPUTE_data/matrix_output \
-	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -b
+	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30
 	
-	#parallel run on hpc-cmb and output data (both before & after imputation into output_dir)
+	# parallel run on hpc-cmb and output data (both before & after imputation into output_dir)
 	mpiexec ~/script/variation/src/MpiQCCall.py -i ~/panfs/NPUTE_data/input/250K_m3_85.csv -y 0.85 -p ~/panfs/NPUTE_data/input/perlgen.csv \
 	-f ~/panfs/NPUTE_data/input/2010_149_384_v2.csv -o ~/panfs/NPUTE_data/QC_output/250K_m3_85_vs_2010_149_384_v2_QC_x0.12_a1_v0.55_w0.3_n30 \
 	-x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u ~/panfs/NPUTE_data/matrix_output
 	
-	#test parallel run on desktop, using Strain X SNP format
+	# test parallel run on desktop, using Strain X SNP format
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiQCCall.py -i /mnt/nfs/NPUTE_data/input/250K_m3_70_n1000.tsv -y 0.70 -p /mnt/nfs/NPUTE_data/input/perlegen.tsv -f /mnt/nfs/NPUTE_data/input/2010_149_384_v3_narrowed_by_250k_l3.tsv -o /tmp/param_qc_2008_05_19  -x 0.12 -a 1 -v 0.55 -w 0.3 -n 30 -u /tmp/out2
 	
 Description:
@@ -26,7 +26,8 @@ Description:
 	
 	Heterozygous calls in QC datasets are ignored since 250k dataset doesn't include hets.
 	
-	In debug mode (-b), it takes the first parameter setting and run thru on a single node and output the matrix to
+	In serial mode (interpreter is python or only one processor is available),
+		it takes the first parameter setting and run thru on a single node and output the matrix to
 		output_fname. The output_fname is not regarded as a prefix for two stat filenames.
 """
 import sys, os, math
@@ -135,6 +136,8 @@ class MpiQCCall(MPIwrapper):
 	def doFilter(self, snpData, snpData_qc_strain, snpData_qc_snp, min_call_probability, max_call_mismatch_rate, max_call_NA_rate,\
 				max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size , output_dir=None):
 		"""
+		2009-10-11
+			replace imputeData() with NPUTE.samplingImpute(..., no_of_accessions_per_sampling=300, coverage=3) to avoid memory blowup. 
 		2008-12-22
 			replace '=' and ',' with '_' in the output filename
 		2008-05-19
@@ -227,10 +230,17 @@ class MpiQCCall(MPIwrapper):
 		#snpsd_250k_tmp_1 = copy.deepcopy(snpsd_250k_tmp)	#deepcopy, otherwise snpsd_250k_tmp_1[i].snps = [] would clear snpsd_250k_tmp up as well
 		if len(newSnpData.row_id_ls)>5:
 			snps_name_ls = newSnpData.col_id_ls
+			## 2009-10-8 use NPUTE.samplingImpute()
+			imputed_matrix, new_snps_name_ls = NPUTE.samplingImpute(snps_name_ls, newSnpData.data_matrix, \
+																input_file_format=1, input_NA_char=0, lower_case_for_imputation=False,\
+																npute_window_size=int(npute_window_size), \
+																no_of_accessions_per_sampling=300, coverage=3)
+			snpData_imputed = SNPData(row_id_ls = newSnpData.row_id_ls, col_id_ls=new_snps_name_ls, data_matrix=imputed_matrix)
+			"""
+			## 2009-10-8 use NPUTE.samplingImpute() instead. comment out below
 			chr2no_of_snps = NPUTE.get_chr2no_of_snps(snps_name_ls)
 			chr_ls = chr2no_of_snps.keys()
 			chr_ls.sort()
-			
 			snpData_imputed = SNPData(row_id_ls = newSnpData.row_id_ls, col_id_ls=[])
 			matrix_ls = []
 			for chromosome in chr_ls:
@@ -242,19 +252,18 @@ class MpiQCCall(MPIwrapper):
 					snpData_imputed.col_id_ls += npute_data_struc.chosen_snps_name_ls
 			if len(matrix_ls)>0:
 				snpData_imputed.data_matrix = num.transpose(num.concatenate(matrix_ls))
-				
-				if output_dir:	#2008-05-16 write the data out if output_fname is available
-					#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
-					output_fname = os.path.join(output_dir, '_'.join(output_fname_prefix_ls + ['after_imputation.tsv']))
-					#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
-					snpData_imputed.tofile(output_fname)
+			"""			
+			if output_dir:	#2008-05-16 write the data out if output_fname is available
+				#chromosomes = [snpsd_250k_tmp[i].chromosome for i in range(len(snpsd_250k_tmp))]	#already produced in the previous before_imputation output
+				output_fname = os.path.join(output_dir, '_'.join(output_fname_prefix_ls + ['after_imputation.tsv']))
+				#snpsdata.writeRawSnpsDatasToFile(output_fname, snpsd_250k_tmp, chromosomes=chromosomes, deliminator=',', withArrayIds = True)
+				snpData_imputed.tofile(output_fname)
 			
-			
-				twoSNPData1 = TwoSNPData(SNPData1=snpData_imputed, SNPData2=snpData_qc_strain, \
-								row_matching_by_which_value=0)
-				qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
-				qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
-				del twoSNPData1, snpData_imputed
+			twoSNPData1 = TwoSNPData(SNPData1=snpData_imputed, SNPData2=snpData_qc_strain, \
+							row_matching_by_which_value=0)
+			qcdata.row_id2NA_mismatch_rate1 = twoSNPData1.cmp_row_wise()
+			qcdata.col_id2NA_mismatch_rate1 = twoSNPData1.cmp_col_wise()
+			del twoSNPData1, snpData_imputed
 		else:
 			snpData_imputed = None
 			#qcdata.row_id2NA_mismatch_rate1 = {}
@@ -479,7 +488,8 @@ class MpiQCCall(MPIwrapper):
 		"""
 		self.parameter_names = ['max_call_mismatch_rate_ls', 'max_call_NA_rate_ls', \
 			'max_snp_mismatch_rate_ls', 'max_snp_NA_rate_ls', 'npute_window_size_ls']
-		if self.debug:	#serial debug
+		self.communicator = MPI.world.duplicate()
+		if self.communicator.size==1:	# 2009-10-8 only one cpu. Run in serial.
 			import pdb
 			#pdb.set_trace()
 			init_data = self.create_init_data()
@@ -489,7 +499,6 @@ class MpiQCCall(MPIwrapper):
 							max_snp_mismatch_rate, max_snp_NA_rate, npute_window_size, self.output_dir)
 			sys.exit(2)
 		
-		self.communicator = MPI.world.duplicate()
 		node_rank = self.communicator.rank
 		free_computing_nodes = range(1, self.communicator.size-1)	#exclude the 1st and last node
 		data_to_pickle_name_ls = ['snpData_2010_149_384', 'snpData_perlegen', 'param_d']
