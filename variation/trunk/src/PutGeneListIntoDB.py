@@ -5,12 +5,16 @@ Examples:
 	PutGeneListIntoDB.py -i /Network/Data/250k/candidate_genes_GWA/anthocyanin.csv -l 4 -u yh -c
 	
 	PutGeneListIntoDB.py -i /Network/Data/250k/candidate_genes_GWA/hyaloperonaspora2.csv -s Hyaloperonaspora2 -u yh -c
+
 Description:
-	2008-07-03 put gene list into db, stock_250k
+	2009-10-17 put gene list into db, stock_250k
+	
+	Input file is either tab or comma-delimited. Header is optional (controlled by -t). First column could be gene-symbol or gene-ID
+		and others are ignored. If it's gene-symbol, it uses gene_symbol2gene_id_set constructed from db genome to map gene symbols to gene-ids.
 	
 	If list_type_name is given, list_type_id would be ignored.
 	
-	Program will avoid redundant genes in the input files. 
+	Program will avoid redundant genes in the input files.
 
 """
 import sys, os, math
@@ -22,7 +26,7 @@ else:   #32bit
 	sys.path.insert(0, os.path.expanduser('~/lib/python'))
 	sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
-import time, csv, getopt
+import time, csv, getopt, re
 import warnings, traceback
 
 from Stock_250kDB import Stock_250kDB, GeneList, GeneListType
@@ -37,7 +41,7 @@ class PutGeneListIntoDb(object):
 							('schema', 0, ): [None, 'k', 1, 'database schema name', ],\
 							('db_user', 1, ): [None, 'u', 1, 'database username', ],\
 							('db_passwd', 1, ): [None, 'p', 1, 'database password', ],\
-							("input_fname", 1, ): [None, 'i', 1, ''],\
+							("input_fname", 1, ): [None, 'i', 1, 'either tab or comma-delimited. First column is gene-symbol. header is optional (controlled by -t).'],\
 							("list_type_id", 0, int): [-1, 'l', 1, 'Gene list type. must be in table gene_list_type beforehand.'],\
 							("list_type_name", 0, ): [None, 's', 1, 'Gene list type short name. if given, list_type_id would be ignored.'],\
 							('skip_1st_line', 0, int):[0, 't', 0, 'skip the first line in the input file'],\
@@ -55,9 +59,13 @@ class PutGeneListIntoDb(object):
 		if self.list_type_id==-1 and self.list_type_name is None:
 			sys.stderr.write("Error: None of list_type_id and list_type_name is specified.\n")
 			sys.exit(3)
+	
+	all_number_p = re.compile(r'^\d+$')
 		
 	def putGeneListIntoDb(self, input_fname, list_type_id, list_type_name, gene_symbol2gene_id_set, db, skip_1st_line=False):
 		"""
+		2009-10-18
+			If first column (gene symbol) is full of numbers, it's taken as a legitimate Gene ID.
 		2009-2-4
 			use getGeneIDSetGivenAccVer() from pymodule.utils to find gene_id_set
 		2008-01-08
@@ -90,7 +98,13 @@ class PutGeneListIntoDb(object):
 				continue
 			row = line.split(delimiter)
 			original_name = row[0].strip()	#2008-12-11 remove spaces/tabs in the beginning/end
-			gene_id_set = getGeneIDSetGivenAccVer(original_name, gene_symbol2gene_id_set)
+			all_number_p_search_result = self.all_number_p.search(original_name)
+			if all_number_p_search_result:	# 2009-10-18 original_name is full of numbers. a legitimate Gene ID.
+				ecotypeid = int(all_number_p_search_result.group(0))
+				gene_id_set = set([ecotypeid])
+			else:
+				gene_id_set = getGeneIDSetGivenAccVer(original_name, gene_symbol2gene_id_set)
+			
 			if gene_id_set==None:
 				sys.stderr.write("Linking to gene id failed for %s. No such in gene_symbol2gene_id_set.\n"%(original_name))
 			elif len(gene_id_set)==1:
