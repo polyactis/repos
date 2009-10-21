@@ -16,7 +16,8 @@ Description:
 	Input format is strain X snp. 2nd column ignored by default (change by array_id_2nd_column).
 		delimiter (either tab or comma) is automatically detected. 	header is 'chromosome_position'.
 	
-	Output format is snp X strain, bjarni's format.
+	Output format is snp X strain, bjarni's format. The addition of an extra first row for array id depends
+		on the array_id_2nd_column option. If it's toggled, yes.
 	
 """
 import sys, os, math
