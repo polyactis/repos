@@ -7,7 +7,7 @@ Examples:
 Description:
 	Convert Bjarni's SNP format (input) to Yu's.
 	
-	Input format is snp X strain, bjarni's format without array id (change by withArrayIds).
+	Input format is snp X strain, bjarni's format. The extra first row for array id is optional. (change by withArrayIds).
 	Output format is strain X snp. tab-delimiter. header is 'chromosome_position'.
 """
 import sys, os, math
