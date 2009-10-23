@@ -8,7 +8,7 @@ Examples:
 	#test parallel run on desktop
 	mpirun -np 3 -machinefile  /tmp/hostfile /usr/bin/mpipython  ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -s 100 -b -c
 	
-	#use null_distribution_type 2 to do enrichment test among top 500 snps
+	#use null_distribution_type 2 to do enrichment test starting from top 500 snps and so on
 	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -j 17 -f 500 -q10 -s ~/panfs/250k/snps_context_g0_m1000 -m 1000 -y 15 -C 2 -c
 	
 	#use min_score cutoff rather than no_of_top_snps, set a negative rank_gap, a new stop_rank. only results whose analysis_method_id=1 or 7.
@@ -17,14 +17,25 @@ Examples:
 	#ditto but with score cutoff from low to high
 	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/  -j 17 -f 200 -q80 -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -y 15 -C 3 -c -M 2 -E 0.2 -F 8 -e 1,7
 	
+	# starting from top 10 SNPs and so on increasing by exponential growth of 20 up to top 500 SNPs. packet size for each computing node is 10.
+	mpiexec ~/script/variation/src/MpiTopSNPTest.py -u yh -p passw**d -t ~/panfs/db/results/type_1/ -j 32 -q10 -s ~/panfs/250k/snps_context_g0_m$m -m $m -y 15 -A 9-13 -C 2 -l 149 -e 6 -c -f 10 -E 20 -W 500 -F 500
+	
 Description:
 	MPI version TopSNPTest.py. No need to specify list_type_id and results_method_id_ls. Automatically calculates
 	for all combinations of results_method_id and list_type_id, skipping the ones that have been done.
 	
 	2008-10-26
 	Two major ways to specify how to do top SNP test.
-		1. (no_of_top_snps, rank_gap, stop_rank) 
-		2. (min_score, rank_gap, stop_rank). in this scenario, rank_gap, stop_rank become score_gap and stop_score.
+		1. no_of_top_snps mode: (no_of_top_snps, rank_gap, stop_rank) 
+		2. score cutoff mode: (min_score, rank_gap, stop_rank). in this scenario, rank_gap, stop_rank become score_gap and stop_score.
+	2009-10-22
+		In the no_of_top_snps mode, -E (rank_gap) is a seed for exponential increase every W (window_with_same_rank_gap) SNPs.
+		For example, the effective rank_gap is
+			Rank 1 to (W-1), = rank_gap
+			W to 2W-1, = rank_gap*2
+			2W to 3W-1, = rank_gap*4
+			3W to 4W-1, = rank_gap*8
+			...
 """
 import sys, os, math
 #bit_number = math.log(sys.maxint)/math.log(2)
@@ -55,8 +66,9 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 	option_default_dict.update({("phenotype_method_id_ls", 0, ): ['1-7,39-61,80-82', 'A', 1, 'Restrict results based on this set of phenotype_method ids.']})
 	option_default_dict.pop(("list_type_id", 1, int))	#already poped in MpiGeneListRankTest
 	option_default_dict.pop(("results_id_ls", 1, ))
-	option_default_dict.update({('rank_gap', 1, float): [200, 'E', 1, 'the number of SNPs added onto previous no_of_top_snps to look for enrichment. negative gap could also be used. in that case, stop_rank means minimum score allowed.']})
+	option_default_dict.update({('rank_gap', 1, float): [200, 'E', 1, 'In the no_of_top_snps mode, this is the unit of increase upon previous no_of_top_snps. In the score cutoff mode, it could be negative (in which stop_rank means minimum score allowed).']})
 	option_default_dict.update({('stop_rank', 1, float): [10000, 'F', 1, 'program iterates over i different types of i*no_of_top_snps until i*no_of_top_snps > this number. maximum rank allowed.']})
+	option_default_dict.update({('window_with_same_rank_gap', 1, int): [4000, 'W', 1, 'Within which, the effective rank_gap would be same. Only for the no_of_top_snps mode. ']})
 	option_default_dict.update({('alter_hostname', 1, ):['banyan.usc.edu', '', 1, 'host for non-output nodes to connect, since they only query and not save objects. this host can be a slave.']})
 	option_default_dict.update({('store_null_data', 0, int):[0, 'S', 0, 'whether to store the NULL/permutation results for the enrichment test in the database']})
 	def __init__(self,  **keywords):
@@ -82,8 +94,16 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 		sys.stderr.write("%s parameters. Done.\n"%(len(new_params_ls)))
 		return new_params_ls
 	
-	def generate_cutoff_ls(self, no_of_top_snps, min_score, rank_gap, stop_rank):
+	def generate_cutoff_ls(self, no_of_top_snps, min_score, rank_gap, stop_rank, window_with_same_rank_gap=4000):
 		"""
+		2009-10-22
+			formalize this incremental pattern for the number of top SNPs cutoff
+				rank_gap is a seed for exponential increase every W (window_with_same_rank_gap) SNPs.
+				For example, the effective rank_gap is
+					Rank 1 to (W-1), = rank_gap
+					W to 2W-1, = rank_gap*2
+					2W to 3W-1, = rank_gap*4
+					3W to 4W-1, = rank_gap*8
 		2008-11-04
 			split out of computing_node_handler. common for every computing run
 		
@@ -102,14 +122,17 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 				current_marker = min(current_marker, no_of_top_snps)	#both in min() are positive
 		cutoff_ls = []
 		i = 0
+		max_t = int(math.log(20000.0/rank_gap)/math.log(2))	# 2009-10-22, maximum jump is 20k SNPs, which results this maximum t as in the rank_gap*2^t.
 		while current_marker<stop_marker:	#add one more layer to look at certain top genes
 			if min_score is not None:
 				current_marker = min_score +i*rank_gap
 			else:
-				t = min(max(0, int(abs(current_marker)/4000)), 6)	#enlarge the rank_gap as the rank goes further, every 4000 is a window.
+				t = min(max(0, int(abs(current_marker)/window_with_same_rank_gap)), max_t)	#enlarge the rank_gap as the rank goes further, every 500 is a window with the same rank jump.
 				#t must be bigger than 0 and less than 6
-				
-				coeffcient = math.pow(2,t)/(rank_gap/50.)	#it kind of makes rank_gap useless. always assume rank_gap=50
+				if i>0:
+					coeffcient = math.pow(2,t)
+				else:	# 2009-10-22, to keep the starting = no_of_top_snps
+					coeffcient = 0
 				#sys.stderr.write("i=%s, t=%s, coeffcient=%s, rank_gap=%s, current_marker=%s, no_of_top_snps=%s.\n"%(i, t, coeffcient, rank_gap, current_marker, no_of_top_snps))
 				current_marker = int(current_marker + coeffcient*rank_gap)
 			cutoff_ls.append(current_marker)
@@ -375,7 +398,7 @@ class MpiTopSNPTest(TopSNPTest, MpiGeneListRankTest, MPIwrapper):
 								list_type_id_ls=self.list_type_id_ls, \
 								results_type=self.results_type)
 			params_ls = self.generate_params(param_obj, self.min_no_of_genes)
-			cutoff_ls = self.generate_cutoff_ls(self.no_of_top_snps, self.min_score, self.rank_gap, self.stop_rank)
+			cutoff_ls = self.generate_cutoff_ls(self.no_of_top_snps, self.min_score, self.rank_gap, self.stop_rank, self.window_with_same_rank_gap)
 			params_ls = self.addCutoffToParamsLs(cutoff_ls, params_ls)
 			
 			pdata_for_computing.snps_context_wrapper = self.dealWithSnpsContextWrapper(self.snps_context_picklef, self.min_distance, self.get_closest)
