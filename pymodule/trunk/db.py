@@ -209,7 +209,7 @@ class ElixirDB(object):
 				if entity.__module__==self.__module__:	#entity in the same module
 					using_table_options_handler(entity, schema=self.schema)
 		#2008-10-05 MySQL typically close connections after 8 hours resulting in a "MySQL server has gone away" error.
-		metadata.bind = create_engine(self._url, pool_recycle=self.pool_recycle, echo=self.sql_echo)
+		metadata.bind = create_engine(self._url, pool_recycle=self.pool_recycle, echo=self.sql_echo)	#, convert_unicode=True, encoding="utf8")
 		self.metadata = metadata
 		self.session = session
 	
