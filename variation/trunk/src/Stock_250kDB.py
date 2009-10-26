@@ -224,7 +224,7 @@ class PhenotypeMethod(Entity):
 	2009-5-11
 		add no_of_accessions, growth_condition, phenotype_scoring, citations
 	"""
-	short_name = Field(String(20), unique=True)
+	short_name = Field(String(40), unique=True)
 	only_first_96 = Field(Boolean, default=0)
 	biology_category = ManyToOne("BiologyCategory", colname='biology_category_id', ondelete='CASCADE', onupdate='CASCADE')
 	no_of_accessions = Field(Integer);
