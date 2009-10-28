@@ -60,11 +60,14 @@ class CNVNormalize(object):
 		self.reference_arrays = getListOutOfStr(self.reference_arrays, data_type=int)
 		
 	@classmethod
-	def get_input(cls, input_fname, data_type=numpy.float):
+	def get_input(cls, input_fname, data_type=numpy.float32):
 		"""
+		2009-10-28
+			switch the default data_type to numpy.float32 to save memory on 64bit machines
 		2009-9-28
 			add argument data_type to specify data type of data_matrix.
-			default is numpy.float. numpy.double is also fine.
+			default is numpy.float (numpy.float could be float32, float64, float128 depending on the architecture).
+				numpy.double is also fine.
 		2009-5-18
 			become classmethod
 		"""
@@ -94,18 +97,31 @@ class CNVNormalize(object):
 		sys.stderr.write("Done.\n")
 		return data_matrix, probe_id_ls, chr_pos_ls, header
 	
-	def quantile_normalize(self, data_matrix):
+	def quantile_normalize(self, data_matrix, no_of_probes_per_block=300000):
+		"""
+		2009-10-28
+			use numpy.mean and numpy.median depending on the version
+			add argument no_of_probes_per_block and get the median array block by block to save memory.
+				median() costs more memory than mean() and program blows up.
+		"""
 		sys.stderr.write("Quantile normalizing ")
 		
 		sort_data_matrix = numpy.sort(data_matrix, axis=0)	#sort each column
-		if numpy.version.version[:3]=='1.0':	# 2009-10-27
+		no_of_rows, no_of_cols = data_matrix.shape
+		if numpy.version.version[:3]=='1.0':	# 2009-10-27, 1.0.x can't get row-wise median 
 			sys.stderr.write("by mean ...")
 			mean_ar = numpy.mean(sort_data_matrix, axis=1)	#get each row's mean
 		else:
 			sys.stderr.write("by median ...")
-			mean_ar = numpy.median(sort_data_matrix, axis=1)	#get each row's mean
+			no_of_blocks = int(math.ceil(no_of_rows/float(no_of_probes_per_block)))
+			median_ar_ls = []
+			for i in range(no_of_blocks):
+				row_start_index = i*no_of_probes_per_block
+				row_stop_index = (i+1)*no_of_probes_per_block
+				median_ar = numpy.median(sort_data_matrix[row_start_index:row_stop_index,:], axis=1)	#get each row's median
+				median_ar_ls.append(median_ar)
+			mean_ar = numpy.hstack(median_ar_ls)	#get each row's median
 		del sort_data_matrix
-		no_of_rows, no_of_cols = data_matrix.shape
 		argsort_data_matrix = numpy.argsort(data_matrix, axis=0)
 		
 		for j in range(no_of_cols):
