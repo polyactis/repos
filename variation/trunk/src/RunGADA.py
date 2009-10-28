@@ -38,7 +38,7 @@ from pymodule import figureOutDelimiter, getListOutOfStr
 import Stock_250kDB
 from CNVNormalize import CNVNormalize
 from PlotGroupOfSNPs import PlotGroupOfSNPs
-import StringIO
+import cStringIO
 from sets import Set
 
 class RunGADA(CNVNormalize):
@@ -52,12 +52,13 @@ class RunGADA(CNVNormalize):
 							('input_fname', 1, ): ['', 'i', 1, 'CNV intensity matrix, probe X arrays. 1st column is probe id. 2nd last col is chr. last col is pos.', ],\
 							('output_fname', 1, ): ['', 'o', 1, 'self-explanatory', ],\
 							('which_array_id_ls', 0, ): [None, 'w', 1, 'list of array ids indicating which arrays(s) for GADA to work on. format: 0,1-3. Work on all if not given.' ],\
-							('tmp_input_fname', 1, ): ['/tmp/GADA/GADA_input', 't', 1, 'temporary file to store GADA input'],\
-							('tmp_output_fname', 1, ): ['/tmp/GADA/GADA_output', 'm', 1, 'temporary file to store GADA output', ],\
+							('tmp_input_fname', 1, ): ['/tmp/GADA/GADA_input', 't', 1, 'temporary file to store GADA input. non-existent folder would be created if IO_thru_file is on.'],\
+							('tmp_output_fname', 1, ): ['/tmp/GADA/GADA_output', 'm', 1, 'temporary file to store GADA output. non-existent folder would be created if IO_thru_file is on.', ],\
 							('aAlpha', 1, float): [0.5, 'A', 1, 'a in Gamma(a;b) the function that controls the prior for the number of breakpoints', ],\
 							('TBackElim', 1, float): [4, 'T', 1, '(amp1-amp2)/stddev in GADA', ],\
 							('MinSegLen', 1, int): [5, 'M', 1, 'minimum no of probes to comprise a segment in GADA', ],\
 							('GADA_path', 1, ): [os.path.expanduser('~/script/variation/bin/GADA/GADA'), 'G', 1, 'path to the one-sample version GADA program'],\
+							('IO_thru_file', 0, int):[0, 'I', 0, 'whether the IO of GADA uses files'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.'],\
 							('run_type', 0, int):[1, 'y', 1, 'Run type 1: one-sample version GADA (c-version), 2: multi-sample (in matlab)']}
@@ -71,25 +72,38 @@ class RunGADA(CNVNormalize):
 	
 		self.which_array_id_ls = getListOutOfStr(self.which_array_id_ls, data_type=int)
 	
-	def prepareGADAinput(self, data_matrix, which_column, tmp_input_fname):
+	def prepareGADAinput(self, intensity_ls, tmp_input_fname=None, IO_thru_file=False):
 		"""
+		2009-10-28
+			return a StringIO object if IO_thru_file is false or tmp_input_fname is not
 		"""
 		if self.report:
-			sys.stderr.write("Preparing column %s input for GADA ..."%which_column)
+			sys.stderr.write("Preparing input for GADA ...")
 		
-		of = open(tmp_input_fname, 'w')
-		no_of_rows, no_of_cols = data_matrix.shape
+		if not IO_thru_file or not tmp_input_fname:
+			of = cStringIO.StringIO()
+		else:
+			of = open(tmp_input_fname, 'w')
+		no_of_rows = len(intensity_ls)
 		
 		for i in range(no_of_rows):
-			of.write('%s\n'%data_matrix[i][which_column])
-		del of
+			of.write('%s\n'%intensity_ls[i])
 		if self.report:
 			sys.stderr.write("Done.\n")
+		
+		if not IO_thru_file or not tmp_input_fname:
+			of.seek(0)	# set the current position to beginning
+			return of
+		else:
+			of.close()
+			return tmp_input_fname
 	
-	def _GADA(self, GADA_path, tmp_input_fname, tmp_output_fname, aAlpha=0.8, TBackElim=2, MinSegLen=2):
+	def _GADA(self, GADA_path, tmp_input_fname, tmp_output_fname, aAlpha=0.8, TBackElim=2, MinSegLen=2, IO_thru_file=False):
 		"""
+		2009-10-28
+			add argument IO_thru_file
 		2009-10-26
-			remove -c (segment classification into gain/loss) in envoking GADA. Segment classification is done post-GADA.
+			remove -c (segment classification into gain/loss) in invoking GADA. Segment classification is done post-GADA.
 		2009-10-5
 			add arguments: aAlpha=0.5, TBackElim=4, MinSegLen=5
 		"""
@@ -97,19 +111,26 @@ class RunGADA(CNVNormalize):
 			sys.stderr.write("Running GADA ...")
 		commandline = '%s -a %s -T %s -M %s -s -0.4 -b 0.0'%(GADA_path, aAlpha, TBackElim, MinSegLen)
 			# -s specifies he variance estimate for the noise. If negative it will be estimated from the provided data
-			# -b Mean amplitude associated to the Neutral state.
+			# -b Mean amplitude associated to the Neutral state. useless if -c is not specified.
 			# -c Classify segments into altered state (L)oss, (N)eutral, (G)ain). If c option is not specified, only mean is returned.
-		inf = open(tmp_input_fname)
-		command_handler = subprocess.Popen(commandline, shell=True, stdin=inf, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-		stdout_content, stderr_content = command_handler.communicate()
+		if type(tmp_input_fname) is str:
+			inf = open(tmp_input_fname)
+		elif type(tmp_input_fname) is cStringIO.OutputType:	# tmp_input_fname is cStringIO
+			inf = tmp_input_fname
+		else:
+			 sys.stderr.write("GADA Input is neither file nor StringIO. skip.\n")
+			 return ''
+		command_handler = subprocess.Popen(commandline, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+		stdout_content, stderr_content = command_handler.communicate(input=inf.read())
 		del inf
 		if stderr_content:
 			sys.stderr.write('stderr of %s: %s \n'%(commandline, stderr_content))
 		if self.report:
 			sys.stderr.write("Done.\n")
-		of = open(tmp_output_fname, 'w')
-		of.write(stdout_content)
-		del of
+		if IO_thru_file:
+			of = open(tmp_output_fname, 'w')
+			of.write(stdout_content)
+			del of
 		return stdout_content
 	
 	
@@ -131,7 +152,8 @@ class RunGADA(CNVNormalize):
 			no more outputting the whole chr_pos_ls
 		2008-12-05
 		"""
-		sys.stderr.write("Outputting header ...")
+		if self.report:
+			sys.stderr.write("Outputting header ...")
 		header = ['ecotype_id', 'array_id', "start_probe", "end_probe", "length", "amplitude", "start_probe_id", "end_probe_id"]
 		"""
 		for chr_pos in chr_pos_ls:
@@ -139,18 +161,20 @@ class RunGADA(CNVNormalize):
 			header.append(chr_pos)
 		"""
 		writer.writerow(header)
-		sys.stderr.write("Done.\n")
+		if self.report:
+			sys.stderr.write("Done.\n")
 	state2number = {'G': 1, 'N':0, 'L':-1}
 	
-	def output_GADA_output(self, writer, writer_amp, GADA_output, array_id, ecotype_id, chr_pos_ls, probe_id_ls):
+	def output_GADA_output(self, writer, GADA_output, array_id, ecotype_id, chr_pos_ls, probe_id_ls):
 		"""
 		2009-10-26
 			add chr_pos_ls, probe_id_ls to improve output
 			no more output to writer_amp
 		2008-12-05
 		"""
-		sys.stderr.write("Outputting GADA output ...")
-		GADA_output = StringIO.StringIO(GADA_output)
+		if self.report:
+			sys.stderr.write("Outputting GADA output ...")
+		GADA_output = cStringIO.StringIO(GADA_output)
 		counter = 0
 		#data_row = [ecotype_id, array_id]
 		#data_row_amp = [ecotype_id, array_id]
@@ -186,8 +210,8 @@ class RunGADA(CNVNormalize):
 				writer.writerow(new_row)
 		#writer.writerow(data_row)
 		#writer_amp.writerow(data_row_amp)
-		
-		sys.stderr.write("Done.\n")
+		if self.report:
+			sys.stderr.write("Done.\n")
 	
 	def oneSampleGADA(self, ):
 		"""
@@ -210,12 +234,13 @@ class RunGADA(CNVNormalize):
 		self.output_header(writer, chr_pos_ls)
 		
 		# 2009-10-27 create directories for temp input/output files
-		tmp_input_dir = os.path.split(self.tmp_input_fname)[0]
-		tmp_output_dir = os.path.split(self.tmp_output_fname)[0]
-		if not os.path.isdir(tmp_input_dir):
-			os.makedirs(tmp_input_dir)
-		if not os.path.isdir(tmp_output_dir):
-			os.makedirs(tmp_output_dir)
+		if self.IO_thru_file:
+			tmp_input_dir = os.path.split(self.tmp_input_fname)[0]
+			tmp_output_dir = os.path.split(self.tmp_output_fname)[0]
+			if not os.path.isdir(tmp_input_dir):
+				os.makedirs(tmp_input_dir)
+			if not os.path.isdir(tmp_output_dir):
+				os.makedirs(tmp_output_dir)
 		
 		for col_index in col_index_ls:
 			array_id = array_id_ls[col_index]
@@ -226,10 +251,10 @@ class RunGADA(CNVNormalize):
 				continue
 			tmp_input_fname = '%s_%s'%(self.tmp_input_fname, array_id)
 			tmp_output_fname = '%s_%s'%(self.tmp_output_fname, array_id)
-			self.prepareGADAinput(data_matrix, col_index, tmp_input_fname)
-			GADA_output = self._GADA(self.GADA_path, tmp_input_fname, tmp_output_fname, self.aAlpha, \
-									self.TBackElim, self.MinSegLen)
-			self.output_GADA_output(writer, writer_amp, GADA_output, array_id, ecotype_id, chr_pos_ls, probe_id_ls)
+			input_file = self.prepareGADAinput(data_matrix[:,col_index], tmp_input_fname, IO_thru_file=self.IO_thru_file)
+			GADA_output = self._GADA(self.GADA_path, input_file, tmp_output_fname, self.aAlpha, \
+									self.TBackElim, self.MinSegLen, IO_thru_file=self.IO_thru_file)
+			self.output_GADA_output(writer, GADA_output, array_id, ecotype_id, chr_pos_ls, probe_id_ls)
 		del writer, writer_amp
 	
 	def multiSampleGADA(self):
