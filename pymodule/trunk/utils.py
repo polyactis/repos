@@ -221,6 +221,9 @@ def getColName2IndexFromHeader(header):
 
 def getListOutOfStr(list_in_str, data_type=int, separator1=',', separator2='-'):
 	"""
+	2009-10-28
+		fix a bug,
+			run "start_stop_tup = map(int, start_stop_tup)" after making sure start_stop_tup is of length >1.
 	2008-10-27
 		fix a bug when data_type!=int. it's never right before.
 	2008-09-25
@@ -239,10 +242,10 @@ def getListOutOfStr(list_in_str, data_type=int, separator1=',', separator2='-'):
 		if len(index_anchor)==0:	#nothing there, skip
 			continue
 		start_stop_tup = index_anchor.split(separator2)
-		start_stop_tup = map(int, start_stop_tup)
 		if len(start_stop_tup)==1:
 			list_to_return.append(data_type(start_stop_tup[0]))
 		elif len(start_stop_tup)>1:
+			start_stop_tup = map(int, start_stop_tup)
 			list_to_return += range(start_stop_tup[0], start_stop_tup[1]+1)
 	list_to_return = map(data_type, list_to_return)	#2008-10-27
 	return list_to_return
