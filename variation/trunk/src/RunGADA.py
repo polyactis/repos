@@ -167,6 +167,8 @@ class RunGADA(CNVNormalize):
 	
 	def output_GADA_output(self, writer, GADA_output, array_id, ecotype_id, chr_pos_ls, probe_id_ls):
 		"""
+		2009-10-28
+			return no_of_segments
 		2009-10-26
 			add chr_pos_ls, probe_id_ls to improve output
 			no more output to writer_amp
@@ -176,8 +178,6 @@ class RunGADA(CNVNormalize):
 			sys.stderr.write("Outputting GADA output ...")
 		GADA_output = cStringIO.StringIO(GADA_output)
 		counter = 0
-		#data_row = [ecotype_id, array_id]
-		#data_row_amp = [ecotype_id, array_id]
 		for line in GADA_output:
 			if line[0]=='#':
 				continue
@@ -212,6 +212,8 @@ class RunGADA(CNVNormalize):
 		#writer_amp.writerow(data_row_amp)
 		if self.report:
 			sys.stderr.write("Done.\n")
+		no_of_segments = counter-1
+		return no_of_segments
 	
 	def oneSampleGADA(self, ):
 		"""
