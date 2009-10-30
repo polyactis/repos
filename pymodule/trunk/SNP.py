@@ -405,8 +405,11 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 	del writer
 	sys.stderr.write("%s NA rows. Done.\n"%no_of_all_NA_rows)
 
-def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int, ignore_het=0):
+def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int, ignore_het=0,\
+			data_starting_col=2):
 	"""
+	2009-10-12
+		add argument data_starting_col, specifying which column (index from 0) the data starts from. default is 2 (3rd column).
 	2009-10-11
 		scope of try ... except is expanded to include the whole for loop.
 	2009-8-19
@@ -481,7 +484,7 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 			i += 1
 			strain_acc_list.append(row[0])
 			category_list.append(row[1])
-			data_row = row[2:]
+			data_row = row[data_starting_col:]
 			no_of_snps = len(data_row)
 			p_char_used = 0	#whether p_char is used depends on condition below (nucleotides were transformed into integers).
 			if p_char.search(data_row[0]) and turn_into_integer==1 and matrix_data_type==int:
@@ -490,7 +493,7 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 				if no_of_snps!=len(data_row):
 					sys.stderr.write('\n dict_map() via nt2number_mapper only maps %s out of %s entries from this row, %s, to integer. Back to original data.\n'%\
 									(len(data_row), no_of_snps, repr(row[:5])))
-					data_row = row[2:]	#back to original data_row
+					data_row = row[data_starting_col:]	#back to original data_row
 					p_char_used = 0
 			
 			if turn_into_integer and not p_char_used:	#if p_char_used ==1, it's already integer.
@@ -518,12 +521,14 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 
 class SNPData(object):
 	"""
-	2009-3-5
+	2009-10-30
 		example usages:
 		
 			snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1, ignore_2nd_column=1)
 			
 			snpData1 = SNPData(input_fname=self.input_fname1, turn_into_array=1)
+			
+			CNVQCData = SNPData(input_fname=input_fname, turn_into_array=1, ignore_2nd_column=1, data_starting_col=2, turn_into_integer=False)
 			
 			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, delimiter=delimiter)
 			snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
@@ -562,6 +567,7 @@ class SNPData(object):
 							('snps_table', 0, ): None,\
 							('matrix_data_type', 0, ): int,\
 							('ignore_het', 0, int): [0, '', 0, 'Ignore the heterozygous genotypes'],\
+							('data_starting_col', 0, int): [2, '', 0, 'which column the data starts from'],\
 							('debug', 0, int): [0, '', 0, 'turn on the debug flag']}
 	def __init__(self, **keywords):
 		from __init__ import ProcessOptions
@@ -572,7 +578,8 @@ class SNPData(object):
 			self.header, self.strain_acc_list, self.category_list, self.data_matrix = read_data(self.input_fname, self.input_alphabet, \
 																							self.turn_into_integer, self.double_header, \
 																							matrix_data_type=self.matrix_data_type,\
-																							ignore_het=self.ignore_het)
+																							ignore_het=self.ignore_het,\
+																							data_starting_col=self.data_starting_col)
 			if self.ignore_2nd_column:
 				self.category_list = None
 		self.processRowIDColID()
@@ -1382,6 +1389,8 @@ import math
 
 def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_transformation=False, pdata=None):
 	"""
+	2009-10-27
+		add code to deal with pdata.max_value_cutoff and pdata.OR_min_max
 	2009-6-17
 		convert 2nd column (start_pos) to float, then to integer
 	2009-6-10
@@ -1425,6 +1434,8 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 	chr_pos2index = getattr(pdata, 'chr_pos2index', None)	#2008-10-21
 	score_for_0_pvalue = getattr(pdata, 'score_for_0_pvalue', 50)
 	gwr_name = getattr(pdata, 'gwr_name', os.path.basename(input_fname))
+	max_value_cutoff = getattr(pdata, 'max_value_cutoff', None)	# 2009-10-27
+	OR_min_max = getattr(pdata, 'OR_min_max', False)	# 2009-10-27
 	gwr = GenomeWideResult(name=gwr_name, construct_chr_pos2index=construct_chr_pos2index, \
 						construct_data_obj_id2index=construct_data_obj_id2index)
 	gwr.data_obj_ls = []	#list and dictionary are crazy references.
@@ -1493,7 +1504,25 @@ def getGenomeWideResultFromFile(input_fname, min_value_cutoff=None, do_log10_tra
 				score = score_for_0_pvalue
 			else:
 				score = -math.log10(score)
-		if min_value_cutoff is None or score>=min_value_cutoff:
+		
+		# 2009-10-27 procedure to decide whether to include the data point or not
+		include_the_data_point = False	# default is False
+		if min_value_cutoff is not None and max_value_cutoff is not None:	# both are specified. check OR_min_max.
+			if OR_min_max:	# condition is OR
+				if score>=min_value_cutoff or score<=max_value_cutoff:
+					include_the_data_point = True
+			else:	# condition is AND
+				if score>=min_value_cutoff and score<=max_value_cutoff:
+					include_the_data_point = True
+			
+		elif min_value_cutoff is not None and score>=min_value_cutoff:
+			include_the_data_point = True
+		elif max_value_cutoff is not None and score<=max_value_cutoff:
+			include_the_data_point = True
+		elif min_value_cutoff is None and max_value_cutoff is None:	# both are not specified.
+			include_the_data_point = True
+		
+		if include_the_data_point:
 			if stop_pos is not None:
 				data_obj = DataObject(chromosome=chr, position=start_pos, stop_position=stop_pos, value =score)
 			else:
