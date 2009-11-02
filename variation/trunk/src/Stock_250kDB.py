@@ -1160,6 +1160,144 @@ class CmpEnrichmentOfTwoAnalysisMethodsType(Entity):
 	using_table_options(UniqueConstraint('r1_threshold', 'r2_threshold'))
 
 
+class CNVQCAccession(Entity):
+	"""
+	2009-10-26
+		to keep track of where the accessions are from
+	"""
+	original_id = Field(String(200))
+	alternative_id = Field(String(2000))
+	ecotype_id = Field(Integer)
+	data_source = ManyToOne('DataSource', colname='data_source_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='cnv_qc_accession', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('original_id', 'data_source_id'))
+
+class DataSource(Entity):
+	"""
+	2009-10-26
+		records of where the data is from
+	"""
+	short_name = Field(String(200), unique=True)
+	url = Field(String(2000))
+	address = Field(String(2000))
+	contact = Field(String(2000))
+	email = Field(String(2000))
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='data_source', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
+class CNVMethod(Entity):
+	"""
+	2009-10-26
+		which type of method is used to infer CNVs
+	"""
+	short_name = Field(String(200), unique=True)
+	description = Field(String(8000))
+	comment = Field(String(8000))
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='cnv_method', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
+class CNVType(Entity):
+	"""
+	2009-10-26
+		type of CNV, insertion, deletion, duplication
+	"""
+	short_name = Field(String(200), unique=True)
+	description = Field(String(8000))
+	comment = Field(String(8000))
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='cnv_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
+class CNVQCCalls(Entity):
+	"""
+	2009-10-26
+		the CNV data collected from other sources to verify our calls
+	"""
+	accession = ManyToOne('CNVQCAccession', colname='accession_id', ondelete='CASCADE', onupdate='CASCADE')
+	chromosome = Field(Integer)
+	start = Field(Integer)
+	stop = Field(Integer)
+	size_affected = Field(Integer)
+	score = Field(Float)
+	no_of_probes_covered = Field(Integer)
+	sequence = Field(Binary(length=134217728), deferred=True)
+	comment = Field(String(8124))
+	cnv_type = ManyToOne('CNVType', colname='cnv_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	cnv_method = ManyToOne('CNVMethod', colname='cnv_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='cnv_qc_calls', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('accession_id', 'chromosome', 'start', 'stop', 'cnv_type_id', 'cnv_method_id'))
+
+class CNVQCProbeCalls(Entity):
+	"""
+	2009-10-26
+		the probe-based CNV QC data, from
+			1. check the probes against the data from CNVQCCalls
+			2. blast the probes against some other sequence data, 2010 or Ler contigs
+	"""
+	accession = ManyToOne('CNVQCAccession', colname='accession_id', ondelete='CASCADE', onupdate='CASCADE')
+	probe = ManyToOne("Probes", colname='probe_id', ondelete='CASCADE', onupdate='CASCADE')
+	chromosome = Field(Integer)
+	position = Field(Integer)
+	size_affected = Field(Integer)
+	target_position = Field(Integer)
+	score = Field(Float)
+	comment = Field(String(8124))
+	cnv_qc_call = ManyToOne("CNVQCCalls", colname='cnv_qc_call_id', ondelete='CASCADE', onupdate='CASCADE')
+	cnv_type = ManyToOne('CNVType', colname='cnv_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='cnv_qc_probe_calls', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('accession_id', 'probe_id', 'target_position', 'cnv_type_id', 'cnv_qc_call_id'))
+
+class CNVCalls(Entity):
+	"""
+	2009-10-26
+		the CNV from the tiling part of the 250k affy array
+	"""
+	call_info = ManyToOne("CallInfo", colname='call_info_id', ondelete='CASCADE', onupdate='CASCADE')
+	chromosome = Field(Integer)
+	start = Field(Integer)
+	stop = Field(Integer)
+	start_probe = ManyToOne("Probes", colname='start_probe_id', ondelete='CASCADE', onupdate='CASCADE')
+	stop_probe = ManyToOne("Probes", colname='stop_probe_id', ondelete='CASCADE', onupdate='CASCADE')
+	size_affected = Field(Integer)
+	amplitude = Field(Float)
+	score = Field(Float)
+	comment = Field(String(8124))
+	cnv_type =  ManyToOne('CNVType', colname='cnv_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	cnv_method = ManyToOne('CNVMethod', colname='cnv_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='cnv_calls', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('call_info_id', 'start_probe_id', 'stop_probe_id', 'cnv_type_id', 'cnv_method_id'))
+
 """
 #2008-10-29 'results_gene2type' automatically generated by ManyToMany is sub-optimal because it uses MyIAM engine and doesn't allow foreign key.
 #two ways around this
@@ -1308,6 +1446,54 @@ class Stock_250kDB(ElixirDB):
 		cm = CallMethod.get(call_method_id)
 		snpData = SNPData(input_fname=cm.filename, turn_into_array=1, ignore_2nd_column=ignore_2nd_column)	#use 1st column (ecotype id) as main ID
 		return snpData
+	
+	def getCNVQCInGWA(self, accession_id, cnv_type_id=None, min_size=50, min_no_of_probes=None):
+		"""
+		2009-10-30
+			get CNV QC calls from db in GWA format
+		"""
+		sys.stderr.write("Getting CNVQC calls for accession %s, cnv_type %s, min_size %s, min_no_of_probes %s ..."%\
+						(accession_id, cnv_type_id, min_size, min_no_of_probes))
+		query = CNVQCCalls.query.filter_by(accession_id=accession_id)
+		if min_size is not None:
+			query = query.filter(CNVQCCalls.size_affected>=min_size)
+		if cnv_type_id is not None:
+			query = query.filter_by(cnv_type_id=cnv_type_id)
+		if min_no_of_probes is not None:
+			query = query.filter(CNVQCCalls.no_of_probes_covered>=min_no_of_probes)
+		
+		from pymodule import GenomeWideResult, DataObject
+		cnv_qc_accession = CNVQCAccession.get(accession_id)
+		
+		gwr_name = "%s (%s)"%(cnv_qc_accession.original_id, cnv_qc_accession.id)
+		if cnv_qc_accession.ecotype_id:
+			gwr_name += " e-id: %s"%(cnv_qc_accession.ecotype_id)
+		gwr = GenomeWideResult(name=gwr_name)
+		gwr.data_obj_ls = []	#list and dictionary are crazy references.
+		gwr.data_obj_id2index = {}
+		genome_wide_result_id = id(gwr)
+		
+		for row in query:
+			data_obj = DataObject(chromosome=row.chromosome, position=row.start, stop_position=row.stop, value=row.cnv_type_id*2-3)
+			"""
+			if column_4th is not None:
+				data_obj.maf = column_4th
+			if column_5th is not None:
+				data_obj.mac = column_5th
+			if column_6 is not None:
+				data_obj.genotype_var_perc = column_6
+			if rest_of_row:
+				data_obj.extra_col_ls = rest_of_row
+			"""
+			data_obj.comment = 'cnv_type: %s, size_affected %s, '%(row.cnv_type_id, row.size_affected) + row.comment
+			data_obj.genome_wide_result_id = genome_wide_result_id
+			gwr.add_one_data_obj(data_obj)
+		if gwr.max_value<3:	# insertion at y=3
+			gwr.max_value=3
+		if gwr.min_value>-1:	# deletion at y = -1
+			gwr.min_value = -1
+		sys.stderr.write(" %s segments. Done.\n"%(len(gwr.data_obj_ls)))
+		return gwr
 		
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
