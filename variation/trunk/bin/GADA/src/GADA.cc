@@ -38,6 +38,146 @@ char *InputFile;
 char *OutputFile;
 
 
+class GADA
+{
+	public:
+		int M;
+		int i;
+		int *Iext;
+		int K;
+		double *tn;
+		int *SegLen;
+		double *SegAmp;
+		double *SegState;
+		double *Wext;
+
+		FILE *fin,*fout;
+
+		double T; //Backward elimination threshold
+		//double T2=5.0; //Segment collapse to base Non-Alteration level threshold
+		double BaseAmp;  //Base-level
+		double a; //SBL hyperprior parameter
+		double sigma2; //Variance observed, if negative value, it will be estimated by the mean of the differences
+					  // I would recommend to be estimated on all the chromosomes and as a trimmed mean.
+		int MinLen; //Lenght in number of probes for a CNA segment to be called significan.
+		int SelectClassifySegments; //Classify segment into altered state (1), otherwise 0
+		int SelectEstimateBaseAmp; //Estimate Neutral hybridization amplitude.
+		char *InputFile;
+		char *OutputFile;
+
+		string input_fname;
+		string output_fname;
+
+		GADA();
+		~GADA();
+
+		void readInIntensity(boost::python::list intensity_list);
+		boost::python::list run(boost::python::list intensity_list, double aAlpha, double TBackElim, int MinSegLen);
+		void cleanupMemory();
+};
+
+GADA::GADA()
+{
+	T=5.0; //Backward elimination threshold
+	//double T2=5.0; //Segment collapse to base Non-Alteration level threshold
+	BaseAmp=0.0;  //Base-level
+	a=0.2; //SBL hyperprior parameter
+	sigma2=-1; //Variance observed, if negative value, it will be estimated by the mean of the differences
+				  // I would recommend to be estimated on all the chromosomes and as a trimmed mean.
+	MinLen=0; //Lenght in number of probes for a CNA segment to be called significan.
+	SelectClassifySegments=0; //Classify segment into altered state (1), otherwise 0
+	SelectEstimateBaseAmp=1; //Estimate Neutral hybridization amplitude.
+}
+
+GADA::~GADA()
+{
+
+}
+void GADA::readInIntensity(boost::python::list intensity_list)
+{
+#if defined(DEBUG)
+	cerr<< boost::format("# Start reading ... \n") ;
+#endif
+	int no_of_probes = boost::python::extract<int>(intensity_list.attr("__len__")());
+	M = no_of_probes;
+	tn= (double *) calloc(no_of_probes, sizeof(double));
+
+	for(int i=0; i<no_of_probes-1;i++)
+		tn[i] = boost::python::extract<double>(intensity_list[i]);
+
+#if defined(DEBUG)
+	cerr<< boost::format("# M=%1% probes in input file\n") % M ;
+#endif
+}
+
+void GADA::cleanupMemory()
+{
+	free(tn);
+	//free(Iext);
+	free(SegLen);
+	free(SegAmp);
+	//free(SegState);
+	//free(Wext);
+}
+
+boost::python::list GADA::run(boost::python::list intensity_list, double aAlpha, double TBackElim, int MinSegLen)
+{
+	readInIntensity(intensity_list);
+
+
+	K = SBLandBE(tn, M, &sigma2, aAlpha, 0, 0, &Iext, &Wext);
+
+#if defined(DEBUG)
+	//K=SBLandBE(tn,M,&sigma2,a,T,MinLen,&Iext,&w);
+    cerr<< boost::format("# Overall mean %1%.\n")%Wext[0];
+	cerr<< boost::format("# Sigma^2=%1%.\n")%sigma2;
+	cerr<< boost::format("# Found %1% breakpoints after SBL\n")%K;
+#endif
+
+	BEwTandMinLen(Wext,Iext,&K, sigma2, TBackElim, MinSegLen);
+
+#if defined(DEBUG)
+    cerr<< boost::format("# Kept %1% breakpoints after BE\n")%K;
+#endif
+
+	SegLen= (int*) calloc(K+1,sizeof(int));
+	SegAmp= (double *) calloc(K+1,sizeof(double));
+	IextToSegLen(Iext,SegLen,K);
+	IextWextToSegAmp(Iext,Wext,SegAmp,K);
+#if defined(DEBUG)
+    cerr<< boost::format("# Making segments\n");
+#endif
+
+    boost::python::list return_ls;
+
+	//fprintf(fout,"Start\tStop\tLength\tAmpl\n");
+	for(i=0;i<K+1;i++)
+	{
+		boost::python::list d_row;
+		d_row.append(Iext[i]+1);
+		d_row.append(Iext[i+1]);
+		d_row.append(SegLen[i]);
+		d_row.append(SegAmp[i]);
+		//cerr<< boost::format("%1% \t %2% \t %3% %4% \n")%Iext[i] % Iext[i+1] % SegLen[i] % SegAmp[i];
+		return_ls.append(d_row);
+	}
+
+	cleanupMemory();
+	return return_ls;
+
+}
+
+
+BOOST_PYTHON_MODULE(GADA)
+{
+	using namespace boost::python;
+	class_<GADA>("GADA")
+		.def("run", &GADA::run)
+	;
+
+}
+
+
 void help_message(FILE *fd)
 {
 	//fprintf(fd,"# Welcome to GADA 1.0 \n");
