@@ -357,13 +357,13 @@ int main(int argc, char *argv[])
 	//ofstream out;
 	//out.open(output_fname.c_str());
 
-	fprintf(stdout,"# GADA v1.0 Genome Alteration Detection Algorithm\n");
-	fprintf(stdout,"# Copyright (C) 2008  Childrens Hospital of Los Angeles\n");
-	fprintf(stdout,"# author: Roger Pique-Regi piquereg@usc.edu\n");
+	fprintf(fout,"# GADA v1.0 Genome Alteration Detection Algorithm\n");
+	fprintf(fout,"# Copyright (C) 2008  Childrens Hospital of Los Angeles\n");
+	fprintf(fout,"# author: Roger Pique-Regi piquereg@usc.edu\n");
 
 
-	cout << boost::format("# Parameter setting: a=%1%,T=%2%,MinLen=%3%,sigma2=%4%,BaseAmp=%5%.") % a % T % MinLen % sigma2 % BaseAmp << std::endl;
-	//fprintf(fout,"#Parameter setting: a=%g,T=%g,MinLen=%d,sigma2=%g,BaseAmp=%g\n",a,T,MinLen,sigma2,BaseAmp);
+	// cout << boost::format("# Parameter setting: a=%1%,T=%2%,MinLen=%3%,sigma2=%4%,BaseAmp=%5%.") % a % T % MinLen % sigma2 % BaseAmp << std::endl;
+	fprintf(fout,"# Parameter setting: a=%g,T=%g,MinLen=%d,sigma2=%g,BaseAmp=%g\n",a,T,MinLen,sigma2,BaseAmp);
 
 	/*
 	#if defined(DEBUG)
