@@ -167,7 +167,6 @@ boost::python::list GADA::run(boost::python::list intensity_list, double aAlpha,
 
 }
 
-
 BOOST_PYTHON_MODULE(GADA)
 {
 	using namespace boost::python;
@@ -221,7 +220,10 @@ void help_and_exit(FILE *fd,int code)
 
 void Configure(int ac, char *av[], string &input_fname, string &output_fname)
 {
-	int CLcount,i;
+#if defined(DEBUG)
+    cerr<< boost::format("# Getting commandline arguments ...");
+#endif
+    int CLcount,i;
 	FILE *fd;
 
 	// Parse the command line
@@ -315,10 +317,16 @@ void Configure(int ac, char *av[], string &input_fname, string &output_fname)
 			help_and_exit(stderr,1);
 		}
 	}
+#if defined(DEBUG)
+	cerr<< boost::format("Done.\n");
+#endif
 }
 
 int main(int argc, char *argv[])
 {
+#if defined(DEBUG)
+	cerr<< boost::format("# Starting ....\n");
+#endif
 	int M=1000;
 	int i;
 	int *Iext;

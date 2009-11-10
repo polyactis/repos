@@ -3,7 +3,7 @@ BoostPythonTarget	= GADA.so
 BoostPythonLib  = -lboost_python
 
 CFLAGS	= -O3
-CXXFLAGS	= -O3 -fPIC
+CXXFLAGS	= -fPIC $(CFLAGS)
 SharedLibFlags	= -shared -fPIC
 IncludeDirs = `python-config --includes`
 CXXCOMPILER = g++
@@ -16,13 +16,13 @@ $(BoostPythonTarget):	%.so:	%.o
 
 
 .cc.o:
-	-$(CXXCOMPILER) $(CFLAGS) $(IncludeDirs) $(SharedLibFlags) -c $< -o $@
+	-$(CXXCOMPILER) $(CXXFLAGS) $(IncludeDirs) $(SharedLibFlags) -c $< -o $@
 
 .c.o:
-	-$(CXXCOMPILER) $(CFLAGS) $(IncludeDirs) $(SharedLibFlags) -c $< -o $@
+	-$(CXXCOMPILER) $(CXXFLAGS) $(IncludeDirs) $(SharedLibFlags) -c $< -o $@
 
 GADA:	GADA.o BaseGADA.o BaseGADA.h consoledefines.h
-	-$(CXXCOMPILER) $(CFLAGS) $(IncludeDirs) $(BoostPythonLib) $(SharedLibFlags) -o GADA GADA.o BaseGADA.o -lm
+	-$(CXXCOMPILER) $(CXXFLAGS) $(IncludeDirs) $(BoostPythonLib) `python-config --libs` -o GADA GADA.o BaseGADA.o -lm
 
 clean:
 	-rm GADA *.o $(BoostPythonTarget)
