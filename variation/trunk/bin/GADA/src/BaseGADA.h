@@ -40,7 +40,9 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+#ifndef GADABIN
 #include <boost/python.hpp>
+#endif
 using namespace std;
 
 

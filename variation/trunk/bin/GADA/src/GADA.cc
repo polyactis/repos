@@ -38,6 +38,7 @@ char *InputFile;
 char *OutputFile;
 
 
+#ifndef GADABIN
 class GADA
 {
 	public:
@@ -176,6 +177,7 @@ BOOST_PYTHON_MODULE(GADA)
 
 }
 
+#endif
 
 void help_message(FILE *fd)
 {
