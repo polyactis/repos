@@ -1,11 +1,11 @@
 /*=================================================================
- * BaseGenomeBreaks.h 
+ * BaseGenomeBreaks.h
  *
  *=================================================================*/
 /*
 	This File is part of GADA
 
-	GADA v1.0 Genome Alteration Detection Algorithm 
+	GADA v1.0 Genome Alteration Detection Algorithm
     Copyright (C) 2008  Childrens Hospital of Los Angeles
 
 	GADA is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
     You should have received a copy of the GNU General Public License
     along with GADA.  If not, see <http://www.gnu.org/licenses/>.
 
-	Author: 
+	Author:
 		Roger Pique-Regi    piquereg@usc.edu
 
 */
@@ -30,6 +30,18 @@
 #define _BaseGADA_H_
 
 //#include "matlabdefines.h"
+#include <stdio.h>
+#include <malloc.h>
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
+#include "boost/format.hpp"
+using namespace std;
+
 
 void reconstruct (double *wr,int M,double *aux_vec);
 void BubbleSort (int *I,int L);
@@ -55,22 +67,22 @@ int SBL(
     double *y, //I -- 1D array with the input signal
     int *I, //IO -- 1D array with the initial (final) candidate breakpoints
     double *alpha, //I -- 1D array with the initial (final) hyperparameter inv. varainces.
-    double *w, //O -- 1D array containing the breakpoint weigths or posterior mean. 
+    double *w, //O -- 1D array containing the breakpoint weigths or posterior mean.
     double *sigw, //O -- Posterior variances, I would not really need them since they can be computed from alpha and H
     int M, //Initial size of the array in y
     int *K, //Size of the I alpha w
-    
+
     //Algorithm parameters:
-    double sigma2, //Noise estimated 
+    double sigma2, //Noise estimated
     double a,      //
-    double b,       
-    double maxalpha,  //Basis reduction parameter 
+    double b,
+    double maxalpha,  //Basis reduction parameter
     int    maxit,     //Max number of iterations
     double tol,       //Tolerance for convergence
     int debug       //verbosity... set equal to 1 to see messages  0 to not see them
     );
 
-int BEthresh( //To eliminate...   
+int BEthresh( //To eliminate...
     double *Scores,
     int Nscores,
     double *wr,
@@ -88,7 +100,7 @@ int SBLandBE( //Returns breakpoint list lenght.
     int MinSegLen, //Minimum length of the segment.
     int **pI,   //Returns breakpoint positions
     double **pw //Returns breakpoint weights.
-    //int *pK    
+    //int *pK
     );
 
 
@@ -106,10 +118,10 @@ void IextToSegLen(
 	int K			// Length Iext - 1
 	);
 void IextWextToSegAmp(
-	int *Iext, 
+	int *Iext,
 	double *Wext,
 	double *SegAmp,
-	int K 
+	int K
 	);
 void CompZ(// computes z=F'y for entire possilbe breakpoint positions (normalized PWC)
 	double *y,
@@ -119,7 +131,7 @@ void CompZ(// computes z=F'y for entire possilbe breakpoint positions (normalize
 void ComputeHsIext(
     //input variables:
     int *Iext,     // Indices of selection,
-    int K,     // Length of the indices, 
+    int K,     // Length of the indices,
     double *h0, // Returning diagonal of H,
     double *h1  // Returning upper diagonal of H
     );
@@ -130,13 +142,13 @@ void ProjectCoeff ( //IextYobs2Wext
     int K,
     double *Wext
 	);
-void 
+void
 CollapseAmpTtest(//Uses a T test to decide which segments collapse to neutral
 	double *SegAmp, //Segment Amplitudes (input output)
 	const int *SegLen, //Segment Lengths
 	int K, //Number of segments.
 	double BaseAmp, //Reference amplitude to compare
-	double sigma2,  //Reference noise 
+	double sigma2,  //Reference noise
 	double T		//Critical value that decides when to colapse
 	);
 double // Returns BaseAmp corresponding to the base level.
@@ -146,15 +158,15 @@ CompBaseAmpMedianMethod( //Computes the median recontruction level, as baseline 
 	int K
 	);
 
-void 
+void
 ClassifySegments(
-	double *SegAmp,  
+	double *SegAmp,
 	int *SegLen,
 	double *SegState,
 	int K,
 	double BaseAmp,
 	double ploidy,
-    double sigma2,  //Reference noise 
+    double sigma2,  //Reference noise
 	double T		//Critical value that decides when to colapse
 	);
 
@@ -180,7 +192,7 @@ int BEwTandMinLen( //Returns breakpoint list lenght. with T and MinSegLen
     double *Wext,  //IO Breakpoint weights extended notation...
 	int *Iext,     //IO Breakpoint positions in extended notation...
     int *pK,       //IO Number breakpoint positions remaining.
-	double sigma2, //IP If sigma2 
+	double sigma2, //IP If sigma2
     double T,      //IP  Threshold to prune,  T=T*sqrt(sigma2);
     int MinSegLen  //IP Minimum length of the segment.
 );

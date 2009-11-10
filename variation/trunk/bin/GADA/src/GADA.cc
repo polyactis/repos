@@ -1,5 +1,5 @@
 /*
-	GADA v1.0 Genome Alteration Detection Algorithm 
+	GADA v1.0 Genome Alteration Detection Algorithm
     Copyright (C) 2008  Childrens Hospital of Los Angeles
 
 	GADA is free software: you can redistribute it and/or modify
@@ -15,15 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with GADA.  If not, see <http://www.gnu.org/licenses/>.
 
-	Author: 
+	Author:
 		Roger Pique-Regi    piquereg@usc.edu
 
 */
 
-#include <stdio.h>
-#include <malloc.h>
 #include "BaseGADA.h"
-#include <math.h>
 
 
 // Global variables with algorithm parameters
@@ -33,22 +30,23 @@ double T=5.0; //Backward elimination threshold
 double BaseAmp=0.0;  //Base-level
 double a=0.2; //SBL hyperprior parameter
 double sigma2=-1; //Variance observed, if negative value, it will be estimated by the mean of the differences
-			  // I would recommend to be estimated on all the chromosomes and as a trimmed mean. 
-int MinLen=0; //Lenght in number of probes for a CNA segment to be called significan. 
+			  // I would recommend to be estimated on all the chromosomes and as a trimmed mean.
+int MinLen=0; //Lenght in number of probes for a CNA segment to be called significan.
 int SelectClassifySegments=0; //Classify segment into altered state (1), otherwise 0
 int SelectEstimateBaseAmp=1; //Estimate Neutral hybridization amplitude.
 char *InputFile;
 char *OutputFile;
 
+
 void help_message(FILE *fd)
 {
 	//fprintf(fd,"# Welcome to GADA 1.0 \n");
 	fprintf(fd,"# Usage:\n");
-	fprintf(fd,"# \t GADA [-T 5] [-a 0.8] [-s -1] [-M 3] < input.txt > output.txt\n");
+	fprintf(fd,"# \t GADA [-T 5] [-a 0.8] [-s -1] [-M 3] -i input.txt -o output.txt\n");
 	fprintf(fd,"# \t input.txt is a single column text file with no header\n");
 	fprintf(fd,"# Possible options:\n");
-	//fprintf(fd,"# \t -i\t Input file. Otherwise standard input assumed\n");
-	//fprintf(fd,"# \t -o\t Output file. Otherwise standard output assumed\n");
+	fprintf(fd,"# \t -i\t Input file. Otherwise standard input assumed\n");
+	fprintf(fd,"# \t -o\t Output file. Otherwise standard output assumed\n");
 	fprintf(fd,"# \t -a\t is the SBL hyperprior parameter for a breakpoint. It is the \n");
 	fprintf(fd,"# \t\t shape parameter of the Gamma distribution. Default value %g.\n",a);
 	fprintf(fd,"# \t\t Higher (lower) value more (less) breakpoints expected a priori\n");
@@ -56,7 +54,7 @@ void help_message(FILE *fd)
 	fprintf(fd,"# \t\t i.e. the minimum difference between the segment means divided\n");
 	fprintf(fd,"# \t\t by sigma. The default value for T is %g\n",T);
 	fprintf(fd,"# \t -M\t is the minimum size in number of probes for a segment to be \n");
-	fprintf(fd,"# \t\t deemed significant. Default value is %d.\n",MinLen);	
+	fprintf(fd,"# \t\t deemed significant. Default value is %d.\n",MinLen);
 	fprintf(fd,"# \t -s\t The variance estimate for the noise. If not provided or \n");
 	fprintf(fd,"# \t\t negative it will be estimated from the provided data. \n");
 	fprintf(fd,"# \t\t We recomend to estimate this on the entire data and not \n");
@@ -75,13 +73,13 @@ void help_message(FILE *fd)
 }
 
 void help_and_exit(FILE *fd,int code)
-{	
+{
 	fprintf(fd, "Invalid syntax. Use GADA -h for help\n");
 	exit(code);
 }
 
 
-void Configure(int ac, char *av[])
+void Configure(int ac, char *av[], string &input_fname, string &output_fname)
 {
 	int CLcount,i;
 	FILE *fd;
@@ -109,25 +107,34 @@ void Configure(int ac, char *av[])
 
 		else if (0 == strncmp (av[CLcount], "-c", 2))
 		{
-			SelectClassifySegments = 1;			
+			SelectClassifySegments = 1;
 			CLcount+=1;
 			fprintf(fd,"# -c option activated to classify segments into altered states\n");
 		}
-/*		else if (0 == strncmp (av[CLcount], "-i", 2)) //! Input file
+		else if (0 == strncmp (av[CLcount], "-i", 2)) //! Input file
 		{
-			if(0 == strncmp (av[CLcount+1], "-", 1))help_and_exit(stderr,1);
-			strcpy(InputFile,av[CLcount+1]);
+			if(0 == strncmp (av[CLcount+1], "-", 1))
+				help_and_exit(stderr,1);
+			InputFile = (char*)malloc(strlen(av[CLcount+1]));
+			//strcpy(InputFile, av[CLcount+1]);
+			input_fname = av[CLcount+1];
+			cout << boost::format("# Input file: %1%")%input_fname << std::endl;
+			InputFile = av[CLcount+1];
 			CLcount += 2;
-			fprintf(fd,"# Input file: %s \n",InputFile);
+			//fprintf(fd,"# Input file: %s \n",InputFile);
 		}
 		else if (0 == strncmp (av[CLcount], "-o", 2)) //! Output File
 		{
-			if(0 == strncmp (av[CLcount+1], "-", 1))help_and_exit(stderr,1);
+			if(0 == strncmp (av[CLcount+1], "-", 1))
+				help_and_exit(stderr,1);
+			OutputFile = (char*)malloc(strlen(av[CLcount+1]));
 			strcpy(OutputFile,av[CLcount+1]);
+			output_fname = av[CLcount+1];
+			//OutputFile = av[CLcount+1];
 			CLcount += 2;
 			fprintf(fd,"# Output file: %s \n",OutputFile);
 		}
-*/		else if (0 == strncmp (av[CLcount], "-a", 2)) //! a parameter
+		else if (0 == strncmp (av[CLcount], "-a", 2)) //! a parameter
 		{
 			if(0 == strncmp (av[CLcount+1], "-", 1))help_and_exit(stderr,1);
 			sscanf (av[CLcount+1], "%lf", &a);
@@ -162,9 +169,9 @@ void Configure(int ac, char *av[])
 			sscanf (av[CLcount+1], "%lf", &sigma2);
 			CLcount += 2;
 			fprintf(fd,"# sigma2= %g \n",sigma2);
-		}		
+		}
 		else
-		{			
+		{
 			help_and_exit(stderr,1);
 		}
 	}
@@ -182,48 +189,72 @@ int main(int argc, char *argv[])
 	double *SegState;
 	double *Wext;
 
-//	FILE *fin,*fout;
+	FILE *fin,*fout;
 
-	tn=calloc(M,sizeof(double));
+	string input_fname;
+	string output_fname;
 
-	fprintf(stdout,"#GADA v1.0 Genome Alteration Detection Algorithm\n");
-	fprintf(stdout,"#Copyright (C) 2008  Childrens Hospital of Los Angeles\n");
+	tn= (double *) calloc(M,sizeof(double));
+
+	Configure(argc,argv, input_fname, output_fname);
+
+	// fin = stdin;
+	fin = fopen(InputFile, "r");
+	ifstream in;
+	in.open(InputFile);
+	// fout = stdout;
+	fout = fopen(OutputFile, "w");
+	//ofstream out;
+	//out.open(output_fname.c_str());
+
+	fprintf(stdout,"# GADA v1.0 Genome Alteration Detection Algorithm\n");
+	fprintf(stdout,"# Copyright (C) 2008  Childrens Hospital of Los Angeles\n");
 	fprintf(stdout,"# author: Roger Pique-Regi piquereg@usc.edu\n");
-    
-	Configure(argc,argv);
 
-	fprintf(stdout,"#Parameter setting: a=%g,T=%g,MinLen=%d,sigma2=%g,BaseAmp=%g\n",a,T,MinLen,sigma2,BaseAmp);
-	
-	i=0;
-	while(!feof(stdin))
+
+	cout << boost::format("# Parameter setting: a=%1%,T=%2%,MinLen=%3%,sigma2=%4%,BaseAmp=%5%.") % a % T % MinLen % sigma2 % BaseAmp << std::endl;
+	//fprintf(fout,"#Parameter setting: a=%g,T=%g,MinLen=%d,sigma2=%g,BaseAmp=%g\n",a,T,MinLen,sigma2,BaseAmp);
+
+	/*
+	#if defined(DEBUG)
+		std::cerr<<"Read in the data...";
+	#endif
+	string line;
+	while(getline(in, line))
 	{
-		fscanf(stdin,"%lf",&tn[i++]);
+		cout << line[0];
+	}
+	 */
+	i=0;
+	while(!feof(fin))
+	{
+		fscanf(fin,"%lf",&tn[i++]);
 		if(i>=M){
-			M=M+1000;		
-			tn=realloc(tn,M*sizeof(double));
+			M=M+1000;
+			tn=(double *) realloc(tn,M*sizeof(double));
 		}
 	}
 	M=i-1;
-	tn=realloc(tn,M*sizeof(double));
+	tn= (double*) realloc(tn,M*sizeof(double));
 
-	fprintf(stdout,"# Reading M=%d probes in input file\n",M);
-	
+	fprintf(fout,"# Reading M=%d probes in input file\n",M);
+
 	K=SBLandBE(tn,M,&sigma2,a,0,0,&Iext,&Wext);
 
 	//K=SBLandBE(tn,M,&sigma2,a,T,MinLen,&Iext,&w);
-    fprintf(stdout,"# Overall mean %g\n",Wext[0]);
-	fprintf(stdout,"# Sigma^2=%g\n",sigma2);
-	fprintf(stdout,"# Found %d breakpoints after SBL\n",K);
+    fprintf(fout,"# Overall mean %g\n",Wext[0]);
+	fprintf(fout,"# Sigma^2=%g\n",sigma2);
+	fprintf(fout,"# Found %d breakpoints after SBL\n",K);
 
-	
-	BEwTandMinLen(Wext,Iext,&K,sigma2,T,MinLen); 
-    fprintf(stdout,"# Kept %d breakpoints after BE\n",K);
 
-	SegLen=calloc(K+1,sizeof(int));
-	SegAmp=calloc(K+1,sizeof(double));
+	BEwTandMinLen(Wext,Iext,&K,sigma2,T,MinLen);
+    fprintf(fout,"# Kept %d breakpoints after BE\n",K);
+
+	SegLen= (int*) calloc(K+1,sizeof(int));
+	SegAmp= (double *) calloc(K+1,sizeof(double));
 	IextToSegLen(Iext,SegLen,K);
 	IextWextToSegAmp(Iext,Wext,SegAmp,K);
-    fprintf(stdout,"# Making segments\n");
+    fprintf(fout,"# Making segments\n");
 
 	//Collapse Segments
 	if(SelectClassifySegments==1)
@@ -231,13 +262,13 @@ int main(int argc, char *argv[])
 		if(SelectEstimateBaseAmp==1)
 		{
 			BaseAmp=CompBaseAmpMedianMethod(SegLen,SegAmp,K);
-			fprintf(stdout,"# Estimating BaseAmp\n");
+			fprintf(fout,"# Estimating BaseAmp\n");
 		}
-		fprintf(stdout,"# BaseAmp=%g \n",BaseAmp);
-		fprintf(stdout,"# Classify Segments \n",BaseAmp);
-		
+		fprintf(fout,"# BaseAmp=%g \n",BaseAmp);
+		fprintf(fout,"# Classify Segments \n",BaseAmp);
 
-		SegState=calloc(K+1,sizeof(double));
+
+		SegState= (double *) calloc(K+1,sizeof(double));
 		for(i=0;i<=K;i++)SegState[i]=SegAmp[i];
 		CollapseAmpTtest(SegState,SegLen,K,BaseAmp,sigma2,T);
 	}
@@ -245,25 +276,25 @@ int main(int argc, char *argv[])
 
 	if(SelectClassifySegments==0)
 	{
-    	fprintf(stdout,"Start\tStop\tLength\tAmpl\n");
+    	fprintf(fout,"Start\tStop\tLength\tAmpl\n");
 		for(i=0;i<K+1;i++)
-			fprintf(stdout,"%d\t%d\t%d\t%g\n",Iext[i]+1,Iext[i+1],SegLen[i],SegAmp[i]);
+			fprintf(fout,"%d\t%d\t%d\t%g\n",Iext[i]+1,Iext[i+1],SegLen[i],SegAmp[i]);
 	}
 	else if(SelectClassifySegments==1)
 	{
-	   	fprintf(stdout,"Start\tStop\tLenght\tAmpl\tState\n");
+	   	fprintf(fout,"Start\tStop\tLenght\tAmpl\tState\n");
 		for(i=0;i<K+1;i++)
 		{
-			fprintf(stdout,"%d\t%d\t%d\t%g\t",Iext[i]+1,Iext[i+1],SegLen[i],SegAmp[i]);
+			fprintf(fout,"%d\t%d\t%d\t%g\t",Iext[i]+1,Iext[i+1],SegLen[i],SegAmp[i]);
 			if(SegState[i]>BaseAmp)
-				fprintf(stdout,"G");
+				fprintf(fout,"G");
 			else if(SegState[i]<BaseAmp)
-				fprintf(stdout,"L");
-			else 
-				fprintf(stdout,"N");
-			fprintf(stdout,"\n");
+				fprintf(fout,"L");
+			else
+				fprintf(fout,"N");
+			fprintf(fout,"\n");
 		}
-		
+
 
 	}
 
