@@ -264,17 +264,18 @@ void Configure(int ac, char *av[], string &input_fname, string &output_fname)
 			input_fname = av[CLcount+1];
 			cout << boost::format("# Input file: %1%")%input_fname << std::endl;
 			InputFile = av[CLcount+1];
-			CLcount += 2;
 			//fprintf(fd,"# Input file: %s \n",InputFile);
+			CLcount += 2;
 		}
 		else if (0 == strncmp (av[CLcount], "-o", 2)) //! Output File
 		{
 			if(0 == strncmp (av[CLcount+1], "-", 1))
 				help_and_exit(stderr,1);
 			OutputFile = (char*)malloc(strlen(av[CLcount+1]));
-			strcpy(OutputFile,av[CLcount+1]);
+			//strcpy(OutputFile, av[CLcount+1]);	// 2009-11-10 strcpy is a dangerous function.
+			// One weird bug is if it's /tmp/GADA/GADA_output_48 (48 could be any 2-digit), it'll cause "malloc: memory corruption" in fin = fopen(input_fname.c_str(), "r");.
 			output_fname = av[CLcount+1];
-			//OutputFile = av[CLcount+1];
+			OutputFile = av[CLcount+1];
 			CLcount += 2;
 			fprintf(fd,"# Output file: %s \n",OutputFile);
 		}
@@ -320,7 +321,7 @@ void Configure(int ac, char *av[], string &input_fname, string &output_fname)
 		}
 	}
 #if defined(DEBUG)
-	cerr<< boost::format("Done.\n");
+	cerr<< "Done.\n";
 #endif
 }
 
@@ -349,9 +350,9 @@ int main(int argc, char *argv[])
 	Configure(argc,argv, input_fname, output_fname);
 
 	// fin = stdin;
-	fin = fopen(InputFile, "r");
-	ifstream in;
-	in.open(InputFile);
+	fin = fopen(input_fname.c_str(), "r");
+	// ifstream in;
+	// in.open(InputFile);
 	// fout = stdout;
 	fout = fopen(OutputFile, "w");
 	//ofstream out;
