@@ -23,6 +23,8 @@ class DisplayresultsController(BaseController):
 
 	def index(self):
 		"""
+		2009-11-11
+			add c.getPhenotypeURL
 		2009-10-8
 			first try to get the call_method_id from the URL parameters. if it's null, use the published_call_method_id instead.
 		2009-7-2
@@ -35,7 +37,7 @@ class DisplayresultsController(BaseController):
 		c.getPhenotypeCategoryLsURL = h.url_for(controller="DisplayResults", action="getPhenotypeCategoryLs")
 		c.getPhenotypeTableDataURL = h.url_for(controller="DisplayResults", action="getPhenotypeTableData")
 		c.getGWAURL = h.url_for(controller="DisplayResults", action="showGWA")
-		
+		c.getPhenotypeURL = h.url_for(controller='Phenotype')
 		c.displayResultsGeneURL = h.url_for(controller="DisplayResultsGene", action='showResultsGeneForOnePhenotype')
 		
 		return render("GWASPhenotypes.html")
