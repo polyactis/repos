@@ -64,7 +64,8 @@ public class PhenotypeTable extends CustomVerticalPanel implements CustomClickLi
 	private int callMethodID;
 	private String fetchGWAURL;
 	private String displayResultsGeneURL;
-
+	private String fetchPhenotypeURL;
+	
 	private HTML statusReport;
 	private CustomVisualizationTable accessionTable;
 
@@ -76,7 +77,8 @@ public class PhenotypeTable extends CustomVerticalPanel implements CustomClickLi
 	private int association_results_idx = -1;
 	
 	public PhenotypeTable(AccessionConstants constants, DisplayJSONObject jsonErrorDialog, DecoratedPopupPanel popupLink, String phenotypeCategoryID, 
-			String phenotypeCategoryName, String fetchPhenotypeTableDataURL, int callMethodID, String fetchGWAURL, String displayResultsGeneURL)
+			String phenotypeCategoryName, String fetchPhenotypeTableDataURL, int callMethodID, String fetchGWAURL, String displayResultsGeneURL,
+			String fetchPhenotypeURL)
 	{
 		super(constants, jsonErrorDialog, constants.PhenotypeTableHelpID());
 		this.constants = constants;
@@ -87,7 +89,8 @@ public class PhenotypeTable extends CustomVerticalPanel implements CustomClickLi
 		this.callMethodID = callMethodID;
 		this.fetchGWAURL = fetchGWAURL;
 		this.displayResultsGeneURL = displayResultsGeneURL;
-
+		this.fetchPhenotypeURL = fetchPhenotypeURL;
+		
 		this.popupLink = popupLink;
 
 		statusReport = new HTML("Waiting ...");
@@ -168,25 +171,48 @@ public class PhenotypeTable extends CustomVerticalPanel implements CustomClickLi
 			popupLink.hide();
 			Selection s = selectionLs.get(i);
 			String association_results = dataTable.getFormattedValue(s.getRow(), association_results_idx);
+
+			VerticalPanel vpanel = new VerticalPanel();
+			FlexTable layout = new FlexTable();
+			final String phenotype_name = dataTable.getFormattedValue(s.getRow(), phenotype_name_idx);
+			String phenotype_id = dataTable.getFormattedValue(s.getRow(), phenotype_id_idx);
+			HTML report = new HTML("Click below to open in new window.");
+			//vpanel.add(report);
+			layout.setWidget(0, 0, report);
+			
+			final String _fetchPhenotypeURL = fetchPhenotypeURL + "?phenotype_method_id=" + phenotype_id;
+			HTML phenotypeLink = new HTML("<a href=" + _fetchPhenotypeURL + " target='_blank'>Information for phenotype: " + 
+						phenotype_id + " " + phenotype_name + "</a>");
+			layout.setWidget(1, 0, phenotypeLink);
+			
 			if (!association_results.isEmpty())
 			{
-				VerticalPanel vpanel = new VerticalPanel();
-				FlexTable layout = new FlexTable();
-				final String phenotype_name = dataTable.getFormattedValue(s.getRow(), phenotype_name_idx);
-				String phenotype_id = dataTable.getFormattedValue(s.getRow(), phenotype_id_idx);
 				final String _fetchGWAURL = fetchGWAURL + "?call_method_id="+callMethodID+"&phenotype_method_id=" + phenotype_id;
-				HTML report = new HTML("Click below to open in new window.");
-				//vpanel.add(report);
-				layout.setWidget(0, 0, report);
-				
-				HTML gwaLink = new HTML("<a>GWA plot for phenotype: " + phenotype_id + " " + phenotype_name + "</a>");
-				gwaLink.addClickListener(new ClickListener() {
+				HTML gwaLink = new HTML("<a href=" + _fetchGWAURL + " target='_blank'>GWA plot for phenotype: " + phenotype_id + " " +
+						phenotype_name + "</a>");
+				/*
+				 * gwaLink.addClickListener(new ClickListener() {
 					public void onClick(Widget sender) {
 						Window.open(_fetchGWAURL, phenotype_name, "");
 					}
 				});
+				*/
 				//vpanel.add(new HTML("<p></p>"));
-				layout.setWidget(1, 0, gwaLink);
+				layout.setWidget(2, 0, gwaLink);
+				
+				final String _displayResultsGeneURL = displayResultsGeneURL + "?call_method_id="+callMethodID+"&phenotype_method_id=" + phenotype_id;
+				HTML resultsGeneLink = new HTML("<a href=" + _displayResultsGeneURL + " target='_blank'>Genes within 20kb of Top SNPs for phenotype: " +
+							phenotype_id + " " + phenotype_name + "</a>");
+				/*
+				resultsGeneLink.addClickListener(new ClickListener() {
+					public void onClick(Widget sender) {
+						Window.open(_displayResultsGeneURL, phenotype_name, "");
+					}
+				});
+				*/
+				//vpanel.add(new HTML("<p></p>"));
+				layout.setWidget(3, 0, resultsGeneLink);
+				
 				/*
 				if (association_results.contains("KW"))
 				{
@@ -211,23 +237,23 @@ public class PhenotypeTable extends CustomVerticalPanel implements CustomClickLi
 					layout.setWidget(3, 0, emma_resultsGeneLink);
 				}
 				*/
-				
-				vpanel.add(layout);
-				Button closeButton = new Button("close",
-						new ClickListener() {
-					public void onClick(Widget sender) {
-						popupLink.hide();
-					}
-				});
-				vpanel.add(closeButton);
-				vpanel.setCellHorizontalAlignment(closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
-				popupLink.add(vpanel);
-				int left = evt.getClientX() + Window.getScrollLeft();
-				int top = evt.getClientY() + Window.getScrollTop();
-				popupLink.setPopupPosition(left, top);
-				// Show the popup
-				popupLink.show();
-			}
+			}				
+			vpanel.add(layout);
+			Button closeButton = new Button("close",
+					new ClickListener() {
+				public void onClick(Widget sender) {
+					popupLink.hide();
+				}
+			});
+			vpanel.add(closeButton);
+			vpanel.setCellHorizontalAlignment(closeButton, HasHorizontalAlignment.ALIGN_RIGHT);
+			popupLink.add(vpanel);
+			int left = evt.getClientX() + Window.getScrollLeft();
+			int top = evt.getClientY() + Window.getScrollTop();
+			popupLink.setPopupPosition(left, top);
+			// Show the popup
+			popupLink.show();
+
 		}
 	}
 

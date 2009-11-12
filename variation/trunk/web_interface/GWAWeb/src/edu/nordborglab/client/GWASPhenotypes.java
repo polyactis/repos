@@ -62,6 +62,7 @@ public class GWASPhenotypes implements EntryPoint {
 	private String fetchPhenotypeTableDataURL;
 	private String fetchGWAURL;
 	private String displayResultsGeneURL;
+	private String fetchPhenotypeURL;
 	private DecoratedPopupPanel popupLink = new DecoratedPopupPanel();
 	
 	public void onModuleLoad() {
@@ -82,25 +83,20 @@ public class GWASPhenotypes implements EntryPoint {
 		fetchPhenotypeTableDataURL = getPhenotypeTableDataURL();
 		fetchGWAURL = getGWAURL();
 		displayResultsGeneURL = getDisplayResultsGeneURL();
+		fetchPhenotypeURL = getPhenotypeURL();
 		fillInPhenotypeCategories();
 		
 	}
-	public native int getCallMethodID()/*-{
-		return $wnd.call_method_id;
-	}-*/;
+	public native int getCallMethodID()/*-{ return $wnd.call_method_id; }-*/;
 	
-	public native String getPhenotypeCategoryLsURL()/*-{
-		return $wnd.getPhenotypeCategoryLsURL;
-	}-*/;
+	public native String getPhenotypeCategoryLsURL()/*-{ return $wnd.getPhenotypeCategoryLsURL; }-*/;
 	
-	public native String getPhenotypeTableDataURL()/*-{
-		return $wnd.getPhenotypeTableDataURL;
-	}-*/;
+	public native String getPhenotypeTableDataURL()/*-{ return $wnd.getPhenotypeTableDataURL; }-*/;
 	
 	public native String getGWAURL()/*-{ return $wnd.getGWAURL; }-*/;
 	
 	public native String getDisplayResultsGeneURL()/*-{ return $wnd.displayResultsGeneURL; }-*/;
-		
+	public native String getPhenotypeURL()/*-{ return $wnd.getPhenotypeURL; }-*/;
 	
 	private class JSONResponseTextHandler implements RequestCallback {
 		public void onError(Request request, Throwable exception) {
@@ -153,7 +149,7 @@ public class GWASPhenotypes implements EntryPoint {
 	public void addOnePhenotypeCategory(String phenotypeCategoryID, String phenotypeCategoryName)
 	{
 		PhenotypeTable pTable = new PhenotypeTable(constants, jsonErrorDialog, popupLink, phenotypeCategoryID, phenotypeCategoryName, 
-				fetchPhenotypeTableDataURL, callMethodID, fetchGWAURL, displayResultsGeneURL);
+				fetchPhenotypeTableDataURL, callMethodID, fetchGWAURL, displayResultsGeneURL, fetchPhenotypeURL);
 		tPanel.add(pTable, phenotypeCategoryName);
 		
 	}
