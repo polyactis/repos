@@ -365,7 +365,8 @@ class DisplaytopsnptestrmController(BaseController):
 		
 		if len(rdata.data_matrix)>1 and len(rdata.data_matrix[0])>=1:
 			im = drawMatrixLegend(rdata.data_matrix, left_label_ls=no_of_top_snps_info.label_ls, \
-							top_label_ls=min_distance_info.label_ls, min_value=rdata.min_value, max_value=2)	# rdata.max_value
+							top_label_ls=min_distance_info.label_ls, min_value=rdata.min_value, max_value=2,\
+							treat_above_max_as_NA=False)	# rdata.max_value
 			png_data = StringIO.StringIO()
 			im.save(plot_file_path, format='png')
 			#DrawTopSNPTest2DMapForOneRM.plotCurve(rdata, no_of_top_snps_info, min_distance_info, curve_file_path)

@@ -2,6 +2,18 @@
 
 <%def name="title()">View Top SNP/Gene(s) </%def>
 
+<%def name="head()">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/ >
+	<link rel="stylesheet" type="text/css" href="${h.url_for('/style/style.css')}" />
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/connection/connection-min.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/json/json-min.js" type="text/javascript"></script>
+
+	<script src="/scripts/common.js" type="text/javascript"></script>	<!-- for the string formating function  -->
+	<script src="/scripts/snp.js" type="text/javascript"></script>
+	
+</%def>
+
 <ul>
 <li>
 SNP-Gene Assocation setting is: <b>${c.snp_gene_association_id2desc[c.type.id]}</b>.
@@ -40,66 +52,12 @@ Negative for upstream. Positive for downstream. If a SNP is further downstream o
 
 </ul>
 
-<p> ${c.counter} genes in total.</p>
+	
+<div id="ResultsGeneTableStatus" style="display:block">Loading...</div>
+<div id="ResultsGeneTable" style="display:none"></div>
 
-<%
-field_ls = ['gene_id', 'rank', 'score'] + c.gene_desc_names + ['SNP ID', 'SNP chr', 'SNP pos', \
-	'disp_pos', 'left_or_right', 'disp_pos_comment', 'SNP annotation', 'results_id', 'plots']
-if c.result is not None:
-	track_id = '%s_%s_%s'%(c.result.call_method.id, c.result.phenotype_method.id, c.result.analysis_method.id)
-else:
-	track_id = ''
-%>
-
-% if len(c.row_ls)>0:
-	<table border=1>
-	
-	<tr>	
-	% for table_field in field_ls:
-		<th>
-			${table_field}
-		</th>
-	% endfor
-	
-	</tr>
-	
-	% for row in c.row_ls:
-		<tr>
-		% for table_field in field_ls:
-			<td>
-			% if table_field=='gene_id':
-				<a href=${h.NCBIGeneDBURL%row.gene_id}>${row.gene_id}</a>
-			% elif table_field=='SNP chr':
-				${row.snp.chromosome}
-			% elif table_field=='SNP pos':
-				${row.snp.position}
-			% elif table_field=='SNP ID':
-				<a href=${h.url_for(controller='SNP', id=None, chromosome=row.snp.chromosome, position=row.snp.position, results_id=row.results_id, score=row.score)}>${row.snps_id}</a>
-			% elif table_field=='SNP annotation':
-				${row.snp_annotation}
-			% elif table_field=='plots':
-				<%
-				no_of_plots=len(row.snp_region_plot_id_ls)
-				start_pos = row.snp.position-50000
-				stop_pos = row.snp.position+50000
-				gbrowseLink = h.GBrowseURL%(start_pos, stop_pos, row.snp.chromosome)+track_id+"-"+track_id+"_SNP"	
-				%>
-				<a href=${gbrowseLink}>GBrowse</a> 
-				% if no_of_plots>0:
-					<a href=${h.url_for(controller='SNPRegionPlot', action='show_plot', id='', snp_region_plot_ids=','.join(row.snp_region_plot_id_ls))}>${no_of_plots}</a>
-				% else:
-					${no_of_plots}
-				% endif
-			% else:
-				${getattr(row, table_field, '')}
-			% endif
-			</td>
-		% endfor
-		</tr>
-	% endfor
-	
-	
-	</table>
-% else:
-	<p>Nothing.</p>
-% endif
+<script type="text/javascript">
+	google.load('visualization', '1', {packages:['table']});
+	var fetchResultsGeneURL = "${c.fetchResultsGeneURL}";
+	loadTable(fetchResultsGeneURL, "ResultsGeneTable");
+</script>

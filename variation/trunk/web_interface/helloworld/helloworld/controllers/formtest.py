@@ -74,5 +74,5 @@ class FormtestController(BaseController):
 		#h.redirect_to(action='result')
 
 	def result(self):
-		return 'Your data was successfully submitted.'
 		#return 'Your email is: %s' % request.params['email']
+		return 'Your data was successfully submitted.'

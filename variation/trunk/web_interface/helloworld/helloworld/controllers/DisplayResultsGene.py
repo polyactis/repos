@@ -193,8 +193,9 @@ class DisplayresultsgeneController(BaseController):
 		c.snp_gene_association_id2desc = self.snp_gene_association_id2desc
 		c.row_ls = []
 		c.counter = 0
-		c.gene_desc_names = ['gene_symbol', 'description', 'type_of_gene', 'dbxrefs']
 		
+		if results_id is None:
+			results_id = request.params.get('results_id', None)
 		if not results_id:
 			call_method_id = request.params.get('call_method_id', None)
 			if call_method_id is None:
@@ -205,15 +206,12 @@ class DisplayresultsgeneController(BaseController):
 					filter_by(analysis_method_id=analysis_method_id).first()
 			if rm is None:
 				c.result = None
-				return "No association result found"
+				candidate_gene_set = set()	#return nothing
+				return self.getAssociationsGivenGene(type_id, maxRank=1, results_id=results_id, candidate_gene_set=candidate_gene_set)
 			results_id = rm.id
-
 		if results_id is None:
-			results_id = request.params.get('results_id', None)
-		if results_id is None:
-			return 'Nothing'
-		
-		c.result = ResultsMethod.get(results_id)
+			candidate_gene_set = set()	#return nothing
+			return self.getAssociationsGivenGene(type_id, maxRank=1, results_id=results_id, candidate_gene_set=candidate_gene_set)
 		
 		from variation.src.GeneListRankTest import GeneListRankTest
 		if list_type_id>0:	#2009-2-22

@@ -41,7 +41,7 @@
 </%def>
 
 
-<%def name="displayMatrix(controller='DisplayTopSNPTestRM', action='showOne', display_thumnail=True)">
+<%def name="displayMatrix(controller='DisplayTopSNPTestRM', action='showOne', figure_type=1, display_thumnail=True)">
 	<table border=1>
 	
 	<tr>
@@ -65,10 +65,17 @@
 					<%
 					thumbnail_url = h.url_for(controller='DisplayTopSNPTestRM', action='queryImage', id=results_id[0], type_id=int(c.type.id), list_type_id=c.list_info.list_type_id_ls[i], img_type='png_thumbnail')
 					table_url = h.url_for(controller=controller, action=action, id=results_id[0], type_id=c.type.id, list_type_id=c.list_info.list_type_id_ls[i])
+					pvalue_for_enrichment_stat_plot_url = h.url_for(controller='DisplayTopSNPTestRM', action='queryImage', id=results_id[0], type_id=int(c.type.id), list_type_id=c.list_info.list_type_id_ls[i], img_type='pvalue2D')
 					%>
-					<a href=${table_url}>${results_id[1]}-${results_id[0]},</a>
+					<p><a href=${table_url}>${results_id[1]}-${results_id[0]},</a></p>
+					
 					% if display_thumnail:
-						<a href=${table_url}><img src=${thumbnail_url}></a>
+						% if figure_type==1:
+							<a href=${table_url}><img src=${thumbnail_url}></a>
+						% else:
+							<a href=${table_url}><img src=${pvalue_for_enrichment_stat_plot_url} height=600></a>
+						% endif
+						
 					% endif
 				% endfor
 			% endif
@@ -87,4 +94,4 @@
 ${self.displayCommonSetting()}
 </ul>
 
-${self.displayMatrix('DisplayTopSNPTestRM', 'showOne')}
+${self.displayMatrix('DisplayTopSNPTestRM', 'showOne', figure_type=c.figure_type)}

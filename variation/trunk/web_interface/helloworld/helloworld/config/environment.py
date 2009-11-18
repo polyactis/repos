@@ -70,8 +70,8 @@ def load_environment(global_conf, app_conf):
 	#				hostname=hostname, database='dbsnp', schema=schema, pool_recycle=pool_recycle)
 	
 	#from variation.src import StockDB
-	#stock_db = StockDB.StockDB(drivername=drivername, username=db_user, password=db_passwd, \
-	#				hostname=hostname, database='stock', schema=schema, pool_recycle=pool_recycle)
+	model.stock_db = model.StockDB.StockDB(drivername=drivername, username=db_user, password=db_passwd, \
+					hostname=hostname, database='stock', schema=schema, pool_recycle=pool_recycle)
 	
 	model.at_db = model.AtDB.AtDB(drivername=drivername, username=db_user, password=db_passwd, \
 					hostname=hostname, database='at', schema=schema, pool_recycle=pool_recycle)
@@ -83,7 +83,7 @@ def load_environment(global_conf, app_conf):
 	"""
 	model.genome_db.setup(create_tables=False)
 	#snp_db.setup(create_tables=False)
-	#stock_db.setup(create_tables=False)
+	model.stock_db.setup(create_tables=False)
 	model.at_db.setup(create_tables=False)
 	
 	from variation.src.DrawSNPRegion import DrawSNPRegion
@@ -111,5 +111,10 @@ def load_environment(global_conf, app_conf):
 		model.CandidateGeneTopSNPTestRMType_id_min_distance2ScoreRankHistogramType_id[key_tuple] = row.sid
 	
 	# 2009-4-10 takes too long in individual request, put here. used in Accession.py
-	from variation.src.common import map_perlegen_ecotype_name2accession_id
+	from variation.src.common import map_perlegen_ecotype_name2accession_id, fillInPhenotypeMethodID2ecotype_id_set
 	model.ecotype_name2accession_id = map_perlegen_ecotype_name2accession_id(model.db.metadata.bind)
+	# 2009-11-17
+	model.PhenotypeMethodID2ecotype_id_set = fillInPhenotypeMethodID2ecotype_id_set(model.Stock_250kDB.PhenotypeAvg)
+	# 2009-11-17
+	from variation.src.common import fillInCallMethodID2ecotype_id_set
+	model.CallMethodID2ecotype_id_set = fillInCallMethodID2ecotype_id_set(model.Stock_250kDB.CallInfo)
