@@ -298,6 +298,8 @@ class HelpothercontrollersController(BaseController):
 			for row in rows:
 				model.PhenotypeMethodID2no_of_accessions[row.method_id] = row.cnt
 		"""
+		if phenotype_method_id not in model.PhenotypeMethodID2ecotype_id_set:	# no ecotype_id_set for this phenotype cuz it doesn't have phenotype data
+			model.PhenotypeMethodID2ecotype_id_set[phenotype_method_id] = set()
 		return len(model.PhenotypeMethodID2ecotype_id_set[phenotype_method_id])
 	
 	@classmethod

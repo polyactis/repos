@@ -66,6 +66,9 @@ class DisplayresultsController(BaseController):
 	def getPhenotypeTableData(self):
 		"""
 		2009-11-17
+			"#Accessions" means the number of accessions that were phenotyped.
+			add "#Genotyped" column in the output, which means the no of accessions that were phenotyped and genotyped (in certain call method).
+		2009-11-17
 			getNoOfAccessionsGivenPhenotypeAndCallMethodID() replaces getNoOfAccessionsGivenPhenotypeMethodID()
 		2009-7-30
 			fetch the number of accessions for each phenotype by calling hc.getNoOfAccessionsGivenPhenotypeMethodID(), rather than static value in table phenotype_method 
@@ -89,6 +92,7 @@ class DisplayresultsController(BaseController):
 							("short_name", ("string", "Phenotype Name")), \
 							("association_results", ("string","Association Results")), \
 							("no_of_accessions", ("number","#Accessions")), \
+							("no_of_genotyped_accessions", ("number","#Genotyped")), \
 							("growth_condition", ("string","Growth Condition")), \
 							("phenotype_scoring", ("string","Phenotype Scoring")), \
 							("method_description", ("string","Source")), \
@@ -122,6 +126,8 @@ class DisplayresultsController(BaseController):
 					else:
 						column_value = ""
 				elif column_name=='no_of_accessions':
+					column_value = hc.getNoOfAccessionsGivenPhenotypeMethodID(row.id)
+				elif column_name=='no_of_genotyped_accessions':
 					column_value = hc.getNoOfAccessionsGivenPhenotypeAndCallMethodID(row.id, call_method_id)
 				else:
 					column_value = getattr(row, column_name, default_value)
