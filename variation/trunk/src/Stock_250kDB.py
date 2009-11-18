@@ -35,6 +35,7 @@ from datetime import datetime
 from pymodule import SNPData
 from pymodule.db import ElixirDB
 
+
 __session__ = scoped_session(sessionmaker(autoflush=False, transactional=False))
 #__metadata__ = ThreadLocalMetaData()	#2008-10 not good for pylon
 
@@ -87,7 +88,7 @@ class PhenotypeAvg(Entity):
 	sample_size = Field(Integer)
 	ready_for_publication = Field(Integer, default=0)
 	phenotype_method = ManyToOne('PhenotypeMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
-	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	readme = ManyToOne("%s.README"%__name__, colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	transformed_value = Field(Float)
 	created_by = Field(String(128))
 	updated_by = Field(String(128))
@@ -458,9 +459,9 @@ class SnpsQC(Entity):
 	mismatch_rate = Field(Float)
 	no_of_mismatches = Field(Integer)
 	no_of_non_NA_pairs = Field(Integer)
-	qc_method = ManyToOne("QCMethod", colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	qc_method = ManyToOne("%s.QCMethod"%__name__, colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	call_method = ManyToOne("CallMethod", colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
-	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	readme = ManyToOne("%s.README"%__name__, colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -513,7 +514,7 @@ class ArrayInfo(Entity):
 	ecotype_id = Field(Integer)
 	maternal_ecotype_id = Field(Integer)
 	paternal_ecotype_id = Field(Integer)
-	contaminant_type = ManyToOne("ContaminantType", colname='contaminant_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	contaminant_type = ManyToOne("%s.ContaminantType"%__name__, colname='contaminant_type_id', ondelete='CASCADE', onupdate='CASCADE')
 	md5sum = Field(String(100))
 	experimenter = Field(String(200))
 	median_intensity = Field(Float)
@@ -524,7 +525,7 @@ class ArrayInfo(Entity):
 	hyb_vol = Field(String(20))
 	seed_source = Field(String(100))
 	method_name = Field(String(250))
-	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	readme = ManyToOne("%s.README"%__name__, colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -541,9 +542,9 @@ class CallInfo(Entity):
 	description = Field(String(2000))
 	array = ManyToOne("ArrayInfo", colname='array_id', ondelete='CASCADE', onupdate='CASCADE')
 	NA_rate = Field(Float)
-	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	readme = ManyToOne("%s.README"%__name__, colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
 	call_method = ManyToOne('CallMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
-	call_qc_ls = OneToMany("CallQC")
+	call_qc_ls = OneToMany("%s.CallQC"%__name__)
 	pc_value_ls = OneToMany("CallInfoPCValues", order_by='which_pc')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
@@ -553,7 +554,7 @@ class CallInfo(Entity):
 	using_table_options(mysql_engine='InnoDB')
 
 class CallQC(Entity):
-	call_info = ManyToOne("CallInfo", colname='call_info_id', ondelete='CASCADE', onupdate='CASCADE')
+	call_info = ManyToOne("%s.CallInfo"%__name__, colname='call_info_id', ondelete='CASCADE', onupdate='CASCADE')
 	min_probability = Field(Float)
 	ecotype_id = Field(Integer)
 	duplicate = Field(Integer)
@@ -566,8 +567,8 @@ class CallQC(Entity):
 	no_of_mismatches = Field(Integer)
 	no_of_non_NA_pairs = Field(Integer)
 	call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
-	readme = ManyToOne("README", colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
-	qc_method = ManyToOne("QCMethod", colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	readme = ManyToOne("%s.README"%__name__, colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	qc_method = ManyToOne("%s.QCMethod"%__name__, colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -1298,6 +1299,39 @@ class CNVCalls(Entity):
 	using_table_options(mysql_engine='InnoDB')
 	using_table_options(UniqueConstraint('call_info_id', 'start_probe_id', 'stop_probe_id', 'cnv_type_id', 'cnv_method_id'))
 
+
+class AssociationOverlappingType(Entity):
+	"""
+	2009-11-2
+	"""
+	short_name = Field(String(200), unique=True)
+	description = Field(String(8000))
+	comment = Field(String(8000))
+	analysis_method_ls = ManyToMany("AnalysisMethod", tablename='overlapping_type2method', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='association_overlapping_type', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+
+class AssociationOverlappingStat(Entity):
+	"""
+	2009-11-2
+	"""
+	call_method = ManyToOne('CallMethod', colname='call_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	phenotype_method = ManyToOne('PhenotypeMethod', colname='phenotype_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	no_of_top_snps = Field(Integer)
+	no_of_overlapping_snps = Field(Integer)
+	overlapping_type = ManyToOne('AssociationOverlappingType', colname='overlapping_type_id', ondelete='CASCADE', onupdate='CASCADE')
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='association_overlapping_stat', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('call_method_id', 'phenotype_method_id', 'overlapping_type_id', 'no_of_top_snps'))
+
 """
 #2008-10-29 'results_gene2type' automatically generated by ManyToMany is sub-optimal because it uses MyIAM engine and doesn't allow foreign key.
 #two ways around this
@@ -1374,7 +1408,7 @@ class QCCrossMatch(Entity):
 	mismatch_rate = Field(Float)
 	no_of_mismatches = Field(Integer)
 	no_of_non_NA_pairs = Field(Integer)
-	qc_method = ManyToOne("QCMethod", colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
+	qc_method = ManyToOne("%s.QCMethod"%__name__, colname='qc_method_id', ondelete='CASCADE', onupdate='CASCADE')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
