@@ -475,3 +475,37 @@ def get_ecotype_id_set_250k_in_pipeline(ArrayInfo):
 		if row.maternal_ecotype_id==row.paternal_ecotype_id:	#no crosses.
 			ecotype_id_set_250k_in_pipeline.add(row.maternal_ecotype_id)
 	return ecotype_id_set_250k_in_pipeline
+
+def fillInPhenotypeMethodID2ecotype_id_set(PhenotypeAvgTableCalss=None):
+	"""
+	2009-11-17
+		return PhenotypeMethodID2ecotype_id_set
+	"""
+	sys.stderr.write("Filling up PhenotypeMethodID2ecotype_id_set ...")
+	PhenotypeMethodID2ecotype_id_set = {}
+	rows = PhenotypeAvgTableCalss.query()
+	for row in rows:
+		phenotype_method_id = row.method_id
+		if phenotype_method_id not in PhenotypeMethodID2ecotype_id_set:
+			PhenotypeMethodID2ecotype_id_set[phenotype_method_id] = set()
+		PhenotypeMethodID2ecotype_id_set[phenotype_method_id].add(row.ecotype_id)
+	sys.stderr.write("Done.\n")
+	return PhenotypeMethodID2ecotype_id_set
+
+
+def fillInCallMethodID2ecotype_id_set(CallInfoTableClass=None):
+	"""
+	2009-11-17
+		return CallMethodID2ecotype_id_set
+	"""
+	sys.stderr.write("Filling up CallMethodID2ecotype_id_set...")
+	CallMethodID2ecotype_id_set = {}
+	rows = CallInfoTableClass.query()
+	for row in rows:
+		call_method_id = row.method_id
+		if call_method_id not in CallMethodID2ecotype_id_set:
+			CallMethodID2ecotype_id_set[call_method_id] = set()
+		CallMethodID2ecotype_id_set[call_method_id].add(row.array.maternal_ecotype_id)
+	sys.stderr.write("Done.\n")
+	return CallMethodID2ecotype_id_set
+	
