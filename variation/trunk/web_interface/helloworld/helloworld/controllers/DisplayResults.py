@@ -65,6 +65,8 @@ class DisplayresultsController(BaseController):
 	
 	def getPhenotypeTableData(self):
 		"""
+		2009-11-17
+			getNoOfAccessionsGivenPhenotypeAndCallMethodID() replaces getNoOfAccessionsGivenPhenotypeMethodID()
 		2009-7-30
 			fetch the number of accessions for each phenotype by calling hc.getNoOfAccessionsGivenPhenotypeMethodID(), rather than static value in table phenotype_method 
 		2009-5-24
@@ -77,6 +79,7 @@ class DisplayresultsController(BaseController):
 			return a google data table containing information of all phenotypes belonging to a category 
 		"""
 		call_method_id = request.params.get('call_method_id', int(config['app_conf']['published_call_method_id']))
+		call_method_id = int(call_method_id)
 		biology_category_id = request.params.get('biology_category_id', 1)
 		if biology_category_id==0 or biology_category_id=='0':
 			biology_category_id=None
@@ -119,7 +122,7 @@ class DisplayresultsController(BaseController):
 					else:
 						column_value = ""
 				elif column_name=='no_of_accessions':
-					column_value = hc.getNoOfAccessionsGivenPhenotypeMethodID(row.id)
+					column_value = hc.getNoOfAccessionsGivenPhenotypeAndCallMethodID(row.id, call_method_id)
 				else:
 					column_value = getattr(row, column_name, default_value)
 					if column_value is None:
