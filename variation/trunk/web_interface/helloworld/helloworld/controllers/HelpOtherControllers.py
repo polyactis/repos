@@ -280,3 +280,18 @@ class HelpothercontrollersController(BaseController):
 			snpData = SNPData(input_fname=cm.filename, turn_into_array=1, ignore_2nd_column=1)	#use 1st column (ecotype id) as main ID
 			model.call_method_id2dataset[call_method_id] = snpData
 		return model.call_method_id2dataset[call_method_id]
+	
+	@classmethod
+	def getNoOfAccessionsGivenPhenotypeMethodID(cls, phenotype_method_id):
+		"""
+		2009-7-30
+			return the number of accessions affliated with one phenotype method id
+		"""
+		if getattr(model, 'PhenotypeMethodID2no_of_accessions', None) is None:
+			model.PhenotypeMethodID2no_of_accessions = {}
+			rows = model.db.metadata.bind.execute("select method_id, count(distinct ecotype_id) as cnt from %s group by method_id"%\
+												(model.Stock_250kDB.PhenotypeAvg.table.name))
+			for row in rows:
+				model.PhenotypeMethodID2no_of_accessions[row.method_id] = row.cnt
+		return model.PhenotypeMethodID2no_of_accessions.get(phenotype_method_id)
+		
