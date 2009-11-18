@@ -284,14 +284,34 @@ class HelpothercontrollersController(BaseController):
 	@classmethod
 	def getNoOfAccessionsGivenPhenotypeMethodID(cls, phenotype_method_id):
 		"""
+		2009-11-17
+			updated to use model.PhenotypeMethodID2ecotype_id_set
 		2009-7-30
 			return the number of accessions affliated with one phenotype method id
 		"""
-		if getattr(model, 'PhenotypeMethodID2no_of_accessions', None) is None:
-			model.PhenotypeMethodID2no_of_accessions = {}
-			rows = model.db.metadata.bind.execute("select method_id, count(distinct ecotype_id) as cnt from %s group by method_id"%\
-												(model.Stock_250kDB.PhenotypeAvg.table.name))
+		
+		"""
+		# 2009-11-17 commented out
+		if phenotype_method_id not in model.PhenotypeMethodID2no_of_accessions:			
+			rows = model.db.metadata.bind.execute("select method_id, count(distinct ecotype_id) as cnt from %s where method_id=%s group by method_id"%\
+												(model.Stock_250kDB.PhenotypeAvg.table.name, phenotype_method_id))
 			for row in rows:
 				model.PhenotypeMethodID2no_of_accessions[row.method_id] = row.cnt
-		return model.PhenotypeMethodID2no_of_accessions.get(phenotype_method_id)
-		
+		"""
+		return len(model.PhenotypeMethodID2ecotype_id_set[phenotype_method_id])
+	
+	@classmethod
+	def getNoOfAccessionsGivenPhenotypeAndCallMethodID(cls, phenotype_method_id, call_method_id):
+		"""
+		2009-11-17
+			return the number of accessions intersected by a given call method and phenotype method
+		"""
+		dict_key = (phenotype_method_id, call_method_id)
+		if dict_key not in model.PhenotypeAndCallMethodID2ecotype_id_set:
+			if phenotype_method_id not in model.PhenotypeMethodID2ecotype_id_set:	# no ecotype_id_set for this phenotype cuz it doesn't have phenotype data
+				model.PhenotypeMethodID2ecotype_id_set[phenotype_method_id] = set()
+			if call_method_id not in model.CallMethodID2ecotype_id_set:
+				model.CallMethodID2ecotype_id_set[call_method_id] = set()
+			model.PhenotypeAndCallMethodID2ecotype_id_set[dict_key] = model.CallMethodID2ecotype_id_set[call_method_id] & \
+					model.PhenotypeMethodID2ecotype_id_set[phenotype_method_id]
+		return len(model.PhenotypeAndCallMethodID2ecotype_id_set[dict_key])
