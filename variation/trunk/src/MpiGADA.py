@@ -27,7 +27,7 @@ from pymodule import PassingData, getListOutOfStr
 from RunGADA import RunGADA
 import Stock_250kDB
 from sets import Set
-
+import GADA
 
 class MpiGADA(RunGADA, MPIwrapper):
 	__doc__ = __doc__
@@ -87,6 +87,13 @@ class MpiGADA(RunGADA, MPIwrapper):
 	
 	def computing_node_handler(self, communicator, data, param_obj):
 		"""
+		2009-11-23
+			if self.IO_thru_file:
+				call self._GADA()
+			else:
+				call GADA.GADA.run()
+		2009-11-10
+			GADA no longer uses PIPE (stdin, stdout). Specify input and output file directly.
 		2009-10-28
 		
 		"""
@@ -97,12 +104,17 @@ class MpiGADA(RunGADA, MPIwrapper):
 		for one_data in data:
 			one_parameter, intensity_ls = one_data[:2]
 			aAlpha, TBackElim, MinSegLen, array_id = one_parameter[:4]
-			tmp_input_fname = '%s_%s_A%sT%sM%s'%(param_obj.tmp_input_fname, array_id, aAlpha, TBackElim, MinSegLen)
-			input_file = self.prepareGADAinput(intensity_ls, tmp_input_fname, IO_thru_file=self.IO_thru_file)
-			tmp_output_fname = '%s_%s_A%sT%sM%s'%(param_obj.tmp_output_fname, array_id, aAlpha, TBackElim, MinSegLen)
-			GADA_output = self._GADA(self.GADA_path, input_file, tmp_output_fname, aAlpha, \
-									TBackElim, MinSegLen)
-			
+			if self.IO_thru_file:
+				tmp_input_fname = '%s_%s_A%sT%sM%s'%(param_obj.tmp_input_fname, array_id, aAlpha, TBackElim, MinSegLen)
+				input_file = self.prepareGADAinput(intensity_ls, tmp_input_fname, IO_thru_file=self.IO_thru_file)
+				tmp_output_fname = '%s_%s_A%sT%sM%s'%(param_obj.tmp_output_fname, array_id, aAlpha, TBackElim, MinSegLen)
+				GADA_output = self._GADA(self.GADA_path, input_file, tmp_output_fname, aAlpha, \
+										TBackElim, MinSegLen)
+			else:
+				ins = GADA.GADA(self.debug)
+				GADA_output = ins.run(map(float, intensity_ls), aAlpha, TBackElim, MinSegLen)	#intensity_ls cell type is numpy.float32.
+					#convert it to python float, which is recognized by GADA.GADA.run().
+				del ins
 			if GADA_output:
 				result_ls.append((one_parameter, GADA_output))
 		sys.stderr.write("Node no.%s done with %s results.\n"%(node_rank, len(result_ls)))
