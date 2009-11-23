@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 
 import getopt, csv, math, traceback
-import Numeric, cPickle
+import cPickle, traceback
 from Scientific import MPI
 from pymodule.MPIwrapper import mpi_synchronize, MPIwrapper
 from pymodule import PassingData, getListOutOfStr
@@ -97,8 +97,9 @@ class MpiGADA(RunGADA, MPIwrapper):
 		for one_data in data:
 			one_parameter, intensity_ls = one_data[:2]
 			aAlpha, TBackElim, MinSegLen, array_id = one_parameter[:4]
-			input_file = self.prepareGADAinput(intensity_ls)
-			tmp_output_fname = None
+			tmp_input_fname = '%s_%s_A%sT%sM%s'%(param_obj.tmp_input_fname, array_id, aAlpha, TBackElim, MinSegLen)
+			input_file = self.prepareGADAinput(intensity_ls, tmp_input_fname, IO_thru_file=self.IO_thru_file)
+			tmp_output_fname = '%s_%s_A%sT%sM%s'%(param_obj.tmp_output_fname, array_id, aAlpha, TBackElim, MinSegLen)
 			GADA_output = self._GADA(self.GADA_path, input_file, tmp_output_fname, aAlpha, \
 									TBackElim, MinSegLen)
 			
@@ -205,7 +206,18 @@ class MpiGADA(RunGADA, MPIwrapper):
 			parameter_list = [params_ls, array_id2col_index, data_matrix]
 			self.input_node(parameter_list, free_computing_nodes, input_handler=self.input_handler, message_size=self.message_size)
 		elif node_rank in free_computing_node_set:
-			computing_parameter_obj = PassingData()
+			if self.IO_thru_file:
+				tmp_input_dir = os.path.split(self.tmp_input_fname)[0]
+				tmp_output_dir = os.path.split(self.tmp_output_fname)[0]
+				try:
+					if not os.path.isdir(tmp_input_dir):
+						os.makedirs(tmp_input_dir)
+					if not os.path.isdir(tmp_output_dir):
+						os.makedirs(tmp_output_dir)
+				except:
+					 traceback.print_exc()
+					 sys.stderr.write('Except type: %s\n'%repr(sys.exc_info()))
+			computing_parameter_obj = PassingData(tmp_input_fname=self.tmp_input_fname, tmp_output_fname=self.tmp_output_fname)
 			self.computing_node(computing_parameter_obj, self.computing_node_handler)
 		else:
 			output_dir = os.path.split(self.output_fname_prefix)[0]
