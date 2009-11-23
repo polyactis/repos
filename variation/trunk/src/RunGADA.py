@@ -100,6 +100,10 @@ class RunGADA(CNVNormalize):
 	
 	def _GADA(self, GADA_path, tmp_input_fname, tmp_output_fname, aAlpha=0.8, TBackElim=2, MinSegLen=2, IO_thru_file=False):
 		"""
+		2009-11-10
+			GADA no longer uses PIPE (stdin, stdout). Specify input and output file directly.
+		2009-11-6
+			If tmp_input_fname is a file, call Popen() in a different way.
 		2009-10-28
 			add argument IO_thru_file
 		2009-10-26
@@ -109,29 +113,46 @@ class RunGADA(CNVNormalize):
 		"""
 		if self.report:
 			sys.stderr.write("Running GADA ...")
-		commandline = '%s -a %s -T %s -M %s -s -0.4 -b 0.0'%(GADA_path, aAlpha, TBackElim, MinSegLen)
+		commandline = '%s -a %s -T %s -M %s -s -0.4 -b 0.0 -i %s -o %s'%(GADA_path, aAlpha, TBackElim, MinSegLen, tmp_input_fname, \
+																		tmp_output_fname)
 			# -s specifies he variance estimate for the noise. If negative it will be estimated from the provided data
 			# -b Mean amplitude associated to the Neutral state. useless if -c is not specified.
 			# -c Classify segments into altered state (L)oss, (N)eutral, (G)ain). If c option is not specified, only mean is returned.
+		isInputFileHandler = False
 		if type(tmp_input_fname) is str:
 			inf = open(tmp_input_fname)
+			isInputFileHandler = True
 		elif type(tmp_input_fname) is cStringIO.OutputType:	# tmp_input_fname is cStringIO
 			inf = tmp_input_fname
+			isInputFileHandler= False
 		else:
 			 sys.stderr.write("GADA Input is neither file nor StringIO. skip.\n")
 			 return ''
-		command_handler = subprocess.Popen(commandline, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-		stdout_content, stderr_content = command_handler.communicate(input=inf.read())
+		if isInputFileHandler:
+			command_handler = subprocess.Popen(commandline, shell=True, stdin=inf, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+			stdout_content, stderr_content = command_handler.communicate()
+		else:
+			command_handler = subprocess.Popen(commandline, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+			stdout_content, stderr_content = command_handler.communicate()
+			# stdout_content, stderr_content = command_handler.communicate(input=inf.read())
+		
 		del inf
 		if stderr_content:
 			sys.stderr.write('stderr of %s: %s \n'%(commandline, stderr_content))
 		if self.report:
 			sys.stderr.write("Done.\n")
+		"""
 		if IO_thru_file:
 			of = open(tmp_output_fname, 'w')
 			of.write(stdout_content)
 			del of
-		return stdout_content
+		"""
+		return_content = ""
+		of = open(tmp_output_fname)
+		for line in of:
+			return_content += line
+		return return_content
+		#return stdout_content
 	
 	
 	def findOutWhichColumn(cls, col_id_ls, which_array_id_set):
