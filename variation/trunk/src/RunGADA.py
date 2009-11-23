@@ -40,6 +40,7 @@ from CNVNormalize import CNVNormalize
 from PlotGroupOfSNPs import PlotGroupOfSNPs
 import cStringIO
 from sets import Set
+import GADA
 
 class RunGADA(CNVNormalize):
 	__doc__ = __doc__
@@ -58,7 +59,7 @@ class RunGADA(CNVNormalize):
 							('TBackElim', 1, float): [4, 'T', 1, '(amp1-amp2)/stddev in GADA', ],\
 							('MinSegLen', 1, int): [5, 'M', 1, 'minimum no of probes to comprise a segment in GADA', ],\
 							('GADA_path', 1, ): [os.path.expanduser('~/script/variation/bin/GADA/GADA'), 'G', 1, 'path to the one-sample version GADA program'],\
-							('IO_thru_file', 0, int):[0, 'I', 0, 'whether the IO of GADA uses files'],\
+							('IO_thru_file', 0, int):[0, 'I', 0, 'mode of invoking GADA. default does not involve IO. This makes GADA-calling use files.'],\
 							('debug', 0, int):[0, 'b', 0, 'toggle debug mode'],\
 							('report', 0, int):[0, 'r', 0, 'toggle report, more verbose stdout/stderr.'],\
 							('run_type', 0, int):[1, 'y', 1, 'Run type 1: one-sample version GADA (c-version), 2: multi-sample (in matlab)']}
@@ -188,6 +189,9 @@ class RunGADA(CNVNormalize):
 	
 	def output_GADA_output(self, writer, GADA_output, array_id, ecotype_id, chr_pos_ls, probe_id_ls):
 		"""
+		2009-11-22
+			if GADA_output is string, turn it into csv.reader.
+			if GADA_output is a list returned from GADA.GADA.run(), nothing.
 		2009-10-28
 			return no_of_segments
 		2009-10-26
@@ -197,47 +201,52 @@ class RunGADA(CNVNormalize):
 		"""
 		if self.report:
 			sys.stderr.write("Outputting GADA output ...")
-		GADA_output = cStringIO.StringIO(GADA_output)
+		if type(GADA_output)==str:
+			GADA_output = cStringIO.StringIO(GADA_output)
+			GADA_output = csv.reader(GADA_output, delimiter='\t')
 		counter = 0
-		for line in GADA_output:
-			if line[0]=='#':
+		for row in GADA_output:
+			if type(row[0])==str and (row[0].find('#')==0 or row[0].find('Start')==0):	# ignore the comments
+				#skip the first line of real data. it's header "Start   Stop    Lenght  Ampl    State"
 				continue
-			else:
-				counter += 1
-			if counter>1:	#skip the first line of real data. it's header "Start   Stop    Lenght  Ampl    State"
-				row = line[:-1].split('\t')
-				probe1_index, probe2_index, length, amplitude = row[:4]
-				probe1_index = int(probe1_index)-1
-				probe2_index = int(probe2_index)-1
-				probe1 = chr_pos_ls[probe1_index]
-				probe1 = '_'.join(probe1)
-				probe2 = chr_pos_ls[probe2_index]
-				probe2 = '_'.join(probe2)
-				
-				probe1_id = probe_id_ls[probe1_index]
-				probe2_id = probe_id_ls[probe2_index]
-				
-				new_row = [ecotype_id, array_id, probe1, probe2, length, amplitude, probe1_id, probe2_id]
-				
-				"""
-				start = int(row[0])
-				stop = int(row[1])
-				amplitude = row[3]
-				state_number = self.state2number[state]
-				for i in range(start-1, stop):
-					data_row.append(state_number)
-					data_row_amp.append(amp)
-				"""
-				writer.writerow(new_row)
+			counter += 1
+			probe1_index, probe2_index, length, amplitude = row[:4]
+			probe1_index = int(probe1_index)-1
+			probe2_index = int(probe2_index)-1
+			probe1 = chr_pos_ls[probe1_index]
+			probe1 = '_'.join(probe1)
+			probe2 = chr_pos_ls[probe2_index]
+			probe2 = '_'.join(probe2)
+			
+			probe1_id = probe_id_ls[probe1_index]
+			probe2_id = probe_id_ls[probe2_index]
+			
+			new_row = [ecotype_id, array_id, probe1, probe2, length, amplitude, probe1_id, probe2_id]
+			
+			"""
+			start = int(row[0])
+			stop = int(row[1])
+			amplitude = row[3]
+			state_number = self.state2number[state]
+			for i in range(start-1, stop):
+				data_row.append(state_number)
+				data_row_amp.append(amp)
+			"""
+			writer.writerow(new_row)
 		#writer.writerow(data_row)
 		#writer_amp.writerow(data_row_amp)
 		if self.report:
 			sys.stderr.write("Done.\n")
-		no_of_segments = counter-1
+		no_of_segments = counter
 		return no_of_segments
 	
 	def oneSampleGADA(self, ):
 		"""
+		2009-11-23
+			if self.IO_thru_file:
+				call self._GADA()
+			else:
+				call GADA.GADA.run()
 		2009-9-27
 			split out of run()
 		"""
@@ -272,11 +281,16 @@ class RunGADA(CNVNormalize):
 				ecotype_id = array.maternal_ecotype_id
 			else:
 				continue
-			tmp_input_fname = '%s_%s'%(self.tmp_input_fname, array_id)
-			tmp_output_fname = '%s_%s'%(self.tmp_output_fname, array_id)
-			input_file = self.prepareGADAinput(data_matrix[:,col_index], tmp_input_fname, IO_thru_file=self.IO_thru_file)
-			GADA_output = self._GADA(self.GADA_path, input_file, tmp_output_fname, self.aAlpha, \
-									self.TBackElim, self.MinSegLen, IO_thru_file=self.IO_thru_file)
+			if self.IO_thru_file:
+				tmp_input_fname = '%s_%s'%(self.tmp_input_fname, array_id)
+				tmp_output_fname = '%s_%s'%(self.tmp_output_fname, array_id)
+				input_file = self.prepareGADAinput(data_matrix[:,col_index], tmp_input_fname, IO_thru_file=self.IO_thru_file)
+				GADA_output = self._GADA(self.GADA_path, input_file, tmp_output_fname, self.aAlpha, \
+										self.TBackElim, self.MinSegLen, IO_thru_file=self.IO_thru_file)
+			else:
+				ins = GADA.GADA(self.debug)
+				GADA_output = ins.run(map(float, data_matrix[:,col_index]), self.aAlpha, self.TBackElim, self.MinSegLen)
+				del ins
 			self.output_GADA_output(writer, GADA_output, array_id, ecotype_id, chr_pos_ls, probe_id_ls)
 		del writer, writer_amp
 	
