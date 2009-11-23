@@ -100,9 +100,10 @@ int SBLandBE( //Returns breakpoint list lenght.
     double *sigma2, //If sigma2 < 0, compute sigma2 (Input/Output)
     double a,      // SBL parameter
     double T,      // Threshold to prune
-    int MinSegLen, //Minimum length of the segment.
-    int **pI,   //Returns breakpoint positions
-    double **pw //Returns breakpoint weights.
+    int MinSegLen,	//Minimum length of the segment.
+    int **pI,		//Returns breakpoint positions
+    double **pw,	//Returns breakpoint weights.
+    int debug		//verbosity... set equal to 1 to see messages  0 to not see them
     //int *pK
     );
 

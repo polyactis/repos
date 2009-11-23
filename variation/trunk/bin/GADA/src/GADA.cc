@@ -53,6 +53,7 @@ class GADA
 		double *Wext;
 
 		FILE *fin,*fout;
+		int debug;		//verbosity... set equal to 1 to see messages of SBLandBE(). 0 to not see them
 
 		double T; //Backward elimination threshold
 		//double T2=5.0; //Segment collapse to base Non-Alteration level threshold
@@ -70,14 +71,34 @@ class GADA
 		string output_fname;
 
 		GADA();
+		GADA(int _debug);
 		~GADA();
 
+		void initParameters();
 		void readInIntensity(boost::python::list intensity_list);
 		boost::python::list run(boost::python::list intensity_list, double aAlpha, double TBackElim, int MinSegLen);
 		void cleanupMemory();
 };
 
+
 GADA::GADA()
+	:debug(0)
+{
+	initParameters();
+}
+
+GADA::GADA(int _debug)
+	:debug(_debug)
+{
+	initParameters();
+}
+
+GADA::~GADA()
+{
+
+}
+
+void GADA::initParameters()
 {
 	T=5.0; //Backward elimination threshold
 	//double T2=5.0; //Segment collapse to base Non-Alteration level threshold
@@ -90,10 +111,6 @@ GADA::GADA()
 	SelectEstimateBaseAmp=1; //Estimate Neutral hybridization amplitude.
 }
 
-GADA::~GADA()
-{
-
-}
 void GADA::readInIntensity(boost::python::list intensity_list)
 {
 #if defined(DEBUG)
@@ -126,10 +143,9 @@ boost::python::list GADA::run(boost::python::list intensity_list, double aAlpha,
 	readInIntensity(intensity_list);
 
 
-	K = SBLandBE(tn, M, &sigma2, aAlpha, 0, 0, &Iext, &Wext);
+	K = SBLandBE(tn, M, &sigma2, aAlpha, 0, 0, &Iext, &Wext, debug);
 
 #if defined(DEBUG)
-	//K=SBLandBE(tn,M,&sigma2,a,T,MinLen,&Iext,&w);
     cerr<< boost::format("# Overall mean %1%.\n")%Wext[0];
 	cerr<< boost::format("# Sigma^2=%1%.\n")%sigma2;
 	cerr<< boost::format("# Found %1% breakpoints after SBL\n")%K;
@@ -172,6 +188,7 @@ BOOST_PYTHON_MODULE(GADA)
 {
 	using namespace boost::python;
 	class_<GADA>("GADA")
+		.def(init<int>())
 		.def("run", &GADA::run)
 	;
 
@@ -339,6 +356,7 @@ int main(int argc, char *argv[])
 	double *SegAmp;
 	double *SegState;
 	double *Wext;
+	int debug=0;
 
 	FILE *fin,*fout;
 
@@ -390,9 +408,8 @@ int main(int argc, char *argv[])
 
 	fprintf(fout,"# Reading M=%d probes in input file\n",M);
 
-	K=SBLandBE(tn,M,&sigma2,a,0,0,&Iext,&Wext);
+	K = SBLandBE(tn,M,&sigma2,a,0,0,&Iext,&Wext, debug);
 
-	//K=SBLandBE(tn,M,&sigma2,a,T,MinLen,&Iext,&w);
     fprintf(fout,"# Overall mean %g\n",Wext[0]);
 	fprintf(fout,"# Sigma^2=%g\n",sigma2);
 	fprintf(fout,"# Found %d breakpoints after SBL\n",K);

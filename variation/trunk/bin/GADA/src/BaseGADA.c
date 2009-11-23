@@ -1529,12 +1529,13 @@ CompBaseAmpMedianMethod( //Computes the median recontruction level, as baseline 
 int SBLandBE( //Returns breakpoint list lenght.
     double *y,
     int M,  //length of the noisy signal tn
-    double *Psigma2, //If sigma2 < 0, compute sigma2
-    double a,      // SBL parameter
-    double T,      // Threshold to prune
-    int MinSegLen, //Minimum length of the segment.
-    int **pIext,   //Returns breakpoint positions
-    double **pWext //Returns breakpoint weights.
+    double *Psigma2,	//If sigma2 < 0, compute sigma2
+    double a,		// SBL parameter
+    double T,		// Threshold to prune
+    int MinSegLen,	//Minimum length of the segment.
+    int **pIext,	//Returns breakpoint positions
+    double **pWext,	//Returns breakpoint weights.
+    int debug		//verbosity... set equal to 1 to see messages  0 to not see them
     //int *pK
 )
 {
@@ -1604,7 +1605,7 @@ int SBLandBE( //Returns breakpoint list lenght.
     #ifdef _DEBUG_SBLBE_
         myPrintf("_SBLBE_ SBL starts\n");
     #endif
-    NumEMsteps=SBL(tn,Iext,alpha,Wext+1,aux,M,&K,sigma2,a,b,maxalpha,maxit,tol,1);
+    NumEMsteps=SBL(tn,Iext,alpha,Wext+1,aux,M,&K,sigma2,a,b,maxalpha,maxit,tol,debug);
 
     //Freeing memory
     myFree(alpha);
