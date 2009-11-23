@@ -38,7 +38,7 @@ char *InputFile;
 char *OutputFile;
 
 
-#ifndef GADABIN
+#ifndef GADABIN	// 2009-11-21 boost python module code included under if macro GADABIN (GADA standalone) is not defined.
 class GADA
 {
 	public:
@@ -177,7 +177,7 @@ BOOST_PYTHON_MODULE(GADA)
 
 }
 
-#endif
+#endif	// 2009-11-21 end of the whole boost python module code
 
 void help_message(FILE *fd)
 {
