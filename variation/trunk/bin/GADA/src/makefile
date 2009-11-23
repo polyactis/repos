@@ -1,11 +1,11 @@
 
 BoostPythonTarget	= GADA.so
-BoostPythonLib  = -lboost_python
+BoostPythonLib  = -L ~/lib64/boost/lib -lboost_python
 
 CFLAGS	= -O3
 CXXFLAGS	= -fPIC $(CFLAGS)
 SharedLibFlags	= -shared -fPIC
-IncludeDirs = `python-config --includes`
+IncludeDirs = `python-config --includes` -I ~/lib64/boost/include/
 CXXCOMPILER = g++
 
 all:	GADA $(BoostPythonTarget)
