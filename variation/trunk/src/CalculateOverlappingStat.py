@@ -73,6 +73,9 @@ class CalculateOverlappingStat(object):
 	
 	def getAssociationOverlappingType(self, session, analysis_method_id_ls):
 		"""
+		2009-11-30
+			fill in no_of_methods & description of overlapping_type
+			
 		2009-11-2
 		"""
 		sys.stderr.write("Getting AssociationOverlappingType for %s ..."%(repr(analysis_method_id_ls)))
@@ -83,9 +86,13 @@ class CalculateOverlappingStat(object):
 		overlapping_type = Stock_250kDB.AssociationOverlappingType.get_by(short_name=type_short_name)
 		if overlapping_type is None:
 			overlapping_type = Stock_250kDB.AssociationOverlappingType(short_name=type_short_name)
+			analysis_method_short_name_ls = []
 			for analysis_method_id in analysis_method_id_ls:
 				am = Stock_250kDB.AnalysisMethod.get(analysis_method_id)
 				overlapping_type.analysis_method_ls.append(am)
+				analysis_method_short_name_ls.append(am.short_name)
+			overlapping_type.description = '-'.join(analysis_method_short_name_ls)
+			overlapping_type.no_of_methods = len(overlapping_type.analysis_method_ls)
 			session.save(overlapping_type)
 			session.flush()
 		return overlapping_type
