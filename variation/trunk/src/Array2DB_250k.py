@@ -146,6 +146,7 @@ class ArrayInfo(object):
 	
 	ecotypeid_in_fname_p = re.compile(r'_(\d+)\).CEL')
 	nativename_in_fname_p = re.compile(r'\((.*)\).CEL')
+	#nativename_in_fname_p = re.compile(r'\((.*?)-?R\).CEL')	# 2009-12-3 just for "CHLA/11-2009Arabidopsis/". first ? means .* is non-greedy. 2nd ? means 0 or 1 "-" before 'R'.
 	def assignNewIdToThisArray(self, array_filename, output_dir, ecotypeid2tg_ecotypeid=None, nativename2ecotypeid_ls=None):
 		"""
 		2009-5-16
