@@ -44,6 +44,7 @@ from pymodule.yh_matplotlib_artists import Gene, ExonIntronCollection
 from pymodule.db import TableClass
 from Results2DB_250k import Results2DB_250k
 from pymodule import GenomeWideResults, GenomeWideResult, DataObject, getGenomeWideResultFromFile, PassingData
+from pymodule.CNV import getCNVDataFromFileInGWA
 from DrawSNPRegion import DrawSNPRegion	#2008-12-16 dealWithGeneAnnotation()
 import Stock_250kDB
 from GeneListRankTest import GeneListRankTest
@@ -143,6 +144,7 @@ class GenomeBrowser(object):
 		
 		self.filechooserdialog1 = xml.get_widget("filechooserdialog1")
 		self.entry_min_value_cutoff = xml.get_widget('entry_min_value_cutoff')
+		self.entry_max_value_cutoff = xml.get_widget('entry_max_value_cutoff')
 		self.filechooserdialog1.connect("delete_event", yh_gnome.subwindow_hide)
 		
 		
@@ -166,6 +168,9 @@ class GenomeBrowser(object):
 		
 		self.aboutdialog1 = xml.get_widget("aboutdialog1")
 		self.aboutdialog1.connect("delete_event", yh_gnome.subwindow_hide)
+		
+		self.dialog_cnvqc_db = xml.get_widget("dialog_cnvqc_db")
+		self.filechooserdialog_cnv_gada = xml.get_widget("filechooserdialog_cnv_gada")		
 		
 		self.mysql_conn = self.mysql_curs = self.postgres_conn = self.postgres_curs = self.db = None
 		self.gene_annotation = None
@@ -235,7 +240,7 @@ class GenomeBrowser(object):
 		x = this_chr_starting_pos_on_plot + pos
 		return x
 	
-	def plot(self, ax, canvas, genome_wide_result, draw_line_as_point=True):
+	def plot(self, ax, canvas, genome_wide_result, draw_line_as_point=True, draw_cnv_block=True):
 		"""
 		2008-05-28
 			input is genome_wide_result
@@ -250,9 +255,19 @@ class GenomeBrowser(object):
 		genome_wide_result_id = id(genome_wide_result)
 		x_ls = []
 		y_ls = []
+		plot_together = True
 		for data_obj in genome_wide_result.data_obj_ls:
-			y_pos = genome_wide_result.base_value - genome_wide_result.min_value + data_obj.value 
+			y_pos = genome_wide_result.base_value - genome_wide_result.min_value + data_obj.value
 			x_pos = self.getXposition(data_obj.chromosome, data_obj.position)
+			if data_obj.stop_position is not None and draw_cnv_block==True:
+				x_stop_pos = self.getXposition(data_obj.chromosome, data_obj.stop_position)
+				xs = [x_pos, x_stop_pos, x_stop_pos, x_pos]
+				y_base_pos = genome_wide_result.base_value - genome_wide_result.min_value + 0
+				ys = [y_pos, y_pos, y_base_pos, y_base_pos]
+				artist_obj = Polygon(zip(xs,ys), facecolor='g', alpha=0.8, linewidth=0.5) 	#linewidth=0.7
+				ax.add_patch(artist_obj)
+				artist_obj_id = id(artist_obj)
+				plot_together = False
 			if data_obj.stop_position is not None and draw_line_as_point==False:	#bigger than 100k, then a line
 				x_stop_pos = self.getXposition(data_obj.chromosome, data_obj.stop_position)
 				x_ls.append([(x_pos, y_pos), (x_stop_pos, y_pos)])
@@ -265,13 +280,14 @@ class GenomeBrowser(object):
 				y_ls.append(y_pos)
 					#artist_obj = Circle((x_pos, y_pos), picker=True)
 		
-		if len(y_ls)>0:
-			artist_obj = ax.scatter(x_ls, y_ls, s=10, faceted=False, picker=True)
-		else:
-			artist_obj = LineCollection(x_ls, picker=True)
-			ax.add_artist(artist_obj)
-		artist_obj_id = id(artist_obj)
-		self.artist_obj_id2data_obj_key[artist_obj_id] = [genome_wide_result_id, None]
+		if plot_together:
+			if len(y_ls)>0:
+				artist_obj = ax.scatter(x_ls, y_ls, s=10, faceted=False, picker=True)
+			else:
+				artist_obj = LineCollection(x_ls, picker=True)
+				ax.add_artist(artist_obj)
+			artist_obj_id = id(artist_obj)
+			self.artist_obj_id2data_obj_key[artist_obj_id] = [genome_wide_result_id, None]
 		
 		y_base_value = genome_wide_result.base_value
 		y_top_value = genome_wide_result.base_value + genome_wide_result.max_value - genome_wide_result.min_value
@@ -412,6 +428,11 @@ class GenomeBrowser(object):
 				sys.stderr.write("%s not in artist_obj_id2data_obj_key.\n"%(artist_obj_id))
 		elif isinstance(event.artist, Polygon):	#ExonIntronCollection is also a kind of Collection
 			artist_obj_id = id(event.artist)
+			
+			print 'artist ID:', artist_obj_id 
+			patch = event.artist
+			
+			print 'onpick1 patch:', patch.get_verts()
 			if artist_obj_id in self.artist_obj_id2artist_gene_id_ls:
 				self.respond2GeneObjPicker(event, artist_obj_id, self.artist_obj_id2artist_gene_id_ls, self.gene_annotation,\
 										ax=self.ax, draw_gene_symbol_when_clicked=self.draw_gene_symbol_when_clicked, \
@@ -438,6 +459,18 @@ class GenomeBrowser(object):
 	
 	def on_imagemenuitem_db_connect_activate(self, event, data=None):
 		self.dialog_db_connect.show_all()
+	
+	def on_imagemenuitem_cnvqc_db_activate(self, event, data=None):
+		"""
+		2009-10-30
+		"""
+		self.dialog_cnvqc_db.show_all()
+	
+	def on_imagemenuitem_cnv_file_activate(self, event, data=None):
+		"""
+		2009-10-30
+		"""
+		self.filechooserdialog_cnv_gada.show_all()
 	
 	def on_button_filechooser_ok_clicked(self, widget, data=None):
 		"""
@@ -472,6 +505,7 @@ class GenomeBrowser(object):
 			min_value_cutoff = float(self.entry_min_value_cutoff.get_text())
 		else:
 			min_value_cutoff = None
+		
 		#2008-08-03
 		pdata = PassingData()
 		entry_chromosome = self.xml.get_widget("entry_chromosome")
@@ -483,6 +517,18 @@ class GenomeBrowser(object):
 		entry_stop = self.xml.get_widget("entry_stop")
 		if entry_stop.get_text():
 			pdata.stop = int(entry_stop.get_text())
+		
+		# 2009-10-27
+		if self.entry_max_value_cutoff.get_text():
+			pdata.max_value_cutoff = float(self.entry_max_value_cutoff.get_text())
+		else:
+			pdata.max_value_cutoff = None
+		# 2009-10-27
+		checkbutton_OR_min_max = self.xml.get_widget("checkbutton_OR_min_max")
+		if checkbutton_OR_min_max.get_active():
+			pdata.OR_min_max = True
+		else:
+			pdata.OR_min_max = False
 		
 		checkbutton_4th_col_stop_pos = self.xml.get_widget("checkbutton_4th_col_stop_pos")
 		if checkbutton_4th_col_stop_pos.get_active():
@@ -548,8 +594,124 @@ class GenomeBrowser(object):
 		self.dialog_db_connect.hide()
 		self.db_connect()
 	
+	def on_button_cnvqc_ok_clicked(self, widget, data=None):
+		"""
+		2009-10-30
+		"""
+		self.dialog_cnvqc_db.hide()
+		if not self.mysql_conn or not self.mysql_curs:
+			self.db_connect()
+		
+		entry_cnv_qc_accession_id = self.xml.get_widget("entry_cnv_qc_accession_id")
+		cnv_qc_accession_id = entry_cnv_qc_accession_id.get_text()
+		if cnv_qc_accession_id:
+			cnv_qc_accession_id = int(cnv_qc_accession_id)
+		else:
+			sys.stderr.write("Accession id is not given.\n")
+			return
+		entry_cnv_type_id = self.xml.get_widget("entry_cnv_type_id")
+		cnv_type_id = entry_cnv_type_id.get_text()
+		if cnv_type_id:
+			cnv_type_id = int(cnv_type_id)
+		else:
+			cnv_type_id = None
+		entry_cnv_qc_min_size = self.xml.get_widget("entry_cnv_qc_min_size")
+		cnv_qc_min_size = entry_cnv_qc_min_size.get_text()
+		if cnv_qc_min_size:
+			cnv_qc_min_size = int(cnv_qc_min_size)
+		else:
+			cnv_qc_min_size = None
+		entry_cnv_qc_min_no_of_probes = self.xml.get_widget("entry_cnv_qc_min_no_of_probes")
+		cnv_qc_min_no_of_probes = entry_cnv_qc_min_no_of_probes.get_text()
+		if cnv_qc_min_no_of_probes:
+			cnv_qc_min_no_of_probes = int(cnv_qc_min_no_of_probes)
+		else:
+			cnv_qc_min_no_of_probes = None
+		
+		genome_wide_result = self.db.getCNVQCInGWA(cnv_qc_accession_id, cnv_type_id=cnv_type_id, min_size=cnv_qc_min_size,\
+												min_no_of_probes=cnv_qc_min_no_of_probes)
+		if len(genome_wide_result.data_obj_ls)>0:
+			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
+			#self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
+			self.plot(self.ax, self.canvas_matplotlib, self.genome_wide_results.genome_wide_result_ls[-1], draw_cnv_block=True)
+		else:
+			sys.stderr.write("No CNV QC data for accession_id=%s, cnv_type=%s, min_size=%s, min_no_of_probes=%s.\n"%\
+							(cnv_qc_accession_id, cnv_type_id, cnv_qc_min_size, cnv_qc_min_no_of_probes))
+	
+	
+	def on_button_cnvqc_cancel_clicked(self, widget, data=None):
+		"""
+		2009-10-30
+		"""
+		self.dialog_cnvqc_db.hide()
+		
+		
+	def on_button_cnv_gada_ok_clicked(self, widget, data=None):
+		"""
+		2009-10-30
+			get CNVs from GADA output file
+		"""
+		input_fname = self.filechooserdialog_cnv_gada.get_filename()
+		self.filechooserdialog_cnv_gada.hide()
+		if not self.mysql_conn or not self.mysql_curs:
+			self.db_connect()
+		
+		entry_cnv_array_id = self.xml.get_widget("entry_cnv_array_id")
+		array_id = entry_cnv_array_id.get_text()
+		if array_id:
+			array_id = int(array_id)
+		else:
+			sys.stderr.write("Array id is not given.\n")
+			return
+		entry_cnv_max_amp = self.xml.get_widget("entry_cnv_max_amp")
+		max_amp = entry_cnv_max_amp.get_text()
+		if max_amp:
+			max_amp = float(max_amp)
+		else:
+			max_amp = None
+		entry_cnv_min_amp = self.xml.get_widget("entry_cnv_min_amp")
+		min_amp = entry_cnv_min_amp.get_text()
+		if min_amp:
+			min_amp = float(min_amp)
+		else:
+			min_amp = None
+		entry_cnv_min_size = self.xml.get_widget("entry_cnv_min_size")
+		min_size = entry_cnv_min_size.get_text()
+		if min_size:
+			min_size = int(min_size)
+		else:
+			min_size = None
+		
+		entry_cnv_min_no_of_probes = self.xml.get_widget("entry_cnv_min_no_of_probes")
+		min_no_of_probes = entry_cnv_min_no_of_probes.get_text()
+		if min_no_of_probes:
+			min_no_of_probes = int(min_no_of_probes)
+		else:
+			min_no_of_probes = None
+		
+		input_fname_ls = [input_fname]
+		genome_wide_result = getCNVDataFromFileInGWA(input_fname_ls, array_id, max_amp=max_amp, min_amp=min_amp, min_size=min_size,\
+							min_no_of_probes=min_no_of_probes)
+		
+		if len(genome_wide_result.data_obj_ls)>0:
+			self.genome_wide_results.add_genome_wide_result(genome_wide_result)
+			#self.load_data(input_fname, self.mysql_curs, self.postgres_curs)
+			self.plot(self.ax, self.canvas_matplotlib, self.genome_wide_results.genome_wide_result_ls[-1], draw_cnv_block=True)
+		else:
+			sys.stderr.write("No CNV data for array_id=%s, max_amp=%s, min_amp=%s, min_size=%s, min_no_of_probes=%s.\n"%\
+							(array_id, max_amp, min_amp, min_size, min_no_of_probes))
+	
+	
+	def on_button_cnv_gada_cancel_clicked(self, widget, data=None):
+		"""
+		2009-10-30
+		"""
+		self.filechooserdialog_cnv_gada.hide()
+	
 	def db_connect(self):
 		"""
+		2009-12-09
+			add db_user, db_passwd to MySQLdb.connect()
 		2008-12-16
 			add gene_annotation_picklef
 		2008-02-01
@@ -563,7 +725,7 @@ class GenomeBrowser(object):
 		
 		import MySQLdb
 		try:
-			self.mysql_conn = MySQLdb.connect(db=dbname,host=hostname)
+			self.mysql_conn = MySQLdb.connect(db=dbname,host=hostname, user=db_user, passwd=db_passwd)
 			self.mysql_curs = self.mysql_conn.cursor()
 			self.db = Stock_250kDB.Stock_250kDB(drivername='mysql', username=db_user,
 					   password=db_passwd, hostname=hostname, database=dbname)
