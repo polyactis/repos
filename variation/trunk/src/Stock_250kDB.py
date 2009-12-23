@@ -504,6 +504,8 @@ class ContaminantType(Entity):
 
 class ArrayInfo(Entity):
 	"""
+	2009-11-25
+		add array_quartile_ls
 	2009-3-25
 		add median_intensity
 	"""
@@ -526,13 +528,69 @@ class ArrayInfo(Entity):
 	seed_source = Field(String(100))
 	method_name = Field(String(250))
 	readme = ManyToOne("%s.README"%__name__, colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
+	array_quartile_ls = OneToMany("%s.ArrayQuartile"%__name__)
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
 	date_updated = Field(DateTime)
 	using_options(tablename='array_info', metadata=__metadata__, session=__session__)
 	using_table_options(mysql_engine='InnoDB')
+
+class ArrayQuartile(Entity):
+	"""
+	2009-11-24
+		add dlrspread (DLRSpread) = IQR(dLR) / 4*erfinv(0.5), where dLR (derivative log ratio) is an array of
+		differences between log ratios of adjacent probes, erfinv is the Inverse Error
+		Function and IQR is Inter Quartile Range. Calculated by DB_250k2Array.py.
+	2009-11-20
+		a table storing quartiles of arrays in chosen segments
+		DB_250k2Array.py fills this table.
+	"""
+	array = ManyToOne("%s.ArrayInfo"%__name__, colname='array_id', ondelete='CASCADE', onupdate='CASCADE')
+	start_probe = ManyToOne("%s.Probes"%__name__, colname='start_probe_id', ondelete='CASCADE', onupdate='CASCADE')
+	stop_probe = ManyToOne("%s.Probes"%__name__, colname='stop_probe_id', ondelete='CASCADE', onupdate='CASCADE')
+	no_of_probes = Field(Integer)
+	minimum = Field(Float)
+	first_decile = Field(Float)
+	lower_quartile = Field(Float)
+	median = Field(Float)
+	upper_quartile = Field(Float)
+	last_decile = Field(Float)
+	maximum = Field(Float)
+	dlrspread = Field(Float)	# 2009-11-24 calculated using tiling probes only
 	
+	dlr_minimum = Field(Float)	# 2009-11-25	7-number summary for dlr (derivative log ratio)
+	dlr_first_decile = Field(Float)
+	dlr_lower_quartile = Field(Float)
+	dlr_median = Field(Float)
+	dlr_upper_quartile = Field(Float)
+	dlr_last_decile = Field(Float)
+	dlr_maximum = Field(Float)
+	
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='array_quartile', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('array_id', 'start_probe_id', 'stop_probe_id'))
+
+class ArrayQuartileOutlier(Entity):
+	"""
+	2009-11-20
+		probes whose intensity is either below lower_quartile-1.5IQR or above upper_quartile+1.5IQR
+	"""
+	array_quartile = ManyToOne("%s.ArrayQuartile"%__name__, colname='array_quartile_id', ondelete='CASCADE', onupdate='CASCADE')
+	probe = ManyToOne("%s.Probes"%__name__, colname='probe_id', ondelete='CASCADE', onupdate='CASCADE')
+	intensity = Field(Float)
+	created_by = Field(String(200))
+	updated_by = Field(String(200))
+	date_created = Field(DateTime, default=datetime.now)
+	date_updated = Field(DateTime)
+	using_options(tablename='array_quartile_outlier', metadata=__metadata__, session=__session__)
+	using_table_options(mysql_engine='InnoDB')
+	using_table_options(UniqueConstraint('array_quartile_id', 'probe_id'))
+
 class CallInfo(Entity):
 	"""
 	2009-2-2
@@ -540,12 +598,12 @@ class CallInfo(Entity):
 	"""
 	filename = Field(String(1000))
 	description = Field(String(2000))
-	array = ManyToOne("ArrayInfo", colname='array_id', ondelete='CASCADE', onupdate='CASCADE')
+	array = ManyToOne("%s.ArrayInfo"%__name__, colname='array_id', ondelete='CASCADE', onupdate='CASCADE')
 	NA_rate = Field(Float)
 	readme = ManyToOne("%s.README"%__name__, colname='readme_id', ondelete='CASCADE', onupdate='CASCADE')
-	call_method = ManyToOne('CallMethod', colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
+	call_method = ManyToOne('%s.CallMethod'%__name__, colname='method_id', ondelete='CASCADE', onupdate='CASCADE')
 	call_qc_ls = OneToMany("%s.CallQC"%__name__)
-	pc_value_ls = OneToMany("CallInfoPCValues", order_by='which_pc')
+	pc_value_ls = OneToMany("%s.CallInfoPCValues"%__name__, order_by='which_pc')
 	created_by = Field(String(200))
 	updated_by = Field(String(200))
 	date_created = Field(DateTime, default=datetime.now)
@@ -1227,6 +1285,8 @@ class CNVType(Entity):
 
 class CNVQCCalls(Entity):
 	"""
+	2009-12-8
+		add copy_number to distinguish CNVs that have multiple copies
 	2009-10-26
 		the CNV data collected from other sources to verify our calls
 	"""
@@ -1237,6 +1297,7 @@ class CNVQCCalls(Entity):
 	size_affected = Field(Integer)
 	score = Field(Float)
 	no_of_probes_covered = Field(Integer)
+	copy_number = Field(Integer)
 	sequence = Field(Binary(length=134217728), deferred=True)
 	comment = Field(String(8124))
 	cnv_type = ManyToOne('CNVType', colname='cnv_type_id', ondelete='CASCADE', onupdate='CASCADE')
@@ -1302,9 +1363,13 @@ class CNVCalls(Entity):
 
 class AssociationOverlappingType(Entity):
 	"""
+	2009-11-30
+		add column no_of_methods = number of association methods involved in this overlapping type
 	2009-11-2
+		
 	"""
 	short_name = Field(String(200), unique=True)
+	no_of_methods = Field(Integer)
 	description = Field(String(8000))
 	comment = Field(String(8000))
 	analysis_method_ls = ManyToMany("AnalysisMethod", tablename='overlapping_type2method', ondelete='CASCADE', onupdate='CASCADE')
@@ -1519,7 +1584,9 @@ class Stock_250kDB(ElixirDB):
 			if rest_of_row:
 				data_obj.extra_col_ls = rest_of_row
 			"""
-			data_obj.comment = 'cnv_type: %s, size_affected %s, '%(row.cnv_type_id, row.size_affected) + row.comment
+			data_obj.comment = 'cnv_type: %s, size_affected %s, '%(row.cnv_type_id, row.size_affected)
+			if row.comment:
+				data_obj.comment += row.comment
 			data_obj.genome_wide_result_id = genome_wide_result_id
 			gwr.add_one_data_obj(data_obj)
 		if gwr.max_value<3:	# insertion at y=3
@@ -1537,6 +1604,17 @@ if __name__ == '__main__':
 	instance.setup()
 	import pdb
 	pdb.set_trace()
+	
+	import sqlalchemy
+	s = sqlalchemy.sql.select([AssociationOverlappingStat.table.c.call_method_id.distinct()])
+	connection = instance.metadata.bind
+	#result = connection.execute(s).fetchmany(3)
+	result = connection.execute(s)
+	for r in result:
+		print r
+		print dir(r)
+		print r.call_method_id
+		
 	rows = GeneListType.query.all()
 	for row in rows[:10]:
 		print row.gene_list[0].list_type_id
