@@ -406,8 +406,12 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 	sys.stderr.write("%s NA rows. Done.\n"%no_of_all_NA_rows)
 
 def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=0, delimiter=None, matrix_data_type=int, ignore_het=0,\
-			data_starting_col=2):
+			data_starting_col=2, row_id_key_set=None, row_id_hash_func=None):
 	"""
+	2009-12-11
+		add 2 arguments:
+			row_id_key_set: only retain rows whose keys are in this set 
+			row_id_hash_func: a function that maps the original row-id (=row[0:2]) from input_fname to the one in  needed_row_id_set
 	2009-10-12
 		add argument data_starting_col, specifying which column (index from 0) the data starts from. default is 2 (3rd column).
 	2009-10-11
@@ -482,6 +486,14 @@ def read_data(input_fname, input_alphabet=0, turn_into_integer=1, double_header=
 	try:
 		for row in reader:
 			i += 1
+			row_id = tuple(row[0:2])
+			if row_id_key_set is not None:	# 2009-12-11 use it to filter rows
+				if row_id_hash_func is not None:
+					row_id_key = row_id_hash_func(row_id)
+				else:
+					row_id_key = row_id
+				if row_id_key not in row_id_key_set:
+					continue
 			strain_acc_list.append(row[0])
 			category_list.append(row[1])
 			data_row = row[data_starting_col:]
@@ -533,6 +545,12 @@ class SNPData(object):
 			header, strain_acc_list, category_list, data_matrix = read_data(self.input_fname, delimiter=delimiter)
 			snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
 							data_matrix=data_matrix)
+			
+			# 2009-12-11, only retain rows whose ecotype IDs are in ecotype_id_set			
+			ecotype_id_set = set(ecotype_id_ls)
+			def row_id_hash_func(row_id):
+				return int(row_id[0])
+			snpData = SNPData(input_fname=inputFname, turn_into_array=1, row_id_key_set=ecotype_id_set, row_id_hash_func=row_id_hash_func)
 	2009-5-20
 		add argument ignore_het which is passed to read_data() when data_matrix is not given to ignore heterozygous calls.
 		It'll only be functional when data_matrix is not given upon SNPData initialization.
@@ -569,7 +587,7 @@ class SNPData(object):
 							('ignore_het', 0, int): [0, '', 0, 'Ignore the heterozygous genotypes'],\
 							('data_starting_col', 0, int): [2, '', 0, 'which column the data starts from'],\
 							('debug', 0, int): [0, '', 0, 'turn on the debug flag']}
-	def __init__(self, **keywords):
+	def __init__(self, row_id_key_set=None, row_id_hash_func=None, **keywords):
 		from __init__ import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, \
 														class_to_have_attr=self, howto_deal_with_required_none=2)
@@ -579,7 +597,9 @@ class SNPData(object):
 																							self.turn_into_integer, self.double_header, \
 																							matrix_data_type=self.matrix_data_type,\
 																							ignore_het=self.ignore_het,\
-																							data_starting_col=self.data_starting_col)
+																							data_starting_col=self.data_starting_col,\
+																							row_id_key_set=row_id_key_set,\
+																							row_id_hash_func=row_id_hash_func)
 			if self.ignore_2nd_column:
 				self.category_list = None
 		self.processRowIDColID()
