@@ -358,8 +358,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		sys.stderr.write("Done.\n")
 		return LD_info
 	
-	def getGeneAnnotation(cls, tax_id=3702):
+	@classmethod
+	def getGeneAnnotation(cls, tax_id=3702, cls_with_db_args=None):
 		"""
+		2009-1-15
+			add argument cls_with_db_args to get drivername, username, dbname, etc.
 		2008-12-16
 			become classmethod
 			add option tax_id
@@ -369,8 +372,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		2008-09-24
 		"""
 		from transfac.src import GenomeDB
-		db = GenomeDB.GenomeDatabase(drivername=cls.drivername, username=cls.db_user,
-				   password=cls.db_passwd, hostname=cls.hostname, database='genome', schema=cls.schema)
+		if cls_with_db_args is None:
+			cls_with_db_args = cls
+		db = GenomeDB.GenomeDatabase(drivername=cls_with_db_args.drivername, username=cls_with_db_args.db_user,
+				   password=cls_with_db_args.db_passwd, hostname=cls_with_db_args.hostname, database='genome', \
+				   schema=getattr(cls_with_db_args, 'schema', None))
 		db.setup(create_tables=False)
 		gene_id2model, chr_id2gene_id_ls = db.get_gene_id2model(tax_id=tax_id)
 		gene_annotation = PassingData()
@@ -378,10 +384,11 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		gene_annotation.chr_id2gene_id_ls = chr_id2gene_id_ls
 		return gene_annotation
 	
-	getGeneAnnotation = classmethod(getGeneAnnotation)
-	
-	def dealWithGeneAnnotation(cls, gene_annotation_picklef, tax_id=3702):
+	@classmethod	
+	def dealWithGeneAnnotation(cls, gene_annotation_picklef, tax_id=3702, cls_with_db_args=None):
 		"""
+		2009-1-15
+			add argument cls_with_db_args to be passed to getGeneAnnotation()
 		2008-12-16
 			become classmethod
 			add option tax_id
@@ -395,15 +402,14 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 				gene_annotation = cPickle.load(picklef)
 				del picklef
 			else:	#if the file doesn't exist, but the filename is given, pickle into it
-				gene_annotation = cls.getGeneAnnotation(tax_id=tax_id)	#min_gap is 2 X min_distance + a few more bases
+				gene_annotation = cls.getGeneAnnotation(tax_id=tax_id, cls_with_db_args=cls_with_db_args)	#min_gap is 2 X min_distance + a few more bases
 				picklef = open(gene_annotation_picklef, 'w')
 				cPickle.dump(gene_annotation, picklef, -1)
 				picklef.close()
 		else:
-			gene_annotation = cls.getGeneAnnotation(tax_id=tax_id)
+			gene_annotation = cls.getGeneAnnotation(tax_id=tax_id, cls_with_db_args=cls_with_db_args)
 		sys.stderr.write("Done.\n")
 		return gene_annotation
-	dealWithGeneAnnotation=classmethod(dealWithGeneAnnotation)
 	
 	@classmethod
 	def getSimilarGWResultsGivenResultsByGene(cls, phenotype_method_id, call_method_id, results_directory=None, \
