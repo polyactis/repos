@@ -91,7 +91,7 @@ def load_environment(global_conf, app_conf):
 		gene_annotation_picklef = '/Network/Data/250k/tmp-yh/at_gene_model_pickelf'
 		DrawSNPRegion_ins = DrawSNPRegion(db_user=db_user, db_passwd=db_passwd, hostname=hostname, database=dbname,\
 										input_fname='/tmp/dumb', output_dir='/tmp', debug=0)
-		gene_annotation = DrawSNPRegion_ins.dealWithGeneAnnotation(gene_annotation_picklef)
+		gene_annotation = DrawSNPRegion_ins.dealWithGeneAnnotation(gene_annotation_picklef, cls_with_db_args=DrawSNPRegion_ins)
 		return gene_annotation
 
 	model.gene_annotation = dealWithGeneAnnotation()
