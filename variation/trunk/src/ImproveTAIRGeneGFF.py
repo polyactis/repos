@@ -133,7 +133,7 @@ class ImproveTAIRGeneGFF(object):
 		from variation.src.DrawSNPRegion import DrawSNPRegion
 		DrawSNPRegion_ins = DrawSNPRegion(db_user=self.db_user, db_passwd=self.db_passwd, hostname=self.hostname, database=self.dbname,\
 									input_fname='/tmp/dumb', output_dir='/tmp', debug=0)	#input_fname and output_dir are just random stuff
-		gene_annotation = DrawSNPRegion_ins.dealWithGeneAnnotation(self.gene_annotation_picklef)
+		gene_annotation = DrawSNPRegion_ins.dealWithGeneAnnotation(self.gene_annotation_picklef, cls_with_db_args=DrawSNPRegion_ins)
 		self.improveTAIRGeneGFF(self.input_fname, gene_symbol2gene_id_set, gene_annotation, self.output_fname)
 
 if __name__ == '__main__':
