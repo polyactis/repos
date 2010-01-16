@@ -710,6 +710,8 @@ class GenomeBrowser(object):
 	
 	def db_connect(self):
 		"""
+		2010-1-15
+			pass "cls_with_db_args=self" to DrawSNPRegion.dealWithGeneAnnotation()
 		2009-12-09
 			add db_user, db_passwd to MySQLdb.connect()
 		2008-12-16
@@ -718,30 +720,32 @@ class GenomeBrowser(object):
 			read the data in dialog_db_connect and establish the connections to two databases
 		"""
 		sys.stderr.write("Database Connecting ...")
-		hostname = self.entry_mysql_hostname.get_text()
-		dbname = self.entry_mysql_dbname.get_text()
-		db_user = self.xml.get_widget("entry_db_user").get_text()
-		db_passwd = self.xml.get_widget("entry_db_passwd").get_text()
+		self.drivername = 'mysql'
+		self.hostname = self.entry_mysql_hostname.get_text()
+		self.dbname = self.entry_mysql_dbname.get_text()
+		self.db_user = self.xml.get_widget("entry_db_user").get_text()
+		self.db_passwd = self.xml.get_widget("entry_db_passwd").get_text()
 		
 		import MySQLdb
 		try:
-			self.mysql_conn = MySQLdb.connect(db=dbname,host=hostname, user=db_user, passwd=db_passwd)
+			self.mysql_conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user=self.db_user, passwd=self.db_passwd)
 			self.mysql_curs = self.mysql_conn.cursor()
-			self.db = Stock_250kDB.Stock_250kDB(drivername='mysql', username=db_user,
-					   password=db_passwd, hostname=hostname, database=dbname)
+			self.db = Stock_250kDB.Stock_250kDB(drivername=self.drivername, username=self.db_user,
+					   password=self.db_passwd, hostname=self.hostname, database=self.dbname)
 			self.db.setup(create_tables=False)
 			self.session = self.db.session
 		except:
 			sys.stderr.write('DB connection error: %s\n'%repr(sys.exc_info()))
 			traceback.print_exc()
 		
-		hostname = self.entry_postgres_hostname.get_text()
-		dbname = self.entry_postgres_dbname.get_text()
-		schema = self.entry_postgres_schema.get_text()
-		
 		if not self.gene_annotation:
 			gene_annotation_picklef = self.entry_gene_annotation_picklef.get_text()
-			self.gene_annotation = DrawSNPRegion.dealWithGeneAnnotation(gene_annotation_picklef)
+			self.gene_annotation = DrawSNPRegion.dealWithGeneAnnotation(gene_annotation_picklef, cls_with_db_args=self)
+		
+		#2010-1-13 for postgresql. commented out
+		#hostname = self.entry_postgres_hostname.get_text()
+		#dbname = self.entry_postgres_dbname.get_text()
+		#schema = self.entry_postgres_schema.get_text()
 		
 		#from annot.bin.codense.common import db_connect			#2008-12-16 don't need postgres conn anymore
 		#self.postgres_conn, self.postgres_curs = db_connect(hostname, dbname, schema)
@@ -850,7 +854,7 @@ class GenomeBrowser(object):
 		#if not self.gene_id2model:
 		#	self.gene_id2model, self.chr_id2gene_id_ls = self.get_gene_id2model(self.postgres_curs, tax_id=3702)
 		if not self.gene_annotation:
-			self.gene_annotation = DrawSNPRegion.dealWithGeneAnnotation(self.entry_gene_annotation_picklef.get_text())
+			self.db_connect()
 		
 		xlim = self.axe_gene_model.get_xlim()
 		left_chr, left_pos = get_chr_pos_from_x_axis_pos(xlim[0], self.chr_gap, self.chr_id2cumu_size, self.chr_id_ls)
