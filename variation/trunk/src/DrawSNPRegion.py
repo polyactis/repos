@@ -907,6 +907,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 							draw_LD_relative_to_center_SNP=0, commit=0, snpData=None, phenData=None, ecotype_info=None,\
 							snpData_before_impute=None, snp_matrix_data_type=1, call_method_id=None):
 		"""
+		2010-1-22 if call_method_id is not specified, try cls.call_method_id. if still no, just use 'Unknown'.
 		2009-5-30
 			add call_method_id into the output figure filename
 		2009-4-30
@@ -939,7 +940,7 @@ class DrawSNPRegion(PlotGroupOfSNPs):
 		else:
 			#list_type = Stock_250kDB.GeneListType.get(list_type_id)
 			if call_method_id is None:
-				call_method_id = self.call_method_id
+				call_method_id = getattr(cls, 'call_method_id', "Unknown")
 			fname_basename = 'snp_%s_%s_id_%s_call_method_%s_phenotype_%s_%s'%\
 							(this_snp.chromosome, this_snp.position, this_snp.snps_id, call_method_id, phenotype.id, phenotype.short_name)
 			fname_basename = fname_basename.replace('/', '_')
