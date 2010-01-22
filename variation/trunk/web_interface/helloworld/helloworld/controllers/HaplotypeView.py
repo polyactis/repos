@@ -28,6 +28,8 @@ class HaplotypeviewController(BaseController):
 	
 	def getPlot(self):
 		"""
+		2010-1-22
+			add argument call_method_id when calling DrawSNPRegion.drawRegionAroundThisSNP()
 		2009-4-30
 		"""
 		chromosome = int(request.params.get('chromosome', 1))
@@ -93,7 +95,7 @@ class HaplotypeviewController(BaseController):
 								draw_LD_relative_to_center_SNP=False,\
 								commit=True, snpData=snpData, phenData=pheno_data, \
 								ecotype_info=h.ecotype_info, snpData_before_impute=None,\
-								snp_matrix_data_type=1)
+								snp_matrix_data_type=1, call_method_id=call_method_id)
 		
 		if getattr(after_plot_data, 'png_data', None):
 			response.headers['Content-type'] = 'image/png'
