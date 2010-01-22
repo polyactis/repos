@@ -86,8 +86,10 @@ class HelpothercontrollersController(BaseController):
 		return list_info
 	
 	@classmethod
-	def getPhenotypeInfo(cls, affiliated_table_name=None, extra_condition=None, extra_tables=None):
+	def getPhenotypeInfo(cls, affiliated_table_name=None, extra_condition=None, extra_tables=None, with_category_separator=True):
 		"""
+		2009-12-1
+			add argument with_category_separator
 		2008-10-30
 			affiliated_table_name becomes optional
 		2008-10-19
@@ -113,8 +115,8 @@ class HelpothercontrollersController(BaseController):
 			where_condition = ''
 		
 		rows = model.db.metadata.bind.execute("select distinct p.id, p.biology_category_id, p.short_name from %s\
-			 %s order by p.biology_category_id, p.id"\
-			%(table_str, where_condition))
+				%s order by p.biology_category_id, p.id"%\
+				(table_str, where_condition))
 		phenotype_method_id_ls = []
 		phenotype_method_id2index = {}
 		phenotype_method_label_ls = []
@@ -123,7 +125,7 @@ class HelpothercontrollersController(BaseController):
 		for row in rows:
 			if prev_biology_category_id == -1:
 				prev_biology_category_id = row.biology_category_id
-			elif row.biology_category_id!=prev_biology_category_id:
+			elif with_category_separator and row.biology_category_id!=prev_biology_category_id:
 				prev_biology_category_id = row.biology_category_id
 				#add a blank phenotype id as separator
 				no_of_separators += 1
@@ -261,6 +263,45 @@ class HelpothercontrollersController(BaseController):
 		list_info.id_ls = id_ls
 		list_info.label_ls = label_ls
 		list_info.description_ls = description_ls
+		return list_info
+	
+	@classmethod
+	def getAssociationOverlappingTypeInfo(cls, affiliated_table_name=None, extra_condition=None, extra_tables=None):
+		"""
+		2009-11-30
+		"""
+		if affiliated_table_name:
+			table_str = '%s s, %s p'%(affiliated_table_name, model.Stock_250kDB.AssociationOverlappingType.table.name)
+			where_condition = ['p.id=s.overlapping_type_id']
+		else:
+			table_str = '%s p'%(model.Stock_250kDB.AssociationOverlappingType.table.name)
+			where_condition = []
+		
+		if extra_tables:
+			table_str += ', %s'%extra_tables
+		
+		if extra_condition:
+			where_condition.append(extra_condition)
+		
+		if where_condition:	#2009-3-9
+			where_condition = 'where ' + ' and '.join(where_condition)
+		else:
+			where_condition = ''
+		rows = model.db.metadata.bind.execute("select distinct p.id, p.short_name, p.description from %s \
+			%s order by p.no_of_methods, p.short_name"\
+			%(table_str, where_condition))
+		list_type_id_ls = []
+		list_type_id2index = {}
+		list_type_label_ls = []
+		no_of_separators = 0
+		for row in rows:
+			list_type_id2index[row.id] = len(list_type_id_ls)
+			list_type_id_ls.append(row.id)
+			list_type_label_ls.append('%s %s'%(row.short_name, row.description))
+		list_info = PassingData()
+		list_info.list_type_id2index = list_type_id2index
+		list_info.list_type_id_ls = list_type_id_ls
+		list_info.list_type_label_ls = list_type_label_ls
 		return list_info
 	
 	@classmethod
