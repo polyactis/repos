@@ -55,7 +55,7 @@ class OutputPhenotype(object):
 		from pymodule import ProcessOptions
 		self.ad = ProcessOptions.process_function_arguments(keywords, self.option_default_dict, error_doc=self.__doc__, class_to_have_attr=self)
 		
-		
+	@classmethod
 	def get_phenotype_method_id_info(cls, curs, phenotype_avg_table, phenotype_method_table ):
 		"""
 		2009-2-2
@@ -99,8 +99,8 @@ class OutputPhenotype(object):
 								phenotype_method_id2transformation_description=phenotype_method_id2transformation_description)
 		sys.stderr.write("Done\n")
 		return return_data
-	get_phenotype_method_id_info = classmethod(get_phenotype_method_id_info)
 	
+	@classmethod
 	def get_ecotype_id2info(cls, curs, phenotype_avg_table, ecotype_table):
 		"""
 		2009-2-2
@@ -134,8 +134,8 @@ class OutputPhenotype(object):
 			ecotype_id2index[ecotype_id] = len(ecotype_id2index)
 		sys.stderr.write("Done\n")
 		return ecotype_id2index, ecotype_id_ls, ecotype_name_ls
-	get_ecotype_id2info = classmethod(get_ecotype_id2info)
 	
+	@classmethod
 	def get_matrix(cls, curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data=0, \
 				phenotype_method_table='phenotype_method'):
 		"""
@@ -215,8 +215,8 @@ class OutputPhenotype(object):
 			data_matrix[ecotype_id2index[ecotype_id]][col_index] = value
 		sys.stderr.write("Done\n")
 		return data_matrix
-	get_matrix = classmethod(get_matrix)
 	
+	@classmethod
 	def getPhenotypeData(cls, curs, phenotype_avg_table=None, phenotype_method_table=None, ecotype_table='stock.ecotype', get_raw_data=1):
 		"""
 		2009-2-2
@@ -229,9 +229,12 @@ class OutputPhenotype(object):
 		pheno_data.row_label_ls = ecotype_name_ls
 		pheno_data.col_label_ls = phenotype_info.method_id_name_ls
 		return pheno_data
-	getPhenotypeData = classmethod(getPhenotypeData)
 	
 	def run(self):
+		if self.debug==1:
+			import pdb
+			pdb.set_trace()
+		
 		import MySQLdb
 		conn = MySQLdb.connect(db=self.dbname, host=self.hostname, user = self.db_user, passwd = self.db_passwd)
 		curs = conn.cursor()
@@ -240,7 +243,8 @@ class OutputPhenotype(object):
 		pheno_data = self.getPhenotypeData(curs, self.phenotype_avg_table, self.phenotype_method_table, \
 										self.ecotype_table, get_raw_data=self.get_raw_data)
 		header = ['ecotype id', 'nativename'] + pheno_data.col_label_ls
-		write_data_matrix(pheno_data.data_matrix, self.output_fname, header, pheno_data.row_id_ls, pheno_data.row_label_ls)
+		write_data_matrix(pheno_data.data_matrix, self.output_fname, header, pheno_data.row_id_ls, pheno_data.row_label_ls, \
+						transform_to_numpy=False)
 
 if __name__ == '__main__':
 	from pymodule import ProcessOptions
