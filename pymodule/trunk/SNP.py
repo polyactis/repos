@@ -388,7 +388,7 @@ def write_data_matrix(data_matrix, output_fname, header, strain_acc_list, catego
 	
 	no_of_all_NA_rows = 0
 	for i in range(no_of_rows):
-		if discard_all_NA_rows and sum(data_matrix[i]==0)==data_matrix.shape[1]:
+		if discard_all_NA_rows and sum(data_matrix[i]==0)==no_of_cols:	# 2010-1-24, in numerical representation of nucleotides, 0 = NA.
 			no_of_all_NA_rows += 1
 			continue
 		if i not in rows_to_be_tossed_out:
