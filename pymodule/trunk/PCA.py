@@ -40,8 +40,10 @@ class PCA(object):
 		for j in range(no_of_cols):
 			genotype_ls = data_matrix[:,j]
 			col_mean = numpy.mean(genotype_ls)
-			if col_mean!=0 and divide_variance:
-				new_data_matrix[:,j] = (new_data_matrix[:,j]-col_mean)/numpy.sqrt(col_mean*(1-col_mean))
+			col_var = numpy.var(genotype_ls)
+			#col_var = col_mean*(1-col_mean)	#2009-9-3 only good for binary matrix
+			if col_mean!=0 and divide_variance and col_var!=0:
+				new_data_matrix[:,j] = (new_data_matrix[:,j]-col_mean)/numpy.sqrt(col_var)
 			else:
 				new_data_matrix[:,j] = new_data_matrix[:,j]-col_mean
 		sys.stderr.write("Done.\n")
@@ -61,7 +63,7 @@ class PCA(object):
 		else:
 			new_data_matrix = cls.normalize(data_matrix, divide_variance=False)
 			#new_data_matrix = data_matrix
-			cov_matrix = numpy.cov(new_data_matrix, rowvar=0)
+			cov_matrix = numpy.cov(new_data_matrix, rowvar=0)	#2009-9-3 numpy.cov or numpy.corrcoef
 		#eigen_values, eigen_vectors = numpy.linalg.eig(cov_matrix)	#get complex values out of this
 		import rpy
 		eigen_result = rpy.r.eigen(cov_matrix)
