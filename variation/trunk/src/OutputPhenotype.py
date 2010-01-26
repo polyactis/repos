@@ -139,6 +139,12 @@ class OutputPhenotype(object):
 	def get_matrix(cls, curs, phenotype_avg_table, ecotype_id2index, phenotype_info, get_raw_data=0, \
 				phenotype_method_table='phenotype_method'):
 		"""
+		2010-1-26
+			Comment out the code below, inserted on 2009-9-2, since its purpose is to avoid truncation and 
+				the truncation wasn't due to the value being too small.
+			It was that the conversion of a 2D list containing character 'NA' into a numpy array renders the whole 2D list
+				being converted into a character numpy array. The conversion was default in write_data_matrix() if
+				transform_to_numpy=False is not passed on.  
 		2009-9-2
 			if value>-5e-7 and value<+5e-7:	#beyond float resolution by a python float
 				value = 0
@@ -185,8 +191,8 @@ class OutputPhenotype(object):
 				value = 'NA'
 			elif not get_raw_data:	#2008-11-10
 				transformation_description = phenotype_info.phenotype_method_id2transformation_description.get(phenotype_method_id)
-				if value>-5e-7 and value<+5e-7:	#beyond float resolution by a python float
-					value = 0
+				#if value>-5e-7 and value<+5e-7:	#beyond float resolution by a python float
+				#	value = 0
 				
 				if not transformation_description:
 					pass
