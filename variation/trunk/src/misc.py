@@ -3437,23 +3437,36 @@ GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, li
 	
 	@classmethod
 	def cofactorLM(cls, genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, cofactors=[],\
-					report=1, run_type=1):
+					cofactor_phenotype_id_ls=[], report=1, run_type=1,):
 		"""
+		2010-1-11
+			add argument cofactor_phenotype_id_ls to have the functionality of treating some phenotypes as cofactors
 		2009-8-26
-			run_type 1: pure linear model by python
-			run_type 2: EMMA
-			run_type 3: pure linear model by R (Field test shows run_type 3 is same as 1.)
+			one phenotype at a time:
+				1. create a new SNP matrix which includes accessions whose phenotypes (this phenotype + cofactor_phenotype_id_ls) are non-NA
+				2. one SNP at a time
+					1. add cofactor SNP matrix if cofactors are present
+					2. add cofactor phenotype matrix if cofactor_phenotype_id_ls exist
+					3. run association
+			
+			parameter run_type is passed to Association.linear_model()
+				run_type 1: pure linear model by python
+				run_type 2: EMMA
+				run_type 3: pure linear model by R (Field test shows run_type 3 is same as 1.)
 			
 			start_snp and end_snp are on the same chromosome
 		"""
 		sys.stderr.write("Running association (pure linear model or EMMA) with cofactor ... \n")
 		from Association import Association
 		
-		chromosome, start_pos = start_snp.split('_')[:2]
+		start_chr, start_pos = start_snp.split('_')[:2]
+		start_chr = int(start_chr)
 		start_pos = int(start_pos)
-		stop_pos = int(stop_snp.split('_')[1])
 		
-				
+		stop_chr, stop_pos = stop_snp.split('_')[:2]
+		stop_chr = int(stop_chr)
+		stop_pos = int(stop_pos)
+		
 		eigen_vector_fname = ''
 		
 		test_type = 3 #Emma
@@ -3463,6 +3476,10 @@ GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, li
 		environment_matrix = None
 		data_matrix = initData.snpData.data_matrix
 		min_data_point = 3
+		
+		# 2010-1-11 create a cofactor_phenotype_index_ls
+		from PlotGroupOfSNPs import PlotGroupOfSNPs
+		cofactor_phenotype_index_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(initData.phenData, set(cofactor_phenotype_id_ls))
 		
 		#create an index list of cofactor SNPs
 		cofactors_indices = []
@@ -3484,7 +3501,17 @@ GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, li
 			non_phenotype_NA_row_index_ls = []
 			non_NA_phenotype_ls = []
 			for i in range(len(phenotype_ls)):
-				if not numpy.isnan(phenotype_ls[i]):
+				# 2010-1-11 make sure no NA in the cofactor phenotype matrix
+				this_row_has_NA_phenotype = False
+				if cofactor_phenotype_index_ls:
+					for phenotype_index in cofactor_phenotype_index_ls:
+						if numpy.isnan(initData.phenData.data_matrix[i, phenotype_index]):
+							this_row_has_NA_phenotype = True
+							break
+				
+				if numpy.isnan(phenotype_ls[i]):
+					this_row_has_NA_phenotype = True
+				if not this_row_has_NA_phenotype:
 					non_phenotype_NA_row_index_ls.append(i)
 					non_NA_phenotype_ls.append(phenotype_ls[i])
 			
@@ -3503,6 +3530,12 @@ GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, li
 			real_counter = 0
 			
 			#create the cofactor matrix based on new SNP data matrix
+			if len(cofactor_phenotype_index_ls)>0:
+				cofactor_phenotype_matrix = new_data_matrix[:, cofactor_phenotype_index_ls]
+			else:
+				cofactor_phenotype_matrix = None
+			
+			#create the cofactor matrix based on new SNP data matrix
 			if len(cofactors_indices)>0:
 				cofactor_data_matrix = new_data_matrix[:, cofactors_indices]
 			else:
@@ -3513,17 +3546,23 @@ GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, li
 				col_id = initData.snpData.col_id_ls[j]
 				if col_id not in cofactors_set:	#same SNP appearing twice would cause singular design matrix
 					chr, pos = col_id.split('_')[:2]
+					chr = int(chr)
 					pos = int(pos)
-					if chr==chromosome and pos>=start_pos and pos<=stop_pos:
+					if chr>=start_chr and chr<=stop_chr and pos>=start_pos and pos<=stop_pos:
 						genotype_matrix = new_data_matrix[:,j]
 						if cofactor_data_matrix is not None:
 							genotype_matrix = genotype_matrix.reshape([len(genotype_matrix), 1])
 							genotype_matrix = numpy.hstack((genotype_matrix, cofactor_data_matrix))
+						if cofactor_phenotype_matrix is not None:
+							if len(genotype_matrix.shape)<2:
+								genotype_matrix = genotype_matrix.reshape([len(genotype_matrix), 1])
+							genotype_matrix = numpy.hstack((genotype_matrix, cofactor_phenotype_matrix))
 						pdata = Association.linear_model(genotype_matrix, non_NA_phenotype_ls, min_data_point, snp_index=j, \
 												kinship_matrix=kinship_matrix, eig_L=eig_L, run_type=run_type)
 						if pdata is not None:
 							results.append(pdata)
 							real_counter += 1
+				
 				counter += 1
 				if report and counter%2000==0:
 					sys.stderr.write("%s\t%s\t%s"%('\x08'*40, counter, real_counter))
@@ -3538,12 +3577,14 @@ GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, li
 	"""
 	genotype_fname = '/Network/Data/250k/tmp-yh/250k_data/call_method_17_test.tsv'
 	phenotype_fname = '/Network/Data/250k/tmp-yh/phenotype.tsv'
-	phenotype_method_id_ls = [43]
+	phenotype_method_id_ls = [285]
 	output_fname_prefix = '/tmp/cofactorLM.tsv'
 	start_snp = '1_2005921'
 	stop_snp = '1_20054408'
 	cofactors = ['1_3832974']
-	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, cofactors=cofactors)
+	cofactor_phenotype_id_ls = [77]
+	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+		cofactors=cofactors, cofactor_phenotype_id_ls=cofactor_phenotype_id_ls)
 	
 	genotype_fname = '/Network/Data/250k/db/dataset/call_method_32.tsv'
 	phenotype_fname = '/Network/Data/250k/tmp-yh/phenotype.tsv'
@@ -3589,6 +3630,26 @@ GWA.contrastPvalueFromTwoGWA(input_fname1, input_fname2, output_fname_prefix, li
 	output_fname_prefix = '/tmp/Runtype_%s_SNP_%s_%s.tsv'%(run_type, start_snp, stop_snp)
 	GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
 					cofactors=[], run_type=run_type)
+	
+	genotype_fname = '/Network/Data/250k/tmp-yh/250k_data/call_method_17_test.tsv'
+	phenotype_fname = '/Network/Data/250k/tmp-yh/phenotype.tsv'
+	phenotype_method_id_ls = [285]
+	output_fname_prefix = '/tmp/cofactorLM.tsv'
+	start_snp = '1_2005921'
+	stop_snp = '1_20054408'
+	cofactors = ['1_3832974']
+	
+	genotype_fname = '/Network/Data/250k/db/dataset/call_method_32.tsv'
+	phenotype_fname = '/Network/Data/250k/tmp-yh/phenotype.tsv'
+	phenotype_method_id_ls = [285]
+	start_snp = '1_1'
+	stop_snp = '5_60000000'
+	cofactor_phenotype_id_ls = [77]
+	for run_type in [1,2]:
+		output_fname_prefix = os.path.expanduser('~/Runtype_%s_Cofactor_Phenotype_%s.tsv'%(run_type, cofactor_phenotype_id_ls[0]))
+		GWA.cofactorLM(genotype_fname, phenotype_fname, phenotype_method_id_ls, output_fname_prefix, start_snp, stop_snp, \
+			cofactors=[], cofactor_phenotype_id_ls=cofactor_phenotype_id_ls, run_type=run_type)
+	
 	"""
 	
 	@classmethod
@@ -6231,8 +6292,13 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 	@classmethod
 	def compareCNVSegmentsAgainstQCHandler(cls, input_fname_ls, ecotype_id2cnv_qc_call_data, function_handler, param_obj, \
 										deletion_cutoff=None, max_boundary_diff=10000, \
-										max_diff_perc=0.10, min_no_of_probes=5, count_embedded_segment_as_match=False):
+										max_diff_perc=0.10, min_no_of_probes=5, count_embedded_segment_as_match=False, \
+										min_reciprocal_overlap=0.6, report=True):
 		"""
+		2010-1-26
+			value of the ecotype_id2cnv_qc_call_data dictionary is a RBDict (RBTree dictionary) structure.
+		2009-12-8
+			add argument min_reciprocal_overlap
 		2009-11-4
 			a general handler to compare CNV segments from input_fname_ls with cnv_qc_call_data.
 			Upon a match between a CNV segment from input_fname_ls and cnv_qc_call_data, function_handler would be called with param_obj as argument.
@@ -6242,6 +6308,7 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 		"""
 		import fileinput
 		from pymodule import getColName2IndexFromHeader, PassingData
+		from pymodule.CNV import is_reciprocal_overlap, CNVSegmentBinarySearchTreeKey
 		sys.stderr.write("Getting probe amplitude from %s ... \n"%repr(input_fname_ls))
 		amp_ls = []
 		array_id2array = {}
@@ -6278,7 +6345,22 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 				segment_length = abs(segment_stop_pos-segment_start_pos+1)
 				if deletion_cutoff is not None and amplitude>deletion_cutoff:
 					continue
+				cnv_segment_obj = PassingData(ecotype_id=cnv_ecotype_id, start_probe=start_probe, stop_probe=stop_probe,\
+											no_of_probes=no_of_probes, amplitude=amplitude, segment_length=segment_length,\
+											segment_chromosome=segment_chromosome, array_id=array_id)
+				cnvSegmentKey = CNVSegmentBinarySearchTreeKey(chromosome=segment_chromosome, span_ls=[segment_start_pos, segment_stop_pos], min_reciprocal_overlap=min_reciprocal_overlap)
+				
 				no_of_deletions+=1
+				
+				targetSegmentValue = cnv_qc_call_data.get(cnvSegmentKey)
+				if targetSegmentValue:
+					no_of_valid_deletions += 1
+					cnv_qc_call = targetSegmentValue
+					function_handler(param_obj, cnv_segment_obj, cnv_qc_call)
+				else:
+					function_handler(param_obj, cnv_segment_obj, cnv_qc_call=None)	# this stage, call the handler if it wants to record the number of deletions.
+				
+				"""
 				for cnv_qc_call in cnv_qc_call_data:
 					qc_chromosome, qc_start, qc_stop = cnv_qc_call[:3]
 					cnv_qc_call_id = cnv_qc_call[-1]
@@ -6288,115 +6370,234 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 						boundary_diff2 = abs(segment_stop_pos-qc_stop)
 						diff1_perc = boundary_diff1/float(segment_length)
 						diff2_perc = boundary_diff2/float(segment_length)
-						if boundary_diff1<=max_boundary_diff and boundary_diff2<=max_boundary_diff and diff1_perc<=max_diff_perc and \
-						diff2_perc<=max_diff_perc:
+						
+						is_overlap = is_reciprocal_overlap([segment_start_pos, segment_stop_pos], [qc_start, qc_stop], \
+													min_reciprocal_overlap=min_reciprocal_overlap)
+						
+						if is_overlap:
 							no_of_valid_deletions += 1
 							valid_match = True
-						elif count_embedded_segment_as_match and segment_start_pos>=qc_start and segment_stop_pos<=qc_stop:	#the segment doesn't match the criteria but very small and within
-							no_of_valid_deletions += 1
-							valid_match = True
+						
+						#if boundary_diff1<=max_boundary_diff and boundary_diff2<=max_boundary_diff and diff1_perc<=max_diff_perc and \
+						#diff2_perc<=max_diff_perc:
+						#	no_of_valid_deletions += 1
+						#	valid_match = True
+						#elif count_embedded_segment_as_match and segment_start_pos>=qc_start and segment_stop_pos<=qc_stop:	#the segment doesn't match the criteria but very small and within
+						#	no_of_valid_deletions += 1
+						#	valid_match = True
+						
 						if valid_match:
-							cnv_segment_obj = PassingData(ecotype_id=cnv_ecotype_id, start_probe=start_probe, stop_probe=stop_probe,\
-														no_of_probes=no_of_probes, amplitude=amplitude, segment_length=segment_length,\
-														segment_chromosome=segment_chromosome, )
-							function_handler(cnv_segment_obj, cnv_qc_call, param_obj)
+							function_handler(param_obj, cnv_segment_obj, cnv_qc_call, )
 					elif qc_chromosome>segment_chromosome:
 						break
-			if counter%10000==0:
+				"""
+			if report and counter%10000==0:
 				sys.stderr.write('%s%s\t%s\t%s'%('\x08'*80, counter, no_of_deletions, no_of_valid_deletions))
 		setattr(param_obj, "no_of_deletions", no_of_deletions)
 		setattr(param_obj, "no_of_valid_deletions", no_of_valid_deletions)
 		sys.stderr.write("\n")
 	
 	@classmethod
-	def getCNVQCDataFromDB(cls, data_source_id=1, ecotype_id=None, cnv_type_id=1, \
-								min_QC_segment_size=200, min_no_of_probes=None):
+	def getCNVQCDataFromDB(cls, data_source_id=1, ecotype_id=None, cnv_type_id=None, \
+								min_QC_segment_size=None, min_no_of_probes=None, min_reciprocal_overlap=0.6):
 		"""
+		2010-1-26
+			replace the list structure of cnv_qc_call_data in ecotype_id2cnv_qc_call_data with binary_tree structure
+		2009-12-9
+			add no_of_probes_covered into returning data
+			add cnv_type_id
 		2009-11-4
 			get CNV QC data from database
 		"""
 		sys.stderr.write("Getting CNV QC data ... \n")
 		import Stock_250kDB
-		sql_string = "select a.ecotype_id, c.chromosome, c.start, c.stop, c.size_affected, c.id from %s c,\
-						%s a where c.accession_id=a.id and a.data_source_id=%s and c.size_affected>=%s \
-						and c.cnv_type_id=%s"%\
-						(Stock_250kDB.CNVQCCalls.table.name, Stock_250kDB.CNVQCAccession.table.name, data_source_id,\
-						min_QC_segment_size, cnv_type_id)
+		sql_string = "select a.ecotype_id, c.chromosome, c.start, c.stop, c.size_affected, c.no_of_probes_covered, c.copy_number, c.id from %s c,\
+						%s a where c.accession_id=a.id and a.data_source_id=%s order by RAND()"%\
+						(Stock_250kDB.CNVQCCalls.table.name, Stock_250kDB.CNVQCAccession.table.name, data_source_id)
+						# 2010-1-26 random ordering to optimize the tree
+		if cnv_type_id is not None:
+			sql_string += " and c.cnv_type_id=%s"%cnv_type_id
 		if ecotype_id is not None:
 			sql_string += " and a.ecotype_id=%s"%ecotype_id
 		if min_no_of_probes is not None:
 			sql_string += " and c.no_of_probes_covered>=%s"%min_no_of_probes
+		if min_QC_segment_size is not None:
+			sql_string += " and c.size_affected>=%s"%min_QC_segment_size
 		rows = db_250k.metadata.bind.execute(sql_string)
 		count = 0
 		ecotype_id2cnv_qc_call_data = {}
+		#from pymodule.BinarySearchTree import binary_tree	#2010-1-26 replace the list structure of cnv_qc_call_data \
+															# in ecotype_id2cnv_qc_call_data with binary_tree structure
+		from pymodule.RBTree import RBDict	# 2010-1-26 RBDict is more efficiency than binary_tree.
+		from pymodule.CNV import CNVSegmentBinarySearchTreeKey
 		for row in rows:
 			if row.ecotype_id not in ecotype_id2cnv_qc_call_data:
-				ecotype_id2cnv_qc_call_data[row.ecotype_id] = []
-			cnv_qc_call_data = ecotype_id2cnv_qc_call_data[row.ecotype_id]
-			cnv_qc_call_data.append((row.chromosome, row.start, row.stop, row.size_affected, row.id))
+				#ecotype_id2cnv_qc_call_data[row.ecotype_id] = binary_tree()
+				ecotype_id2cnv_qc_call_data[row.ecotype_id] = RBDict()
+			
+			segmentKey = CNVSegmentBinarySearchTreeKey(chromosome=row.chromosome, span_ls=[row.start, row.stop], \
+													min_reciprocal_overlap=min_reciprocal_overlap)
+			ecotype_id2cnv_qc_call_data[row.ecotype_id][segmentKey] = (row.chromosome, row.start, row.stop, row.size_affected, row.no_of_probes_covered, row.copy_number, row.id)
+			
+			#cnv_qc_call_data = ecotype_id2cnv_qc_call_data[row.ecotype_id]
+			#cnv_qc_call_data.append((row.chromosome, row.start, row.stop, row.size_affected, row.no_of_probes_covered, row.copy_number, row.id))
 			count += 1
 		
-		for ecotype_id, cnv_qc_call_data in ecotype_id2cnv_qc_call_data.iteritems():
-			cnv_qc_call_data.sort()
-			ecotype_id2cnv_qc_call_data[ecotype_id] = cnv_qc_call_data
-		sys.stderr.write("%s cnv qc calls for %s ecotypes. Done.\n"%(count, len(ecotype_id2cnv_qc_call_data)))
+		
+		import math
+		for ecotype_id, tree in ecotype_id2cnv_qc_call_data.iteritems():
+			print "\tDepth of Ecotype %s's tree: %d" % (ecotype_id, tree.depth())
+			print "\tOptimum Depth: %f (%d) (%f%% depth efficiency)" % (tree.optimumdepth(), math.ceil(tree.optimumdepth()),
+															  math.ceil(tree.optimumdepth()) / tree.depth())
+			#cnv_qc_call_data.sort()
+			#ecotype_id2cnv_qc_call_data[ecotype_id] = cnv_qc_call_data
+		
+		sys.stderr.write("\t%s cnv qc calls for %s ecotypes. Done.\n"%(count, len(ecotype_id2cnv_qc_call_data)))
 		return ecotype_id2cnv_qc_call_data
 	
 	@classmethod
-	def countMatchedDeletionsFunctor(cls, cnv_segment_obj, cnv_qc_call, param_obj):
+	def countMatchedDeletionsFunctor(cls, param_obj, cnv_segment_obj=None, cnv_qc_call=None):
 		"""
+		2009-12-9
+			store qc data in param_obj.array_id2qc_data
 		2009-11-4
 			a functor to be called in 
 		"""
+		from pymodule import PassingData
 		if not hasattr(param_obj, 'no_of_valid_deletions'):
 			setattr(param_obj, 'no_of_valid_deletions', 0)
-		qc_chromosome, qc_start, qc_stop = cnv_qc_call[:3]
-		cnv_qc_call_id = cnv_qc_call[-1]
-		param_obj.cnv_qc_call_id_set.add(cnv_qc_call_id)
-		param_obj.no_of_valid_deletions += 1
+		if not hasattr(param_obj, "array_id2qc_data"):
+			param_obj.array_id2qc_data = {}
+		if not hasattr(param_obj, "array_id2no_of_probes2qc_data"):	# for FPR per no_of_probes
+			param_obj.array_id2no_of_probes2qc_data = {}
+		if not hasattr(param_obj, "array_id2qc_no_of_probes2qc_data"):	# for FNR per no_of_probes
+			param_obj.array_id2qc_no_of_probes2qc_data = {}
+		
+		array_id = cnv_segment_obj.array_id
+		no_of_probes = cnv_segment_obj.no_of_probes
+		if array_id not in param_obj.array_id2qc_data:
+			param_obj.array_id2qc_data[array_id] = PassingData(ecotype_id=cnv_segment_obj.ecotype_id, \
+															no_of_valid_deletions=0,\
+															no_of_deletions=0,\
+															cnv_qc_call_id_set=set())
+			param_obj.array_id2no_of_probes2qc_data[array_id] = {}
+			param_obj.array_id2qc_no_of_probes2qc_data[array_id] = {}
+		if no_of_probes not in param_obj.array_id2no_of_probes2qc_data[array_id]:
+			param_obj.array_id2no_of_probes2qc_data[array_id][no_of_probes] = PassingData(ecotype_id=cnv_segment_obj.ecotype_id, \
+															no_of_valid_deletions=0,\
+															no_of_deletions=0,\
+															cnv_qc_call_id_set=set())
+		# 2010-1-26 increase the no_of_deletions counter no matter whether there's a corresponding cnv_qc_call or not
+		param_obj.array_id2qc_data[array_id].no_of_deletions += 1
+		param_obj.array_id2no_of_probes2qc_data[array_id][no_of_probes].no_of_deletions += 1
+		if cnv_qc_call is not None:
+			qc_chromosome, qc_start, qc_stop = cnv_qc_call[:3]
+			cnv_qc_call_id = cnv_qc_call[-1]
+			param_obj.array_id2qc_data[array_id].cnv_qc_call_id_set.add(cnv_qc_call_id)
+			param_obj.array_id2qc_data[array_id].no_of_valid_deletions += 1
+			
+			qc_no_of_probes = cnv_qc_call[4]
+			if qc_no_of_probes not in param_obj.array_id2qc_no_of_probes2qc_data[array_id]:
+				param_obj.array_id2qc_no_of_probes2qc_data[array_id][qc_no_of_probes] = PassingData(ecotype_id=cnv_segment_obj.ecotype_id, \
+															cnv_qc_call_id_set=set())
+				param_obj.array_id2qc_no_of_probes2qc_data[array_id][qc_no_of_probes].cnv_qc_call_id_set.add(cnv_qc_call_id)
+			
+			param_obj.array_id2no_of_probes2qc_data[array_id][no_of_probes].cnv_qc_call_id_set.add(cnv_qc_call_id)
+			param_obj.array_id2no_of_probes2qc_data[array_id][no_of_probes].no_of_valid_deletions += 1
 	
 	@classmethod
 	def outputFalseNegativeRate(cls, param_obj):
 		"""
+		2009-12-9
+			calculate FNR for each class with same number of probes
 		2009-11-4
 		"""
-		no_of_QCCalls_matched = len(param_obj.cnv_qc_call_id_set)
-		no_of_total_QCCalls = sum(map(len, param_obj.ecotype_id2cnv_qc_call_data.values()))
-		false_negative_rate = (no_of_total_QCCalls-no_of_QCCalls_matched)/float(no_of_total_QCCalls)
-		sys.stderr.write("False negative rate: %s/%s(%s).\n"%(no_of_total_QCCalls-no_of_QCCalls_matched, no_of_total_QCCalls, false_negative_rate))
+		for array_id, qc_data in param_obj.array_id2qc_data.iteritems():
+			no_of_QCCalls_matched = len(qc_data.cnv_qc_call_id_set)
+			no_of_total_QCCalls = len(param_obj.ecotype_id2cnv_qc_call_data[qc_data.ecotype_id])
+			false_negative_rate = (no_of_total_QCCalls-no_of_QCCalls_matched)/float(no_of_total_QCCalls)
+			sys.stderr.write("Array %s false negative rate: %s/%s(%s).\n"%(array_id, \
+																		no_of_total_QCCalls-no_of_QCCalls_matched,\
+																		no_of_total_QCCalls, false_negative_rate))
+			
+			if getattr(param_obj, 'array_id2qc_no_of_probes2qc_data', None):
+				qc_no_of_probes2qc_data = param_obj.array_id2qc_no_of_probes2qc_data[array_id]
+				no_of_probes_ls = qc_no_of_probes2qc_data.keys()
+				no_of_probes_ls.sort()
+				for no_of_probes in no_of_probes_ls:
+					qc_data = qc_no_of_probes2qc_data[no_of_probes]
+					no_of_QCCalls_matched = len(qc_data.cnv_qc_call_id_set)
+					no_of_total_QCCalls = len(param_obj.ecotype_id2qc_no_of_probes2cnv_qc_call_id_set[qc_data.ecotype_id][no_of_probes])
+					false_negative_rate = (no_of_total_QCCalls-no_of_QCCalls_matched)/float(no_of_total_QCCalls)
+					sys.stderr.write("\t%s\t%s\t%s\t%s\n"%(no_of_probes, \
+														no_of_total_QCCalls-no_of_QCCalls_matched,\
+														no_of_total_QCCalls, false_negative_rate))
 	
 	@classmethod
 	def outputFalsePositiveRate(cls, param_obj):
 		"""
+		2009-12-9
+			calculate FNR for each class with same number of probes
 		2009-11-4
 		"""
-		no_of_valid_deletions = param_obj.no_of_valid_deletions
-		no_of_deletions = param_obj.no_of_deletions
-		no_of_non_valid_deletions = no_of_deletions-no_of_valid_deletions
-		false_positive_rate = no_of_non_valid_deletions/float(no_of_deletions)
-		sys.stderr.write("False positive rate: %s/%s(%s).\n"%\
-						(no_of_non_valid_deletions, no_of_deletions, false_positive_rate))
+		for array_id, qc_data in param_obj.array_id2qc_data.iteritems():
+			no_of_valid_deletions = qc_data.no_of_valid_deletions
+			no_of_deletions = qc_data.no_of_deletions
+			no_of_non_valid_deletions = no_of_deletions-no_of_valid_deletions
+			false_positive_rate = no_of_non_valid_deletions/float(no_of_deletions)
+			sys.stderr.write("Array %s false positive rate: %s/%s(%s).\n"%(array_id, \
+							no_of_non_valid_deletions, no_of_deletions, false_positive_rate))
+			if getattr(param_obj, 'array_id2no_of_probes2qc_data', None):
+				no_of_probes2qc_data = param_obj.array_id2no_of_probes2qc_data[array_id]
+				no_of_probes_ls = no_of_probes2qc_data.keys()
+				no_of_probes_ls.sort()
+				for no_of_probes in no_of_probes_ls:
+					qc_data = no_of_probes2qc_data[no_of_probes]
+					no_of_valid_deletions = qc_data.no_of_valid_deletions
+					no_of_deletions = qc_data.no_of_deletions
+					no_of_non_valid_deletions = no_of_deletions-no_of_valid_deletions
+					false_positive_rate = no_of_non_valid_deletions/float(no_of_deletions)
+					sys.stderr.write("\t%s\t%s\t%s\t%s\n"%(no_of_probes, \
+									no_of_non_valid_deletions, no_of_deletions, false_positive_rate))
 		
 	@classmethod
 	def countNoOfCNVDeletionsMatchQC(cls, db_250k, input_fname_ls, ecotype_id=6909, data_source_id=3, cnv_type_id=1, \
 								min_QC_segment_size=200, deletion_cutoff=-0.33, max_boundary_diff=10000, \
 								max_diff_perc=0.10, min_no_of_probes=5,\
-								count_embedded_segment_as_match=True):
+								count_embedded_segment_as_match=True, min_reciprocal_overlap=0.6):
 		"""
+		2010-1-26
+			pass min_reciprocal_overlap to cls.getCNVQCDataFromDB()
+		2009-12-9
+			calculate FNR for each class with same number of probes
 		2009-10-29
 			for all CNV deletions, check how many are in QC dataset.
 		"""
-		ecotype_id2cnv_qc_call_data = cls.getCNVQCDataFromDB(data_source_id, ecotype_id, cnv_type_id, min_QC_segment_size, min_no_of_probes)
+		ecotype_id2cnv_qc_call_data = cls.getCNVQCDataFromDB(data_source_id, ecotype_id, cnv_type_id, min_QC_segment_size, min_no_of_probes,\
+															min_reciprocal_overlap=min_reciprocal_overlap)
 		
 		from pymodule import PassingData
-		param_obj = PassingData(no_of_valid_deletions=0, cnv_qc_call_id_set=set())
+		param_obj = PassingData(no_of_valid_deletions=0, cnv_qc_call_id_set=set(), array_id2qc_data={})
 		cls.compareCNVSegmentsAgainstQCHandler(input_fname_ls, ecotype_id2cnv_qc_call_data, cls.countMatchedDeletionsFunctor, param_obj, \
 											deletion_cutoff, max_boundary_diff, max_diff_perc, min_no_of_probes, \
-											count_embedded_segment_as_match=count_embedded_segment_as_match)
-		sys.stderr.write("For ecotype_id %s, data_source_id %s, min_QC_segment_size %s, deletion_cutoff: %s, min_no_of_probes: %s, max_boundary_diff: %s, max_diff_perc %s.\n"%\
+											count_embedded_segment_as_match=count_embedded_segment_as_match, \
+											min_reciprocal_overlap=min_reciprocal_overlap, report=False)
+		sys.stderr.write("For ecotype_id %s, data_source_id %s, min_QC_segment_size %s, deletion_cutoff: %s, min_no_of_probes: %s, min_reciprocal_overlap: %s.\n"%\
 						(ecotype_id, \
-						data_source_id, min_QC_segment_size, deletion_cutoff, min_no_of_probes, max_boundary_diff, max_diff_perc))
+						data_source_id, min_QC_segment_size, deletion_cutoff, min_no_of_probes, min_reciprocal_overlap))
 		param_obj.ecotype_id2cnv_qc_call_data = ecotype_id2cnv_qc_call_data
+		
+		param_obj.ecotype_id2qc_no_of_probes2cnv_qc_call_id_set = {}
+		for ecotype_id, cnv_qc_call_data in ecotype_id2cnv_qc_call_data.iteritems():
+			qc_no_of_probes2cnv_qc_call_id_set = {}
+			for cnv_qc_call in  cnv_qc_call_data:
+				no_of_probes_covered = cnv_qc_call[4]
+				cnv_qc_call_id = cnv_qc_call[-1]
+				if no_of_probes_covered not in qc_no_of_probes2cnv_qc_call_id_set:
+					qc_no_of_probes2cnv_qc_call_id_set[no_of_probes_covered] = set()
+				qc_no_of_probes2cnv_qc_call_id_set[no_of_probes_covered].add(cnv_qc_call_id)
+			param_obj.ecotype_id2qc_no_of_probes2cnv_qc_call_id_set[ecotype_id] = qc_no_of_probes2cnv_qc_call_id_set
+		
 		cls.outputFalsePositiveRate(param_obj)
 		cls.outputFalseNegativeRate(param_obj)
 		
@@ -6409,6 +6610,7 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 	CNV.countNoOfCNVDeletionsMatchQC(db_250k, input_fname_ls, ecotype_id=8215, data_source_id=3, cnv_type_id=1, \
 								min_QC_segment_size=200, deletion_cutoff=-0.33, max_boundary_diff=10000, max_diff_perc=0.10)
 	
+	# 2009-11-5
 	input_fname_ls = []
 	for i in range(1,6):
 		input_fname_ls.append(os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s.GADA_A0.5T4M5.tsv'%i))
@@ -6419,39 +6621,66 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 	count_embedded_segment_as_match = True
 	for ecotype_id, data_source_id in ecotype_id_data_source_id_ls:
 		for deletion_cutoff in [-0.33, -0.5]:
-			for max_boundary_diff in [10000]:
-				for max_diff_perc in [0.20, 0.3]:
-					CNV.countNoOfCNVDeletionsMatchQC(db_250k, input_fname_ls, ecotype_id=ecotype_id, data_source_id=data_source_id, \
-											cnv_type_id=1,\
+			for min_reciprocal_overlap in [0.4, 0.6, 0.8]:
+				CNV.countNoOfCNVDeletionsMatchQC(db_250k, input_fname_ls, ecotype_id=ecotype_id, data_source_id=data_source_id, \
+										cnv_type_id=1,\
 										min_QC_segment_size=min_QC_segment_size, deletion_cutoff=deletion_cutoff, \
-										max_boundary_diff=max_boundary_diff, max_diff_perc=max_diff_perc, \
 										min_no_of_probes=min_no_of_probes,\
-										count_embedded_segment_as_match=count_embedded_segment_as_match)
+										count_embedded_segment_as_match=count_embedded_segment_as_match,\
+										min_reciprocal_overlap=min_reciprocal_overlap)
+	
+	
+	# 2009-12-09 use min_reciprocal_overlap
+	input_fname_ls = []
+	for i in range(1,6):
+		input_fname_ls.append(os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s.GADA_A0.5T4M5.tsv'%i))
+	#input_fname_ls = [os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr1.GADA_A0.5T4M5.tsv')]
+	#input_fname_ls = []
+	#for i in range(1,6):
+	#	input_fname_ls.append(os.path.expanduser('~/mnt2/panfs//250k/CNV/GADA_output/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s_A2.0T8.0M5.tsv'%i))
+	
+	ecotype_id_data_source_id_ls = [(6932, 7)]	# two different types of Ler-1 deletions from Ler contigs
+	min_QC_segment_size = 5
+	min_no_of_probes = 5
+	count_embedded_segment_as_match = True
+	for ecotype_id, data_source_id in ecotype_id_data_source_id_ls:
+		for deletion_cutoff in [-0.33, -0.5]:
+			for min_reciprocal_overlap in [0.4, 0.8]:
+				CNV.countNoOfCNVDeletionsMatchQC(db_250k, input_fname_ls, ecotype_id=ecotype_id, data_source_id=data_source_id, \
+										cnv_type_id=1,\
+										min_QC_segment_size=min_QC_segment_size, deletion_cutoff=deletion_cutoff, \
+										min_no_of_probes=min_no_of_probes,\
+										count_embedded_segment_as_match=count_embedded_segment_as_match,\
+										min_reciprocal_overlap=min_reciprocal_overlap)
 	"""
 	
 	@classmethod
-	def addAmplitudeFunctor(cls, cnv_segment_obj, cnv_qc_call, param_obj):
+	def addAmplitudeFunctor(cls, param_obj, cnv_segment_obj, cnv_qc_call=None):
 		"""
+		2009-12-9
+			adjust argument order and process only if cnv_qc_call is not None
 		2009-11-4
 		"""
 		if not hasattr(param_obj, 'amp_ls'):
 			setattr(param_obj, 'amp_ls', [])
-		qc_chromosome, qc_start, qc_stop = cnv_qc_call[:3]
-		cnv_qc_call_id = cnv_qc_call[-1]
-		param_obj.cnv_qc_call_id_set.add(cnv_qc_call_id)
-		param_obj.amp_ls.append(cnv_segment_obj.amplitude)
+		if cnv_qc_call is not None:
+			qc_chromosome, qc_start, qc_stop = cnv_qc_call[:3]
+			cnv_qc_call_id = cnv_qc_call[-1]
+			param_obj.cnv_qc_call_id_set.add(cnv_qc_call_id)
+			param_obj.amp_ls.append(cnv_segment_obj.amplitude)
 	
 	@classmethod
 	def drawHistOfAmpOfValidatedDeletions(cls, db_250k, input_fname_ls, output_fname_prefix, data_source_id=1, cnv_type_id=1, \
 								min_QC_segment_size=200, min_no_of_probes=5, max_boundary_diff=10000, \
-								max_diff_perc=0.10, count_embedded_segment_as_match=True):
+								max_diff_perc=0.10, count_embedded_segment_as_match=True, min_reciprocal_overlap=0.6):
 		"""
 		2009-11-4
 			draw histogram of amplitude of segments who are validated according to certain QC data
 		"""
 		ecotype_id2cnv_qc_call_data = cls.getCNVQCDataFromDB(data_source_id, cnv_type_id=cnv_type_id, \
 															min_QC_segment_size=min_QC_segment_size,\
-															min_no_of_probes=min_no_of_probes)
+															min_no_of_probes=min_no_of_probes, \
+															min_reciprocal_overlap=min_reciprocal_overlap)
 		
 		from pymodule import PassingData
 		param_obj = PassingData(amp_ls=[], cnv_qc_call_id_set=set())
@@ -7100,11 +7329,10 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 				else:
 					return False
 				"""
-				overlap_length = max(0, stop-self.start) - max(0, stop-self.stop) - max(0, start-self.start)	# accomodates 6 scenarios
-				overlap_length = float(overlap_length)
-				overlap1 = overlap_length/(stop-start)
-				overlap2 = overlap_length/self.segment_length
-				if overlap1>=self.min_reciprocal_overlap and overlap2>=self.min_reciprocal_overlap:
+				
+				is_overlap = is_reciprocal_overlap([start, stop], [self.start, self.stop], \
+													min_reciprocal_overlap=self.min_reciprocal_overlap)
+				if is_overlap:
 					self.addOneCNV(chromosome, start, stop, array_id)
 				else:
 					return False
@@ -7209,6 +7437,7 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 		
 		
 		sys.stderr.write("Done.\n")
+	
 	"""
 	
 	cnv_intensity_fname = os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')
@@ -7225,6 +7454,36 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 										min_no_of_probes=min_no_of_probes, \
 										deletion_cutoff=deletion_cutoff, max_boundary_diff=max_boundary_diff, \
 										max_diff_perc=max_diff_perc, min_reciprocal_overlap=min_reciprocal_overlap)
+	
+	
+	cnv_intensity_fname = os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')
+	aAlpha_ls = [0.2, 0.5, 0.8, 1.0, 2.0]
+	T_ls = [2.0,4.0,8.0,12.0,14.0]
+	M_ls = [5,10]
+	deletion_cutoff_ls = [-0.33, -0.4, -0.5, -0.6]
+	
+	max_boundary_diff = 20000
+	max_diff_perc = 0.2
+	
+	for aAlpha in aAlpha_ls:
+		for T in T_ls:
+			for M in M_ls:
+				for deletion_cutoff in deletion_cutoff_ls:
+					for min_no_of_probes in [5,10,20,40]:
+						for min_reciprocal_overlap in [0.4, 0.6, 0.8]:
+							GADA_output_fname_ls = []
+							for chr in range(1,6):
+								fname = os.path.expanduser('~/mnt2/panfs/250k/CNV/GADA_output/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s_A%sT%sM%s.tsv'%(chr, aAlpha, T, M))
+								if os.path.isfile(fname):
+									GADA_output_fname_ls.append(fname)
+							output_fname_prefix = '/Network/Data/250k/tmp-yh/CNV/CNVOccurrenceByOverlap/call_48_A%sT%sM%s_delCutoff%s_min_p%s_mdist%s_mperc%s_moverlap%s'%\
+								(aAlpha, T, M, deletion_cutoff, min_no_of_probes, max_boundary_diff, max_diff_perc, min_reciprocal_overlap)
+							CNV.plotCNVOccurrenceInReplicatesHist(db_250k, cnv_intensity_fname, GADA_output_fname_ls, \
+																output_fname_prefix, \
+																min_no_of_replicates=5, \
+															min_no_of_probes=min_no_of_probes, deletion_cutoff=deletion_cutoff, \
+															max_boundary_diff=max_boundary_diff, \
+															max_diff_perc=max_diff_perc, min_reciprocal_overlap=min_reciprocal_overlap)
 	
 	"""
 	
@@ -7314,14 +7573,46 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 	"""
 	
 	@classmethod
+	def putLerContigsIntoDB(cls, db, data_source, accession_name, fasta_input_fname):
+		"""
+		2010-1-27
+			put ler contigs sequences and ids into table Stock_250kDB.SequenceFragment
+		"""
+		import os, sys
+		sys.stderr.write("Putting Ler contigs into db ... ")
+		session = db.session
+		import Stock_250kDB
+		from CNVQCConstruct import CNVQCConstruct
+		data_source_obj = CNVQCConstruct.getDBObj(session, Stock_250kDB.DataSource, data_source)
+		acc_obj = CNVQCConstruct.getCNVQCAccessionObj(session, accession_name, data_source_obj)
+		inf = open(fasta_input_fname)
+		from Bio import SeqIO
+		for seq_record in SeqIO.parse(inf, "fasta"):
+			sequence_fragment = Stock_250kDB.SequenceFragment(short_name=seq_record.id, size=len(seq_record.seq),\
+															description=seq_record.description,\
+															sequence=seq_record.seq.tostring())
+			sequence_fragment.accession = acc_obj
+			session.save(sequence_fragment)
+		session.flush()
+		sys.stderr.write("Done.\n")
+	
+	"""
+	fasta_input_fname = os.path.expanduser('~/script/variation/data/CNV/Cereon_Ath_Ler.fasta')
+	data_source = 'LerContig'
+	accession_name = 'Ler-1'
+	CNV.putLerContigsIntoDB(db_250k, data_source, accession_name, fasta_input_fname)
+	"""
+	
+	@classmethod
 	def discoverLerDeletionDuplication(cls, db_250k, ler_blast_result_fname, output_fname, deletion_only=True, min_no_of_matches=25):
 		"""
 		2009-12-7
 			ler_blast_result_fname is the output of blasting all CNV probes against Ler contigs http://www.arabidopsis.org/browse/Cereon/index.jsp.
-			2 functions:
-				1. detect deletions. make sure the deletion is covered by the sequencing.
+			Two functions:
+				1. deletion_only=True. make sure the deletion is covered by the sequencing.
 					one naive criteria is if the boundary (two adjacent non-deleted probes) is within the same contig, then yes.
-				2. detect copy number changes. If two adjacent probes have different number of contigs, then it's a copy number change point.
+				2. deletion_only=False, detect copy number changes. If two adjacent probes have different number of contigs, 
+					then it's a copy number change point.
 		"""
 		from pymodule import getColName2IndexFromHeader, PassingData, figureOutDelimiter
 		sys.stderr.write("Reading from %s ... \n"%ler_blast_result_fname)
@@ -7346,7 +7637,6 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 		
 		import Stock_250kDB
 		from DB_250k2Array import DB_250k2Array
-		session = db_250k.session
 		probes, xy_ls, chr_pos_ls, total_probe_id_ls = DB_250k2Array.get_probes(db_250k.metadata.bind, Stock_250kDB.Probes.table.name, \
 																		snps=None, run_type=2)
 		
@@ -7441,6 +7731,261 @@ CNV.drawCNVAmpHist(snpData, output_dir, max_counter=1000)
 	ler_blast_result_fname = '/Network/Data/250k/tmp-dazhe/tair9_raw.csv'
 	output_fname = '/tmp/Col-copy-number.tsv'
 	CNV.discoverLerDeletionDuplication(db_250k, ler_blast_result_fname, output_fname, deletion_only=False)
+	
+	"""
+	
+	@classmethod
+	def discoverLerContigSpanOverCol(cls, ler_blast_result_fname, output_fname, min_no_of_matches=25,
+									max_delta_ratio=0.4, max_length_delta=50000):
+		"""
+		2010-1-27
+			discover the span of Ler Contigs in terms of Col reference genome
+			
+			The algorithm:
+				for each contig, get all the probes that perfectly match some part of it.
+					sort the probes in chromosomal order
+					set the start-probe to the 1st probe
+						for stop-probe in [last probe, ..., 2nd probe]:
+							if [start-probe, stop-probe] and [alignment-start, alignment-stop] meet the condition:
+								col-span of this ler contig = the chromosomal positions of [start-probe, stop-probe]
+			
+			The condition is either the length delta is <= max_length_delta, or either of the two delta ratios
+				(delta/length1, delta/length2) <= max_delta_ratio.
+			
+		"""
+		from pymodule import getColName2IndexFromHeader, PassingData, figureOutDelimiter
+		sys.stderr.write("Reading from %s ... \n"%ler_blast_result_fname)
+		counter = 0
+		real_counter = 0
+		import csv
+		reader = csv.reader(open(ler_blast_result_fname), delimiter=figureOutDelimiter(ler_blast_result_fname))
+		header = reader.next()
+		col_name2index = getColName2IndexFromHeader(header)
+		contig_id2probe_chr_pos_ls = {}
+		for row in reader:
+			contig_label = row[col_name2index['Alignment_title']]
+			probe_id = int(row[col_name2index['Probe_ID']])
+			no_of_matches = int(row[col_name2index['Number_matches']])
+			if no_of_matches>=min_no_of_matches:
+				contig_id = contig_label.split()[1]	# 2010-1-28, take "ATL8C9990" in the case of "ATL8C9990 ATL7C121_1"
+				if contig_id not in contig_id2probe_chr_pos_ls:
+					contig_id2probe_chr_pos_ls[contig_id] = []
+				chr = int(row[col_name2index['Chromosome']])
+				pos = int(row[col_name2index['Position']])
+				alignment_start = int(row[col_name2index['Alignment_start']])
+				probe_chr_pos = (chr, pos)
+				probe_id = int(probe_id)
+				contig_id2probe_chr_pos_ls[contig_id].append((probe_chr_pos, probe_id, alignment_start))
+		del reader
+		sys.stderr.write("Done.\n")
+		
+		sys.stderr.write("Discovering Ler Contig Span over Col ...\n")		
+		import csv, Stock_250kDB
+		writer = csv.writer(open(output_fname, 'w'), delimiter='\t')
+		header_row = ['start_probe_id', 'start_chr_pos', 'stop_probe_id', 'stop_chr_pos', 'no_of_probes', 'length', 'copy_number', \
+					'contig_id', 'contig_start', 'contig_stop', 'size_difference']
+		writer.writerow(header_row)
+		counter = 0
+		for contig_id, probe_chr_pos_ls in contig_id2probe_chr_pos_ls.iteritems():
+			sys.stderr.write('%sContig %s, %s'%('\x08'*80, counter, contig_id))
+			probe_chr_pos_ls.sort()	# sorted according to probe position on Col genome
+			n = len(probe_chr_pos_ls)
+			span_start_probe_index = 0
+			while span_start_probe_index<n:
+				old_span_start_probe_index = span_start_probe_index
+				stop_index_candidate_ls = range(span_start_probe_index+1, n)
+				stop_index_candidate_ls.reverse()	# starting from the end to cover as much as it can
+				for i in stop_index_candidate_ls:
+					start_probe_chr_pos, start_probe_id, start_alignment_pos = probe_chr_pos_ls[span_start_probe_index]
+					stop_probe_chr_pos, stop_probe_id, stop_alignment_pos = probe_chr_pos_ls[i]
+					start_chr, start_pos = start_probe_chr_pos
+					stop_chr, stop_pos = stop_probe_chr_pos
+					if start_chr == stop_chr:
+						col_length = abs(stop_pos-start_pos)
+						ler_length = abs(stop_alignment_pos-start_alignment_pos)
+						length_delta = col_length-ler_length
+						if col_length>0:
+							col_ratio = abs(length_delta)/float(col_length)
+						else:
+							continue	# 2010-1-28 ignore if col_length = 0
+						if ler_length>0:
+							ler_ratio = abs(length_delta)/float(ler_length)
+						else:
+							continue	# 2010-1-28 ignore if ler_length = 0
+						if abs(length_delta)<=max_length_delta or col_ratio<=max_delta_ratio or ler_ratio<=max_delta_ratio:
+							no_of_probes = i-span_start_probe_index+1
+							row = [start_probe_id, '%s_%s'%(start_chr, start_pos-12), stop_probe_id, '%s_%s'%(stop_chr, stop_pos+12), no_of_probes, stop_pos-start_pos+25, \
+								'', contig_id, start_alignment_pos, stop_alignment_pos, length_delta]
+							writer.writerow(row)
+							span_start_probe_index = i+1	# set the new starting index
+							break
+				if old_span_start_probe_index == span_start_probe_index:	# no change in the for loop above. or nothing found to meet the min_reciprocal_overlap
+					span_start_probe_index += 1	# auto increment it by 1
+			counter += 1
+		del writer
+		sys.stderr.write("Done.\n")
+	
+	"""
+	ler_blast_result_fname = '/Network/Data/250k/tmp-dazhe/ler_raw_CNV_QC.csv'
+	max_delta_ratio = 0.4
+	max_length_delta = 10000
+	for max_length_delta in [1,2,3,4,5,6,7,8,9,10,12,15,20]:
+		max_length_delta = max_length_delta*10000
+		output_fname = '/tmp/Ler-span-over-Col-mdr%s-mld%s.tsv'%(max_delta_ratio, max_length_delta)
+		CNV.discoverLerContigSpanOverCol(ler_blast_result_fname, output_fname, min_no_of_matches=25,
+										max_delta_ratio=max_delta_ratio, max_length_delta=max_length_delta)
+	"""
+	
+	@classmethod
+	def drawIntensityVsProbeTrueCopyNumber(cls, db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6909, data_source_id=3, cnv_type_id=None, \
+										min_reciprocal_overlap=0.6, report=True, max_copy_number=16):
+		"""
+		2010-1-26
+			value of the ecotype_id2cnv_qc_call_data dictionary is a RBDict (RBTree dictionary) structure.
+			remove the frame from the final plot, add a grid instead.
+			add argument max_copy_number to limit the plot only to probes whose copy numbers are <= this threshold.
+		2009-12-9
+			purpose is to check whether probe copy number based on Col/Ler blast results actually mean something.
+			input_fname_ls is a list of filenames which contains CNV intensity, raw or normalized.
+			
+			argument min_reciprocal_overlap is not used.
+			cnv_type_id = None means all cnv types.
+		"""
+		ecotype_id2cnv_qc_call_data = cls.getCNVQCDataFromDB(data_source_id, ecotype_id, cnv_type_id, \
+															min_reciprocal_overlap=min_reciprocal_overlap)
+		
+		import Stock_250kDB
+		from DB_250k2Array import DB_250k2Array
+		probes, xy_ls, chr_pos_ls, total_probe_id_ls = DB_250k2Array.get_probes(db_250k.metadata.bind, Stock_250kDB.Probes.table.name, \
+																		snps=None, run_type=2)		
+		
+		sys.stderr.write("Establish true copy number of each probe ...")	#2009 need to improve the running time by using CNVSegmentBinarySearchTreeKey from pymodule/CNV.py
+		cnv_qc_call_data = ecotype_id2cnv_qc_call_data[ecotype_id]
+		probe_id2copy_number = {}
+		from pymodule.CNV import CNVSegmentBinarySearchTreeKey
+		for i in range(len(total_probe_id_ls)):
+			probe_id = total_probe_id_ls[i]
+			chr, pos= chr_pos_ls[i]
+			probeSegmentKey = CNVSegmentBinarySearchTreeKey(chromosome=chr, span_ls=[pos-12, pos+12], min_reciprocal_overlap=min_reciprocal_overlap)
+			cnv_qc_call = cnv_qc_call_data.get(probeSegmentKey)
+			if cnv_qc_call:
+				copy_number = cnv_qc_call[5]
+				probe_id2copy_number[probe_id] = copy_number
+			"""
+			for cnv_qc_call in cnv_qc_call_data:	# not efficient, shall use the binary search tree
+				qc_chromosome, qc_start, qc_stop = cnv_qc_call[:3]
+				if chr == qc_chromosome and pos>=qc_start and pos<=qc_stop:
+					copy_number = cnv_qc_call[5]
+					probe_id2copy_number[probe_id] = copy_number
+					break
+			"""
+		sys.stderr.write("Done.\n")
+		
+		sys.stderr.write("Getting intensity data from %s ..."%repr(input_fname_ls))
+		import fileinput, csv
+		from pymodule import getColName2IndexFromHeader, PassingData, figureOutDelimiter
+		input_handler = fileinput.input(input_fname_ls)
+		reader = csv.reader(input_handler, delimiter=figureOutDelimiter(input_fname_ls[0]))
+		header = reader.next()
+		col_name2index = getColName2IndexFromHeader(header)
+		
+		no_of_cols = len(header)-3
+		
+		import Stock_250kDB
+		array_id_ls = header[1:-2]
+		col_index_to_be_checked = set()
+		for array_id in array_id_ls:	# array_id is of type 'str'
+			array = Stock_250kDB.ArrayInfo.get(int(array_id))
+			if array.maternal_ecotype_id==ecotype_id and array.paternal_ecotype_id==ecotype_id:
+				col_index_to_be_checked.add(col_name2index[array_id])
+		
+		array_id2copy_number2intensity_ls = {}
+		probe_id_index = col_name2index['probes_id']
+		chr_index  = col_name2index['chromosome']
+		pos_index =  col_name2index['position']
+		counter = 0
+		real_counter = 0
+		for row in reader:
+			if row[0].find("probes_id")!=-1:	# encounter header in one of the files of input_fname_ls
+				continue
+			probe_id = int(row[probe_id_index])
+			#chr = int(row[chr_index])
+			#pos = int(row[pos_index])
+			copy_number = probe_id2copy_number.get(probe_id)
+			if copy_number is not None:
+				for j in col_index_to_be_checked:
+					array_id = header[j]
+					if array_id not in array_id2copy_number2intensity_ls:
+						array_id2copy_number2intensity_ls[array_id] = {}
+					if copy_number not in array_id2copy_number2intensity_ls[array_id]:
+						array_id2copy_number2intensity_ls[array_id][copy_number] = []
+					intensity = float(row[j])
+					array_id2copy_number2intensity_ls[array_id][copy_number].append(intensity)
+					real_counter += 1
+			counter += 1
+			if counter%10000==0 and report:
+				sys.stderr.write("%s%s\t%s"%('\x08'*80, counter, real_counter))
+		
+		del reader, input_handler
+		sys.stderr.write("Done.\n")
+		
+		sys.stderr.write("Drawing intensity vs probe copy number ...")
+		import pylab
+		for array_id, copy_number2intensity_ls in array_id2copy_number2intensity_ls.iteritems():
+			pylab.clf()
+			ax1 = pylab.axes([0.05, 0.05, 0.9, 0.9], frameon=False)	# 2010-1-26 remove the frame
+			ax1.grid(True, alpha=0.2)
+			ax1.title.set_text("Array %s of Ecotype %s"%(array_id, ecotype_id))
+			copy_number_ls = copy_number2intensity_ls.keys()
+			copy_number_ls.sort()
+			for copy_number in copy_number_ls:
+				if copy_number<=max_copy_number:
+					intensity_ls = copy_number2intensity_ls[copy_number]
+					if len(intensity_ls)>10:	# more than 10 values, draw a boxplot.
+						ax1.boxplot(intensity_ls, positions=[copy_number])
+					else:
+						x_value_ls = [copy_number]*len(intensity_ls)
+						ax1.plot(x_value_ls, intensity_ls, '.')
+			output_fname = '%s_array_%s.png'%(output_fname_prefix, array_id)
+			ax1.set_xlim([-1, max_copy_number+1])
+			pylab.savefig(output_fname, dpi=200)
+			
+		sys.stderr.write("Done.\n")
+	
+	"""
+	input_fname_ls = []
+	for i in range(1,6):
+		input_fname_ls.append(os.path.expanduser('~/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s.tsv'%i))
+	
+	input_fname_ls = [os.path.expanduser('~/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')]
+	output_fname_prefix = '/tmp/call_48_Col_intensity_vs_true_copy_number'
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6909, data_source_id=9, cnv_type_id=None)
+	
+	max_copy_number = 16
+	input_fname_ls = []
+	for i in range(1,6):
+		input_fname_ls.append(os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s.tsv'%i))
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Col_intensity_QNorm_sub_ref_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6909, data_source_id=9, cnv_type_id=None, max_copy_number=max_copy_number)
+	
+	input_fname_ls = [os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')]
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Col_intensity_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6909, data_source_id=9, cnv_type_id=None, max_copy_number=max_copy_number)
+	
+	input_fname_ls = [os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')]
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Ler_intensity_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6932, data_source_id=8, cnv_type_id=None, max_copy_number=max_copy_number)
+	input_fname_ls = []
+	for i in range(1,6):
+		input_fname_ls.append(os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s.tsv'%i))
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Ler_intensity_QNorm_sub_ref_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6932, data_source_id=8, cnv_type_id=None, max_copy_number=max_copy_number)
 	
 	"""
 	
@@ -7891,9 +8436,9 @@ row_id2no_of_imputed = AnalyzeSNPData.generateDatasetWithImputedCallsOnly(unImpu
 		return return_data
 	
 	"""
-inputFname1 = '/Network/Data/250k/db/dataset/call_method_35.tsv'
-inputFname2 = '/Network/Data/250k/db/dataset/call_method_33.tsv'
-return_data = AnalyzeSNPData.cmpTwoSNPDatasets(inputFname1, inputFname2)
+	inputFname1 = '/Network/Data/250k/db/dataset/call_method_35.tsv'
+	inputFname2 = '/Network/Data/250k/db/dataset/call_method_33.tsv'
+	return_data = AnalyzeSNPData.cmpTwoSNPDatasets(inputFname1, inputFname2)
 	"""
 	
 	@classmethod
@@ -7904,15 +8449,61 @@ return_data = AnalyzeSNPData.cmpTwoSNPDatasets(inputFname1, inputFname2)
 		"""
 		sys.stderr.write("Comparing one row to the other ... \n")
 		from pymodule import SNPData, TwoSNPData, PassingData
-		snpData = SNPData(input_fname=inputFname, turn_into_array=1)
+		row_id_key_set = set([row_id1, row_id2])
+		snpData = SNPData(input_fname=inputFname, turn_into_array=1, row_id_key_set=row_id_key_set)
 		twoSNPData = TwoSNPData(SNPData1=snpData, SNPData2=snpData)
 		print twoSNPData.cmpOneRow(row_id1, row_id2)
 	
 	"""
-inputFname = '/Network/Data/250k/db/dataset/call_method_29.tsv'
-row_id1 = ('6910', '62')
-row_id2 = ('8290', '181')
-AnalyzeSNPData.cmpOneRowToTheOther(inputFname, row_id1, row_id2)
+	inputFname = '/Network/Data/250k/db/dataset/call_method_29.tsv'
+	row_id1 = ('6910', '62')
+	row_id2 = ('8290', '181')
+	AnalyzeSNPData.cmpOneRowToTheOther(inputFname, row_id1, row_id2)
+		
+	inputFname = os.path.expanduser('~/mnt2/panfs/NPUTE_data/input/250k_l3_y.85_20091208.tsv')
+	row_id1 = ('7034', '1338')	# Blh-1 from Versailles plate
+	#row_id2 = ('8265', '243')	# another Blh-1
+	row_id2 = ('7035', '336')	# Blh-2
+	AnalyzeSNPData.cmpOneRowToTheOther(inputFname, row_id1, row_id2)
+	"""
+	
+	@classmethod
+	def cmpAllDuplicatesOfOneEcotype(cls, inputFname, ecotype_id_ls):
+		"""
+		2009-12-11
+			For each ecotype_id in ecotype_id_ls, compare mismatch-rates between duplicates
+		"""
+		sys.stderr.write("Comparing one row to the other ... \n")
+		from pymodule import SNPData, TwoSNPData, PassingData
+		ecotype_id_set = set(ecotype_id_ls)
+		def row_id_hash_func(row_id):
+			return int(row_id[0])
+		snpData = SNPData(input_fname=inputFname, turn_into_array=1, row_id_key_set=ecotype_id_set, row_id_hash_func=row_id_hash_func)
+		
+		ecotype_id2row_id_to_check_ls = {}
+		for row_id in snpData.row_id_ls:
+			ecotype_id = int(row_id[0])
+			if ecotype_id in ecotype_id_set:
+				if ecotype_id not in ecotype_id2row_id_to_check_ls:
+					ecotype_id2row_id_to_check_ls[ecotype_id] = []
+				ecotype_id2row_id_to_check_ls[ecotype_id].append(row_id)
+		twoSNPData = TwoSNPData(SNPData1=snpData, SNPData2=snpData)
+		for ecotype_id, row_id_to_check_ls in ecotype_id2row_id_to_check_ls.iteritems():
+			if len(row_id_to_check_ls)>1:
+				print "ecotype_id: %s"%ecotype_id
+				no_of_arrays = len(row_id_to_check_ls)
+				for i in range(no_of_arrays):
+					for j in range(i+1, no_of_arrays):
+						row_id1 = row_id_to_check_ls[i]
+						row_id2 = row_id_to_check_ls[j]
+						print "row_id1 %s vs row_id2 %s"%(row_id1, row_id2)
+						print twoSNPData.cmpOneRow(row_id1, row_id2)
+	
+	"""
+	inputFname = os.path.expanduser('~/mnt2/panfs/NPUTE_data/input/250k_l3_y.85_20091208.tsv')
+	ecotype_id_ls = [8297, 7317, 6910, 8274, 6911, 6905, 7034, 6909, 6962, 7373, 7270, 6983, 6899]
+	AnalyzeSNPData.cmpAllDuplicatesOfOneEcotype(inputFname, ecotype_id_ls)
+	
 	"""
 	
 	@classmethod
@@ -8044,37 +8635,38 @@ if __name__ == '__main__':
 	#import pdb
 	#pdb.set_trace()
 	
-	ler_blast_result_fname = '/Network/Data/250k/tmp-dazhe/tair9_raw.csv'
-	output_fname = '/tmp/Col-copy-number.tsv'
-	CNV.discoverLerDeletionDuplication(db_250k, ler_blast_result_fname, output_fname, deletion_only=False)
+	ler_blast_result_fname = '/Network/Data/250k/tmp-dazhe/ler_raw_CNV_QC.csv'
+	max_delta_ratio = 0.4
+	max_length_delta = 10000
+	for max_length_delta in range(1,7):		# range(1,11)+[12,15,20]:
+		max_length_delta = max_length_delta*10000
+		output_fname = '/tmp/Ler-span-over-Col-mdr%s-mld%s.tsv'%(max_delta_ratio, max_length_delta)
+		CNV.discoverLerContigSpanOverCol(ler_blast_result_fname, output_fname, min_no_of_matches=25,
+										max_delta_ratio=max_delta_ratio, max_length_delta=max_length_delta)
 	
 	"""
-	cnv_intensity_fname = os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')
-	aAlpha_ls = [0.2, 0.5, 0.8, 1.0, 2.0]
-	T_ls = [2.0,4.0,8.0,12.0,14.0]
-	M_ls = [5,10]
-	deletion_cutoff_ls = [-0.33, -0.4, -0.5, -0.6]
+	max_copy_number = 16
+	input_fname_ls = []
+	for i in range(1,6):
+		input_fname_ls.append(os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s.tsv'%i))
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Col_intensity_QNorm_sub_ref_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6909, data_source_id=9, cnv_type_id=None, max_copy_number=max_copy_number)
 	
-	max_boundary_diff = 20000
-	max_diff_perc = 0.2
+	input_fname_ls = [os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')]
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Col_intensity_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6909, data_source_id=9, cnv_type_id=None, max_copy_number=max_copy_number)
 	
-	for aAlpha in aAlpha_ls:
-		for T in T_ls:
-			for M in M_ls:
-				for deletion_cutoff in deletion_cutoff_ls:
-					for min_no_of_probes in [5,10,20,40]:
-						for min_reciprocal_overlap in [0.4, 0.6, 0.8]:
-							GADA_output_fname_ls = []
-							for chr in range(1,6):
-								fname = os.path.expanduser('~/mnt2/panfs/250k/CNV/GADA_output/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s_A%sT%sM%s.tsv'%(chr, aAlpha, T, M))
-								if os.path.isfile(fname):
-									GADA_output_fname_ls.append(fname)
-							output_fname_prefix = '/Network/Data/250k/tmp-yh/CNV/CNVOccurrenceByOverlap/call_48_A%sT%sM%s_delCutoff%s_min_p%s_mdist%s_mperc%s_moverlap%s'%\
-								(aAlpha, T, M, deletion_cutoff, min_no_of_probes, max_boundary_diff, max_diff_perc, min_reciprocal_overlap)
-							CNV.plotCNVOccurrenceInReplicatesHist(db_250k, cnv_intensity_fname, GADA_output_fname_ls, \
-																output_fname_prefix, \
-																min_no_of_replicates=5, \
-															min_no_of_probes=min_no_of_probes, deletion_cutoff=deletion_cutoff, \
-															max_boundary_diff=max_boundary_diff, \
-															max_diff_perc=max_diff_perc, min_reciprocal_overlap=min_reciprocal_overlap)
+	input_fname_ls = [os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity.tsv')]
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Ler_intensity_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6932, data_source_id=8, cnv_type_id=None, max_copy_number=max_copy_number)
+	input_fname_ls = []
+	for i in range(1,6):
+		input_fname_ls.append(os.path.expanduser('~/mnt2/panfs/250k/CNV/call_method_48_CNV_intensity_QNorm_sub_ref_chr%s.tsv'%i))
+	output_fname_prefix = os.path.expanduser('~/tmp/call_48_Ler_intensity_QNorm_sub_ref_vs_true_copy_number_m%s'%max_copy_number)
+	CNV.drawIntensityVsProbeTrueCopyNumber(db_250k, input_fname_ls, output_fname_prefix, \
+										ecotype_id=6932, data_source_id=8, cnv_type_id=None, max_copy_number=max_copy_number)
 	"""
+	
