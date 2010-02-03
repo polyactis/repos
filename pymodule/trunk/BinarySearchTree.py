@@ -125,10 +125,10 @@ class node(object):
 
 	def listrecursive(self):
 		"""Return a list of lists of lists (and so on) where each node is represented by [left data right]. So, a simple tree might look like:
-	[[None 1 [None 2 None]] 3 [None 4 None]]
-
-The numbers in the example are actually meant to be node objects.
-"""
+			[[None 1 [None 2 None]] 3 [None 4 None]]
+		
+		The numbers in the example are actually meant to be node objects.
+		"""
 		l = []
 
 		if not self.left is None:
@@ -169,9 +169,9 @@ The numbers in the example are actually meant to be node objects.
 
 	def listlayers(self):
 		"""Return a list of lists where each list in the list represents a different layer of the tree. An example list of this kind:
-	[[3] [1 4] [None 2 None None]
-In this example, 1 is the left child of 3 and 4 is the right child of 3. 2 is the right child of 1.
-"""
+			[[3] [1 4] [None 2 None None]
+		In this example, 1 is the left child of 3 and 4 is the right child of 3. 2 is the right child of 1.
+		"""
 		l = []
 
 		l.append([self])
@@ -318,15 +318,15 @@ In this example, 1 is the left child of 3 and 4 is the right child of 3. 2 is th
 class binary_tree(object):
 	"""A simple binary search tree.
 
-	Nodes can have keys of any type, as long as they can be compared with each other.
-
-Objects can be easily added:
-	tree["key"] = "value"
-Or deleted:
-	del tree["key"]
-Or tested for membership:
-	"key" in tree
-"""
+		Nodes can have keys of any type, as long as they can be compared with each other.
+	
+	Objects can be easily added:
+		tree["key"] = "value"
+	Or deleted:
+		del tree["key"]
+	Or tested for membership:
+		"key" in tree
+	"""
 
 	def __init__(self):
 		self.root = None
@@ -445,22 +445,22 @@ Or tested for membership:
 
 	def optimumdepth(self):
 		"""Calculate the optimum depth of the tree based on how many nodes there are. The formula is:
-	log2(n + 1)
-"""
+			log2(n + 1)
+		"""
 
 		return math.log(self.__count + 1, 2)
 
 	def possibleused(self):
 		"""Calculate how many nodes could be used based on the depth of the tree. The formula is:
-	(2 ^ depth) - 1
-"""
+			(2 ^ depth) - 1
+		"""
 
 		return (2 ** self.depth()) - 1
 
 	def efficiency(self):
 		"""Calculate the efficiency of the tree (how many slots are being wasted). The formula is:
-	n / possibleused
-"""
+			n / possibleused
+		"""
 
 		return float(self.__count) / self.possibleused()
 
@@ -474,10 +474,10 @@ Or tested for membership:
 
 	def listrecursive(self):
 		"""Return a list of lists of lists (and so on) where each node is represented by [left data right]. So, a simple tree might look like:
-	[[None 1 [None 2 None]] 3 [None 4 None]]
-
-The numbers in the example are actually meant to be node objects.
-"""
+			[[None 1 [None 2 None]] 3 [None 4 None]]
+		
+		The numbers in the example are actually meant to be node objects.
+		"""
 
 		if not self.root is None:
 			return self.root.listrecursive()
@@ -486,9 +486,9 @@ The numbers in the example are actually meant to be node objects.
 
 	def listlayers(self):
 		"""Return a list of lists where each list in the list represents a different layer of the tree. An example list of this kind:
-	[[3] [1 4] [None 2 None None]
-In this example, 1 is the left child of 3 and 4 is the right child of 3. 2 is the right child of 1.
-"""
+			[[3] [1 4] [None 2 None None]
+		In this example, 1 is the left child of 3 and 4 is the right child of 3. 2 is the right child of 1.
+		"""
 
 		if not self.root is None:
 			return self.root.listlayers()
@@ -535,6 +535,16 @@ In this example, 1 is the left child of 3 and 4 is the right child of 3. 2 is th
 		else:
 			return ""
 
+	def get(self, key, default=None):
+		"""
+		2010-1-26
+			a dictionary function that was missed before
+		"""
+		n = self.find(key)
+		if n:
+			return n.data	# return the value, rather than the node() structure itself.
+		return default
+	
 	def __len__(self):
 		"""Return a count of nodes in the tree."""
 
