@@ -210,6 +210,8 @@ class GeneListRankTest(object):
 	
 	def getResultMethodContent(cls, rm, results_directory=None, min_MAF=0.1, construct_chr_pos2index=False, pdata=None):
 		"""
+		2010-2-2
+			add the db object "rm" to genome_wide_result to make other db info accessible
 		2008-10-23
 			if pdata doesn't have construct_chr_pos2index defined. otherwise, pdata overrides the option.
 		2008-10-22
@@ -258,6 +260,7 @@ class GeneListRankTest(object):
 		if os.path.isfile(result_fname):
 			genome_wide_result = getGenomeWideResultFromFile(result_fname, do_log10_transformation=do_log10_transformation, pdata=pdata)
 			genome_wide_result.results_id = rm.id
+			genome_wide_result.rm = rm	# 2010-2-2 add the db object "rm" to genome_wide_result to make other db info accessible
 		else:
 			sys.stderr.write("Skip. %s doesn't exist.\n"%result_fname)
 			genome_wide_result = None
