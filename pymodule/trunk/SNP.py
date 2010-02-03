@@ -787,6 +787,8 @@ class SNPData(object):
 	@classmethod
 	def keepRowsByRowID(cls, snpData, row_id_ls):
 		"""
+		2010-2-2
+			fix the bug that newSnpData was initiated with an empty row_id_ls, which results in an empty row_id2row_index.
 		2009-05-19
 			keep certain rows in snpData given row_id_ls
 		"""
@@ -795,15 +797,44 @@ class SNPData(object):
 		row_id_wanted_set = set(row_id_ls)
 		
 		no_of_cols = len(snpData.col_id_ls)
-		newSnpData = SNPData(col_id_ls=copy.deepcopy(snpData.col_id_ls), row_id_ls=[])
-		newSnpData.data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		new_col_id_ls = copy.deepcopy(snpData.col_id_ls)
+		new_row_id_ls = []
+		new_data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
 		row_index = 0
 		for i in range(len(snpData.row_id_ls)):
 			row_id = snpData.row_id_ls[i]
 			if row_id in row_id_wanted_set:
-				newSnpData.row_id_ls.append(row_id)
-				newSnpData.data_matrix[row_index] = snpData.data_matrix[i]
+				new_row_id_ls.append(row_id)
+				new_data_matrix[row_index] = snpData.data_matrix[i]
 				row_index += 1
+		newSnpData = SNPData(col_id_ls=new_col_id_ls, row_id_ls=new_row_id_ls, data_matrix=new_data_matrix)
+		newSnpData.no_of_rows_filtered_by_mismatch = len(snpData.row_id_ls)-no_of_rows
+		sys.stderr.write("%s rows discarded. Done.\n"%(newSnpData.no_of_rows_filtered_by_mismatch))
+		return newSnpData
+	
+	@classmethod
+	def keepRowsByRowIndex(cls, snpData, row_index_ls):
+		"""
+		2010-2-2
+			fix the bug that newSnpData was initiated with an empty row_id_ls, which results in an empty row_id2row_index.
+			keep certain rows in snpData given row_index_ls
+		"""
+		sys.stderr.write("Keeping rows given row_index_ls ...")
+		no_of_rows = len(row_index_ls)
+		row_index_wanted_set = set(row_index_ls)
+		
+		no_of_cols = len(snpData.col_id_ls)
+		new_col_id_ls = copy.deepcopy(snpData.col_id_ls)
+		new_row_id_ls = []
+		new_data_matrix = num.zeros([no_of_rows, no_of_cols], num.int8)
+		row_index = 0
+		for i in range(len(snpData.row_id_ls)):
+			row_id = snpData.row_id_ls[i]
+			if i in row_index_wanted_set:
+				new_row_id_ls.append(row_id)
+				new_data_matrix[row_index] = snpData.data_matrix[i]
+				row_index += 1
+		newSnpData = SNPData(col_id_ls=new_col_id_ls, row_id_ls=new_row_id_ls, data_matrix=new_data_matrix)
 		newSnpData.no_of_rows_filtered_by_mismatch = len(snpData.row_id_ls)-no_of_rows
 		sys.stderr.write("%s rows discarded. Done.\n"%(newSnpData.no_of_rows_filtered_by_mismatch))
 		return newSnpData
@@ -811,6 +842,8 @@ class SNPData(object):
 	@classmethod
 	def removeColsByMismatchRate(cls, snpData, col_id2NA_mismatch_rate, max_mismatch_rate=1):
 		"""
+		2010-2-2
+			fix the bug that newSnpData was initiated with an empty col_id_ls, which results in an empty col_id2col_index.
 		2008-05-19
 			more robust handling given max_mismatch_rate
 			fix a bug. mismatch rate could be -1 which is no-comparison
@@ -839,6 +872,7 @@ class SNPData(object):
 				newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
 				col_index += 1
 		newSnpData.no_of_cols_filtered_by_mismatch = len(snpData.col_id_ls)-no_of_cols
+		newSnpData.processRowIDColID()	# 2010-2-2 to initiate a new row_id2row_index since row_id_ls is changed
 		sys.stderr.write("%s columns filtered by mismatch. Done.\n"%(newSnpData.no_of_cols_filtered_by_mismatch))
 		return newSnpData
 	
@@ -846,6 +880,8 @@ class SNPData(object):
 	@classmethod
 	def removeColsByNARate(cls, snpData, max_NA_rate=1):
 		"""
+		2010-2-2
+			fix the bug that newSnpData was initiated with an empty col_id_ls, which results in an empty col_id2col_index.
 		2008-05-19
 			add is_cutoff_max to FilterStrainSNPMatrix.remove_cols_with_too_many_NAs()
 		2008-05-19
@@ -873,6 +909,7 @@ class SNPData(object):
 				newSnpData.col_id_ls.append(col_id)
 				newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
 				col_index += 1
+		newSnpData.processRowIDColID()	# to initiate a new row_id2row_index since row_id_ls is changed
 		newSnpData.no_of_cols_filtered_by_na = len(cols_with_too_many_NAs_set)
 		sys.stderr.write("%s columns filtered by NA. Done.\n"%(newSnpData.no_of_cols_filtered_by_na))
 		return newSnpData
@@ -934,6 +971,8 @@ class SNPData(object):
 	@classmethod
 	def removeMonomorphicCols(cls, snpData):
 		"""
+		2010-2-2
+			fix the bug that newSnpData was initiated with an empty col_id_ls, which results in an empty col_id2col_index.
 		2008-05-19
 		"""
 		sys.stderr.write("Removing monomorphic cols ...")
@@ -957,6 +996,7 @@ class SNPData(object):
 			newSnpData.col_id_ls.append(col_id)
 			newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
 			col_index += 1
+		newSnpData.processRowIDColID()	# to initiate a new row_id2row_index since row_id_ls is changed
 		newSnpData.no_of_monomorphic_cols = no_of_cols-len(newSnpData.col_id_ls)
 		sys.stderr.write("%s monomorphic columns. Done.\n"%(newSnpData.no_of_monomorphic_cols))
 		return newSnpData
@@ -964,6 +1004,8 @@ class SNPData(object):
 	@classmethod
 	def keepColsByColID(cls, snpData, col_id_ls):
 		"""
+		2010-2-2
+			fix the bug that newSnpData was initiated with an empty col_id_ls, which results in an empty col_id2col_index.
 		2009-05-29
 			keep certain columns in snpData given col_id_ls
 		"""
@@ -982,6 +1024,7 @@ class SNPData(object):
 				newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:, j]
 				col_index += 1
 		newSnpData.no_of_cols_removed = len(snpData.col_id_ls)-no_of_cols
+		newSnpData.processRowIDColID()	# to initiate a new row_id2row_index since row_id_ls is changed
 		sys.stderr.write("%s columns discarded. Done.\n"%(newSnpData.no_of_cols_removed))
 		return newSnpData
 	
@@ -1014,6 +1057,8 @@ class SNPData(object):
 	@classmethod
 	def removeSNPsWithMoreThan2Alleles(cls, snpData):
 		"""
+		2010-2-2
+			fix the bug that newSnpData was initiated with an empty col_id_ls, which results in an empty col_id2col_index.
 		2008-08-05
 			NA and -2 (not touched) are not considered as an allele
 		"""
@@ -1037,6 +1082,7 @@ class SNPData(object):
 			newSnpData.col_id_ls.append(col_id)
 			newSnpData.data_matrix[:,col_index] = snpData.data_matrix[:,i]
 			col_index += 1
+		newSnpData.processRowIDColID()	# to initiate a new row_id2row_index since row_id_ls is changed
 		newSnpData.no_of_cols_removed = no_of_cols-len(newSnpData.col_id_ls)
 		sys.stderr.write("%s columns removed. Done.\n"%(newSnpData.no_of_cols_removed))
 		return newSnpData
