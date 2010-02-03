@@ -78,11 +78,14 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	
 	snp_value2five_color = {-1:'k', 0:'w', 1:'b', 2:'g', 3:'r'}	#deletion, NA, allele1, allele2, heterozygous
 	
-	def drawSNPMtrix(self, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
+	@classmethod
+	def drawSNPMtrix(cls, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1, \
 					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None, useAlleleToDetermineAlpha=False,\
 					snp_value2color=None):
 		"""
+		2010-2-2
+			becomes classmethod
 		2009-4-30
 			add argument snp_value2color
 		2009-3-23
@@ -233,14 +236,17 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		#2009-3-23 draw a grid, horizontal lines first. vertical lines are tricky cuz value of SNPID2PCAPosInfo.snp_id2img_x_pos might be a tuple, rather than a simple integer
 		axe_snp_matrix.hlines(StrainID2PCAPosInfo.strain_id2img_y_pos.values(), xmin=min_img_x_pos, xmax=max_img_x_pos, linewidth=0.15)
 		sys.stderr.write("Done.\n")
-			
-	def drawStrainPCA(self, axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover, axe_strain_pca_legend, \
+	
+	@classmethod
+	def drawStrainPCA(cls, axe_strain_pca, axe_strain_map, axe_strain_map_pca_cover, axe_strain_pca_legend, \
 					StrainID2PCAPosInfo, ecotype_info, phenData, \
 					phenotype_col_index, phenotype_cmap, phenotype_norm, rightmost_x_value=1.05,\
 					country_order_name='', alpha=0.8, strain_color_type=2, pca2map_line_color='g', ecotype_width_on_map=9,\
 					draw_lines_to_axe_snp_matrix=True, strain_size_on_axe_strain_pca=14, draw_axe_strain_map=True, \
 					pic_area=[-15,30,38,66], map_pca_line_alpha=0.2, map_pca_linewidth=0.2):
 		"""
+		2010-2-2
+			becomes classmethod
 		2008-11-14
 			add option pca2map_line_color, color specification for the lines that connect objects from the axe_strain_pca
 				to axe_strain_map. default is 'g'
@@ -263,7 +269,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		"""
 		sys.stderr.write("Drawing strain PCA ...")
 		if draw_axe_strain_map:
-			map_data = self.justDrawMap(axe_strain_map, pic_area=pic_area)
+			map_data = cls.justDrawMap(axe_strain_map, pic_area=pic_area)
 		
 		if strain_color_type==1:
 			country_abbr_set = Set()
@@ -409,8 +415,11 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		axe_snp_pca.set_ylabel('PC2 %.2f%s'%(SNPID2PCAPosInfo.y_var*100, '%'))
 		sys.stderr.write("Done.\n")
 	
-	def drawPhenotype(self, axe, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, ecotype_info):
+	@classmethod
+	def drawPhenotype(cls, axe, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, ecotype_info):
 		"""
+		2010-2-2
+			becomes classmethod
 		2009-3-23
 			draw blue line for NA phenotype
 		2008-11-30
@@ -435,7 +444,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 			axe.plot([0, phenotype], [img_y_pos, img_y_pos], linewidth=0.2, c=color)
 		sys.stderr.write("Done.\n")
 	
-	def justDrawMap(self, axe, pic_area=[-15,30,38,66]):
+	@classmethod
+	def justDrawMap(cls, axe, pic_area=[-15,30,38,66]):
+		"""
+		2010-2-2
+			becomes classmethod
+		"""
 		from matplotlib.toolkits.basemap import Basemap
 		
 		#pic_area = [left longitude, bottom latitude, right longitude, upper latitude]
@@ -454,9 +468,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		return_data = PassingData(m=m, map_xlim=map_xlim, map_ylim=map_ylim)
 		return return_data
 		
-	def drawMap(self, axe_map_frame, axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, \
+	@classmethod
+	def drawMap(cls, axe_map_frame, axe_map, StrainID2PCAPosInfo, phenData, phenotype_col_index, phenotype_method_id, \
 			ecotype_info, phenotype_cmap, phenotype_norm):
 		"""
+		2010-2-2
+			becomes classmethod
 		2009-3-23
 			draw empty black circles for NA phenotypes
 		2008-10-07
@@ -466,7 +483,7 @@ class PlotGroupOfSNPs(GeneListRankTest):
 				have to connect strain y-pos to each strain on the map in another axe, axe_map_frame through coordinates transformation
 		"""
 		sys.stderr.write("Drawing map ...")
-		map_data = self.justDrawMap(axe_map)		
+		map_data = cls.justDrawMap(axe_map)		
 		
 		#fix the two transformations before doing cross-axe drawings
 		axe_map.transData.freeze()  # eval the lazy objects
@@ -599,8 +616,13 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		sys.stderr.write("Done.\n")
 		return chr_pos_info
 	
+	@classmethod
 	def findOutWhichPhenotypeColumn(cls, phenData, phenotype_method_id_set):
 		"""
+		2010-2-2
+			becomes classmethod
+		2009-4-30
+			phenData from HaplotypeView (pylons web framework use integer as id)
 		2008-11-25
 			change option phenotype_method_id to phenotype_method_id_set
 			return a list
@@ -609,15 +631,21 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		"""
 		col_index_to_return_ls = []
 		for col_id, col_index in phenData.col_id2col_index.iteritems():
-			col_id_ls = col_id.split('_')
-			phenotype_method_id=int(col_id_ls[0])
-			if phenotype_method_id in phenotype_method_id_set:
-				col_index_to_return_ls.append(col_index)
+			if type(col_id)==int or type(col_id)==long:	# 2009-4-30 phenData from HaplotypeView (pylons web framework use integer as id)
+				if col_id in phenotype_method_id_set:
+					col_index_to_return_ls.append(col_index)
+			else:
+				col_id_ls = col_id.split('_')
+				phenotype_method_id=int(col_id_ls[0])
+				if phenotype_method_id in phenotype_method_id_set:
+					col_index_to_return_ls.append(col_index)
 		return col_index_to_return_ls
-	findOutWhichPhenotypeColumn = classmethod(findOutWhichPhenotypeColumn)
 	
-	def assignAncestralAlleleSmallerNumber(self, snpData, chr_pos2ancestral_allele):
+	@classmethod
+	def assignAncestralAlleleSmallerNumber(cls, snpData, chr_pos2ancestral_allele):
 		"""
+		2010-2-2
+			becomes classmethod
 		2008-10-07
 			index_type = 1: Ancestral-allele=1 if it's in chr_pos2ancestral_allele and snpData has that allele.
 			index_type = 2: no ancestral in chr_pos2ancestral_allele
@@ -649,9 +677,12 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		snpData.snp_id2index_type = snp_id2index_type
 		return snpData
 	
-	def getSubStrainSNPMatrix(self, snpData, phenData, phenotype_method_id, phenotype_col_index, snp_id_ls, \
+	@classmethod
+	def getSubStrainSNPMatrix(cls, snpData, phenData, phenotype_method_id, phenotype_col_index, snp_id_ls, \
 							chr_pos2ancestral_allele=None, need_convert_alleles2binary=True, skip_strains_with_NA_phenotype=False):
 		"""
+		2010-2-2
+			becomes classmethod
 		2009-3-23
 			add argument skip_strains_with_NA_phenotype
 		2008-12-09
@@ -733,13 +764,16 @@ class PlotGroupOfSNPs(GeneListRankTest):
 		subSNPData = SNPData(col_id_ls=snp_id_ls, row_id_ls=sub_row_id_ls, data_matrix=sub_matrix)
 		subSNPData.snp_id2snp_index2allele = snp_id2snp_index2allele
 		subSNPData.snp_id2snp_allele2index = snp_id2snp_allele2index
-		subSNPData = self.assignAncestralAlleleSmallerNumber(subSNPData, chr_pos2ancestral_allele)
+		subSNPData = cls.assignAncestralAlleleSmallerNumber(subSNPData, chr_pos2ancestral_allele)
 		
 		sys.stderr.write("Done.\n")
 		return subSNPData
 	
-	def getTopSNPData(self, genome_wide_result, no_of_top_hits, snp_region_tup=[], chr_pos_ls=[]):
+	@classmethod
+	def getTopSNPData(cls, genome_wide_result, no_of_top_hits, snp_region_tup=[], chr_pos_ls=[]):
 		"""
+		2010-2-2
+			becomes classmethod
 		2009-4-30
 			can handle chr,pos,offset in chr_pos_ls by ignoring offset
 		2008-11-14
