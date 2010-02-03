@@ -99,7 +99,7 @@ class RBNode(object):
 		self.value = value
 		self.nonzero = 1
 		self.count = 1
-
+	
 	def __str__(self):
 		return repr(self.key) + ': ' + repr(self.value)
 
@@ -183,6 +183,19 @@ class RBTree(object):
 		# changing the comparison function for an existing tree is dangerous!
 		self.__cmp = cmpfn
 
+	def __contains__(self, key):
+		"""
+		2010-1-28
+			copied from BinarySearchTree.py
+		
+			Check if a key is present in the tree. invoked in syntax such as "if key in tree: ...".
+		"""
+		n = self.findNode(key)
+		if n:
+			return True
+		else:
+			return False
+		
 	def __len__(self):
 		return self.elements
 
