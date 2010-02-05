@@ -81,7 +81,8 @@ class PlotGroupOfSNPs(GeneListRankTest):
 	@classmethod
 	def drawSNPMtrix(cls, axe_snp_matrix, subSNPData, top_snp_data, StrainID2PCAPosInfo, SNPID2PCAPosInfo, \
 					ecotype_info, strain_id_label_x_offset=0.9, snp_id_label_y_offset=0.9, strain_snp_label_font_size=1, \
-					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None, useAlleleToDetermineAlpha=False,\
+					draw_snp_id_label=True, strain_id_label_x_offset_extra=None, snpData_before_impute=None, \
+					useAlleleToDetermineAlpha=False,\
 					snp_value2color=None):
 		"""
 		2010-2-2
