@@ -168,13 +168,16 @@ class RunGADA(CNVNormalize):
 		return col_index_to_return_ls
 	findOutWhichColumn = classmethod(findOutWhichColumn)
 	
-	def output_header(self, writer, chr_pos_ls=None):
+	@classmethod
+	def output_header(cls, writer, chr_pos_ls=None):
 		"""
+		2010-2-10
+			becomes classmethod
 		2009-10-26
 			no more outputting the whole chr_pos_ls
 		2008-12-05
 		"""
-		if self.report:
+		if getattr(cls, 'report', False):
 			sys.stderr.write("Outputting header ...")
 		header = ['ecotype_id', 'array_id', "start_probe", "end_probe", "length", "amplitude", "start_probe_id", "end_probe_id"]
 		"""
@@ -183,7 +186,7 @@ class RunGADA(CNVNormalize):
 			header.append(chr_pos)
 		"""
 		writer.writerow(header)
-		if self.report:
+		if getattr(cls, 'report', False):
 			sys.stderr.write("Done.\n")
 	state2number = {'G': 1, 'N':0, 'L':-1}
 	
