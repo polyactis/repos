@@ -179,8 +179,11 @@ class CNVNormalize(object):
 			data_matrix[i,:] = data_matrix[i,:]-row_mean_ar[i]
 		sys.stderr.write("Done.\n")
 	
-	def output(self, data_matrix, probe_id_ls, chr_pos_ls, header, output_fname_prefix, split_genome_into_chromosomes=False):
+	@classmethod
+	def output(cls, data_matrix, probe_id_ls, chr_pos_ls, header, output_fname_prefix, split_genome_into_chromosomes=False):
 		"""
+		2010-2-10
+			becomes classmethod
 		2009-10-11
 			add argument split_genome_into_chromosomes
 		2009-5-18
