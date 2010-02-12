@@ -3,7 +3,7 @@ import logging
 from pylons import request, response, session, tmpl_context as c
 from pylons.controllers.util import abort, redirect_to
 
-from helloworld.lib.base import BaseController, render
+from helloworld.lib.base import BaseController, render, config
 from helloworld import model
 import helloworld.lib.helpers as h
 
@@ -45,7 +45,7 @@ class SnpController(BaseController):
 		start_pos = c.position-40000
 		stop_pos = c.position+40000
 		track_id = '%s_%s_%s'%(c.call_method_id, c.phenotype_method_id, c.analysis_method_id)
-		c.gbrowseLink = h.GBrowseURL%(start_pos, stop_pos, c.chromosome)+track_id+"-"+track_id+"_SNP"
+		c.gbrowseLink = config['app_conf']['GBrowseURL']%(start_pos, stop_pos, c.chromosome)+track_id+"-"+track_id+"_SNP"
 		
 		phenotype_method = model.Stock_250kDB.PhenotypeMethod.get(c.phenotype_method_id)
 		c.pageTitle = "SNP chromosome %s position %s Phenotype %s %s"%\
@@ -113,7 +113,7 @@ class SnpController(BaseController):
 				snp_annotation_text += ':gene %s'%snp_annotation.gene_id
 				gene = Gene.get(snp_annotation.gene_id)
 				#gene_touched = '%s %s'%(gene.gene_id, gene.gene_symbol)
-				gene_touched = '<a href='+h.NCBIGeneDBURL%gene.gene_id+'  target="_blank">%s %s</a>'%\
+				gene_touched = '<a href='+config['app_conf']['NCBIGeneDBURL']%gene.gene_id+'  target="_blank">%s %s</a>'%\
 					(gene.gene_id, gene.gene_symbol)
 			if snp_annotation.comment:
 				snp_annotation_text += ':%s'%snp_annotation.comment
@@ -177,7 +177,6 @@ class SnpController(BaseController):
 			SNPURL = h.url_for(controller='SNP', action=None, phenotype_method_id=phenotype_method.id, \
 									call_method_id=row.result.call_method.id, analysis_method_id=analysis_method.id,\
 									chromosome=c.chromosome, position=c.position, score=row.score)
-			#h.GBrowseURL%(start_pos, stop_pos, c.chromosome)+track_id+"-"+track_id+"_SNP"
 			gbrowseLink = "<a href=%s target='_blank'>%s</a>"%(SNPURL, row.result.id)
 			
 			return_ls.append(dict(results_id=row.results_id, phenotype_method_id=phenotype_method.id, \

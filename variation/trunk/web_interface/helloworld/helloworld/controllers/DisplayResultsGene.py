@@ -528,7 +528,7 @@ class DisplayresultsgeneController(BaseController):
 				if column_name=='gene_id':
 					column_value = getattr(obj, column_name, default_value)
 					if column_value:
-						column_value = "<a href=%s target='_blank'>%s</a>"%(h.NCBIGeneDBURL%gene_id, column_value)
+						column_value = "<a href=%s target='_blank'>%s</a>"%(config['app_conf']['NCBIGeneDBURL']%gene_id, column_value)
 				else:
 					column_value = getattr(obj, column_name, default_value)
 				entry[column_name] = column_value
