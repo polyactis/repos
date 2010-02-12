@@ -317,12 +317,13 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   # X is the covariate matrix. each row is a strain. each column is a covariate. Identity column for the intercept should also be included.
   # K is the kinship matrix, defining relationship between all samples. t X t.
   # Z is the n X t incidence matrix. mapping each phenotype in y to one of t samples. deals with replicates. If not specified, default is identity matrix.	
-
+  # set cal.pvalue=TRUE if you want pvalues for every single covariate in X.
+  
   n <- length(y)	#2008-11-13	no of individuals
   t <- nrow(K)	#2008-11-13 no of individuals
   q <- ncol(X)	#2008-11-13 no of markers. X is individual X marker. tranposed compared to X in emma.REML.t
-
-#  stopifnot(nrow(K) == t)
+  
+  #  stopifnot(nrow(K) == t)
   stopifnot(ncol(K) == t)
   stopifnot(nrow(X) == n)
 
@@ -414,6 +415,10 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   maxdelta <- exp(optlogdelta[which.max(optLL)])
   maxLL <- max(optLL)
   if ( is.null(Z) ) {
+  	#cat("etas: ", etas, "\n")
+  	#cat("eig.R$values: ", eig.R$values, "\n")
+  	#cat("maxdelta: ", maxdelta, "\n")
+  	#cat("etas*etas/(eig.R$values+maxdelta): ",etas*etas/(eig.R$values+maxdelta), "\n")
     maxva <- sum(etas*etas/(eig.R$values+maxdelta))/(n-q) 	#vg, vg=R/(n-q), R=sum(etas*etas/(eig.R$values+maxdelta)), equation (A10).
   }
   else {
@@ -440,7 +445,8 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   phenotype_var = var(y)	#2008-11-11 calculating this every time wastes cpu time. maybe move it to emma.REML.t? a bit complicated to do in emma.REML.t
   genotype_var_perc = x_beta_var/phenotype_var
   
-  #2008-11-13 get the pvalues for each beta except the 1st one (=intercept. its pvalue not interesting, set to 0.0). 
+  #2008-11-13 get the pvalues for each beta except the 1st one (=intercept. its pvalue not interesting, set to 0.0).
+   
   pvalues = rep(0.0, q)
   if (cal.pvalue)
   {
@@ -452,12 +458,20 @@ emma.REMLE <- function(y, X, K, Z=NULL, ngrids=100, llim=-10, ulim=10,
   	#q1 = 2	#pvalue for the second beta
   	#stat <- beta[q1]/sqrt(iXX[q1,q1]*maxva)		#vg=maxva
   	#pvalue <- 2*pt(abs(stat), df, lower.tail=FALSE)
-	for( i in 2:q )	#2009-8-26 get pvalues for all betas except the 1st one
-	{
-		stat <- beta[i]/sqrt(iXX[i,i]*maxva)		#vg=maxva
-		pvalues[i] <- 2*pt(abs(stat), df, lower.tail=FALSE)
+  	if (q>=2)	# 2010-2-11 make sure q is >=2 before calculating pvalue for each column
+  	{
+		for( i in 2:q )	#2009-8-26 get pvalues for all betas except the 1st one
+		{
+			stat <- beta[i]/sqrt(iXX[i,i]*maxva)		#vg=maxva
+			pvalues[i] <- 2*pt(abs(stat), df, lower.tail=FALSE)
+		}
+		pvalue = pvalues[2]
 	}
-	pvalue = pvalues[2]
+	else
+	{
+		stat = -1
+		pvalue = -1
+	}
   }
   else
   {
