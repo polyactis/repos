@@ -1,13 +1,18 @@
 package edu.nordborglab.client;
 
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable;
-import com.google.gwt.visualization.client.DataView;
+import com.google.gwt.visualization.client.AbstractVisualization;
+import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
 import com.google.gwt.visualization.client.visualizations.Table;
+import com.google.gwt.visualization.client.visualizations.Visualization;
 
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -42,7 +47,12 @@ public class Common {
 	return dataTable;
 	}-*/;
 	
-	private static class FillSelectBoxJSONResponseHandler implements RequestCallback {
+	/**
+	 * 2009-6-29 used internally in fillSelectBox() & onSelectChange()
+	 * @author crocea
+	 *
+	 */
+	public static class FillSelectBoxJSONResponseHandler implements RequestCallback {
 		private ListBox selectBox;
 		private DisplayJSONObject jsonErrorDialog;
 		FillSelectBoxJSONResponseHandler(ListBox selectBox, DisplayJSONObject jsonErrorDialog)
@@ -56,6 +66,7 @@ public class Common {
 
 		public void onResponseReceived(Request request, Response response) {
 			String responseText = response.getText();
+			this.selectBox.clear();
 			try {
 				JSONObject options = JSONParser.parse(responseText).isObject();
 				JSONArray optionArray = options.get("options").isArray();
@@ -74,7 +85,13 @@ public class Common {
 			}
 		}
 	}
-
+	
+	/**
+	 * 2009-6-30 API to fill a select list box with stuff fetched from one URL
+	 * @param url
+	 * @param selectBox
+	 * @param jsonErrorDialog
+	 */
 	public static void fillSelectBox(String url, ListBox selectBox, DisplayJSONObject jsonErrorDialog)
 	{
 		//setText(DIALOG_WAITING_TEXT);
@@ -87,7 +104,14 @@ public class Common {
 		}
 	}
 	
-	public static void onSelectChange(String url, ListBox selectBox, ListBox targetListBox, DisplayJSONObject jsonErrorDialog)
+	/**
+	 * 2009-6-30 not sure why i wrote the function below or how to use it
+	 * @param url
+	 * @param selectBox
+	 * @param targetListBox
+	 * @param jsonErrorDialog
+	 */
+	public static void fillTargetListBoxOnSelectChange(String url, ListBox selectBox, ListBox targetListBox, DisplayJSONObject jsonErrorDialog)
 	{
 		//setText(DIALOG_WAITING_TEXT);
 		String _url = URL.encode(url);
@@ -99,6 +123,78 @@ public class Common {
 		}
 	}
 	
+	/**
+	 * 2009-7-1 a generic change listener for one list box. upon its change, another list box is to be filled by content fetched from a baseURL
+	 * 	the value of the 1st list box must be String
+	 * @author crocea
+	 *
+	 */
+	
+	public static class FillTargetListOnListChangeListener implements ChangeListener
+	{
+		String _url;
+		String argumentName;
+		ListBox listBox;
+		DisplayJSONObject jsonErrorDialog;
+		FillTargetListOnListChangeListener(String baseURL, String argumentName, ListBox listBox, DisplayJSONObject jsonErrorDialog)
+		{
+			_url = baseURL;
+			this.argumentName = argumentName;
+			this.listBox = listBox;
+			this.jsonErrorDialog = jsonErrorDialog;
+		}
+		public void onChange(Widget sender) {
+			ListBox senderListBox = (ListBox) sender;
+			String selectedValue = senderListBox.getValue(senderListBox.getSelectedIndex());
+			String url = _url + "?" + argumentName + "=" + selectedValue;
+			Common.fillSelectBox(url, listBox, jsonErrorDialog);
+		}
+	}
+	
+	/**
+	 * 2009-7-1 a generic change listener for one list box. upon its change, 
+	 * 	another list box is to be filled by content fetched from a baseURL + values from two list boxes.
+	 * 	the value of the 1st list box must be String
+	 * @author crocea
+	 *
+	 */
+	
+	public static class FillTargetListBasedOnTwoListsChange implements ChangeListener
+	{
+		String _url;
+		ListBox listBox1;
+		String argumentName1;
+		ListBox listBox2;
+		String argumentName2;
+		ListBox targetListBox;
+		DisplayJSONObject jsonErrorDialog;
+		FillTargetListBasedOnTwoListsChange(String baseURL, ListBox listBox1, String argumentName1, ListBox listBox2, String argumentName2, 
+				ListBox targetListBox, DisplayJSONObject jsonErrorDialog)
+		{
+			_url = baseURL;
+			this.listBox1 = listBox1;
+			this.argumentName1 = argumentName1;
+			this.listBox2 = listBox2;
+			this.argumentName2 = argumentName2;
+			this.targetListBox = targetListBox;
+			this.jsonErrorDialog = jsonErrorDialog;
+		}
+		public void onChange(Widget sender) {
+			String urlArguments = "";
+			String selectedValue1 = listBox1.getValue(listBox1.getSelectedIndex());
+			urlArguments += argumentName1 +"=" + selectedValue1;
+			String selectedValue2 = listBox2.getValue(listBox2.getSelectedIndex());
+			urlArguments += "&" + argumentName2 +"=" + selectedValue2;
+			String url = _url + "?" + urlArguments;
+			Common.fillSelectBox(url, targetListBox, jsonErrorDialog);
+		}
+	}
+	
+	/**
+	 * 2009-7-1 MotionChartDataResponseHandler used in fillInMotionChart()
+	 * @author crocea
+	 *
+	 */
 	private static class MotionChartDataResponseHandler implements RequestCallback {
 		private MotionChart motionChart;
 		private DisplayJSONObject jsonErrorDialog;
@@ -139,6 +235,14 @@ public class Common {
 		}
 	}
 	
+	/**
+	 * 2009-7-1 a function to fill in motion chart with data fetched from a url
+	 * @param url
+	 * @param motionChart
+	 * @param jsonErrorDialog
+	 * @param statusReport
+	 * @param dataTable
+	 */
 	public static void fillInMotionChart(String url, MotionChart motionChart, DisplayJSONObject jsonErrorDialog, Widget statusReport,
 			AbstractDataTable dataTable)
 	{
@@ -152,20 +256,35 @@ public class Common {
 		}
 	}
 	
-	
+	/**
+	 * 2009-7-1 class used in fillInTable()
+	 * @author crocea
+	 *
+	 */
 	private static class TableResponseTextHandler implements RequestCallback {
-		private Table table;
+		private AbstractVisualization<Table.Options> abstractVTable;
+		private Visualization<Table.Options> vTable;
 		private DisplayJSONObject jsonErrorDialog;
 		private Widget statusReport;
 		private AbstractDataTable dataTable;
-		TableResponseTextHandler(Table table, DisplayJSONObject jsonErrorDialog, Widget statusReport, AbstractDataTable dataTable)
+		private int isVisualizationAbstract = 0;
+		TableResponseTextHandler(AbstractVisualization<Table.Options> table, DisplayJSONObject jsonErrorDialog, Widget statusReport, AbstractDataTable dataTable)
 		{
-			this.table = table;
+			this.abstractVTable = table;
+			this.isVisualizationAbstract = 1;
 			this.jsonErrorDialog = jsonErrorDialog;
 			this.statusReport = statusReport;
 			this.dataTable  = dataTable;
 		}
 		
+		TableResponseTextHandler(Visualization<Table.Options> table, DisplayJSONObject jsonErrorDialog, Widget statusReport, AbstractDataTable dataTable)
+		{
+			this.vTable = table;
+			this.isVisualizationAbstract = 0;
+			this.jsonErrorDialog = jsonErrorDialog;
+			this.statusReport = statusReport;
+			this.dataTable  = dataTable;
+		}
 		
 		public void onError(Request request, Throwable exception) {
 			jsonErrorDialog.displayRequestError(exception.toString());
@@ -182,7 +301,10 @@ public class Common {
 				Table.Options options = Table.Options.create();
 				options.setShowRowNumber(true);
 				options.setAllowHtml(true);
-				table.draw(dataTable, options);
+				if (this.isVisualizationAbstract==1)
+					this.abstractVTable.draw(dataTable, options);
+				else
+					this.vTable.draw(dataTable, options);
 			} catch (JSONException e) {
 				jsonErrorDialog.displayParseError(responseText);
 			}
@@ -190,8 +312,15 @@ public class Common {
 		}
 	}
 
-
-	public static void fillInTable(String url, Table table, DisplayJSONObject jsonErrorDialog, Widget statusReport,
+	/**
+	 * 2009-7-1 a function to fill in a google abstract visualization (custom class WrapVisualizationTable) with data fetched from a url
+	 * @param url
+	 * @param table
+	 * @param jsonErrorDialog
+	 * @param statusReport
+	 * @param dataTable
+	 */
+	public static void fillInTable(String url, AbstractVisualization<Table.Options> table, DisplayJSONObject jsonErrorDialog, Widget statusReport,
 			AbstractDataTable dataTable)
 	{
 		statusReport.setVisible(true);
@@ -205,4 +334,197 @@ public class Common {
 		}
 	}
 	
+	/**
+	 * 2009-7-1 a function to fill in google visualization table with data fetched from a url
+	 * @param url
+	 * @param table
+	 * @param jsonErrorDialog
+	 * @param statusReport
+	 * @param dataTable
+	 */
+	public static void fillInTable(String url, Visualization<Table.Options> table, DisplayJSONObject jsonErrorDialog, Widget statusReport,
+			AbstractDataTable dataTable)
+	{
+		statusReport.setVisible(true);
+		String _url = URL.encode(url);
+		RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, _url);
+		try {
+			requestBuilder.sendRequest(null, new TableResponseTextHandler(table, jsonErrorDialog, statusReport, dataTable));
+		} catch (RequestException ex) {
+			jsonErrorDialog.displaySendError(ex.toString());
+			statusReport.setVisible(false);
+		}
+	}
+	
+	/**
+	 * 2009-7-1 refactored out of HaplotypeSingleView
+	 * @param _url
+	 * @param argumentName
+	 * @param selectBox
+	 * @param defaultValue
+	 * @return
+	 */
+	public static String getURLFromSelectBox(String _url, String argumentName, ListBox selectBox, DisplayJSONObject jsonErrorDialog, 
+			String defaultValue)
+	{
+		String selectedValue;
+		if (selectBox.getItemCount()==0)
+			if (defaultValue.isEmpty() || defaultValue.equals(null))
+			{
+				jsonErrorDialog.displayError("Form Error", argumentName + " hasn't been selected.");
+				return "";
+			}
+			else
+				selectedValue = defaultValue;
+		else
+			selectedValue = selectBox.getValue(selectBox.getSelectedIndex());
+		
+		if ((!argumentName.equals("list_type_id") && selectedValue.equals("0")) || selectedValue.equals("-1"))	// list_type_id is allowed to be 0.
+		{
+			if (defaultValue.isEmpty() || defaultValue.equals(null))
+			{
+				jsonErrorDialog.displayError("Form Error", argumentName + ", "+ selectedValue + ", is invalid.");
+				return "";
+			}
+			else
+				selectedValue = defaultValue;
+		}
+
+		if (_url.isEmpty())
+		{
+			_url += argumentName+"="+selectedValue;
+		}
+		else
+			_url += "&"+argumentName+"="+selectedValue;
+		return _url;
+
+	}
+	
+	/**
+	 * 2009-7-1 a common change listener that fills the WrapVisualizationTable based on the selected value of a list Box.
+	 * 	the value must be String. baseURL contains everything except the selected value.
+	 * 
+	 * - user shall customize constructURLArgument()
+	 * 
+	 * @author crocea
+	 *
+	 */
+	public static class FillWrapVTableOnListChangeListener implements ChangeListener
+	{
+		String _url;
+		private AbstractVisualization<Table.Options> abstractVTable;
+		DisplayJSONObject jsonErrorDialog;
+		private Widget statusReport;
+		private AbstractDataTable dataTable;
+		FillWrapVTableOnListChangeListener(String baseURL, AbstractVisualization<Table.Options> table, DisplayJSONObject jsonErrorDialog, 
+					Widget statusReport, AbstractDataTable dataTable)
+		{
+			_url = baseURL;
+			this.abstractVTable = table;
+			this.jsonErrorDialog = jsonErrorDialog;
+			this.statusReport = statusReport;
+			this.dataTable  = dataTable;
+		}
+		/**
+		 * to be customized
+		 * @return
+		 */
+		public String constructURLArgument()
+		{
+			return "";
+		}
+		public void onChange(Widget sender) {
+			String urlArguments = constructURLArgument();
+			if (!urlArguments.isEmpty())
+			{
+				String url = _url + "?"+ urlArguments;
+				Common.fillInTable(url, abstractVTable, jsonErrorDialog, statusReport, dataTable);
+			}
+		}
+	}
+	
+	/**
+	 * 2009-7-1 a common class to fill the WrapVisualizationTable when the button is clicked.
+	 * 	the value must be String. baseURL contains everything.
+	 * 
+	 * - user shall customize constructURLArgument()
+	 * 
+	 * @author crocea
+	 *
+	 */
+	public static class FillWrapVTableOnClickListener implements ClickListener
+	{
+		String _url;
+		private AbstractVisualization<Table.Options> abstractVTable;
+		DisplayJSONObject jsonErrorDialog;
+		private Widget statusReport;
+		private AbstractDataTable dataTable;
+		FillWrapVTableOnClickListener(String baseURL, AbstractVisualization<Table.Options> table, DisplayJSONObject jsonErrorDialog, 
+					Widget statusReport, AbstractDataTable dataTable)
+		{
+			_url = baseURL;
+			this.abstractVTable = table;
+			this.jsonErrorDialog = jsonErrorDialog;
+			this.statusReport = statusReport;
+			this.dataTable  = dataTable;
+		}
+		/**
+		 * to be customized
+		 * @return
+		 */
+		public String constructURLArgument()
+		{
+			return "";
+		}
+		public void onClick(Widget sender) {
+			Button button = (Button) sender;
+			button.setEnabled(false);
+			String urlArguments = constructURLArgument();
+			if (!urlArguments.isEmpty())
+			{
+				String url = _url + "?"+ urlArguments;
+				Common.fillInTable(url, abstractVTable, jsonErrorDialog, statusReport, dataTable);
+			}
+			button.setEnabled(true);
+		}
+	}
+	
+	public static void setCertainValuedItemSelectedInListBox(ListBox selectBox, String value)
+	{
+		for (int i =0; i<selectBox.getItemCount(); i++)
+		{
+			String itemValue = selectBox.getValue(i);
+			if (itemValue==value)
+			{
+				selectBox.setItemSelected(i, true);
+				break;
+			}
+			//newListBox.addItem(oldListBox.getItemText(i), oldListBox.getValue(i));
+		}
+	}
+	public static native String getCallMethodID()/*-{ return $wnd.call_method_id;}-*/;
+	public static native String getPhenotypeMethodID()/*-{ return $wnd.phenotype_method_id; }-*/;
+	public static native String getAnalysisMethodID()/*-{ return $wnd.analysis_method_id; }-*/;
+	public static native String getSNPGeneAssociationTypeID()/*-{ return $wnd.snpGeneAssociationTypeID; }-*/;
+	public static native String getPhenotypeMethodShortName()/*-{ return $wnd.phenotype_method_short_name;}-*/;
+	public static native String getPhenotypeMethodDescription()/*-{ return $wnd.phenotype_method_description; }-*/;
+	public static native String getCallInfoURL()/*-{ return $wnd.callInfoURL;}-*/;
+	public static native String getPhenotypeHistImageURL()/*-{ return $wnd.phenotypeHistImageURL;}-*/;	
+	public static native String getCallPhenotypeQQImageURL()/*-{ return $wnd.callPhenotypeQQImageURL;}-*/;
+	public static native String getPhenotypeHistogramDataURL()/*-{ return $wnd.phenotypeHistogramDataURL;}-*/;
+	public static native JsArray getStaticPlotNameArr() /*-{ return $wnd.static_plot_name_arr; }-*/;
+	public static native String getGWABaseURL()/*-{ return $wnd.GWABaseURL}-*/;
+	public static native String getSNPBaseURL()/*-{ return $wnd.SNPBaseURL}-*/;
+	public static native String getAnalysisMethodLsURL()/*-{ return $wnd.getAnalysisMethodLsURL}-*/;
+	public static native String getCallMethodLsURL()/*-{ return $wnd.callMethodLsURL; }-*/;
+	public static native String getGeneListLsURL()/*-{ return $wnd.geneListLsURL; }-*/;
+	public static native String getCallMethodOnChangeURL()/*-{ return $wnd.callMethodOnChangeURL; }-*/;
+	public static native String getHaplotypeImgURL()/*-{ return $wnd.haplotypeImgURL; }-*/;
+	public static native String getSNPGeneAssociationTypeLsURL() /*-{ return $wnd.snpGeneAssociationTypeLsURL; }-*/;
+	public static native String getSNPGeneAssociationOnChangeURL() /*-{ return $wnd.snpGeneAssociationOnChangeURL; }-*/;
+	public static native String getPhenotypeMethodOnChangeURL() /*-{ return $wnd.phenotypeMethodOnChangeURL; }-*/;
+	public static native String getFetchResultsGeneURL() /*-{ return $wnd.fetchResultsGeneURL; }-*/;
+	public static native String getCandidateGeneListURL() /*-{ return $wnd.candidateGeneListURL; }-*/;
+	public static native String getGeneListTypeID() /*-{ return $wnd.geneListTypeID; }-*/;
+	public static native String getFetchGeneListURL() /*-{ return $wnd.fetchGeneListURL; }-*/;
 }

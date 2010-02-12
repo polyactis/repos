@@ -22,7 +22,7 @@ import com.google.gwt.visualization.client.visualizations.ColumnChart;
 import com.google.gwt.visualization.client.AbstractVisualization;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.visualization.client.AbstractDrawOptions;
-import com.google.gwt.visualization.client.ArrayHelper;
+import com.google.gwt.ajaxloader.client.ArrayHelper;
 import com.google.gwt.visualization.client.Selectable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.events.SelectHandler;

@@ -1,26 +1,39 @@
+/**
+ * a customized scatterchart used to display association mapping results.
+
+ *   add a select event handler which leads to the opening of a new window showing SNP information
+ *   add mouseover/mouseout handler to display popup
+ *   sink the MOUSEEVENTS in order to pass X,Y to visualization's mouseover/mouseout event handler
+ */
 package edu.nordborglab.client;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.URL;
 
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.DecoratedPopupPanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.MouseListener;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.visualization.client.AbstractVisualization;
-import com.google.gwt.visualization.client.ArrayHelper;
 import com.google.gwt.visualization.client.Selectable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.events.SelectHandler;
 import com.google.gwt.visualization.client.events.SelectHandler.SelectEvent;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
-import com.google.gwt.visualization.client.visualizations.ScatterChart.Options;
 import com.google.gwt.visualization.client.AbstractDataTable;
 import com.google.gwt.visualization.client.LegendPosition;
+import com.google.gwt.visualization.client.events.OnMouseOverHandler;
+import com.google.gwt.visualization.client.events.OnMouseOutHandler;
 
-
-public class AssociationScatterChart extends AbstractVisualization<Options> implements Selectable {
+public class AssociationScatterChart extends ScatterChart {
 	private AccessionConstants constants;
 	private DisplayJSONObject jsonErrorDialog;
 	
-	private ScatterChart scatterChart;
+	//private ScatterChart scatterChart;
 	
 	private String chromosome;
 	private String color;
@@ -33,9 +46,15 @@ public class AssociationScatterChart extends AbstractVisualization<Options> impl
 	
 	private AbstractDataTable dataTable;
 	
+	private DecoratedPopupPanel popup = new DecoratedPopupPanel(true);
+	private int mouseX;
+	private int mouseY;
+	private MouseListener mListener;
+	
 	AssociationScatterChart(AccessionConstants constants, DisplayJSONObject jsonErrorDialog, String chromosome,
 			String color, int chrLength, int maxChrLength, double maxY, String SNPBaseURL)
 	{
+		super();
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
 		
@@ -46,16 +65,44 @@ public class AssociationScatterChart extends AbstractVisualization<Options> impl
 		this.maxY = maxY;
 		this.SNPBaseURL = SNPBaseURL;
 		
-		scatterChart = new ScatterChart();
-		scatterChart.addSelectHandler(new ScatterSelectionHandler(scatterChart));
-		initWidget(scatterChart);
+		//scatterChart = new ScatterChart();
+		addSelectHandler(new ScatterSelectionHandler(this));
+		addOnMouseOverHandler(new ScatterMouseOverHandler());
+		addOnMouseOutHandler(new ScatterMouseOutHandler());
+		sinkEvents(Event.MOUSEEVENTS);	//2009-5-21 sink the mouse event because visualization's MouseOverHandler() doesn't have x,y coordinates passed
+		
 	}
 	
-	public void draw(AbstractDataTable data){
+	public void onBrowserEvent(Event event) {
+		super.onBrowserEvent(event);
+		switch (DOM.eventGetType(event)) {
+		case Event.ONMOUSEOVER:
+			// mListener.onMouseMove(this.getParent(), evt.getClientX(), evt.getClientY());
+			//Window.alert("mouseX ");
+			mouseX = event.getClientX();
+			mouseY = event.getClientY();
+			//Window.alert("mouseX " + mouseX + " mouseY " + mouseY);
+			break;
+		case Event.ONMOUSEMOVE:
+			// mListener.onMouseMove(this.getParent(), evt.getClientX(), evt.getClientY());
+			//Window.alert("mouseX ");
+			mouseX = event.getClientX();
+			mouseY = event.getClientY();
+			//Window.alert("mouseX " + mouseX + " mouseY " + mouseY);
+			break;
+		}
+	}
+	
+	public void addMouseListener(MouseListener mListener)
+	{
+		this.mListener = mListener;
+	}
+	
+	public void draw_gwas(AbstractDataTable data){
 		this.dataTable = data;
 		Options options = Options.create();
 		options = setOptions(options);
-		this.scatterChart.draw(this.dataTable, options);
+		this.draw(this.dataTable, options);
 	}
 	public Options setOptions(Options options){
 		options.setHeight(200);
@@ -69,10 +116,10 @@ public class AssociationScatterChart extends AbstractVisualization<Options> impl
 		options.setLegend(LegendPosition.NONE);
 		return options;
 	}
-	public void draw(AbstractDataTable data, Options options){
+	public void draw_gwas(AbstractDataTable data, Options options){
 		this.dataTable = data;
 		options = setOptions(options);
-		this.scatterChart.draw(data, options);
+		this.draw(data, options);
 	}
 	
 	class ScatterSelectionHandler extends SelectHandler {
@@ -101,23 +148,84 @@ public class AssociationScatterChart extends AbstractVisualization<Options> impl
 		}
 	}
 	
-	public void setSelections(JsArray<Selection> s)
-	{
-		this.scatterChart.setSelections(s);
-	}
-	public final void addSelectHandler(SelectHandler handler)
-	{
-		this.scatterChart.addSelectHandler(handler);
-		//this.selectHandler = handler;	//2009-4-9 since fireSelectionEvent() doesn't work, stuff below
-		//SelectEvent event = new SelectEvent();
-		//handler.onSelect(event);
-		//Selection.addSelectHandler(this, handler);	//2009-4-9 doesn't work
+	/**
+	 * 2009-5-21 display the popup reporting position and score upon mouse over the point
+	 * @author crocea
+	 *
+	 */
+	class ScatterMouseOverHandler extends OnMouseOverHandler {
+		ScatterMouseOverHandler() {
+		}
+
+		@Override
+		public void onMouseOverEvent(OnMouseOverHandler.OnMouseOverEvent event)
+		{
+			//int left = mouseX + Window.getScrollLeft();
+			//int top = mouseY + Window.getScrollTop();
+			popup.setPopupPosition(10, Window.getScrollTop()+10);
+			//popup.center();
+			popup.clear();
+			int position = dataTable.getValueInt(event.getRow(), 0);
+			double score = dataTable.getValueDouble(event.getRow(), 1);
+			FlexTable layout = new FlexTable();
+			layout.setWidget(0, 0, new HTML("Position: "+ position));
+			layout.setWidget(1, 0, new HTML("-log Pvalue: "+ score));
+			/*
+			layout.setWidget(2, 0, new HTML("Row: "+ event.getRow()));
+			layout.setWidget(3, 0, new HTML("Column: "+ event.getColumn()));
+			layout.setWidget(4, 0, new HTML("mouseX: "+ mouseX));
+			layout.setWidget(5, 0, new HTML("mouseY: "+ mouseY));
+			*/
+			popup.add(layout);
+			// Show the popup
+			popup.show();
+		}
 	}
 	
-	public JsArray<Selection> getSelections()
+	/**
+	 * 2009-5-21 hide the popup when the mouse leaves the scatter point
+	 * @author crocea
+	 *
+	 */
+	class ScatterMouseOutHandler extends OnMouseOutHandler {
+		ScatterMouseOutHandler() {
+		}
+
+		@Override
+		public void onMouseOutEvent(OnMouseOutHandler.OnMouseOutEvent event)
+		{
+			// Hide the popup
+			popup.hide();
+		}
+	}
+	
+	/**
+	 * 2009-5-21 a mouse listener just to record the x,y positions of the mouse,
+	 * 		which is done onBrowserEvent(). this handler is not used.
+	 * @author crocea
+	 *
+	 */
+	private class ScatterMouseListener implements MouseListener
 	{
-		//return ArrayHelper.toJsArray(Selection.createRowSelection(selectedRow));
-		return this.scatterChart.getSelections();
+		public void onMouseMove(Widget sender, int x, int y)
+		{
+			mouseX = x;
+			mouseY = y;
+		}
+		public void onMouseDown(Widget sender, int x, int y)
+		{
+
+		}
+		public void onMouseEnter(Widget sender)
+		{
+
+		}
+		public void onMouseLeave(Widget sender) {
+		
+		}
+
+		public void onMouseUp(Widget sender, int x, int y) {
+		}
 	}
 	
 	

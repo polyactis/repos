@@ -25,6 +25,7 @@ public class CustomVisualizationTable extends Table{
 	
 	
 	public void onBrowserEvent(Event evt) {
+		super.onBrowserEvent(evt);
 		switch (DOM.eventGetType(evt)) {
 		case Event.ONCLICK:
 			cListener.onClick(this.getParent(), evt);

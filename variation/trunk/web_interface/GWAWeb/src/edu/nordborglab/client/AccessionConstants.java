@@ -61,6 +61,15 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String AccessionSuggestOracleURL();
 
   /**
+   * Translated "AssociationOverlapSummary".
+   * 
+   * @return translated "AssociationOverlapSummary"
+   */
+  @DefaultStringValue("AssociationOverlapSummary")
+  @Key("AssociationOverlapSummaryHelpID")
+  String AssociationOverlapSummaryHelpID();
+
+  /**
    * Translated "AccessionConstants".
    * 
    * @return translated "AccessionConstants"
@@ -104,6 +113,15 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   @DefaultStringValue("GWASOneResult")
   @Key("GWASOneResultHelpID")
   String GWASOneResultHelpID();
+
+  /**
+   * Translated "GeneListPanel".
+   * 
+   * @return translated "GeneListPanel"
+   */
+  @DefaultStringValue("GeneListPanel")
+  @Key("GeneListPanelHelpID")
+  String GeneListPanelHelpID();
 
   /**
    * Translated "/Phenotype/getPhenotypeIcon".
@@ -160,11 +178,11 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String HelpDialogSaveURL();
 
   /**
-   * Translated "Loading...  ".
+   * Translated "Loading...".
    * 
-   * @return translated "Loading...  "
+   * @return translated "Loading..."
    */
-  @DefaultStringValue("Loading...  ")
+  @DefaultStringValue("Loading...")
   @Key("LoadingText")
   String LoadingText();
 
@@ -214,6 +232,24 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String MapWithPhenotypeGetPhenotypeMethodLsURL();
 
   /**
+   * Translated "MotionChartAppMCPanel".
+   * 
+   * @return translated "MotionChartAppMCPanel"
+   */
+  @DefaultStringValue("MotionChartAppMCPanel")
+  @Key("MotionChartAppMCPanelHelpID")
+  String MotionChartAppMCPanelHelpID();
+
+  /**
+   * Translated "OneGWASGene".
+   * 
+   * @return translated "OneGWASGene"
+   */
+  @DefaultStringValue("OneGWASGene")
+  @Key("OneGWASGeneHelpID")
+  String OneGWASGeneHelpID();
+
+  /**
    * Translated "OnePhenotype".
    * 
    * @return translated "OnePhenotype"
@@ -241,6 +277,24 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String SNPSummaryPanelHelpID();
 
   /**
+   * Translated "SearchGWASByGeneName".
+   * 
+   * @return translated "SearchGWASByGeneName"
+   */
+  @DefaultStringValue("SearchGWASByGeneName")
+  @Key("SearchGWASByGeneNameHelpID")
+  String SearchGWASByGeneNameHelpID();
+
+  /**
+   * Translated "Support gene names containing wild character like .* or ? etc. \"FR.*\" and gene ids like 8824".
+   * 
+   * @return translated "Support gene names containing wild character like .* or ? etc. \"FR.*\" and gene ids like 8824"
+   */
+  @DefaultStringValue("Support gene names containing wild character like .* or ? etc. \"FR.*\" and gene ids like 8824")
+  @Key("SearchGWASByGeneNameSuggestBoxTitle")
+  String SearchGWASByGeneNameSuggestBoxTitle();
+
+  /**
    * Translated "SignificantHitsInAllPhenotype".
    * 
    * @return translated "SignificantHitsInAllPhenotype"
@@ -250,11 +304,20 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String SignificantHitsInAllPhenotypeHelpID();
 
   /**
-   * Translated "call method id:".
+   * Translated "Analysis Method:".
    * 
-   * @return translated "call method id:"
+   * @return translated "Analysis Method:"
    */
-  @DefaultStringValue("call method id:")
+  @DefaultStringValue("Analysis Method:")
+  @Key("analysisMethodLabel")
+  String analysisMethodLabel();
+
+  /**
+   * Translated "Call method id:".
+   * 
+   * @return translated "Call method id:"
+   */
+  @DefaultStringValue("Call method id:")
   @Key("callMethodLabel")
   String callMethodLabel();
 
@@ -340,11 +403,11 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String cwAccessionByNameName();
 
   /**
-   * Translated "gene list type id: ".
+   * Translated "Gene list id: ".
    * 
-   * @return translated "gene list type id: "
+   * @return translated "Gene list id: "
    */
-  @DefaultStringValue("gene list type id: ")
+  @DefaultStringValue("Gene list id: ")
   @Key("geneListTypeLabel")
   String geneListTypeLabel();
 
@@ -367,20 +430,29 @@ public interface AccessionConstants extends com.google.gwt.i18n.client.Constants
   String phenotypeHistPanelLabel();
 
   /**
-   * Translated "phenotype method id: ".
+   * Translated "Phenotype method id: ".
    * 
-   * @return translated "phenotype method id: "
+   * @return translated "Phenotype method id: "
    */
-  @DefaultStringValue("phenotype method id: ")
+  @DefaultStringValue("Phenotype method id: ")
   @Key("phenotypeMethodLabel")
   String phenotypeMethodLabel();
 
   /**
-   * Translated "Static Histograms & QQ Plots".
+   * Translated "Assign-SNP-to-Gene Type:".
    * 
-   * @return translated "Static Histograms & QQ Plots"
+   * @return translated "Assign-SNP-to-Gene Type:"
    */
-  @DefaultStringValue("Static Histograms & QQ Plots")
+  @DefaultStringValue("Assign-SNP-to-Gene Type:")
+  @Key("snpGeneAssociationTypeLabel")
+  String snpGeneAssociationTypeLabel();
+
+  /**
+   * Translated "QQ Plots (raw and negative logarithm pvalue)".
+   * 
+   * @return translated "QQ Plots (raw and negative logarithm pvalue)"
+   */
+  @DefaultStringValue("QQ Plots (raw and negative logarithm pvalue)")
   @Key("staticHistQQPlotPanelLabel")
   String staticHistQQPlotPanelLabel();
 

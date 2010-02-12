@@ -1,3 +1,7 @@
+/**
+ * 2009-7-2
+ * class serves as a tab in OnePhenotypeGWASGene
+ */
 package edu.nordborglab.client;
 
 import com.google.gwt.core.client.JsArray;

@@ -232,44 +232,23 @@ public class HaplotypeSingleView extends Sink {
 		submitButton.setEnabled(false);
 	}
 	
-	public String getURLFromSelectBox(String _url, String name, ListBox selectBox)
-	{
-		String selectedValue = selectBox.getValue(selectBox.getSelectedIndex());
-		if ((!name.equals("list_type_id") && selectedValue.equals("0")) || selectedValue.equals("-1"))	// list_type_id is allowed to be 0.
-		{
-			jsonErrorDialog.displayError("Form Error", name + ", "+ selectedValue + ", is invalid.");
-			return "";
-			
-		}
-		else
-		{
-			if (_url.isEmpty())
-			{
-				_url += name+"="+selectedValue;
-			}
-			else
-				_url += "&"+name+"="+selectedValue;
-			return _url;
-		}
-	}
-	
 	public String constructFetchImageArguments()
 	{
 		String _url = "";
 		
 		String newArgument;
-		newArgument  =getURLFromSelectBox(_url, "call_method_id", callMethodListBox); 
+		newArgument  = Common.getURLFromSelectBox(_url, "call_method_id", callMethodListBox, jsonErrorDialog, ""); 
 		if (newArgument.isEmpty())
 			return "";
 		else
 			_url = newArgument;
-		newArgument = getURLFromSelectBox(_url, "phenotype_method_id", phenotypeMethodListBox); 
+		newArgument = Common.getURLFromSelectBox(_url, "phenotype_method_id", phenotypeMethodListBox, jsonErrorDialog, ""); 
 		if (newArgument.isEmpty())
 			return "";
 		else
 			_url = newArgument;
 		
-		newArgument =getURLFromSelectBox(_url, "list_type_id", geneListTypeListBox); 
+		newArgument = Common.getURLFromSelectBox(_url, "list_type_id", geneListTypeListBox, jsonErrorDialog, ""); 
 		if (newArgument.isEmpty())
 			return "";
 		else

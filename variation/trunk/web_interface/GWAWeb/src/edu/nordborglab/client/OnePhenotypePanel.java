@@ -37,8 +37,7 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 	private MotionChart motionChart;
 	private DisclosurePanel motionChartDisclosurePanel;
 
-	private int callMethodID;
-	private int phenotypeMethodID;
+	private String phenotypeMethodID;
 	private String phenotypeMethodShortName;
 	private String phenotypeMethodDescription;
 
@@ -59,10 +58,9 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 		this.constants = constants;
 		this.jsonErrorDialog = jsonErrorDialog;
 		
-		callMethodID = getCallMethodID();
-		phenotypeMethodID = getPhenotypeMethodID();
-		phenotypeMethodShortName = getphenotypeMethodShortName();
-		phenotypeMethodDescription = getphenotypeMethodDescription();
+		phenotypeMethodID = Common.getPhenotypeMethodID();
+		phenotypeMethodShortName = Common.getPhenotypeMethodShortName();
+		phenotypeMethodDescription = Common.getPhenotypeMethodDescription();
 
 		// 2009-6-23 convert the encoded back to normal form because they do represent special html tags.
 		phenotypeMethodShortName = phenotypeMethodShortName.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
@@ -140,21 +138,6 @@ public class OnePhenotypePanel extends CustomVerticalPanel{
 		fillIn();
 	}
 	
-	public native int getCallMethodID()/*-{
-	return $wnd.call_method_id;
-	}-*/;
-	
-	public native int getPhenotypeMethodID()/*-{
-		return $wnd.phenotype_method_id;
-	}-*/;
-	
-	public native String getphenotypeMethodShortName()/*-{
-	return $wnd.phenotype_method_short_name;
-	}-*/;
-	
-	public native String getphenotypeMethodDescription()/*-{
-		return $wnd.phenotype_method_description;
-	}-*/;
 	
 	public native String getCallInfoURL()/*-{
 		return $wnd.callInfoURL;

@@ -121,7 +121,7 @@ public class HelpDialog extends DialogBox implements ClickListener{
 	}
 	private void transition2ViewState(){
 		toolbar.setVisible(false);
-		helpTextArea.setEnabled(false);		
+		helpTextArea.setEnabled(false);
 		helpTextArea.setVisible(false);
 		editSaveButton.setText(editCaption);
 		helpLayout.setHTML(2, 0, helpContent);

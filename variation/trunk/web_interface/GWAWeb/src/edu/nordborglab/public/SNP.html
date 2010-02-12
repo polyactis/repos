@@ -41,7 +41,7 @@
 		var track_id = call_method_id+"_"+phenotype_method_id+"_"+analysis_method_id;
 
 		var GBrowseURL = "${c.gbrowseLink}";
-		var GBrowseURLJS = "${h.GBrowseURLJS}";
+		var GBrowseURLJS = "${config['app_conf']['GBrowseURLJS']}";
 		GBrowseURLJS.format(${c.position-40000}, ${c.position+40000}, ${c.chromosome})+track_id+"-"+track_id+"_SNP";
 
 		loadTable(snpSummaryQueryURL, "SNPSummaryDiv");

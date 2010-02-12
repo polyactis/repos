@@ -34,6 +34,7 @@ public class MotionChartAppMCPanel extends Composite {
 	
 	private FileUpload upload;
 	private Button submitButton;
+	private DisclosurePanel motionChartDisclosurePanel;
 	private MotionChart motionChart;
 	
 	private CustomVerticalPanel vPanel;
@@ -79,14 +80,17 @@ public class MotionChartAppMCPanel extends Composite {
 		HorizontalPanel hPanel = new HorizontalPanel();
 		panel.add(hPanel);
 		
-		hPanel.setSpacing(50);
+		hPanel.setSpacing(20);
 		hPanel.add(upload);
 		hPanel.add(submitButton);
 
-		
+		motionChartDisclosurePanel = new DisclosurePanel("MotionChart (Click to refresh)");
 		motionChart = new MotionChart();
 		//motionChart.setSize("800px", "1000px");	 	//doesn't work. have to be set in the options before draw()
-		panel.add(motionChart);
+		motionChartDisclosurePanel.setContent(motionChart);
+		motionChartDisclosurePanel.setAnimationEnabled(true);
+		motionChartDisclosurePanel.setOpen(true);
+		panel.add(motionChartDisclosurePanel);		
 		
 		// Add an event handler to the form.
 		form.addFormHandler(new FormHandler() {

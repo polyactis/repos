@@ -1,4 +1,4 @@
 #!/bin/sh
 APPDIR=`dirname $0`;
-/usr/lib/jvm/ia32-java-6-sun/bin/java -cp "$APPDIR/src:$APPDIR/bin:/usr/local/home_ubuntu/crocea/script/gwt-linux-1.5.3/gwt-user.jar:/usr/local/home_ubuntu/crocea/script/gwt-linux-1.5.3/gwt-dev-linux.jar" com.google.gwt.i18n.tools.I18NSync -out $APPDIR/src edu.nordborglab.client.AccessionConstants  ;
+/usr/lib/jvm/ia32-java-6-sun/bin/java -cp "$APPDIR/src:$APPDIR/bin:/usr/local/home_ubuntu/crocea/script/gwt/gwt-user.jar:/usr/local/home_ubuntu/crocea/script/gwt/gwt-dev-linux.jar" com.google.gwt.i18n.tools.I18NSync -out $APPDIR/src edu.nordborglab.client.AccessionConstants  ;
 

@@ -88,7 +88,7 @@ public class GWASOneResult extends CustomVerticalPanel{
 							color, chrLength, max_length, max_value, SNPBaseURL);
 					add(associationChart);
 					dataTable = Common.asDataTable(data.substring(1, data.length()-1));	//2009-4-25 data has extra " on both ends
-					associationChart.draw(dataTable);
+					associationChart.draw_gwas(dataTable);
 					i += 1;
 				}
 			} catch (JSONException e) {

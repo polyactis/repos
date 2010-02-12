@@ -45,17 +45,17 @@ import com.google.gwt.visualization.client.Query.Callback;
 
 public class AccessionByName extends Sink implements ClickListener{
 
-	private AccessionSuggestOracle oracle = new AccessionSuggestOracle();
+	private CustomSuggestOracle oracle;
 	//String[] words = constants.cwSuggestBoxWords();
 	//for (int i = 0; i < words.length; ++i) {
 	//	oracle.add(words[i]);
 	//}
 
 	// Create the suggest box
-	private SuggestBox suggestBox = new SuggestBox(oracle);
-	private Button suggestButton = new Button();
+	private SuggestBox suggestBox;
+	private Button suggestButton;
 	//suggestBox.ensureDebugId("cwSuggestBox");
-	private HorizontalPanel suggestPanel = new HorizontalPanel();
+	private HorizontalPanel suggestPanel;
 	private VerticalPanel panel;
 	
 	//private String dataUrl = "http://spreadsheets.google.com/tq?key=prll1aQH05yQqp_DKPP9TNg&pub=1";
@@ -101,19 +101,23 @@ public class AccessionByName extends Sink implements ClickListener{
 	public AccessionByName(AccessionConstants constants, DisplayJSONObject jsonErrorDialog) {
 		//super(constants);
 		this.constants = constants;
-		oracle.setConstants(constants);
+		oracle = new CustomSuggestOracle(this.constants.AccessionSuggestOracleURL() + "?namelike=");
+		
 		this.jsonErrorDialog = jsonErrorDialog;
 		
 		panel = new CustomVerticalPanel(constants, jsonErrorDialog, constants.AccessionByNameHelpID());
 		
+		suggestBox = new SuggestBox(oracle);
 		//Label lbl = new Label(constants.cwAccessionByNameLabel());
 		//suggestBox.addChangeListener(new SuggestBoxChangeListener());
 		suggestBox.addEventHandler(new SuggestBoxSuggestionHandler());
 		suggestBox.setTitle(constants.cwAccessionByNameDescription());
 		
+		suggestButton = new Button();
 		suggestButton.setText(SUGGEST_BUTTON_DEFAULT_TEXT);
 		suggestButton.addClickListener(this);
-
+		
+		suggestPanel = new HorizontalPanel();
 		suggestPanel.add(new HTML(constants.cwAccessionByNameLabel()));
 		suggestPanel.add(suggestBox);
 		suggestPanel.add(suggestButton);
