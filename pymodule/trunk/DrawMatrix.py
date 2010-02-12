@@ -485,23 +485,30 @@ class Value2Color(object):
 	
 	max_hue_value = 255	#In Inkscape, the maximum possible hue value, 255, looks almost same as hue=0. cut off before reaching 255.
 	#but it's not the case in PIL.
-	def value2HSLcolor(cls, value, min_value=0., max_value=255.):
+	def value2HSLcolor(cls, value, min_value=0., max_value=255., treat_above_max_as_NA=True):
 		"""
-		
+		2009-10-18
+			change how to deal with out-of-range value. Before, both <min_value and >max_value are treated as NA.
+			Now, <min_value is treated as NA. >max_value is treated as max_value by default unless treat_above_max_as_NA is set to True. 
 		2008-08-28
 			use Hue-Saturation-Lightness (HSL) color to replace the simple gray gradient represented by (R,G,B)
 		"""
 		if value in cls.special_value2color:
 			return cls.special_value2color[value]
-		elif value<min_value or value > max_value:	#out of range, treat them as NA
+		elif value<min_value:
 			return cls.special_value2color[-1]
-		else:
-			Y = (value-min_value)/(max_value-min_value)*(cls.max_hue_value-0)
-			hue_value = cls.max_hue_value-int(round(Y))	#the smaller the value is, the higher hue_value is.
-			#in (R,G,B) mode, the bigger R/G/B is, the darker the color is
-			#R_value = int(Y/math.pow(2,8))
-			#G_value = int(Y- R_value*math.pow(2,8))
-			return "hsl(%s"%(hue_value)+",100%,50%)"
+		elif value>max_value:	#out of range, treat them as NA
+			if treat_above_max_as_NA:
+				return cls.special_value2color[-1]
+			else:
+				value = max_value
+		#else:
+		Y = (value-min_value)/(max_value-min_value)*(cls.max_hue_value-0)
+		hue_value = cls.max_hue_value-int(round(Y))	#the smaller the value is, the higher hue_value is.
+		#in (R,G,B) mode, the bigger R/G/B is, the darker the color is
+		#R_value = int(Y/math.pow(2,8))
+		#G_value = int(Y- R_value*math.pow(2,8))
+		return "hsl(%s"%(hue_value)+",100%,50%)"
 	
 	value2HSLcolor = classmethod(value2HSLcolor)
 
@@ -509,8 +516,10 @@ class Value2Color(object):
 def drawMatrixLegend(data_matrix, left_label_ls=[], top_label_ls=[], min_value=None, max_value=None,\
 					min_possible_value=0, max_possible_value=None,\
 					font_path='/usr/share/fonts/truetype/freefont/FreeSerif.ttf', font_size=20, \
-					no_of_ticks=15, with_grid=1):
+					no_of_ticks=15, with_grid=1, treat_above_max_as_NA=True):
 	"""
+	2009-10-18
+		add argument treat_above_max_as_NA, either as maximum value or NA
 	2008-10-26
 		a wrapper to draw both legend and data matrix by calling drawContinousLegend() and drawMatrix()
 		if min_value is not given, try to figure it out by numpy.min(). If min_possible_value is not None, that's the lower bound.
@@ -528,7 +537,7 @@ def drawMatrixLegend(data_matrix, left_label_ls=[], top_label_ls=[], min_value=N
 		if max_possible_value is not None:
 			max_value = min(max_possible_value, max_value)
 	
-	value2color_func = lambda x: Value2Color.value2HSLcolor(x, min_value, max_value)
+	value2color_func = lambda x: Value2Color.value2HSLcolor(x, min_value, max_value, treat_above_max_as_NA=treat_above_max_as_NA)
 	im_legend = drawContinousLegend(min_value, max_value, no_of_ticks, value2color_func, font)
 	#im.save('%s_legend.png'%self.fig_fname_prefix)
 	im = drawMatrix(data_matrix, value2color_func, left_label_ls,\
