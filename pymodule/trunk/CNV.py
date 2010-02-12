@@ -15,6 +15,8 @@ from utils import getColName2IndexFromHeader
 
 def get_overlap_ratio(span1_ls, span2_ls):
 	"""
+	2010-2-11
+		swap overlap1 and overlap2 so that they match the span1_ls and span2_ls
 	2009-12-13
 		calculate the two overlap ratios for two segments
 	"""
@@ -22,8 +24,8 @@ def get_overlap_ratio(span1_ls, span2_ls):
 	qc_start, qc_stop = span2_ls
 	overlap_length = max(0, segment_stop_pos - qc_start) - max(0, segment_stop_pos - qc_stop) - max(0, segment_start_pos - qc_start)	# accomodates 6 scenarios
 	overlap_length = float(overlap_length)
-	overlap1 = overlap_length/(qc_stop-qc_start)
-	overlap2 = overlap_length/(segment_stop_pos-segment_start_pos)
+	overlap1 = overlap_length/(segment_stop_pos-segment_start_pos)
+	overlap2 = overlap_length/(qc_stop-qc_start)
 	return overlap1, overlap2
 
 def is_reciprocal_overlap(span1_ls, span2_ls, min_reciprocal_overlap=0.6):
@@ -40,7 +42,9 @@ def is_reciprocal_overlap(span1_ls, span2_ls, min_reciprocal_overlap=0.6):
 class CNVSegmentBinarySearchTreeKey(object):
 	"""
 	2009-12-12
-		a key designed to represent a CNV segment in a binary search tree (BinarySearchTree.py), which could be used to do == or >, or < operators
+		a key designed to represent a CNV segment in the node of a binary search tree (BinarySearchTree.py) or RBTree (RBTree.py),
+		
+		It has custom comparison function based on the is_reciprocal_overlap() function.
 	"""
 	def __init__(self, chromosome=None, span_ls=None, min_reciprocal_overlap=0.6):
 		self.chromosome = chromosome
@@ -104,6 +108,8 @@ class CNVSegmentBinarySearchTreeKey(object):
 		
 	def __eq__(self, other):
 		"""
+		2010-2-11
+			fix a bug when len(self.span_ls)>1 and len(other.span_ls)==1. it was completely wrong before.
 		2009-12-12
 		"""
 		if self.chromosome==other.chromosome:
@@ -116,7 +122,7 @@ class CNVSegmentBinarySearchTreeKey(object):
 					return None
 			elif len(self.span_ls)>1:
 				if len(other.span_ls)==1:	# self is a segment. other is a point position.
-					return self.span_ls[0]>=other.span_ls[0] and self.span_ls[1]<=other.span_ls[0]	# if self includes the point position, yes it's equal
+					return self.span_ls[0]<=other.span_ls[0] and self.span_ls[1]>=other.span_ls[0]	# if self includes the point position, yes it's equal
 				elif len(other.span_ls)>1:
 					# need to calculate min_reciprocal_overlap
 					return is_reciprocal_overlap(self.span_ls, other.span_ls, min_reciprocal_overlap=self.min_reciprocal_overlap)
@@ -166,6 +172,99 @@ class CNVSegmentBinarySearchTreeKey(object):
 		2009-12-13
 		"""
 		return "chromosome: %s, span_ls: %s"%(self.chromosome, repr(self.span_ls))
+
+
+class SegmentTreeNodeKey(CNVSegmentBinarySearchTreeKey):
+	"""
+	2010-1-28
+		tree node key which counts both is_reciprocal_overlap()=True and "other" being wholly embedded in "self" as equal
+		
+		similar purpose as the function leftWithinRightAlsoEqualCmp().
+		
+		One strange thing (???) about who is "self", who is "other" in the __eq__() below.
+			In the situation you have a new CNVSegmentBinarySearchTreeKey key (call it "segmentKey"),
+			and want to test if this "segmentKey" is in the tree or not as in "if segmentKey in tree: ...".
+			 
+			If the tree is comprised of CNVSegmentBinarySearchTreeKey instances, self=segmentKey, other=nodes in the tree.
+			If the tree is comprised of SegmentTreeNodeKey instances, self=nodes in the tree, other=segmentKey.
+				That's why here used the condition that "other"'s overlap ratio (overlap2) ==1..
+			
+		
+	"""
+	def __init__(self, chromosome=None, span_ls=None, min_reciprocal_overlap=0.6):
+		CNVSegmentBinarySearchTreeKey.__init__(self, chromosome=chromosome, span_ls=span_ls, min_reciprocal_overlap=min_reciprocal_overlap)
+	
+	def __eq__(self, other):
+		"""
+		2010-1-28
+		"""
+		return rightWithinLeftAlsoEqual(self, other)
+
+def leftWithinRightAlsoEqual(key1, key2):
+	"""
+	2010-1-28
+		Besides CNVSegmentBinarySearchTreeKey.__eq__(), if key1 is embedded in key2, it's also regarded as equal.
+		this function is solely used in leftWithinRightAlsoEqualCmp().
+	"""
+	equalResult = key1.__eq__(key2)
+	if equalResult:
+		return equalResult
+	else:
+		if len(key1.span_ls)==2 and len(key2.span_ls)==2:
+			overlap1, overlap2 = get_overlap_ratio(key1.span_ls, key2.span_ls)
+			if overlap1==1.:	# 2010-1-28 added the overlap2==1.
+				return True
+			else:
+				return equalResult
+		else:
+			return equalResult
+
+def rightWithinLeftAlsoEqual(key1, key2):
+	"""
+	2010-1-28
+		Besides CNVSegmentBinarySearchTreeKey.__eq__(), if key2 is embedded in key1, it's also regarded as equal.
+		this function is solely used in leftWithinRightAlsoEqualCmp().
+	"""
+	equalResult = key1.__eq__(key2)
+	if equalResult:
+		return equalResult
+	else:
+		if len(key1.span_ls)==2 and len(key2.span_ls)==2:
+			overlap1, overlap2 = get_overlap_ratio(key1.span_ls, key2.span_ls)
+			if overlap2==1.:	# 2010-1-28 added the overlap2==1.
+				return True
+			else:
+				return equalResult
+		else:
+			return equalResult
+
+def leftWithinRightAlsoEqualCmp(key1, key2):
+	"""
+	2010-1-28
+		a cmp function for RBDict to compare CNVSegmentBinarySearchTreeKey or SegmentTreeNodeKey.
+		
+		similar purpose as the class SegmentTreeNodeKey(), but just add this to RBDict as in "tree = RBDict(cmpfn=leftWithinRightAlsoEqualCmp)".
+	"""
+	if leftWithinRightAlsoEqual(key1, key2):
+		return 0
+	elif key1 > key2:
+		return 1
+	else:  #key1 < key2
+		return -1
+
+def rightWithinLeftAlsoEqualCmp(key1, key2):
+	"""
+	2010-1-28
+		a cmp function for RBDict to compare CNVSegmentBinarySearchTreeKey or SegmentTreeNodeKey.
+		
+		similar purpose as the class SegmentTreeNodeKey(), but just add this to RBDict as in "tree = RBDict(cmpfn=rightWithinLeftAlsoEqualCmp)".
+	"""
+	if rightWithinLeftAlsoEqual(key1, key2):
+		return 0
+	elif key1 > key2:
+		return 1
+	else:  #key1 < key2
+		return -1
 
 def getCNVDataFromFileInGWA(input_fname_ls, array_id, max_amp=-0.33, min_amp=-0.33, min_size=50, min_no_of_probes=None, report=False):
 	"""
@@ -244,12 +343,58 @@ def getCNVDataFromFileInGWA(input_fname_ls, array_id, max_amp=-0.33, min_amp=-0.
 
 # test program if this file is run
 if __name__ == "__main__":
-	import os, sys
+	import os, sys, math
 	#import pdb
 	#pdb.set_trace()
-	cnv_ls = [[1, (2323,2600)], [2,(50000,)], [3,(43214,78788)], [5, (43242,)], [5,(144,566)], [5,(150,500)], [5,(500,950)], [5, (43241, 43242)]]
+	
+	cnv_ls = [[1, (2323,2600)], [2,(50000,)], [3,(43214,78788)], [5,(150,500)], [5,(500,950)], [5, (43241, 43242)]]
 	no_of_cnvs = len(cnv_ls)
 	min_reciprocal_overlap = 0.6
+	
+	#from BinarySearchTree import binary_tree
+	#tree = binary_tree()
+	from RBTree import RBDict	#2010-1-26 binary_tree and RBDict are swappable. but RBDict is more efficient (balanced).
+	tree = RBDict(cmpfn=leftWithinRightAlsoEqualCmp)	# 2010-1-28 use the custom cmpfn if you want the case that left within right is regarded as equal as well.  
+	
+	for cnv in cnv_ls:
+		segmentKey = CNVSegmentBinarySearchTreeKey(chromosome=cnv[0], span_ls=cnv[1], min_reciprocal_overlap=min_reciprocal_overlap)
+		tree[segmentKey] = cnv
+	
+	print "Binary Tree Test\n"
+	print "Node Count: %d" % len(tree)
+	print "Depth: %d" % tree.depth()
+	print "Optimum Depth: %f (%d) (%f%% depth efficiency)" % (tree.optimumdepth(), math.ceil(tree.optimumdepth()),
+															  math.ceil(tree.optimumdepth()) / tree.depth())
+	
+	print "Efficiency: %f%% (total possible used: %d, total wasted: %d): " % (tree.efficiency() * 100,
+																			  len(tree) / tree.efficiency(),
+																			  (len(tree) / tree.efficiency()) - len(tree))
+	"""
+	print "Min: %s" % repr(tree.min())
+	print "Max: %s" % repr(tree.max())
+	
+	print "List of Layers:\n\t" + repr(tree.listlayers()) + "\n"
+	print "\"Recursive\" List:\n\t" + repr(tree.listrecursive()) + "\n"
+	print "List of Keys:\n\t" + repr(tree.listkeys()) + "\n"
+	print "List of Data:\n\t" + repr(tree.listdata()) + "\n"
+	print "List of Nodes:\n\t" + repr(tree.listnodes()) + "\n"
+	print "Dictionary:\n\t" + repr(tree.dict()) + "\n"
+	print "Formatted Tree:\n" + tree.formattree() + "\n"
+	print "Formatted Tree (Root in Middle):\n" + tree.formattreemiddle() + "\n"
+	"""
+	test_cnv_ls = [	[2,(50000,)], [3,(43214,43219)], [3,(43214,78788)], [5, (43242,)], [5,(144,566)], [5, (50000, 70000)]]
+	for test_cnv in test_cnv_ls:
+		segmentKey = CNVSegmentBinarySearchTreeKey(chromosome=test_cnv[0], span_ls=test_cnv[1], min_reciprocal_overlap=min_reciprocal_overlap)
+		print "segmentKey", segmentKey
+		if segmentKey in tree:
+			#targetSegment = tree.get(segmentKey)
+			#if targetSegment:
+			print "\tIn tree with target" #targetSegment
+		else:
+			print "\tNot in tree"
+	
+	
+	"""
 	for i in range(no_of_cnvs):
 		for j in range(i+1, no_of_cnvs):
 			cnv1 = cnv_ls[i]
@@ -262,3 +407,4 @@ if __name__ == "__main__":
 			print "<", segmentKey1<segmentKey2
 			print "<=", segmentKey1<=segmentKey2
 			print "==", segmentKey1==segmentKey2
+	"""
