@@ -156,6 +156,8 @@ class PutPhenotypeIntoDB(object):
 	
 	def putPhenotypeIntoDB(self, db, phenData, ecotype_id_ls):
 		"""
+		2010-2-25
+			add functionality to check db whether an ecotype has a phenotype in db already to avoid redundancy.
 		2009-7-30
 			overhauled to deal with multiple phenotypes from phenData to table phenotype_avg
 		2009-7-22
@@ -174,18 +176,26 @@ class PutPhenotypeIntoDB(object):
 			sys.stderr.write("Submitting phenotype %s ..."%phenotype_name)
 			counter = 0
 			success_counter = 0
+			no_of_NAs = 0
+			no_of_existed = 0
 			for i in range(len(phenData.row_id_ls)):
 				ecotype_id = ecotype_id_ls[i]
 				phenotype_value = phenData.data_matrix[i][j]
 				counter += 1
 				if numpy.isnan(phenotype_value):
+					no_of_NAs += 1
 					continue
+				if pm.id:	# 2010-2-25 check whether it's in db already
+					rows = PhenotypeAvg.query.filter_by(method_id=pm.id).filter_by(ecotype_id=ecotype_id)
+					if rows.count()>0:
+						no_of_existed += 1
+						continue
 				pa = PhenotypeAvg(ecotype_id=ecotype_id, value=phenotype_value)
 				pa.phenotype_method = pm
 				session.save(pa)
 				session.flush()
 				success_counter += 1
-			sys.stderr.write("%s/%s put into db.\n"%(success_counter, counter))
+			sys.stderr.write("%s/%s put into db. Ignored: %s NA, %s existed in db.\n"%(success_counter, counter, no_of_NAs, no_of_existed))
 	
 	def findInitialReplicateCount(self, db, phenotype_method_id, ecotype_id):
 		"""
