@@ -845,15 +845,54 @@ class Association(Kruskal_Wallis):
 		sys.stderr.write("Done.\n")
 	
 	@classmethod
+	def removeUnPhenotypedSNPData(clf, snpData, header_phen, strain_acc_list_phen, data_matrix_phen, phenotype_method_id_ls):
+		"""
+		2010-2-25
+			remove un-phenotyped ecotypes from the SNP data in order to keep the snp dataset small 
+		"""
+		sys.stderr.write("Removing un-phenotyped ecotypes from the SNP data ...")
+		phenData = SNPData(header=header_phen, strain_acc_list=strain_acc_list_phen, data_matrix=data_matrix_phen)
+		if phenotype_method_id_ls:
+			which_phenotype_ls = PlotGroupOfSNPs.findOutWhichPhenotypeColumn(phenData, Set(phenotype_method_id_ls))
+		else:	#if not available, take all phenotypes
+			which_phenotype_ls = range(len(phenData.col_id_ls))
+		
+		phenotyped_ecotype_id_set = set()
+		for i in range(len(phenData.row_id_ls)):
+			ecotype_id = phenData.row_id_ls[i]
+			keep_this_ecotype = False
+			for col_index in which_phenotype_ls:
+				if phenData.data_matrix[i][col_index]!='NA':	# 2010-2-25 phenotype values are in raw string.
+					keep_this_ecotype = True
+					break
+			if keep_this_ecotype:
+				phenotyped_ecotype_id_set.add(ecotype_id)
+		
+		row_ids_to_be_kept = set()	# 2010-2-21
+		no_of_ecotypes_in_total = len(snpData.row_id_ls)
+		for row_id in snpData.row_id_ls:
+			ecotype_id = row_id[0]	#1st column is ecotype_id, 2nd is array id
+			if ecotype_id in phenotyped_ecotype_id_set:
+				row_ids_to_be_kept.add(row_id)
+		snpData = SNPData.keepRowsByRowID(snpData, row_ids_to_be_kept)
+		no_of_removed = no_of_ecotypes_in_total - len(row_ids_to_be_kept)
+		sys.stderr.write("%s removed. Done.\n"%(no_of_removed))
+		return snpData
+	
+	@classmethod
 	def readInData(cls, phenotype_fname, input_fname, eigen_vector_fname, phenotype_method_id_ls, test_type=1, report=0):
 		"""
+		2010-2-25
+			call removeUnPhenotypedSNPData() to shrink the snp dataset by removing un-phenotyped ecotypes
 		2009-3-20
 			refactored out of run(), easy for MpiAssociation.py to call
 		"""
-		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(phenotype_fname, turn_into_integer=0)
 		header, strain_acc_list, category_list, data_matrix = read_data(input_fname)
 		snpData = SNPData(header=header, strain_acc_list=strain_acc_list, category_list=category_list,\
 						data_matrix=data_matrix)
+		
+		header_phen, strain_acc_list_phen, category_list_phen, data_matrix_phen = read_data(phenotype_fname, turn_into_integer=0)
+		snpData = cls.removeUnPhenotypedSNPData(snpData, header_phen, strain_acc_list_phen, data_matrix_phen, phenotype_method_id_ls)
 		
 		newSnpData, allele2index_ls = snpData.convertSNPAllele2Index(report)	#0 (NA) or -2 (untouched) is all converted to -2 as 0 is used to denote allele
 		newSnpData.header = snpData.header
