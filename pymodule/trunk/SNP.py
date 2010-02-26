@@ -625,6 +625,7 @@ class SNPData(object):
 	
 	def processRowIDColID(self):
 		"""
+		2010-2-25 restore the strain_acc_list if it's None.
 		2008-12-03
 			this function is called in __init__(). deal with the case that this class is initialized without any argument,
 				which means self.row_id_ls and self.col_id_ls are None.
@@ -646,6 +647,12 @@ class SNPData(object):
 				else:
 					row_id = self.strain_acc_list[i]
 				self.row_id_ls.append(row_id)
+		
+		if self.strain_acc_list is None and self.row_id_ls is not None:	#2010-2-25 restore the strain_acc_list if it's None.
+			if len(self.row_id_ls[0])==2:
+				self.strain_acc_list = [row[0] for row in self.row_id_ls]
+			else:
+				self.strain_acc_list = [row for row in self.row_id_ls]
 		
 		self.row_id2row_index = {}
 		if self.row_id_ls:	#2008-12-03
