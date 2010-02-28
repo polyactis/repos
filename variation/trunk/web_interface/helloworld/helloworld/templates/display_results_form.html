@@ -24,7 +24,7 @@ Phenotype Method: ${h.select('phenotype_method_id', selected_values=[], options=
 
 Analysis Method: ${h.select('analysis_method_id', selected_values=[], options=[], 
 	onchange="return handleResponse(['%s', '%s', '%s', '%s', '%s'], ['call_method_id', 'phenotype_method_id', 'analysis_method_id'])"%
-		(GWABaseURL, CallInfoBaseURL, PhenotypeHistImageBaseURL, CallPhenotypeQQImageBaseURL, ${config['app_conf']['GBrowseURLJS']}),
+		(GWABaseURL, CallInfoBaseURL, PhenotypeHistImageBaseURL, CallPhenotypeQQImageBaseURL, config['app_conf']['GBrowseURLJS']),
 	required=True)}<br />
 
 
