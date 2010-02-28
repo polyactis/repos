@@ -31,6 +31,8 @@ class DisplayresultsgeneController(BaseController):
 	
 	def snp_gene_association_types(self):
 		"""
+		2010-2-25 now understand why "filter_by(null_distribution_type_id=1).filter_by(results_type=1)."
+			because only this combination has meaning for stuff in table ResultsGene. 
 		2009-3-4
 			refactored out of index() so that form() could call it as well.
 		"""
@@ -45,6 +47,9 @@ class DisplayresultsgeneController(BaseController):
 			order_by(ScoreRankHistogramType.min_MAF).\
 			order_by(ScoreRankHistogramType.allow_two_sample_overlapping).\
 			all()
+			
+			# 2010-2-25 now understand why "filter_by(null_distribution_type_id=1).filter_by(results_type=1)."
+			# because only this combination has meaning for stuff in table ResultsGene. 
 		return rows
 	snp_gene_association_types = property(snp_gene_association_types)
 	
@@ -93,8 +98,10 @@ class DisplayresultsgeneController(BaseController):
 		type_id = request.params.get('type_id', type_id)
 		list_type_id = int(request.params.get('list_type_id', list_type_id))
 		max_rank = request.params.get('max_rank', max_rank)
-		if max_rank is not None:
+		if max_rank:
 			max_rank = int(max_rank)
+		else:
+			max_rank = 200
 		c.max_rank = max_rank
 		c.type = ScoreRankHistogramType.get(type_id)
 		c.list_type = model.Stock_250kDB.GeneListType.get(list_type_id)
