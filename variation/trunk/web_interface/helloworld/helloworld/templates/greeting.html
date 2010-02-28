@@ -35,19 +35,24 @@
 </p>
 
 <p>
-<a href=${h.url_for(controller='DisplayTopSNPTestRM', id=None)} target ="showframe">Display Candidate Over-Representation Data</a>
+<a href=${h.url_for(controller='DisplayTopSNPTestRM', id=None)} target ="showframe">Display Candidate-Gene Enrichment Data</a>
 </p>
+
+<p>
+<a href=${h.url_for(controller='DisplayTopSNPTestRM', action='form', id=None)} target ="showframe">Form to Display Candidate-Gene Enrichment Data</a>
+</p>
+
 
 <p>
 <a href=${h.url_for(controller='DisplayResultsGene', action='form', id=None)} target ="showframe">Form to Display Top SNP&Genes from GWAS</a>
 </p>
 
 <p>
-<a href=${h.url_for(controller='Phenotype', action='trend', id=None)} target ="showframe">Contrast Phenotypes</a>
+<a href=${h.url_for(controller='DisplayResultsGene', action='geneForm', id=None)} target ="showframe">Search GWAS Results by Gene Name</a>
 </p>
 
 <p>
-<a href=${h.url_for(controller='DisplayResultsGene', action='geneForm', id=None)} target ="showframe">Search through GWAS results by gene name</a>
+<a href=${h.url_for(controller='Phenotype', action='trend', id=None)} target ="showframe">Contrast Phenotypes</a>
 </p>
 
 <p>
