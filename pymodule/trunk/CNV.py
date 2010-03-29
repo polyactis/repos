@@ -4,7 +4,7 @@
 	module for CNV (copy-number-variation)-related functions & classes
 """
 
-import os, sys
+import os, sys, math
 sys.path.insert(0, os.path.expanduser('~/lib/python'))
 sys.path.insert(0, os.path.join(os.path.expanduser('~/script')))
 from ProcessOptions import  ProcessOptions
@@ -12,6 +12,7 @@ from utils import dict_map, importNumericArray, figureOutDelimiter, PassingData
 from SNP import GenomeWideResult, DataObject
 import fileinput
 from utils import getColName2IndexFromHeader
+import numpy
 
 def get_overlap_ratio(span1_ls, span2_ls):
 	"""
@@ -266,7 +267,8 @@ def rightWithinLeftAlsoEqualCmp(key1, key2):
 	else:  #key1 < key2
 		return -1
 
-def getCNVDataFromFileInGWA(input_fname_ls, array_id, max_amp=-0.33, min_amp=-0.33, min_size=50, min_no_of_probes=None, report=False):
+def getCNVDataFromFileInGWA(input_fname_ls, array_id, max_amp=-0.33, min_amp=-0.33, min_size=50, min_no_of_probes=None, \
+						report=False):
 	"""
 	2009-10-31
 		get deletion (below max_amp) or duplication (above min_amp) from files (output by RunGADA.py)
@@ -340,6 +342,108 @@ def getCNVDataFromFileInGWA(input_fname_ls, array_id, max_amp=-0.33, min_amp=-0.
 	setattr(gwr, 'ecotype_id', ecotype_id)
 	sys.stderr.write(" %s segments. Done.\n"%(len(gwr.data_obj_ls)))
 	return gwr
+
+def turnSegmentGWRIntoRBDict(gwr, extend_dist=20000, min_reciprocal_overlap=0.6, report=True):
+	"""
+	2010-3-17
+		extend_dist is used to enlarge the segments in each data_obj of gwr,
+	"""
+	sys.stderr.write("Turning a segment-gwr (start-stop style) into an RBDict ...")
+	from RBTree import RBDict	# 2010-1-26 RBDict is more efficiency than binary_tree.
+	rbDict = RBDict(cmpfn=leftWithinRightAlsoEqualCmp)
+	for data_obj in gwr.data_obj_ls:
+		start = max(data_obj.position-extend_dist, 0)
+		stop = data_obj.stop_position+extend_dist
+		segmentKey = CNVSegmentBinarySearchTreeKey(chromosome=data_obj.chromosome, span_ls=[start, stop], \
+													min_reciprocal_overlap=min_reciprocal_overlap)
+		rbDict[segmentKey] = data_obj
+	if report:
+		print "\tDepth of rbDict: %d" % (rbDict.depth())
+		print "\tOptimum Depth: %f (%d) (%f%% depth efficiency)" % (rbDict.optimumdepth(), math.ceil(rbDict.optimumdepth()),
+															  math.ceil(rbDict.optimumdepth()) / rbDict.depth())		
+	sys.stderr.write("%s objects converted.\n"%len(rbDict))
+	return rbDict
+
+def getProbeIntensityData(input_fname, data_type=numpy.float32):
+	"""
+	2010-3-18
+		copied from CNVNormalize.get_input()
+	2009-10-28
+		switch the default data_type to numpy.float32 to save memory on 64bit machines
+	2009-9-28
+		add argument data_type to specify data type of data_matrix.
+		default is numpy.float (numpy.float could be float32, float64, float128 depending on the architecture).
+			numpy.double is also fine.
+	2009-5-18
+		become classmethod
+	"""
+	sys.stderr.write("Getting tiling probe intensity data from %s ..."%input_fname)
+	import csv, subprocess
+	reader = csv.reader(open(input_fname), delimiter=figureOutDelimiter(input_fname))
+	commandline = 'wc -l %s'%input_fname
+	command_handler = subprocess.Popen(commandline, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+	stdout_content, stderr_content = command_handler.communicate()
+	if stderr_content:
+		sys.stderr.write('stderr of %s: %s \n'%(commandline, stderr_content))
+	no_of_rows = int(stdout_content.split()[0])-1
+	
+	header = reader.next()
+	no_of_cols = len(header)-3
+	data_matrix = numpy.zeros([no_of_rows, no_of_cols], data_type)
+	probe_id_ls = []
+	chr_pos_ls = []
+	i=0
+	for row in reader:
+		
+		probe_id = row[0]
+		probe_id_ls.append(probe_id)
+		chr_pos_ls.append(tuple(row[-2:]))
+		for j in range(1, 1+no_of_cols):
+			data_matrix[i][j-1] = float(row[j])
+		i += 1
+	sys.stderr.write("Done.\n")
+	return data_matrix, probe_id_ls, chr_pos_ls, header
+
+def fetchIntensityInGWAWithinRBDictGivenArrayIDFromTilingIntensity(tilingIntensityData, array_id, rbDict, gwr_name=None,\
+																min_reciprocal_overlap=0.6):
+	"""
+	2010-3-18
+		tilingIntensityData is of type SNPData.
+		
+	"""
+	sys.stderr.write("Getting intensity data within the chosen segments for array %s ..."%array_id)
+	col_index = tilingIntensityData.col_id2col_index.get(array_id)
+	if col_index is None:
+		sys.stderr.write("Error: No tiling intensity.\n")
+		return None
+	
+	from SNP import GenomeWideResult, DataObject
+	
+	gwr = GenomeWideResult(name=gwr_name)
+	# 2010-3-18 custom
+	gwr.array_id = array_id
+	#gwr.ecotype_id = array.maternal_ecotype_id
+	#gwr.nativename = ecotype_nativename
+	
+	genome_wide_result_id = id(gwr)
+		
+	no_of_rows = len(tilingIntensityData.row_id_ls)
+	for i in range(no_of_rows):
+		chr_pos = tilingIntensityData.row_id_ls[i]
+		chr, pos = map(int, chr_pos)
+		cnvSegmentKey = CNVSegmentBinarySearchTreeKey(chromosome=chr, span_ls=[pos],\
+													min_reciprocal_overlap=min_reciprocal_overlap)
+		if cnvSegmentKey in rbDict:
+			probeIntensity = tilingIntensityData.data_matrix[i][col_index]
+			data_obj = DataObject(chromosome=chr, position=pos, value=probeIntensity)
+			data_obj.comment = ''
+			data_obj.genome_wide_result_name = gwr_name
+			data_obj.genome_wide_result_id = genome_wide_result_id
+			gwr.add_one_data_obj(data_obj)
+	sys.stderr.write(" %s probes. Done.\n"%(len(gwr.data_obj_ls)))
+	return gwr
+	
+	
 
 # test program if this file is run
 if __name__ == "__main__":
