@@ -10,7 +10,7 @@ Examples:
 	ResultsMethod2ResultsByGene.py -e 2077 -o ~/panfs/db/results_by_gene/ -c -u yh -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -t ~/panfs/db/results/type_1/
 	
 	#ditto, but all results_method entries from call_method_id=17 and analysis_method_id=1
-	ResultsMethod2ResultsByGene.py -o ~/panfs/db/results_by_gene/ -c -u yh -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -t ~/panfs/db/results/type_1/ -p yh324 -l 17 -a 1
+	ResultsMethod2ResultsByGene.py -o ~/panfs/db/results_by_gene/ -c -u yh -s ~/panfs/250k/snps_context_g0_m20000 -m 20000 -t ~/panfs/db/results/type_1/ -p secret -l 17 -a 1
 	
 Description:
 	program to pull one results_method from db and convert its SNP-based score from a file into gene-based score.

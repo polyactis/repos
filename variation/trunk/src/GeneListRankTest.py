@@ -10,7 +10,7 @@ Examples:
 	GeneListRankTest.py -e 389 -l 1 -u yh -c -s /tmp/snps_context
 	
 	#gw-looping rank-sum test
-	GeneListRankTest.py -e 389 -l1 -u yh -j1 -y2 -s ./mnt2/panfs/250k/snps_context_g0_m20000  -p yh324 -b
+	GeneListRankTest.py -e 389 -l1 -u yh -j1 -y2 -s ./mnt2/panfs/250k/snps_context_g0_m20000  -p secret -b
 	
 	#run max-rank gw-looping test (test_type_id=8) to get the probability to observe the max rank of list 206 
 	./script/variation/src/GeneListRankTest.py -e 3471,3723 -l 206 -u yh -y8 -s .../snps_context_g0_m20000 -m 20000 -c -u yh

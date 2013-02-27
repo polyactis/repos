@@ -2,7 +2,7 @@
 """
 Examples:
 	#program to draw LD
-	DrawLD.py -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.2.tsv -o ./call_method_17_LD -u yh -p yh324 -f 1000000 -t 1000000
+	DrawLD.py -L /Network/Data/250k/tmp-yh/call_method_17_LD_m0.2.tsv -o ./call_method_17_LD -u yh -p secret -f 1000000 -t 1000000
 
 Description:
 	2008-10-01 program to draw LD

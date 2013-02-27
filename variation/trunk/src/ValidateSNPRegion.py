@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """  
 Examples:
-	ValidateSNPRegion.py -i Desktop/ftRegions.csv -o /Network/Data/250k/tmp-yh/ftRegions_sig.tsv -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -D /Network/Data/250k/tmp-yh/call_method_17_LD_pickle_dummy_n0.1_m20000 -u yh -p yh324
+	ValidateSNPRegion.py -i Desktop/ftRegions.csv -o /Network/Data/250k/tmp-yh/ftRegions_sig.tsv -j /Network/Data/250k/tmp-yh/at_gene_model_pickelf -D /Network/Data/250k/tmp-yh/call_method_17_LD_pickle_dummy_n0.1_m20000 -u yh -p secret
 
 Description:
 	2008-10-02

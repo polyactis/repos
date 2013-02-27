@@ -10,10 +10,10 @@ Examples:
 	DrawEcotypeOnMap.py -i /Network/Data/250k/tmp-yh/call_method_17_test.tsv -n /Network/Data/250k/tmp-yh/phenotype.tsv  -o ./banyan_fs/tmp/ecotype_map_with_phenotype_1_smartpca -y 1 -e /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.eval -f /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.pca.evec
 	
 	#ditto, but covering whole world
-	DrawEcotypeOnMap.py -i /Network/Data/250k/tmp-yh/call_method_17_test.tsv -n /Network/Data/250k/tmp-yh/phenotype.tsv  -o ./banyan_fs/tmp/ecotype_map_with_phenotype_1_smartpca_world -y 1 -e /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.eval -f /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.pca.evec -u yh -p yh324 -j -125,-38,180,66
+	DrawEcotypeOnMap.py -i /Network/Data/250k/tmp-yh/call_method_17_test.tsv -n /Network/Data/250k/tmp-yh/phenotype.tsv  -o ./banyan_fs/tmp/ecotype_map_with_phenotype_1_smartpca_world -y 1 -e /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.eval -f /Network/Data/250k/tmp-yh/eigenstrat/call_method_17_eigenstrat.pca.evec -u yh -p secret -j -125,-38,180,66
 	
 	#ditto but with 149SNP data
-	DrawEcotypeOnMap.py -i /Network/Data/250k/db/reference_dataset/stock_149SNP_y0000110101_mergedup.csv -n /Network/Data/250k/tmp-yh/phenotype.tsv  -o /Network/Data/250k/tmp-yh/eigenstrat/stock149_ecotype_map_with_phenotype_1_smartpca_world -y 1  -u yh -p yh324 -j -125,-38,180,66
+	DrawEcotypeOnMap.py -i /Network/Data/250k/db/reference_dataset/stock_149SNP_y0000110101_mergedup.csv -n /Network/Data/250k/tmp-yh/phenotype.tsv  -o /Network/Data/250k/tmp-yh/eigenstrat/stock149_ecotype_map_with_phenotype_1_smartpca_world -y 1  -u yh -p secret -j -125,-38,180,66
 	
 Description:
 	Program to plot ecotypes on a map. Color according to phenotype. also linking the map to a plot by PC1 and PC2 from PCA clustering.

@@ -8623,7 +8623,7 @@ if __name__ == '__main__':
 	hostname='papaya.usc.edu'
 	dbname='stock_250k'
 	db_user='yh'
-	db_passwd = 'yh324'
+	db_passwd = 'secret'
 
 	drivername='mysql'
 	schema = None

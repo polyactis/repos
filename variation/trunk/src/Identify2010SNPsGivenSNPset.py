@@ -203,7 +203,7 @@ def cmp192StrainsBorevitsAndNordborgData(borevitz_data_fname, nordborg_data_fnam
 hostname='papaya.usc.edu'
 dbname='at'
 import MySQLdb
-conn = MySQLdb.connect(db=dbname,host=hostname,user='yh', passwd='yh324')
+conn = MySQLdb.connect(db=dbname,host=hostname,user='yh', passwd='secret')
 curs = conn.cursor()
 accession_table = 'accession'
 sequence_table = 'sequence'
